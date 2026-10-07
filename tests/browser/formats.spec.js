@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 
 const english = JSON.parse(await readFile(new URL('../../patterns/formats/examples/en.json', import.meta.url)));
 const french = JSON.parse(await readFile(new URL('../../patterns/formats/examples/fr.json', import.meta.url)));
-const formats = ['text', 'slides', 'audio', 'outline', 'quiz'];
+const formats = ['text', 'slides', 'audio', 'quiz'];
 async function open(page, path = '/formats/en.html') {
   await page.goto(path);
   await expect(page.locator('[data-lp-formats]')).toBeVisible();
@@ -24,6 +24,88 @@ async function observe(page) {
       for (const record of records) window.lpAnnouncements.push(record.target.textContent);
     });
     window.lpObserver.observe(document.querySelector('[role="status"]'), { childList: true, characterData: true, subtree: true });
+  });
+}
+
+for (const [lang, labels] of [['en', ['Text', 'Slides', 'Audio script', 'Quiz']], ['fr', ['Texte', 'Diapos', 'Script audio', 'Quiz']]]) {
+  test(`owner fix: four learner formats (${lang})`, async ({ page }) => {
+    await open(page, `/formats/${lang}.html`);
+    const buttons = page.getByRole('group').getByRole('button');
+    await expect(buttons).toHaveCount(4);
+    await expect(buttons).toHaveText(labels);
+    await expect(page.locator('[data-lp-view="outline"]')).toHaveCount(0);
+  });
+
+  for (const width of [1280, 390, 320]) for (const spacing of [false, true]) {
+    test(`owner fix: switcher fits one row (${lang}, ${width}px, spacing ${spacing})`, async ({ page, browserName }) => {
+      await page.setViewportSize({ width, height: 900 }); await open(page, `/formats/${lang}.html`);
+      await page.evaluate(() => document.fonts.ready);
+      if (spacing) await page.addStyleTag({ content: '*{line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important}p{margin-bottom:2em!important}' });
+      const boxes = await page.locator('[data-lp-format]').evaluateAll(buttons => {
+        const card = buttons[0].closest('[data-lp-pattern]').getBoundingClientRect();
+        return buttons.map(button => {
+          const box = button.getBoundingClientRect();
+          const label = button.querySelector('span');
+          const words = [...label.textContent.matchAll(/\S+/g)].map(match => {
+            const range = document.createRange(); range.setStart(label.firstChild, match.index); range.setEnd(label.firstChild, match.index + match[0].length);
+            const rects = [...range.getClientRects()];
+            return { word: match[0], lines: rects.length, inside: rects.every(rect => rect.left >= box.left && rect.right <= box.right && rect.top >= box.top && rect.bottom <= box.bottom) };
+          });
+          return { top: box.top, iconTop: button.querySelector('svg').getBoundingClientRect().top, labelTop: label.getBoundingClientRect().top, inside: box.left >= card.left && box.right <= card.right, overflow: button.scrollWidth > button.clientWidth + 1 || button.scrollHeight > button.clientHeight + 1, words };
+        });
+      });
+      expect(new Set(boxes.map(box => box.top)).size).toBe(1);
+      if (width <= 390) {
+        expect(new Set(boxes.map(box => box.iconTop)).size).toBe(1);
+        expect(new Set(boxes.map(box => box.labelTop)).size).toBe(1);
+      }
+      for (const box of boxes) {
+        expect(box.inside).toBe(true);
+        expect(box.overflow).toBe(false);
+        for (const word of box.words) { expect(word.lines, word.word).toBe(1); expect(word.inside, word.word).toBe(true); }
+      }
+      if (process.env.LP_SHOTS && browserName === 'chromium') await page.screenshot({ path: `${process.env.LP_SHOTS}/${lang}-${width}${spacing ? '-spacing' : ''}.png`, fullPage: true });
+    });
+  }
+
+  test(`owner fix: selected focus merges with its border and no ancestor clips focus (${lang})`, async ({ page, browserName }) => {
+    await page.setViewportSize({ width: 390, height: 900 }); await open(page, `/formats/${lang}.html`);
+    for (const format of formats) {
+      const target = button(page, format);
+      await target.focus(); await page.keyboard.press('Enter');
+      await expect(target).toBeFocused(); await expect(target).toHaveAttribute('aria-pressed', 'true');
+      await expect(target).toHaveCSS('outline-width', '2px');
+      await expect(target).toHaveCSS('outline-style', 'solid');
+      await expect(target).toHaveCSS('outline-offset', '0px');
+      await expect(target).toHaveCSS('border-top-width', '2px');
+      const clipped = await target.evaluate(button => {
+        const css = getComputedStyle(button), box = button.getBoundingClientRect();
+        const extent = Math.max(0, parseFloat(css.outlineWidth) + parseFloat(css.outlineOffset));
+        const clipped = [];
+        for (let ancestor = button.parentElement; ancestor; ancestor = ancestor.parentElement) {
+          const style = getComputedStyle(ancestor), rect = ancestor.getBoundingClientRect();
+          const clipsX = style.overflowX !== 'visible' || /paint|strict|content/.test(style.contain);
+          const clipsY = style.overflowY !== 'visible' || /paint|strict|content/.test(style.contain);
+          if (clipsX && (box.left - extent < rect.left + ancestor.clientLeft || box.right + extent > rect.left + ancestor.clientLeft + ancestor.clientWidth)
+            || clipsY && (box.top - extent < rect.top + ancestor.clientTop || box.bottom + extent > rect.top + ancestor.clientTop + ancestor.clientHeight)) clipped.push(ancestor.className);
+        }
+        return clipped;
+      });
+      expect(clipped).toEqual([]);
+      await expect(target).toHaveCSS('outline-color', await target.evaluate(el => getComputedStyle(el).borderTopColor));
+      if (format === 'slides' && process.env.LP_SHOTS && browserName === 'chromium') {
+        await expect(page.locator('.lp-formats-exiting')).toHaveCount(0);
+        await page.screenshot({ path: `${process.env.LP_SHOTS}/${lang}-390-focused-slides.png`, fullPage: true });
+      }
+    }
+    // An unselected format keeps the separated shared focus ring, inside the group's padding.
+    await button(page, 'text').focus();
+    await expect(button(page, 'text')).toHaveCSS('outline-offset', '2px');
+    const room = await button(page, 'text').evaluate(el => {
+      const box = el.getBoundingClientRect(), group = el.parentElement.getBoundingClientRect();
+      return [box.left - group.left, box.top - group.top, group.bottom - box.bottom];
+    });
+    for (const space of room) expect(space).toBeGreaterThanOrEqual(4);
   });
 }
 
@@ -47,7 +129,7 @@ test('keyboard switching preserves section, announces once, keeps focus and save
   }
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([
     'Showing Slides, section 1.', 'Showing Slides, section 2.', 'Showing Text, section 2.',
-    'Showing Slides, section 2.', 'Showing Audio script, section 2.', 'Showing Outline, section 2.', 'Showing Quiz, section 2.'
+    'Showing Slides, section 2.', 'Showing Audio script, section 2.', 'Showing Quiz, section 2.'
   ]);
   await expect(point(page).getByText('There is no quiz question for this section. Review the outline, then choose Next.')).toBeVisible();
   await page.evaluate(() => { window.lpSaved.section = 0; });
@@ -123,7 +205,7 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
           await expect(view.locator('[data-lp-script-line]')).toHaveText([content.points[i].title, ...content.points[i].sentences, ...(content.points[i].example ?? [])]);
           await expect(view.getByRole('button')).toBeDisabled();
         }
-        if (format === 'slides' || format === 'outline') await expect(view.locator('.lp-formats-points > li')).toHaveText([...content.points[i].outline, ...(content.points[i].exampleOutline ? [content.points[i].exampleOutline] : [])]);
+        if (format === 'slides') await expect(view.locator('.lp-formats-points > li')).toHaveText([...content.points[i].outline, ...(content.points[i].exampleOutline ? [content.points[i].exampleOutline] : [])]);
         await scan(page);
         if (format === 'quiz' && await question(page).count()) {
           await question(page).getByRole('button').click(); await scan(page);
@@ -139,7 +221,7 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     await expect(page.locator('[data-lp-summary]')).toContainText(content.summary);
   });
 
-  test(`no JavaScript shows the whole text lesson (${lang})`, async ({ browser }) => {
+  test(`no JavaScript shows the whole text lesson (${lang})`, async ({ browser, browserName }) => {
     const context = await browser.newContext({ javaScriptEnabled: false });
     const page = await context.newPage(); await page.goto(`/formats/${lang}.html`);
     await expect(page.locator('[data-lp-point]:visible')).toHaveCount(3);
@@ -150,7 +232,12 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
       if (authored.example) await expect(section.locator('.lp-quote').first()).toHaveText(authored.example.join(' '));
     }
     await expect(page.getByRole('button')).toHaveCount(0); await expect(page.getByRole('status')).toHaveText('');
-    await expect(page.locator('[data-lp-summary]')).toContainText(content.summary); await context.close();
+    await expect(page.locator('[data-lp-summary]')).toContainText(content.summary);
+    if (process.env.LP_SHOTS && browserName === 'chromium') for (const width of [1280, 390, 320]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.screenshot({ path: `${process.env.LP_SHOTS}/${lang}-${width}-no-js.png`, fullPage: true });
+    }
+    await context.close();
     const audit = await browser.newContext(); await audit.route('**/patterns/formats/enhance.js', route => route.abort());
     const auditPage = await audit.newPage(); await auditPage.goto(`/formats/${lang}.html`); await scan(auditPage); await audit.close();
   });
@@ -183,7 +270,7 @@ test('valid saved place restores without announcing or replacing server elements
   await expect(page.locator('[data-lp-summary]')).toBeVisible();
 });
 
-for (const saved of [{ format: 'video', section: 1 }, { format: 'slides', section: 3 }, { format: 'quiz', section: 0.5 }, { format: 'text', section: 0, extra: true }]) {
+for (const saved of [{ format: 'outline', section: 1 }, { format: 'video', section: 1 }, { format: 'slides', section: 3 }, { format: 'quiz', section: 0.5 }, { format: 'text', section: 0, extra: true }]) {
   test(`invalid saved place is ignored: ${JSON.stringify(saved)}`, async ({ page }) => {
     await page.addInitScript(value => { window.lpSeed = value; }, saved); await open(page);
     await expect(point(page)).toHaveAttribute('data-lp-point', 'stonewalling'); await expect(button(page, 'text')).toHaveAttribute('aria-pressed', 'true');
@@ -244,8 +331,12 @@ test('forced colours keeps pressed state, radio choices, marks and focus visible
   await question(page).getByRole('radio').nth(0).check(); await question(page).getByRole('button').click();
   await expect(question(page).locator('[data-lp-mark]')).toHaveCSS('border-top-style', 'double');
   await expect(question(page).locator('[data-lp-mark-word]:visible')).toHaveText('Not quite');
-  await button(page, 'outline').focus(); await expect(button(page, 'outline')).toHaveCSS('outline-width', '2px');
+  await button(page, 'slides').focus(); await expect(button(page, 'slides')).toHaveCSS('outline-width', '2px');
   await scan(page);
+  if (process.env.LP_SHOTS) for (const width of [1280, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.screenshot({ path: `${process.env.LP_SHOTS}/en-${width}-forced-colours.png`, fullPage: true });
+  }
 });
 
 for (const width of [1280, 390]) {
@@ -254,7 +345,7 @@ for (const width of [1280, 390]) {
     await expect(page.locator('.lp-scene-label')).toHaveCount(0);
     await expect(page.locator('.lp-scene h3')).toHaveText(english.title);
     await expect(page.locator('.lp-scene svg')).toHaveAttribute('aria-hidden', 'true');
-    await expect(page.locator('[data-lp-format] svg')).toHaveCount(5);
+    await expect(page.locator('[data-lp-format] svg')).toHaveCount(4);
     for (const format of formats) {
       await button(page, format).click(); await expect(button(page, format)).toHaveCSS('border-top-width', '2px');
       await expect(button(page, format)).toHaveCSS('background-color', 'rgb(238, 242, 253)');
@@ -264,7 +355,7 @@ for (const width of [1280, 390]) {
   });
 }
 
-test('formats have article, slide, sample player and nested outline layouts', async ({ page }) => {
+test('formats have article, slide and sample player layouts', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 }); await open(page);
   await expect(point(page).locator('[data-lp-view="text"]')).toHaveClass(/lp-formats-article/);
   await expect(point(page).locator('[data-lp-view="text"] p').first()).toHaveCSS('font-size', '19px');
@@ -285,19 +376,14 @@ test('formats have article, slide, sample player and nested outline layouts', as
   await expect(audio.locator('.lp-formats-track')).toBeVisible();
   await expect(audio.locator('time')).toHaveCount(3);
   await expect(audio.locator('time').first()).toHaveText('0:00');
-  await button(page, 'outline').click();
-  const outline = point(page).locator('[data-lp-view="outline"]');
-  await expect(outline.locator('.lp-formats-outline > li > :first-child')).toHaveText(english.points.map(p => p.title));
-  await expect(outline.locator('ol ol')).toHaveCount(1);
-  await expect(outline.locator('[aria-current="step"] .lp-formats-points > li')).toHaveText(english.points[1].outline);
 });
 
-for (const width of [1280, 390]) test(`segmented group wraps and navigation slots align at ${width}px`, async ({ page }) => {
+for (const width of [1280, 390]) test(`segmented group stays on one row and navigation slots align at ${width}px`, async ({ page }) => {
   await page.setViewportSize({ width, height: 900 }); await open(page);
   const switcher = page.locator('[data-lp-formats]');
   await expect(switcher).toHaveCSS('border-top-width', '1px');
   const tops = await page.locator('[data-lp-format]').evaluateAll(els => els.map(el => Math.round(el.getBoundingClientRect().top)));
-  expect(new Set(tops).size).toBe(width === 390 ? 2 : 1);
+  expect(new Set(tops).size).toBe(1);
   const initialNext = await page.locator('[data-lp-next]').boundingBox();
   await page.locator('[data-lp-next]').click();
   const previous = await page.locator('[data-lp-previous]').boundingBox();
@@ -324,7 +410,7 @@ test('format switching fades opacity for 160ms and stops under reduced motion an
   await button(page, 'audio').click(); await expect(lesson).toHaveCSS('opacity', '1');
   expect(await lesson.evaluate(el => el.getAnimations({ subtree: true }).length)).toBe(0);
   await page.emulateMedia({ reducedMotion: 'no-preference' });
-  await button(page, 'outline').click();
+  await button(page, 'text').click();
   await page.evaluate(() => window.lpInstances[0].destroy());
   await expect(page.locator('[data-lp-point]:visible')).toHaveCount(3);
   await expect(lesson).toHaveCSS('opacity', '1');
@@ -344,20 +430,20 @@ test('rapid switches, navigation and a reduced-motion change cancel the outgoing
   expect(overlap).toEqual({ count: 1, inert: true, hidden: 'true' });
   await expect(point(page).getByRole('heading')).toHaveText(english.points[0].title);
   await page.evaluate(async () => {
-    document.querySelector('[data-lp-format="outline"]').click();
+    document.querySelector('[data-lp-format="text"]').click();
     await Promise.resolve();
     document.querySelector('[data-lp-next]').click();
   });
   await expect(page.locator('.lp-formats-exiting')).toHaveCount(0);
   await expect(point(page)).toHaveAttribute('data-lp-point', 'problem');
-  await expect(point(page).locator('[data-lp-view="outline"]')).toBeVisible();
+  await expect(point(page).locator('[data-lp-view="text"]')).toBeVisible();
   await page.evaluate(() => document.querySelector('[data-lp-format="quiz"]').click());
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await expect(page.locator('.lp-formats-exiting')).toHaveCount(0);
   expect(await page.locator('.lp-formats-lesson').evaluate(el => el.getAnimations({ subtree: true }).length)).toBe(0);
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([
     'Showing Slides, section 1.', 'Showing Audio script, section 1.',
-    'Showing Outline, section 1.', 'Showing Outline, section 2.', 'Showing Quiz, section 2.'
+    'Showing Text, section 1.', 'Showing Text, section 2.', 'Showing Quiz, section 2.'
   ]);
 });
 
@@ -382,7 +468,7 @@ test('a one-section lesson has two empty navigation slots', async ({ page }) => 
 test('switching without the stylesheet or with an invalid fade token keeps the current view usable', async ({ page }) => {
   await open(page);
   const errors = []; page.on('pageerror', error => errors.push(error.message));
-  for (const [token, format] of [['invalid', 'slides'], ['0ms', 'audio'], ['-1ms', 'outline']]) {
+  for (const [token, format] of [['invalid', 'slides'], ['0ms', 'audio'], ['-1ms', 'text']]) {
     await page.addStyleTag({ content: `.lp-formats-lesson { --lp-formats-fade-duration: ${token}; }` });
     await button(page, format).evaluate(el => el.click());
     await expect(point(page).getByRole('heading')).toHaveText(english.points[0].title);

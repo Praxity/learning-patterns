@@ -8,6 +8,20 @@ import { strings } from './strings.js';
 const content = JSON.parse(await readFile(new URL('./examples/en.json', import.meta.url)));
 const french = JSON.parse(await readFile(new URL('./examples/fr.json', import.meta.url)));
 const schema = JSON.parse(await readFile(new URL('./content.schema.json', import.meta.url)));
+const readme = await readFile(new URL('./README.md', import.meta.url), 'utf8');
+const index = await readFile(new URL('../../README.md', import.meta.url), 'utf8');
+
+test('owner fix: opening and catalogue describe the same section and keeping your place', () => {
+  const summary = 'The same section as text, slides, an audio script or a quiz. Switching keeps your place.';
+  assert.ok(readme.includes(`summary: ${summary}\n`));
+  assert.ok(readme.includes(`# Switch formats\n\n${summary}\n`));
+  assert.ok(index.includes(`| [Switch formats](patterns/formats/README.md) | ${summary} |`));
+});
+
+test('owner fix: the retired outline format is refused and saved outline state is ignored', () => {
+  assert.throws(() => switchFormat({ format: 'text', section: 1 }, 'outline'), /Invalid format/);
+  assert.equal(validateState(content, { format: 'outline', section: 1 }), null);
+});
 
 // Same schema subset as review-prompts, plus optional fields, booleans and enum.
 function matches(value, rule) {
@@ -48,10 +62,10 @@ test('place keeping clamps demo indices and moves without mutating state', () =>
   assert.equal(movePlace(0, { set: 100 }, 3), 2); assert.equal(movePlace(0, { set: -1 }, 3), 0);
   assert.throws(() => movePlace(0, 'jump', 3), /action/);
   const saved = { format: 'text', section: 2 };
-  assert.deepEqual(FORMATS, ['text', 'slides', 'audio', 'outline', 'quiz']);
+  assert.deepEqual(FORMATS, ['text', 'slides', 'audio', 'quiz']);
   for (const format of FORMATS) assert.deepEqual(switchFormat(saved, format), { format, section: 2 });
   assert.deepEqual(saved, { format: 'text', section: 2 });
-  for (const format of ['video', 'toString', null]) assert.throws(() => switchFormat(saved, format), /format/);
+  for (const format of ['outline', 'video', 'toString', null]) assert.throws(() => switchFormat(saved, format), /format/);
 });
 
 test('quiz returns only the selected authored feedback and rejects invalid indices', () => {
@@ -118,7 +132,7 @@ test('render supplies the complete text baseline, scene, hidden controls and one
   assert.equal((markup.match(/data-lp-slide-number/g) || []).length, 3);
   assert.match(markup, /data-lp-slide-number>1 \/ 3</);
   assert.match(markup, /<time datetime="PT0S">0:00<\/time>/);
-  assert.match(markup, /<ol class="lp-formats-outline">/);
+  assert.doesNotMatch(markup, /data-lp-view="outline"|data-lp-format="outline"/);
 });
 
 test('all authored text and attributes are escaped, ids are prefixed and bilingual strings agree', () => {

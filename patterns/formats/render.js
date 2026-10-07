@@ -3,13 +3,13 @@ import { icons } from '../../lib/icons.js';
 import { FORMATS, spokenLines, validateContent } from './logic.js';
 
 /** @type {Record<import('./logic.js').Format, keyof typeof icons>} */
-const formatIcons = { text: 'file-text', slides: 'presentation', audio: 'headphones', outline: 'list-details', quiz: 'list-check' };
+const formatIcons = { text: 'file-text', slides: 'presentation', audio: 'headphones', quiz: 'list-check' };
 const SAMPLE_SECONDS = 80;
 /** @param {number} seconds @returns {string} */
 function timestamp(seconds) { return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`; }
 /** @param {import('./logic.js').Point} point @returns {string} */
-function outline(point, tag = 'ul') {
-  return `<${tag} class="lp-formats-points">${[...point.outline, ...(point.exampleOutline ? [point.exampleOutline] : [])].map(line => `<li>${html(line)}</li>`).join('')}</${tag}>`;
+function outline(point) {
+  return `<ul class="lp-formats-points">${[...point.outline, ...(point.exampleOutline ? [point.exampleOutline] : [])].map(line => `<li>${html(line)}</li>`).join('')}</ul>`;
 }
 /** @param {import('./logic.js').Content} content
  * @param {import('./strings.js').Strings} strings
@@ -50,7 +50,6 @@ export function render(content, strings, { id, lang }) {
         return `<li><time datetime="PT${seconds}S">${timestamp(seconds)}</time>${n === 0 ? '<h4 class="lp-stem"' : '<span'} data-lp-script-line>${html(line)}${n === 0 ? '</h4>' : '</span>'}</li>`;
       }).join('')}</ol>
     </div>
-    <div data-lp-view="outline" hidden><ol class="lp-formats-outline">${content.points.map((section, n) => `<li${n === index ? ' aria-current="step"' : ''}>${n === index ? `<h4 class="lp-stem">${html(section.title)}</h4>${outline(section, 'ol')}` : `<span>${html(section.title)}</span>`}</li>`).join('')}</ol></div>
     <div class="lp-stack" data-lp-view="quiz" hidden>
       <h4 class="lp-stem">${html(point.title)}</h4>
       ${content.quiz.some(question => question.section === point.id) ? content.quiz.map((question, q) => question.section !== point.id ? '' : `<div class="lp-stack" data-lp-question="${q}">

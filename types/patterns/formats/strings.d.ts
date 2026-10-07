@@ -4,7 +4,6 @@ export namespace strings {
         let text: string;
         let slides: string;
         let audio: string;
-        let outline: string;
         let quiz: string;
         let place: string;
         let showing: string;
@@ -30,8 +29,6 @@ export namespace strings {
         export { slides_1 as slides };
         let audio_1: string;
         export { audio_1 as audio };
-        let outline_1: string;
-        export { outline_1 as outline };
         let quiz_1: string;
         export { quiz_1 as quiz };
         let place_1: string;
