@@ -28,8 +28,6 @@ Use it for a small refresher where authors can justify skipping a section after 
 
 Instruction that helps novices can hinder learners who already know the material, which is called the expertise reversal effect ([Kalyuga et al., 2003](https://doi.org/10.1207/S15326985EP3801_4)). Short diagnostic tests can estimate what a learner knows. In one set of experiments a rapid test correlated up to 0.92 with longer tests and was used to choose instruction ([Kalyuga and Sweller, 2004](https://doi.org/10.1037/0022-0663.96.3.558)). Crediting prerequisites from a correct advanced answer follows knowledge space theory, the basis of ALEKS ([Doignon and Falmagne, 1985](https://doi.org/10.1016/S0020-7373(85)80031-6)), and Math Academy's diagnostic ([Math Academy](https://mathacademy.com/how-our-ai-works)). Mastery learning programs, which ask for evidence of mastery before moving on, improved exam performance in a meta-analysis of 108 evaluations ([Kulik, Kulik and Bangert-Drowns, 1990](https://doi.org/10.3102/00346543060002265)). One or two multiple-choice answers are thin evidence, since a guess can be right, so authors should check that each question covers what it credits. This check and its prerequisite links have not been tested with learners.
 
-Logic unit tested. Not tried with learners.
-
 ## Accessibility
 
 Meets the shared baseline in the root README.

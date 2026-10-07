@@ -27,8 +27,6 @@ Use it when a short lesson benefits from different ways to read, review or pract
 
 Matching instruction to a learner's supposed learning style is not supported by evidence ([Pashler et al., 2008](https://doi.org/10.1111/j.1539-6053.2009.01038.x)), and a later test found no benefit from matching audio or text to a stated preference ([Rogowsky, Calhoun and Tallal, 2015](https://doi.org/10.1037/a0037478)). This pattern offers choice and access instead, with no style assessment. Giving learners control in educational technology had an overall effect near zero in a meta-analysis ([Karich, Burns and Maki, 2014](https://doi.org/10.3102/0034654314526064)), so choice alone should not be expected to raise scores. The quiz format adds retrieval practice, which has strong support ([Roediger and Karpicke, 2006](https://doi.org/10.1111/j.1467-9280.2006.01693.x)). Google's Learn Your Way, which offers several formats along with personalised content and quizzes, beat a PDF reader on a retention test in a study of 60 students, but that comparison does not isolate format switching ([Google Research, 2025](https://research.google/blog/learn-your-way-reimagining-textbooks-with-generative-ai/)). Switching formats has not been tested on its own.
 
-Logic unit tested. Not tried with learners.
-
 ## Accessibility
 
 Meets the shared baseline in the root README.

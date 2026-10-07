@@ -27,8 +27,6 @@ Use it when learners can judge their own answers against a short list of clear p
 
 Checking an answer against a list of its key ideas is a tested technique. Adults who checked their own recall this way judged their learning more accurately and did better on a later test ([Rawson, O'Neil and Dunlosky, 2011](https://doi.org/10.1037/a0024749)), and showing the correct answer reduced middle school students' overconfidence about wrong answers ([Lipko et al., 2009](https://doi.org/10.1037/a0017599)). Self-assessment against explicit criteria is meant for improving a draft, not for grading it ([Andrade and Valtcheva, 2009](https://doi.org/10.1080/00405840802577544)), and a meta-analysis of 175 studies found that it improved academic performance ([Yan et al., 2022](https://doi.org/10.1016/j.edurev.2022.100484)). Explanations helped more than right-or-wrong feedback in computer-based learning ([Van der Kleij, Feskens and Eggen, 2015](https://doi.org/10.3102/0034654314564881)), so each missing part comes with a hint. The model answer appears only after an attempt, because easy access to answers can raise practice scores without lasting learning ([Bastani et al., 2025](https://doi.org/10.1073/pnas.2422633122)). This sequence has not been tested as a whole, and ticks record the learner's own judgment.
 
-Logic unit tested. Not tried with learners.
-
 ## Accessibility
 
 Meets the shared baseline in the root README.

@@ -1,7 +1,7 @@
 ---
 title: Write the wrong options
 title_fr: Rédigez les mauvaises réponses
-summary: Answer a question first, then build wrong options and compare their tags with the author's.
+summary: Answer a question, write wrong options and the misconception behind each, then compare with the author's.
 section: question
 ai: no
 offline: yes
@@ -27,8 +27,6 @@ Use it when learners can recall the topic and name common misconceptions. Author
 ## Evidence
 
 Producing an answer yourself improves memory more than reading it, with an average effect of 0.40 standard deviations across 86 studies ([Bertsch et al., 2007](https://doi.org/10.3758/BF03193441)). Writing questions about a lecture helped university students recall it a week later about as much as answering practice questions ([Ebersbach, Feierabend and Nazari, 2020](https://doi.org/10.1002/acp.3639)), and students who wrote multiple-choice questions for their peers tended to do better in exams, though those studies are correlational ([Hardy et al., 2014](https://doi.org/10.1080/09500693.2014.916831)). Tying each wrong option to a named misconception follows diagnostic test design ([Treagust, 1988](https://doi.org/10.1080/0950069880100204); [Eedi](https://www.eedi.com/news/from-wrong-answers-to-real-insights-how-we-used-a-kaggle-challenge-to-map-student-misconceptions)). Texts that state a misconception and explain why it is wrong improved learning in a meta-analysis ([Schroeder and Kucera, 2022](https://doi.org/10.1007/s10648-021-09656-z)). This pattern shows the right answer but does not refute each misconception. Writing wrong options has not been tested as a learning activity.
-
-Logic unit tested. Not tried with learners.
 
 ## Accessibility
 

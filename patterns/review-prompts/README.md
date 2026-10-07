@@ -26,8 +26,6 @@ Use it for short readings with facts or actions worth recalling later. Write one
 
 Trying to recall what you read improves later retention more than rereading ([Roediger and Karpicke, 2006](https://doi.org/10.1111/j.1467-9280.2006.01693.x)), and practice testing was one of only two techniques a major review rated high utility ([Dunlosky et al., 2013](https://doi.org/10.1177/1529100612453266)). Spacing reviews out also helps, and the best gap grows with how long you need to remember ([Cepeda et al., 2006](https://doi.org/10.1037/0033-2909.132.3.354)). Questions placed inside a text help readers learn what the questions ask about, with weaker effects on other material ([Hamaker, 1986](https://doi.org/10.3102/00346543056002212)). Quantum Country's mnemonic medium, which embeds spaced review questions in an essay, is the design precedent ([Matuschak and Nielsen, 2019](https://numinous.productions/ttft/)). Students who judge their recall too generously stop studying too soon ([Dunlosky and Rawson, 2012](https://doi.org/10.1016/j.learninstruc.2011.08.003)), so the answer is shown before the learner rates it. The review intervals are defaults, and this pattern has not been tested for delayed recall.
 
-Logic unit tested. Not tried with learners.
-
 ## Accessibility
 
 Meets the shared baseline in the root README.

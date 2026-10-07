@@ -155,7 +155,11 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
 .lp-choice > input[type="checkbox"] { grid-column: 1; grid-row: 1; margin-block-start: 1px; }
 /* Everything else (the text, then any feedback) stacks in the text column, one row each. */
 .lp-choice > :not(input, .lp-choice-mark, .lp-choice-key) { grid-column: 2; min-inline-size: 0; }
-.lp-choice > span:not(.lp-choice-mark, .lp-choice-key) { padding-block-start: 2px; }
+/* The key letter sits on the same baseline as the first line of text. Centring the key box on the
+   line looked high, because lowercase text sits below the line's centre (owner, 2026-10-07). */
+.lp-choice:has(> input[type="radio"])::before,
+.lp-choice > .lp-choice-key,
+.lp-choice > :not(input, .lp-choice-mark, .lp-choice-key) { align-self: baseline; }
 /* A key without a radio, for read-only rows such as a question preview. */
 .lp-choice > .lp-choice-key { display: grid; grid-column: 1; grid-row: 1; place-items: center; inline-size: 26px; block-size: 26px; border: 1px solid var(--lp-line); border-radius: 6px; color: var(--lp-ink-2); background: var(--lp-paper); font-size: 13px; font-weight: 600; }
 .lp-choice[data-lp-mark="correct"] > .lp-choice-key { color: var(--lp-on-accent); background: var(--lp-success-ink); border-color: var(--lp-success-ink); }

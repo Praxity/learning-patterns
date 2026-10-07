@@ -21,7 +21,7 @@ Copy its folder under `patterns/` and the shared `lib/` folder. Keep their relat
 | [Highlight the passage](patterns/highlight/README.md) | Mark the parts of a passage that answer a question, or its key ideas, then compare with the author's choices in place. |
 | [Your first answer comes back](patterns/first-answer/README.md) | Save an answer at the start of a course and compare it with a new one at the end. |
 | [Test out of sections](patterns/test-out/README.md) | A short placement check marks which sections of a course you can skip; passing an advanced section credits the sections it builds on. |
-| [Write the wrong options](patterns/write-distractors/README.md) | Write wrong options for a question, tag the misconception behind each, and compare with the author's. |
+| [Write the wrong options](patterns/write-distractors/README.md) | Answer a question, write wrong options and the misconception behind each, then compare with the author's. |
 | [Switch formats](patterns/formats/README.md) | The same section as text, slides, an audio script or a quiz. Switching keeps your place. |
 
 ## Look and theme tokens

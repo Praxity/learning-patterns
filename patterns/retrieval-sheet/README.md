@@ -28,8 +28,6 @@ It also suits learners with patchy or no internet. Print the sheets, or save the
 
 Recalling studied prose improved retention two days and one week later, compared with restudying ([Roediger and Karpicke, 2006](https://doi.org/10.1111/j.1467-9280.2006.01693.x)), and a meta-analysis found that practice tests beat restudying and other study conditions ([Adesope, Trevisan and Sundararajan, 2017](https://doi.org/10.3102/0034654316689306)). Recall tests, like this sheet, produced larger benefits than recognition tests ([Rowland, 2014](https://doi.org/10.1037/a0037559)). The best gap between study and review grows with how long you need to remember ([Cepeda et al., 2008](https://doi.org/10.1111/j.1467-9280.2008.02209.x)), and the seven-day default suits remembering for weeks. The answers on the back give feedback right after each attempt. The weak point is use, since students tend to study when deadlines push them ([Hartwig and Dunlosky, 2012](https://doi.org/10.3758/s13423-011-0181-y)) and choosing a date sends no reminder. This sheet has not been tested with learners.
 
-Logic unit tested. Not tried with learners.
-
 ## Accessibility
 
 Meets the shared baseline in the root README.
