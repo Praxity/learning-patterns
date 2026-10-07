@@ -55,7 +55,7 @@ test('boundaries and selecting the current format are inert and preserve focus',
   await open(page); await observe(page);
   const previous = page.locator('[data-lp-previous]'), next = page.locator('[data-lp-next]');
   await previous.focus(); await page.keyboard.press('Enter'); await expect(previous).toBeFocused();
-  await button(page, 'text').click(); await expect(button(page, 'text')).toBeFocused();
+  await button(page, 'text').focus(); await page.keyboard.press('Enter'); await expect(button(page, 'text')).toBeFocused();
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
   expect(await page.evaluate(() => window.lpSaved)).toBeUndefined();
   await next.click(); await next.click(); await observe(page);
