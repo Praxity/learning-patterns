@@ -101,10 +101,10 @@ for (const width of [1280, 390]) {
       await expect(box).toHaveCSS('border-radius', '16px');
       await expect(box).toHaveCSS('padding-top', width === 1280 ? '24px' : '18px');
       await expect(box.locator('.lp-box')).toHaveCount(0);
-      await expect(box.locator(':scope > .lp-label')).toHaveText('Check yourself');
+      await expect(box.locator(':scope > .lp-label')).toHaveText('Answer in your head first');
       await expect(box.locator(':scope > .lp-label svg')).toHaveAttribute('aria-hidden', 'true');
       await expect(box.locator(':scope > .lp-stem')).toHaveText(authored.question);
-      await expect(box.locator(':scope > .lp-small')).toHaveText('Answer in your head before opening the answer.');
+      await expect(box.locator(':scope > .lp-small')).toHaveCount(0);
       await expect(box.locator(':scope > details.lp-details > summary')).toHaveText('Show the answer');
       expect(await box.evaluate(el => el.previousElementSibling?.tagName)).toBe('P');
       await box.locator('summary').click();

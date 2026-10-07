@@ -23,7 +23,6 @@ export function render(content, strings, { id, lang }) {
     <div class="lp-box" role="group" aria-labelledby="${label}">
       <p class="lp-label lp-review-prompts-label" id="${label}">${icons.brain}<span>${html(strings.check)}</span></p>
       <p class="lp-stem">${html(part.question)}</p>
-      <p class="lp-small">${html(strings.instruction)}</p>
       <details class="lp-details">
         <summary>${html(strings.show)}</summary>
         <p class="lp-quote" data-lp-answer>${html(part.answer)}</p>

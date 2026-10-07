@@ -17,7 +17,7 @@ Use it for short readings with facts or actions worth recalling later. Write one
 
 ## How it works
 
-1. Read a part and answer its "Check yourself" question in your head.
+1. Read a part, then answer its recall question in your head before opening the answer.
 2. Open the native "Show the answer" details to compare your answer. JavaScript keeps this same details element and reveals "I remembered" and "I forgot" below the answer.
 3. Choose a self-rating. A calendar chip shows "Next review {date}" with a semantic `time` element, announced once without moving focus. Change the choice to update the date. Closing and reopening the answer keeps the choice.
 
@@ -49,7 +49,7 @@ All content is plain text. HTML characters are escaped.
 
 `validateContent` rejects empty strings, unknown fields and duplicate part ids. Whitespace is allowed. The schema's `x-uniqueBy` annotation records identity uniqueness; ordinary JSON Schema tools also need the validator's uniqueness check.
 
-Strings in both languages share the keys `readingTime`, `progress`, `check`, `instruction`, `show`, `remembered`, `forgot` and `nextReview`. Placeholders are `{n}` for reading time, `{count}` and `{total}` for progress, and `{date}` for the review date.
+Strings in both languages share the keys `readingTime`, `progress`, `check`, `show`, `remembered`, `forgot` and `nextReview`. Placeholders are `{n}` for reading time, `{count}` and `{total}` for progress, and `{date}` for the review date.
 
 The examples preserve the demo's three parts about stonewalling and time-outs, including its reported 93% prediction claim. That example claim is not evidence for this pattern. Check subject-matter claims before publishing your own reading.
 

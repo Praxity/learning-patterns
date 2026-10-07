@@ -3,7 +3,6 @@ export namespace strings {
         let readingTime: string;
         let progress: string;
         let check: string;
-        let instruction: string;
         let show: string;
         let remembered: string;
         let forgot: string;
@@ -16,8 +15,6 @@ export namespace strings {
         export { progress_1 as progress };
         let check_1: string;
         export { check_1 as check };
-        let instruction_1: string;
-        export { instruction_1 as instruction };
         let show_1: string;
         export { show_1 as show };
         let remembered_1: string;
