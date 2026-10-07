@@ -35,7 +35,7 @@ test('reading minutes count authored text at 200 words per minute, rounded up wi
   assert.throws(() => logic.readingMinutes({ ...article(1), title: '' }), /title/);
 });
 
-test('render includes an escaped article header, localized reading time, silent progress and decorative recall icons', () => {
+test('render includes an escaped article header, localized reading time, silent progress and a decorative calendar icon', () => {
   for (const [lang, title, minutes, progress] of [
     ['en', 'Stonewalling & time-outs', '1 min read', '0 of 1 checked'],
     ['fr', "L'évitement et le temps mort", '1 min de lecture', '0 sur 1 vérifiés']
@@ -47,7 +47,7 @@ test('render includes an escaped article header, localized reading time, silent 
     assert.ok(markup.includes(title.replaceAll('&', '&amp;').replaceAll("'", '&#39;')));
     assert.ok(markup.includes(minutes));
     assert.match(markup, new RegExp(`class="lp-small" data-lp-progress hidden>${progress}</p>`));
-    assert.equal((markup.match(/aria-hidden="true"/g) || []).length, 2);
+    assert.equal((markup.match(/aria-hidden="true"/g) || []).length, 1);
     assert.match(markup, /data-lp-review-text><\/span>/);
     assert.doesNotMatch(markup, /data-lp-progress[^>]*(?:aria-live|role=)/);
   }
@@ -153,10 +153,10 @@ test('content validation and schema agree on authored examples and planted viola
 test('render keeps native details, h3 headings, hidden rating controls and one empty status', () => {
   const markup = render(content, strings.en, { id: 'practice', lang: 'en' });
   assert.match(markup, /class="lp lp-unboxed lp-review-prompts" data-lp-pattern="review-prompts" lang="en"/);
-  assert.equal((markup.match(/<h3\b/g) || []).length, 3);
-  assert.equal((markup.match(/<details\b/g) || []).length, 3);
-  assert.equal((markup.match(/<summary[^>]*>Show the answer<\/summary>/g) || []).length, 3);
-  assert.equal((markup.match(/data-lp-rating[^>]* hidden/g) || []).length, 3);
+  assert.equal((markup.match(/<h3\b/g) || []).length, content.parts.length);
+  assert.equal((markup.match(/<details\b/g) || []).length, content.parts.length);
+  assert.equal((markup.match(/<summary[^>]*>Show the answer<\/summary>/g) || []).length, content.parts.length);
+  assert.equal((markup.match(/data-lp-rating[^>]* hidden/g) || []).length, content.parts.length);
   assert.match(markup, /role="status" aria-atomic="true"><\/p>/);
   assert.equal((markup.match(/role="status"/g) || []).length, 1);
   assert.equal((markup.match(/<h2\b/g) || []).length, 1);
@@ -191,7 +191,32 @@ test('state validation rejects unknown parts, malformed results and impossible d
   const copy = validateState(content, valid); copy.results.stonewalling.reviewOn = '2026-10-10';
   assert.equal(valid.results.stonewalling.reviewOn, '2026-10-09');
   assert.deepEqual(validateState(content, { results: {} }), { results: {} });
-  assert.ok(validateState(content, { results: { return: { result: 'forgot', reviewOn: '2028-02-29' } } }));
+  assert.ok(validateState({ ...content, parts: [{ ...content.parts[0], id: 'return' }] }, { results: { return: { result: 'forgot', reviewOn: '2028-02-29' } } }));
   const special = { ...content, parts: [{ ...content.parts[0], id: '__proto__' }] };
   assert.deepEqual(validateState(special, JSON.parse('{"results":{"__proto__":{"result":"forgot","reviewOn":"2026-10-07"}}}')), JSON.parse('{"results":{"__proto__":{"result":"forgot","reviewOn":"2026-10-07"}}}'));
+});
+
+test('examples contain one stonewalling section while render supports several parts', () => {
+  assert.equal(content.title, 'Stonewalling');
+  assert.equal(french.title, "L'évitement");
+  for (const example of [content, french]) {
+    assert.equal(example.parts.length, 1);
+    assert.equal(example.parts[0].id, 'stonewalling');
+  }
+  const multiple = { ...content, parts: [content.parts[0], { ...content.parts[0], id: 'second' }] };
+  assert.doesNotThrow(() => validateContent(multiple));
+  assert.equal((render(multiple, strings.en, { id: 'many', lang: 'en' }).match(/<h3\b/g) || []).length, 2);
+});
+
+test('render includes hidden commitment and labelled answer, native fallback and no card eyebrow', () => {
+  for (const lang of ['en', 'fr']) {
+    const markup = render(content, strings[lang], { id: 'recall', lang });
+    assert.doesNotMatch(markup, /lp-label|lp-scene-label|Answer in your head first|Répondez d'abord/);
+    assert.match(markup, /<p class="lp-stem" id="recall-prompt-0">/);
+    assert.match(markup, /<button class="lp-button lp-button-secondary"[^>]*data-lp-commit[^>]*hidden>/);
+    assert.ok(markup.includes(lang === 'fr' ? 'J&#39;ai ma réponse' : 'I have my answer'));
+    assert.match(markup, /data-lp-answer[^>]*role="region"[^>]*tabindex="-1"[^>]*hidden>/);
+    assert.ok(markup.includes('aria-label="' + (lang === 'fr' ? 'Réponse' : 'Answer') + '"'));
+    assert.match(markup, /<details class="lp-details">[\s\S]*data-lp-fallback-answer[\s\S]*<\/details>/);
+  }
 });

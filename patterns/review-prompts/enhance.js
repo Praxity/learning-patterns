@@ -25,13 +25,15 @@ export function enhance(root, { content, strings, state }) {
     const part = content.parts[index];
     if (!part || section.getAttribute('data-lp-part') !== part.id) throw new Error('Invalid review-prompts markup: part identity');
     const details = /** @type {HTMLDetailsElement} */ (required(section, 'details'));
-    required(details, 'summary'); required(details, '[data-lp-answer]');
-    const rating = /** @type {HTMLElement} */ (required(details, '[data-lp-rating]'));
+    required(details, 'summary'); required(details, '[data-lp-fallback-answer]');
+    const commit = /** @type {HTMLButtonElement} */ (required(section, '[data-lp-commit]'));
+    const answer = /** @type {HTMLElement} */ (required(section, '[data-lp-answer]'));
+    const rating = /** @type {HTMLElement} */ (required(section, '[data-lp-rating]'));
     const review = /** @type {HTMLElement} */ (required(rating, '[data-lp-review]'));
     const reviewText = /** @type {HTMLElement} */ (required(review, '[data-lp-review-text]'));
     const buttons = [...rating.querySelectorAll('button')];
     if (buttons.length !== 2 || buttons[0]?.dataset.lpResult !== 'remembered' || buttons[1]?.dataset.lpResult !== 'forgot') throw new Error('Invalid review-prompts markup: result buttons');
-    return { part, details, rating, review, reviewText, buttons };
+    return { part, details, commit, answer, rating, review, reviewText, buttons };
   });
   // Formatting the stored civil date in UTC avoids changing its day in another time zone.
   const format = new Intl.DateTimeFormat(root.lang.toLowerCase().startsWith('fr') ? 'fr-CA' : 'en-CA', {
@@ -71,13 +73,22 @@ export function enhance(root, { content, strings, state }) {
   }
   for (const block of blocks) {
     const saved = Object.hasOwn(current.results, block.part.id) ? current.results[block.part.id] : undefined;
-    if (saved) { block.details.open = true; show(block, saved); }
-    block.rating.hidden = !block.details.open;
-    listen(block.details, 'toggle', () => { block.rating.hidden = !block.details.open; });
+    const revealed = Boolean(saved) || block.details.open;
+    block.details.hidden = true;
+    block.commit.hidden = revealed;
+    block.answer.hidden = !revealed;
+    block.rating.hidden = !revealed;
+    if (saved) show(block, saved);
+    listen(block.commit, 'click', () => {
+      block.answer.hidden = false;
+      block.rating.hidden = false;
+      block.commit.hidden = true;
+      block.answer.focus();
+    });
     for (const button of block.buttons) {
       const choice = /** @type {import('./logic.js').Result} */ (button.dataset.lpResult);
       listen(button, 'click', () => {
-        if (!block.details.open) return;
+        if (block.answer.hidden) return;
         const record = { result: choice, reviewOn: isoDate(scheduleReview(new Date(), choice, content.reviewDays)) };
         current = { results: { ...current.results, [block.part.id]: record } };
         showProgress();
@@ -93,6 +104,8 @@ export function enhance(root, { content, strings, state }) {
       destroyed = true;
       for (const remove of removals) remove();
       for (const block of blocks) {
+        block.details.open = !block.answer.hidden;
+        block.details.hidden = false; block.commit.hidden = true; block.answer.hidden = true;
         block.rating.hidden = true; block.reviewText.replaceChildren(); block.review.hidden = true;
         for (const button of block.buttons) button.setAttribute('aria-pressed', 'false');
       }

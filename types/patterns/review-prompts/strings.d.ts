@@ -2,7 +2,8 @@ export namespace strings {
     namespace en {
         let readingTime: string;
         let progress: string;
-        let check: string;
+        let commit: string;
+        let answer: string;
         let show: string;
         let remembered: string;
         let forgot: string;
@@ -13,8 +14,10 @@ export namespace strings {
         export { readingTime_1 as readingTime };
         let progress_1: string;
         export { progress_1 as progress };
-        let check_1: string;
-        export { check_1 as check };
+        let commit_1: string;
+        export { commit_1 as commit };
+        let answer_1: string;
+        export { answer_1 as answer };
         let show_1: string;
         export { show_1 as show };
         let remembered_1: string;
