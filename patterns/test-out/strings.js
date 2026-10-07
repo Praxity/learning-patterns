@@ -2,7 +2,7 @@ export const strings = {
   en: {
     outline: "What you'll cover",
     resultOutline: 'Your course plan',
-    question: 'Question {number} of {total}',
+    question: 'Question {number} of {total}: {section}',
     instructions: 'Answer one question per section. If you pass, you can skip it.',
     start: 'Start the check',
     back: 'Back',
@@ -31,7 +31,7 @@ export const strings = {
   fr: {
     outline: 'Au programme',
     resultOutline: 'Votre parcours',
-    question: 'Question {number} sur {total}',
+    question: 'Question {number} sur {total} : {section}',
     instructions: 'Répondez à une question par section. Si vous réussissez, vous pouvez la passer.',
     start: 'Commencer la vérification',
     back: 'Retour',
