@@ -18,4 +18,4 @@ createServer(async (request, response) => {
     response.writeHead(error.code === 'ENOENT' ? 404 : 500);
     response.end('Demo file unavailable.');
   }
-}).listen(4173, '127.0.0.1');
+}).listen(Number(process.env.LP_PORT ?? 4173), '127.0.0.1');

@@ -22,6 +22,6 @@ Write a fail-first interface test for each behaviour change. Test planted violat
 
 ## Commands
 
-Use Node 22 and npm. Run `npm test`, `npm run typecheck`, `npm run types:check`, `npm run budget`, `npm run demo` and `npm run test:browser`. After changing JSDoc types, run `npm run types` and commit `types/`.
+Use Node 22 and npm. When another worktree may be running browser tests, set `LP_PORT` to a free port. Run `npm test`, `npm run typecheck`, `npm run types:check`, `npm run budget`, `npm run demo` and `npm run test:browser`. After changing JSDoc types, run `npm run types` and commit `types/`.
 
 This repo will be public: no machine paths, no client material, no private links.
