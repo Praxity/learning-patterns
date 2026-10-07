@@ -39,11 +39,19 @@ All content fields are plain text. HTML characters are escaped.
 
 Strings must be nonempty. `validateContent` rejects unknown fields and duplicate part identities. The schema's `x-uniqueBy` annotation describes identity uniqueness. Ordinary JSON Schema tools need this extra check from `validateContent`.
 
-Praxity Studio imports `logic.js`, `content.schema.json` and `strings.js` and builds its own UI. Content parts now contain `{ id, label, missed }`. Remove the former `met` field, which the validator and schema reject. `feedback(content, ticked)` returns `{ count, total, items }`. Each item contains `{ id, included, label, hint }`; `hint` is `null` for included parts and the authored `missed` text otherwise. This replaces the former `text` field. The bilingual string keys are unchanged.
+## Logic
+
+`logic.js` has no DOM code, so another host can build its own interface on it. Praxity Studio does.
+
+| Function | Returns |
+| --- | --- |
+| `validateContent(content)` | Nothing. Throws an `Error` naming the first bad field. |
+| `feedback(content, ticked)` | `{ count, total, items }`. Each item is `{ id, included, label, hint }`; `hint` is `null` for an included part and the authored `missed` text otherwise. |
+| `validateState(content, value)` | A clean `{ answer, ticked, shown }`, or `null` when `value` isn't valid saved state. |
 
 ## Use it
 
-Copy `patterns/self-check/` and `lib/`, preserving their relative paths. Include `patterns/self-check/pattern.css` in your page. Give each instance its own id prefix. This ten-line example shows the server and browser calls together. In a server-rendered project, send the rendered HTML to the browser before calling `enhance`.
+Copy `patterns/self-check/` and `lib/`, preserving their relative paths. Link `lib/base.css`, then `patterns/self-check/pattern.css`. Give each instance its own id prefix. This ten-line example shows the server and browser calls together. In a server-rendered project, send the rendered HTML to the browser before calling `enhance`.
 
 ```js
 import { render } from './patterns/self-check/render.js';

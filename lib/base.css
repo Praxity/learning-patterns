@@ -90,6 +90,22 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; }
 .lp-choice:has(input:checked) { border: 2px solid var(--lp-accent); padding: 11px 15px; }
 .lp-choice input { flex: none; inline-size: 20px; block-size: 20px; margin: 3px 0 0; accent-color: var(--lp-accent); }
 
+/* Marking a choice after submit: the chosen and the correct option, by icon, word and ink. */
+.lp-choice[data-lp-mark] { flex-wrap: wrap; cursor: default; }
+.lp-choice[data-lp-mark="correct"] { border: 2px solid var(--lp-success-ink); padding: 11px 15px; }
+.lp-choice[data-lp-mark="wrong"] { border: 2px solid var(--lp-error-ink); padding: 11px 15px; }
+.lp-choice-mark { display: inline-flex; gap: 6px; align-items: flex-start; flex-basis: 100%; padding-inline-start: 32px; font-weight: 600; }
+.lp-choice-mark.lp-met { color: var(--lp-success-ink); }
+.lp-choice-mark.lp-missed { color: var(--lp-error-ink); }
+.lp-choice-mark.lp-neutral { color: var(--lp-ink-2); }
+.lp-choice:has(input:disabled) { cursor: default; }
+.lp-choice input:disabled { opacity: 1; }
+
+/* A pattern that sits in running text keeps its root unboxed and boxes only its activities. */
+.lp.lp-unboxed { padding: 0; border: 0; background: transparent; }
+.lp-box { padding: 24px; border: 1px solid var(--lp-rule); border-radius: var(--lp-radius-box); background: var(--lp-paper); }
+.lp-box > * + * { margin-block-start: 16px; }
+
 /* Buttons */
 .lp-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-block-start: 24px; }
 .lp-actions:not(:has(> :not([hidden]))) { display: none; }
@@ -111,6 +127,7 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; }
   cursor: pointer;
 }
 .lp-button-secondary { color: var(--lp-ink); background: transparent; border-color: var(--lp-line); }
+.lp-button-secondary[aria-pressed="true"] { border: 2px solid var(--lp-accent); padding: 9px 19px; color: var(--lp-accent); }
 .lp-button-quiet { padding-inline: 8px; color: var(--lp-accent); background: transparent; border-color: transparent; font-weight: 400; text-decoration: underline; text-underline-offset: 3px; }
 .lp-button:disabled, .lp-button[aria-disabled="true"] { color: var(--lp-ink-2); background: var(--lp-paper-2); border-color: var(--lp-rule); cursor: default; }
 
@@ -151,9 +168,12 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; }
 }
 @media (max-width: 30rem) {
   .lp { padding: 16px; font-size: 1.125rem; }
+  .lp-box { padding: 16px; }
 }
 @media (forced-colors: active) {
-  .lp, .lp-input, .lp-choice, .lp-button { border-color: CanvasText; }
+  .lp, .lp-box, .lp-input, .lp-choice, .lp-button { border-color: CanvasText; }
+  .lp.lp-unboxed { border-color: transparent; }
+  .lp-choice[data-lp-mark] { border-style: double; }
   .lp-choice:has(input:checked) { border-color: Highlight; }
   .lp-button { color: ButtonText; background: ButtonFace; border-color: ButtonText; }
   .lp-button-quiet { border-color: transparent; color: LinkText; }
