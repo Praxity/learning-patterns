@@ -13,9 +13,8 @@ export function render(content, strings, { id, lang, today = new Date() }) {
   return `<section class="lp lp-retrieval-sheet" data-lp-pattern="retrieval-sheet" lang="${html(lang)}" aria-labelledby="${title}">
   <header class="lp-scene">
     <span class="lp-scene-icon">${icons['file-text']}</span>
-    <div><p class="lp-scene-label">${html(strings.takeAway)}</p><h2 class="lp-scene-title" id="${title}">${html(content.title)}</h2></div>
+    <div><h2 class="lp-scene-title" id="${title}">${html(content.title)}</h2></div>
   </header>
-  <p class="lp-small">${html(strings.instruction)}</p>
   <div class="lp-retrieval-sheet-controls" data-lp-controls hidden>
     <div class="lp-retrieval-sheet-date-field">
       <label class="lp-label" for="${html(`${id}-date`)}">${html(strings.dateLabel)}</label>
@@ -36,7 +35,7 @@ export function render(content, strings, { id, lang, today = new Date() }) {
         <h3 class="lp-stem" id="${heading}">${html(side === 'front' ? strings.questions : strings.answers)}</h3>
         <p class="lp-small">${html(strings.dateLabel)} <time datetime="${date}" data-lp-print-date>${html(displayDate)}</time></p>
       </header>
-      <p class="lp-small">${html(side === 'front' ? strings.frontInstruction : strings.backInstruction)}</p>
+      <p class="lp-small">${html(side === 'front' ? strings.instruction : strings.backInstruction)}</p>
       <ol class="lp-retrieval-sheet-list">
         ${content.questions.map(row => `<li data-lp-question="${html(row.id)}"><p>${html(side === 'front' ? row.question : row.answer)}</p>${side === 'front' ? '<div class="lp-retrieval-sheet-space" aria-hidden="true"></div>' : ''}</li>`).join('\n        ')}
       </ol>
@@ -45,7 +44,6 @@ export function render(content, strings, { id, lang, today = new Date() }) {
   </div>
   <div class="lp-actions" data-lp-print-controls hidden><button class="lp-button" type="button" data-lp-print>${icons['file-text']}<span>${html(strings.print)}</span></button></div>
   <p class="lp-small">${html(strings.printHint)}</p>
-  <p class="lp-small">${html(strings.summary)}</p>
   <p class="lp-visually-hidden" role="status" aria-atomic="true"></p>
 </section>`;
 }

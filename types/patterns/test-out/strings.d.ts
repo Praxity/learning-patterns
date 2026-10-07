@@ -1,7 +1,7 @@
 export namespace strings {
     namespace en {
-        let placement: string;
         let outline: string;
+        let resultOutline: string;
         let question: string;
         let instructions: string;
         let start: string;
@@ -12,8 +12,6 @@ export namespace strings {
         let buildsOn: string;
         let todo: string;
         let passed: string;
-        let credited: string;
-        let creditFrom: string;
         let check: string;
         let choose: string;
         let unansweredOne: string;
@@ -31,10 +29,10 @@ export namespace strings {
         let cleared: string;
     }
     namespace fr {
-        let placement_1: string;
-        export { placement_1 as placement };
         let outline_1: string;
         export { outline_1 as outline };
+        let resultOutline_1: string;
+        export { resultOutline_1 as resultOutline };
         let question_1: string;
         export { question_1 as question };
         let instructions_1: string;
@@ -55,10 +53,6 @@ export namespace strings {
         export { todo_1 as todo };
         let passed_1: string;
         export { passed_1 as passed };
-        let credited_1: string;
-        export { credited_1 as credited };
-        let creditFrom_1: string;
-        export { creditFrom_1 as creditFrom };
         let check_1: string;
         export { check_1 as check };
         let choose_1: string;

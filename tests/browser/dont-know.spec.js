@@ -45,7 +45,7 @@ for (const [lang, title, label, number] of [
   test(`quiz card has a scene, numbered questions, explanation panels and a score ring (${lang})`, async ({ page }) => {
     await open(page, `/dont-know/${lang}.html`);
     const scene = page.locator('.lp-scene');
-    await expect(scene.locator('.lp-scene-label')).toHaveText(label);
+    await expect(scene.locator('.lp-scene-label')).toHaveCount(0);
     await expect(scene.getByRole('heading')).toHaveText(title);
     await expect(scene.locator('svg[aria-hidden="true"][focusable="false"]')).toHaveCount(1);
     await expect(page.locator('.lp-dont-know-question-number')).toHaveText(Array.from({ length: 4 }, (_, i) => number.replace('1', String(i + 1))));
@@ -451,3 +451,16 @@ test('one unanswered question uses the singular message in English and French', 
     await expect(page.locator('[data-lp-error]')).toHaveText(text);
   }
 });
+
+for (const width of [1280, 390, 320]) {
+  test('owner audit: score and review links align with their first line at ' + width, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 }); await open(page);
+    await pick(page); await page.locator('[data-lp-check]').click();
+    const difference = await page.locator('.lp-dont-know-result-head').evaluate(el => el.querySelector('[data-lp-score]').getBoundingClientRect().top - el.querySelector('svg').getBoundingClientRect().top);
+    expect(Math.abs(difference)).toBeLessThanOrEqual(1);
+    for (const link of await page.locator('[data-lp-review] a').all()) {
+      const offset = await link.evaluate(el => el.querySelector('svg').getBoundingClientRect().top - el.querySelector('span').getBoundingClientRect().top);
+      expect(offset).toBeGreaterThanOrEqual(0); expect(offset).toBeLessThanOrEqual(5);
+    }
+  });
+}

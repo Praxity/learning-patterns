@@ -105,7 +105,7 @@ test('saved state restores only valid formats and in-range whole sections and co
 test('render supplies the complete text baseline, scene, hidden controls and one empty status', () => {
   const markup = render(content, strings.en, { id: 'lesson', lang: 'en' });
   assert.match(markup, /class="lp lp-formats" data-lp-pattern="formats" lang="en"/);
-  assert.match(markup, /Choose how to learn this/);
+  assert.doesNotMatch(markup, /Choose how to learn this/);
   assert.equal((markup.match(/data-lp-point=/g) || []).length, 3);
   assert.match(markup, /data-lp-formats hidden/); assert.match(markup, /data-lp-navigation hidden/);
   assert.equal((markup.match(/role="status"/g) || []).length, 1);
@@ -135,4 +135,25 @@ test('all authored text and attributes are escaped, ids are prefixed and bilingu
   assert.deepEqual(Object.keys(strings.en).sort(), Object.keys(strings.fr).sort());
   for (const key of Object.keys(strings.en)) assert.deepEqual(strings.en[key].match(/\{\w+\}/g), strings.fr[key].match(/\{\w+\}/g));
   assert.doesNotMatch(JSON.stringify([content, french, strings]), /\u2014/);
+});
+
+test('owner audit: scene contains only icon and title', () => {
+  for (const lang of ['en', 'fr']) {
+    const markup = render(content, strings[lang], { id: 'audit', lang });
+    assert.doesNotMatch(markup, /lp-scene-label/);
+  }
+});
+
+test('owner audit: place belongs to the lesson above its content', () => {
+  const markup = render(content, strings.en, { id: 'audit', lang: 'en' });
+  assert.ok(markup.indexOf('lp-formats-lesson') < markup.indexOf('data-lp-place'));
+  assert.ok(markup.indexOf('data-lp-place') < markup.indexOf('data-lp-point'));
+});
+
+test('owner audit: narration has one sample instruction in each view', () => {
+  for (const lang of ['en', 'fr']) {
+    const markup = render(content, strings[lang], { id: 'audit', lang });
+    assert.equal(Object.hasOwn(strings[lang], 'scriptNote'), false);
+    assert.equal(markup.split(strings[lang].sample).length - 1, content.points.length);
+  }
 });

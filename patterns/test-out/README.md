@@ -1,7 +1,7 @@
 ---
 title: Test out of sections
 title_fr: Passez les sections que vous maîtrisez
-summary: Answer a short placement check, then see which refresher sections you can skip and which receive prerequisite credit.
+summary: Answer a short placement check, then see which refresher sections to skip or take.
 section: course
 ai: no
 offline: yes
@@ -9,7 +9,7 @@ learners: not tried
 ---
 # Test out of sections
 
-You answer a placement check and see which course sections you can skip, including credit for their prerequisites.
+You answer a placement check and see which course sections to skip or take.
 
 ## When to use it
 
@@ -20,7 +20,7 @@ Use it for a small refresher where authors can justify skipping a section after 
 1. You read the course outline and select "Start the check".
 2. You answer one question at a time and select Next. You can use Back to revisit your answers.
 3. You select "Check my answers" after the last question.
-4. You read which sections say "Skip", "Credited" or "Take it". A correct advanced answer can also credit the sections it builds on.
+4. You read your course plan. Sections say "Skip" or "Take it".
 5. You open "Review answers" to see your marks, the correct answers and explanations for questions you missed.
 6. You select "Start over" to clear the check and return to the outline.
 
@@ -51,7 +51,7 @@ All authored text is plain text and escaped when rendered. Keep the English and 
 | `allowTestOut` | Required author boolean. False keeps every section required. |
 | `sections` | Nonempty outline in display order. The example has four sections. |
 | `sections[].id` | Unique positive safe integer. Lowest numeric id decides credit ties. |
-| `sections[].title` | Section title used in headings and credit messages. |
+| `sections[].title` | Section title in the course outline and result plan. |
 | `sections[].requires` | Unique existing section ids. Cycles, including self-links, are rejected. |
 | `questions` | One or two questions per section. The renderer groups them in outline order. |
 | `questions[].id` | Unique string identity using letters, digits, underscores or hyphens. |
@@ -81,7 +81,7 @@ Without JavaScript, the outline and native questions remain usable. Open "Answer
 
 Set `allowTestOut` to `false` when all sections are required. The outline then explains the requirement and has no Start button. The learner cannot change this setting.
 
-A direct pass requires every question in the section to be correct. Credit follows prerequisite links transitively. If several passes credit a section, the lowest numeric passed section id supplies the credit. A direct pass takes precedence over credit.
+A direct pass requires every question in the section to be correct. Credit follows prerequisite links transitively. If several passes credit a section, the lowest numeric passed section id supplies the credit. A direct pass takes precedence over credit. The result plan shows both passed and credited sections as "Skip", and every other section as "Take it".
 
 Complete submissions lock the answers. Panels show question progress and switch horizontally over 240 ms, or instantly under reduced motion. Without JavaScript, the outline and native questions remain usable. Native Answers provide correct options and explanations, with no computed placement result.
 

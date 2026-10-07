@@ -45,7 +45,7 @@ All text is plain text and escaped when rendered.
 
 | Field | Meaning |
 | --- | --- |
-| `title` | Required nonempty quiz title, shown below "Quick check". |
+| `title` | Required nonempty quiz title in the scene header. |
 | `questions` | At least one question, in display order. |
 | `questions[].id` | Unique question identity using letters, digits, underscores or hyphens. |
 | `questions[].text` | Question text shown as the fieldset legend. |

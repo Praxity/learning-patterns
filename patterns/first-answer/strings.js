@@ -1,8 +1,8 @@
 export const strings = {
   en: {
-    journal: 'Your journal', start: 'Day one',
+    start: 'Day one',
     firstLabel: 'Your first answer', saveFirst: 'Save my first answer',
-    saved: 'Saved {date}', kept: 'It stays as you wrote it.', firstSaved: 'First answer saved.',
+    saved: 'Saved {date}', firstSaved: 'First answer saved.',
     courseNote: 'In a course, the lessons happen here.', skip: 'Skip to the end of the course',
     end: 'End of the course', nowLabel: 'Your answer now', compare: 'Compare',
     tick: 'Has your new answer improved in any of these ways?', compared: 'Compared. Tick what improved.',
@@ -15,9 +15,9 @@ export const strings = {
     summary: 'You ticked {count} of {total} checks for your answer now.'
   },
   fr: {
-    journal: 'Votre journal', start: 'Premier jour',
+    start: 'Premier jour',
     firstLabel: 'Votre première réponse', saveFirst: 'Enregistrer ma première réponse',
-    saved: 'Enregistrée le {date}', kept: 'Elle reste telle que vous l\'avez écrite.', firstSaved: 'Première réponse enregistrée.',
+    saved: 'Enregistrée le {date}', firstSaved: 'Première réponse enregistrée.',
     courseNote: 'Dans un cours, les leçons se déroulent ici.', skip: 'Passer à la fin du cours',
     end: 'Fin du cours', nowLabel: 'Votre réponse maintenant', compare: 'Comparer',
     tick: "Votre nouvelle réponse s'est-elle améliorée sur l'un de ces points?", compared: "Comparaison affichée. Cochez ce qui s'est amélioré.",

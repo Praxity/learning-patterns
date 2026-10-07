@@ -1,7 +1,7 @@
 export const strings = {
   en: {
-    placement: 'Placement check',
     outline: "What you'll cover",
+    resultOutline: 'Your course plan',
     question: 'Question {number} of {total}',
     instructions: 'Answer one question per section. If you pass, you can skip it.',
     start: 'Start the check',
@@ -12,8 +12,6 @@ export const strings = {
     buildsOn: 'Builds on: {sections}.',
     todo: 'Take it',
     passed: 'Skip',
-    credited: 'Credited',
-    creditFrom: 'from {section}',
     check: 'Check my answers',
     choose: 'Choose an answer',
     unansweredOne: '1 question unanswered. Choose an answer for each.',
@@ -31,8 +29,8 @@ export const strings = {
     cleared: 'Cleared.'
   },
   fr: {
-    placement: 'Vérification des acquis',
     outline: 'Au programme',
+    resultOutline: 'Votre parcours',
     question: 'Question {number} sur {total}',
     instructions: 'Répondez à une question par section. Si vous réussissez, vous pouvez la passer.',
     start: 'Commencer la vérification',
@@ -43,8 +41,6 @@ export const strings = {
     buildsOn: 'Repose sur : {sections}.',
     todo: 'À suivre',
     passed: 'Passer',
-    credited: 'Créditée',
-    creditFrom: 'grâce à {section}',
     check: 'Vérifier mes réponses',
     choose: 'Choisissez une réponse',
     unansweredOne: '1 question sans réponse. Choisissez une réponse pour chacune.',

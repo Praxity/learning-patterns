@@ -251,7 +251,7 @@ test('forced colours keeps pressed state, radio choices, marks and focus visible
 for (const width of [1280, 390]) {
   test(`course scene, format icons and border selection at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 }); await open(page);
-    await expect(page.locator('.lp-scene')).toContainText('Choose how to learn this');
+    await expect(page.locator('.lp-scene-label')).toHaveCount(0);
     await expect(page.locator('.lp-scene h3')).toHaveText(english.title);
     await expect(page.locator('.lp-scene svg')).toHaveAttribute('aria-hidden', 'true');
     await expect(page.locator('[data-lp-format] svg')).toHaveCount(5);
@@ -416,3 +416,40 @@ test('320px French navigation stays within equal slots with text spacing at ever
   }
   expect(new Set(heights).size).toBe(1);
 });
+
+for (const width of [1280, 390, 320]) {
+  test('owner audit: section counter sits next to content at ' + width, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 }); await open(page);
+    await expect(page.locator('.lp-formats-lesson > [data-lp-place]')).toHaveText('Section 1 of 3');
+    const gap = await page.locator('[data-lp-place]').evaluate(el => document.querySelector('[data-lp-point]:not([hidden]) h4').getBoundingClientRect().top - el.getBoundingClientRect().bottom);
+    expect(gap).toBeGreaterThanOrEqual(0); expect(gap).toBeLessThanOrEqual(8);
+  });
+}
+
+for (const [lang, label] of [['en', 'Sample, no audio'], ['fr', 'Exemple, sans audio']]) {
+  test(`owner audit: audio uses one sample label (${lang})`, async ({ page }) => {
+    await open(page, `/formats/${lang}.html`);
+    await button(page, 'audio').click();
+    const audio = point(page).locator('[data-lp-view="audio"]');
+    await expect(audio.locator('.lp-formats-player-detail p')).toHaveText(label);
+    await expect(audio.locator(':scope > p')).toHaveCount(0);
+  });
+}
+
+for (const lang of ['en', 'fr']) for (const width of [320, 390]) {
+  test(`owner audit: control labels keep words together with text spacing (${lang}, ${width}px)`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 }); await open(page, `/formats/${lang}.html`);
+    await page.addStyleTag({ content: '*{line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important}p{margin-bottom:2em!important}' });
+    await page.locator('[data-lp-next]').click();
+    const words = await page.locator('[data-lp-formats] button span, [data-lp-navigation] button span').evaluateAll(labels => labels.flatMap(label => {
+      const button = label.closest('button').getBoundingClientRect();
+      return [...label.textContent.matchAll(/\S+/g)].map(match => {
+        const range = document.createRange(); range.setStart(label.firstChild, match.index); range.setEnd(label.firstChild, match.index + match[0].length);
+        const rects = [...range.getClientRects()];
+        return { word: match[0], lines: rects.length, withinButton: rects.every(rect => rect.left >= button.left && rect.right <= button.right) };
+      });
+    }));
+    for (const word of words) { expect(word.lines, word.word).toBe(1); expect(word.withinButton, word.word).toBe(true); }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  });
+}

@@ -104,7 +104,7 @@ test('server sheet includes scene header, six questions then answers, a printed 
   const markup = render(content, strings.en, options);
   assert.match(markup, /class="lp lp-retrieval-sheet" data-lp-pattern="retrieval-sheet" lang="en"/);
   assert.match(markup, /class="lp-scene"/);
-  assert.match(markup, /Take it with you/);
+  assert.doesNotMatch(markup, /Take it with you/);
   assert.match(markup, /<h2[^>]*id="sheet-title"[^>]*>The four horsemen<\/h2>/);
   assert.match(markup, /data-lp-controls hidden/);
   assert.match(markup, /type="date"/);
@@ -120,7 +120,7 @@ test('server sheet includes scene header, six questions then answers, a printed 
     const escaped = text => text.replaceAll("'", '&#39;').replaceAll('"', '&quot;');
     assert.ok(markup.includes(escaped(row.question))); assert.ok(markup.includes(escaped(row.answer)));
   }
-  assert.ok(markup.includes(strings.en.summary));
+  assert.ok(markup.includes(strings.en.instruction));
 });
 
 test('render escapes every authored field, UI string and attribute, with distinct instance ids', () => {
@@ -139,7 +139,24 @@ test('render escapes every authored field, UI string and attribute, with distinc
 
 test('English and French keys and placeholders match and copy contains no em dashes', () => {
   assert.deepEqual(Object.keys(strings.en).sort(), Object.keys(strings.fr).sort());
-  assert.ok(Object.hasOwn(strings.en, 'takeAway'));
+  assert.equal(Object.hasOwn(strings.en, 'takeAway'), false);
   for (const key of Object.keys(strings.en)) assert.deepEqual(strings.en[key].match(/\{\w+\}/g), strings.fr[key].match(/\{\w+\}/g));
   assert.doesNotMatch(JSON.stringify([strings, content, french]), /\u2014/);
+});
+
+test('owner audit: scene contains only icon and title', () => {
+  for (const lang of ['en', 'fr']) {
+    const markup = render(content, strings[lang], { id: 'audit', lang });
+    assert.doesNotMatch(markup, /lp-scene-label/);
+  }
+});
+
+test('owner audit: one recall instruction survives printing', () => {
+  for (const lang of ['en', 'fr']) {
+    const markup = render(content, strings[lang], { id: 'audit', lang });
+    assert.equal(Object.hasOwn(strings[lang], 'frontInstruction'), false);
+    assert.equal(Object.hasOwn(strings[lang], 'summary'), false);
+    assert.ok(markup.indexOf(strings[lang].instruction) > markup.indexOf('data-lp-side="front"'));
+    assert.ok(markup.indexOf(strings[lang].instruction) < markup.indexOf('data-lp-side="back"'));
+  }
 });

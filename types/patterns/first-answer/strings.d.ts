@@ -1,11 +1,9 @@
 export namespace strings {
     namespace en {
-        let journal: string;
         let start: string;
         let firstLabel: string;
         let saveFirst: string;
         let saved: string;
-        let kept: string;
         let firstSaved: string;
         let courseNote: string;
         let skip: string;
@@ -26,8 +24,6 @@ export namespace strings {
         let summary: string;
     }
     namespace fr {
-        let journal_1: string;
-        export { journal_1 as journal };
         let start_1: string;
         export { start_1 as start };
         let firstLabel_1: string;
@@ -36,8 +32,6 @@ export namespace strings {
         export { saveFirst_1 as saveFirst };
         let saved_1: string;
         export { saved_1 as saved };
-        let kept_1: string;
-        export { kept_1 as kept };
         let firstSaved_1: string;
         export { firstSaved_1 as firstSaved };
         let courseNote_1: string;

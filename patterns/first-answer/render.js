@@ -27,7 +27,6 @@ export function render(content, strings, { id, lang, stage = 'both' }) {
     <div class="lp-stack lp-first-answer-card lp-first-answer-saved" data-lp-first-saved hidden>
       <p class="lp-small lp-first-answer-date">${icons.calendar}<span data-lp-first-date></span></p>
       <blockquote class="lp-first-answer-quote" data-lp-first-quote></blockquote>
-      <p class="lp-small lp-first-answer-note">${html(strings.kept)}</p>
     </div>
   </section>`;
   const end = `<section class="lp-stack lp-first-answer-step${stage === 'both' ? ' lp-section' : ''}" data-lp-end-step aria-labelledby="${key('end')}" hidden>
@@ -40,7 +39,6 @@ export function render(content, strings, { id, lang, stage = 'both' }) {
         <h4 class="lp-label">${html(strings.start)}</h4>
         <p class="lp-small lp-first-answer-date">${icons.calendar}<span data-lp-panel-first-date></span></p>
         <blockquote class="lp-first-answer-quote" data-lp-panel-first></blockquote>
-        <p class="lp-small lp-first-answer-note" data-lp-panel-note>${html(strings.kept)}</p>
       </div>
       <fieldset class="lp-choices"><legend>${html(strings.tick)}</legend>
         ${content.checks.map((check, index) => `<label class="lp-choice" for="${key(`check-${index}`)}"><input id="${key(`check-${index}`)}" type="checkbox" value="${html(check.id)}"><span class="lp-first-answer-check-text">${html(check.label)}</span></label>`).join('\n        ')}
@@ -51,7 +49,7 @@ export function render(content, strings, { id, lang, stage = 'both' }) {
   return `<section class="lp lp-first-answer" data-lp-pattern="first-answer" data-lp-stage="${stage}" lang="${html(lang)}">
   <header class="lp-scene">
     <span class="lp-scene-icon">${icons.notebook}</span>
-    <div><p class="lp-scene-label">${html(strings.journal)}</p><h2 class="lp-scene-title">${html(content.prompt)}</h2></div>
+    <div><h2 class="lp-scene-title">${html(content.prompt)}</h2></div>
   </header>
   <p class="lp-error-text" data-lp-storage-error hidden></p>
   ${stage === 'end' ? '' : first}

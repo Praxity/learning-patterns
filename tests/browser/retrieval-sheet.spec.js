@@ -25,7 +25,7 @@ async function observe(page) {
 for (const width of [1280, 390]) {
   test(`paper preview has a scene header, writing space and authored content (${width}px)`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 }); await open(page);
-    await expect(root(page).locator('.lp-scene-label')).toHaveText('Take it with you');
+    await expect(root(page).locator('.lp-scene-label')).toHaveCount(0);
     await expect(root(page).locator('.lp-scene-title')).toHaveText(english.title);
     await expect(root(page).locator('.lp-scene-icon svg')).toHaveAttribute('aria-hidden', 'true');
     await expect(side(page, 'front')).toBeVisible(); await expect(side(page, 'back')).toBeHidden();
@@ -236,7 +236,7 @@ for (const lang of ['en', 'fr']) {
 
 test('French date, labels, authored answers and announcement use French', async ({ page }) => {
   await open(page, '/retrieval-sheet/fr.html'); await observe(page);
-  await expect(root(page).locator('.lp-scene-label')).toHaveText('À emporter');
+  await expect(root(page).locator('.lp-scene-label')).toHaveCount(0);
   await root(page).getByLabel('Me tester le').fill('2028-02-29');
   await root(page).getByLabel('Me tester le').dispatchEvent('change');
   await expect(root(page).locator('time')).toHaveText(['29 février 2028', '29 février 2028']);

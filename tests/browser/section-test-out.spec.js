@@ -43,7 +43,7 @@ async function authored(page, content) {
 
 test('shared scene and clean outline lead to one keyed question at a time', async ({ page }) => {
   await open(page);
-  await expect(page.locator('.lp-scene')).toContainText('Placement check');
+  await expect(page.locator('.lp-scene-label')).toHaveCount(0);
   await expect(page.locator('.lp-scene')).toContainText('Meetings: a refresher');
   await expect(page.locator('.lp-scene svg[aria-hidden="true"]')).toHaveCount(1);
   await expect(page.locator('[data-lp-outline-heading]')).toHaveText("What you'll cover");
@@ -99,8 +99,8 @@ test('keyboard validates only this panel, Back keeps picks, changes announce onc
 });
 
 for (const [lang, content, correct, wrong, answer, summary, statuses] of [
-  ['en', english, 'Correct', 'Not quite', 'Correct answer', 'You can skip 2 of 4 sections.', ['Take it', 'Credited', 'Skip', 'Take it']],
-  ['fr', french, 'Correct', 'Pas tout à fait', 'Bonne réponse', 'Vous pouvez passer 2 sections sur 4.', ['À suivre', 'Créditée', 'Passer', 'À suivre']]
+  ['en', english, 'Correct', 'Not quite', 'Correct answer', 'You can skip 2 of 4 sections.', ['Take it', 'Skip', 'Skip', 'Take it']],
+  ['fr', french, 'Correct', 'Pas tout à fait', 'Bonne réponse', 'Vous pouvez passer 2 sections sur 4.', ['À suivre', 'Passer', 'Passer', 'À suivre']]
 ]) {
   test(`in-place marks, explanations and credited outline (${lang})`, async ({ page }) => {
     await open(page, `/test-out/${lang}.html`); await observe(page); await pick(page); await page.locator('[data-lp-check]').click();
@@ -110,7 +110,8 @@ for (const [lang, content, correct, wrong, answer, summary, statuses] of [
     await expect(page.locator('[data-lp-section-status].lp-met svg[aria-hidden="true"]')).toHaveCount(2);
     await expect(page.locator('[data-lp-review]')).toBeVisible();
     await expect(page.locator('fieldset:visible')).toHaveCount(0);
-    await expect(page.locator('[data-lp-credit]').nth(1)).toHaveText(lang === 'en' ? 'from Running the discussion' : 'gr\u00e2ce \u00e0 Animer la discussion');
+    await expect(page.locator('[data-lp-credit]')).toHaveCount(0);
+    await expect(page.locator('[data-lp-outline-heading]')).toHaveText(lang === 'en' ? 'Your course plan' : 'Votre parcours');
     await review(page);
     await expect(page.locator('input:disabled')).toHaveCount(12);
     await expect(page.locator('.lp-choice-mark')).toHaveCount(7);
@@ -285,12 +286,11 @@ test('missing and mismatched markup fail loudly before enhancement', async ({ pa
     const { enhance } = await import('/patterns/test-out/enhance.js'); const { strings } = await import('/patterns/test-out/strings.js');
     enhance(document.createElement('section'), { content, strings: strings.en });
   }, english)).rejects.toThrow('Missing test-out markup');
-  for (const violation of ['radio', 'value', 'question', 'error', 'name', 'label', 'explanation', 'outline', 'status', 'id', 'tabindex', 'panel', 'heading', 'credit']) {
+  for (const violation of ['radio', 'value', 'question', 'error', 'name', 'label', 'explanation', 'outline', 'status', 'id', 'tabindex', 'panel', 'heading']) {
     await open(page); await page.evaluate(kind => {
       window.lpInstances[0].destroy(); const first = document.querySelector('input'), fieldset = document.querySelector('fieldset');
       if (kind === 'panel') document.querySelector('[data-lp-panel="question"]').removeAttribute('data-lp-panel');
       if (kind === 'heading') document.querySelector('[data-lp-panel-heading]').remove();
-      if (kind === 'credit') document.querySelector('[data-lp-credit]').remove();
       if (kind === 'radio') first.remove(); if (kind === 'value') first.value = 'bad';
       if (kind === 'question') fieldset.dataset.lpQuestion = 'bad';
       if (kind === 'error') document.querySelector('[data-lp-question-error]').remove();
@@ -315,3 +315,19 @@ test('forced colours keep marks, keyboard focus and quiet reset visible', async 
   await page.locator('[data-lp-restart]').click(); await page.locator('[data-lp-start]').click(); await page.keyboard.press('Tab'); await page.locator('input').first().focus();
   await expect(page.locator('label').first()).toHaveCSS('outline-width', '2px');
 });
+
+for (const width of [1280, 390, 320]) {
+  test('owner audit: two statuses align with the first title line at ' + width, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 }); await open(page);
+    await page.locator('[data-lp-start]').click();
+    await expect(page.locator('[data-lp-panel="question"]:visible > p.lp-small')).toHaveCount(0);
+    await page.locator('[data-lp-back]:visible').click();
+    await pick(page); await page.locator('[data-lp-check]').click();
+    for (const row of await page.locator('.lp-test-out-outline-row').all()) {
+      const difference = await row.evaluate(el => el.querySelector('.lp-run-in').getBoundingClientRect().top - el.querySelector('[data-lp-section-status]').getBoundingClientRect().top);
+      expect(Math.abs(difference)).toBeLessThanOrEqual(1);
+    }
+    await page.locator('[data-lp-restart]').click();
+    await expect(page.locator('[data-lp-outline-heading]')).toHaveText("What you'll cover");
+  });
+}
