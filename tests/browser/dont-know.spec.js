@@ -349,6 +349,8 @@ test('quiet reset and forced colours preserve focus rings and button distinction
   await page.locator('[data-lp-restart]').focus();
   await expect(page.locator('[data-lp-restart]')).toHaveCSS('text-decoration-line', 'underline');
   await page.locator('[data-lp-restart]').click();
+  // Programmatic question focus inherits the current input modality. Exercise keyboard focus.
+  await page.keyboard.press('Tab');
   for (const locator of [page.locator('input').first(), page.locator('[data-lp-check]'), page.locator('fieldset').first()]) {
     await locator.focus();
     const style = await locator.evaluate(el => { const css = getComputedStyle(el); return [css.outlineWidth, css.outlineStyle, css.outlineOffset, css.outlineColor]; });
