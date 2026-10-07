@@ -1,0 +1,11 @@
+{
+  "title": "Les quatre cavaliers",
+  "rates": { "readingWordsPerMinute": 200, "minutesPerQuestion": 0.75 },
+  "sections": [
+    { "id": "intro", "title": "Évitez-vous les quatre cavaliers?", "words": 120, "questions": 0, "narrationSeconds": 60 },
+    { "id": "horsemen", "title": "Les quatre cavaliers", "words": 450, "questions": 0, "narrationSeconds": 180 },
+    { "id": "identify", "title": "De quel cavalier s'agit-il?", "words": 150, "questions": 4, "narrationSeconds": 0 },
+    { "id": "pause", "title": "Retrait ou temps mort?", "words": 220, "questions": 1, "narrationSeconds": 90 },
+    { "id": "reflection", "title": "Votre défi et votre réflexion", "words": 300, "questions": 3, "narrationSeconds": 840 }
+  ]
+}
