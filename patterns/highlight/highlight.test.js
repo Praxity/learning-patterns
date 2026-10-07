@@ -64,10 +64,6 @@ test('content validator catches every planted field violation, including global 
   const invalid = [];
   const bad = (value, field) => invalid.push([value, field]);
   for (const value of [null, [], 1, 'content']) bad(value, 'content');
-  bad(Object.create(content), 'mode');
-  const inheritedQuestion = Object.assign(Object.create({ question: content.question }), { mode: content.mode, title: content.title, paragraphs: content.paragraphs });
-  bad(inheritedQuestion, 'question');
-  bad(Object.assign(Object.create({ question: 42 }), example('key')), 'question');
   const sparseParagraphs = Array(2); sparseParagraphs[1] = chunks;
   bad({ ...content, paragraphs: sparseParagraphs }, 'paragraphs[0]');
   bad({ ...content, extra: true }, 'extra');
@@ -81,11 +77,6 @@ test('content validator catches every planted field violation, including global 
   bad({ ...content, paragraphs: [chunks, ...Array(1)] }, 'paragraphs[1]');
   for (const value of [null, [], {}, 'paragraph']) bad({ ...content, paragraphs: [value] }, 'paragraphs[0]');
   for (const value of [null, [], 'chunk', 3]) bad({ ...content, paragraphs: [[value]] }, 'paragraphs[0][0]');
-  bad({ ...content, paragraphs: [[Object.create(chunks[0])]] }, 'id');
-  for (const [field, value] of [['note', 42], ['key', true]]) {
-    const inherited = Object.assign(Object.create({ [field]: value }), { id: 'inherited', text: 'Plain text.' });
-    bad({ ...content, paragraphs: [[chunks[0], inherited]] }, field);
-  }
   for (const field of ['id', 'text']) {
     for (const value of [null, '', '  ', 3, undefined]) bad({ ...content, paragraphs: [[{ ...chunks[0], [field]: value }]] }, field);
   }
@@ -106,6 +97,27 @@ test('content validator catches every planted field violation, including global 
   assert.doesNotThrow(() => validateContent({ ...example('key'), question: 'A useful optional question' }));
   assert.doesNotThrow(() => validateContent({ ...content, paragraphs: [[{ ...chunks[0], key: true }, { ...chunks[1], key: false }]] }));
   for (const value of [content, example('key'), { ...example('key'), question: 'Optional question' }]) assert.equal(matches(value, schema), true);
+});
+
+test('inherited required and optional authored fields cannot change outcomes or return shapes', () => {
+  const content = example('evidence');
+  const inheritedQuestion = Object.assign(Object.create({ question: content.question }), { mode: content.mode, title: content.title, paragraphs: content.paragraphs });
+  const invalid = [
+    [Object.create(content), 'mode'],
+    [inheritedQuestion, 'question'],
+    [Object.assign(Object.create({ question: 42 }), example('key')), 'question'],
+    [{ ...content, paragraphs: [[Object.create(chunks[0])]] }, 'id']
+  ];
+  for (const [field, value] of [['note', 42], ['key', true]]) {
+    const inherited = Object.assign(Object.create({ [field]: value }), { id: 'inherited', text: 'Plain text.' });
+    invalid.push([{ ...content, paragraphs: [[chunks[0], inherited]] }, field]);
+  }
+  // Prototypes are JavaScript inputs, outside the JSON Schema fixtures above.
+  for (const [value, field] of invalid) {
+    const namesField = error => error instanceof Error && error.message.includes(field);
+    assert.throws(() => validateContent(value), namesField);
+    assert.throws(() => check(value, []), namesField);
+  }
 });
 
 test('saved state is strict, copied and ignores planted invalid values', () => {
