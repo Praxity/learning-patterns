@@ -1,0 +1,61 @@
+{
+  "mode": "key",
+  "title": "What stonewalling is",
+  "paragraphs": [
+    [
+      {
+        "id": "observation",
+        "text": "Psychologist John Gottman and his colleagues watched couples talk for 15 minutes."
+      },
+      {
+        "id": "prediction",
+        "text": "From that alone, they could predict with 93% accuracy which couples would divorce."
+      },
+      {
+        "id": "signals",
+        "text": "They named four behaviours that signal a break-up."
+      },
+      {
+        "id": "horsemen",
+        "text": "They called them the four horsemen: criticism, defensiveness, contempt and stonewalling.",
+        "key": true
+      }
+    ],
+    [
+      {
+        "id": "work",
+        "text": "The horsemen damage working relationships too, including between a leader and their team."
+      },
+      {
+        "id": "harm",
+        "text": "Where blame, contempt and stonewalling take over, trust fades and work suffers.",
+        "key": true
+      }
+    ],
+    [
+      {
+        "id": "withdraw",
+        "text": "Stonewalling means you withdraw from the conversation.",
+        "key": true
+      },
+      {
+        "id": "actions",
+        "text": "You go quiet, change the subject or leave the room."
+      },
+      {
+        "id": "overwhelmed",
+        "text": "It usually happens when you feel overwhelmed.",
+        "note": "This explains when stonewalling happens. The key ideas describe the behaviour and its effect on the other person."
+      },
+      {
+        "id": "unseen",
+        "text": "The other person can't see that."
+      },
+      {
+        "id": "ignored",
+        "text": "They see you leave without a word, and they feel ignored or rejected.",
+        "key": true
+      }
+    ]
+  ]
+}
