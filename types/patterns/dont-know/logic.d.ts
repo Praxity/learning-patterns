@@ -23,7 +23,7 @@ export function displayPoints(value: number, positive?: boolean): string;
 export function format(template: string, values: Record<string, string | number>): string;
 /** @typedef {{ id: string, text: string }} Option */
 /** @typedef {{ id: string, text: string, options: Option[], correct: string, explanation: string }} Question */
-/** @typedef {{ questions: Question[], points: { right: number, wrong: number, unknown: number } }} Content */
+/** @typedef {{ title: string, questions: Question[], points: { right: number, wrong: number, unknown: number } }} Content */
 /** @typedef {{ picks: Record<string, string>, shown: boolean }} LearnerState */
 export const DONT_KNOW: "dont-know";
 export type Option = {
@@ -38,6 +38,7 @@ export type Question = {
     explanation: string;
 };
 export type Content = {
+    title: string;
     questions: Question[];
     points: {
         right: number;

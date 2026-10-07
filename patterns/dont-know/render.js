@@ -24,13 +24,19 @@ export function render(content, strings, { id, lang }) {
     rule(content.points.unknown, strings.ruleUnknownGain, strings.ruleUnknownLoss, strings.ruleUnknownZero)
   ].join(' ');
   return `<section class="lp lp-dont-know" data-lp-pattern="dont-know" lang="${html(lang)}">
-  <p class="lp-small lp-dont-know-rule">${html(scoring)}</p>
-  ${content.questions.map((q, n) => `<div${n ? ' class="lp-section"' : ''}>
+  <header class="lp-dont-know-scene">
+    <span class="lp-dont-know-scene-icon">${icons['list-check']}</span>
+    <div><p class="lp-label">${html(strings.quickCheck)}</p>
+      <h2 class="lp-stem lp-dont-know-title">${html(content.title)}</h2>
+      <p class="lp-small lp-dont-know-rule">${html(scoring)}</p></div>
+  </header>
+  ${content.questions.map((q, n) => `<div class="lp-section">
+  <p class="lp-small lp-dont-know-question-number">${html(format(strings.questionNumber, { number: n + 1, total: content.questions.length }))}</p>
   <fieldset class="lp-choices" id="${html(`${id}-question-${n}`)}" tabindex="-1" data-lp-question="${html(q.id)}">
     <legend class="lp-stem">${html(q.text)}</legend>
     ${[...q.options, { id: DONT_KNOW, text: strings.unknown }].map((o, index) => `<label class="lp-choice" for="${html(`${id}-question-${n}-option-${index}`)}"><input type="radio" id="${html(`${id}-question-${n}-option-${index}`)}" name="${html(`${id}-question-${n}`)}" value="${html(o.id)}"><span>${html(o.text)}</span></label>`).join('\n    ')}
     <p class="lp-error-text" id="${html(`${id}-question-${n}-error`)}" data-lp-question-error hidden>${icons['alert-circle']}<span>${html(strings.choose)}</span></p>
-    <p class="lp-outcome-detail" data-lp-explanation hidden>${html(q.explanation)}</p>
+    <p class="lp-quote lp-dont-know-explanation" data-lp-explanation hidden>${icons['info-circle']}<span>${html(q.explanation)}</span></p>
   </fieldset>
   </div>`).join('\n  ')}
   <div data-lp-flow hidden>

@@ -29,6 +29,8 @@ function matches(value, rule) {
 }
 
 test('four money questions retain their text, answers and descriptive option identities', () => {
+  assert.equal(content.title, 'Money basics');
+  assert.equal(french.title, "Les bases de l'argent");
   assert.deepEqual(content.questions.map(q => q.text), [
     'What is an emergency fund for?',
     "What usually happens if you pay only your credit card's minimum each month?",
@@ -66,6 +68,7 @@ test('content validator and schema agree, with planted violations for every guar
   const fixtures = [[content, true], [french, true], [{ ...content, questions: [{ ...content.questions[0], text: ' ' }] }, true]];
   const bad = (value, field) => fixtures.push([value, false, field]);
   bad(null, 'content'); bad([], 'content'); bad({ ...content, extra: '' }, 'extra');
+  for (const title of ['', null, 3, undefined]) bad({ ...content, title }, 'title');
   for (const value of [[], null, 'questions', undefined]) bad({ ...content, questions: value }, 'questions');
   const q = content.questions[0], option = q.options[0];
   const question = value => ({ ...content, questions: [value] });
@@ -102,7 +105,7 @@ test('saved state must have valid own picks, and shown results need complete ans
 test('render escapes text, strings and attributes; ids and radio groups are instance-specific', () => {
   const hostile = '<script>alert("x")</script> & \'quoted\'';
   const q = content.questions[0];
-  const value = { ...content, questions: [{ ...q, text: hostile, explanation: hostile, options: [{ ...q.options[0], text: hostile }] }] };
+  const value = { ...content, title: hostile, questions: [{ ...q, text: hostile, explanation: hostile, options: [{ ...q.options[0], text: hostile }] }] };
   const ui = Object.fromEntries(Object.keys(strings.en).map(key => [key, hostile]));
   const output = render(value, ui, { id: 'first"', lang: 'en"' });
   assert.equal(output.includes('<script>'), false);
@@ -153,4 +156,20 @@ test('server markup uses shared course styles and focusable question targets wit
 test('English and French keys and template placeholders match', () => {
   assert.deepEqual(Object.keys(strings.en).sort(), Object.keys(strings.fr).sort());
   for (const key of Object.keys(strings.en)) assert.deepEqual(strings.en[key].match(/\{\w+\}/g), strings.fr[key].match(/\{\w+\}/g));
+});
+
+test('quiz scene renders escaped authored titles, bilingual question numbers and explanation panels', () => {
+  for (const [lang, source, title, label, number] of [
+    ['en', content, 'Money basics', 'Quick check', 'Question 1 of 4'],
+    ['fr', french, "Les bases de l'argent", 'Vérification rapide', 'Question 1 sur 4']
+  ]) {
+    const output = render({ ...source, title }, strings[lang], { id: 'quiz', lang });
+    assert.match(output, /<header class="lp-dont-know-scene">/);
+    assert.ok(output.includes(label));
+    assert.ok(output.includes(title.replaceAll("'", '&#39;')));
+    assert.ok(output.includes(number));
+    assert.equal((output.match(/class="lp-small lp-dont-know-question-number"/g) || []).length, 4);
+    assert.equal((output.match(/class="lp-quote lp-dont-know-explanation"/g) || []).length, 4);
+    assert.match(output, /data-lp-explanation hidden><svg[^>]+aria-hidden="true"/);
+  }
 });
