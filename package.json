@@ -11,7 +11,8 @@
     "types:check": "node scripts/check-types.mjs",
     "budget": "node scripts/check-budget.mjs",
     "demo": "node scripts/build-demo.mjs",
-    "test:browser": "playwright test --workers=2"
+    "test:browser": "playwright test --workers=2",
+    "preview:deploy": "npm run demo && npx wrangler@4 deploy"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",

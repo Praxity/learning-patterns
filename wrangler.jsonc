@@ -1,0 +1,8 @@
+{
+  // Unlisted live preview of the demo build. Deploy with `npm run preview:deploy`.
+  "name": "learning-patterns",
+  "compatibility_date": "2026-10-01",
+  "assets": { "directory": "./demo-dist" },
+  "workers_dev": true,
+  "preview_urls": false
+}
