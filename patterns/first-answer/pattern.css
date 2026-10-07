@@ -1,4 +1,4 @@
-﻿/* First-answer specifics. Link lib/base.css before this file. */
+/* First-answer specifics. Link lib/base.css before this file. */
 .lp-first-answer-heading { margin: 8px 0 0; }
 .lp-first-answer-quote { margin: 16px 0 0; white-space: pre-wrap; }
 .lp-first-answer-quote:first-child { margin-block-start: 0; }
