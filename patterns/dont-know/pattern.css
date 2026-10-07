@@ -4,12 +4,3 @@
 .lp-dont-know-unknown { flex-wrap: wrap; }
 .lp-dont-know .lp-choice > span:not(.lp-choice-mark) { min-inline-size: 0; flex: 1; white-space: pre-line; }
 .lp-dont-know .lp-stem { white-space: pre-line; }
-/* Shared base currently omits links from the focus rules; move this upstream with other patterns' review links. */
-.lp-dont-know-review a { color: var(--lp-accent); text-underline-offset: 3px; }
-.lp-dont-know-review a:focus { outline: 2px solid var(--lp-focus); outline-offset: 2px; }
-@media (forced-colors: active) {
-  /* Shared selected-row specificity overrides its forced-colour double border. Move this fix into base.css. */
-  .lp-dont-know .lp-choice[data-lp-mark] { border-style: double; }
-  .lp-dont-know-review a { color: LinkText; }
-  .lp-dont-know-review a:focus { outline-color: Highlight; }
-}

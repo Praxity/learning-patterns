@@ -92,8 +92,8 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; }
 
 /* Marking a choice after submit: the chosen and the correct option, by icon, word and ink. */
 .lp-choice[data-lp-mark] { flex-wrap: wrap; cursor: default; }
-.lp-choice[data-lp-mark="correct"] { border: 2px solid var(--lp-success-ink); padding: 11px 15px; }
-.lp-choice[data-lp-mark="wrong"] { border: 2px solid var(--lp-error-ink); padding: 11px 15px; }
+.lp-choice[data-lp-mark="correct"], .lp-choice[data-lp-mark="correct"]:has(input:checked) { border: 2px solid var(--lp-success-ink); padding: 11px 15px; }
+.lp-choice[data-lp-mark="wrong"], .lp-choice[data-lp-mark="wrong"]:has(input:checked) { border: 2px solid var(--lp-error-ink); padding: 11px 15px; }
 .lp-choice-mark { display: inline-flex; gap: 6px; align-items: flex-start; flex-basis: 100%; padding-inline-start: 32px; font-weight: 600; }
 .lp-choice-mark.lp-met { color: var(--lp-success-ink); }
 .lp-choice-mark.lp-missed { color: var(--lp-error-ink); }
@@ -149,7 +149,8 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; }
 .lp-details[open] > summary::before { transform: rotate(45deg); }
 .lp-details > :not(summary) { margin-block-start: 16px; }
 
-.lp :is(button, input, textarea, select, summary):focus,
+.lp a { color: var(--lp-accent); text-underline-offset: 3px; }
+.lp :is(a, button, input, textarea, select, summary):focus,
 .lp [tabindex="-1"]:focus-visible { outline: 2px solid var(--lp-focus); outline-offset: 2px; }
 
 .lp-visually-hidden {
@@ -173,10 +174,11 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; }
 @media (forced-colors: active) {
   .lp, .lp-box, .lp-input, .lp-choice, .lp-button { border-color: CanvasText; }
   .lp.lp-unboxed { border-color: transparent; }
-  .lp-choice[data-lp-mark] { border-style: double; }
+  .lp-choice[data-lp-mark], .lp-choice[data-lp-mark]:has(input:checked) { border-style: double; border-color: CanvasText; }
   .lp-choice:has(input:checked) { border-color: Highlight; }
   .lp-button { color: ButtonText; background: ButtonFace; border-color: ButtonText; }
   .lp-button-quiet { border-color: transparent; color: LinkText; }
-  .lp :is(button, input, textarea, select, summary):focus,
+  .lp a { color: LinkText; }
+  .lp :is(a, button, input, textarea, select, summary):focus,
   .lp [tabindex="-1"]:focus-visible { outline-color: Highlight; }
 }
