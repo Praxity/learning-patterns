@@ -4,3 +4,4 @@ playwright-report/
 AGENTS.local.md
 .dev.vars
 .wrangler/
+demo-dist/

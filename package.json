@@ -1,0 +1,21 @@
+{
+  "name": "learning-blocks",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": { "node": "22.x" },
+  "scripts": {
+    "test": "node --test",
+    "typecheck": "tsc --checkJs --noEmit",
+    "types": "tsc -p tsconfig.types.json",
+    "types:check": "node scripts/check-types.mjs",
+    "budget": "node scripts/check-budget.mjs",
+    "demo": "node scripts/build-demo.mjs",
+    "test:browser": "playwright test --workers=2"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
+    "@playwright/test": "^1.56.0",
+    "typescript": "^5.9.3"
+  }
+}
