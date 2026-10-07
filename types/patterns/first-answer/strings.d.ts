@@ -1,18 +1,17 @@
 export namespace strings {
     namespace en {
-        let stepFirst: string;
+        let journal: string;
         let start: string;
         let firstLabel: string;
         let saveFirst: string;
         let saved: string;
+        let kept: string;
         let firstSaved: string;
         let courseNote: string;
         let skip: string;
-        let stepEnd: string;
         let end: string;
         let nowLabel: string;
         let compare: string;
-        let firstPanel: string;
         let tick: string;
         let compared: string;
         let missing: string;
@@ -27,8 +26,8 @@ export namespace strings {
         let summary: string;
     }
     namespace fr {
-        let stepFirst_1: string;
-        export { stepFirst_1 as stepFirst };
+        let journal_1: string;
+        export { journal_1 as journal };
         let start_1: string;
         export { start_1 as start };
         let firstLabel_1: string;
@@ -37,22 +36,20 @@ export namespace strings {
         export { saveFirst_1 as saveFirst };
         let saved_1: string;
         export { saved_1 as saved };
+        let kept_1: string;
+        export { kept_1 as kept };
         let firstSaved_1: string;
         export { firstSaved_1 as firstSaved };
         let courseNote_1: string;
         export { courseNote_1 as courseNote };
         let skip_1: string;
         export { skip_1 as skip };
-        let stepEnd_1: string;
-        export { stepEnd_1 as stepEnd };
         let end_1: string;
         export { end_1 as end };
         let nowLabel_1: string;
         export { nowLabel_1 as nowLabel };
         let compare_1: string;
         export { compare_1 as compare };
-        let firstPanel_1: string;
-        export { firstPanel_1 as firstPanel };
         let tick_1: string;
         export { tick_1 as tick };
         let compared_1: string;
