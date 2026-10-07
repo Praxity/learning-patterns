@@ -1,4 +1,13 @@
-# Self-check
+---
+title: Check your own answer
+title_fr: Vérifiez votre réponse
+summary: Write an answer, tick the parts it includes, then see a hint for each part you missed and a model answer.
+section: question
+ai: no
+offline: yes
+learners: not tried
+---
+# Check your own answer
 
 Write an answer, check which parts you included, then compare it with authored feedback and a model answer.
 

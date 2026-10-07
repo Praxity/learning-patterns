@@ -7,5 +7,5 @@ export default defineConfig({
   reporter: [['list'], ['html', { open: 'never' }]],
   use: { baseURL: 'http://127.0.0.1:4173', headless: true, trace: 'retain-on-failure' },
   projects: ['chromium', 'webkit', 'firefox'].map(browserName => ({ name: browserName, use: { browserName } })),
-  webServer: { command: 'node scripts/serve-demo.mjs', url: 'http://127.0.0.1:4173/en.html', reuseExistingServer: false }
+  webServer: { command: 'node scripts/serve-demo.mjs', url: 'http://127.0.0.1:4173/index.html', reuseExistingServer: false }
 });

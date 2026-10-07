@@ -4,11 +4,11 @@ import { resolve, relative, extname, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('../demo-dist/', import.meta.url));
-const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css' };
+const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.md': 'text/markdown' };
 createServer(async (request, response) => {
   try {
     const url = new URL(request.url, 'http://localhost');
-    const file = resolve(root, `.${decodeURIComponent(url.pathname === '/' ? '/en.html' : url.pathname)}`);
+    const file = resolve(root, `.${decodeURIComponent(url.pathname === '/' ? '/index.html' : url.pathname)}`);
     const path = relative(root, file);
     if (path.startsWith(`..${sep}`) || path === '..') { response.writeHead(403); response.end(); return; }
     const body = await readFile(file);

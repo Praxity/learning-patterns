@@ -5,7 +5,7 @@ import { readFile } from 'node:fs/promises';
 const english = JSON.parse(await readFile(new URL('../../patterns/self-check/examples/en.json', import.meta.url)));
 const french = JSON.parse(await readFile(new URL('../../patterns/self-check/examples/fr.json', import.meta.url)));
 
-async function open(page, path = '/en.html') {
+async function open(page, path = '/self-check/en.html') {
   await page.goto(path);
   await page.waitForFunction(() => window.lpReady);
 }
@@ -59,7 +59,7 @@ for (const [lang, content, included, notIncluded] of [
   ['fr', french, 'Inclus', 'Non inclus']
 ]) {
   test(`feedback names every part and puts missed hints on their own line (${lang})`, async ({ page }) => {
-    await open(page, `/${lang}.html`);
+    await open(page, `/self-check/${lang}.html`);
     await page.getByRole('textbox').fill('Draft'); await page.locator('[data-lp-check]').click();
     await page.getByRole('checkbox').first().check(); await page.locator('[data-lp-show]').click();
     const rows = page.locator('[data-lp-result] li');
@@ -114,7 +114,7 @@ test('Start again uses a secondary button with accent border and the same target
   expect(await restart.evaluate(el => [getComputedStyle(el).color, getComputedStyle(el).borderColor])).toEqual(['rgb(18, 52, 86)', 'rgb(18, 52, 86)']);
 });
 
-for (const path of ['/en.html', '/fr.html', '/two.html']) {
+for (const path of ['/self-check/en.html', '/self-check/fr.html', '/self-check/two.html']) {
   test(`axe at load, checklist and feedback: ${path}`, async ({ page }) => {
     await open(page, path);
     const scan = async () => expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()).violations).toEqual([]);
@@ -148,7 +148,7 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
   test(`no JavaScript: native details contains all hints and model (${lang})`, async ({ browser }) => {
     const context = await browser.newContext({ javaScriptEnabled: false });
     const page = await context.newPage();
-    await page.goto(`/${lang}.html`);
+    await page.goto(`/self-check/${lang}.html`);
     await expect(page.getByRole('textbox')).toHaveAttribute('rows', '5');
     await page.locator('summary').click(); await expect(page.locator('details')).toHaveAttribute('open', '');
     for (const part of content.parts) await expect(page.locator('details')).toContainText(part.missed);
@@ -160,7 +160,7 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
 
   test(`320px and WCAG text spacing without overflow or overlap (${lang})`, async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 800 });
-    await open(page, `/${lang}.html`);
+    await open(page, `/self-check/${lang}.html`);
     await page.addStyleTag({ content: '*{line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important}p{margin-bottom:2em!important}' });
     await page.getByRole('textbox').fill('Draft'); await page.locator('[data-lp-check]').click(); await page.locator('[data-lp-show]').click();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -180,7 +180,7 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
 }
 
 test('French root has French language and translated feedback', async ({ page }) => {
-  await open(page, '/fr.html'); await expect(page.locator('[data-lp-pattern]')).toHaveAttribute('lang', 'fr');
+  await open(page, '/self-check/fr.html'); await expect(page.locator('[data-lp-pattern]')).toHaveAttribute('lang', 'fr');
   await page.getByRole('textbox').fill('Mon message'); await page.locator('[data-lp-check]').click();
   await page.getByRole('checkbox').first().check(); await page.locator('[data-lp-show]').click();
   await expect(page.locator('[data-lp-result]')).toContainText('Vous avez coché 1 des 6 éléments.');
@@ -217,7 +217,7 @@ test('enhance is idempotent and destroy removes listeners and restores fallback'
 });
 
 test('two instances have unique IDs and independent controls', async ({ page }) => {
-  await open(page, '/two.html');
+  await open(page, '/self-check/two.html');
   const ids = await page.locator('[id]').evaluateAll(elements => elements.map(el => el.id));
   expect(new Set(ids).size).toBe(ids.length);
   const roots = page.locator('[data-lp-pattern]');
