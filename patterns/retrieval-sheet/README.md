@@ -1,7 +1,7 @@
 ---
 title: Printable retrieval sheet
 title_fr: Feuille de rappel à imprimer
-summary: Print questions on the front and answers on the back to test yourself on a chosen date.
+summary: Print questions on the front and answers on the back to test yourself on a chosen date, with no connection needed.
 section: course
 ai: no
 offline: yes
@@ -14,6 +14,8 @@ You print questions on the front and answers on the back of a sheet to test your
 ## When to use it
 
 Use it for a short module with a few ideas or actions worth recalling. Keep questions focused and answers short enough for a sheet. Do not rely on handing out the sheet to bring learners back, since choosing a date sends no reminder.
+
+It also suits learners with patchy or no internet. Print the sheets, or save them as PDFs, while a connection is available, and the practice goes with the learner on paper. In a SCORM package the sheet prints from the course files with nothing to fetch.
 
 ## How it works
 
