@@ -197,16 +197,21 @@ test('reduced motion applies and new scene colours meet contrast', async ({ page
 });
 
 test('panels slide horizontally for 240ms, and reduced motion switches instantly', async ({ page }) => {
-  await open(page); await page.locator('[data-lp-start]').click();
-  const heading = page.locator('[data-lp-panel-heading]').first();
-  await expect(heading.locator('..')).toHaveCSS('animation-duration', '0.24s');
-  const from = await heading.locator('..').evaluate(el => {
-    const frames = el.getAnimations()[0].effect.getKeyframes();
-    return frames[0];
+  await open(page);
+  const sample = await page.evaluate(() => {
+    document.querySelector('[data-lp-start]').click();
+    const panel = document.querySelector('[data-lp-panel-heading]').parentElement;
+    const animation = panel.getAnimations()[0];
+    // Capture entry in the same task as the click, before the 240 ms entrance can finish.
+    animation.pause();
+    return { from: animation.effect.getKeyframes()[0], duration: animation.effect.getTiming().duration };
   });
-  expect(from.opacity).toBe('0'); expect(from.transform).toContain('translateX');
+  const panel = page.locator('[data-lp-panel-heading]').first().locator('..');
+  await expect(panel).toHaveCSS('animation-duration', '0.24s');
+  expect(sample.duration).toBe(240);
+  expect(sample.from.opacity).toBe('0'); expect(sample.from.transform).toContain('translateX');
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await expect(heading.locator('..')).toHaveCSS('animation-name', 'none');
+  await expect(panel).toHaveCSS('animation-name', 'none');
 });
 
 test('narrow French feedback sits below option text without squeezing it', async ({ page }) => {
