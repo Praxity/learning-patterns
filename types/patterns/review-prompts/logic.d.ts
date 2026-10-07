@@ -2,6 +2,10 @@
  * @param {unknown} content @returns {asserts content is Content}
  */
 export function validateContent(content: unknown): asserts content is Content;
+/** Estimate reading time from all authored text, excluding interface labels.
+ * @param {Content} content @returns {number} Whole minutes, at least one.
+ */
+export function readingMinutes(content: Content): number;
 /** Local calendar date for the datetime attribute and host state.
  * @param {Date} date @returns {string}
  */
@@ -18,7 +22,7 @@ export function validateState(content: Content, value: unknown): LearnerState | 
 /** @typedef {'remembered' | 'forgot'} Result */
 /** @typedef {{ remembered: number, forgot: number }} ReviewDays */
 /** @typedef {{ id: string, heading: string, paragraphs: string[], question: string, answer: string }} Part */
-/** @typedef {{ parts: Part[], reviewDays: ReviewDays }} Content */
+/** @typedef {{ title: string, parts: Part[], reviewDays: ReviewDays }} Content */
 /** @typedef {{ result: Result, reviewOn: string }} Review */
 /** @typedef {{ results: Record<string, Review> }} LearnerState */
 export const REVIEW_DAYS: Readonly<{
@@ -38,6 +42,7 @@ export type Part = {
     answer: string;
 };
 export type Content = {
+    title: string;
     parts: Part[];
     reviewDays: ReviewDays;
 };

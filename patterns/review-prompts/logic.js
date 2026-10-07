@@ -1,7 +1,7 @@
 /** @typedef {'remembered' | 'forgot'} Result */
 /** @typedef {{ remembered: number, forgot: number }} ReviewDays */
 /** @typedef {{ id: string, heading: string, paragraphs: string[], question: string, answer: string }} Part */
-/** @typedef {{ parts: Part[], reviewDays: ReviewDays }} Content */
+/** @typedef {{ title: string, parts: Part[], reviewDays: ReviewDays }} Content */
 /** @typedef {{ result: Result, reviewOn: string }} Review */
 /** @typedef {{ results: Record<string, Review> }} LearnerState */
 
@@ -32,7 +32,8 @@ function result(value) { return value === 'remembered' || value === 'forgot'; }
  */
 export function validateContent(content) {
   if (!object(content)) throw new Error('Invalid content');
-  fields(content, ['parts', 'reviewDays'], 'content');
+  fields(content, ['title', 'parts', 'reviewDays'], 'content');
+  if (typeof content.title !== 'string' || content.title.length === 0) throw new Error('Invalid title');
   validateReviewDays(content.reviewDays);
   if (!Array.isArray(content.parts) || content.parts.length === 0) throw new Error('Invalid parts');
   const known = new Set();
@@ -50,6 +51,15 @@ export function validateContent(content) {
       if (typeof paragraph !== 'string' || paragraph.length === 0) throw new Error(`Invalid ${path}.paragraphs[${i}]`);
     });
   });
+}
+
+/** Estimate reading time from all authored text, excluding interface labels.
+ * @param {Content} content @returns {number} Whole minutes, at least one.
+ */
+export function readingMinutes(content) {
+  validateContent(content);
+  const text = [content.title, ...content.parts.flatMap(part => [part.heading, ...part.paragraphs, part.question, part.answer])].join(' ');
+  return Math.max(1, Math.ceil((text.match(/\S+/gu)?.length ?? 0) / 200));
 }
 
 /** Local calendar date for the datetime attribute and host state.
