@@ -22,7 +22,7 @@ export function render(content, strings, { id, lang }) {
     const row = estimate.sections[index];
     return `<li class="lp-minutes-section" data-lp-section="${html(section.id)}">
     <div class="lp-minutes-row"><div class="lp-minutes-heading"><h3 class="lp-run-in" id="${heading}">${html(section.title)}</h3>
-      <p class="lp-small" data-lp-breakdown>${html(formatText(strings.breakdown, { words: section.words, questions: section.questions }, lang))}</p></div>
+      <p class="lp-small" data-lp-breakdown>${html(formatText(section.questions === 1 ? strings.breakdownOne : strings.breakdown, { words: section.words, questions: section.questions }, lang))}</p></div>
       <span class="lp-small lp-minutes-chip">${icons.history}<span data-lp-minutes>${html(formatText(strings.minutes, { n: row?.minutes ?? 0 }, lang))}</span></span>
     </div>
     <p class="lp-small lp-minutes-chip lp-minutes-warning" data-lp-warning${row?.overLimit ? '' : ' hidden'}>${icons['alert-circle']}<span>${html(strings.warning)}</span></p>

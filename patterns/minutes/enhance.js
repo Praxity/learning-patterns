@@ -82,7 +82,7 @@ export function enhance(root, { content, strings, state }) {
         try {
           const minutes = estimateMinutes(rowCounts.words, rowCounts.questions, rowCounts.narrationSeconds, content.rates);
           block.minutes.textContent = formatText(strings.minutes, { n: minutes }, root.lang);
-          block.breakdown.textContent = formatText(strings.breakdown, rowCounts, root.lang);
+          block.breakdown.textContent = formatText(rowCounts.questions === 1 ? strings.breakdownOne : strings.breakdown, rowCounts, root.lang);
           block.warning.hidden = !overLimit(minutes);
           // Object.fromEntries handles authored ids such as __proto__ as ordinary keys.
           Object.defineProperty(counts, block.section.id, { value: rowCounts, enumerable: true });

@@ -14,6 +14,7 @@ export namespace strings {
         let narrationSeconds: string;
         let questions: string;
         let breakdown: string;
+        let breakdownOne: string;
         let minutes: string;
         let warning: string;
         let noEstimate: string;
@@ -42,6 +43,8 @@ export namespace strings {
         export { questions_1 as questions };
         let breakdown_1: string;
         export { breakdown_1 as breakdown };
+        let breakdownOne_1: string;
+        export { breakdownOne_1 as breakdownOne };
         let minutes_1: string;
         export { minutes_1 as minutes };
         let warning_1: string;

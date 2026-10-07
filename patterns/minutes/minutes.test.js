@@ -125,3 +125,14 @@ test('bilingual fixtures, schema and strings follow the same contract', async ()
     assert.equal(Object.values(strings[lang]).some(text => text.includes('—')), false);
   }
 });
+
+test('a section with one question says "1 question", in English and French', async () => {
+  for (const lang of ['en', 'fr']) {
+    const content = JSON.parse(await readFile(new URL(`./examples/${lang}.json`, import.meta.url), 'utf8'));
+    const one = content.sections.findIndex(section => section.questions === 1);
+    assert.ok(one >= 0, 'example has a one-question section');
+    const html = render(content, strings[lang], { id: 'one', lang });
+    assert.match(html, lang === 'en' ? /\b1 question</ : /\b1 question</);
+    assert.doesNotMatch(html, /\b1 questions\b/);
+  }
+});
