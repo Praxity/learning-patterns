@@ -1,0 +1,17 @@
+{
+  "question": "Is taking a real break during the workday a waste of time?",
+  "rightAnswer": "No. Short breaks restore attention and reduce mistakes.",
+  "misconceptions": [
+    { "id": "busy", "label": "Breaks are for people who aren't busy" },
+    { "id": "push-through", "label": "Pushing through is always more productive" },
+    { "id": "phone", "label": "Scrolling your phone counts as rest" },
+    { "id": "exhausted", "label": "Rest only when you're exhausted" }
+  ],
+  "authorOptions": [
+    { "text": "Yes. Busy people don't have time for breaks.", "misconception": "busy" },
+    { "text": "Yes. Pushing through always gets more work done.", "misconception": "push-through" },
+    { "text": "Yes. Scrolling your phone while working gives you enough rest.", "misconception": "phone" },
+    { "text": "Yes. You only need rest once you're exhausted.", "misconception": "exhausted" }
+  ],
+  "count": 2
+}
