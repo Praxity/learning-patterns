@@ -103,7 +103,8 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     await page.addStyleTag({ content: '*{line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important}p{margin-bottom:2em!important}' });
     await page.getByRole('textbox').fill('Draft'); await page.locator('[data-lb-check]').click(); await page.locator('[data-lb-show]').click();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    const problems = await page.evaluate(() => [...document.querySelectorAll('p, label, legend, button, li, h2')].filter(el => el.getClientRects().length).flatMap(el => {
+    // The status region is deliberately clipped for screen readers. Check visible text.
+    const problems = await page.evaluate(() => [...document.querySelectorAll('p, label, legend, button, li, h2')].filter(el => el.getClientRects().length && !el.matches('[role="status"]')).flatMap(el => {
       const failures = [];
       if (el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1) failures.push(el.textContent);
       const children = [...el.children].filter(child => child.getClientRects().length);
@@ -121,7 +122,7 @@ test('French root has French language and translated feedback', async ({ page })
   await open(page, '/fr.html'); await expect(page.locator('[data-lb-block]')).toHaveAttribute('lang', 'fr');
   await page.getByRole('textbox').fill('Mon message'); await page.locator('[data-lb-check]').click();
   await page.getByRole('checkbox').first().check(); await page.locator('[data-lb-show]').click();
-  await expect(page.locator('[data-lb-result]')).toContainText('Vous avez coché 1 éléments sur 6.');
+  await expect(page.locator('[data-lb-result]')).toContainText('Vous avez coché 1 des 6 éléments.');
   await expect(page.locator('[data-lb-result]')).toContainText(french.model);
 });
 
@@ -161,6 +162,29 @@ test('two instances have unique IDs and independent controls', async ({ page }) 
   await roots.first().getByRole('checkbox').first().check(); await roots.first().locator('[data-lb-show]').click();
   await expect(roots.nth(1).getByRole('textbox')).toHaveValue(''); await expect(roots.nth(1).locator('[data-lb-ticks]')).toBeHidden();
   await expect(roots.nth(1).locator('[role="status"]')).toHaveText('');
+});
+
+test('destroy is safe to repeat after another enhancement', async ({ page }) => {
+  await open(page);
+  await page.evaluate(() => {
+    const old = window.lbInstances[0];
+    old.destroy(); window.lbEnhance(); old.destroy();
+  });
+  await expect(page.locator('[data-lb-flow]')).toBeVisible();
+  expect(await page.evaluate(() => window.lbEnhance() === window.lbEnhance())).toBe(true);
+  await observeStatus(page); await ticks(page); await page.locator('[data-lb-show]').click();
+  expect(await page.evaluate(() => window.lbAnnouncements)).toEqual(['You ticked 0 of 6 parts.']);
+});
+
+test('missing or mismatched markup throws a useful error', async ({ page }) => {
+  await open(page);
+  await expect(page.evaluate(async content => {
+    const { enhance } = await import('/blocks/self-check/enhance.js');
+    const { strings } = await import('/blocks/self-check/strings.js');
+    enhance(document.createElement('section'), { content, strings: strings.en });
+  }, english)).rejects.toThrow('Missing self-check markup: textarea');
+  await page.evaluate(() => { window.lbInstances[0].destroy(); document.querySelector('input').remove(); });
+  await expect(page.evaluate(() => window.lbEnhance())).rejects.toThrow('Invalid self-check parts markup');
 });
 
 test('forced colours keeps a 2px focus outline on buttons and checkboxes', async ({ page, browserName }) => {

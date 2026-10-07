@@ -23,7 +23,7 @@ export const strings = {
     empty: "Écrivez d'abord une réponse.",
     tick: 'Cochez chaque élément présent dans votre réponse',
     show: 'Afficher la rétroaction',
-    summary: 'Vous avez coché {count} éléments sur {total}.',
+    summary: 'Vous avez coché {count} des {total} éléments.',
     included: 'Inclus',
     notIncluded: 'Non inclus',
     restart: 'Recommencer',

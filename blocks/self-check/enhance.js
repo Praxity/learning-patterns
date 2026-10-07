@@ -27,6 +27,7 @@ export function enhance(root, { content, strings, state }) {
   const boxes = [...fieldset.querySelectorAll('input')];
   if (boxes.length !== content.parts.length) throw new Error('Invalid self-check parts markup');
   let shown = false;
+  let destroyed = false;
   /** @type {(() => void)[]} */
   const removals = [];
   /** @param {Element} target @param {string} event @param {() => void} handler */
@@ -95,6 +96,8 @@ export function enhance(root, { content, strings, state }) {
   flow.hidden = false;
   const instance = {
     destroy() {
+      if (destroyed) return;
+      destroyed = true;
       for (const remove of removals) remove();
       flow.hidden = true;
       fallback.hidden = false;

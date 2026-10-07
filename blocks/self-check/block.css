@@ -24,7 +24,7 @@
 }
 .lb-self-check *, .lb-self-check *::before, .lb-self-check *::after { box-sizing: border-box; }
 .lb-self-check [hidden] { display: none !important; }
-.lb-self-check p { margin-block: var(--lb-space); white-space: pre-wrap; }
+.lb-self-check p { margin-block: var(--lb-space); white-space: pre-line; }
 .lb-self-check-answer-label { display: block; font-weight: 600; margin-block-end: calc(var(--lb-space) / 2); }
 .lb-self-check-answer {
   display: block;
@@ -53,7 +53,7 @@
   overflow-wrap: anywhere;
   cursor: pointer;
 }
-.lb-self-check :is(button, input, textarea, summary):focus-visible {
+.lb-self-check :is(button, input, textarea, summary):focus {
   outline: 2px solid var(--lb-focus);
   outline-offset: 2px;
 }
@@ -72,7 +72,7 @@
 .lb-self-check-fallback { margin-block: var(--lb-space); }
 .lb-self-check-fallback summary { cursor: pointer; padding-block: calc(var(--lb-space) / 2); }
 .lb-self-check-fallback ul { padding-inline-start: calc(var(--lb-space) * 1.5); }
-.lb-self-check-status {
+.lb-self-check .lb-self-check-status {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -83,7 +83,7 @@
   white-space: nowrap;
 }
 @media (forced-colors: active) {
-  .lb-self-check :is(button, input, textarea, summary):focus-visible { outline-color: Highlight; }
+  .lb-self-check :is(button, input, textarea, summary):focus { outline-color: Highlight; }
   .lb-self-check-button { color: ButtonText; background: ButtonFace; border-color: ButtonText; }
   .lb-self-check-ticks, .lb-self-check-answer { border-color: CanvasText; }
 }
