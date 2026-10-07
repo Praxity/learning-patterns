@@ -9,8 +9,8 @@ export const BUDGET = 10 * 1024;
 // Measure each shipped module separately, as browsers receive separate ES modules.
 export async function checkBudget(root) {
   const results = [];
-  for (const block of await readdir(resolve(root, 'blocks'), { withFileTypes: true })) {
-    if (!block.isDirectory()) continue;
+  for (const pattern of await readdir(resolve(root, 'patterns'), { withFileTypes: true })) {
+    if (!pattern.isDirectory()) continue;
     const seen = new Set();
     let bytes = 0;
     async function visit(file) {
@@ -41,14 +41,14 @@ export async function checkBudget(root) {
         await visit(dependency);
       }
     }
-    await visit(resolve(root, 'blocks', block.name, 'enhance.js'));
-    if (bytes > BUDGET) throw new Error(`${block.name}: ${bytes} gzip bytes exceeds ${BUDGET}`);
-    results.push({ block: block.name, bytes, modules: seen.size });
+    await visit(resolve(root, 'patterns', pattern.name, 'enhance.js'));
+    if (bytes > BUDGET) throw new Error(`${pattern.name}: ${bytes} gzip bytes exceeds ${BUDGET}`);
+    results.push({ pattern: pattern.name, bytes, modules: seen.size });
   }
   return results;
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   const root = fileURLToPath(new URL('../', import.meta.url));
-  for (const result of await checkBudget(root)) console.log(`${result.block}: ${result.bytes}/${BUDGET} gzip bytes (${result.modules} modules)`);
+  for (const result of await checkBudget(root)) console.log(`${result.pattern}: ${result.bytes}/${BUDGET} gzip bytes (${result.modules} modules)`);
 }

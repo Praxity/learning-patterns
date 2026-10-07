@@ -1,16 +1,17 @@
-# Learning blocks
+# Learning patterns
 
-Small learning interactions people copy into their projects. Read a block's README before changing it.
+Small learning interactions people copy into their projects. Read a pattern's README before changing it.
 
-## Block contract
+## Pattern contract
 
-Each `blocks/<name>/` contains pure `logic.js`, server `render.js`, DOM `enhance.js`, `block.css`, bilingual `strings.js`, `content.schema.json`, examples and tests.
+Each `patterns/<name>/` contains pure `logic.js`, server `render.js`, DOM `enhance.js`, `pattern.css`, bilingual `strings.js`, `content.schema.json`, examples and tests.
 
 - `validateContent(content)` throws an Error naming the bad field.
-- `render(content, strings, { id, lang })` returns complete, escaped HTML usable without JavaScript. Prefix every element id with the instance id. The section has class `lb-<name>`, `data-lb-block="<name>"` and `lang`.
+- `render(content, strings, { id, lang })` returns complete, escaped HTML usable without JavaScript. Prefix every element id with the instance id. The section has class `lp-<name>`, `data-lp-pattern="<name>"` and `lang`.
 - `enhance(root, { content, strings, state })` keeps server markup, reveals hidden controls and returns `{ destroy() }`. Repeated calls return the same instance. Optional host state has `read()` and `write(value)`. Ignore invalid saved values.
-- Import shared helpers relatively from `lib/`. A block has no framework or runtime dependencies.
-- Prefix CSS classes with the block name. Use the root's `--lb-*` tokens for colours, spacing, radius, font and focus.
+- Import shared helpers relatively from `lib/`. A pattern has no framework or runtime dependencies.
+- Praxity Studio imports `logic.js`, `content.schema.json` and `strings.js`, so keep them free of DOM code and change their shapes only with a note in the pattern README.
+- Prefix CSS classes with the pattern name. Use the root's `--lp-*` tokens for colours, spacing, radius, font and focus.
 - Keep English and French together with identical string keys. Authors write every learner-facing message. A model may only pick which one.
 
 ## Accessibility and feedback

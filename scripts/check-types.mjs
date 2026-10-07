@@ -24,7 +24,7 @@ export async function compareTypes(actual, expected) {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   const root = fileURLToPath(new URL('../', import.meta.url));
-  const temporary = await mkdtemp(join(tmpdir(), 'lb-types-'));
+  const temporary = await mkdtemp(join(tmpdir(), 'lp-types-'));
   try {
     execFileSync(process.execPath, [join(root, 'node_modules/typescript/bin/tsc'), '-p', 'tsconfig.types.json', '--outDir', temporary], { cwd: root, stdio: 'inherit' });
     await compareTypes(join(root, 'types'), temporary);

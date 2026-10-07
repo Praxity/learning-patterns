@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { compareTypes } from './check-types.mjs';
 
 test('declaration check catches stale, missing and extra files', async (t) => {
-  const root = await mkdtemp(join(tmpdir(), 'lb-types-'));
+  const root = await mkdtemp(join(tmpdir(), 'lp-types-'));
   t.after(() => rm(root, { recursive: true, force: true }));
   const actual = join(root, 'actual');
   const expected = join(root, 'expected');

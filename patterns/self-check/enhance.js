@@ -18,11 +18,11 @@ export function enhance(root, { content, strings, state }) {
     return /** @type {T} */ (element);
   }
   const answer = /** @type {HTMLTextAreaElement} */ (required('textarea'));
-  const error = /** @type {HTMLElement} */ (required('[data-lb-error]'));
-  const fallback = /** @type {HTMLDetailsElement} */ (required('[data-lb-fallback]'));
-  const flow = /** @type {HTMLElement} */ (required('[data-lb-flow]'));
-  const fieldset = /** @type {HTMLFieldSetElement} */ (required('[data-lb-ticks]'));
-  const result = /** @type {HTMLElement} */ (required('[data-lb-result]'));
+  const error = /** @type {HTMLElement} */ (required('[data-lp-error]'));
+  const fallback = /** @type {HTMLDetailsElement} */ (required('[data-lp-fallback]'));
+  const flow = /** @type {HTMLElement} */ (required('[data-lp-flow]'));
+  const fieldset = /** @type {HTMLFieldSetElement} */ (required('[data-lp-ticks]'));
+  const result = /** @type {HTMLElement} */ (required('[data-lp-result]'));
   const status = /** @type {HTMLElement} */ (required('[role="status"]'));
   const boxes = [...fieldset.querySelectorAll('input')];
   if (boxes.length !== content.parts.length) throw new Error('Invalid self-check parts markup');
@@ -54,9 +54,9 @@ export function enhance(root, { content, strings, state }) {
   function show(announce) {
     const outcome = feedback(content, ticked());
     const summary = strings.summary.replaceAll('{count}', String(outcome.count)).replaceAll('{total}', String(outcome.total));
-    result.innerHTML = `<p class="lb-self-check-summary">${html(summary)}</p>
-      <ul class="lb-self-check-feedback">${outcome.items.map(item => `<li><span class="lb-self-check-mark" aria-hidden="true">${item.included ? '✓' : '○'}</span><div><strong>${html(item.included ? strings.included : strings.notIncluded)}</strong><p>${html(item.text)}</p></div></li>`).join('')}</ul>
-      <h2 class="lb-self-check-model-label">${html(strings.model)}</h2><p>${html(content.model)}</p>`;
+    result.innerHTML = `<p class="lp-self-check-summary">${html(summary)}</p>
+      <ul class="lp-self-check-feedback">${outcome.items.map(item => `<li><span class="lp-self-check-mark" aria-hidden="true">${item.included ? '✓' : '○'}</span><div><strong>${html(item.included ? strings.included : strings.notIncluded)}</strong><p>${html(item.text)}</p></div></li>`).join('')}</ul>
+      <h2 class="lp-self-check-model-label">${html(strings.model)}</h2><p>${html(content.model)}</p>`;
     result.hidden = false;
     shown = true;
     // One replacement also announces a repeated submission with the same count.
@@ -71,18 +71,18 @@ export function enhance(root, { content, strings, state }) {
   }
   listen(answer, 'input', () => { clearError(); save(); });
   for (const box of boxes) listen(box, 'change', save);
-  listen(required('[data-lb-check]'), 'click', () => {
+  listen(required('[data-lp-check]'), 'click', () => {
     if (!hasAnswer()) return;
     fieldset.hidden = false;
     boxes[0]?.focus();
     save();
   });
-  listen(required('[data-lb-show]'), 'click', () => {
+  listen(required('[data-lp-show]'), 'click', () => {
     if (!hasAnswer()) return;
     show(true);
     save();
   });
-  listen(required('[data-lb-restart]'), 'click', () => {
+  listen(required('[data-lp-restart]'), 'click', () => {
     answer.value = '';
     for (const box of boxes) box.checked = false;
     result.replaceChildren(); result.hidden = true;
