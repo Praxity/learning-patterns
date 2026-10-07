@@ -382,10 +382,13 @@ test('a one-section lesson has two empty navigation slots', async ({ page }) => 
 test('switching without the stylesheet or with an invalid fade token keeps the current view usable', async ({ page }) => {
   await open(page);
   const errors = []; page.on('pageerror', error => errors.push(error.message));
-  await page.addStyleTag({ content: '.lp-formats-lesson { --lp-formats-fade-duration: invalid; }' });
-  await button(page, 'slides').evaluate(el => el.click());
-  await expect(point(page).getByRole('heading')).toHaveText(english.points[0].title);
-  await expect(point(page).locator('[data-lp-view="text"]')).toBeHidden();
+  for (const [token, format] of [['invalid', 'slides'], ['0ms', 'audio'], ['-1ms', 'outline']]) {
+    await page.addStyleTag({ content: `.lp-formats-lesson { --lp-formats-fade-duration: ${token}; }` });
+    await button(page, format).evaluate(el => el.click());
+    await expect(point(page).getByRole('heading')).toHaveText(english.points[0].title);
+    await expect(point(page).locator('[data-lp-view]:visible')).toHaveCount(1);
+    await expect(point(page).locator(`[data-lp-view="${format}"]`)).toBeVisible();
+  }
   await page.evaluate(() => [...document.styleSheets].forEach(sheet => { sheet.disabled = true; }));
   await button(page, 'audio').evaluate(el => el.click());
   await expect(point(page).locator('[data-lp-view="slides"]')).toBeHidden();
