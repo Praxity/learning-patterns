@@ -225,8 +225,12 @@ test('reset uses a quiet button and theme tokens reach controls and focus', asyn
   await expect(restart).toHaveCSS('color', 'rgb(18, 52, 86)'); await expect(restart).toHaveCSS('border-color', 'rgba(0, 0, 0, 0)');
   await expect(restart).toHaveCSS('text-decoration-line', 'underline');
   await expect(restart.locator('svg[aria-hidden="true"]')).toHaveCount(1);
+  await restart.focus();
+  await expect(restart).toHaveCSS('outline-color', 'rgb(101, 67, 33)');
+  await expect(restart).toHaveCSS('outline-style', 'solid');
+  await expect(restart).toHaveCSS('outline-width', '2px');
   await restart.click();
-  for (const control of [page.locator('input').first(), page.locator('[data-lp-check]'), restart]) {
+  for (const control of [page.locator('input').first(), page.locator('[data-lp-check]')]) {
     await control.focus();
     await expect(control).toHaveCSS('outline-color', 'rgb(101, 67, 33)');
     await expect(control).toHaveCSS('outline-style', 'solid');
@@ -306,6 +310,10 @@ test('enhance twice returns one instance; destroy removes listeners and safely r
   await page.evaluate(() => { window.lpEnhance(); window.lpInstances[0].destroy(); });
   await expect(page.locator('[data-lp-flow]')).toBeVisible();
   expect(await page.evaluate(() => window.lpEnhance() === window.lpEnhance())).toBe(true);
+  await expect(page.locator('input:disabled')).toHaveCount(16);
+  await expect(page.locator('.lp-choice-mark')).toHaveCount(6);
+  await expect(page.locator('[role="status"]')).toHaveText('');
+  await page.locator('[data-lp-restart]').click();
   await pick(page); await page.locator('[data-lp-check]').click(); await expect(page.locator('.lp-choice-mark')).toHaveCount(6);
 });
 

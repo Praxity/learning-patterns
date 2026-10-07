@@ -8,6 +8,8 @@
 .lp-dont-know-review a { color: var(--lp-accent); text-underline-offset: 3px; }
 .lp-dont-know-review a:focus { outline: 2px solid var(--lp-focus); outline-offset: 2px; }
 @media (forced-colors: active) {
+  /* Shared selected-row specificity overrides its forced-colour double border. Move this fix into base.css. */
+  .lp-dont-know .lp-choice[data-lp-mark] { border-style: double; }
   .lp-dont-know-review a { color: LinkText; }
   .lp-dont-know-review a:focus { outline-color: Highlight; }
 }
