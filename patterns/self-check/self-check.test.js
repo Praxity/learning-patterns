@@ -9,17 +9,25 @@ const content = JSON.parse(await readFile(new URL('./examples/en.json', import.m
 const schema = JSON.parse(await readFile(new URL('./content.schema.json', import.meta.url)));
 
 // Only the schema keywords used by this pattern. x-uniqueBy checks part identities.
-function matches(value, rule) {
+function matches(value, rule, root = value) {
+  if (Array.isArray(rule.type)) return rule.type.some(type => matches(value, { ...rule, type }, root));
+  if (rule.type === 'null') return value === null;
   if (rule.type === 'object') {
     if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
     if (rule.required.some(key => !Object.hasOwn(value, key))) return false;
     if (rule.additionalProperties === false && Object.keys(value).some(key => !Object.hasOwn(rule.properties, key))) return false;
-    return Object.entries(rule.properties).every(([key, child]) => matches(value[key], child));
+    return Object.entries(rule.properties).every(([key, child]) => matches(value[key], child, root));
   }
   if (rule.type === 'array') {
     if (!Array.isArray(value) || value.length < rule.minItems) return false;
     if (rule['x-uniqueBy'] && new Set(value.map(item => item?.[rule['x-uniqueBy']])).size !== value.length) return false;
-    return value.every(item => matches(item, rule.items));
+    return value.every(item => matches(item, rule.items, root));
+  }
+  if (rule['x-occursOnceIn'] && typeof value === 'string' && value.length) {
+    const model = root[rule['x-occursOnceIn']];
+    if (typeof model !== 'string') return false;
+    const at = model.indexOf(value);
+    if (at < 0 || model.indexOf(value, at + 1) >= 0) return false;
   }
   return typeof value === 'string' && value.length >= rule.minLength && (!rule.pattern || new RegExp(rule.pattern).test(value));
 }
@@ -36,8 +44,8 @@ test('feedback counts unique known ticks and returns labels and missed hints in 
   assert.throws(() => feedback(content, ['unknown']), /Unknown part: unknown/);
 });
 
-test('content parts need only id, label and missed; the removed met field is rejected', () => {
-  const value = { task: 'Explain the delay.', parts: [{ id: 'reason', label: 'Reason', missed: 'Say why.' }], model: 'The data arrived late.' };
+test('content parts use evidence and reject the obsolete met field', () => {
+  const value = { task: 'Explain the delay.', context: { to: 'Sam', initials: 'S', subject: 'Delay' }, parts: [{ id: 'reason', label: 'Reason', missed: 'Say why.', evidence: 'The data arrived late.' }], model: 'The data arrived late.' };
   assert.doesNotThrow(() => validateContent(value));
   assert.equal(matches(value, schema), true);
   const obsolete = { ...value, parts: [{ ...value.parts[0], met: 'Reason given.' }] };
@@ -61,6 +69,11 @@ test('content validator and schema agree on shared valid and planted invalid fie
   bad({ ...content, parts: [{ ...content.parts[0], id: 'bad id' }] }, 'id');
   bad({ ...content, parts: [{ ...content.parts[0], extra: 'x' }] }, 'extra');
   bad({ ...content, parts: [content.parts[0], { ...content.parts[0], label: 'Duplicate identity' }] }, 'id');
+  for (const value of [undefined, null, [], 'Sam', { ...content.context, extra: 'x' }]) bad({ ...content, context: value }, 'context');
+  for (const field of ['to', 'initials', 'subject']) {
+    for (const value of [undefined, null, '', 3]) bad({ ...content, context: { ...content.context, [field]: value } }, `context.${field}`);
+  }
+  for (const evidence of [undefined, '', 3, 'Absent', 'a']) bad({ ...content, parts: [{ ...content.parts[0], evidence }] }, 'evidence');
   for (const [value, valid, field] of fixtures) {
     assert.equal(matches(value, schema), valid, `schema: ${field}`);
     if (valid) assert.doesNotThrow(() => validateContent(value));
@@ -70,7 +83,7 @@ test('content validator and schema agree on shared valid and planted invalid fie
 
 test('render escapes all plain text and attribute values and prefixes every id', () => {
   const hostile = '<script>alert("x")</script> & \'quoted\'';
-  const value = { task: hostile, model: hostile, parts: [{ id: 'one', label: hostile, missed: hostile }] };
+  const value = { task: hostile, context: { to: hostile, initials: hostile, subject: hostile }, model: hostile, parts: [{ id: 'one', label: hostile, missed: hostile, evidence: hostile }] };
   const ui = Object.fromEntries(Object.keys(strings.en).map(key => [key, hostile]));
   const html = render(value, ui, { id: 'first"', lang: 'en"' });
   assert.equal(html.includes('<script>'), false);

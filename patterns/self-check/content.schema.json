@@ -2,23 +2,81 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Self-check content",
   "type": "object",
-  "required": ["task", "parts", "model"],
+  "required": [
+    "task",
+    "parts",
+    "model",
+    "context"
+  ],
   "additionalProperties": false,
   "properties": {
-    "task": { "type": "string", "minLength": 1 },
-    "model": { "type": "string", "minLength": 1 },
+    "task": {
+      "type": "string",
+      "minLength": 1
+    },
+    "model": {
+      "type": "string",
+      "minLength": 1
+    },
     "parts": {
       "type": "array",
       "minItems": 1,
       "x-uniqueBy": "id",
       "items": {
         "type": "object",
-        "required": ["id", "label", "missed"],
+        "required": [
+          "id",
+          "label",
+          "missed",
+          "evidence"
+        ],
         "additionalProperties": false,
         "properties": {
-          "id": { "type": "string", "minLength": 1, "pattern": "^[a-zA-Z0-9_-]+$" },
-          "label": { "type": "string", "minLength": 1 },
-          "missed": { "type": "string", "minLength": 1 }
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "missed": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1,
+            "x-occursOnceIn": "model",
+            "description": "An exact substring occurring once in model, or null for a whole-message part. validateContent checks the substring constraint."
+          }
+        }
+      }
+    },
+    "context": {
+      "type": "object",
+      "required": [
+        "to",
+        "initials",
+        "subject"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "to": {
+          "type": "string",
+          "minLength": 1
+        },
+        "initials": {
+          "type": "string",
+          "minLength": 1
+        },
+        "subject": {
+          "type": "string",
+          "minLength": 1
         }
       }
     }

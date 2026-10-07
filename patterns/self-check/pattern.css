@@ -1,4 +1,67 @@
-/* Self-check specifics. Shared styles and the --lp-* tokens live in lib/base.css; link it first. */
+﻿/* Shared controls, colours and reveal motion come from lib/base.css. */
+.lp-self-check { padding: 0; overflow: hidden; }
+.lp-self-check > * + * { margin-block-start: 0; }
+.lp-self-check-scene { display: flex; gap: 14px; align-items: flex-start; padding: 22px 24px; background: var(--lp-paper-2); border-block-end: 1px solid var(--lp-rule); }
+.lp-self-check-scene-icon { display: grid; place-items: center; inline-size: 40px; block-size: 40px; flex: none; border-radius: var(--lp-radius-control); color: var(--lp-accent-ink); background: var(--lp-accent-soft); }
+.lp-self-check-scene-icon .lp-icon { inline-size: 22px; block-size: 22px; }
+.lp-self-check-scene .lp-stem { margin-block-start: 2px; font-size: 1.1875rem; line-height: 1.4; }
+.lp-self-check-composer { margin: 20px 24px 24px; border: 1px solid var(--lp-line); border-radius: var(--lp-radius-control); }
+.lp-self-check-meta { display: flex; gap: 12px; align-items: center; min-block-size: 44px; padding: 8px 16px; border-block-end: 1px solid var(--lp-rule); font-size: var(--lp-type-small); }
+.lp-self-check-meta-key { inline-size: 56px; flex: none; color: var(--lp-ink-2); }
+.lp-self-check-recipient { display: inline-flex; gap: 8px; align-items: center; min-inline-size: 0; padding: 2px 10px 2px 2px; border-radius: 999px; background: var(--lp-paper-2); }
+.lp-self-check-avatar { display: grid; place-items: center; min-inline-size: 24px; min-block-size: 24px; flex: none; padding: 2px; border-radius: 50%; color: var(--lp-on-accent); background: var(--lp-accent); font-size: .75rem; font-weight: 600; }
+.lp-self-check-composer-label { padding: 12px 16px 0; }
+.lp-self-check-composer-body.lp-input { margin: 0; padding: 6px 16px 14px; min-block-size: 9.5rem; border: 0; border-radius: 0; font-size: 1.125rem; }
+.lp-self-check-composer-body:focus { outline-offset: -2px; }
+.lp-self-check-composer-body[aria-invalid="true"] { border: 2px solid var(--lp-error-ink); padding: 4px 14px 12px; }
+.lp-self-check-composer-foot { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: flex-end; padding: 10px 12px; border-block-start: 1px solid var(--lp-rule); }
+.lp-self-check-composer-foot .lp-error-text { margin-inline-end: auto; }
+.lp-self-check [data-lp-ticks], .lp-self-check [data-lp-result] { margin: 0; padding: 24px; }
+.lp-self-check-step-head { display: flex; gap: 16px; align-items: flex-start; justify-content: space-between; }
+.lp-self-check-step-head .lp-run-in { font-size: 1.1875rem; }
+.lp-self-check-step-head .lp-small { margin-block-start: 2px; }
+.lp-self-check-meter { display: inline-flex; gap: 8px; align-items: center; flex: none; color: var(--lp-ink-2); font-size: var(--lp-type-small); font-weight: 600; font-variant-numeric: tabular-nums; }
+.lp-self-check-ring { flex: none; }
+.lp-self-check-ring-track { fill: none; stroke: var(--lp-rule); stroke-width: 5; }
+.lp-self-check-ring-fill { fill: none; stroke: var(--lp-accent); stroke-width: 5; stroke-linecap: round; }
+.lp-self-check .lp-choices { grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 10px; }
+.lp-self-check .lp-choice { min-block-size: 56px; }
+.lp-self-check-step-actions { justify-content: flex-end; }
+.lp-self-check-result-head { display: flex; gap: 16px; align-items: center; }
+.lp-self-check-result-head .lp-self-check-ring-fill { stroke: var(--lp-success-ink); }
+.lp-self-check-result-head .lp-small { margin-block-start: 2px; }
+.lp-self-check-compare { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.lp-self-check-pane { min-inline-size: 0; border: 1px solid var(--lp-rule); border-radius: var(--lp-radius-control); }
+.lp-self-check-pane-model { background: var(--lp-paper-2); }
+.lp-self-check-pane figcaption { padding: 10px 16px; border-block-end: 1px solid var(--lp-rule); color: var(--lp-ink-2); font-size: var(--lp-type-small); font-weight: 600; }
+.lp-self-check-pane-body { padding: 14px 16px 16px; line-height: 1.75; }
+.lp-self-check-ann { padding: 1px 2px; border-radius: 4px; color: inherit; background: var(--lp-success-soft); box-shadow: inset 0 -2px 0 var(--lp-success-ink); -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.lp-self-check-ann[data-lp-included="false"] { background: var(--lp-warning-soft); box-shadow: inset 0 -2px 0 var(--lp-warning-ink); }
+.lp-self-check-ann-n { display: inline-grid; place-items: center; min-inline-size: 18px; min-block-size: 18px; margin-inline-end: 4px; padding: 0 4px; border-radius: 9px; color: var(--lp-on-accent); background: var(--lp-success-ink); font-size: .75rem; font-weight: 600; line-height: 1.2; vertical-align: 2px; }
+[data-lp-included="false"] > .lp-self-check-ann-n { background: var(--lp-warning-ink); }
+.lp-self-check-legend { display: grid; gap: 4px; padding: 0; list-style: none; }
+.lp-self-check-legend-item { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: start; padding: 8px 10px; border-radius: 8px; }
+.lp-self-check-legend-item > .lp-self-check-ann-n { margin: 3px 0 0; }
+.lp-self-check-legend-item[data-lp-included="false"] { background: var(--lp-warning-soft); }
+.lp-self-check-legend-line { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; justify-content: space-between; }
+.lp-self-check-legend-label { font-weight: 600; }
+.lp-self-check-legend-where { display: block; color: var(--lp-ink-2); font-size: var(--lp-type-small); font-weight: 400; }
+.lp-self-check-legend-status { display: inline-flex; gap: 4px; align-items: center; padding: 1px 8px 1px 6px; border-radius: 999px; font-size: var(--lp-type-small); font-weight: 600; color: var(--lp-success-ink); background: var(--lp-success-soft); }
+[data-lp-included="false"] .lp-self-check-legend-status { color: var(--lp-warning-ink); background: var(--lp-paper); }
+.lp-self-check-legend-hint { margin-block-start: 2px; }
+.lp-self-check [data-lp-flow] > .lp-actions { margin: 0; padding: 4px 16px 16px; }
+.lp-self-check [data-lp-fallback] { margin: 0 24px 24px; }
 .lp-self-check-fallback-list { display: grid; gap: 12px; padding-inline-start: 20px; }
-.lp-self-check .lp-outcome > .lp-icon { color: var(--lp-ink-2); }
-.lp-self-check .lp-outcome:has(.lp-met) > .lp-icon { color: var(--lp-success-ink); }
+@container (min-width: 40rem) { .lp-self-check-compare { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@container (max-width: 30rem) {
+  .lp-self-check-scene, .lp-self-check [data-lp-ticks], .lp-self-check [data-lp-result] { padding: 18px 16px; }
+  .lp-self-check-composer { margin: 16px; }
+  .lp-self-check-step-head { flex-direction: column-reverse; }
+  .lp-self-check-composer-foot .lp-button { inline-size: 100%; justify-content: center; }
+}
+@media (forced-colors: active) {
+  .lp-self-check-composer, .lp-self-check-pane { border-color: CanvasText; }
+  .lp-self-check-ann { border-block-end: 2px solid CanvasText; }
+  .lp-self-check-ann[data-lp-included="false"] { border-block-end-style: dashed; }
+  .lp-self-check-ann-n { border: 1px solid CanvasText; }
+}

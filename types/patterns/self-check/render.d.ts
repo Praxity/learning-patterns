@@ -7,3 +7,8 @@ export function render(content: import("./logic.js").Content, strings: import(".
     id: string;
     lang: string;
 }): string;
+/** Decorative progress ring. The adjacent authored text carries the count.
+ * @param {number} count @param {number} total @param {number} [size]
+ * @returns {string}
+ */
+export function ring(count: number, total: number, size?: number): string;

@@ -24,6 +24,74 @@ async function observeStatus(page) {
   });
 }
 
+test('message scene, live meter and annotated comparison use authored content', async ({ page }) => {
+  await open(page); await observeStatus(page);
+  await expect(page.getByRole('textbox')).toHaveAccessibleName('Your message');
+  await expect(page.locator('.lp-self-check-composer')).toContainText('Sam, your manager');
+  await expect(page.locator('.lp-self-check-composer')).toContainText('Client report');
+  await ticks(page);
+  await expect(page.locator('[data-lp-meter]')).toHaveText('0 of 6');
+  await expect(page.locator('[data-lp-meter] svg')).toHaveAttribute('aria-hidden', 'true');
+  await page.getByRole('checkbox').nth(1).check();
+  await expect(page.locator('[data-lp-meter]')).toHaveText('1 of 6');
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
+  await page.locator('[data-lp-show]').click();
+  await expect(page.locator('.lp-self-check-pane').first()).toContainText('My draft');
+  await expect(page.locator('.lp-self-check-pane-model mark')).toHaveCount(5);
+  await expect(page.locator('mark[data-lp-included="true"]')).toContainText('The sales data arrived three days late');
+  await expect(page.locator('.lp-self-check-legend')).toContainText('Across the whole message');
+  await expect(page.locator('[data-lp-result]')).toHaveClass(/lp-reveal/);
+  await page.setViewportSize({ width: 1280, height: 900 });
+  const wide = await page.locator('.lp-self-check-pane').evaluateAll(panes => panes.map(p => p.getBoundingClientRect().top));
+  expect(wide[0]).toBe(wide[1]);
+  await page.setViewportSize({ width: 390, height: 900 });
+  const narrow = await page.locator('.lp-self-check-pane').evaluateAll(panes => panes.map(p => p.getBoundingClientRect().top));
+  expect(narrow[1]).toBeGreaterThan(narrow[0]);
+});
+
+test('destroy keeps root and controls, removes listeners and restores server sections', async ({ page }) => {
+  await open(page); await ticks(page); await page.locator('[data-lp-show]').click();
+  const before = await page.evaluate(() => {
+    window.lpOriginalRoot = document.querySelector('[data-lp-pattern]');
+    window.lpOriginalAnswer = document.querySelector('textarea');
+    window.lpInstances[0].destroy();
+    const saved = JSON.stringify(window.lpSaved);
+    document.querySelector('[data-lp-check]').click();
+    document.querySelector('textarea').dispatchEvent(new Event('input'));
+    return saved;
+  });
+  expect(await page.evaluate(() => window.lpOriginalRoot === document.querySelector('[data-lp-pattern]'))).toBe(true);
+  expect(await page.evaluate(() => window.lpOriginalAnswer === document.querySelector('textarea'))).toBe(true);
+  expect(await page.evaluate(() => JSON.stringify(window.lpSaved))).toBe(before);
+  await expect(page.locator('[data-lp-check]')).toBeHidden();
+  await expect(page.locator('[data-lp-fallback]')).toBeVisible();
+  await expect(page.locator('[data-lp-result]')).toBeEmpty();
+});
+
+test('comparison escapes draft text and summaries cover one missing part and all included', async ({ page }) => {
+  await open(page); await ticks(page);
+  const draft = '<img src=x onerror=alert(1)> & my message';
+  await page.getByRole('textbox').fill(draft);
+  for (const box of await page.getByRole('checkbox').all()) await box.check();
+  await page.getByRole('checkbox').nth(4).uncheck(); await page.locator('[data-lp-show]').click();
+  await expect(page.locator('.lp-self-check-result-head')).toContainText("One part to add: Manager's agreement or input.");
+  await expect(page.locator('.lp-self-check-pane').first().locator('p')).toHaveText(draft);
+  await expect(page.locator('.lp-self-check-pane img')).toHaveCount(0);
+  await expect(page.locator('mark[data-lp-included="false"]')).toHaveCount(1);
+  await expect(page.locator('.lp-self-check-legend-hint')).toHaveCount(1);
+  await page.getByRole('checkbox').nth(4).check(); await page.locator('[data-lp-show]').click();
+  await expect(page.locator('.lp-self-check-result-head')).toContainText('Every part is there. Compare your wording with the model.');
+  await expect(page.locator('mark[data-lp-included="true"]')).toHaveCount(5);
+  await expect(page.locator('.lp-self-check-legend-hint')).toHaveCount(0);
+});
+
+test('reduced motion stops the shared feedback reveal', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await open(page); await ticks(page); await page.locator('[data-lp-show]').click();
+  await expect(page.locator('[data-lp-result]')).toBeVisible();
+  expect(await page.locator('[data-lp-result]').evaluate(el => getComputedStyle(el).animationName)).toBe('none');
+});
+
 test('keyboard-only journey, error association, focus and one mutation per announcement', async ({ page }) => {
   await open(page); await observeStatus(page);
   const answer = page.getByRole('textbox');
@@ -32,7 +100,7 @@ test('keyboard-only journey, error association, focus and one mutation per annou
   await page.keyboard.press('Enter');
   await expect(answer).toBeFocused(); await expect(answer).toHaveAttribute('aria-invalid', 'true');
   const errorId = await answer.getAttribute('aria-describedby');
-  await expect(page.locator(`[id="${errorId}"]`)).toHaveText('Write an answer first.');
+  await expect(page.locator(`[id="${errorId}"]`)).toHaveText('Write your message first.');
   await page.keyboard.type('A message to my manager.');
   await expect(answer).not.toHaveAttribute('aria-invalid', 'true');
   await expect(page.locator('[data-lp-error]')).toBeHidden();
@@ -42,21 +110,21 @@ test('keyboard-only journey, error association, focus and one mutation per annou
   for (let index = 0; index < 6; index++) await page.keyboard.press('Tab');
   const show = page.getByRole('button', { name: 'Show feedback' });
   await expect(show).toBeFocused(); await page.keyboard.press('Enter'); await expect(show).toBeFocused();
-  await expect(page.locator('[data-lp-result]')).toContainText('You ticked 1 of 6 parts.');
+  await expect(page.locator('[data-lp-result]')).toContainText('You included 1 of 6 parts.');
   await expect(page.locator('[data-lp-result]')).toContainText('Included');
-  await expect(page.locator('[data-lp-result]')).toContainText('Not included');
+  await expect(page.locator('[data-lp-result]')).toContainText('To add');
   await page.keyboard.press('Enter'); await expect(show).toBeFocused();
   await page.keyboard.press('Tab'); await expect(page.getByRole('button', { name: 'Start over' })).toBeFocused();
   await page.keyboard.press('Enter'); await expect(answer).toBeFocused();
   await expect(answer).toHaveValue(''); await expect(page.locator('[data-lp-ticks]')).toBeHidden();
   await expect(page.locator('[data-lp-result]')).toBeHidden();
   await expect(page.locator('input:checked')).toHaveCount(0);
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You ticked 1 of 6 parts.', 'You ticked 1 of 6 parts.', 'Cleared.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You included 1 of 6 parts.', 'You included 1 of 6 parts.', 'Cleared.']);
 });
 
 for (const [lang, content, included, notIncluded] of [
-  ['en', english, 'Included', 'Not included'],
-  ['fr', french, 'Inclus', 'Non inclus']
+  ['en', english, 'Included', 'To add'],
+  ['fr', french, 'Inclus', 'À ajouter']
 ]) {
   test(`feedback names every part and puts missed hints on their own line (${lang})`, async ({ page }) => {
     await open(page, `/self-check/${lang}.html`);
@@ -66,10 +134,12 @@ for (const [lang, content, included, notIncluded] of [
     await expect(rows).toHaveCount(content.parts.length);
     for (const [index, part] of content.parts.entries()) {
       const row = rows.nth(index);
-      // Ignore decorative icons, then compare the visible lines.
-      const lines = (await row.innerText()).split('\n').map(line => line.trim()).filter(line => line && line !== '✓' && line !== '○');
-      expect(lines).toEqual(index === 0 ? [`${included} ${part.label}`] : [`${notIncluded} ${part.label}`, part.missed]);
-      await expect(row.locator('[aria-hidden="true"]')).toHaveCount(1);
+      await expect(row.locator('.lp-self-check-legend-label')).toContainText(part.label);
+      await expect(row.locator('.lp-self-check-legend-status')).toHaveText(index === 0 ? included : notIncluded);
+      await expect(row.locator('.lp-self-check-legend-hint')).toHaveCount(index === 0 ? 0 : 1);
+      if (index !== 0) await expect(row.locator('.lp-self-check-legend-hint')).toHaveText(part.missed);
+      await expect(row.locator('.lp-self-check-ann-n')).toHaveText(String(index + 1));
+      await expect(row.locator('[aria-hidden="true"]')).toHaveCount(2);
     }
   });
 }
@@ -87,17 +157,18 @@ test('Start over is hidden initially and after reset, and available from the che
   await ticks(page); await page.locator('[data-lp-show]').click();
   await expect(restart).toBeVisible(); await restart.click();
   await expect(restart).toBeHidden(); await expect(page.locator('[data-lp-result]')).toBeHidden();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Cleared.', 'You ticked 0 of 6 parts.', 'Cleared.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Cleared.', 'You included 0 of 6 parts.', 'Cleared.']);
 });
 
 test('Start over is a quiet text button with an icon, the same target size and focus ring', async ({ page }) => {
   await open(page); await ticks(page);
+  await page.mouse.move(0, 0);
   const restart = page.locator('[data-lp-restart]');
   const style = await restart.evaluate(el => {
     const css = getComputedStyle(el);
     return { background: css.backgroundColor, color: css.color, border: css.borderColor, underline: css.textDecorationLine, minHeight: css.minHeight, height: el.getBoundingClientRect().height };
   });
-  expect(style).toMatchObject({ background: 'rgba(0, 0, 0, 0)', color: 'rgb(29, 61, 107)', border: 'rgba(0, 0, 0, 0)', underline: 'underline', minHeight: '44px' });
+  expect(style).toMatchObject({ background: 'rgba(0, 0, 0, 0)', color: 'rgb(85, 92, 103)', border: 'rgba(0, 0, 0, 0)', underline: 'none', minHeight: '44px' });
   expect(style.height).toBeGreaterThanOrEqual(44);
   await expect(restart.locator('svg')).toHaveAttribute('aria-hidden', 'true');
   await expect(restart).toHaveAccessibleName('Start over');
@@ -105,21 +176,24 @@ test('Start over is a quiet text button with an icon, the same target size and f
     const button = page.locator(`[data-lp-${name}]`);
     if (name !== 'restart') {
       const primary = await button.evaluate(el => { const css = getComputedStyle(el); return { background: css.backgroundColor, color: css.color }; });
-      expect(primary).toEqual({ background: 'rgb(29, 61, 107)', color: 'rgb(255, 255, 255)' });
+      expect(primary).toEqual({ background: 'rgb(44, 85, 201)', color: 'rgb(255, 255, 255)' });
     }
     await button.focus();
     const outline = await button.evaluate(el => { const css = getComputedStyle(el); return [css.outlineWidth, css.outlineStyle, css.outlineOffset, css.outlineColor]; });
-    expect(outline).toEqual(['2px', 'solid', '2px', 'rgb(29, 61, 107)']);
+    expect(outline).toEqual(['2px', 'solid', '2px', 'rgb(44, 85, 201)']);
   }
   // Theme overrides reach the quiet button too.
-  await page.locator('[data-lp-pattern]').evaluate(el => el.style.setProperty('--lp-accent', '#123456'));
+  await page.locator('[data-lp-pattern]').evaluate(el => el.style.setProperty('--lp-ink-2', '#123456'));
   expect(await restart.evaluate(el => getComputedStyle(el).color)).toBe('rgb(18, 52, 86)');
 });
 
 for (const path of ['/self-check/en.html', '/self-check/fr.html', '/self-check/two.html']) {
   test(`axe at load, checklist and feedback: ${path}`, async ({ page }) => {
     await open(page, path);
-    const scan = async () => expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()).violations).toEqual([]);
+    const scan = async () => {
+      await page.waitForFunction(() => [...document.querySelectorAll('[data-lp-pattern]')].flatMap(root => root.getAnimations({ subtree: true })).every(animation => animation.playState !== 'running' && !animation.pending));
+      expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()).violations).toEqual([]);
+    };
     await scan();
     for (const root of await page.locator('[data-lp-pattern]').all()) {
       await root.getByRole('textbox').fill('Draft'); await root.locator('[data-lp-check]').click();
@@ -140,8 +214,8 @@ test('editing answers or ticks preserves feedback, next submit replaces it and s
   expect(await page.locator('[data-lp-result]').innerHTML()).toBe(before);
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ answer: 'Edited draft', ticked: ['work_deadline', 'reason'], shown: true });
   await page.getByRole('button', { name: 'Show feedback' }).click();
-  await expect(page.locator('[data-lp-result] > p').first()).toHaveText('You ticked 2 of 6 parts.');
-  await expect(page.locator('[data-lp-result] > ul')).toHaveCount(1);
+  await expect(page.locator('.lp-self-check-result-head h3')).toHaveText('You included 2 of 6 parts.');
+  await expect(page.locator('[data-lp-result] > ol')).toHaveCount(1);
   await page.getByRole('button', { name: 'Start over' }).click();
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ answer: '', ticked: [], shown: false });
 });
@@ -167,13 +241,15 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     await page.getByRole('textbox').fill('Draft'); await page.locator('[data-lp-check]').click(); await page.locator('[data-lp-show]').click();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     // The status region is deliberately clipped for screen readers. Check visible text.
-    const problems = await page.evaluate(() => [...document.querySelectorAll('p, label, legend, button, li, h2')].filter(el => el.getClientRects().length && !el.matches('[role="status"]')).flatMap(el => {
+    const problems = await page.evaluate(() => [...document.querySelectorAll('p, label, legend, button, li, h2')].filter(el => el.getClientRects().length && !el.matches('.lp-visually-hidden')).flatMap(el => {
       const failures = [];
       if (el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1) failures.push(el.textContent);
       const children = [...el.children].filter(child => child.getClientRects().length);
       for (let i = 1; i < children.length; i++) {
-        const a = children[i - 1].getBoundingClientRect(), b = children[i].getBoundingClientRect();
-        if (Math.min(a.right, b.right) > Math.max(a.left, b.left) + 1 && Math.min(a.bottom, b.bottom) > Math.max(a.top, b.top) + 1) failures.push('overlap: ' + el.textContent);
+        // Inline annotation spans can wrap. Compare their painted fragments, not the enclosing rectangles.
+        for (const a of children[i - 1].getClientRects()) for (const b of children[i].getClientRects()) {
+          if (Math.min(a.right, b.right) > Math.max(a.left, b.left) + 1 && Math.min(a.bottom, b.bottom) > Math.max(a.top, b.top) + 1) failures.push('overlap: ' + el.textContent);
+        }
       }
       return failures;
     }));
@@ -185,8 +261,11 @@ test('French root has French language and translated feedback', async ({ page })
   await open(page, '/self-check/fr.html'); await expect(page.locator('[data-lp-pattern]')).toHaveAttribute('lang', 'fr');
   await page.getByRole('textbox').fill('Mon message'); await page.locator('[data-lp-check]').click();
   await page.getByRole('checkbox').first().check(); await page.locator('[data-lp-show]').click();
-  await expect(page.locator('[data-lp-result]')).toContainText('Vous avez coché 1 des 6 éléments.');
-  await expect(page.locator('[data-lp-result]')).toContainText(french.model);
+  await expect(page.locator('[data-lp-result]')).toContainText('Vous avez inclus 1 des 6 éléments.');
+  const model = await page.locator('.lp-self-check-pane-model p').evaluate(el => {
+    const copy = el.cloneNode(true); copy.querySelectorAll('[aria-hidden="true"]').forEach(number => number.remove()); return copy.textContent;
+  });
+  expect(model).toBe(french.model);
 });
 
 for (const shown of [false, true]) {
@@ -196,7 +275,7 @@ for (const shown of [false, true]) {
     await expect(page.getByRole('checkbox').nth(1)).toBeChecked(); await expect(page.locator('[data-lp-ticks]')).toBeVisible();
     await expect(page.locator('[data-lp-restart]')).toBeVisible();
     await expect(page.locator('[role="status"]')).toHaveText('');
-    if (shown) await expect(page.locator('[data-lp-result]')).toContainText('You ticked 1 of 6 parts.');
+    if (shown) await expect(page.locator('[data-lp-result]')).toContainText('You included 1 of 6 parts.');
     else await expect(page.locator('[data-lp-result]')).toBeHidden();
   });
 }
@@ -211,11 +290,11 @@ test('invalid saved state is ignored', async ({ page }) => {
 test('enhance is idempotent and destroy removes listeners and restores fallback', async ({ page }) => {
   await open(page); expect(await page.evaluate(() => window.lpEnhance() === window.lpInstances[0])).toBe(true);
   await observeStatus(page); await ticks(page); await page.locator('[data-lp-show]').click();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You ticked 0 of 6 parts.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You included 0 of 6 parts.']);
   await page.evaluate(() => window.lpInstances[0].destroy());
   await expect(page.locator('[data-lp-flow]')).toBeHidden(); await expect(page.locator('[data-lp-fallback]')).toBeVisible();
   await page.evaluate(() => window.lpEnhance()); await ticks(page); await page.locator('[data-lp-show]').click();
-  await expect(page.locator('[data-lp-result] > ul')).toHaveCount(1);
+  await expect(page.locator('[data-lp-result] > ol')).toHaveCount(1);
 });
 
 test('two instances have unique IDs and independent controls', async ({ page }) => {
@@ -235,10 +314,11 @@ test('destroy is safe to repeat after another enhancement', async ({ page }) => 
     const old = window.lpInstances[0];
     old.destroy(); window.lpEnhance(); old.destroy();
   });
-  await expect(page.locator('[data-lp-flow]')).toBeVisible();
+  await expect(page.locator('[data-lp-flow]')).not.toHaveAttribute('hidden', '');
+  await expect(page.locator('[data-lp-check]')).toBeVisible();
   expect(await page.evaluate(() => window.lpEnhance() === window.lpEnhance())).toBe(true);
   await observeStatus(page); await ticks(page); await page.locator('[data-lp-show]').click();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You ticked 0 of 6 parts.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You included 0 of 6 parts.']);
 });
 
 test('missing or mismatched markup throws a useful error', async ({ page }) => {
@@ -255,12 +335,13 @@ test('missing or mismatched markup throws a useful error', async ({ page }) => {
 test('forced colours keeps a 2px focus outline on buttons and checkboxes', async ({ page, browserName }) => {
   test.skip(browserName !== 'chromium', 'Forced colours emulation checked in Chromium.');
   await page.emulateMedia({ forcedColors: 'active' }); await open(page); await ticks(page);
+  await page.keyboard.press('Tab');
   for (const locator of [page.getByRole('checkbox').first(), page.locator('[data-lp-check]'), page.locator('[data-lp-show]'), page.locator('[data-lp-restart]')]) {
     await locator.focus();
-    const outline = await locator.evaluate(el => { const css = getComputedStyle(el); return { width: css.outlineWidth, style: css.outlineStyle, offset: css.outlineOffset, color: css.outlineColor }; });
+    const outline = await locator.evaluate(el => { const css = getComputedStyle(el.matches('input') ? el.closest('.lp-choice') : el); return { width: css.outlineWidth, style: css.outlineStyle, offset: css.outlineOffset, color: css.outlineColor }; });
     expect(outline.width).toBe('2px'); expect(outline.style).toBe('solid'); expect(outline.offset).toBe('2px'); expect(outline.color).not.toBe('rgba(0, 0, 0, 0)');
   }
-  const styles = await page.locator('[data-lp-flow] button').evaluateAll(buttons => buttons.map(el => {
+  const styles = await page.locator('[data-lp-pattern] button').evaluateAll(buttons => buttons.map(el => {
     const css = getComputedStyle(el);
     return { color: css.color, background: css.backgroundColor, borderColor: css.borderColor, borderStyle: css.borderStyle, borderWidth: css.borderWidth };
   }));
