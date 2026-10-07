@@ -1,0 +1,27 @@
+.lp-formats-scene { display: flex; align-items: flex-start; gap: 14px; }
+.lp-formats-scene-icon { display: grid; place-items: center; flex: none; inline-size: 44px; block-size: 44px; border-radius: var(--lp-radius-control); color: var(--lp-accent-ink); }
+.lp-formats-scene-icon .lp-icon { inline-size: 28px; block-size: 28px; }
+.lp-formats-scene h3 { margin-block-start: 4px; }
+.lp-formats-switcher { display: flex; flex-wrap: wrap; gap: 8px; margin-block-start: 24px; }
+.lp-formats-switcher .lp-button { flex: 1 1 auto; justify-content: center; padding-inline: 12px; }
+.lp-formats-navigation { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+.lp-formats-lesson > .lp-formats-point + .lp-formats-point { margin-block-start: 24px; padding-block-start: 24px; border-block-start: 1px solid var(--lp-rule); }
+.lp-formats-point[hidden] + .lp-formats-point { margin-block-start: 0; padding-block-start: 0; border-block-start: 0; }
+.lp-formats-outline, .lp-formats-script { padding-inline-start: 1.5em; }
+.lp-formats-outline > li + li, .lp-formats-script > li + li { margin-block-start: 12px; }
+.lp-formats-slide { padding-block: 16px; }
+.lp-formats-slide .lp-formats-outline { font-size: var(--lp-type-h3); line-height: 1.5; }
+.lp-formats-feedback { flex-basis: 100%; font-size: var(--lp-type-small); }
+/* Local contract overrides: shared v2 rows and buttons add tints and shadows.
+   Formats uses a 2px border for selection and keeps content on plain paper. */
+.lp.lp-formats, .lp-formats .lp-button, .lp-formats .lp-choice { box-shadow: none; }
+.lp-formats .lp-quote { background: transparent; }
+.lp-formats .lp-button-secondary[aria-pressed="true"] { border: 2px solid var(--lp-accent); padding: 9px 11px; background: var(--lp-paper); }
+.lp-formats .lp-choice:has(input:checked) { border: 2px solid var(--lp-accent); padding: 9px 13px; background: var(--lp-paper); box-shadow: none; }
+.lp-formats .lp-choice[data-lp-mark="correct"], .lp-formats .lp-choice[data-lp-mark="correct"]:has(input:checked) { border-color: var(--lp-success-ink); background: var(--lp-paper); box-shadow: none; }
+.lp-formats .lp-choice[data-lp-mark="wrong"], .lp-formats .lp-choice[data-lp-mark="wrong"]:has(input:checked) { border-color: var(--lp-error-ink); background: var(--lp-paper); box-shadow: none; }
+@media (forced-colors: active) {
+  .lp-formats .lp-button-secondary[aria-pressed="true"] { border-color: Highlight; background: ButtonFace; color: ButtonText; }
+  .lp-formats .lp-choice:has(input:checked) { border-color: Highlight; background: Canvas; }
+  .lp-formats .lp-choice[data-lp-mark], .lp-formats .lp-choice[data-lp-mark]:has(input:checked) { border-color: CanvasText; border-style: double; border-width: 3px; }
+}

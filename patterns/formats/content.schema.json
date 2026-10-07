@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Switch formats content",
+  "type": "object",
+  "required": ["title", "points", "quiz", "summary"],
+  "additionalProperties": false,
+  "properties": {
+    "title": { "type": "string", "minLength": 1 },
+    "summary": { "type": "string", "minLength": 1 },
+    "points": {
+      "type": "array", "minItems": 1, "x-uniqueBy": "id",
+      "items": {
+        "type": "object", "required": ["id", "title", "sentences", "outline"], "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "minLength": 1, "pattern": "^[a-zA-Z0-9_-]+$" },
+          "title": { "type": "string", "minLength": 1 },
+          "sentences": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+          "outline": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+          "example": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+          "exampleOutline": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "quiz": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "required": ["section", "prompt", "options"], "additionalProperties": false,
+        "properties": {
+          "section": { "type": "string", "minLength": 1, "x-reference": "points[].id" },
+          "prompt": { "type": "string", "minLength": 1 },
+          "options": {
+            "type": "array", "minItems": 1, "x-exactlyOneTrue": "correct",
+            "items": {
+              "type": "object", "required": ["text", "feedback"], "additionalProperties": false,
+              "properties": {
+                "text": { "type": "string", "minLength": 1 },
+                "feedback": { "type": "string", "minLength": 1 },
+                "correct": { "type": "boolean" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
