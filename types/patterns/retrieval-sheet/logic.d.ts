@@ -1,0 +1,34 @@
+/** Validate authored plain text. Whitespace is allowed; empty strings are rejected.
+ * @param {unknown} content @returns {asserts content is Content}
+ */
+export function validateContent(content: unknown): asserts content is Content;
+/** Valid civil date in the native date input's supported range, years 0001 to 9999.
+ * @param {unknown} value @returns {value is string}
+ */
+export function isDate(value: unknown): value is string;
+/** Seven local calendar days ahead, without changing the source date.
+ * @param {Date} today @returns {string} YYYY-MM-DD.
+ */
+export function defaultDate(today: Date): string;
+/** Format a civil date without shifting its day when the learner changes time zones.
+ * @param {string} date @param {string} lang @returns {string}
+ */
+export function formatDate(date: string, lang: string): string;
+/** Ignore invalid host state as a whole; copy valid values, including past dates.
+ * @param {unknown} value @returns {LearnerState | null}
+ */
+export function validateState(value: unknown): LearnerState | null;
+export type Question = {
+    id: string;
+    question: string;
+    answer: string;
+};
+export type Content = {
+    title: string;
+    questions: Question[];
+};
+export type Side = "front" | "back";
+export type LearnerState = {
+    date: string;
+    side: Side;
+};

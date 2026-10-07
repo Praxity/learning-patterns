@@ -1,0 +1,11 @@
+{
+  "title": "The four horsemen",
+  "questions": [
+    { "id": "four", "question": "Name the four horsemen.", "answer": "Criticism, defensiveness, contempt and stonewalling." },
+    { "id": "eyes", "question": "A colleague rolls their eyes while someone presents an idea. Which horseman is this?", "answer": "Contempt. It is the most serious of the four." },
+    { "id": "criticism", "question": "What do you do instead of criticism?", "answer": "Raise your concern gently, with an \"I\" statement. Talk about a specific behaviour, not the person." },
+    { "id": "defensiveness", "question": "What do you do instead of defensiveness?", "answer": "Listen carefully, accept your share of responsibility and apologise." },
+    { "id": "contempt", "question": "What do you do instead of contempt?", "answer": "Recognise the other person's qualities and state your own needs. A word of appreciation can be enough." },
+    { "id": "pause", "question": "How is a time-out different from stonewalling?", "answer": "Stonewalling is withdrawing without a word, so the other person feels ignored. In a time-out you say you need a few minutes to think, then you come back to the conversation." }
+  ]
+}
