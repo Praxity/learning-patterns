@@ -9,7 +9,7 @@ learners: not tried
 ---
 # Switch formats
 
-A small course lesson with five formats and one shared section index. Choose an article, slides, a sample narration script, a numbered outline or a short quiz. Switching keeps your place. The examples cover stonewalling and time-outs, with Roxanne's example and two quiz questions in English and Québec French.
+You switch between text, slides, a narration script, an outline and a quiz while keeping your lesson section.
 
 ## When to use it
 
@@ -17,15 +17,32 @@ Use it when a short lesson benefits from different ways to read, review or pract
 
 ## How it works
 
-1. The shared scene header names the lesson. A bordered segmented control selects the format, with visible text and decorative icons. The selected segment has an accent border and soft fill. The group wraps to two rows in narrow containers.
-2. Previous and Next share one row. At either end the unavailable button is hidden in an empty slot. Switching format preserves the section, keeps focus on its control and announces "Showing {format}, section {n}." once. Format changes cross-fade for 160 ms, with no animation under reduced motion.
-3. Text uses an article column with reading-size paragraphs. Slides use a 16:9 frame with a large title, concise outline points, any example outline and a slide number. The frame grows when narrow widths or text spacing need more room. The sample player shows a disabled Play button, an empty progress track and "0:00 / 1:20", labelled "Sample, no audio". Timestamped narration lines contain the title, sentences and example in order. The evenly spaced timestamps illustrate an 80-second sample; no recording, playback, synthesized speech or timed progression is provided. Outline numbers all section titles, with only the current section's points expanded.
-4. Quiz shows the questions assigned to the section. Choose an option, then Check answer to see its authored feedback beside the selected row. You can change your answer and submit again. A section with no question shows its outline and a message explaining how to continue.
-5. The last section ends with an authored summary. In Quiz it also reports how many questions currently have checked answers, without a score.
+1. You choose text, slides, the sample narration script, an outline or a quiz.
+2. You use Previous and Next to move through the sections. You can switch formats and keep your place.
+3. In the quiz, you choose an option and select "Check answer" to read feedback beside it. You can change your answer and check again.
+4. If a section has no quiz question, you read its outline and continue.
+5. In the last section, you read the lesson summary. In the quiz, you also see how many questions you have checked.
 
-Without JavaScript, the entire text lesson and final summary are visible. Format controls, alternate views and navigation stay hidden. Enhancement keeps the server elements and changes their visibility. Quiz choices and feedback survive switching during the current enhancement. Saved host state records only the format and section, so quiz answers do not survive a reload.
+## Evidence
 
-The first demo question belongs to the first section and the second to the last. The middle section has no question. These associations make the short quiz follow the same section index as the reading.
+The supplied research notes name Google's Learn Your Way as the design source for switching lesson formats. Google's report describes a randomized study with 60 students aged 15 to 18. Users scored 78%, compared with 67% for a digital PDF reader, on a retention test 3 to 5 days later. The tool combined generated formats, personalization and quizzes. The comparison does not isolate format switching, keeping your place or this authored workplace lesson. It supports investigating the combined approach but establishes no outcome for this pattern. [Google Research, Learn Your Way](https://research.google/blog/learn-your-way-reimagining-textbooks-with-generative-ai/).
+
+The supplied feedback research argues for task-specific, informative feedback. This pattern follows that design advice with option-specific authored explanations. Those notes contain no evaluation of these questions, the sample narration script or section-preserving switches.
+
+Learning-styles matching is not supported by evidence. Pashler and colleagues' review found insufficient evidence to justify matching instruction to assessed learning styles. This pattern offers choice and access, with no style assessment or matching claim. [Pashler et al., Learning styles: concepts and evidence](https://www.psychologicalscience.org/journals/pspi/j.1539-6053.2009.01038.x/).
+
+The lesson examples are demo content. Check subject-matter claims before publishing a course.
+
+Logic unit tested. Not tried with learners.
+
+## Accessibility
+
+Meets the shared baseline in the root README.
+
+- All five format buttons stay in the tab order and expose the chosen format as pressed. Unavailable navigation buttons leave the tab order.
+- The disabled Play button explains that no recording is available. It does not start audio.
+- Quiz feedback appears beside the chosen option on submit. An empty submission shows a question error and keeps focus on Check answer.
+- Format changes keep focus on the chosen control and announce the format and section. During a cross-fade, the outgoing view is inert and hidden from assistive technology.
 
 ## Content fields
 
@@ -66,6 +83,16 @@ Unknown fields, empty strings, duplicate section ids, unknown question sections 
 
 The section index is zero-based. Host restoration requires an integer in range and a recognized format, with no extra keys. Invalid state is ignored as a whole, without clamping or announcing. If you reorder or replace sections, the host should invalidate old state.
 
+Format changes cross-fade for 160 ms and switch instantly under reduced motion. Slides use a 16:9 frame that grows for narrow widths and enlarged text. Text uses article paragraphs. The outline numbers all sections and expands only the current section's points.
+
+The narration view is labelled "Sample, no audio". It has a disabled Play button, an empty progress track and "0:00 / 1:20". Evenly spaced timestamps illustrate an 80-second sample. The script includes the title, sentences and example in order. It provides no recording, playback, synthesized speech or timed progression.
+
+Without JavaScript, the entire text lesson and final summary are visible. Format controls, alternate views and navigation stay hidden. Enhancement keeps the server elements and changes their visibility. Quiz choices and feedback survive switching during the current enhancement. Saved host state records only the format and section, so quiz answers do not survive a reload.
+
+The first demo question belongs to the first section and the second to the last. The middle section has no question. These associations make the short quiz follow the same section index as the reading.
+
+State is optional. Each navigation or format change writes an independent copy. Repeated enhancement returns the same instance. `destroy()` removes listeners, clears quiz feedback and returns the complete text baseline. Repeated destruction and destruction of an older instance are safe. Host read and write errors propagate.
+
 ## Use it
 
 Copy `patterns/formats/` and `lib/` with their relative paths. Link `lib/base.css` before `patterns/formats/pattern.css`. Each instance needs a unique id prefix.
@@ -82,28 +109,6 @@ const instance = enhance(container.querySelector('[data-lp-pattern]'), {
   state: { read: () => saved, write: value => { saved = value; } }
 });
 ```
-
-State is optional. Each navigation or format change writes an independent copy. Repeated enhancement returns the same instance. `destroy()` removes listeners, clears quiz feedback and returns the complete text baseline. Repeated destruction and destruction of an older instance are safe. Host read and write errors propagate.
-
-## Accessibility
-
-The scene uses text, an `h3` lesson title and `h4` section headings. Format buttons have visible names and `aria-pressed`. All five remain in the tab order. Unavailable navigation buttons are hidden and absent from the tab order. The disabled Play button's accessible name explains that no recording is available. Quiz choices use native radios with keyed rows. Feedback appears only on submit, with an icon, a word and authored text on the chosen row. Changing a choice clears its old feedback. An empty submission displays an error at the question, announces it once and keeps focus on Check answer.
-
-One initially empty status region announces each action once. Restoring state and initial enhancement do not announce. During a cross-fade the outgoing view is inert and hidden from assistive technology. Rapid switches, navigation, reduced-motion changes and destruction cancel the overlap. No automatic playback or time limits. Quiz selections stay on plain paper with a 2px border. Shared theme tokens control colours, shadows, focus, fonts and spacing.
-
-Browser tests cover keyboard use, axe WCAG 2.0, 2.1 and 2.2 AA checks in Chromium, WebKit and Firefox, French, no JavaScript, two instances, lifecycle, state restoration, guard violations, reduced motion, 320 CSS pixels with text spacing and Chromium forced colours. Screen reader passes are a separate human check.
-
-Screen reader passes: not yet
-
-## Evidence
-
-The supplied emerging-tools research notes identify Google's Learn Your Way as the design source for switching representations of one lesson. Google's primary report describes a randomized study with 60 students aged 15 to 18. Learn Your Way users scored 78% versus 67% with a digital PDF reader on a retention test 3 to 5 days later. The tool combined generated representations, personalization and quizzes. The comparison does not isolate format switching, place keeping or this authored workplace lesson. It gives a reason to investigate the combined approach, not an outcome claim for this pattern. [Google Research, Learn Your Way](https://research.google/blog/learn-your-way-reimagining-textbooks-with-generative-ai/).
-
-The supplied feedback research argues for task-specific, informative feedback. This pattern follows that design advice with option-specific authored explanations. Those notes contain no evaluation of these questions, the sample narration script or section-preserving switches.
-
-Learning-styles matching is not supported by evidence. Pashler and colleagues' review found insufficient evidence to justify matching instruction to assessed learning styles. This pattern offers choice and access, with no style assessment or matching claim. [Pashler et al., Learning styles: concepts and evidence](https://www.psychologicalscience.org/journals/pspi/j.1539-6053.2009.01038.x/).
-
-Logic unit tested. Not tried with learners. The lesson examples are demo content; check subject-matter claims before publishing a course.
 
 ## Adapt it with your agent
 

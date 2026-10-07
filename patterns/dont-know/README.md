@@ -9,21 +9,35 @@ learners: not tried
 ---
 # "I don't know" as an answer
 
-Take the "Money basics" quick check. Read the scoring rule below the quiz title, then answer four numbered questions with letter-keyed options, including "I don't know". After submission, rows show the correct answers, and explanation panels appear under questions you missed or left uncertain.
+You answer a quiz with an "I don't know" option, then see your score, explanations and questions to review.
 
 ## When to use it
 
-Use it for a short practice quiz where learners need a way to report uncertainty. Authors set the points for right, wrong and unknown answers. The example awards 1 for a right answer, subtracts 1 for a wrong answer and awards 0 for "I don't know". A penalty for wrong answers may discourage guessing. Test the scoring with your learners before using it for assessment.
+Use it for a short practice quiz where learners need a way to report uncertainty. Authors set the points for right, wrong and unknown answers. A penalty for wrong answers may discourage guessing. Do not use it for assessment without testing the scoring with your learners.
 
 ## How it works
 
-1. Read the scoring rule and choose one radio option for each question. "I don't know" is always last.
-2. Select "Check my answers". Unanswered questions get visible messages. Focus moves to the first unanswered question's first radio.
-3. Answers lock after a complete submission. Each chosen option shows "Correct", "Not quite" or "You chose I don't know" with a Tabler icon. Wrong and unknown answers also show the correct option and the authored explanation below the options.
-4. Focus moves to the score below the questions. A decorative ring shows the score as a share of the total, bounded between empty and full. Negative scores and nonpositive totals use an empty ring; the text always carries the actual score. Read the counts and follow the review links, one per line, to wrong or unknown questions. Zero counts and an empty review list are omitted.
-5. Select "Start over" to clear the answers and feedback, re-enable the radios and focus the first radio.
+1. You read the scoring rule and choose one answer for each question, including "I don't know" when you are unsure.
+2. You select "Check my answers" and answer any questions you left blank.
+3. You see a mark beside each chosen answer. For wrong or uncertain answers, you also see the correct answer and an explanation.
+4. You read your score and follow the review links to questions you got wrong or answered with "I don't know".
+5. You select "Start over" to clear your answers and try again.
 
-Without JavaScript, use the native radios, then open "Answers" to read each correct option and explanation.
+## Evidence
+
+The nearest evidence is certainty-based marking. Gardner-Medwin's conference abstract reports improved exam reliability when students report certainty and confident errors cost points. That method uses certainty levels; this pattern uses one "I don't know" option. The scoring methods differ. [Gardner-Medwin, Analysis of exams using certainty-based marking](https://www.physoc.org/abstracts/analysis-of-exams-using-certainty-based-marking/).
+
+This exact scoring has not been tested. A penalty for wrong answers may discourage guessing. Choosing "I don't know" records uncertainty, but it does not establish learners' confidence or prove a learning benefit.
+
+Logic unit tested. Not tried with learners.
+
+## Accessibility
+
+Meets the shared baseline in the root README.
+
+- Unanswered messages are linked to their questions and options. Focus moves to the first unanswered option.
+- Submission focuses the score and announces its summary. Review links move focus to the question they name.
+- Start over returns focus to the first option. Restoring a saved result keeps focus where it is and makes no announcement.
 
 ## Content fields
 
@@ -57,6 +71,12 @@ All text is plain text and escaped when rendered.
 | `displayPoints(value, positive)` | A number as text, using a mathematical minus sign and an optional plus sign. |
 | `format(template, values)` | Text with known `{key}` placeholders replaced once. Inserted values stay literal. |
 
+Without JavaScript, use the native radios, then open "Answers" to read each correct option and explanation.
+
+The example awards 1 point for a right answer, subtracts 1 for a wrong answer and awards 0 for "I don't know". Completed submissions lock the answers until reset. The decorative score ring is bounded between empty and full. Negative scores and nonpositive totals use an empty ring; the text always shows the actual score. Zero counts and an empty review list are omitted.
+
+Optional `state: { read, write }` stores `{ picks: { [questionId]: optionId | 'dont-know' }, shown }`. Invalid saved state is ignored. Partial picks restore if `shown` is false. A shown result requires every question answered and rebuilds silently. Each pick, submit and reset saves state. Repeated enhancement returns the same instance. `destroy()` removes listeners, errors and results and restores the native answers.
+
 ## Use it
 
 Copy `patterns/dont-know/` and `lib/`, keeping their relative paths. Link `lib/base.css`, then `patterns/dont-know/pattern.css`. Give every instance a unique id prefix. Render HTML on your server and call `enhance` in the browser.
@@ -75,24 +95,6 @@ const content = {
 document.querySelector('main').innerHTML = render(content, strings.en, { id: 'practice', lang: 'en' });
 const instance = enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en });
 ```
-
-Optional `state: { read, write }` stores `{ picks: { [questionId]: optionId | 'dont-know' }, shown }`. Invalid saved state is ignored. Partial picks restore if `shown` is false. A shown result requires every question answered and rebuilds silently. Each pick, submit and reset saves state. Repeated enhancement returns the same instance. `destroy()` removes listeners, errors and results and restores the native answers.
-
-## Accessibility
-
-Native fieldsets, legends and radios work before enhancement. Unanswered messages describe the fieldsets and radios, and the first missing radio receives focus. Successful submission focuses the score. Review links target focusable question fieldsets. One status region starts empty and announces only the score once per submission, or the reset message. Restoring a shown state neither announces nor moves focus. Results use words and decorative Tabler icons. There is no animation or time limit.
-
-Browser checks cover axe WCAG 2.0, 2.1 and 2.2 AA rules at load, errors, results and reset in Chromium, Firefox and WebKit. They also cover keyboard focus, French language, no JavaScript, two instances, saved state, repeated enhancement, 320 CSS pixels with text spacing and Chromium forced colours.
-
-Screen reader passes: not yet
-
-## Evidence
-
-The nearest evidence is certainty-based marking. Gardner-Medwin's conference abstract reports that asking students for certainty and penalising confident errors improved exam reliability. Its scoring uses certainty levels. This pattern uses a single "I don't know" option, so it is a different scoring method. [Gardner-Medwin, Analysis of exams using certainty-based marking](https://www.physoc.org/abstracts/analysis-of-exams-using-certainty-based-marking/).
-
-This exact scoring has not been tested. A penalty for wrong answers may discourage guessing. Choosing "I don't know" records uncertainty, but it does not establish learners' confidence or prove a learning benefit.
-
-Logic unit tested. Not tried with learners.
 
 ## Adapt it with your agent
 

@@ -9,22 +9,37 @@ learners: not tried
 ---
 # Write the wrong options
 
-Act as the quiz author. Answer the question from memory first, then check the right answer. Write plausible wrong options, tag their misconceptions, and compare with the author's. The finished question shows your options beside the right answer.
+You answer a question, write plausible wrong options, name their misconceptions and compare with the author's options.
 
 ## When to use it
 
-Use it when learners can recall the topic and name common misconceptions. Authors can review learner submissions to find possible distractors for a quiz. The pattern compares tags. A person must judge whether a wrong option actually expresses its tag and would tempt a learner.
+Use it when learners can recall the topic and name common misconceptions. Authors can review submissions to find possible wrong options for a quiz. Do not use tag matches to judge whether an option expresses its misconception or would tempt a learner, since a person must judge that.
 
 ## How it works
 
-1. Read the question under "Write the quiz". Write "Your answer", then select "Check my answer". An empty answer gets a field error.
-2. Your answer locks and the right answer appears. Choose "Yes" or "Not quite" under "Did you have it?". The choice is saved without a score. Focus moves to "Write the wrong options".
-3. Build the requested wrong options beside letter keys B, C and onward. The right answer owns A. Choose a misconception for each option. "Something else" opens a field for your own description.
-4. Select "Compare with the author's". Errors appear beside their fields. Focus moves to the first error, and the status announces the number of fields needing attention.
-5. Each builder collapses to its letter key, text and misconception tag. Read "Your question", a preview with A marked "Correct answer" and your wrong options below. The coverage summary counts the author's tags you targeted and your extra tags. The author's options follow, then missed tags and your options with match marks.
-6. "Start over" clears your answer, self-report and wrong options, restores the builder fields and returns focus to "Your answer". Check your answer and choose your self-report to build again.
+1. You write your answer from memory and select "Check my answer" to see the right answer.
+2. You choose "Yes" or "Not quite" to say whether you had it. This choice has no score.
+3. You write the requested wrong options and choose the wrong idea behind each one. You can choose "Something else" and write your own description.
+4. You select "Compare with the author's" and fix any fields with errors.
+5. You read your finished question and compare your options with the author's. The summary counts the author's labels you used and any extra labels.
+6. You select "Start over" to clear your work and answer the question again.
 
-The author's wrong options stay hidden until a valid comparison. Without JavaScript, the question and answer field remain available. Two native disclosures show "Right answer" and "The author's wrong options".
+## Evidence
+
+[Eedi's misconception mapping work](https://www.eedi.com/news/from-wrong-answers-to-real-insights-how-we-used-a-kaggle-challenge-to-map-student-misconceptions) links wrong options to named misconceptions. [Two-tier diagnostic items](https://www.lifescied.org/doi/10.1187/cbe.10-03-0048) pair an answer with a reason. Both support naming the misconception. Neither establishes that asking learners to write wrong options improves learning.
+
+[Schroeder and Kucera's refutation-text review](https://doi.org/10.1007/s10648-021-09656-z) concerns texts that name and correct misconceptions with explanations. This pattern shows the right answer and compares tags; its content contract contains no separate refutation for each tag. Do not treat a tag match as evidence that a learner holds that misconception, or as a correction of it. Learners writing distractors has not been tested here.
+
+Logic unit tested. Not tried with learners.
+
+## Accessibility
+
+Meets the shared baseline in the root README.
+
+- Each wrong-option builder has a fieldset, legend, letter key and labelled fields. Errors are linked to their fields.
+- Checking announces the right answer and keeps focus on Check my answer. A self-report moves focus to the authoring heading.
+- Invalid comparisons focus the first error and announce the number of fields needing attention. Successful comparisons keep focus on the submit button and announce coverage.
+- After comparison, each builder becomes a read-only summary with its full misconception label. Start over focuses Your answer.
 
 ## Content fields
 
@@ -62,6 +77,14 @@ Each submitted option has `{ text, misconception, custom }`. Named targets use a
 
 Coverage compares tags after ignoring case and extra whitespace. A custom tag that repeats an authored label matches it. Duplicate tags count once. `missed` lists only targets from the author's options; `extra` lists learner targets those options do not cover. The enhancer formats counts with `coverageOne` or `coverageMany`, then lists missed labels or "None."
 
+The author's wrong options stay hidden until a valid comparison. Without JavaScript, the question and answer field remain available. Two native disclosures show "Right answer" and "The author's wrong options".
+
+Checking locks the first answer. The right answer owns letter key A; learner options start at B. The author's wrong options stay hidden until a valid comparison. Without JavaScript, the question and answer field remain available, with native disclosures for Right answer and The author's wrong options.
+
+The optional state adapter stores `{ answer, hadIt, options: [{ text, misconception, custom }], shown }`. `answer` holds the learner's text. `hadIt` is `true` for Yes, `false` for Not quite, and `null` before self-report. It saves drafts on input and selection, normalized options on comparison, and empty fields on Start over. A saved draft with `hadIt: null` returns to the answer step, even if the answer was checked before leaving. Legacy state preserves the wrong-option draft and requires the answer step again. The host decides how to collect submissions for the author. This pattern uses no localStorage and keeps no suggestion list. Invalid state is ignored. Valid results restore without announcements. State adapter errors propagate to the host. Repeated enhancement returns the same instance.
+
+Override the root's `--lp-*` tokens for colours, radius, fonts and focus. See the root README for the token defaults.
+
 ## Use it
 
 Copy this folder and `lib/`, keeping their relative paths. Link `lib/base.css`, then `patterns/write-distractors/pattern.css`. Render on your server with a unique id prefix for each instance.
@@ -83,24 +106,6 @@ const instance = enhance(document.querySelector('[data-lp-pattern="write-distrac
 // Remove listeners and restore the native details when the host removes the interaction.
 instance.destroy();
 ```
-
-The optional state adapter stores `{ answer, hadIt, options: [{ text, misconception, custom }], shown }`. `answer` holds the learner's text. `hadIt` is `true` for Yes, `false` for Not quite, and `null` before self-report. It saves drafts on input and selection, normalized options on comparison, and empty fields on Start over. A saved draft with `hadIt: null` returns to the answer step, even if the answer was checked before leaving. Legacy state preserves the wrong-option draft and requires the answer step again. The host decides how to collect submissions for the author. This pattern uses no localStorage and keeps no suggestion list. Invalid state is ignored. Valid results restore without announcements. State adapter errors propagate to the host. Repeated enhancement returns the same instance.
-
-Override the root's `--lp-*` tokens for colours, radius, fonts and focus. See the root README for the token defaults.
-
-## Accessibility
-
-The scene has a question heading and a decorative pencil icon beside its label. Each builder row has a letter key and a borderless fieldset with a legend. Every field has a visible label and an error linked through `aria-describedby`. Errors use an alert icon beside the message. After comparison, the fields hide and a read-only summary shows the option and its full misconception label. The single status region starts empty. It announces the right answer once on checking, "Noted." once per changed self-report, and the coverage summary once per comparison. Checking keeps focus on the check button, which stays visible with `aria-disabled="true"`. Either self-report gives focus to the authoring heading. Successful comparison keeps focus on the submit button. Start over returns focus to the answer textarea. Results show the finished-question preview, the summary and a note about tag comparison, the author's options, untargeted misconceptions, and your options. Each learner option shows a check or dashed circle beside its match label, followed by its target.
-
-The English and French examples, two-instance page, errors, results, state restoration and native fallback have automated axe and keyboard checks in Chromium, Firefox and WebKit. Checks cover 320 CSS pixels with text spacing, equivalent to reflow at 400% zoom from 1280 pixels, and Chromium forced colours. Human screen-reader passes remain a separate check. There are no time limits. Reveals use a short rise with opaque text and stop under reduced motion.
-
-## Evidence
-
-[Eedi's misconception mapping work](https://www.eedi.com/news/from-wrong-answers-to-real-insights-how-we-used-a-kaggle-challenge-to-map-student-misconceptions) associates distractors with named misconceptions. [Two-tier diagnostic items](https://www.lifescied.org/doi/10.1187/cbe.10-03-0048) pair an answer with a reason. These support making the misconception explicit, but do not establish that asking learners to write distractors improves learning.
-
-[Schroeder and Kucera's refutation-text review](https://doi.org/10.1007/s10648-021-09656-z) concerns texts that name and correct misconceptions with explanations. This pattern shows the right answer and compares tags; its content contract contains no separate refutation for each tag. Do not treat a tag match as evidence that a learner holds that misconception, or as a correction of it. Learners writing distractors has not been tested here.
-
-Logic unit tested. Not tried with learners.
 
 ## Adapt it with your agent
 

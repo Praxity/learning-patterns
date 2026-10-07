@@ -9,24 +9,37 @@ learners: not tried
 ---
 # Printable retrieval sheet
 
-At the end of a module, take home a sheet to test yourself later. Questions go on the front and answers on the back. A date in each header records when you plan to use it.
+You print questions on the front and answers on the back of a sheet to test yourself on a chosen date.
 
 ## When to use it
 
-Use it for a short module with a few ideas or actions worth recalling. Keep questions focused and answers short enough for a sheet. The included example preserves the source demo's six questions and answers about the four horsemen.
+Use it for a short module with a few ideas or actions worth recalling. Keep questions focused and answers short enough for a sheet. Do not rely on handing out the sheet to bring learners back, since choosing a date sends no reminder.
 
 ## How it works
 
-1. Choose a "Test myself on" date. It defaults to seven local calendar days ahead.
-2. Use the Front and Back tabs to preview the questions and answers.
-3. Select "Print the sheet". Both sides print, questions first, even when you preview the back.
-4. On your chosen date, write your answers from memory. Compare with the back and revisit what you missed.
+1. You choose a "Test myself on" date. The suggested date is seven days from today.
+2. You select Front or Back to preview the questions and answers.
+3. You select "Print the sheet" to print the questions first and the answers after them.
+4. On your chosen date, you write answers from memory, compare with the back and revisit what you missed.
 
-The screen preview uses A4 proportions, a paper edge and a soft shadow. Narrow screens and enlarged text let the page grow. The scene header uses the shared file-text icon, "Take it with you" label and module title. Interface colours and fonts use the shared `--lp-*` tokens.
+## Evidence
 
-Without JavaScript, both sides appear in order with the server's default date. Use your browser's Print command. Interactive controls stay hidden.
+Recall practice is well supported. Roediger and Karpicke found that recalling studied prose improved retention compared with restudying, on tests two days and one week later. [Roediger and Karpicke, 2006](https://pubmed.ncbi.nlm.nih.gov/16507066/). Their review describes the wider evidence for testing as a learning activity. [The power of testing memory, 2006](https://doi.org/10.1111/j.1745-6916.2006.00012.x).
 
-Printing makes the supplied examples two pages on A4 or Letter, black on white, without controls or site chrome. Choose double-sided printing with the long-edge flip for one physical sheet. Turn off your browser's print headers and footers if it adds a URL or page numbers. Custom content can use more pages; text is never clipped to force it onto one sheet. Check your print preview after editing the questions.
+That evidence supports attempting recall. It does not establish an effect for handing out this sheet or for its seven-day default. Nothing makes a learner use the sheet on time, so the effect may be small. Check whether learners return to it and whether they remember the module later.
+
+The example's subject-matter claims come from the supplied demo. They are not evidence for this pattern and need review before use in a course.
+
+Logic unit tested. Not tried with learners.
+
+## Accessibility
+
+Meets the shared baseline in the root README.
+
+- The Front and Back tabs have one tab stop. Left and Right arrows change sides; Home and End choose the first and last tabs.
+- The date input has a visible label and linked errors. Date changes and print actions announce once and keep focus.
+- Tab selection conveys the active side without a second status announcement.
+- Printed questions leave space for handwritten answers. Check your printer's margins and double-sided settings by hand.
 
 ## Content fields
 
@@ -58,6 +71,24 @@ English and Québec French strings share the keys `takeAway`, `instruction`, `da
 
 Seven days is a demo default, not an established optimum for every topic or learner. Calendar scheduling handles month boundaries, leap years and daylight-saving changes.
 
+The screen preview uses A4 proportions, a paper edge and a soft shadow. Narrow screens and enlarged text let the page grow. The scene header uses the shared file-text icon, "Take it with you" label and module title. Interface colours and fonts use the shared `--lp-*` tokens.
+
+Without JavaScript, both sides appear in order with the server's default date. Use your browser's Print command. Interactive controls stay hidden.
+
+Printing makes the supplied examples two pages on A4 or Letter, black on white, without controls or site chrome. Choose double-sided printing with the long-edge flip for one physical sheet. Turn off your browser's print headers and footers if it adds a URL or page numbers. Custom content can use more pages; text is never clipped to force it onto one sheet. Check your print preview after editing the questions.
+
+`render` accepts an optional `today: Date` for a reproducible build date. Enhancement defaults to seven days after the learner's local day, so a static site's build date does not become its interactive default.
+
+Pass optional `state: { read, write }` to store `{ date, side }`. `date` is a valid `YYYY-MM-DD` civil date; `side` is `front` or `back`. Invalid saved values are ignored as a whole. Valid dates restore exactly, including past dates, without an announcement. Each change passes a fresh copy to `write`; host mutation cannot change the live sheet. Host errors propagate.
+
+An empty or invalid date shows an error beside the field and disables the print button. The last valid date stays on the sheet and in state until the learner chooses a valid date. The pattern does not restrict learners to future dates.
+
+Repeated enhancement returns the same instance and keeps the server elements. `destroy()` removes listeners, hides controls and restores the original server dates and both visible sides. Calling it again is safe; enhancement can then run again.
+
+The copied print stylesheet hides everything outside sheet roots while keeping their ancestors in flow. A pattern print button targets its own instance until `afterprint`; the browser's Print command prints all sheet instances in document order. Hosts that print other content on the same page should load this stylesheet only where they want a retrieval-sheet print view.
+
+Saving a date sends no reminder. Arrange a reminder through your course host if you want one. Printing the sheet does not show that the learner used it.
+
 ## Use it
 
 Copy `patterns/retrieval-sheet/` and `lib/`, keeping their relative paths. Link `lib/base.css`, then `patterns/retrieval-sheet/pattern.css`. Give every instance a unique id prefix. Render on the server before enhancing in the browser.
@@ -79,38 +110,6 @@ const instance = enhance(document.querySelector('[data-lp-pattern="retrieval-she
   content, strings: strings.en
 });
 ```
-
-`render` accepts an optional `today: Date` for a reproducible build date. Enhancement defaults to seven days after the learner's local day, so a static site's build date does not become its interactive default.
-
-Pass optional `state: { read, write }` to store `{ date, side }`. `date` is a valid `YYYY-MM-DD` civil date; `side` is `front` or `back`. Invalid saved values are ignored as a whole. Valid dates restore exactly, including past dates, without an announcement. Each change passes a fresh copy to `write`; host mutation cannot change the live sheet. Host errors propagate.
-
-An empty or invalid date shows an error beside the field and disables the print button. The last valid date stays on the sheet and in state until the learner chooses a valid date. The pattern does not restrict learners to future dates.
-
-Repeated enhancement returns the same instance and keeps the server elements. `destroy()` removes listeners, hides controls and restores the original server dates and both visible sides. Calling it again is safe; enhancement can then run again.
-
-The copied print stylesheet hides everything outside sheet roots while keeping their ancestors in flow. A pattern print button targets its own instance until `afterprint`; the browser's Print command prints all sheet instances in document order. Hosts that print other content on the same page should load this stylesheet only where they want a retrieval-sheet print view.
-
-Saving a date sends no reminder. Arrange a reminder through your course host if you want one. Printing the sheet does not show that the learner used it.
-
-## Accessibility
-
-Both sides work without JavaScript. Enhanced tabs use the tablist, tab and tabpanel roles, one tab stop, automatic activation with Left and Right arrows, and Home and End keys. Tab moves into the active panel, then to the print button. Selected tabs have an underline; forced colours keeps that underline and visible keyboard focus.
-
-The date field has a visible label and native date input. Date errors appear beside it with a decorative alert icon and text. One empty status region is present in server HTML. Date changes and print actions announce once without moving focus. Tabs convey their selection through their native accessibility roles; they do not repeat it in the status region. Restoring state is silent.
-
-Automated checks cover axe WCAG 2.0, 2.1 and 2.2 AA rules, keyboard tabs, dates, French, no JavaScript, state, two instances and cleanup in Chromium, WebKit and Firefox. Checks at 320 CSS pixels with text spacing cover reflow at 400% zoom on a 1280-pixel viewport. Chromium checks forced colours and A4/Letter PDFs. Print output needs a human printer check for your device's margins and duplex settings.
-
-Screen reader passes: not yet
-
-## Evidence
-
-Retrieval practice is well supported. In Roediger and Karpicke's experiments, recalling studied prose produced better retention than restudying on tests two days and one week later. [Roediger and Karpicke, 2006](https://pubmed.ncbi.nlm.nih.gov/16507066/). Their review describes the broader evidence for testing as a learning activity. [The power of testing memory, 2006](https://doi.org/10.1111/j.1745-6916.2006.00012.x).
-
-That evidence supports attempting recall. It does not establish an effect for handing out this sheet or for its seven-day default. Nothing makes a learner use the sheet on time, so the effect may be small. Check whether learners return to it and whether they remember the module later.
-
-The example's subject-matter claims come from the supplied demo. They are not evidence for this pattern and need subject-matter review before publication in a course.
-
-Logic unit tested. Not tried with learners.
 
 ## Adapt it with your agent
 
