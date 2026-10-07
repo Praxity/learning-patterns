@@ -26,11 +26,7 @@ It also suits learners with patchy or no internet. Print the sheets, or save the
 
 ## Evidence
 
-Recall practice is well supported. Roediger and Karpicke found that recalling studied prose improved retention compared with restudying, on tests two days and one week later. [Roediger and Karpicke, 2006](https://pubmed.ncbi.nlm.nih.gov/16507066/). Their review describes the wider evidence for testing as a learning activity. [The power of testing memory, 2006](https://doi.org/10.1111/j.1745-6916.2006.00012.x).
-
-That evidence supports attempting recall. It does not establish an effect for handing out this sheet or for its seven-day default. Nothing makes a learner use the sheet on time, so the effect may be small. Check whether learners return to it and whether they remember the module later.
-
-The example's subject-matter claims come from the supplied demo. They are not evidence for this pattern and need review before use in a course.
+Recalling studied prose improved retention two days and one week later, compared with restudying ([Roediger and Karpicke, 2006](https://doi.org/10.1111/j.1467-9280.2006.01693.x)), and a meta-analysis found that practice tests beat restudying and other study conditions ([Adesope, Trevisan and Sundararajan, 2017](https://doi.org/10.3102/0034654316689306)). Recall tests, like this sheet, produced larger benefits than recognition tests ([Rowland, 2014](https://doi.org/10.1037/a0037559)). The best gap between study and review grows with how long you need to remember ([Cepeda et al., 2008](https://doi.org/10.1111/j.1467-9280.2008.02209.x)), and the seven-day default suits remembering for weeks. The answers on the back give feedback right after each attempt. The weak point is use, since students tend to study when deadlines push them ([Hartwig and Dunlosky, 2012](https://doi.org/10.3758/s13423-011-0181-y)) and choosing a date sends no reminder. This sheet has not been tested with learners.
 
 Logic unit tested. Not tried with learners.
 
@@ -77,7 +73,7 @@ The screen preview uses A4 proportions, a paper edge and a soft shadow. Narrow s
 
 Without JavaScript, both sides appear in order with the server's default date. Use your browser's Print command. Interactive controls stay hidden.
 
-Printing makes the supplied examples two pages on A4 or Letter, black on white, without controls or site chrome. Choose double-sided printing with the long-edge flip for one physical sheet. Turn off your browser's print headers and footers if it adds a URL or page numbers. Custom content can use more pages; text is never clipped to force it onto one sheet. Check your print preview after editing the questions.
+Printing makes the examples two pages on A4 or Letter, black on white, without controls or site chrome. Choose double-sided printing with the long-edge flip for one physical sheet. Turn off your browser's print headers and footers if it adds a URL or page numbers. Custom content can use more pages; text is never clipped to force it onto one sheet. Check your print preview after editing the questions.
 
 `render` accepts an optional `today: Date` for a reproducible build date. Enhancement defaults to seven days after the learner's local day, so a static site's build date does not become its interactive default.
 

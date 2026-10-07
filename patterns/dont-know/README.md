@@ -25,9 +25,7 @@ Use it for a short practice quiz where learners need a way to report uncertainty
 
 ## Evidence
 
-The nearest evidence is certainty-based marking. Gardner-Medwin's conference abstract reports improved exam reliability when students report certainty and confident errors cost points. That method uses certainty levels; this pattern uses one "I don't know" option. The scoring methods differ. [Gardner-Medwin, Analysis of exams using certainty-based marking](https://www.physoc.org/abstracts/analysis-of-exams-using-certainty-based-marking/).
-
-This exact scoring has not been tested. A penalty for wrong answers may discourage guessing. Choosing "I don't know" records uncertainty, but it does not establish learners' confidence or prove a learning benefit.
+When learners may withhold an answer, the answers they do give are more accurate, and the gain depends on how well they judge their own knowledge ([Koriat and Goldsmith, 1996](https://doi.org/10.1037/0033-295X.103.3.490)). Certainty-based marking rewards the same honest self-report in medical exams ([Gardner-Medwin, 1995](https://doi.org/10.1080/0968776950030113)). Penalties have costs, though. An "I don't know" option reduced guessing in a vocabulary test but also hid partial knowledge ([Zhang, 2013](https://eric.ed.gov/?id=EJ1027592)), and in several studies penalties led women to skip more questions than men, so removing them narrowed score gaps ([Baldiga, 2014](https://doi.org/10.1287/mnsc.2013.1776); [Coffman and Klinowski, 2020](https://doi.org/10.1073/pnas.1920945117)). The pattern also follows Freire's and hooks's critique of teaching in which the teacher knows everything and the learner knows nothing (Freire, *Pedagogy of the Oppressed*, 1970; hooks, *Teaching to Transgress*, 1994). Intellectual humility, recognising the limits of one's own knowledge, predicted more effort to learn in five studies ([Porter et al., 2020](https://doi.org/10.1016/j.lindif.2020.101888)). This scoring rule and its effect on test anxiety have not been tested, so keep wrong-answer penalties low-stakes.
 
 Logic unit tested. Not tried with learners.
 

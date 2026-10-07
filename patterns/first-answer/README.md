@@ -25,11 +25,7 @@ Use it near the start and end of a course when learners can revisit the same que
 
 ## Evidence
 
-The supplied research files contain no direct evidence that returning a learner's first answer at the end of a course improves learning.
-
-Self-explanation research supports asking learners to explain their thinking. This example asks for a reply, without asking why it works. That evidence does not establish an effect here. [Bisra et al., 2018](https://doi.org/10.1007/s10648-018-9434-x).
-
-The checklist asks learners to assess their answer against authored criteria. The supplied research proposes a self-check group when testing automated feedback. It also reports a tutor study with no overall advantage for writing explanations over selecting them. Such a group could help compare trial outcomes. That research design choice provides no evidence that these checkboxes improve performance. [Aleven et al., 2004](https://link.springer.com/chapter/10.1007/978-3-540-30139-4_42).
+Checking your work against named criteria, the way a rubric works, is self-assessment, and the improvement checklist here is exactly that. A meta-analysis of 175 studies linked self-assessment to better academic performance ([Yan et al., 2022](https://doi.org/10.1016/j.edurev.2022.100484)), and self-assessment works best for improving a piece of work rather than grading it ([Andrade and Valtcheva, 2009](https://doi.org/10.1080/00405840802577544)). The first answer is kept as written because people misremember where they started. In one study, students who took a study skills course recalled their earlier skills as worse than they had rated them at the time, so the course seemed to help more than it did ([Conway and Ross, 1984](https://doi.org/10.1037/0022-3514.47.4.738)). Feedback on progress raised children's self-efficacy and writing achievement in two experiments ([Schunk and Swartz, 1993](https://doi.org/10.1006/ceps.1993.1024)), and an old answer beside a new one shows progress directly. Learners tend to rate their own work generously ([Dunlosky and Rawson, 2012](https://doi.org/10.1016/j.learninstruc.2011.08.003)), so the ticks show what a learner noticed changing, not a measured gain. Bringing back a first answer at the end of a course has not been tested directly.
 
 Logic unit tested. Not tried with learners.
 

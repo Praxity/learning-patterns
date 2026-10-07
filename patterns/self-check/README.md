@@ -25,13 +25,7 @@ Use it when learners can judge their own answers against a short list of clear p
 
 ## Evidence
 
-Authored feedback explains each part. A meta-analysis of computer-based learning found larger effects for explanatory feedback than for right-or-wrong feedback. That supports giving hints alongside the count. It does not establish an effect for this pattern. [Van der Kleij, Feskens and Eggen, 2015](https://doi.org/10.3102/0034654314564881).
-
-Self-explanation prompts can help learning. A tutor study found no overall advantage for writing explanations over choosing them from a menu. Use a self-check comparison when evaluating automated feedback, since the prompt and checklist may do some of the work. [Bisra et al., 2018](https://doi.org/10.1007/s10648-018-9434-x), [Aleven et al., 2004](https://link.springer.com/chapter/10.1007/978-3-540-30139-4_42).
-
-Access to answers can improve practice without improving later independent performance. A mathematics study found that safeguards using teacher-designed hints reduced this risk. This pattern shows its model after an attempt and a self-check. It does not require a revision, and its no-JavaScript fallback makes the model available in native details. Those are weaker guards. [Bastani et al., 2025](https://doi.org/10.1073/pnas.2422633122).
-
-The offline fallback keeps the checklist and model available without scripts or network services. Its usefulness for learners still needs testing.
+Checking an answer against a list of its key ideas is a tested technique. Adults who checked their own recall this way judged their learning more accurately and did better on a later test ([Rawson, O'Neil and Dunlosky, 2011](https://doi.org/10.1037/a0024749)), and showing the correct answer reduced middle school students' overconfidence about wrong answers ([Lipko et al., 2009](https://doi.org/10.1037/a0017599)). Self-assessment against explicit criteria is meant for improving a draft, not for grading it ([Andrade and Valtcheva, 2009](https://doi.org/10.1080/00405840802577544)), and a meta-analysis of 175 studies found that it improved academic performance ([Yan et al., 2022](https://doi.org/10.1016/j.edurev.2022.100484)). Explanations helped more than right-or-wrong feedback in computer-based learning ([Van der Kleij, Feskens and Eggen, 2015](https://doi.org/10.3102/0034654314564881)), so each missing part comes with a hint. The model answer appears only after an attempt, because easy access to answers can raise practice scores without lasting learning ([Bastani et al., 2025](https://doi.org/10.1073/pnas.2422633122)). This sequence has not been tested as a whole, and ticks record the learner's own judgment.
 
 Logic unit tested. Not tried with learners.
 

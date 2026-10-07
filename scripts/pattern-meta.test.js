@@ -57,7 +57,12 @@ function checkReadmeStructure(readme) {
   assert.deepEqual([...prose.matchAll(/^## ([^\r\n]+)\r?$/gm)].map(match => match[1]), README_SECTIONS);
   const how = readme.split(/^## How it works\r?$/m)[1].split(/^## /m)[0];
   assert.doesNotMatch(how, /`|\b[A-Za-z_$][\w.$]*\s*\(/, 'How it works contains code');
+  // READMEs are public. They never mention how they were written or where files sit on a machine.
+  assert.doesNotMatch(prose, INTERNAL, 'README contains internal phrasing');
+  assert.doesNotMatch(prose, /—/, 'README contains an em dash');
 }
+
+const INTERNAL = /\bsupplied\b|\bresearch notes?\b|\bdemo \d+\b|\bworkers?\b|\bthe brief\b|codex-runs|\b[A-Z]:[\\/]/i;
 
 test('README structure guard catches missing, reordered and technical sections', () => {
   const readme = `${valid}\nA short description.\n\n${README_SECTIONS.map(section =>
@@ -72,6 +77,9 @@ test('README structure guard catches missing, reordered and technical sections',
   assert.doesNotThrow(() => checkReadmeStructure(readme.replaceAll('\n', '\r\n')));
   for (const code of ['`answer`', 'readingMinutes(content)', 'scheduleReview (date)']) {
     assert.throws(() => checkReadmeStructure(readme.replace('1. You read the question.', `1. You use ${code}.`)), /contains code/);
+  }
+  for (const phrase of ['The supplied research notes say so.', 'See demo 21.', 'A worker wrote this.', 'Logs are in D:/tmp/x.', 'As the brief asks.', 'Short \u2014 long.']) {
+    assert.throws(() => checkReadmeStructure(readme.replace('## Licence\n\nPlain text.', `## Licence\n\n${phrase}`)), /internal phrasing|em dash/, phrase);
   }
   assert.throws(() => checkReadmeStructure(readme.replace(/^---\n[\s\S]*?\n---\n/, '')), /missing front matter/);
   assert.throws(() => checkReadmeStructure(readme.replace('# Check your own answer\n', '')));
@@ -91,4 +99,6 @@ test('the root README lists every pattern folder', async () => {
   for (const entry of await readdir(new URL('../patterns/', import.meta.url), { withFileTypes: true })) {
     if (entry.isDirectory()) assert.ok(readme.includes(`](patterns/${entry.name}/README.md)`), `README.md does not list ${entry.name}`);
   }
+  const folders = new Set((await readdir(new URL('../patterns/', import.meta.url), { withFileTypes: true })).filter(e => e.isDirectory()).map(e => e.name));
+  for (const [, name] of readme.matchAll(/\]\(patterns\/([^/]+)\/README\.md\)/g)) assert.ok(folders.has(name), `README.md lists missing pattern ${name}`);
 });

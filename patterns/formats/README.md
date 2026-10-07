@@ -25,13 +25,7 @@ Use it when a short lesson benefits from different ways to read, review or pract
 
 ## Evidence
 
-The supplied research notes name Google's Learn Your Way as the design source for switching lesson formats. Google's report describes a randomized study with 60 students aged 15 to 18. Users scored 78%, compared with 67% for a digital PDF reader, on a retention test 3 to 5 days later. The tool combined generated formats, personalization and quizzes. The comparison does not isolate format switching, keeping your place or this authored workplace lesson. It supports investigating the combined approach but establishes no outcome for this pattern. [Google Research, Learn Your Way](https://research.google/blog/learn-your-way-reimagining-textbooks-with-generative-ai/).
-
-The supplied feedback research argues for task-specific, informative feedback. This pattern follows that design advice with option-specific authored explanations. Those notes contain no evaluation of these questions, the sample narration script or section-preserving switches.
-
-Learning-styles matching is not supported by evidence. Pashler and colleagues' review found insufficient evidence to justify matching instruction to assessed learning styles. This pattern offers choice and access, with no style assessment or matching claim. [Pashler et al., Learning styles: concepts and evidence](https://www.psychologicalscience.org/journals/pspi/j.1539-6053.2009.01038.x/).
-
-The lesson examples are demo content. Check subject-matter claims before publishing a course.
+Matching instruction to a learner's supposed learning style is not supported by evidence ([Pashler et al., 2008](https://doi.org/10.1111/j.1539-6053.2009.01038.x)), and a later test found no benefit from matching audio or text to a stated preference ([Rogowsky, Calhoun and Tallal, 2015](https://doi.org/10.1037/a0037478)). This pattern offers choice and access instead, with no style assessment. Giving learners control in educational technology had an overall effect near zero in a meta-analysis ([Karich, Burns and Maki, 2014](https://doi.org/10.3102/0034654314526064)), so choice alone should not be expected to raise scores. The quiz format adds retrieval practice, which has strong support ([Roediger and Karpicke, 2006](https://doi.org/10.1111/j.1467-9280.2006.01693.x)). Google's Learn Your Way, which offers several formats along with personalised content and quizzes, beat a PDF reader on a retention test in a study of 60 students, but that comparison does not isolate format switching ([Google Research, 2025](https://research.google/blog/learn-your-way-reimagining-textbooks-with-generative-ai/)). Switching formats has not been tested on its own.
 
 Logic unit tested. Not tried with learners.
 

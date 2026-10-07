@@ -24,9 +24,7 @@ Use it to compare the ideas a learner notices with the author's selection, or to
 
 ## Evidence
 
-Dunlosky and colleagues rated highlighting low utility. It did not consistently improve students' performance across the conditions they reviewed. [Dunlosky et al., 2013, Improving students' learning with effective learning techniques](https://doi.org/10.1177/1529100612453266), [author's institutional record and abstract](https://scholars.duke.edu/publication/954654).
-
-This pattern adds a question in evidence mode and compares marks with authored targets. Searching visible text is not recall practice. The combination has not been tested with learners. The review does not establish a learning benefit for it.
+Highlighting alone is a weak study strategy. A major review rated it low utility ([Dunlosky et al., 2013](https://doi.org/10.1177/1529100612453266)). A meta-analysis of 36 articles found that marking text yourself improved memory but not comprehension, while text already highlighted by an instructor improved both ([Ponce, Mayer and Méndez, 2022](https://doi.org/10.1007/s10648-021-09654-1)). Students often mark too much or the wrong things, and short training in what to mark helps ([Miyatsu, Nguyen and McDaniel, 2018](https://doi.org/10.1177/1745691617710510); [Leutner, Leopold and den Elzen-Rump, 2007](https://doi.org/10.1027/0044-3409.215.3.174)). This pattern gives marking a purpose, a question or a set of key ideas, then shows the author's choices beside the learner's. Comparing their own answers with a correct standard made students' judgments of their learning more accurate in several experiments ([Lipko et al., 2009](https://doi.org/10.1037/a0017599); [Rawson, O'Neil and Dunlosky, 2011](https://doi.org/10.1037/a0024749)). Finding evidence in visible text practises reading, not recall, and this combination has not been tested.
 
 Logic unit tested. Not tried with learners.
 
