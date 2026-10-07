@@ -42,3 +42,10 @@ test('every pattern README has valid front matter', async () => {
     assert.doesNotThrow(() => readMeta(entry.name, readme), entry.name);
   }
 });
+
+test('the root README lists every pattern folder', async () => {
+  const readme = await readFile(new URL('../README.md', import.meta.url), 'utf8');
+  for (const entry of await readdir(new URL('../patterns/', import.meta.url), { withFileTypes: true })) {
+    if (entry.isDirectory()) assert.ok(readme.includes(`](patterns/${entry.name}/README.md)`), `README.md does not list ${entry.name}`);
+  }
+});

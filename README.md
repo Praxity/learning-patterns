@@ -14,11 +14,15 @@ Copy its folder under `patterns/` and the shared `lib/` folder. Keep their relat
 
 | Pattern | What it does |
 | --- | --- |
-| [Self-check](patterns/self-check/README.md) | Compare your written answer with an authored checklist and model answer. |
+| [Check your own answer](patterns/self-check/README.md) | Write an answer, tick the parts it includes, then see a hint for each part you missed and a model answer. |
+| ["I don't know" as an answer](patterns/dont-know/README.md) | Multiple choice where "I don't know" scores zero and a wrong answer costs a point, so guesses don't hide gaps. |
+| [Questions inside the reading](patterns/review-prompts/README.md) | Short recall questions between sections of text, each with a next review date. |
+| [Your first answer comes back](patterns/first-answer/README.md) | Save an answer at the start of a course and compare it with a new one at the end. |
+| [Write the wrong options](patterns/write-distractors/README.md) | Write wrong options for a question, tag the misconception behind each, and compare with the author's. |
 
 ## Theme tokens
 
-Override these custom properties on `.lp-self-check`.
+Every pattern uses the same custom properties. Override them on a pattern's root (`.lp-<name>`) or on any ancestor.
 
 | Token | Default |
 | --- | --- |
