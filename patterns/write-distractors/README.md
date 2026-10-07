@@ -21,7 +21,7 @@ Use it when learners can recall the topic and name common misconceptions. Author
 2. You choose "Yes" or "Not quite" to say whether you had it. This choice has no score.
 3. You write the requested wrong options and choose the wrong idea behind each one. You can choose "Something else" and write your own description.
 4. You select "Compare with the author's" and fix any fields with errors.
-5. You read your finished question and compare your options with the author's. The summary counts the author's labels you used and any extra labels.
+5. You compare your finished question with the author's question. Each wrong option shows its misconception underneath. Matching misconceptions get a check mark, and the summary counts the author's labels you used and any extra labels.
 6. You select "Start over" to clear your work and answer the question again.
 
 ## Evidence
@@ -36,7 +36,7 @@ Logic unit tested. Not tried with learners.
 
 Meets the shared baseline in the root README.
 
-- Each wrong-option builder has a fieldset, legend, letter key and labelled fields. Errors are linked to their fields.
+- Each wrong-option builder has a fieldset whose legend names its letter key and labels the answer field. Other fields have visible labels. Errors are linked to their fields.
 - Checking announces the right answer and keeps focus on Check my answer. A self-report moves focus to the authoring heading.
 - Invalid comparisons focus the first error and announce the number of fields needing attention. Successful comparisons keep focus on the submit button and announce coverage.
 - After comparison, each builder becomes a read-only summary with its full misconception label. Start over focuses Your answer.
@@ -75,11 +75,9 @@ Strings must be nonempty. Unknown fields, duplicate IDs, and unknown author refe
 
 Each submitted option has `{ text, misconception, custom }`. Named targets use an empty `custom` string. Exported constants `MAX_OPTION`, `MAX_CUSTOM` and `OTHER` are `300`, `120` and `'other'`. Length checks run before trimming and collapsing whitespace. Comparison rejects the right answer and duplicate options after ignoring case and extra whitespace.
 
-Coverage compares tags after ignoring case and extra whitespace. A custom tag that repeats an authored label matches it. Duplicate tags count once. `missed` lists only targets from the author's options; `extra` lists learner targets those options do not cover. The enhancer formats counts with `coverageOne` or `coverageMany`, then lists missed labels or "None."
+Coverage compares tags after ignoring case and extra whitespace. A custom tag that repeats an authored label matches it. Duplicate tags count once. `missed` lists only targets from the author's options; `extra` lists learner targets those options do not cover. The enhancer formats counts with `coverageOne` or `coverageMany` above two question previews. The previews sit side by side when the activity's content area is at least 40rem wide, and stack below that.
 
-The author's wrong options stay hidden until a valid comparison. Without JavaScript, the question and answer field remain available. Two native disclosures show "Right answer" and "The author's wrong options".
-
-Checking locks the first answer. The right answer owns letter key A; learner options start at B. The author's wrong options stay hidden until a valid comparison. Without JavaScript, the question and answer field remain available, with native disclosures for Right answer and The author's wrong options.
+Checking locks the first answer. The right answer owns letter key A; wrong options start at B. The builder heading writes counts from two to five in words and larger counts in digits. The author's question stays hidden until a valid comparison. Without JavaScript, the question and answer field remain available, with native disclosures for Right answer and The author's question.
 
 The optional state adapter stores `{ answer, hadIt, options: [{ text, misconception, custom }], shown }`. `answer` holds the learner's text. `hadIt` is `true` for Yes, `false` for Not quite, and `null` before self-report. It saves drafts on input and selection, normalized options on comparison, and empty fields on Start over. A saved draft with `hadIt: null` returns to the answer step, even if the answer was checked before leaving. Legacy state preserves the wrong-option draft and requires the answer step again. The host decides how to collect submissions for the author. This pattern uses no localStorage and keeps no suggestion list. Invalid state is ignored. Valid results restore without announcements. State adapter errors propagate to the host. Repeated enhancement returns the same instance.
 
@@ -94,6 +92,8 @@ import { render } from './patterns/write-distractors/render.js';
 import { strings } from './patterns/write-distractors/strings.js';
 const markup = render(content, strings.en, { id: 'breaks', lang: 'en' });
 ```
+
+`render.js` also exports `renderQuestionPreview(content, strings, options, { author, matches, heading })`, which returns escaped HTML for a read-only question. `options` holds wrong options; `matches` holds their comparison flags. `author` chooses the author's title, and `heading: false` omits it inside a labelled disclosure.
 
 After inserting the server markup, enable the fields in the browser.
 
