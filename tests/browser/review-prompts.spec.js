@@ -136,8 +136,8 @@ test('rating toggles keep their labels, use the v2 accent and add a calendar rev
     await expect(button).toHaveCSS('background-color', 'rgb(255, 255, 255)');
   }
   for (const [selected, other, label] of [[remembered, forgot, 'I remembered'], [forgot, remembered, 'I forgot']]) {
-    // WebKit preserves existing focus on pointer clicks rather than focusing buttons.
-    await selected.focus(); await selected.click(); await expect(selected).toBeFocused();
+    // Activate from the keyboard so every engine starts with focus on the control.
+    await selected.focus(); await selected.press('Enter'); await expect(selected).toBeFocused();
     await expect(selected).toHaveText(label);
     await expect(selected).toHaveAttribute('aria-pressed', 'true');
     await expect(other).toHaveAttribute('aria-pressed', 'false');
