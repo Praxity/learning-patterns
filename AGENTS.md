@@ -30,6 +30,16 @@ Show feedback on submit, next to what it is about (at the chosen option or the f
 
 Write a fail-first interface test for each behaviour change. Test planted violations for guards. Run node tests and the three-engine axe and keyboard browser checks. Screen reader passes are a separate human check.
 
+## Motion
+
+Motion explains a change; it never decorates. From the motion-timing, motion-performance and interface-craft skills:
+
+- Hover and press 120 to 180 ms; small state changes (selection, chips) 180 to 260 ms; anything the learner starts stays at or under 300 ms. Entrances ease out, exits ease in, view changes (a stepper panel) ease in and out. Linear only for progress.
+- Animate transform and opacity. Paint properties (background, box-shadow) only on small elements. Never `transition: all`.
+- A staged sequence that starts plays to its end; it is not cut off when the pointer leaves.
+- Keyboard focus moves instantly. Buttons press to `scale(.96)`.
+- No loops, no autoplay, no celebration. Under `prefers-reduced-motion: reduce` everything is instant and the final state shows.
+
 ## Commands
 
 Use Node 22 and npm. When another worktree may be running browser tests, set `LP_PORT` to a free port. Run `npm test`, `npm run typecheck`, `npm run types:check`, `npm run budget`, `npm run demo` and `npm run test:browser`. After changing JSDoc types, run `npm run types` and commit `types/`.
