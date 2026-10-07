@@ -1,5 +1,7 @@
 export namespace strings {
     namespace en {
+        let readingTime: string;
+        let progress: string;
         let check: string;
         let instruction: string;
         let show: string;
@@ -8,6 +10,10 @@ export namespace strings {
         let nextReview: string;
     }
     namespace fr {
+        let readingTime_1: string;
+        export { readingTime_1 as readingTime };
+        let progress_1: string;
+        export { progress_1 as progress };
         let check_1: string;
         export { check_1 as check };
         let instruction_1: string;
