@@ -1,16 +1,7 @@
 /* Review-prompts specifics. Link lib/base.css before this stylesheet. */
-.lp-review-prompts-heading {
-  margin: 0;
-  font-family: var(--lp-font-heading);
-  font-size: var(--lp-type-h3);
-  font-weight: 600;
-  line-height: 1.25;
-}
+.lp-review-prompts-heading { margin: 0; }
 .lp-review-prompts-part + .lp-review-prompts-part { margin-block-start: 32px; }
 
-@container (max-width: 30rem) {
-  .lp-review-prompts-heading { font-size: 1.3125rem; }
-}
 @media (max-width: 30rem) {
   .lp-review-prompts-part + .lp-review-prompts-part { margin-block-start: 24px; }
 }

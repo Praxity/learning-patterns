@@ -11,7 +11,7 @@ export function render(content, strings, { id, lang }) {
   ${content.parts.map((part, index) => {
     const heading = html(`${id}-heading-${index}`), label = html(`${id}-prompt-${index}`);
     return `<section class="lp-review-prompts-part lp-stack" data-lp-part="${html(part.id)}" aria-labelledby="${heading}">
-    <h3 class="lp-review-prompts-heading" id="${heading}">${html(part.heading)}</h3>
+    <h3 class="lp-stem lp-review-prompts-heading" id="${heading}">${html(part.heading)}</h3>
     ${part.paragraphs.map(text => `<p>${html(text)}</p>`).join('\n    ')}
     <div class="lp-box" role="group" aria-labelledby="${label}">
       <p class="lp-run-in" id="${label}">${html(strings.check)}</p>
