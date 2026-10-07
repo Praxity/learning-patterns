@@ -17,10 +17,10 @@ Use it for short readings with facts or actions worth recalling later. Write one
 
 ## How it works
 
-1. You read a section and try to answer its question in your head.
-2. You select "Show the answer" and compare it with what you remembered.
+1. Read a section and recall the answer to its question.
+2. Select "I have my answer". Focus moves to the answer so you can compare it with what you recalled.
 3. You choose "I remembered" or "I forgot" and see a date for your next review. You can change your choice to update the date.
-4. You see how many questions you have checked and continue to the next section.
+4. You see how many questions you have checked. If the reading has several sections, continue to the next one.
 
 ## Evidence
 
@@ -36,9 +36,10 @@ Logic unit tested. Not tried with learners.
 
 Meets the shared baseline in the root README.
 
-- The article title and section headings give the reading a heading structure. Each answer opens through a native disclosure.
+- The article title and section headings give the reading a heading structure. "I have my answer" reveals a region labelled "Answer" and moves focus there.
 - Rating buttons keep their visible labels and expose the chosen rating as pressed.
-- Each rating announces its review date and keeps focus on the chosen button. Opening answers and updating progress stay silent.
+- Each rating announces its review date and keeps focus on the chosen button. Revealing answers and updating progress stay silent.
+- Without JavaScript, "Show the answer" opens a native disclosure.
 
 ## Content fields
 
@@ -52,15 +53,15 @@ All content is plain text. HTML characters are escaped.
 | `parts[].heading` | Part heading, rendered as `h3` in the body font. |
 | `parts[].paragraphs` | At least one nonempty paragraph. |
 | `parts[].question` | Retrieval prompt below the reading. |
-| `parts[].answer` | Authored answer in native details. |
+| `parts[].answer` | Authored answer revealed after recall, with native details as the no-JavaScript fallback. |
 | `reviewDays.remembered` | Positive whole calendar days after "I remembered". |
 | `reviewDays.forgot` | Positive whole calendar days after "I forgot". |
 
 `validateContent` rejects empty strings, unknown fields and duplicate part ids. Whitespace is allowed. The schema's `x-uniqueBy` annotation records identity uniqueness; ordinary JSON Schema tools also need the validator's uniqueness check.
 
-Strings in both languages share the keys `readingTime`, `progress`, `check`, `show`, `remembered`, `forgot` and `nextReview`. Placeholders are `{n}` for reading time, `{count}` and `{total}` for progress, and `{date}` for the review date.
+Strings in both languages share the keys `readingTime`, `progress`, `commit`, `answer`, `show`, `remembered`, `forgot` and `nextReview`. Placeholders are `{n}` for reading time, `{count}` and `{total}` for progress, and `{date}` for the review date.
 
-The examples preserve the demo's three parts about stonewalling and time-outs, including its reported 93% prediction claim. That example claim is not evidence for this pattern. Check subject-matter claims before publishing your own reading.
+The examples contain one section about stonewalling and its recall card. Content can include several parts, each with its own question, answer and review date. Check subject-matter claims before publishing your own reading.
 
 ## Logic
 
@@ -112,7 +113,7 @@ const instance = enhance(document.querySelector('[data-lp-pattern]'), { content,
 
 ## Adapt it with your agent
 
-> Rewrite this article for my topic: [topic]. My learners are [audience]. Keep the plain-text shape `{ title, parts: [{ id, heading, paragraphs, question, answer }], reviewDays: { remembered, forgot } }`. Write a short title, a focused retrieval question and a concise answer for each part. Keep stable unique ids, native details, h2 article title, h3 part headings, silent progress, editable self-ratings and calendar-day scheduling. Include no score. Keep English and Québec French together, addressing French learners with vous. Authors write every message. Keep the render, enhancement, state, CSS token and accessibility contracts. Update examples and tests. Show both languages for review and describe how the host will arrange reminders.
+> Rewrite this article for my topic: [topic]. My learners are [audience]. Keep the plain-text shape `{ title, parts: [{ id, heading, paragraphs, question, answer }], reviewDays: { remembered, forgot } }`. Write a short title, a focused retrieval question and a concise answer for each part. Keep stable unique ids, the commitment button and answer focus, native details as the no-JavaScript fallback, h2 article title, h3 part headings, silent progress, editable self-ratings and calendar-day scheduling. Include no score. Keep English and Québec French together, addressing French learners with vous. Authors write every message. Keep the render, enhancement, state, CSS token and accessibility contracts. Update examples and tests. Show both languages for review and describe how the host will arrange reminders.
 
 ## Licence
 

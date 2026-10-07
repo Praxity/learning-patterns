@@ -5,9 +5,22 @@ import { readFile } from 'node:fs/promises';
 const english = JSON.parse(await readFile(new URL('../../patterns/review-prompts/examples/en.json', import.meta.url)));
 const french = JSON.parse(await readFile(new URL('../../patterns/review-prompts/examples/fr.json', import.meta.url)));
 
-async function open(page, path = '/review-prompts/en.html') {
+const multiple = { ...english, parts: ['stonewalling', 'time_out', 'return'].map(id => ({ ...english.parts[0], id })) };
+
+async function open(page, path = '/review-prompts/en.html', content) {
   await page.clock.install({ time: new Date(2026, 9, 6, 23, 45) });
   await page.goto(path); await page.waitForFunction(() => window.lpReady);
+  if (content) await page.evaluate(async content => {
+    window.lpInstances.forEach(instance => instance.destroy());
+    const { render } = await import('/patterns/review-prompts/render.js');
+    const { enhance } = await import('/patterns/review-prompts/enhance.js');
+    const { strings } = await import('/patterns/review-prompts/strings.js');
+    const root = document.querySelector('[data-lp-pattern]');
+    root.outerHTML = render(content, strings.en, { id: 'multiple', lang: 'en' });
+    const options = { content, strings: strings.en, state: { read: () => window.lpSeed, write: value => { window.lpSaved = value; } } };
+    window.lpEnhance = () => enhance(document.querySelector('[data-lp-pattern]'), options);
+    window.lpInstances = [window.lpEnhance()];
+  }, content);
 }
 async function observe(page) {
   await page.evaluate(() => {
@@ -25,19 +38,19 @@ const scan = async page => expect((await new AxeBuilder({ page }).withTags(['wca
 test('article header includes an authored title and computed reading time', async ({ page }) => {
   await open(page);
   const root = page.locator('[data-lp-pattern]');
-  await expect(root.getByRole('heading', { level: 2 })).toHaveText('Stonewalling and time-outs');
-  await expect(root.locator('header > .lp-small').first()).toHaveText('3 min read');
+  await expect(root.getByRole('heading', { level: 2 })).toHaveText('Stonewalling');
+  await expect(root.locator('header > .lp-small').first()).toHaveText('1 min read');
 });
 
 test('progress counts distinct ratings without announcing progress', async ({ page }) => {
-  await open(page); await observe(page);
+  await open(page, undefined, multiple); await observe(page);
   const root = page.locator('[data-lp-pattern]');
   const progress = root.locator('[data-lp-progress]');
   await expect(progress).toHaveText('0 of 3 checked');
   await expect(progress).toBeVisible();
   expect(await progress.getAttribute('aria-live')).toBeNull();
   expect(await progress.getAttribute('role')).toBeNull();
-  await part(page).locator('summary').click();
+  await part(page).locator('[data-lp-commit]').click();
   await expect(progress).toHaveText('0 of 3 checked');
   await part(page).getByRole('button', { name: 'I remembered' }).click();
   await expect(progress).toHaveText('1 of 3 checked');
@@ -45,10 +58,10 @@ test('progress counts distinct ratings without announcing progress', async ({ pa
   await part(page).getByRole('button', { name: 'I forgot' }).click();
   await expect(progress).toHaveText('1 of 3 checked');
   const second = root.locator('[data-lp-part]').nth(1);
-  await second.locator('summary').click(); await second.getByRole('button', { name: 'I forgot' }).click();
+  await second.locator('[data-lp-commit]').click(); await second.getByRole('button', { name: 'I forgot' }).click();
   await expect(progress).toHaveText('2 of 3 checked');
   const third = root.locator('[data-lp-part]').nth(2);
-  await third.locator('summary').click(); await third.getByRole('button', { name: 'I remembered' }).click();
+  await third.locator('[data-lp-commit]').click(); await third.getByRole('button', { name: 'I remembered' }).click();
   await expect(progress).toHaveText('3 of 3 checked');
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([
     'Next review Friday, October 9, 2026', 'Next review Wednesday, October 7, 2026',
@@ -60,9 +73,9 @@ test('article metadata uses authored text in French and progress restores withou
   await page.addInitScript(() => { window.lpSeed = { results: { stonewalling: { result: 'forgot', reviewOn: '2026-10-07' } } }; });
   await open(page, '/review-prompts/fr.html');
   const root = page.locator('[data-lp-pattern]');
-  await expect(root.getByRole('heading', { level: 2 })).toHaveText("L'évitement et le temps mort");
-  await expect(root.locator('header > .lp-small').first()).toHaveText('3 min de lecture');
-  await expect(root.locator('[data-lp-progress]')).toHaveText('1 sur 3 vérifiés');
+  await expect(root.getByRole('heading', { level: 2 })).toHaveText("L'évitement");
+  await expect(root.locator('header > .lp-small').first()).toHaveText('1 min de lecture');
+  await expect(root.locator('[data-lp-progress]')).toHaveText('1 sur 1 vérifiés');
   await expect(root.getByRole('status')).toHaveText('');
 });
 
@@ -101,15 +114,17 @@ for (const width of [1280, 390]) {
       await expect(box).toHaveCSS('border-radius', '16px');
       await expect(box).toHaveCSS('padding-top', width === 1280 ? '24px' : '18px');
       await expect(box.locator('.lp-box')).toHaveCount(0);
-      await expect(box.locator(':scope > .lp-label')).toHaveText('Answer in your head first');
-      await expect(box.locator(':scope > .lp-label svg')).toHaveAttribute('aria-hidden', 'true');
+      await expect(box.locator('.lp-label, .lp-scene-label')).toHaveCount(0);
+      await expect(block.getByRole('group', { name: authored.question })).toHaveCount(1);
+      await expect(box.locator('[data-lp-commit]')).toHaveText('I have my answer');
+      await expect(box.locator('details')).toBeHidden();
       await expect(box.locator(':scope > .lp-stem')).toHaveText(authored.question);
       await expect(box.locator(':scope > .lp-small')).toHaveCount(0);
       await expect(box.locator(':scope > details.lp-details > summary')).toHaveText('Show the answer');
       expect(await box.evaluate(el => el.previousElementSibling?.tagName)).toBe('P');
-      await box.locator('summary').click();
-      await expect(box.locator('.lp-quote[data-lp-answer]')).toHaveText(authored.answer);
-      await expect(box.locator('.lp-quote')).toHaveCSS('border-left-width', '3px');
+      await box.locator('[data-lp-commit]').click();
+      await expect(box.locator('[data-lp-answer]')).toHaveText(authored.answer);
+      await expect(box.locator('[data-lp-answer] > p')).toHaveCSS('border-left-width', '0px');
     }
   });
 }
@@ -119,7 +134,7 @@ for (const restored of [false, true]) {
     if (restored) await page.addInitScript(() => { window.lpSeed = { results: { stonewalling: { result: 'remembered', reviewOn: '2026-10-09' } } }; });
     await open(page);
     const button = part(page).getByRole('button', { name: 'I remembered', exact: true });
-    if (!restored) { await part(page).locator('summary').click(); await button.click(); }
+    if (!restored) { await part(page).locator('[data-lp-commit]').click(); await button.click(); }
     await expect(button).toHaveAttribute('aria-pressed', 'true');
     await expect(button).toHaveText('I remembered');
     await expect(button.locator('*')).toHaveCount(0);
@@ -127,7 +142,7 @@ for (const restored of [false, true]) {
 }
 
 test('rating toggles keep their labels, use the v2 accent and add a calendar review chip', async ({ page }) => {
-  await open(page); await observe(page); await part(page).locator('summary').click();
+  await open(page); await observe(page); await part(page).locator('[data-lp-commit]').click();
   const remembered = part(page).getByRole('button', { name: 'I remembered', exact: true });
   const forgot = part(page).getByRole('button', { name: 'I forgot', exact: true });
   for (const button of [remembered, forgot]) {
@@ -156,15 +171,22 @@ test('rating toggles keep their labels, use the v2 accent and add a calendar rev
   await expect(forgot).toHaveCSS('border-top-color', 'rgb(18, 52, 86)');
 });
 
-test('keyboard journey keeps native details and focus, updates dates, saves state and announces once', async ({ page }) => {
+test('keyboard commitment focuses the answer, updates dates, saves state and announces once', async ({ page }) => {
   await open(page); await observe(page);
-  const first = part(page), summary = first.locator('summary');
+  const first = part(page), commit = first.getByRole('button', { name: 'I have my answer' });
+  const answer = first.getByRole('region', { name: 'Answer', includeHidden: true });
   const remembered = first.getByRole('button', { name: 'I remembered' });
   const forgot = first.getByRole('button', { name: 'I forgot' });
   await expect(first.locator('[data-lp-rating]')).toBeHidden();
-  await page.keyboard.press('Tab'); await expect(summary).toBeFocused();
-  await page.keyboard.press('Enter'); await expect(summary).toBeFocused();
-  await expect(first.locator('details')).toHaveAttribute('open', '');
+  await page.keyboard.press('Tab'); await expect(commit).toBeFocused();
+  await expect(commit).toHaveClass('lp-button lp-button-secondary');
+  await expect(answer).toBeHidden();
+  await page.keyboard.press('Enter'); await expect(answer).toBeFocused();
+  await expect(answer).toHaveAttribute('tabindex', '-1');
+  await expect(answer).toHaveText(english.parts[0].answer);
+  await expect(commit).toBeHidden();
+  await expect(first.locator('details')).toBeHidden();
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
   await expect(first.locator('[data-lp-rating]')).toBeVisible();
   await page.keyboard.press('Tab'); await expect(remembered).toBeFocused();
   await page.keyboard.press('Enter'); await expect(remembered).toBeFocused();
@@ -177,38 +199,38 @@ test('keyboard journey keeps native details and focus, updates dates, saves stat
   await expect(remembered).toHaveAttribute('aria-pressed', 'false'); await expect(forgot).toHaveAttribute('aria-pressed', 'true');
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ results: { stonewalling: { result: 'forgot', reviewOn: '2026-10-07' } } });
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Next review Friday, October 9, 2026', 'Next review Wednesday, October 7, 2026']);
-  await page.keyboard.press('Shift+Tab'); await page.keyboard.press('Shift+Tab'); await expect(summary).toBeFocused();
-  await page.keyboard.press('Space'); await expect(first.locator('[data-lp-rating]')).toBeHidden();
-  await page.keyboard.press('Enter'); await expect(first.locator('time')).toHaveAttribute('datetime', '2026-10-07');
-  await expect(page.locator('h3')).toHaveCount(3); await expect(page.locator('h2')).toHaveCount(1); await expect(page.locator('table')).toHaveCount(0);
+  await page.keyboard.press('Shift+Tab'); await expect(remembered).toBeFocused();
+  await expect(answer).toBeVisible();
+  await expect(first.locator('time')).toHaveAttribute('datetime', '2026-10-07');
+  await expect(page.locator('h3')).toHaveCount(1); await expect(page.locator('h2')).toHaveCount(1); await expect(page.locator('table')).toHaveCount(0);
 });
 
 test('each submitted choice announces once, including repeated choices and separate parts', async ({ page }) => {
-  await open(page); await observe(page);
-  await part(page).locator('summary').click();
+  await open(page, undefined, multiple); await observe(page);
+  await part(page).locator('[data-lp-commit]').click();
   await part(page).getByRole('button', { name: 'I remembered' }).click();
   await part(page).getByRole('button', { name: 'I remembered' }).click();
   const second = page.locator('[data-lp-part]').nth(1);
-  await second.locator('summary').click(); await second.getByRole('button', { name: 'I forgot' }).click();
+  await second.locator('[data-lp-commit]').click(); await second.getByRole('button', { name: 'I forgot' }).click();
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Next review Friday, October 9, 2026', 'Next review Friday, October 9, 2026', 'Next review Wednesday, October 7, 2026']);
   expect(await page.evaluate(() => window.lpSaved.results)).toEqual({ stonewalling: { result: 'remembered', reviewOn: '2026-10-09' }, time_out: { result: 'forgot', reviewOn: '2026-10-07' } });
 });
 
 test('closed answers ignore programmatic ratings and host writes cannot mutate earlier results', async ({ page }) => {
-  await open(page); await observe(page);
+  await open(page, undefined, multiple); await observe(page);
   await part(page).locator('[data-lp-result="remembered"]').evaluate(button => button.click());
   await expect(page.locator('time')).toHaveCount(0);
   expect(await page.evaluate(() => window.lpSaved)).toBeUndefined();
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
-  await part(page).locator('summary').click(); await part(page).getByRole('button', { name: 'I remembered' }).click();
+  await part(page).locator('[data-lp-commit]').click(); await part(page).getByRole('button', { name: 'I remembered' }).click();
   await page.evaluate(() => { window.lpSaved.results.stonewalling.reviewOn = '2020-01-01'; });
   const second = page.locator('[data-lp-part]').nth(1);
-  await second.locator('summary').click(); await second.getByRole('button', { name: 'I forgot' }).click();
+  await second.locator('[data-lp-commit]').click(); await second.getByRole('button', { name: 'I forgot' }).click();
   expect(await page.evaluate(() => window.lpSaved.results.stonewalling.reviewOn)).toBe('2026-10-09');
 });
 
 test('a later choice schedules from that day rather than the opening day', async ({ page }) => {
-  await open(page); await part(page).locator('summary').click();
+  await open(page); await part(page).locator('[data-lp-commit]').click();
   await part(page).getByRole('button', { name: 'I remembered' }).click();
   await page.clock.setSystemTime(new Date(2026, 9, 30, 23, 45));
   await part(page).getByRole('button', { name: 'I remembered' }).click();
@@ -218,7 +240,7 @@ test('a later choice schedules from that day rather than the opening day', async
 for (const path of ['/review-prompts/en.html', '/review-prompts/fr.html', '/review-prompts/two.html']) {
   test(`axe at load, answer, rating and changed choice: ${path}`, async ({ page }) => {
     await open(page, path); await scan(page);
-    for (const root of await page.locator('[data-lp-pattern]').all()) await root.locator('summary').first().click();
+    for (const root of await page.locator('[data-lp-pattern]').all()) await root.locator('[data-lp-commit]').first().click();
     await scan(page);
     for (const root of await page.locator('[data-lp-pattern]').all()) await root.locator('[data-lp-result="remembered"]').first().click();
     await scan(page);
@@ -237,7 +259,9 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     for (const [index, authored] of content.parts.entries()) {
       const block = page.locator('[data-lp-part]').nth(index);
       await expect(block.getByRole('heading', { level: 3 })).toHaveText(authored.heading);
-      await block.locator('summary').click(); await expect(block.locator('[data-lp-answer]')).toHaveText(authored.answer);
+      await expect(block.locator('[data-lp-commit]')).toBeHidden();
+      await expect(block.locator('[data-lp-answer]')).toBeHidden();
+      await block.locator('summary').click(); await expect(block.locator('[data-lp-fallback-answer]')).toHaveText(authored.answer);
       await expect(block.locator('[data-lp-rating]')).toBeHidden();
     }
     await expect(page.getByRole('status')).toHaveText(''); await context.close();
@@ -255,7 +279,7 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     await page.setViewportSize({ width: 320, height: 800 }); await open(page, `/review-prompts/${lang}.html`);
     await page.addStyleTag({ content: '*{line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important}p{margin-bottom:2em!important}' });
     for (const block of await page.locator('[data-lp-part]').all()) {
-      await block.locator('summary').click(); await block.locator('[data-lp-result="remembered"]').click();
+      await block.locator('[data-lp-commit]').click(); await block.locator('[data-lp-result="remembered"]').click();
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     expect(await page.evaluate(() => [...document.querySelectorAll('p, button, summary, h3')].filter(el => el.getClientRects().length && !el.matches('[role="status"]')).filter(el => el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1).map(el => el.textContent))).toEqual([]);
@@ -269,8 +293,10 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
 test('French root, answer and date use French strings and fr-CA formatting', async ({ page }) => {
   await open(page, '/review-prompts/fr.html'); await observe(page);
   await expect(page.locator('[data-lp-pattern]')).toHaveAttribute('lang', 'fr');
-  await part(page).getByText('Afficher la réponse', { exact: true }).click();
+  await part(page).getByRole('button', { name: "J'ai ma réponse", exact: true }).click();
+  await expect(part(page).getByRole('region', { name: 'Réponse' })).toBeFocused();
   await expect(part(page).locator('[data-lp-answer]')).toHaveText(french.parts[0].answer);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
   await part(page).getByRole('button', { name: "Je m'en suis souvenu" }).click();
   await expect(part(page).locator('[data-lp-review]')).toHaveText('Prochaine révision : vendredi 9 octobre 2026');
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Prochaine révision : vendredi 9 octobre 2026']);
@@ -278,8 +304,11 @@ test('French root, answer and date use French strings and fr-CA formatting', asy
 
 test('valid saved dates restore exactly, open rated parts, and do not announce', async ({ page }) => {
   await page.addInitScript(() => { window.lpSeed = { results: { stonewalling: { result: 'forgot', reviewOn: '2025-01-02' }, return: { result: 'remembered', reviewOn: '2028-02-29' } } }; });
-  await open(page);
-  await expect(part(page).locator('details')).toHaveAttribute('open', '');
+  await open(page, undefined, multiple);
+  await expect(part(page).locator('[data-lp-answer]')).toBeVisible();
+  await expect(part(page).locator('[data-lp-commit]')).toBeHidden();
+  await expect(part(page).locator('details')).toBeHidden();
+  await expect(part(page).locator('[data-lp-answer]')).not.toBeFocused();
   await expect(part(page).locator('time')).toHaveAttribute('datetime', '2025-01-02');
   await expect(part(page).getByRole('button', { name: 'I forgot' })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('[data-lp-part]').nth(1).locator('[data-lp-rating]')).toBeHidden();
@@ -288,31 +317,36 @@ test('valid saved dates restore exactly, open rated parts, and do not announce',
   await expect(page.locator('[data-lp-progress]')).toHaveText('2 of 3 checked');
 });
 
-test('invalid saved state is ignored without opening details or announcing', async ({ page }) => {
+test('invalid saved state is ignored without revealing answers or announcing', async ({ page }) => {
   await page.addInitScript(() => { window.lpSeed = { results: { stonewalling: { result: 'forgot', reviewOn: '2026-02-29' } } }; });
-  await open(page); await expect(page.locator('details[open]')).toHaveCount(0);
+  await open(page); await expect(part(page).locator('[data-lp-answer]')).toBeHidden();
+  await expect(part(page).locator('[data-lp-commit]')).toBeVisible();
   await expect(page.locator('time')).toHaveCount(0); await expect(page.getByRole('status')).toHaveText('');
-  await expect(page.locator('[data-lp-progress]')).toHaveText('0 of 3 checked');
+  await expect(page.locator('[data-lp-progress]')).toHaveText('0 of 1 checked');
 });
 
 test('two instances have unique ids and independent results', async ({ page }) => {
   await open(page, '/review-prompts/two.html');
   const ids = await page.locator('[id]').evaluateAll(elements => elements.map(el => el.id)); expect(new Set(ids).size).toBe(ids.length);
-  const roots = page.locator('[data-lp-pattern]'); await roots.first().locator('summary').first().click();
+  const roots = page.locator('[data-lp-pattern]'); await roots.first().locator('[data-lp-commit]').first().click();
   await roots.first().getByRole('button', { name: 'I remembered' }).first().click();
-  await expect(roots.nth(1).locator('details[open]')).toHaveCount(0); await expect(roots.nth(1).locator('time')).toHaveCount(0);
+  await expect(roots.nth(1).locator('[data-lp-answer]')).toBeHidden(); await expect(roots.nth(1).locator('time')).toHaveCount(0);
   await expect(roots.nth(1).getByRole('status')).toHaveText('');
-  await expect(roots.first().locator('[data-lp-progress]')).toHaveText('1 of 3 checked');
-  await expect(roots.nth(1).locator('[data-lp-progress]')).toHaveText('0 of 3 checked');
+  await expect(roots.first().locator('[data-lp-progress]')).toHaveText('1 of 1 checked');
+  await expect(roots.nth(1).locator('[data-lp-progress]')).toHaveText('0 of 1 checked');
 });
 
 test('enhance is idempotent, destroy restores native details and old destroy is harmless', async ({ page }) => {
   await open(page); await observe(page);
   expect(await page.evaluate(() => window.lpEnhance() === window.lpInstances[0])).toBe(true);
-  await part(page).locator('summary').click(); await part(page).getByRole('button', { name: 'I remembered' }).click();
+  await part(page).locator('[data-lp-commit]').click(); await part(page).getByRole('button', { name: 'I remembered' }).click();
   expect(await page.evaluate(() => window.lpAnnouncements.length)).toBe(1);
   await page.evaluate(() => { window.lpOld = window.lpInstances[0]; window.lpOld.destroy(); window.lpOld.destroy(); });
-  await expect(part(page).locator('[data-lp-rating]')).toBeHidden(); await expect(part(page).locator('[data-lp-answer]')).toBeVisible();
+  await expect(part(page).locator('[data-lp-rating]')).toBeHidden();
+  await expect(part(page).locator('[data-lp-answer]')).toBeHidden();
+  await expect(part(page).locator('[data-lp-commit]')).toBeHidden();
+  await expect(part(page).locator('details')).toBeVisible();
+  await expect(part(page).locator('[data-lp-fallback-answer]')).toBeVisible();
   await expect(page.locator('time')).toHaveCount(0); await expect(page.getByRole('status')).toHaveText('');
   await expect(page.locator('[data-lp-progress]')).toBeHidden();
   await part(page).locator('summary').click(); await part(page).locator('summary').click();
@@ -330,7 +364,7 @@ test('missing and mismatched markup fail loudly before attaching listeners', asy
     const { strings } = await import('/patterns/review-prompts/strings.js');
     enhance(document.createElement('section'), { content, strings: strings.en });
   }, english)).rejects.toThrow('Missing review-prompts markup');
-  for (const change of ['part', 'button', 'part count', 'button count', 'details', 'summary', '[data-lp-answer]', '[data-lp-rating]', '[data-lp-review]', '[data-lp-review-text]', '[data-lp-progress]', '[role="status"]']) {
+  for (const change of ['part', 'button', 'part count', 'button count', 'details', 'summary', '[data-lp-fallback-answer]', '[data-lp-commit]', '[data-lp-answer]', '[data-lp-rating]', '[data-lp-review]', '[data-lp-review-text]', '[data-lp-progress]', '[role="status"]']) {
     await page.evaluate(kind => {
       window.lpInstances[0].destroy();
       if (kind === 'part') document.querySelector('[data-lp-part]').dataset.lpPart = 'unknown';
@@ -352,15 +386,20 @@ test('configured intervals reach the enhancer through content', async ({ page })
     const { strings } = await import('/patterns/review-prompts/strings.js');
     enhance(document.querySelector('[data-lp-pattern]'), { content: { ...content, reviewDays: { remembered: 7, forgot: 2 } }, strings: strings.en });
   }, english);
-  await part(page).locator('summary').click(); await part(page).getByRole('button', { name: 'I remembered' }).click();
+  await part(page).locator('[data-lp-commit]').click(); await part(page).getByRole('button', { name: 'I remembered' }).click();
   await expect(part(page).locator('time')).toHaveAttribute('datetime', '2026-10-13');
 });
 
 test('forced colours preserves focus outlines and a visible pressed state', async ({ page, browserName }) => {
   test.skip(browserName !== 'chromium', 'Forced colours emulation checked in Chromium.');
-  await page.emulateMedia({ forcedColors: 'active' }); await open(page); await part(page).locator('summary').click();
-  await part(page).getByRole('button', { name: 'I remembered' }).click();
-  for (const target of [part(page).locator('summary'), ...await part(page).getByRole('button').all()]) {
+  await page.emulateMedia({ forcedColors: 'active' }); await open(page);
+  const commit = part(page).locator('[data-lp-commit]');
+  await commit.focus();
+  await expect(commit).toHaveCSS('outline-width', '2px');
+  await commit.press('Enter');
+  await part(page).getByRole('button', { name: 'I remembered' }).focus();
+  await part(page).getByRole('button', { name: 'I remembered' }).press('Enter');
+  for (const target of [part(page).locator('[data-lp-answer]'), ...await part(page).getByRole('button').all()]) {
     await target.focus();
     expect(await target.evaluate(el => { const css = getComputedStyle(el); return [css.outlineWidth, css.outlineStyle, css.outlineOffset]; })).toEqual(['2px', 'solid', '2px']);
     expect(await target.evaluate(el => getComputedStyle(el).outlineColor)).not.toBe('rgba(0, 0, 0, 0)');
@@ -371,3 +410,16 @@ test('forced colours preserves focus outlines and a visible pressed state', asyn
   await expect(part(page).locator('[data-lp-review] svg')).toHaveAttribute('aria-hidden', 'true');
   await expect(part(page).locator('[data-lp-mark]')).toHaveCount(0);
 });
+
+for (const reducedMotion of ['no-preference', 'reduce']) {
+  test('answer uses the shared rise without height animation, motion=' + reducedMotion, async ({ page }) => {
+    await page.emulateMedia({ reducedMotion }); await open(page);
+    await part(page).locator('[data-lp-commit]').click();
+    const answer = part(page).locator('[data-lp-answer]');
+    await expect(answer).toHaveClass(/lp-reveal/);
+    await expect(answer).toHaveCSS('animation-name', reducedMotion === 'reduce' ? 'none' : 'lp-rise');
+    await expect(answer).toHaveCSS('animation-duration', reducedMotion === 'reduce' ? '0s' : '0.3s');
+    expect(await answer.evaluate(el => [...document.styleSheets].flatMap(sheet => [...sheet.cssRules]).filter(rule => rule.name === 'lp-rise').flatMap(rule => [...rule.cssRules]).flatMap(rule => [...rule.style]))).toEqual(['opacity', 'transform']);
+    await expect(answer).toBeFocused();
+  });
+}

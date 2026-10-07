@@ -16,24 +16,27 @@ export function render(content, strings, { id, lang }) {
     <p class="lp-small" data-lp-progress hidden>${html(strings.progress.replaceAll('{count}', '0').replaceAll('{total}', String(content.parts.length)))}</p>
   </header>
   ${content.parts.map((part, index) => {
-    const heading = html(`${id}-heading-${index}`), label = html(`${id}-prompt-${index}`);
+    const heading = html(`${id}-heading-${index}`), prompt = html(`${id}-prompt-${index}`), answer = html(`${id}-answer-${index}`);
     return `<section class="lp-review-prompts-part lp-stack" data-lp-part="${html(part.id)}" aria-labelledby="${heading}">
     <h3 class="lp-review-prompts-heading" id="${heading}">${html(part.heading)}</h3>
     ${part.paragraphs.map(text => `<p>${html(text)}</p>`).join('\n    ')}
-    <div class="lp-box" role="group" aria-labelledby="${label}">
-      <p class="lp-label lp-review-prompts-label" id="${label}">${icons.brain}<span>${html(strings.check)}</span></p>
-      <p class="lp-stem">${html(part.question)}</p>
+    <div class="lp-box" role="group" aria-labelledby="${prompt}">
+      <p class="lp-stem" id="${prompt}">${html(part.question)}</p>
       <details class="lp-details">
         <summary>${html(strings.show)}</summary>
-        <p class="lp-quote" data-lp-answer>${html(part.answer)}</p>
-        <div class="lp-stack" data-lp-rating hidden>
-          <div class="lp-actions">
-            <button class="lp-button lp-button-secondary" type="button" data-lp-result="remembered" aria-pressed="false">${html(strings.remembered)}</button>
-            <button class="lp-button lp-button-secondary" type="button" data-lp-result="forgot" aria-pressed="false">${html(strings.forgot)}</button>
-          </div>
-          <p class="lp-small lp-review-prompts-review" data-lp-review hidden>${icons.calendar}<span data-lp-review-text></span></p>
-        </div>
+        <p data-lp-fallback-answer>${html(part.answer)}</p>
       </details>
+      <button class="lp-button lp-button-secondary" type="button" data-lp-commit aria-controls="${answer}" hidden>${html(strings.commit)}</button>
+      <div class="lp-reveal" id="${answer}" data-lp-answer role="region" aria-label="${html(strings.answer)}" tabindex="-1" hidden>
+        <p>${html(part.answer)}</p>
+      </div>
+      <div class="lp-stack" data-lp-rating hidden>
+        <div class="lp-actions">
+          <button class="lp-button lp-button-secondary" type="button" data-lp-result="remembered" aria-pressed="false">${html(strings.remembered)}</button>
+          <button class="lp-button lp-button-secondary" type="button" data-lp-result="forgot" aria-pressed="false">${html(strings.forgot)}</button>
+        </div>
+        <p class="lp-small lp-review-prompts-review" data-lp-review hidden>${icons.calendar}<span data-lp-review-text></span></p>
+      </div>
     </div>
   </section>`;
   }).join('\n  ')}
