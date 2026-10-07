@@ -36,6 +36,7 @@ export type Content = {
         to: string;
         initials: string;
         subject: string;
+        placeholder?: string;
     };
     parts: Part[];
     model: string;

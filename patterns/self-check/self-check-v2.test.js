@@ -57,6 +57,36 @@ test('composer renders escaped context, a labelled message, and accessible check
   assert.ok(markup.includes('&quot;Report&quot;'));
   assert.ok(markup.includes('Your message'));
   assert.ok(markup.includes('data-lp-meter'));
-  assert.ok(markup.includes('Which parts did you include?'));
+  assert.ok(markup.includes('Select each part you can point to in your message.'));
   assert.equal((markup.match(/role="status"/g) || []).length, 1);
+});
+
+test('optional authored placeholder is escaped and never becomes the learner answer', () => {
+  const placeholder = 'Hi Sam,\n\nType "here" <please> & continue…';
+  const value = { ...content, context: { ...content.context, placeholder } };
+  assert.doesNotThrow(() => logic.validateContent(value));
+  assert.doesNotThrow(() => logic.validateContent({ ...value, context: { ...content.context, placeholder: '' } }));
+  const markup = render(value, strings.en, { id: 'message', lang: 'en' });
+  assert.match(markup, /placeholder="Hi Sam,\n\nType &quot;here&quot; &lt;please&gt; &amp; continue…"/);
+  assert.match(markup, /<textarea[^>]*><\/textarea>/);
+  assert.doesNotMatch(render(content, strings.en, { id: 'message', lang: 'en' }), /placeholder=/);
+  for (const placeholder of [null, 2, false, [], {}, undefined]) {
+    assert.throws(() => logic.validateContent({ ...content, context: { ...content.context, placeholder } }), /context\.placeholder/);
+  }
+});
+
+test('scene has only the task and checklist instruction is one fieldset legend', () => {
+  const markup = render(content, strings.en, { id: 'message', lang: 'en' });
+  assert.doesNotMatch(markup, /lp-scene-label|Your task|Read your message again/);
+  assert.equal((markup.match(/Select each part you can point to in your message\./g) || []).length, 1);
+  assert.match(markup, /<legend[^>]*>[\s\S]*?Select each part you can point to in your message\.[\s\S]*?<\/legend>/);
+  assert.match(markup, /<summary>Check your message for these parts\.<\/summary>/);
+  assert.doesNotMatch(markup, /Did your message include these parts/);
+});
+
+test('result guidance adds a next step without repeating the count summary', () => {
+  assert.equal(strings.en.resultAll, 'Compare your wording with the model.');
+  assert.equal(strings.en.resultMany, 'Compare the marked parts with your message.');
+  assert.equal(strings.fr.resultAll, 'Comparez votre formulation avec le modèle.');
+  assert.equal(strings.fr.resultMany, 'Comparez les éléments marqués avec votre message.');
 });

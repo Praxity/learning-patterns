@@ -16,7 +16,7 @@ function matches(value, rule, root = value) {
     if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
     if (rule.required.some(key => !Object.hasOwn(value, key))) return false;
     if (rule.additionalProperties === false && Object.keys(value).some(key => !Object.hasOwn(rule.properties, key))) return false;
-    return Object.entries(rule.properties).every(([key, child]) => matches(value[key], child, root));
+    return Object.entries(rule.properties).every(([key, child]) => !Object.hasOwn(value, key) || matches(value[key], child, root));
   }
   if (rule.type === 'array') {
     if (!Array.isArray(value) || value.length < rule.minItems) return false;
@@ -29,7 +29,7 @@ function matches(value, rule, root = value) {
     const at = model.indexOf(value);
     if (at < 0 || model.indexOf(value, at + 1) >= 0) return false;
   }
-  return typeof value === 'string' && value.length >= rule.minLength && (!rule.pattern || new RegExp(rule.pattern).test(value));
+  return typeof value === 'string' && value.length >= (rule.minLength ?? 0) && (!rule.pattern || new RegExp(rule.pattern).test(value));
 }
 
 test('feedback counts unique known ticks and returns labels and missed hints in part order', () => {
@@ -81,6 +81,20 @@ test('content validator and schema agree on shared valid and planted invalid fie
   }
 });
 
+test('schema and validator allow omitted or string placeholders and reject other values', () => {
+  const without = structuredClone(content);
+  delete without.context.placeholder;
+  for (const value of [without, ...['', 'Hi Sam,\n\nType here…'].map(placeholder => ({ ...without, context: { ...without.context, placeholder } }))]) {
+    assert.equal(matches(value, schema), true);
+    assert.doesNotThrow(() => validateContent(value));
+  }
+  for (const placeholder of [null, 2, false, [], {}]) {
+    const value = { ...without, context: { ...without.context, placeholder } };
+    assert.equal(matches(value, schema), false);
+    assert.throws(() => validateContent(value), /context\.placeholder/);
+  }
+});
+
 test('render escapes all plain text and attribute values and prefixes every id', () => {
   const hostile = '<script>alert("x")</script> & \'quoted\'';
   const value = { task: hostile, context: { to: hostile, initials: hostile, subject: hostile }, model: hostile, parts: [{ id: 'one', label: hostile, missed: hostile, evidence: hostile }] };
@@ -96,7 +110,7 @@ test('render escapes all plain text and attribute values and prefixes every id',
   assert.ok(ids.every(id => id.startsWith('a-') || id.startsWith('b-')));
   assert.equal((a.match(/role="status"/g) || []).length, 1);
   assert.ok(a.includes('rows="5"'));
-  assert.equal(a.includes('placeholder='), false);
+  assert.ok(a.includes('placeholder="Hi Sam,\n\nType your message here…"'));
   for (const part of content.parts) assert.ok(a.includes(part.missed));
 });
 

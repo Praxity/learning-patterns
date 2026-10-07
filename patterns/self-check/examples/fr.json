@@ -2,7 +2,8 @@
   "context": {
     "to": "Sam, votre gestionnaire",
     "initials": "S",
-    "subject": "Rapport client"
+    "subject": "Rapport client",
+    "placeholder": "Bonjour Sam,\n\nÉcrivez votre message ici…"
   },
   "task": "Votre rapport client est attendu vendredi. Les données de vente sont arrivées avec trois jours de retard. Il vous faut jusqu’à mardi. Écrivez le message à votre gestionnaire.",
   "parts": [
