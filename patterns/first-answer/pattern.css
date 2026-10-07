@@ -1,54 +1,11 @@
-.lp-first-answer {
-  --lp-text: #202124;
-  --lp-muted: #50555a;
-  --lp-surface: #fff;
-  --lp-border: #62676c;
-  --lp-accent: #174f78;
-  --lp-on-accent: #fff;
-  --lp-error: #9f2020;
-  --lp-focus: #005fcc;
-  --lp-space: 1rem;
-  --lp-radius: .25rem;
-  --lp-font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --lp-font-size: 1rem;
-  --lp-line-height: 1.5;
-  max-width: 48rem;
-  margin-block: var(--lp-space);
-  color: var(--lp-text);
-  background: var(--lp-surface);
-  font-family: var(--lp-font);
-  font-size: var(--lp-font-size);
-  line-height: var(--lp-line-height);
-  overflow-wrap: anywhere;
-}
-.lp-first-answer, .lp-first-answer *, .lp-first-answer *::before, .lp-first-answer *::after { box-sizing: border-box; }
-.lp-first-answer [hidden] { display: none !important; }
-.lp-first-answer p { margin-block: var(--lp-space); white-space: pre-line; }
-.lp-first-answer-step { border: 1px solid var(--lp-border); border-radius: var(--lp-radius); padding: var(--lp-space); margin-block: var(--lp-space); }
-.lp-first-answer-step h2 { margin-block: 0 calc(var(--lp-space) / 2); font-size: 1.25em; }
-.lp-first-answer .lp-first-answer-step-label { margin-block: 0; color: var(--lp-muted); }
-.lp-first-answer-label { display: block; font-weight: 600; margin-block-end: calc(var(--lp-space) / 2); }
-.lp-first-answer-input { display: block; width: 100%; min-height: 8rem; padding: calc(var(--lp-space) / 2); resize: vertical; border: 1px solid var(--lp-border); border-radius: var(--lp-radius); color: var(--lp-text); background: var(--lp-surface); font: inherit; }
-.lp-first-answer-error { color: var(--lp-error); }
-.lp-first-answer-button { min-height: 44px; max-width: 100%; margin-block: var(--lp-space); padding: calc(var(--lp-space) / 2) var(--lp-space); border: 1px solid var(--lp-accent); border-radius: var(--lp-radius); color: var(--lp-on-accent); background: var(--lp-accent); font: inherit; white-space: normal; overflow-wrap: anywhere; cursor: pointer; }
-.lp-first-answer-button-secondary { color: var(--lp-accent); background: transparent; }
-.lp-first-answer :is(button, input, textarea, h2):focus { outline: 2px solid var(--lp-focus); outline-offset: 2px; }
-.lp-first-answer-quote { margin: calc(var(--lp-space) / 2) 0; white-space: pre-wrap; overflow-wrap: anywhere; }
-.lp-first-answer-date { color: var(--lp-muted); font-size: .875em; }
-.lp-first-answer-panels { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--lp-space); margin-block: var(--lp-space); }
-.lp-first-answer-panel { min-width: 0; padding: var(--lp-space); border: 1px solid var(--lp-border); border-radius: var(--lp-radius); }
-.lp-first-answer-panel h3 { margin-block: 0; font-size: 1.125em; }
-.lp-first-answer-ticks { min-width: 0; padding: var(--lp-space); border: 1px solid var(--lp-border); border-radius: var(--lp-radius); }
-.lp-first-answer-ticks legend { padding-inline: calc(var(--lp-space) / 2); font-weight: 600; }
-.lp-first-answer-check { display: flex; align-items: baseline; gap: calc(var(--lp-space) / 2); min-height: 44px; padding-block: calc(var(--lp-space) / 2); cursor: pointer; }
-.lp-first-answer-check input { flex: none; width: 1.25rem; height: 1.25rem; margin: 0; accent-color: var(--lp-accent); }
-.lp-first-answer-check span { min-width: 0; }
-.lp-first-answer-summary { font-weight: 600; }
-.lp-first-answer .lp-first-answer-status { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-@media (max-width: 40rem) { .lp-first-answer-panels { grid-template-columns: minmax(0, 1fr); } }
+/* First-answer specifics. Link lib/base.css before this file. */
+.lp-first-answer-heading { margin: 8px 0 0; }
+.lp-first-answer-quote { margin: 16px 0 0; white-space: pre-wrap; }
+.lp-first-answer-quote:first-child { margin-block-start: 0; }
+.lp-first-answer-check-text { min-inline-size: 0; }
+/* base.css covers these targets only on :focus-visible. Pointer actions focus them too.
+   Move this programmatic-focus rule to the shared stylesheet when its focus selector expands. */
+.lp-first-answer-heading:focus, .lp-first-answer-saved:focus { outline: 2px solid var(--lp-focus); outline-offset: 2px; }
 @media (forced-colors: active) {
-  .lp-first-answer :is(button, input, textarea, h2):focus { outline-color: Highlight; }
-  .lp-first-answer-button { color: ButtonText; background: ButtonFace; border-color: ButtonText; }
-  .lp-first-answer-button-secondary { border-style: dashed; }
-  .lp-first-answer-step, .lp-first-answer-panel, .lp-first-answer-ticks, .lp-first-answer-input { border-color: CanvasText; }
+  .lp-first-answer-heading:focus, .lp-first-answer-saved:focus { outline-color: Highlight; }
 }

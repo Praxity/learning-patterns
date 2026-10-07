@@ -1,7 +1,7 @@
 ---
 title: Your first answer comes back
 title_fr: Votre première réponse revient
-summary: Save an answer at the start of a course, write it again at the end, then compare the two and check what changed.
+summary: Save an answer at the start of a course, write it again at the end, then compare the two and check what improved.
 section: course
 ai: no
 offline: yes
@@ -9,7 +9,7 @@ learners: not tried
 ---
 # Your first answer comes back
 
-Save your first answer to a prompt. At the end of the course, answer the same prompt and read the two attempts together. Tick authored checks about your answer now. The pattern does not grade either answer.
+Save your first answer to a prompt. At the end of the course, answer the same prompt and read your first attempt below your new answer. Tick authored checks about what improved. The pattern does not grade either answer.
 
 ## When to use it
 
@@ -19,8 +19,9 @@ Use it near the start and end of a course when learners can revisit the same que
 
 1. Write your first answer and select "Save my first answer". Blank answers show a linked error. Answers have a 2,000-character limit. Leading and trailing whitespace is trimmed when saving.
 2. The saved answer appears as a quote with its date. It cannot change until you select "Start over".
-3. At the end, write your answer now and select "Compare". Read the dated answers side by side, then tick the checks. A short summary counts your ticks. Comparing again changes only the answer now and its date, preserving the first answer and ticks.
-4. "Start over" clears the answers and ticks through the host's state adapter. It returns focus to the first text box. In an end-only placement, it returns focus to the current-answer text box.
+3. At the end, write your answer now and select "Compare". The text box becomes read-only and Compare hides. Read your dated first answer below it, then tick the checks. A short summary counts your ticks.
+4. Select "Try again" to rewrite. The comparison hides, Compare returns and focus moves to the text box. Your text stays. The saved answer now changes only when you select Compare again. Your first answer and ticks stay saved.
+5. "Start over" clears the answers and ticks through the host's state adapter. It returns focus to the first text box. In an end-only placement, it returns focus to the current-answer text box.
 
 `render` accepts `stage: 'first' | 'end' | 'both'`, default `'both'`. First and end placements can appear on different course pages. The demo uses both, with a course note and a skip button after saving. Skip opens step 2 and focuses its heading. Restored answers open step 2 directly. An end placement with no first answer explains the missing comparison and still accepts an answer now.
 
@@ -39,13 +40,25 @@ All fields are plain text. HTML characters are escaped.
 
 Strings must be nonempty. `validateContent` rejects unknown fields and duplicate check identities. The schema's `x-uniqueBy` annotation needs the extra uniqueness check from `validateContent`.
 
-Praxity Studio imports `logic.js`, `content.schema.json` and `strings.js` only. Validate content and state with `validateContent` and `validateState`. Use `emptyState` to reset and `withFirstAnswer`, `withAnswerNow` or `withChecks` to change a record. Each action returns a copy and throws on invalid inputs.
+## Logic
 
-`validateAnswer` checks the `MAX_LENGTH` limit. It returns string keys `empty` or `tooLong` so the host can choose an authored message.
+`logic.js` has no DOM code, so another host can build its own interface on it.
+
+| Function | Returns |
+| --- | --- |
+| `validateContent(content)` | Nothing. Throws an `Error` naming the first bad field. |
+| `validateAnswer(text)` | `{ ok: true, text }` with trimmed text, or `{ ok: false, error: 'empty' \| 'tooLong' }`. `MAX_LENGTH` is 2,000 characters. |
+| `validateState(content, value)` | A clean `{ first, now, checks }`, or `null` for invalid saved state. |
+| `emptyState(content)` | `{ first: null, now: null, checks }` with every check false. |
+| `withFirstAnswer(content, state, text, savedAt)` | A copied state with the first answer saved. Throws if first or now is already saved. |
+| `withAnswerNow(content, state, text, savedAt)` | A copied state replacing only now. First and checks keep their values. |
+| `withChecks(content, state, checks)` | A copied state with known checks set to booleans. Throws when now is absent. |
+
+Entries are `{ text, savedAt }`. Actions accept `null` state as empty state and throw on invalid inputs.
 
 ## Use it
 
-Copy `patterns/first-answer/` and `lib/`, keeping their relative paths. Include `pattern.css` and give every instance a unique id prefix.
+Copy `patterns/first-answer/` and `lib/`, keeping their relative paths. Link `lib/base.css`, then `patterns/first-answer/pattern.css`. Give every instance a unique id prefix.
 
 ```js
 import { render } from './patterns/first-answer/render.js';
@@ -66,7 +79,7 @@ The optional host adapter has synchronous `read()` and `write(value)` methods. T
 
 State is `{ first: { text, savedAt } | null, now: { text, savedAt } | null, checks: { [id]: boolean } }`. Dates are full ISO timestamps. `Intl.DateTimeFormat` displays them using the block's `lang`. The pattern writes UTC timestamps. Reset writes `emptyState(content)`.
 
-State must contain a boolean for every known check. Saved answers must be trimmed, nonempty and within the limit. Dates must be valid ISO timestamps. A malformed or unreadable host value shows a visible warning. It blocks writes until you deliberately reset. Failed writes preserve the previous record and show a visible error. Restoring valid state makes no announcement.
+State must contain a boolean for every known check. Saved answers must be trimmed, nonempty and within the limit. Dates must be valid ISO timestamps. A malformed or unreadable host value shows a visible warning. It blocks writes until you deliberately reset. Failed writes preserve the previous record and show a visible error. Restoring valid state makes no announcement. A saved now answer restores the locked comparison, even if you were rewriting when you left.
 
 `enhance` preserves server elements and returns the same instance on repeated calls. `destroy()` removes listeners and restores the no-JavaScript baseline. Two mounted placements sharing an adapter reread it before each action, so a stale first placement cannot overwrite an answer saved elsewhere. The host remains responsible for concurrent writes across tabs or devices.
 
@@ -74,7 +87,7 @@ State must contain a boolean for every known check. Saved answers must be trimme
 
 Browser tests check axe WCAG 2.0, 2.1 and 2.2 AA at each stage in Chromium, WebKit and Firefox. They cover keyboard focus, linked errors and one status change per message. They also check French language and dates, two instances, saved state and the no-JavaScript baseline. Layout checks use 320 CSS pixels with text spacing. Chromium checks forced colours.
 
-Panels stack below 40rem. The save button uses `aria-disabled` after saving, keeping focus while the editor hides. Focus remains on Compare when feedback appears. Skip and reset move focus as described above. There is no animation or time limit.
+Each placement uses one activity box. Steps and the course note use space and a rule. Saving hides the editor and save button, moving focus to Skip in the demo or to the saved answer in a first-only placement. Compare hides after submission without an explicit focus move. Try again focuses the current-answer text box without an announcement. Skip and reset move focus as described above. Try again and Start over have decorative Tabler icons beside visible text. There is no animation or time limit.
 
 Screen reader passes: not yet
 

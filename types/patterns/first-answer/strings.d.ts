@@ -13,10 +13,10 @@ export namespace strings {
         let nowLabel: string;
         let compare: string;
         let firstPanel: string;
-        let nowPanel: string;
         let tick: string;
         let compared: string;
         let missing: string;
+        let tryAgain: string;
         let restart: string;
         let cleared: string;
         let noScript: string;
@@ -53,14 +53,14 @@ export namespace strings {
         export { compare_1 as compare };
         let firstPanel_1: string;
         export { firstPanel_1 as firstPanel };
-        let nowPanel_1: string;
-        export { nowPanel_1 as nowPanel };
         let tick_1: string;
         export { tick_1 as tick };
         let compared_1: string;
         export { compared_1 as compared };
         let missing_1: string;
         export { missing_1 as missing };
+        let tryAgain_1: string;
+        export { tryAgain_1 as tryAgain };
         let restart_1: string;
         export { restart_1 as restart };
         let cleared_1: string;

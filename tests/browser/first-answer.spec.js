@@ -48,6 +48,76 @@ async function mount(page, stages, value = undefined, mode = '') {
   }, { stages, value, mode });
 }
 
+test('comparison locks the current answer and refuses another Compare activation', async ({ page }) => {
+  await mount(page, ['both']); await observe(page);
+  await saveFirst(page); await page.locator('[data-lp-skip]').click(); await compare(page);
+  await expect(page.locator('[data-lp-now-input]')).toHaveAttribute('readonly', '');
+  await expect(page.locator('[data-lp-compare]')).toBeHidden();
+  await expect(page.locator('[data-lp-panel-now]')).toHaveCount(0);
+  await expect(page.locator('[data-lp-panel-first-date]')).toContainText('Your first answer,');
+  const before = await page.evaluate(() => window.lpSaved);
+  await page.locator('[data-lp-compare]').evaluate(el => el.click());
+  expect(await page.evaluate(() => window.lpSaved)).toEqual(before);
+  expect(await page.evaluate(() => window.lpWrites)).toBe(2);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['First answer saved.', 'Compared. Tick what improved.']);
+});
+
+test('Try again unlocks the draft silently and saves only on the next Compare', async ({ page }) => {
+  await mount(page, ['both']); await saveFirst(page); await page.locator('[data-lp-skip]').click(); await compare(page);
+  await page.getByRole('checkbox').nth(2).check();
+  const before = await page.evaluate(() => window.lpSaved);
+  await observe(page);
+  await page.getByRole('button', { name: 'Try again', exact: true }).click();
+  await expect(page.locator('[data-lp-now-input]')).toBeEditable();
+  await expect(page.locator('[data-lp-now-input]')).toBeFocused();
+  await expect(page.locator('[data-lp-now-input]')).toHaveValue(before.now.text);
+  await expect(page.locator('[data-lp-first-quote]')).toHaveText(before.first.text);
+  await expect(page.locator('[data-lp-result]')).toBeHidden();
+  await expect(page.locator('[data-lp-compare]')).toBeVisible();
+  await expect(page.locator('[data-lp-try-again]')).toBeHidden();
+  await page.locator('[data-lp-now-input]').fill('A revised answer.');
+  expect(await page.evaluate(() => window.lpSaved)).toEqual(before);
+  expect(await page.evaluate(() => window.lpWrites)).toBe(3);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
+  await page.locator('[data-lp-compare]').click();
+  expect(await page.evaluate(() => window.lpSaved)).toMatchObject({ first: before.first, now: { text: 'A revised answer.' }, checks: before.checks });
+  await expect(page.locator('[data-lp-now-input]')).toHaveAttribute('readonly', '');
+  await expect(page.locator('[data-lp-result]')).toBeVisible();
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Compared. Tick what improved.']);
+});
+
+test('restoring now locks the comparison silently and reset clears the lock', async ({ page }) => {
+  await mount(page, ['both'], seed); await observe(page);
+  await expect(page.locator('[data-lp-now-input]')).toHaveAttribute('readonly', '');
+  await expect(page.locator('[data-lp-now-input]')).toHaveValue(seed.now.text);
+  await expect(page.locator('[data-lp-compare]')).toBeHidden();
+  await expect(page.locator('[data-lp-try-again]')).toBeVisible();
+  await expect(page.locator('[role="status"]')).toBeEmpty();
+  await page.locator('[data-lp-restart]').click();
+  await saveFirst(page); await page.locator('[data-lp-skip]').click();
+  await expect(page.locator('[data-lp-now-input]')).toBeEditable();
+  await expect(page.locator('[data-lp-compare]')).toBeVisible();
+  await expect(page.locator('[data-lp-try-again]')).toBeHidden();
+});
+
+for (const [lang, legend, announcement, retry] of [
+  ['en', 'Has your new answer improved in any of these ways?', 'Compared. Tick what improved.', 'Try again'],
+  ['fr', "Votre nouvelle réponse s'est-elle améliorée sur l'un de ces points?", "Comparaison affichée. Cochez ce qui s'est amélioré.", 'Réessayer']
+]) {
+  test(`comparison uses the improvement question and quiet icon actions (${lang})`, async ({ page }) => {
+    await open(page, `/first-answer/${lang}.html`); await saveFirst(page); await page.locator('[data-lp-skip]').click(); await compare(page);
+    await expect(page.getByRole('group')).toHaveAccessibleName(legend);
+    await expect(page.locator('[role="status"]')).toHaveText(announcement);
+    await expect(page.locator('[data-lp-try-again]')).toHaveAccessibleName(retry);
+    for (const selector of ['[data-lp-try-again]', '[data-lp-restart]']) {
+      const action = page.locator(selector);
+      await expect(action).toHaveClass('lp-button lp-button-quiet');
+      await expect(action.locator('svg')).toHaveAttribute('aria-hidden', 'true');
+      await expect(action.locator('svg')).toHaveAttribute('focusable', 'false');
+    }
+  });
+}
+
 test('keyboard journey links blank errors and announces successful submissions once without moving feedback focus', async ({ page }) => {
   await open(page); await observe(page);
   const first = page.locator('[data-lp-first-input]'); const save = page.locator('[data-lp-save-first]');
@@ -70,17 +140,22 @@ test('keyboard journey links blank errors and announces successful submissions o
   await expect(page.locator('[data-lp-now-input]')).toBeFocused();
   await expect(page.locator('[data-lp-now-input]')).toHaveAttribute('aria-describedby', 'example-now-error');
   await page.keyboard.type('Can I finish my thought?'); await page.keyboard.press('Tab'); await page.keyboard.press('Enter');
-  await expect(page.locator('[data-lp-compare]')).toBeFocused();
+  await expect(page.locator('[data-lp-compare]')).toBeHidden();
   await expect(page.locator('[data-lp-panel-first]')).toHaveText('Stop interrupting me.');
-  await expect(page.locator('[data-lp-panel-now]')).toHaveText('Can I finish my thought?');
+  await expect(page.locator('[data-lp-now-input]')).toHaveValue('Can I finish my thought?');
   await page.keyboard.press('Tab'); await expect(page.getByRole('checkbox').first()).toBeFocused(); await page.keyboard.press('Space');
   await expect(page.locator('[data-lp-summary]')).toHaveText('You ticked 1 of 3 checks for your answer now.');
   for (let i = 0; i < 3; i++) await page.keyboard.press('Tab');
+  await expect(page.locator('[data-lp-try-again]')).toBeFocused();
+  await page.keyboard.press('Enter'); await expect(page.locator('[data-lp-now-input]')).toBeFocused();
+  await page.keyboard.type(' A revision.');
+  await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-compare]')).toBeFocused(); await page.keyboard.press('Enter');
+  for (let i = 0; i < 5; i++) await page.keyboard.press('Tab');
   await expect(page.locator('[data-lp-restart]')).toBeFocused(); await page.keyboard.press('Enter');
   await expect(first).toBeFocused(); await expect(first).toHaveValue('');
   await expect(page.locator('[data-lp-restart]')).toBeHidden(); await expect(page.locator('[data-lp-result]')).toBeHidden();
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ first: null, now: null, checks });
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['First answer saved.', 'Compared. Tick what changed.', 'Started over.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['First answer saved.', 'Compared. Tick what improved.', 'Compared. Tick what improved.', 'Started over.']);
 });
 
 for (const path of ['/first-answer/en.html', '/first-answer/fr.html', '/first-answer/two.html']) {
@@ -102,15 +177,16 @@ test('comparing twice preserves first and checks, replaces only now, and repeats
   await open(page); await observe(page); await saveFirst(page); await page.locator('[data-lp-skip]').click(); await compare(page);
   await page.getByRole('checkbox').nth(2).check();
   const before = await page.evaluate(() => window.lpSaved);
+  await page.locator('[data-lp-try-again]').click();
   await page.locator('[data-lp-now-input]').fill('Second try');
-  await expect(page.locator('[data-lp-panel-now]')).toHaveText(before.now.text);
+  await expect(page.locator('[data-lp-result]')).toBeHidden();
   expect(await page.evaluate(() => window.lpSaved)).toEqual(before);
   await page.locator('[data-lp-compare]').click();
   const after = await page.evaluate(() => window.lpSaved);
   expect(after.first).toEqual(before.first); expect(after.checks).toEqual(before.checks); expect(after.now.text).toBe('Second try');
-  await expect(page.locator('[data-lp-panel-now]')).toHaveText('Second try');
+  await expect(page.locator('[data-lp-now-input]')).toHaveValue('Second try');
   await expect(page.locator('[data-lp-result]')).toHaveCount(1);
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['First answer saved.', 'Compared. Tick what changed.', 'Compared. Tick what changed.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['First answer saved.', 'Compared. Tick what improved.', 'Compared. Tick what improved.']);
 });
 
 test('2000 characters accepted; programmatically overlong text refused without writing', async ({ page }) => {
@@ -133,11 +209,11 @@ for (const [lang, savedNote, summary] of [['en', 'It stays as you wrote it.', 'Y
     await expect(page.locator('[data-lp-end-step]')).toBeVisible(); await expect(page.locator('[data-lp-skip]')).toBeHidden();
     await expect(page.locator('[data-lp-first-date]')).toContainText(savedNote);
     await expect(page.locator('[data-lp-panel-first]')).toHaveText(seed.first.text);
-    await expect(page.locator('[data-lp-panel-now]')).toHaveText(seed.now.text);
+    await expect(page.locator('[data-lp-now-input]')).toHaveValue(seed.now.text);
     await expect(page.getByRole('checkbox').nth(2)).toBeChecked();
     await expect(page.locator('[data-lp-summary]')).toHaveText(summary);
-    const dates = await page.evaluate(({ lang, first, now }) => [first, now].map(date => new Intl.DateTimeFormat(lang, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(date))), { lang, first: FIRST, now: END });
-    await expect(page.locator('[data-lp-panel-first-date]')).toHaveText(dates[0]); await expect(page.locator('[data-lp-panel-now-date]')).toHaveText(dates[1]);
+    const date = await page.evaluate(({ lang, first }) => new Intl.DateTimeFormat(lang, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(first)), { lang, first: FIRST });
+    await expect(page.locator('[data-lp-panel-first-date]')).toHaveText(`${lang === 'en' ? 'Your first answer' : 'Votre première réponse'}, ${date}`);
     await scan(page);
   });
 }
@@ -181,7 +257,7 @@ test('failed save, compare, checkbox and reset preserve record and expose visibl
   await expect(page.getByRole('checkbox').first()).not.toBeChecked(); expect(await page.evaluate(() => window.lpSaved)).toEqual(compared);
   await page.locator('[data-lp-restart]').click(); expect(await page.evaluate(() => window.lpSaved)).toEqual(compared);
   await expect(page.locator('[data-lp-panel-first]')).toHaveText(compared.first.text);
-  await expect(page.locator('[data-lp-panel-now]')).toHaveText(compared.now.text);
+  await expect(page.locator('[data-lp-now-input]')).toHaveValue(compared.now.text);
   await page.evaluate(() => { window.lpFailWrite = false; }); await page.locator('[data-lp-restart]').click();
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ first: null, now: null, checks });
 });
@@ -195,7 +271,7 @@ test('end only allows a current answer with no saved first; reset focuses curren
   await expect(page.locator('[data-lp-panel-first-date]')).toBeEmpty(); await expect(page.getByRole('checkbox')).toHaveCount(3); await scan(page);
   await page.getByRole('checkbox').nth(2).check(); await page.locator('[data-lp-restart]').click();
   await expect(page.locator('[data-lp-now-input]')).toBeFocused(); await expect(page.locator('[data-lp-now-input]')).toHaveValue('');
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Compared. Tick what changed.', 'Started over.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Compared. Tick what improved.', 'Started over.']);
 });
 
 test('first and end placements share state across course pages', async ({ page }) => {
@@ -213,6 +289,7 @@ test('stale instances cannot replace the first answer; reread preserves latest c
   expect((await page.evaluate(() => window.lpSaved)).first.text).toBe('Stop interrupting me.');
   await compare(roots.nth(1)); await roots.nth(1).getByRole('checkbox').nth(2).check();
   await roots.nth(0).locator('[data-lp-restart]').click();
+  await roots.nth(1).locator('[data-lp-try-again]').click();
   await roots.nth(1).locator('[data-lp-now-input]').fill('After reset'); await roots.nth(1).locator('[data-lp-compare]').click();
   expect(await page.evaluate(() => window.lpSaved)).toMatchObject({ first: null, now: { text: 'After reset' }, checks });
   const ids = await page.locator('[id]').evaluateAll(elements => elements.map(el => el.id)); expect(new Set(ids).size).toBe(ids.length);
@@ -293,19 +370,38 @@ for (const lang of ['en', 'fr']) {
       expect(bad).toEqual([]);
     };
     await fits(); await saveFirst(page); await fits(); await page.locator('[data-lp-skip]').click(); await fits(); await compare(page); await fits();
-    const panels = await page.locator('.lp-first-answer-panel').evaluateAll(elements => elements.map(el => el.getBoundingClientRect().top)); expect(panels[1]).toBeGreaterThan(panels[0]);
+    await expect(page.locator('[data-lp-now-input]')).toHaveAttribute('readonly', '');
   });
 }
 
-test('desktop comparison panels are side by side and theme tokens reach secondary buttons', async ({ page }) => {
+test('one activity box uses shared text, choice, readonly and quiet button styles', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 1000 }); await open(page); await saveFirst(page); await page.locator('[data-lp-skip]').click(); await compare(page);
-  const panels = await page.locator('.lp-first-answer-panel').evaluateAll(elements => elements.map(el => el.getBoundingClientRect().top)); expect(panels[1]).toBe(panels[0]);
+  await expect(page.locator('[data-lp-pattern]')).toHaveClass('lp lp-first-answer');
+  await expect(page.locator('.lp-first-answer-panels, .lp-first-answer-panel')).toHaveCount(0);
+  const styles = await page.evaluate(() => {
+    const css = selector => getComputedStyle(document.querySelector(selector));
+    return {
+      stepBorder: css('[data-lp-first-step]').borderWidth,
+      sectionBorder: css('[data-lp-end-step]').borderTopWidth,
+      fieldsetBorder: css('fieldset').borderWidth,
+      stemFont: css('.lp-stem').fontFamily,
+      stemSize: css('.lp-stem').fontSize,
+      stepSize: css('[data-lp-first-step] > .lp-small').fontSize,
+      headingWeight: css('[data-lp-end-heading]').fontWeight,
+      readonlyBackground: css('[data-lp-now-input]').backgroundColor
+    };
+  });
+  expect(styles).toMatchObject({ stepBorder: '0px', sectionBorder: '1px', fieldsetBorder: '0px', stemSize: '24px', stepSize: '15px', headingWeight: '600', readonlyBackground: 'rgb(244, 245, 247)' });
+  expect(styles.stemFont).toContain('Source Serif 4');
+  await page.getByRole('checkbox').first().check();
+  const choice = page.locator('.lp-choice').first();
+  expect(await choice.evaluate(el => [getComputedStyle(el).borderWidth, getComputedStyle(el).borderColor, getComputedStyle(el).backgroundColor])).toEqual(['2px', 'rgb(29, 61, 107)', 'rgba(0, 0, 0, 0)']);
   await page.locator('[data-lp-pattern]').evaluate(el => el.style.setProperty('--lp-accent', '#123456'));
   const restart = page.locator('[data-lp-restart]');
-  expect(await restart.evaluate(el => [getComputedStyle(el).backgroundColor, getComputedStyle(el).color, getComputedStyle(el).borderColor])).toEqual(['rgba(0, 0, 0, 0)', 'rgb(18, 52, 86)', 'rgb(18, 52, 86)']);
+  expect(await restart.evaluate(el => [getComputedStyle(el).backgroundColor, getComputedStyle(el).color, getComputedStyle(el).borderColor, getComputedStyle(el).textDecorationLine, getComputedStyle(el).minHeight])).toEqual(['rgba(0, 0, 0, 0)', 'rgb(18, 52, 86)', 'rgba(0, 0, 0, 0)', 'underline', '44px']);
 });
 
-test('Chromium forced colours keeps focus rings, borders and secondary distinction', async ({ page, browserName }) => {
+test('Chromium forced colours keeps focus rings, borders and quiet link actions', async ({ page, browserName }) => {
   test.skip(browserName !== 'chromium', 'Forced-colour emulation is checked in Chromium.');
   await page.emulateMedia({ forcedColors: 'active' }); await open(page);
   await page.locator('[data-lp-save-first]').focus();
@@ -319,14 +415,18 @@ test('Chromium forced colours keeps focus rings, borders and secondary distincti
   expect(await page.locator('[data-lp-end-heading]').evaluate(el => getComputedStyle(el).outlineWidth)).toBe('2px');
   const colors = await page.evaluate(() => {
     const span = document.createElement('span'); document.body.append(span); const result = {};
-    for (const name of ['ButtonText', 'ButtonFace', 'Highlight']) { span.style.color = name; result[name] = getComputedStyle(span).color; }
+    for (const name of ['ButtonText', 'ButtonFace', 'Highlight', 'LinkText']) { span.style.color = name; result[name] = getComputedStyle(span).color; }
     span.remove(); return result;
   });
-  for (const selector of ['[data-lp-compare]', '[data-lp-restart]']) {
+  for (const selector of ['[data-lp-compare]']) {
     await page.locator(selector).focus();
     const css = await page.locator(selector).evaluate(el => { const style = getComputedStyle(el); return [style.color, style.backgroundColor, style.borderColor, style.borderWidth, style.outlineColor]; });
     expect(css).toEqual([colors.ButtonText, colors.ButtonFace, colors.ButtonText, '1px', colors.Highlight]);
   }
   expect(await page.locator('[data-lp-compare]').evaluate(el => getComputedStyle(el).borderStyle)).toBe('solid');
-  expect(await page.locator('[data-lp-restart]').evaluate(el => getComputedStyle(el).borderStyle)).toBe('dashed');
+  await compare(page);
+  for (const selector of ['[data-lp-try-again]', '[data-lp-restart]']) {
+    await page.locator(selector).focus();
+    expect(await page.locator(selector).evaluate(el => [getComputedStyle(el).color, getComputedStyle(el).outlineColor, getComputedStyle(el).outlineWidth])).toEqual([colors.LinkText, colors.Highlight, '2px']);
+  }
 });
