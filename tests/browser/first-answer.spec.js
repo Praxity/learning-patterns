@@ -48,6 +48,76 @@ async function mount(page, stages, value = undefined, mode = '') {
   }, { stages, value, mode });
 }
 
+test('comparison locks the current answer and refuses another Compare activation', async ({ page }) => {
+  await mount(page, ['both']); await observe(page);
+  await saveFirst(page); await page.locator('[data-lp-skip]').click(); await compare(page);
+  await expect(page.locator('[data-lp-now-input]')).toHaveAttribute('readonly', '');
+  await expect(page.locator('[data-lp-compare]')).toBeHidden();
+  await expect(page.locator('[data-lp-panel-now]')).toHaveCount(0);
+  await expect(page.locator('[data-lp-panel-first-date]')).toContainText('Your first answer,');
+  const before = await page.evaluate(() => window.lpSaved);
+  await page.locator('[data-lp-compare]').evaluate(el => el.click());
+  expect(await page.evaluate(() => window.lpSaved)).toEqual(before);
+  expect(await page.evaluate(() => window.lpWrites)).toBe(2);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['First answer saved.', 'Compared. Tick what improved.']);
+});
+
+test('Try again unlocks the draft silently and saves only on the next Compare', async ({ page }) => {
+  await mount(page, ['both']); await saveFirst(page); await page.locator('[data-lp-skip]').click(); await compare(page);
+  await page.getByRole('checkbox').nth(2).check();
+  const before = await page.evaluate(() => window.lpSaved);
+  await observe(page);
+  await page.getByRole('button', { name: 'Try again', exact: true }).click();
+  await expect(page.locator('[data-lp-now-input]')).toBeEditable();
+  await expect(page.locator('[data-lp-now-input]')).toBeFocused();
+  await expect(page.locator('[data-lp-now-input]')).toHaveValue(before.now.text);
+  await expect(page.locator('[data-lp-first-quote]')).toHaveText(before.first.text);
+  await expect(page.locator('[data-lp-result]')).toBeHidden();
+  await expect(page.locator('[data-lp-compare]')).toBeVisible();
+  await expect(page.locator('[data-lp-try-again]')).toBeHidden();
+  await page.locator('[data-lp-now-input]').fill('A revised answer.');
+  expect(await page.evaluate(() => window.lpSaved)).toEqual(before);
+  expect(await page.evaluate(() => window.lpWrites)).toBe(3);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
+  await page.locator('[data-lp-compare]').click();
+  expect(await page.evaluate(() => window.lpSaved)).toMatchObject({ first: before.first, now: { text: 'A revised answer.' }, checks: before.checks });
+  await expect(page.locator('[data-lp-now-input]')).toHaveAttribute('readonly', '');
+  await expect(page.locator('[data-lp-result]')).toBeVisible();
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Compared. Tick what improved.']);
+});
+
+test('restoring now locks the comparison silently and reset clears the lock', async ({ page }) => {
+  await mount(page, ['both'], seed); await observe(page);
+  await expect(page.locator('[data-lp-now-input]')).toHaveAttribute('readonly', '');
+  await expect(page.locator('[data-lp-now-input]')).toHaveValue(seed.now.text);
+  await expect(page.locator('[data-lp-compare]')).toBeHidden();
+  await expect(page.locator('[data-lp-try-again]')).toBeVisible();
+  await expect(page.locator('[role="status"]')).toBeEmpty();
+  await page.locator('[data-lp-restart]').click();
+  await saveFirst(page); await page.locator('[data-lp-skip]').click();
+  await expect(page.locator('[data-lp-now-input]')).toBeEditable();
+  await expect(page.locator('[data-lp-compare]')).toBeVisible();
+  await expect(page.locator('[data-lp-try-again]')).toBeHidden();
+});
+
+for (const [lang, legend, announcement, retry] of [
+  ['en', 'Has your new answer improved in any of these ways?', 'Compared. Tick what improved.', 'Try again'],
+  ['fr', "Votre nouvelle réponse s'est-elle améliorée sur l'un de ces points?", "Comparaison affichée. Cochez ce qui s'est amélioré.", 'Réessayer']
+]) {
+  test(`comparison uses the improvement question and quiet icon actions (${lang})`, async ({ page }) => {
+    await open(page, `/first-answer/${lang}.html`); await saveFirst(page); await page.locator('[data-lp-skip]').click(); await compare(page);
+    await expect(page.getByRole('group')).toHaveAccessibleName(legend);
+    await expect(page.locator('[role="status"]')).toHaveText(announcement);
+    await expect(page.locator('[data-lp-try-again]')).toHaveAccessibleName(retry);
+    for (const selector of ['[data-lp-try-again]', '[data-lp-restart]']) {
+      const action = page.locator(selector);
+      await expect(action).toHaveClass('lp-button lp-button-quiet');
+      await expect(action.locator('svg')).toHaveAttribute('aria-hidden', 'true');
+      await expect(action.locator('svg')).toHaveAttribute('focusable', 'false');
+    }
+  });
+}
+
 test('keyboard journey links blank errors and announces successful submissions once without moving feedback focus', async ({ page }) => {
   await open(page); await observe(page);
   const first = page.locator('[data-lp-first-input]'); const save = page.locator('[data-lp-save-first]');
