@@ -62,6 +62,17 @@
 .lp-run-in { font-size: var(--lp-type-body); font-weight: 600; line-height: 1.3; }
 .lp-quote { padding: 12px 16px; border-inline-start: 3px solid var(--lp-line-mid); border-radius: 0 8px 8px 0; background: var(--lp-paper-2); }
 
+/* The scene header: what this activity is, shown as the real task (an icon tile, a short label,
+   the title). It spans the top of the card. Centre the tile on the text block so one-line and
+   two-line titles both line up. */
+.lp-scene { display: flex; gap: 14px; align-items: center; margin: -28px -28px 24px; padding: 20px 28px; border-block-end: 1px solid var(--lp-rule); border-radius: var(--lp-radius-box) var(--lp-radius-box) 0 0; background: var(--lp-paper-2); }
+.lp-scene > div { min-inline-size: 0; }
+.lp-scene-icon { display: grid; flex: none; place-items: center; inline-size: 40px; block-size: 40px; border-radius: var(--lp-radius-control); color: var(--lp-accent-ink); background: var(--lp-accent-soft); }
+.lp-scene-icon .lp-icon { inline-size: 22px; block-size: 22px; }
+.lp-scene-label { color: var(--lp-ink-2); font-size: var(--lp-type-small); font-weight: 600; line-height: 1.3; }
+.lp-scene-title { margin-block-start: 2px; font-size: 1.1875rem; font-weight: 600; line-height: 1.35; letter-spacing: -.005em; text-wrap: pretty; }
+.lp-scene-sub { margin-block-start: 4px; color: var(--lp-ink-2); font-size: var(--lp-type-small); line-height: 1.45; }
+
 /* A section inside the card: space and a hairline, never another card. */
 .lp-section { margin-block-start: 24px; padding-block-start: 24px; border-block-start: 1px solid var(--lp-rule); }
 .lp-section > * + * { margin-block-start: 16px; }
@@ -225,6 +236,7 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
 }
 @media (max-width: 30rem) {
   .lp { padding: 18px 16px; }
+  .lp-scene { margin: -18px -16px 20px; padding: 16px; }
   .lp-box { padding: 18px 16px; }
 }
 @media (prefers-reduced-motion: reduce) {
