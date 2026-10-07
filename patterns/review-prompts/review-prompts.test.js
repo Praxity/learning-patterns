@@ -109,7 +109,7 @@ test('content validation and schema agree on authored examples and planted viola
 
 test('render keeps native details, h3 headings, hidden rating controls and one empty status', () => {
   const markup = render(content, strings.en, { id: 'practice', lang: 'en' });
-  assert.match(markup, /class="lp-review-prompts" data-lp-pattern="review-prompts" lang="en"/);
+  assert.match(markup, /class="lp lp-unboxed lp-review-prompts" data-lp-pattern="review-prompts" lang="en"/);
   assert.equal((markup.match(/<h3\b/g) || []).length, 3);
   assert.equal((markup.match(/<details\b/g) || []).length, 3);
   assert.equal((markup.match(/<summary[^>]*>Show the answer<\/summary>/g) || []).length, 3);

@@ -1,66 +1,7 @@
-.lp-review-prompts {
-  --lp-text: #202124;
-  --lp-muted: #50555a;
-  --lp-surface: #fff;
-  --lp-border: #62676c;
-  --lp-accent: #174f78;
-  --lp-on-accent: #fff;
-  --lp-focus: #005fcc;
-  --lp-space: 1rem;
-  --lp-radius: .25rem;
-  --lp-font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --lp-font-size: 1rem;
-  --lp-line-height: 1.5;
-  box-sizing: border-box;
-  max-width: 40rem;
-  color: var(--lp-text);
-  background: var(--lp-surface);
-  font-family: var(--lp-font);
-  font-size: var(--lp-font-size);
-  line-height: var(--lp-line-height);
-  overflow-wrap: anywhere;
-  margin-block: var(--lp-space);
-}
-.lp-review-prompts *, .lp-review-prompts *::before, .lp-review-prompts *::after { box-sizing: border-box; }
-.lp-review-prompts [hidden] { display: none !important; }
-.lp-review-prompts p { margin-block: var(--lp-space); white-space: pre-line; }
-.lp-review-prompts-part { margin-block: calc(var(--lp-space) * 2); }
-.lp-review-prompts-part h3 { font-size: 1.125em; margin-block: var(--lp-space); }
-.lp-review-prompts-prompt { padding: var(--lp-space); border: 1px solid var(--lp-border); border-radius: var(--lp-radius); }
-.lp-review-prompts-prompt .lp-review-prompts-label { font-weight: 600; margin-block-start: 0; }
-.lp-review-prompts-instruction { color: var(--lp-muted); }
-.lp-review-prompts-details summary { cursor: pointer; min-height: 44px; padding-block: calc(var(--lp-space) / 2); }
-.lp-review-prompts-answer { border-inline-start: 3px solid var(--lp-accent); padding-inline-start: var(--lp-space); }
-.lp-review-prompts-actions { display: flex; flex-wrap: wrap; gap: calc(var(--lp-space) / 2); }
-.lp-review-prompts-button {
-  min-height: 44px;
-  max-width: 100%;
-  padding: calc(var(--lp-space) / 2) var(--lp-space);
-  border: 1px solid var(--lp-accent);
-  border-radius: var(--lp-radius);
-  color: var(--lp-accent);
-  background: var(--lp-surface);
-  font: inherit;
-  white-space: normal;
-  overflow-wrap: anywhere;
-  cursor: pointer;
-}
-.lp-review-prompts-button[aria-pressed="true"] { color: var(--lp-on-accent); background: var(--lp-accent); }
-.lp-review-prompts :is(button, summary):focus { outline: 2px solid var(--lp-focus); outline-offset: 2px; }
-.lp-review-prompts-review { font-weight: 600; }
-.lp-review-prompts .lp-review-prompts-status {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-@media (forced-colors: active) {
-  .lp-review-prompts :is(button, summary):focus { outline-color: Highlight; }
-  .lp-review-prompts-button, .lp-review-prompts-button[aria-pressed="true"] { color: ButtonText; background: ButtonFace; border-color: ButtonText; }
-  .lp-review-prompts-button[aria-pressed="true"] { border: 3px double ButtonText; }
-  .lp-review-prompts-prompt, .lp-review-prompts-answer { border-color: CanvasText; }
+/* Review-prompts specifics. Link lib/base.css before this stylesheet. */
+.lp-review-prompts-heading { margin: 0; }
+.lp-review-prompts-part + .lp-review-prompts-part { margin-block-start: 32px; }
+
+@media (max-width: 30rem) {
+  .lp-review-prompts-part + .lp-review-prompts-part { margin-block-start: 24px; }
 }
