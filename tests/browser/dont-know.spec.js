@@ -79,9 +79,11 @@ test('shared v2 styles give one card, sans stems, keyed full-width choices and a
   }
   await page.locator('input').first().check();
   const selected = page.locator('label:has(input:checked)');
-  await expect(selected).toHaveCSS('border-top-width', '1px');
+  await expect(selected).toHaveCSS('border-top-width', '2px');
   await expect(selected).toHaveCSS('border-top-color', 'rgb(44, 85, 201)');
-  await expect(selected).toHaveCSS('box-shadow', 'rgb(44, 85, 201) 0px 0px 0px 1px inset');
+  // A real 2px border with 1px less padding, no shadow ring (shared rule with Studio).
+  await expect(selected).toHaveCSS('box-shadow', 'none');
+  await expect(selected).toHaveCSS('padding-top', '9px');
   await expect(selected).toHaveCSS('background-color', 'rgb(238, 242, 253)');
   const keys = await page.locator('fieldset').first().locator('label').evaluateAll(rows => rows.map(row => {
     const input = row.querySelector('input');

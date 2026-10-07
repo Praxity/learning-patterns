@@ -27,27 +27,26 @@ Copy its folder under `patterns/` and the shared `lib/` folder. Keep their relat
 
 ## Look and theme tokens
 
-`lib/base.css` gives every pattern the same plain course look: one bordered box per activity, sections split by space and a rule, status shown by an icon and a word as well as colour. Link it before a pattern's own CSS. To restyle, override these custom properties on `.lp` or any ancestor.
+`lib/base.css` gives every pattern the same look: one card per activity, quiet sections inside it, keyed choice rows, and status shown by an icon and a word as well as colour. Link it before a pattern's own CSS. To restyle, override these custom properties on `.lp` or any ancestor.
 
 | Token | Default | Use |
 | --- | --- | --- |
-| `--lp-paper` | `#fff` | Page and activity background |
-| `--lp-paper-2` | `#f4f5f7` | Read-only fields |
-| `--lp-ink` | `#1b1e23` | Text |
-| `--lp-ink-2` | `#4a505a` | Secondary text |
-| `--lp-line` | `#7d838d` | Control borders (3:1 or more) |
-| `--lp-rule` | `#d7dae0` | Activity box and section rules |
-| `--lp-accent` | `#1d3d6b` | Primary button, selection, focus |
+| `--lp-paper`, `--lp-paper-2` | `#fff`, `#f7f8fa` | Card; quiet panels and read-only fields |
+| `--lp-ink`, `--lp-ink-2` | `#16181d`, `#555c67` | Text and secondary text |
+| `--lp-line` | `#868d98` | Control borders (3:1 or more) |
+| `--lp-line-mid`, `--lp-rule` | `#d5d9df`, `#e6e8ec` | Choice rows; card border and section rules |
+| `--lp-accent`, `--lp-accent-ink`, `--lp-accent-soft` | `#2c55c9`, `#1c3c94`, `#eef2fd` | Primary button, selection and focus; text on tints; selection tint |
 | `--lp-on-accent` | `#fff` | Text on the accent |
-| `--lp-success-ink` | `#146c43` | Correct and included |
-| `--lp-error-ink` | `#a3262c` | Wrong answers and errors |
+| `--lp-success-ink`, `--lp-success-soft` | `#12704f`, `#e6f4ee` | Correct and included |
+| `--lp-error-ink`, `--lp-error-soft` | `#b42318`, `#fdeceb` | Wrong answers and errors |
+| `--lp-warning-ink`, `--lp-warning-soft` | `#a24a07`, `#fdf1e4` | Missed or to add |
 | `--lp-focus` | the accent | Focus ring |
-| `--lp-font-body` | Source Sans 3, then system sans | Body text |
-| `--lp-font-heading` | Source Serif 4, then Georgia | Question stems |
-| `--lp-type-small`, `--lp-type-body`, `--lp-type-h3` | 15, 19 and 24 px | Type sizes |
-| `--lp-radius-box`, `--lp-radius-control` | 8 and 6 px | Corners |
+| `--lp-font-body`, `--lp-font-heading` | Source Sans 3, then system sans | All text |
+| `--lp-type-small`, `--lp-type-body`, `--lp-type-h3` | 15, 17 and 21 px | Type sizes |
+| `--lp-radius-box`, `--lp-radius-control` | 16 and 10 px | Corners |
+| `--lp-shadow` | a soft two-layer shadow | Cards only |
 
-Fonts are not bundled. Load Source Sans 3 and Source Serif 4 yourself, or set the font tokens to your own.
+Fonts are not bundled. Load Source Sans 3 yourself, or set the font tokens to your own.
 
 ## Accessibility baseline
 

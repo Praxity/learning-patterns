@@ -122,7 +122,7 @@ export function enhance(root, { content, strings, state }) {
       <h3 class="lp-label">${html(strings.yourQuestion)}</h3>
       <p class="lp-run-in">${html(content.question)}</p>
       <ol class="lp-write-distractors-preview">
-        ${[content.rightAnswer, ...values.map(item => item.text)].map((text, index) => `<li class="lp-choice lp-write-distractors-preview-row"${index === 0 ? ' data-lp-mark="correct"' : ''}><span class="lp-write-distractors-key" data-lp-preview-key>${html(optionKey(index))}</span><span>${html(text)}${index === 0 ? `<span class="lp-choice-mark lp-met">${icons.check}${html(strings.correctAnswer)}</span>` : ''}</span></li>`).join('')}
+        ${[content.rightAnswer, ...values.map(item => item.text)].map((text, index) => `<li class="lp-choice lp-write-distractors-preview-row"${index === 0 ? ' data-lp-mark="correct"' : ''}><span class="lp-choice-key lp-write-distractors-key" data-lp-preview-key>${html(optionKey(index))}</span><span>${html(text)}${index === 0 ? `<span class="lp-choice-mark lp-met">${icons.check}${html(strings.correctAnswer)}</span>` : ''}</span></li>`).join('')}
       </ol>
       </div>
       <p class="lp-run-in" data-lp-summary data-lp-coverage>${html(message)}</p>

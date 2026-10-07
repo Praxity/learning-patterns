@@ -18,8 +18,8 @@ Each `patterns/<name>/` contains pure `logic.js`, server `render.js`, DOM `enhan
 `lib/base.css` owns the shared look and the `--lp-*` tokens; `pattern.css` holds only what one pattern needs, with classes prefixed `lp-<name>-`. The rules follow Praxity Studio's published-course design:
 
 - One bordered box per activity and none inside it. Split sections inside the box with `lp-section` (space and a top rule). A pattern that sits in running text uses `lp-unboxed` on its root and `lp-box` on each activity.
-- Text roles: `lp-stem` (serif question stem), `lp-label`, `lp-run-in`, `lp-small`, `lp-quote`. Six sizes, weights 400 and 600, sentence case, no uppercase labels.
-- Choices are full-width `lp-choice` rows; selection is a 2px accent border, never a tint. After submit, mark rows with `data-lp-mark="correct|wrong"` and a `lp-choice-mark` line with an icon and a word.
+- Text roles: `lp-stem` (question stem, sans 600), `lp-label`, `lp-run-in`, `lp-small`, `lp-quote`. Source Sans 3 throughout, a small set of sizes, weights 400 and 600, sentence case, no uppercase labels.
+- Choices are full-width `lp-choice` rows; selection is a 2px accent border (padding 1px smaller so the row keeps its size) with a soft accent tint; no shadow rings, since shadows belong to cards and floating layers only. After submit, mark rows with `data-lp-mark="correct|wrong"` and a `lp-choice-mark` line with an icon and a word.
 - Buttons: `lp-button` (one primary action), `lp-button-secondary`, `lp-button-quiet` (with an icon, for Start over and Try again). Status uses `lp-met`, `lp-missed` and `lp-neutral` with an icon and a word, never colour alone.
 - A thick single-side border (an accent stripe) only ever sits on a straight edge. If the element has rounded corners, use an even 1px border or none. Most stripes are decoration; leave them out.
 - Body text uses `text-wrap: pretty`; headings, stems and titles use `text-wrap: balance` (set in `lib/base.css`).

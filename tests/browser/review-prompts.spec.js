@@ -141,8 +141,8 @@ test('rating toggles keep their labels, use the v2 accent and add a calendar rev
     await expect(selected).toHaveText(label);
     await expect(selected).toHaveAttribute('aria-pressed', 'true');
     await expect(other).toHaveAttribute('aria-pressed', 'false');
-    await expect(selected).toHaveCSS('border-top-width', '1px');
-    await expect(selected).toHaveCSS('box-shadow', 'rgb(44, 85, 201) 0px 0px 0px 1px inset');
+    await expect(selected).toHaveCSS('border-top-width', '2px');
+    await expect(selected).toHaveCSS('box-shadow', 'none');
     await expect(selected).toHaveCSS('border-top-color', 'rgb(44, 85, 201)');
     await expect(selected).toHaveCSS('background-color', 'rgb(238, 242, 253)');
     await expect(other).toHaveCSS('border-top-width', '1px');

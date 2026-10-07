@@ -484,7 +484,7 @@ test('one activity box uses shared text, choice, readonly and quiet button style
   expect(styles.stemFont).toContain('Source Sans 3');
   await page.getByRole('checkbox').first().check();
   const choice = page.locator('.lp-choice').first();
-  await expect.poll(() => choice.evaluate(el => [getComputedStyle(el).borderWidth, getComputedStyle(el).borderTopColor, getComputedStyle(el).backgroundColor])).toEqual(['1px', 'rgb(44, 85, 201)', 'rgb(238, 242, 253)']);
+  await expect.poll(() => choice.evaluate(el => [getComputedStyle(el).borderWidth, getComputedStyle(el).borderTopColor, getComputedStyle(el).backgroundColor])).toEqual(['2px', 'rgb(44, 85, 201)', 'rgb(238, 242, 253)']);
   await page.locator('[data-lp-pattern]').evaluate(el => el.style.setProperty('--lp-ink-2', '#123456'));
   const restart = page.locator('[data-lp-restart]');
   expect(await restart.evaluate(el => [getComputedStyle(el).backgroundColor, getComputedStyle(el).color, getComputedStyle(el).borderTopColor, getComputedStyle(el).textDecorationLine, getComputedStyle(el).minHeight])).toEqual(['rgba(0, 0, 0, 0)', 'rgb(18, 52, 86)', 'rgba(0, 0, 0, 0)', 'none', '44px']);

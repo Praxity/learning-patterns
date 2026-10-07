@@ -58,8 +58,8 @@ test('shared scene and clean outline lead to one keyed question at a time', asyn
   await page.locator('input').first().check();
   const row = page.locator('label:has(input:checked)');
   await expect(row).toHaveCSS('border-top-color', 'rgb(44, 85, 201)');
-  await expect(row).toHaveCSS('border-top-width', '1px');
-  await expect(row).toHaveCSS('box-shadow', 'rgb(44, 85, 201) 0px 0px 0px 1px inset');
+  await expect(row).toHaveCSS('border-top-width', '2px');
+  await expect(row).toHaveCSS('box-shadow', 'none');
   expect(await row.evaluate(el => getComputedStyle(el, '::before').content)).toBe('counter(lp-key, upper-alpha)');
 });
 
