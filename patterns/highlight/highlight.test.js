@@ -20,6 +20,7 @@ function matches(value, rule) {
   if (rule.enum && !rule.enum.includes(value)) return false;
   if (rule.type === 'string' && (typeof value !== 'string' || (rule.pattern && !new RegExp(rule.pattern).test(value)))) return false;
   if (rule.type === 'boolean' && typeof value !== 'boolean') return false;
+  if (rule.type === 'integer' && (!Number.isInteger(value) || value < (rule.minimum ?? -Infinity))) return false;
   if (rule.type === 'object' && (!value || typeof value !== 'object' || Array.isArray(value))) return false;
   if (rule.type === 'array') {
     if (!Array.isArray(value) || value.length < (rule.minItems ?? 0)) return false;
@@ -67,6 +68,7 @@ test('content validator catches every planted field violation, including global 
   const sparseParagraphs = Array(2); sparseParagraphs[1] = chunks;
   bad({ ...content, paragraphs: sparseParagraphs }, 'paragraphs[0]');
   bad({ ...content, extra: true }, 'extra');
+  for (const maxMarks of [0, -1, 1.5, null, undefined, '2', true, Infinity, NaN]) bad({ ...content, maxMarks }, 'maxMarks');
   for (const value of [null, '', 'other', true]) bad({ ...content, mode: value }, 'mode');
   for (const field of ['title', 'question']) {
     for (const value of [null, '', '  ', 3, undefined]) bad({ ...content, [field]: value }, field);
@@ -98,6 +100,35 @@ test('content validator catches every planted field violation, including global 
   assert.doesNotThrow(() => validateContent({ ...example('key'), question: 'A useful optional question' }));
   assert.doesNotThrow(() => validateContent({ ...content, paragraphs: [[{ ...chunks[0], key: true }, { ...chunks[1], key: false }]] }));
   for (const value of [content, example('key'), { ...example('key'), question: 'Optional question' }]) assert.equal(matches(value, schema), true);
+});
+
+test('mark limits default by mode, accept positive overrides and reject excess selections', async () => {
+  const { markLimit } = await import('./logic.js');
+  assert.equal(markLimit(example('evidence')), 2);
+  assert.equal(markLimit(example('key')), 3);
+  for (const mode of ['key', 'evidence']) {
+    const content = { ...example(mode), maxMarks: 1 };
+    validateContent(content);
+    assert.equal(matches(content, schema), true);
+    assert.equal(markLimit(content), 1);
+    assert.equal(check(content, ['withdraw', 'withdraw']).marked, 1);
+    assert.throws(() => check(content, ['withdraw', 'ignored']), /maxMarks/);
+    for (const shown of [false, true]) assert.equal(validateState(content, { marked: ['withdraw', 'ignored'], shown }), null);
+  }
+  assert.equal(validateState(example('evidence'), { marked: ['withdraw', 'ignored', 'plain'], shown: false }), null);
+  assert.equal(markLimit({ ...example('key'), maxMarks: 10 }), 10);
+  const inherited = Object.assign(Object.create({ maxMarks: 1 }), example('key'));
+  assert.throws(() => validateContent(inherited), /maxMarks/);
+});
+
+test('render has one task instruction and no decorative scene label in either language', () => {
+  for (const lang of ['en', 'fr']) {
+    const html = render(example('evidence'), strings[lang], { id: lang, lang });
+    assert.equal(html.includes('lp-scene-label'), false);
+    assert.ok(html.includes(strings[lang].evidenceInstruction.replaceAll('{question}', 'How do they feel?')));
+    assert.ok(html.includes(strings[lang].count.replaceAll('{n}', '0').replaceAll('{max}', '2')));
+    assert.match(html, /data-lp-limit hidden/);
+  }
 });
 
 test('inherited required and optional authored fields cannot change outcomes or return shapes', () => {

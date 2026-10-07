@@ -2,6 +2,10 @@
  * @param {unknown} content @returns {asserts content is Content}
  */
 export function validateContent(content: unknown): asserts content is Content;
+/** Maximum selected chunks. Pass validated content.
+ * @param {Content} content @returns {number}
+ */
+export function markLimit(content: Content): number;
 /** Compare marks with the author's targets. Duplicate marks count once.
  * @param {Content} content @param {string[]} markedIds
  * @returns {{ found: number, total: number, marked: number, wrong: number, items: Outcome[] }}
@@ -27,6 +31,7 @@ export type Content = {
     mode: "key" | "evidence";
     title: string;
     question?: string;
+    maxMarks?: number;
     paragraphs: Chunk[][];
 };
 export type LearnerState = {

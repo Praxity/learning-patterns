@@ -1,4 +1,4 @@
-import { check, validateContent, validateState } from './logic.js';
+import { check, markLimit, validateContent, validateState } from './logic.js';
 import { escapeHtml as html } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
 
@@ -23,6 +23,8 @@ export function enhance(root, { content, strings, state }) {
   const fallback = required('[data-lp-fallback]');
   const flow = required('[data-lp-flow]');
   const count = required('[data-lp-count]');
+  const limit = required('[data-lp-limit]');
+  const max = markLimit(content);
   const summary = required('[data-lp-summary]');
   const submit = required('[data-lp-check]');
   const restart = required('[data-lp-restart]');
@@ -52,21 +54,37 @@ export function enhance(root, { content, strings, state }) {
 
   function paintMarks() {
     for (let i = 0; i < chunks.length; i++) chunks[i].setAttribute('aria-pressed', String(marked.has(authored[i].id)));
-    count.textContent = strings.count.replaceAll('{n}', String(marked.size));
+    count.textContent = strings.count.replaceAll('{n}', String(marked.size)).replaceAll('{max}', String(max));
     restart.hidden = marked.size === 0 && !shown;
+  }
+
+  function clearLimit() {
+    if (limit.hidden) return;
+    limit.replaceChildren(); limit.hidden = true;
+    status.replaceChildren();
   }
 
   /** @param {number} index */
   function toggle(index) {
     if (shown) return;
     const id = authored[index].id;
-    if (marked.has(id)) marked.delete(id); else marked.add(id);
+    if (marked.has(id)) {
+      marked.delete(id); clearLimit();
+    } else if (marked.size >= max) {
+      if (limit.hidden) {
+        const message = (max === 1 ? strings.limitOne : strings.limitMany).replaceAll('{n}', String(max));
+        limit.textContent = message; limit.hidden = false;
+        status.textContent = message;
+      }
+      return;
+    } else marked.add(id);
     paintMarks(); save();
   }
 
   /** @param {boolean} announce */
   function show(announce) {
     if (shown) return;
+    clearLimit();
     const result = check(content, markedIds());
     const message = (content.mode === 'key' ? strings.keySummary : strings.evidenceSummary).replaceAll('{n}', String(result.found)).replaceAll('{total}', String(result.total));
     result.items.forEach((item, i) => {
@@ -99,6 +117,7 @@ export function enhance(root, { content, strings, state }) {
   }
 
   function clearResult() {
+    clearLimit();
     for (let i = 0; i < chunks.length; i++) {
       chunks[i].removeAttribute('aria-disabled');
       chunks[i].removeAttribute('data-lp-outcome');
