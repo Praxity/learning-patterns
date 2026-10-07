@@ -40,6 +40,7 @@ Motion explains a change; it never decorates. From the motion-timing, motion-per
 - Animate transform and opacity. Paint properties (background, box-shadow) only on small elements. Never `transition: all`.
 - A staged sequence that starts plays to its end; it is not cut off when the pointer leaves.
 - Keyboard focus moves instantly. Buttons press to `scale(.96)`.
+- Disclosures and revealed answers open at once, with no rise or fade after they open.
 - No loops, no autoplay, no celebration. Under `prefers-reduced-motion: reduce` everything is instant and the final state shows.
 
 ## Commands

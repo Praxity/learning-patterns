@@ -233,10 +233,7 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
 .lp-details > summary::before { content: ""; inline-size: .45em; block-size: .45em; border-block-end: 2px solid; border-inline-end: 2px solid; transform: rotate(-45deg); transition: transform .15s var(--lp-ease); }
 .lp-details[open] > summary::before { transform: rotate(45deg); }
 .lp-details > :not(summary) { margin-block-start: 12px; }
-/* Opened content rises in with a short ease-out; no height animation, so nothing below jumps around. */
-.lp-details[open] > :not(summary) { animation: lp-rise-solid 200ms var(--lp-ease); }
-/* Movement only, no fade, so text keeps full contrast while it arrives. */
-@keyframes lp-rise-solid { from { transform: translateY(6px); } }
+/* Disclosures open at once: a rise after the panel has opened reads as a twitch (owner, 2026-10-07). */
 
 .lp a { color: var(--lp-accent-ink); text-underline-offset: 3px; }
 .lp :is(a, button, textarea, select, summary, input:not([type="radio"], [type="checkbox"])):focus,
