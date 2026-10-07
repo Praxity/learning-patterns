@@ -114,6 +114,7 @@ export function enhance(root, { content, strings, state }) {
     const review = questions.filter(({ q }) => !outcome.right.includes(q.id));
     // Negative scores have an empty ring. Text preserves every authored score and total.
     const progress = outcome.total > 0 ? Math.max(0, Math.min(1, outcome.points / outcome.total)) : 0;
+    // Explicit tabindex includes review links in WebKit's keyboard navigation on Windows.
     result.innerHTML = `<div class="lp-dont-know-result-head">
       <svg class="lp-dont-know-score-ring" width="64" height="64" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
         <circle class="lp-dont-know-ring-track" cx="32" cy="32" r="29"/>
@@ -123,7 +124,7 @@ export function enhance(root, { content, strings, state }) {
         <p class="lp-small" data-lp-counts>${html(counts)}</p></div>
       </div>
       ${review.length ? `<div class="lp-dont-know-review" data-lp-review><h3 class="lp-run-in">${html(strings.review)}</h3>
-        <ul>${review.map(({ q, fieldset }) => `<li><a href="#${html(fieldset.id)}">${icons['arrow-right']}<span>${html(q.text)}</span></a></li>`).join('')}</ul></div>` : ''}`;
+        <ul>${review.map(({ q, fieldset }) => `<li><a href="#${html(fieldset.id)}" tabindex="0">${icons['arrow-right']}<span>${html(q.text)}</span></a></li>`).join('')}</ul></div>` : ''}`;
     result.hidden = false; restart.hidden = false; check.hidden = true; shown = true;
     if (announce) {
       /** @type {HTMLElement} */ (required(result, '[data-lp-score]')).focus();
