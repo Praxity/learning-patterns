@@ -1,0 +1,75 @@
+/** Validate plain authored content and its misconception references.
+ * @param {unknown} content @returns {asserts content is Content}
+ */
+export function validateContent(content: unknown): asserts content is Content;
+/** Field errors use codes so every learner-facing message lives in strings.js.
+ * Length is checked before normalization, matching HTML maxlength.
+ * @param {Content} content @param {LearnerOption[]} options
+ * @returns {{ ok: false, errors: FieldError[] } | { ok: true, options: LearnerOption[] }}
+ */
+export function validateOptions(content: Content, options: LearnerOption[]): {
+    ok: false;
+    errors: FieldError[];
+} | {
+    ok: true;
+    options: LearnerOption[];
+};
+/** @param {Content} content @param {AuthorOption | LearnerOption} option @returns {string} */
+export function targetOf(content: Content, option: AuthorOption | LearnerOption): string;
+/** Compare tags, never infer a misconception from the learner's answer text.
+ * @param {Content} content @param {LearnerOption[]} options
+ */
+export function coverage(content: Content, options: LearnerOption[]): {
+    targeted: any[];
+    missed: string[];
+    extra: any[];
+    matches: boolean[];
+};
+/** @param {Content} content @param {LearnerOption[]} options @param {import('./strings.js').Strings} strings */
+export function coverageMessage(content: Content, options: LearnerOption[], strings: import("./strings.js").Strings): string;
+/** Accept incomplete drafts; shown results must pass submission validation.
+ * @param {Content} content @param {unknown} value @returns {LearnerState | null}
+ */
+export function validateState(content: Content, value: unknown): LearnerState | null;
+/** @typedef {{ id: string, label: string }} Misconception */
+/** @typedef {{ text: string, misconception: string }} AuthorOption */
+/** @typedef {{ question: string, rightAnswer: string, misconceptions: Misconception[], authorOptions: AuthorOption[], count: number }} Content */
+/** @typedef {{ text: string, misconception: string, custom: string }} LearnerOption */
+/** @typedef {{ options: LearnerOption[], shown: boolean }} LearnerState */
+/** @typedef {'text' | 'misconception' | 'custom'} Field */
+/** @typedef {'empty' | 'longText' | 'right' | 'duplicate' | 'choose' | 'describe' | 'longCustom'} ErrorCode */
+/** @typedef {{ option: number, field: Field, code: ErrorCode }} FieldError */
+export const OTHER: "other";
+export const MAX_OPTION: 300;
+export const MAX_CUSTOM: 120;
+export type Misconception = {
+    id: string;
+    label: string;
+};
+export type AuthorOption = {
+    text: string;
+    misconception: string;
+};
+export type Content = {
+    question: string;
+    rightAnswer: string;
+    misconceptions: Misconception[];
+    authorOptions: AuthorOption[];
+    count: number;
+};
+export type LearnerOption = {
+    text: string;
+    misconception: string;
+    custom: string;
+};
+export type LearnerState = {
+    options: LearnerOption[];
+    shown: boolean;
+};
+export type Field = "text" | "misconception" | "custom";
+export type ErrorCode = "empty" | "longText" | "right" | "duplicate" | "choose" | "describe" | "longCustom";
+export type FieldError = {
+    option: number;
+    field: Field;
+    code: ErrorCode;
+};

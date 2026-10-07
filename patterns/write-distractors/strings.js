@@ -1,0 +1,45 @@
+export const strings = {
+  en: {
+    question: 'Question', rightAnswer: 'Right answer',
+    instruction: 'Write {count} wrong answers a learner might pick. Name the misconception behind each one.',
+    option: 'Wrong option {n}', text: 'Your wrong option', misconception: 'Which misconception does it target?',
+    chooseOne: 'Choose one', other: 'Something else', custom: 'Describe the misconception',
+    compare: "Compare with the author's", author: "The author's wrong options", yours: 'Your wrong options',
+    targets: 'Targets: {target}', match: 'Targets the same misconception as an author option.',
+    noMatch: 'Targets a misconception the author options do not cover.',
+    empty: 'Write wrong option {n}.', longText: 'Keep option {n} to {max} characters or fewer.',
+    right: 'Option {n} is the right answer. Write a wrong one.', duplicate: 'Make option {n} different from your earlier options.',
+    choose: 'Choose what option {n} targets.', describe: 'Describe the misconception for option {n}.',
+    longCustom: 'Keep the misconception for option {n} to {max} characters or fewer.',
+    errorsOne: '1 field needs attention.', errorsMany: '{count} fields need attention.',
+    targeted: 'You targeted: {targets}.', missed: 'Not targeted: {targets}.', none: 'none',
+    same: 'The author covers all the misconceptions you targeted.',
+    extraOne: 'The author doesn\'t cover {targets}. Yours adds it.',
+    extraTwo: 'The author doesn\'t cover {targets}. Yours adds both.',
+    extraMany: 'The author doesn\'t cover {targets}. Yours adds them.', or: ' or ',
+    summary: 'Compared {count} wrong options. The comparison uses your misconception tags.',
+    clear: 'Clear', cleared: 'Options cleared.'
+  },
+  fr: {
+    question: 'Question', rightAnswer: 'Bonne réponse',
+    instruction: 'Rédigez {count} mauvaises réponses qu\'une personne pourrait choisir. Nommez l\'idée fausse derrière chacune.',
+    option: 'Mauvaise réponse {n}', text: 'Votre mauvaise réponse', misconception: 'Quelle idée fausse cible-t-elle?',
+    chooseOne: 'Choisissez une idée fausse', other: 'Autre idée fausse', custom: 'Décrivez l\'idée fausse',
+    compare: 'Comparer avec les réponses de l\'auteur', author: 'Les mauvaises réponses de l\'auteur', yours: 'Vos mauvaises réponses',
+    targets: 'Cible : {target}', match: 'Cible la même idée fausse qu\'une réponse de l\'auteur.',
+    noMatch: 'Cible une idée fausse que les réponses de l\'auteur ne couvrent pas.',
+    empty: 'Rédigez la mauvaise réponse {n}.', longText: 'Limitez la réponse {n} à {max} caractères.',
+    right: 'La réponse {n} est la bonne réponse. Rédigez-en une mauvaise.', duplicate: 'La réponse {n} doit être différente de vos réponses précédentes.',
+    choose: 'Choisissez ce que la réponse {n} cible.', describe: 'Décrivez l\'idée fausse pour la réponse {n}.',
+    longCustom: 'Limitez l\'idée fausse de la réponse {n} à {max} caractères.',
+    errorsOne: '1 champ demande votre attention.', errorsMany: '{count} champs demandent votre attention.',
+    targeted: 'Vous avez ciblé : {targets}.', missed: 'Non ciblées : {targets}.', none: 'aucune',
+    same: 'L\'auteur couvre toutes les idées fausses que vous avez ciblées.',
+    extraOne: 'L\'auteur ne couvre pas {targets}. Votre réponse l\'ajoute.',
+    extraTwo: 'L\'auteur ne couvre pas {targets}. Vos réponses ajoutent les deux.',
+    extraMany: 'L\'auteur ne couvre pas {targets}. Vos réponses les ajoutent.', or: ' ou ',
+    summary: '{count} mauvaises réponses comparées. La comparaison utilise les idées fausses que vous avez indiquées.',
+    clear: 'Effacer', cleared: 'Réponses effacées.'
+  }
+};
+/** @typedef {typeof strings.en} Strings */

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Write the wrong options content",
+  "type": "object",
+  "required": ["question", "rightAnswer", "misconceptions", "authorOptions", "count"],
+  "additionalProperties": false,
+  "properties": {
+    "question": { "type": "string", "minLength": 1 },
+    "rightAnswer": { "type": "string", "minLength": 1 },
+    "count": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+    "misconceptions": {
+      "type": "array", "minItems": 1, "x-uniqueBy": "id",
+      "items": {
+        "type": "object", "required": ["id", "label"], "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "minLength": 1, "pattern": "^[a-zA-Z0-9_-]+$", "not": { "const": "other" } },
+          "label": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "authorOptions": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "required": ["text", "misconception"], "additionalProperties": false,
+        "properties": {
+          "text": { "type": "string", "minLength": 1 },
+          "misconception": { "type": "string", "minLength": 1, "x-reference": "misconceptions[].id" }
+        }
+      }
+    }
+  }
+}

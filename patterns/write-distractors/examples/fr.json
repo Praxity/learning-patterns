@@ -1,0 +1,17 @@
+{
+  "question": "Prendre une vraie pause pendant la journée de travail, est-ce une perte de temps?",
+  "rightAnswer": "Non. Les courtes pauses rétablissent l'attention et réduisent les erreurs.",
+  "misconceptions": [
+    { "id": "busy", "label": "Les pauses sont pour les gens qui ne sont pas occupés" },
+    { "id": "push-through", "label": "Travailler sans arrêt est toujours plus productif" },
+    { "id": "phone", "label": "Faire défiler du contenu sur son téléphone compte comme du repos" },
+    { "id": "exhausted", "label": "Se reposer seulement quand on est épuisé" }
+  ],
+  "authorOptions": [
+    { "text": "Oui. Les gens occupés n'ont pas le temps de prendre des pauses.", "misconception": "busy" },
+    { "text": "Oui. Travailler sans arrêt permet toujours d'en faire plus.", "misconception": "push-through" },
+    { "text": "Oui. Faire défiler du contenu sur son téléphone en travaillant donne assez de repos.", "misconception": "phone" },
+    { "text": "Oui. On a besoin de repos seulement quand on est épuisé.", "misconception": "exhausted" }
+  ],
+  "count": 2
+}
