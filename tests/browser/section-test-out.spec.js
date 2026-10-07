@@ -23,7 +23,11 @@ async function observe(page) {
       .observe(document.querySelector('[role="status"]'), { childList: true, characterData: true, subtree: true });
   });
 }
-const scan = async page => expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()).violations).toEqual([]);
+async function scan(page) {
+  // Axe checks each completed panel, rather than sampling its entrance opacity.
+  await page.locator('[data-lp-pattern]').evaluateAll(roots => Promise.all(roots.flatMap(root => root.getAnimations({ subtree: true }).map(animation => animation.finished))));
+  expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()).violations).toEqual([]);
+}
 async function authored(page, content) {
   await page.evaluate(async content => {
     window.lpInstances[0].destroy();
