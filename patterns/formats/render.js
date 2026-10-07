@@ -71,8 +71,8 @@ export function render(content, strings, { id, lang }) {
   </section>`).join('\n  ')}
   </div>
   <nav class="lp-formats-navigation lp-section" aria-label="${html(strings.place.replace('{n}', '1').replace('{total}', String(content.points.length)))}" data-lp-navigation hidden>
-    <div class="lp-formats-nav-slot"><button type="button" class="lp-button lp-button-secondary" data-lp-previous hidden>${icons['arrow-back-up']}${html(strings.previous)}</button></div>
-    <div class="lp-formats-nav-slot"><button type="button" class="lp-button lp-button-secondary" data-lp-next${content.points.length === 1 ? ' hidden' : ''}>${html(strings.next)}${icons['arrow-right']}</button></div>
+    <div class="lp-formats-nav-slot"><button type="button" class="lp-button lp-button-secondary" data-lp-previous hidden>${icons['arrow-back-up']}<span>${html(strings.previous)}</span></button></div>
+    <div class="lp-formats-nav-slot"><button type="button" class="lp-button lp-button-secondary" data-lp-next${content.points.length === 1 ? ' hidden' : ''}><span>${html(strings.next)}</span>${icons['arrow-right']}</button></div>
   </nav>
   <div class="lp-section lp-stack" data-lp-summary>
     <p class="lp-run-in">${html(strings.summary)}</p><p>${html(content.summary)}</p>

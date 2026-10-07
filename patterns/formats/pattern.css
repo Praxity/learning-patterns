@@ -4,9 +4,10 @@
 .lp-formats-switcher .lp-button[aria-pressed="true"] { color: var(--lp-accent-ink); background: var(--lp-accent-soft); border-color: var(--lp-accent); box-shadow: none; }
 .lp-formats-navigation { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .lp-formats-navigation > * { margin: 0; }
-.lp-formats-nav-slot { display: flex; min-block-size: 44px; }
+.lp-formats-nav-slot { display: flex; min-inline-size: 0; min-block-size: 44px; }
 .lp-formats-nav-slot:last-child { justify-content: end; }
-.lp-formats-nav-slot .lp-button { margin: 0; }
+.lp-formats-nav-slot .lp-button { margin: 0; max-inline-size: 100%; }
+.lp-formats-nav-slot .lp-button span { min-inline-size: 0; overflow-wrap: anywhere; }
 .lp-formats-lesson { --lp-formats-fade-duration: 160ms; }
 .lp-formats-point { position: relative; }
 .lp-formats-exiting { position: absolute; inset-block-start: 0; inset-inline: 0; pointer-events: none; }
@@ -49,6 +50,9 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .lp-formats-lesson { --lp-formats-fade-duration: 0ms; }
+}
+@container (max-width: 18rem) {
+  .lp-formats-nav-slot { min-block-size: 4.5em; }
 }
 @media (forced-colors: active) {
   .lp-formats-switcher, .lp-formats-slide { border-color: CanvasText; }

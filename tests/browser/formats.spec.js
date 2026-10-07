@@ -395,3 +395,24 @@ test('switching without the stylesheet or with an invalid fade token keeps the c
   await expect(point(page).locator('[data-lp-view="audio"]')).toBeVisible();
   expect(errors).toEqual([]);
 });
+
+test('320px French navigation stays within equal slots with text spacing at every section', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 800 }); await open(page, '/formats/fr.html');
+  await page.addStyleTag({ content: '*{line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important}p{margin-bottom:2em!important}' });
+  const heights = [];
+  for (let section = 0; section < 3; section++) {
+    const dimensions = await page.locator('[data-lp-navigation]').evaluate(el => ({
+      height: el.getBoundingClientRect().height,
+      slots: [...el.children].map(slot => ({
+        width: slot.getBoundingClientRect().width,
+        button: slot.querySelector('button').hidden ? 0 : slot.querySelector('button').getBoundingClientRect().width
+      }))
+    }));
+    heights.push(dimensions.height);
+    expect(dimensions.slots[0].width).toBe(dimensions.slots[1].width);
+    for (const slot of dimensions.slots) expect(slot.button).toBeLessThanOrEqual(slot.width);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    if (section < 2) await page.locator('[data-lp-next]').click();
+  }
+  expect(new Set(heights).size).toBe(1);
+});
