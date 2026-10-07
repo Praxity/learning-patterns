@@ -67,7 +67,7 @@ test('evidence check puts authored and default feedback in place, locks marks, a
   await open(page); await observeStatus(page);
   await chunk(page, 'actions').click(); await chunk(page, 'withdraw').click();
   await page.locator('[data-lp-check]').focus(); await page.keyboard.press('Enter');
-  await expect(page.locator('[data-lp-check]')).toBeFocused();
+  await expect(page.locator('[data-lp-check]')).toBeHidden(); await expect(page.locator('[data-lp-restart]')).toBeFocused();
   await expect(feedback(page, 'actions')).toHaveText(english.paragraphs.flat().find(c => c.id === 'actions').note);
   await expect(feedback(page, 'withdraw')).toHaveText("This doesn't answer the question.");
   await expect(feedback(page, 'ignored')).toHaveText('Missed');
@@ -81,13 +81,13 @@ test('evidence check puts authored and default feedback in place, locks marks, a
   await chunk(page, 'ignored').click({ force: true }); await chunk(page, 'ignored').focus();
   await page.keyboard.press('Space'); await page.keyboard.press('Enter');
   expect(await page.evaluate(() => window.lpSaved)).toEqual(saved);
-  await page.locator('[data-lp-check]').click({ force: true });
+  await expect(page.locator('[data-lp-check]')).toBeHidden();
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Passages that answer the question: 0 of 1.']);
   await page.locator('[data-lp-restart]').click();
   await expect(page.locator('[data-lp-chunk]').first()).toBeFocused();
   await expect(page.locator('[data-lp-summary]')).toBeHidden();
   await expect(page.locator('[data-lp-chunk][aria-pressed="true"]')).toHaveCount(0);
-  await expect(page.locator('[data-lp-check]')).not.toHaveAttribute('aria-disabled', 'true');
+  await expect(page.locator('[data-lp-check]')).toBeVisible();
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ marked: [], shown: false });
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Passages that answer the question: 0 of 1.']);
   await chunk(page, 'ignored').click(); await page.locator('[data-lp-check]').click();

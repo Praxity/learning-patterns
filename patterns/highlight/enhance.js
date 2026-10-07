@@ -90,8 +90,11 @@ export function enhance(root, { content, strings, state }) {
     });
     shown = true;
     summary.textContent = message; summary.hidden = false;
-    submit.setAttribute('aria-disabled', 'true');
+    // Check has done its job; Start over takes focus so it isn't lost with the hidden button.
+    const hadFocus = root.contains(document.activeElement) && document.activeElement === submit;
+    submit.hidden = true;
     restart.hidden = false;
+    if (hadFocus) restart.focus();
     if (announce) status.textContent = message;
   }
 
@@ -104,7 +107,7 @@ export function enhance(root, { content, strings, state }) {
       feedback[i].removeAttribute('data-lp-outcome');
     }
     summary.replaceChildren(); summary.hidden = true;
-    submit.removeAttribute('aria-disabled');
+    submit.hidden = false;
   }
 
   chunks.forEach((chunk, i) => {
