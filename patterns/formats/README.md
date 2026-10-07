@@ -89,7 +89,7 @@ State is optional. Each navigation or format change writes an independent copy. 
 
 The scene uses text, an `h3` lesson title and `h4` section headings. Format buttons have visible names and `aria-pressed`. All five remain in the tab order. Previous and Next use `aria-disabled` at the boundaries so focus stays on the control; activating a boundary does nothing. Quiz choices use native radios with keyed rows. Feedback appears only on submit, with an icon, a word and authored text on the chosen row. Changing a choice clears its old feedback. An empty submission displays an error at the question, announces it once and keeps focus on Check answer.
 
-One initially empty status region announces each action once. Restoring state and initial enhancement do not announce. No time limits or motion. Local CSS keeps selections on plain paper with a 2px border and removes shared shadows. Shared theme tokens control colours, focus, fonts and spacing.
+One initially empty status region announces each action once. Restoring state and initial enhancement do not announce. No automatic playback, time limits or content animation. Local CSS keeps selections on plain paper with a 2px border and removes shared shadows. Shared theme tokens control colours, focus, fonts and spacing.
 
 Browser tests cover keyboard use, axe WCAG 2.0, 2.1 and 2.2 AA checks in Chromium, WebKit and Firefox, French, no JavaScript, two instances, lifecycle, state restoration, guard violations, reduced motion, 320 CSS pixels with text spacing and Chromium forced colours. Screen reader passes are a separate human check.
 

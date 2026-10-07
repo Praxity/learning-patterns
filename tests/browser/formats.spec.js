@@ -63,7 +63,7 @@ test('boundaries and selecting the current format are inert and preserve focus',
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
   await expect(page.locator('[data-lp-summary]')).toBeVisible();
   await expect(page.locator('[data-lp-summary]')).toContainText(english.summary);
-  await previous.click(); await expect(previous).toBeFocused(); await expect(page.locator('[data-lp-summary]')).toBeHidden();
+  await previous.focus(); await page.keyboard.press('Enter'); await expect(previous).toBeFocused(); await expect(page.locator('[data-lp-summary]')).toBeHidden();
 });
 
 test('quiz submits feedback on the selected row, clears it on change and retains it across formats', async ({ page }) => {
@@ -77,12 +77,15 @@ test('quiz submits feedback on the selected row, clears it on change and retains
   await expect(row).toHaveAttribute('data-lp-mark', 'wrong');
   await expect(row.locator('[data-lp-mark-word]')).toHaveText('Not quite');
   await expect(row.locator('[data-lp-feedback]')).toHaveText(english.quiz[0].options[0].feedback);
+  await expect(row).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+  expect(await row.evaluate(el => el.querySelector('[data-lp-feedback]').getBoundingClientRect().top >= el.querySelector('input + span').getBoundingClientRect().bottom)).toBe(true);
   await expect(q.locator('[data-lp-feedback]:visible')).toHaveCount(1);
   await button(page, 'text').click(); await button(page, 'quiz').click(); await expect(row.locator('[data-lp-feedback]')).toBeVisible();
   await q.getByRole('radio').nth(1).check(); await expect(q.locator('[data-lp-feedback]:visible')).toHaveCount(0);
   await expect(q.locator('[data-lp-mark]')).toHaveCount(0);
   await check.click(); await check.click();
   await expect(q.locator('.lp-choice').nth(1)).toHaveAttribute('data-lp-mark', 'correct');
+  await expect(q.locator('.lp-choice').nth(1)).toHaveCSS('background-color', 'rgb(255, 255, 255)');
   await expect(q.locator('[data-lp-mark-word]:visible')).toHaveText('Correct');
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([
     'Choose an answer first.', `Not quite. ${english.quiz[0].options[0].feedback}`,
