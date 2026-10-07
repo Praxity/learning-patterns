@@ -5,8 +5,6 @@
 .lp-test-out-outline-row { display: flex; gap: 16px; align-items: flex-start; }
 .lp-test-out-outline-row > .lp-run-in { flex: 1; min-inline-size: 0; }
 .lp-test-out-status { display: inline-flex; align-items: center; gap: 4px; flex: none; white-space: nowrap; font-weight: 600; }
-.lp-test-out-progress { block-size: 3px; background: var(--lp-rule); }
-.lp-test-out-progress > span { display: block; block-size: 100%; background: var(--lp-accent); }
 .lp-test-out-navigation { justify-content: space-between; }
 /* The shared scene and motion guards live in base.css. This entrance is specific to the stepper. */
 .lp-test-out-enter { animation: lp-test-out-slide 240ms var(--lp-ease); }
@@ -18,8 +16,4 @@
 .lp-test-out-fallback-list li > * + * { margin-block-start: 8px; }
 @media (prefers-reduced-motion: reduce) {
   .lp-test-out-enter { animation: none; }
-}
-@media (forced-colors: active) {
-  .lp-test-out-progress { background: Canvas; border-block-end: 1px solid CanvasText; }
-  .lp-test-out-progress > span { background: Highlight; }
 }

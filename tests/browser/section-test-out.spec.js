@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 
 const english = JSON.parse(await readFile(new URL('../../patterns/test-out/examples/en.json', import.meta.url)));
 const french = JSON.parse(await readFile(new URL('../../patterns/test-out/examples/fr.json', import.meta.url)));
-const mixed = ['attendees', 'decide', 'invite', 'next-meeting'];
+const mixed = ['attendees', 'wait', 'actions'];
 async function open(page, path = '/test-out/en.html') {
   await page.goto(path); await page.waitForFunction(() => window.lpReady);
 }
@@ -41,6 +41,45 @@ async function authored(page, content) {
   }, content);
 }
 
+for (const [lang, headings] of [
+  ['en', ['Question 1 of 3: Writing an agenda', 'Question 2 of 3: Running the discussion', 'Question 3 of 3: Decisions and follow-up']],
+  ['fr', ['Question 1 sur 3 : Préparer un ordre du jour', 'Question 2 sur 3 : Animer la discussion', 'Question 3 sur 3 : Les décisions et le suivi']]
+]) {
+  test(`owner request: counters carry section titles (${lang})`, async ({ page }) => {
+    await open(page, `/test-out/${lang}.html`);
+    await page.evaluate(() => window.lpInstances[0].destroy());
+    await expect(page.locator('[data-lp-panel-heading]')).toHaveText(headings);
+    await page.evaluate(() => window.lpEnhance());
+    await page.locator('[data-lp-start]').click();
+    for (const heading of headings) {
+      await expect(page.locator('[data-lp-panel-heading]:visible')).toHaveText(heading);
+      await expect(page.locator('[role="status"]')).toHaveText(heading);
+      await expect(page.locator('[data-lp-panel="question"]:visible > p, [data-lp-panel="question"]:visible > h3:not([data-lp-panel-heading])')).toHaveCount(0);
+      await page.locator('fieldset:visible input').first().check();
+      if (heading !== headings.at(-1)) await page.locator('[data-lp-next]:visible').click();
+    }
+  });
+
+  test(`owner request: no question progress bar (${lang})`, async ({ page }) => {
+    await open(page, `/test-out/${lang}.html`);
+    await page.evaluate(() => window.lpInstances[0].destroy());
+    await expect(page.locator('.lp-test-out-progress, [role="progressbar"]')).toHaveCount(0);
+    await page.evaluate(() => window.lpEnhance());
+    await page.locator('[data-lp-start]').click();
+    await expect(page.locator('.lp-test-out-progress, [role="progressbar"]')).toHaveCount(0);
+  });
+
+  test(`owner request: result contains three sections (${lang})`, async ({ page }) => {
+    const content = lang === 'en' ? english : french;
+    await open(page, `/test-out/${lang}.html`);
+    await pick(page, content.questions.map(q => q.correct));
+    await page.locator('[data-lp-check]').click();
+    await expect(page.locator('.lp-test-out-outline-list > li')).toHaveCount(3);
+    await expect(page.locator('[data-lp-section-status]')).toHaveText(lang === 'en' ? ['Skip', 'Skip', 'Skip'] : ['Passer', 'Passer', 'Passer']);
+    await expect(page.locator('[data-lp-result]')).toHaveText(lang === 'en' ? 'You can skip 3 of 3 sections.' : 'Vous pouvez passer 3 sections sur 3.');
+  });
+}
+
 test('shared scene and clean outline lead to one keyed question at a time', async ({ page }) => {
   await open(page);
   await expect(page.locator('.lp-scene-label')).toHaveCount(0);
@@ -52,9 +91,8 @@ test('shared scene and clean outline lead to one keyed question at a time', asyn
   await expect(page.locator('[data-lp-intro]')).toHaveText('Answer one question per section. If you pass, you can skip it.');
   await page.locator('[data-lp-start]').click();
   await expect(page.locator('fieldset:visible')).toHaveCount(1);
-  await expect(page.locator('[data-lp-panel-heading]:visible')).toHaveText('Question 1 of 4');
+  await expect(page.locator('[data-lp-panel-heading]:visible')).toHaveText('Question 1 of 3: Writing an agenda');
   await expect(page.locator('[data-lp-panel-heading]:visible')).toBeFocused();
-  await expect(page.locator('.lp-test-out-progress:visible')).toHaveAttribute('aria-hidden', 'true');
   await page.locator('input').first().check();
   const row = page.locator('label:has(input:checked)');
   await expect(row).toHaveCSS('border-top-color', 'rgb(44, 85, 201)');
@@ -78,7 +116,7 @@ test('keyboard validates only this panel, Back keeps picks, changes announce onc
   await expect(fieldset.locator('input').first()).toHaveAttribute('aria-describedby', id);
   await expect(fieldset.locator('input').first()).toHaveAttribute('aria-invalid', 'true');
   await page.keyboard.press('Enter');
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Question 1 of 4', 'Choose an answer']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Question 1 of 3: Writing an agenda', 'Choose an answer']);
   await fieldset.locator('input').first().check();
   await expect(fieldset.locator('input').first()).not.toHaveAttribute('aria-invalid');
   await page.locator('[data-lp-next]:visible').click();
@@ -89,7 +127,7 @@ test('keyboard validates only this panel, Back keeps picks, changes announce onc
   await expect(page.locator('[data-lp-outline-heading]')).toBeFocused();
   await pick(page); await page.locator('[data-lp-check]').click();
   await expect(page.locator('[data-lp-outline-heading]')).toBeFocused();
-  expect((await page.evaluate(() => window.lpAnnouncements)).filter(x => x === 'You can skip 2 of 4 sections.')).toHaveLength(1);
+  expect((await page.evaluate(() => window.lpAnnouncements)).filter(x => x === 'You can skip 2 of 3 sections.')).toHaveLength(1);
   await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-review] > summary')).toBeFocused();
   await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-restart]')).toBeFocused();
   await page.keyboard.press('Enter'); await expect(page.locator('[data-lp-outline-heading]')).toBeFocused();
@@ -99,8 +137,8 @@ test('keyboard validates only this panel, Back keeps picks, changes announce onc
 });
 
 for (const [lang, content, correct, wrong, answer, summary, statuses] of [
-  ['en', english, 'Correct', 'Not quite', 'Correct answer', 'You can skip 2 of 4 sections.', ['Take it', 'Skip', 'Skip', 'Take it']],
-  ['fr', french, 'Correct', 'Pas tout à fait', 'Bonne réponse', 'Vous pouvez passer 2 sections sur 4.', ['À suivre', 'Passer', 'Passer', 'À suivre']]
+  ['en', english, 'Correct', 'Not quite', 'Correct answer', 'You can skip 2 of 3 sections.', ['Take it', 'Skip', 'Skip']],
+  ['fr', french, 'Correct', 'Pas tout à fait', 'Bonne réponse', 'Vous pouvez passer 2 sections sur 3.', ['À suivre', 'Passer', 'Passer']]
 ]) {
   test(`in-place marks, explanations and credited outline (${lang})`, async ({ page }) => {
     await open(page, `/test-out/${lang}.html`); await observe(page); await pick(page); await page.locator('[data-lp-check]').click();
@@ -113,32 +151,39 @@ for (const [lang, content, correct, wrong, answer, summary, statuses] of [
     await expect(page.locator('[data-lp-credit]')).toHaveCount(0);
     await expect(page.locator('[data-lp-outline-heading]')).toHaveText(lang === 'en' ? 'Your course plan' : 'Votre parcours');
     await review(page);
-    await expect(page.locator('input:disabled')).toHaveCount(12);
-    await expect(page.locator('.lp-choice-mark')).toHaveCount(7);
+    await expect(page.locator('input:disabled')).toHaveCount(9);
+    await expect(page.locator('.lp-choice-mark')).toHaveCount(5);
     const qs = page.locator('fieldset');
     await expect(qs.nth(2).locator('label:has(input:checked)')).toHaveAttribute('data-lp-mark', 'correct');
     await expect(qs.nth(2).locator('.lp-choice-mark')).toHaveText(correct);
     await expect(qs.nth(2).locator('[data-lp-explanation]')).toBeHidden();
-    for (const n of [0, 1, 3]) {
+    for (const n of [0, 1]) {
       await expect(qs.nth(n).locator('label:has(input:checked)')).toHaveAttribute('data-lp-mark', 'wrong');
       await expect(qs.nth(n).locator('label:has(input:checked) .lp-choice-mark')).toHaveText(wrong);
       await expect(qs.nth(n).locator(`label:has(input[value="${content.questions[n].correct}"]) .lp-choice-mark`)).toHaveText(answer);
       await expect(qs.nth(n).locator('[data-lp-explanation]')).toHaveText(content.questions[n].explanation);
     }
-    expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([1, 2, 3, 4].map(n => lang === 'en' ? `Question ${n} of 4` : `Question ${n} sur 4`).concat(summary));
-    expect(await page.evaluate(() => window.lpSaved)).toEqual({ picks: Object.fromEntries(content.questions.map((q, i) => [q.id, mixed[i]])), shown: true, step: 5 });
+    expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(content.sections.map((section, i) => lang === 'en' ? `Question ${i + 1} of 3: ${section.title}` : `Question ${i + 1} sur 3 : ${section.title}`).concat(summary));
+    expect(await page.evaluate(() => window.lpSaved)).toEqual({ picks: Object.fromEntries(content.questions.map((q, i) => [q.id, mixed[i]])), shown: true, step: 4 });
   });
 
-  test(`native answers without JavaScript (${lang})`, async ({ browser }) => {
+  test(`native answers without JavaScript (${lang})`, async ({ browser, browserName }) => {
     const context = await browser.newContext({ javaScriptEnabled: false });
     const page = await context.newPage(); await page.goto(`/test-out/${lang}.html`);
-    await expect(page.getByRole('radio')).toHaveCount(12); await page.getByRole('radio').first().check();
+    await expect(page.getByRole('radio')).toHaveCount(9); await page.getByRole('radio').first().check();
     await page.locator('[data-lp-fallback] > summary').click();
     for (const q of content.questions) {
       await expect(page.locator('[data-lp-fallback]')).toContainText(q.options.find(o => o.id === q.correct).text);
       await expect(page.locator('[data-lp-fallback]')).toContainText(q.explanation);
     }
-    await expect(page.locator('[data-lp-start]')).toBeHidden(); await context.close();
+    await expect(page.locator('[data-lp-start]')).toBeHidden();
+    if (process.env.LP_SHOTS_DIR && browserName === 'chromium') {
+      for (const width of [1280, 390]) {
+        await page.setViewportSize({ width, height: 1000 });
+        await page.screenshot({ path: `${process.env.LP_SHOTS_DIR}/${lang}-${width}-no-js.png`, fullPage: true });
+      }
+    }
+    await context.close();
   });
 
   test(`axe native baseline, errors, result and reset (${lang})`, async ({ page }) => {
@@ -166,12 +211,12 @@ for (const [lang, content, correct, wrong, answer, summary, statuses] of [
 test('all right, all wrong, advanced credit and author refusal', async ({ page }) => {
   await open(page);
   for (const [values, count] of [
-    [english.questions.map(q => q.correct), 4],
+    [english.questions.map(q => q.correct), 3],
     [english.questions.map(q => q.options.find(o => o.id !== q.correct).id), 0],
-    [['attendees', 'decide', 'wait', 'actions'], 3]
+    [['attendees', 'wait', 'actions'], 2]
   ]) {
     await pick(page, values); await page.locator('[data-lp-check]').click();
-    await expect(page.locator('[data-lp-result]')).toHaveText(`You can skip ${count} of 4 sections.`);
+    await expect(page.locator('[data-lp-result]')).toHaveText(`You can skip ${count} of 3 sections.`);
     await page.locator('[data-lp-restart]').click();
   }
   await authored(page, { ...english, allowTestOut: false });
@@ -184,9 +229,9 @@ test('all right, all wrong, advanced credit and author refusal', async ({ page }
 
 test('French summary uses singular for one skippable section', async ({ page }) => {
   await open(page, '/test-out/fr.html');
-  await pick(page, ['outcomes', 'decide', 'wait', 'next-meeting']);
+  await pick(page, ['outcomes', 'wait', 'next-meeting']);
   await page.locator('[data-lp-check]').click();
-  await expect(page.locator('[data-lp-result]')).toHaveText('Vous pouvez passer 1 section sur 4.');
+  await expect(page.locator('[data-lp-result]')).toHaveText('Vous pouvez passer 1 section sur 3.');
 });
 
 test('reduced motion applies and new scene colours meet contrast', async ({ page }) => {
@@ -233,9 +278,12 @@ test('two questions group under their section, and hostile content stays literal
   content.sections[0].title = '<b>{section}</b>';
   await authored(page, content);
   await expect(page.locator('[data-lp-section="1"] fieldset')).toHaveCount(2);
-  await pick(page, ['outcomes', 'attendees', 'record', 'invite', 'actions']); await page.locator('[data-lp-check]').click();
+  await page.locator('[data-lp-start]').click();
+  await expect(page.locator('[data-lp-panel-heading]:visible')).toHaveText('Question 1 of 4: <b>{section}</b>');
+  await page.locator('[data-lp-back]:visible').click();
+  await pick(page, ['outcomes', 'attendees', 'invite', 'actions']); await page.locator('[data-lp-check]').click();
   await expect(page.locator('[data-lp-section-status]').first()).toHaveText('Take it');
-  await expect(page.locator('[data-lp-result]')).toHaveText('You can skip 3 of 4 sections.');
+  await expect(page.locator('[data-lp-result]')).toHaveText('You can skip 2 of 3 sections.');
   await review(page);
   await expect(page.locator('[data-lp-question="agenda-two"] [data-lp-explanation]')).toHaveText('<script>alert(1)</script>');
   await expect(page.locator('[data-lp-pattern] img, [data-lp-pattern] script, [data-lp-pattern] b')).toHaveCount(0);
@@ -243,25 +291,25 @@ test('two questions group under their section, and hostile content stays literal
 
 for (const shown of [false, true]) {
   test(`saved picks restore silently shown=${shown}`, async ({ page }) => {
-    await page.addInitScript(value => window.lpSeed = value, { picks: Object.fromEntries(english.questions.map((q, i) => [q.id, mixed[i]])), shown, step: shown ? 5 : 2 });
-    await open(page); await expect(page.locator('input:checked')).toHaveCount(4); await expect(page.locator('[role="status"]')).toHaveText('');
+    await page.addInitScript(value => window.lpSeed = value, { picks: Object.fromEntries(english.questions.map((q, i) => [q.id, mixed[i]])), shown, step: shown ? 4 : 2 });
+    await open(page); await expect(page.locator('input:checked')).toHaveCount(3); await expect(page.locator('[role="status"]')).toHaveText('');
     await expect(page.locator('[data-lp-result]')).toBeVisible({ visible: shown });
-    await expect(page.locator('input:disabled')).toHaveCount(shown ? 12 : 0);
-    if (!shown) { await expect(page.locator('[data-lp-panel-heading]:visible')).toHaveText('Question 2 of 4'); await expect(page.locator('fieldset:visible')).toHaveCount(1); }
-    if (shown) await expect(page.locator('[data-lp-result]')).toHaveText('You can skip 2 of 4 sections.');
+    await expect(page.locator('input:disabled')).toHaveCount(shown ? 9 : 0);
+    if (!shown) { await expect(page.locator('[data-lp-panel-heading]:visible')).toHaveText('Question 2 of 3: Running the discussion'); await expect(page.locator('fieldset:visible')).toHaveCount(1); }
+    if (shown) await expect(page.locator('[data-lp-result]')).toHaveText('You can skip 2 of 3 sections.');
   });
 }
 
 test('a restored late panel returns to an earlier unanswered question before scoring', async ({ page }) => {
-  await page.addInitScript(() => window.lpSeed = { picks: { 'follow-up': 'actions' }, shown: false, step: 4 });
+  await page.addInitScript(() => window.lpSeed = { picks: { 'follow-up': 'actions' }, shown: false, step: 3 });
   await open(page); await page.locator('[data-lp-check]').click();
-  await expect(page.locator('[data-lp-panel-heading]:visible')).toHaveText('Question 1 of 4');
+  await expect(page.locator('[data-lp-panel-heading]:visible')).toHaveText('Question 1 of 3: Writing an agenda');
   await expect(page.locator('[data-lp-result]')).toBeHidden();
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ picks: { 'follow-up': 'actions' }, shown: false, step: 1 });
 });
 
 test('invalid state, independent instances, idempotent enhancement and destroy', async ({ page }) => {
-  await page.addInitScript(() => window.lpSeed = { picks: { agenda: 'missing' }, shown: true, step: 5 });
+  await page.addInitScript(() => window.lpSeed = { picks: { agenda: 'missing' }, shown: true, step: 4 });
   await open(page, '/test-out/two.html');
   await expect(page.locator('input:checked')).toHaveCount(0);
   const ids = await page.locator('[id]').evaluateAll(els => els.map(el => el.id)); expect(new Set(ids).size).toBe(ids.length);
@@ -271,12 +319,12 @@ test('invalid state, independent instances, idempotent enhancement and destroy',
   await expect(roots.nth(1).locator('input:checked')).toHaveCount(0);
   await expect(roots.nth(1).locator('[data-lp-result]')).toBeHidden(); await scan(page);
   await page.evaluate(() => { window.lpInstances[0].destroy(); window.lpInstances[0].destroy(); });
-  await expect(roots.first().locator('[data-lp-start]')).toBeHidden(); await expect(roots.first().locator('fieldset:visible')).toHaveCount(4); await expect(roots.first().locator('[data-lp-fallback]')).toBeVisible();
+  await expect(roots.first().locator('[data-lp-start]')).toBeHidden(); await expect(roots.first().locator('fieldset:visible')).toHaveCount(3); await expect(roots.first().locator('[data-lp-fallback]')).toBeVisible();
   await expect(roots.first().locator('[data-lp-mark]')).toHaveCount(0);
   const before = await page.evaluate(() => window.lpSaved); await roots.first().locator('input').first().check();
   expect(await page.evaluate(() => window.lpSaved)).toEqual(before);
   await page.evaluate(() => window.lpEnhance());
-  await expect(roots.first().locator('[data-lp-result]')).toHaveText('You can skip 2 of 4 sections.');
+  await expect(roots.first().locator('[data-lp-result]')).toHaveText('You can skip 2 of 3 sections.');
   await expect(roots.first().locator('[role="status"]')).toHaveText('');
 });
 
@@ -308,6 +356,12 @@ test('missing and mismatched markup fail loudly before enhancement', async ({ pa
 test('forced colours keep marks, keyboard focus and quiet reset visible', async ({ page, browserName }) => {
   test.skip(browserName !== 'chromium', 'Forced colours emulation checked in Chromium.');
   await page.emulateMedia({ forcedColors: 'active' }); await open(page); await pick(page); await page.locator('[data-lp-check]').click();
+  if (process.env.LP_SHOTS_DIR) {
+    for (const width of [1280, 390]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.screenshot({ path: `${process.env.LP_SHOTS_DIR}/en-${width}-forced-colours.png`, fullPage: true });
+    }
+  }
   await review(page);
   await expect(page.locator('[data-lp-mark]').first()).toHaveCSS('border-style', 'double');
   await page.locator('[data-lp-restart]').press('Tab'); await page.locator('[data-lp-restart]').focus();

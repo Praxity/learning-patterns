@@ -9,37 +9,43 @@ const content = JSON.parse(await readFile(new URL('./examples/en.json', import.m
 const french = JSON.parse(await readFile(new URL('./examples/fr.json', import.meta.url)));
 const all = pick => Object.fromEntries(content.questions.map(q => [q.id, pick(q)]));
 
-test('demo rules: transitive credit, direct pass precedence, lowest numeric source and author refusal', () => {
-  assert.deepEqual(plan(content.sections, [4]), { rows: [
+test('plan rules: transitive credit, direct pass precedence, lowest numeric source and author refusal', () => {
+  const sections = [
+    { id: 1, title: 'Writing an agenda', requires: [] },
+    { id: 2, title: 'Roles in a meeting', requires: [] },
+    { id: 3, title: 'Running the discussion', requires: [2] },
+    { id: 4, title: 'Decisions and follow-up', requires: [2, 3] }
+  ];
+  assert.deepEqual(plan(sections, [4]), { rows: [
     { id: 1, title: 'Writing an agenda', action: 'take' },
     { id: 2, title: 'Roles in a meeting', action: 'credited', by: 4 },
     { id: 3, title: 'Running the discussion', action: 'credited', by: 4 },
     { id: 4, title: 'Decisions and follow-up', action: 'passed' }
   ], skip: 3 });
-  assert.equal(plan(content.sections, [4, 3]).rows[1].by, 3);
-  assert.equal(plan(content.sections, [4, 2]).rows[1].action, 'passed');
-  assert.equal(plan(content.sections, [4, 4]).skip, 3);
-  assert.equal(plan(content.sections, []).skip, 0);
-  assert.equal(plan(content.sections, [1, 2, 3, 4]).skip, 4);
-  assert.deepEqual(plan(content.sections, [4], false).rows.map(r => r.action), ['take', 'take', 'take', 'take']);
-  const chain = structuredClone(content.sections); chain[3].requires = [3];
+  assert.equal(plan(sections, [4, 3]).rows[1].by, 3);
+  assert.equal(plan(sections, [4, 2]).rows[1].action, 'passed');
+  assert.equal(plan(sections, [4, 4]).skip, 3);
+  assert.equal(plan(sections, []).skip, 0);
+  assert.equal(plan(sections, [1, 2, 3, 4]).skip, 4);
+  assert.deepEqual(plan(sections, [4], false).rows.map(r => r.action), ['take', 'take', 'take', 'take']);
+  const chain = structuredClone(sections); chain[3].requires = [3];
   assert.equal(plan(chain, [4]).rows[1].by, 4);
-  assert.equal(plan([...content.sections].reverse(), [4, 3]).rows[2].by, 3);
+  assert.equal(plan([...sections].reverse(), [4, 3]).rows[2].by, 3);
 });
 
 test('score groups keyed answers and requires all of a section’s one or two questions', () => {
-  assert.deepEqual(score(content, {}).unanswered, ['agenda', 'roles', 'discussion', 'follow-up']);
-  const result = score(content, { agenda: 'attendees', roles: 'decide', discussion: 'invite', 'follow-up': 'next-meeting' });
-  assert.deepEqual(result.right, ['discussion']);
-  assert.deepEqual(result.wrong, ['agenda', 'roles', 'follow-up']);
-  assert.deepEqual(result.passed, [3]); assert.equal(result.skip, 2);
-  assert.equal(score(content, all(q => q.correct)).skip, 4);
+  assert.deepEqual(score(content, {}).unanswered, ['agenda', 'discussion', 'follow-up']);
+  const result = score(content, { agenda: 'attendees', discussion: 'wait', 'follow-up': 'actions' });
+  assert.deepEqual(result.right, ['follow-up']);
+  assert.deepEqual(result.wrong, ['agenda', 'discussion']);
+  assert.deepEqual(result.passed, [4]); assert.equal(result.skip, 2);
+  assert.equal(score(content, all(q => q.correct)).skip, 3);
   assert.equal(score(content, all(q => q.options.find(o => o.id !== q.correct).id)).skip, 0);
   assert.equal(score({ ...content, allowTestOut: false }, all(q => q.correct)).skip, 0);
   const two = { ...content, questions: [...content.questions, { ...content.questions[0], id: 'agenda-two' }] };
-  assert.deepEqual(score(two, all(q => q.correct)).passed, [2, 3, 4]);
-  assert.deepEqual(score(two, { ...all(q => q.correct), 'agenda-two': 'attendees' }).passed, [2, 3, 4]);
-  assert.deepEqual(score(two, { ...all(q => q.correct), 'agenda-two': 'outcomes' }).passed, [1, 2, 3, 4]);
+  assert.deepEqual(score(two, all(q => q.correct)).passed, [3, 4]);
+  assert.deepEqual(score(two, { ...all(q => q.correct), 'agenda-two': 'attendees' }).passed, [3, 4]);
+  assert.deepEqual(score(two, { ...all(q => q.correct), 'agenda-two': 'outcomes' }).passed, [1, 3, 4]);
 });
 
 test('every content guard catches a planted violation and names its field', () => {
@@ -89,22 +95,22 @@ test('plan and score refuse invalid host input, including unknown references and
   assert.throws(() => plan(content.sections, [], 'yes'), /allowTestOut/);
   assert.throws(() => plan([{ ...content.sections[0], requires: [99] }], []), /requires/);
   for (const picks of [null, [], { agenda: null }, { agenda: 1 }, { agenda: 'missing' }, { other: 'outcomes' }, { agenda: undefined }]) assert.throws(() => score(content, picks), /picks/);
-  assert.equal(score(content, Object.create({ agenda: 'outcomes' })).unanswered.length, 4);
+  assert.equal(score(content, Object.create({ agenda: 'outcomes' })).unanswered.length, 3);
 });
 
 test('state copies valid partial and shown picks and ignores every invalid saved value', () => {
-  for (const value of [null, [], {}, { picks: [], shown: false }, { picks: {}, shown: 'yes' }, { picks: {}, shown: true }, { picks: { agenda: 'missing' }, shown: false }, { picks: { other: 'outcomes' }, shown: false }, { picks: { agenda: 'outcomes' }, shown: true }, { picks: {}, shown: false, extra: 1 }]) assert.equal(validateState(content, value && !Array.isArray(value) ? { ...value, step: value.shown === true ? 5 : 0 } : value), null);
+  for (const value of [null, [], {}, { picks: [], shown: false }, { picks: {}, shown: 'yes' }, { picks: {}, shown: true }, { picks: { agenda: 'missing' }, shown: false }, { picks: { other: 'outcomes' }, shown: false }, { picks: { agenda: 'outcomes' }, shown: true }, { picks: {}, shown: false, extra: 1 }]) assert.equal(validateState(content, value && !Array.isArray(value) ? { ...value, step: value.shown === true ? 4 : 0 } : value), null);
   const partial = { picks: { agenda: 'outcomes' }, shown: false, step: 2 };
   assert.deepEqual(validateState(content, partial), partial);
-  const saved = { picks: all(q => q.correct), shown: true, step: 5 };
+  const saved = { picks: all(q => q.correct), shown: true, step: 4 };
   assert.deepEqual(validateState(content, saved), saved); assert.notEqual(validateState(content, saved).picks, saved.picks);
 });
 
 test('saved step rejects out-of-range, inconsistent and disabled placement panels', () => {
-  for (const step of [-1, 6, 1.5, '2', null, undefined, NaN]) {
+  for (const step of [-1, 5, 1.5, '2', null, undefined, NaN]) {
     assert.equal(validateState(content, { picks: {}, shown: false, step }), null);
   }
-  assert.equal(validateState(content, { picks: {}, shown: false, step: 5 }), null);
+  assert.equal(validateState(content, { picks: {}, shown: false, step: 4 }), null);
   assert.equal(validateState(content, { picks: all(q => q.correct), shown: true, step: 2 }), null);
   assert.equal(validateState({ ...content, allowTestOut: false }, { picks: {}, shown: false, step: 1 }), null);
   assert.deepEqual(validateState(content, { picks: {}, shown: false, step: 0 }), { picks: {}, shown: false, step: 0 });
@@ -116,8 +122,7 @@ test('server outline is clean, scene is shared, and Start is absent when require
   assert.ok(output.includes("What you&#39;ll cover"));
   assert.ok(output.includes('Start the check'));
   assert.equal(output.includes('To do'), false);
-  assert.equal((output.match(/data-lp-panel="question"/g) || []).length, 4);
-  assert.equal((output.match(/aria-hidden="true" class="lp-test-out-progress"/g) || []).length, 4);
+  assert.equal((output.match(/data-lp-panel="question"/g) || []).length, 3);
   const required = render({ ...content, allowTestOut: false }, strings.en, { id: 'required', lang: 'en' });
   assert.equal(required.includes('data-lp-start'), false);
   assert.ok(required.includes(strings.en.required));
@@ -127,9 +132,9 @@ test('server HTML has scene, outline, grouped keyed questions, native answers an
   const a = render(content, strings.en, { id: 'first', lang: 'en' });
   assert.match(a, /class="lp lp-test-out"/); assert.match(a, /data-lp-pattern="test-out" lang="en"/);
   assert.doesNotMatch(a, /Placement check/); assert.match(a, /Meetings: a refresher/);
-  assert.equal((a.match(/data-lp-section-status/g) || []).length, 4);
-  assert.equal((a.match(/class="lp-choices"/g) || []).length, 4);
-  assert.equal((a.match(/class="lp-choice"/g) || []).length, 12);
+  assert.equal((a.match(/data-lp-section-status/g) || []).length, 3);
+  assert.equal((a.match(/class="lp-choices"/g) || []).length, 3);
+  assert.equal((a.match(/class="lp-choice"/g) || []).length, 9);
   assert.equal((a.match(/role="status"/g) || []).length, 1);
   assert.match(a, /role="status"[^>]*><\/p>/); assert.match(a, /<details[^>]*data-lp-fallback/);
   assert.match(a, /data-lp-restart hidden/); assert.match(a, /data-lp-start-actions hidden/);
@@ -139,13 +144,35 @@ test('server HTML has scene, outline, grouped keyed questions, native answers an
   assert.match(b, /lang="fr"/); assert.equal(b.includes('Vérification des acquis'), false);
 });
 
-test('advanced answer explanations describe course credit without claiming mastery evidence', () => {
+test('advanced answer explanations describe answers only', () => {
   const en = render(content, strings.en, { id: 'en', lang: 'en' });
   const fr = render(french, strings.fr, { id: 'fr', lang: 'fr' });
-  assert.ok(en.includes('Passing this section also credits Roles in a meeting.'));
-  assert.ok(en.includes('Passing this section also credits Roles in a meeting and Running the discussion.'));
-  assert.ok(fr.includes('Réussir cette section vous donne aussi le crédit pour la section sur les rôles en réunion.'));
-  assert.ok(fr.includes('Réussir cette section vous donne aussi le crédit pour les sections sur les rôles et la discussion.'));
+  assert.doesNotMatch(en, /Passing this section|credits/);
+  assert.doesNotMatch(fr, /Réussir cette section|crédit/);
+  assert.ok(en.includes('The facilitator makes room for other people to contribute.'));
+  assert.ok(en.includes('Confirm decisions, action owners and deadlines.'));
+  assert.ok(fr.includes('La personne qui anime la réunion laisse de la place aux autres.'));
+  assert.ok(fr.includes('Confirmez les décisions, les responsables des actions et les échéances.'));
+});
+
+test('server counters carry section titles in both languages', () => {
+  assert.match(render(content, strings.en, { id: 'en', lang: 'en' }), /data-lp-panel-heading>Question 1 of 3: Writing an agenda<\/h3>/);
+  assert.match(render(french, strings.fr, { id: 'fr', lang: 'fr' }), /data-lp-panel-heading>Question 1 sur 3 : Préparer un ordre du jour<\/h3>/);
+});
+
+test('server questions have no progress bar', () => {
+  for (const [example, ui, lang] of [[content, strings.en, 'en'], [french, strings.fr, 'fr']]) {
+    assert.doesNotMatch(render(example, ui, { id: lang, lang }), /lp-test-out-progress|role="progressbar"/);
+  }
+});
+
+test('server examples contain three sections and questions with discussion credit', () => {
+  for (const [example, ui, lang] of [[content, strings.en, 'en'], [french, strings.fr, 'fr']]) {
+    const markup = render(example, ui, { id: lang, lang });
+    assert.equal((markup.match(/data-lp-section-status=/g) || []).length, 3);
+    assert.equal((markup.match(/data-lp-panel="question"/g) || []).length, 3);
+    assert.deepEqual(example.sections.map(s => [s.id, s.requires]), [[1, []], [3, []], [4, [3]]]);
+  }
 });
 
 test('render escapes authored content, status templates and attributes; inserted placeholders stay literal', () => {
