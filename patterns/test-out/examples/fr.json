@@ -1,0 +1,48 @@
+{
+  "title": "Les réunions : une mise à jour",
+  "allowTestOut": true,
+  "sections": [
+    { "id": 1, "title": "Préparer un ordre du jour", "requires": [] },
+    { "id": 2, "title": "Les rôles en réunion", "requires": [] },
+    { "id": 3, "title": "Animer la discussion", "requires": [2] },
+    { "id": 4, "title": "Les décisions et le suivi", "requires": [2, 3] }
+  ],
+  "questions": [
+    {
+      "id": "agenda", "section": 1, "text": "Que devrait indiquer un ordre du jour avant une réunion?",
+      "options": [
+        { "id": "attendees", "text": "Seulement les personnes qui participeront" },
+        { "id": "outcomes", "text": "Les sujets, les résultats visés et le temps prévu pour chaque point" },
+        { "id": "everything", "text": "Tout ce que la personne qui organise la réunion sait sur le sujet" }
+      ],
+      "correct": "outcomes", "explanation": "L'ordre du jour présente les sujets, les résultats visés et le temps prévu pour chaque point afin de permettre aux gens de se préparer."
+    },
+    {
+      "id": "roles", "section": 2, "text": "Quelle tâche revient à la personne qui prend les notes?",
+      "options": [
+        { "id": "decide", "text": "Prendre toutes les décisions pour le groupe" },
+        { "id": "speak", "text": "Parler au nom des personnes qui gardent le silence" },
+        { "id": "record", "text": "Consigner les décisions, les responsables des actions et les échéances" }
+      ],
+      "correct": "record", "explanation": "La personne qui prend les notes consigne les décisions, les responsables des actions et les échéances. Le groupe prend les décisions."
+    },
+    {
+      "id": "discussion", "section": 3, "text": "Une personne domine la discussion. Que devrait faire la personne qui anime la réunion?",
+      "options": [
+        { "id": "invite", "text": "Faire une pause et inviter les autres à contribuer" },
+        { "id": "wait", "text": "La laisser parler jusqu'à la fin de la réunion" },
+        { "id": "delegate", "text": "Demander à la personne qui prend les notes de décider pour tout le monde" }
+      ],
+      "correct": "invite", "explanation": "La personne qui anime la réunion laisse de la place aux autres. Réussir cette section vous donne aussi le crédit pour la section sur les rôles en réunion."
+    },
+    {
+      "id": "follow-up", "section": 4, "text": "Que devriez-vous confirmer avant la fin de la réunion?",
+      "options": [
+        { "id": "equal-time", "text": "Que chaque personne a parlé aussi longtemps que les autres" },
+        { "id": "actions", "text": "Les décisions, les personnes qui agiront et les échéances" },
+        { "id": "next-meeting", "text": "Qu'une autre réunion est déjà prévue" }
+      ],
+      "correct": "actions", "explanation": "Confirmez les décisions, les responsables des actions et les échéances. Réussir cette section vous donne aussi le crédit pour les sections sur les rôles et la discussion."
+    }
+  ]
+}
