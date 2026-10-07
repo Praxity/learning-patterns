@@ -1,5 +1,6 @@
 import { DONT_KNOW, displayPoints, format, score, validateContent, validateState } from './logic.js';
 import { escapeHtml as html } from '../../lib/html.js';
+import { icons } from '../../lib/icons.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
 const instances = new WeakMap();
@@ -32,10 +33,16 @@ export function enhance(root, { content, strings, state }) {
     const radios = [...fieldset.querySelectorAll('input')];
     const expected = [...q.options.map(o => o.id), DONT_KNOW];
     const message = /** @type {HTMLElement} */ (required(fieldset, '[data-lp-question-error]'));
+    const explanation = /** @type {HTMLElement} */ (required(fieldset, '[data-lp-explanation]'));
     const name = radios[0]?.name;
-    if (fieldset.dataset.lpQuestion !== q.id || radios.length !== expected.length || !name || names.has(name) || !message.id || radios.some((radio, n) => radio.type !== 'radio' || radio.value !== expected[n] || radio.name !== name)) throw new Error('Invalid dont-know options markup');
+    if (fieldset.dataset.lpQuestion !== q.id || !fieldset.id || fieldset.getAttribute('tabindex') !== '-1' || radios.length !== expected.length || !name || names.has(name) || !message.id || radios.some((radio, n) => radio.type !== 'radio' || radio.value !== expected[n] || radio.name !== name)) throw new Error('Invalid dont-know options markup');
+    const rows = radios.map(radio => {
+      const row = radio.closest('label');
+      if (!row || row.parentElement !== fieldset) throw new Error('Invalid dont-know choice markup');
+      return row;
+    });
     names.add(name);
-    return { q, fieldset, radios, message };
+    return { q, fieldset, radios, rows, message, explanation };
   });
   let shown = false;
   let destroyed = false;
@@ -65,23 +72,54 @@ export function enhance(root, { content, strings, state }) {
   }
   function clearResults() {
     result.replaceChildren(); result.hidden = true; restart.hidden = true; shown = false;
+    check.hidden = false;
+    for (const { radios, rows, explanation } of questions) {
+      for (const radio of radios) radio.disabled = false;
+      for (const row of rows) {
+        row.removeAttribute('data-lp-mark');
+        row.classList.remove('lp-dont-know-unknown');
+        row.querySelector('.lp-choice-mark')?.remove();
+      }
+      explanation.hidden = true;
+    }
   }
   /** @param {boolean} announce */
   function show(announce) {
     const selected = picks();
     const outcome = score(content, selected);
     const summary = format(strings.summary, { points: displayPoints(outcome.points), total: displayPoints(outcome.total) });
-    /** @param {string} title @param {string[]} ids @param {'wrong' | 'unknown' | 'right'} kind */
-    function group(title, ids, kind) {
-      const mark = kind === 'wrong' ? '×' : kind === 'unknown' ? '?' : '✓';
-      return `<div data-lp-group="${kind}"><h3 class="lp-dont-know-heading"><span aria-hidden="true">${mark}</span> ${html(title)}</h3>${ids.length ? `<ul>${content.questions.filter(q => ids.includes(q.id)).map(q => `<li><strong>${html(q.text)}</strong>${kind === 'wrong' ? `<p>${html(format(strings.chosen, { option: q.options.find(o => o.id === selected[q.id])?.text ?? '' }))}</p>` : ''}${kind === 'right' ? '' : `<p>${html(q.explanation)}</p>`}</li>`).join('')}</ul>` : `<p>${html(strings.none)}</p>`}</div>`;
+    for (const { q, radios, rows, explanation } of questions) {
+      const right = selected[q.id] === q.correct;
+      explanation.hidden = right;
+      radios.forEach((radio, index) => {
+        radio.disabled = true;
+        if (!radio.checked && radio.value !== q.correct) return;
+        const row = rows[index];
+        const correct = radio.value === q.correct;
+        const unknown = radio.value === DONT_KNOW;
+        if (unknown) row.classList.add('lp-dont-know-unknown');
+        else row.dataset.lpMark = correct ? 'correct' : 'wrong';
+        const mark = root.ownerDocument.createElement('span');
+        mark.className = `lp-choice-mark ${correct ? 'lp-met' : unknown ? 'lp-neutral' : 'lp-missed'}`;
+        const word = correct ? right ? strings.markCorrect : strings.markAnswer : unknown ? strings.markUnknown : strings.markWrong;
+        mark.innerHTML = `${correct ? icons.check : unknown ? icons['question-mark'] : icons.x}<span>${html(word)}</span>`;
+        row.append(mark);
+      });
     }
-    result.innerHTML = `<p class="lp-dont-know-summary">${html(summary)}</p>
-      <p>${html(format(strings.counts, { right: outcome.right.length, wrong: outcome.wrong.length, unknown: outcome.unknown.length }))}</p>
-      ${group(strings.wrong, outcome.wrong, 'wrong')}${group(strings.gaps, outcome.unknown, 'unknown')}${group(strings.right, outcome.right, 'right')}`;
-    result.hidden = false; restart.hidden = false; shown = true;
-    // One replacement also announces a repeated submission with the same score.
-    if (announce) status.textContent = summary;
+    const counts = [
+      { ids: outcome.right, one: strings.countRightOne, many: strings.countRightMany },
+      { ids: outcome.wrong, one: strings.countWrongOne, many: strings.countWrongMany },
+      { ids: outcome.unknown, one: strings.countUnknownOne, many: strings.countUnknownMany }
+    ].filter(({ ids }) => ids.length).map(({ ids, one, many }) => format(ids.length === 1 ? one : many, { count: ids.length })).join(', ');
+    const review = questions.filter(({ q }) => !outcome.right.includes(q.id));
+    result.innerHTML = `<p class="lp-run-in" tabindex="-1">${html(summary)}</p>
+      <p>${html(counts)}</p>
+      ${review.length ? `<p class="lp-dont-know-review" data-lp-review>${html(strings.review)}${review.map(({ q, fieldset }) => `<a href="#${html(fieldset.id)}">${html(q.text)}</a>`).join(', ')}</p>` : ''}`;
+    result.hidden = false; restart.hidden = false; check.hidden = true; shown = true;
+    if (announce) {
+      /** @type {HTMLElement} */ (required(result, '.lp-run-in')).focus();
+      status.textContent = summary;
+    }
   }
   const saved = validateState(content, state?.read());
   if (saved) {
@@ -92,11 +130,13 @@ export function enhance(root, { content, strings, state }) {
     clearQuestionError(question); error.hidden = true; clearResults(); save();
   });
   listen(check, 'click', () => {
+    if (shown) return;
     clearErrors();
     const outcome = score(content, picks());
     if (outcome.unanswered.length) {
       clearResults();
-      error.textContent = outcome.unanswered.length === 1 ? strings.unansweredOne : format(strings.unanswered, { count: outcome.unanswered.length }); error.hidden = false;
+      const message = outcome.unanswered.length === 1 ? strings.unansweredOne : format(strings.unanswered, { count: outcome.unanswered.length });
+      error.innerHTML = `${icons['alert-circle']}<span>${html(message)}</span>`; error.hidden = false;
       const missing = questions.filter(({ q }) => outcome.unanswered.includes(q.id));
       for (const { fieldset, radios, message } of missing) {
         message.hidden = false; fieldset.setAttribute('aria-describedby', message.id);

@@ -1,7 +1,7 @@
 ---
-title: "I don't know" as an answer
+title: I don't know as an answer
 title_fr: « Je ne sais pas » comme réponse
-summary: Answer a quiz with an explicit uncertainty option, then review wrong answers and knowledge gaps separately.
+summary: Answer a quiz or choose I don't know, then compare your choices with the correct answers beside each question.
 section: question
 ai: no
 offline: yes
@@ -9,7 +9,7 @@ learners: not tried
 ---
 # "I don't know" as an answer
 
-Answer four money-basics questions, or choose "I don't know". After submission, review wrong answers first, then knowledge gaps, then right answers.
+Answer four money-basics questions, or choose "I don't know". After submission, compare your choices with the correct answers in each question.
 
 ## When to use it
 
@@ -19,8 +19,9 @@ Use it for a short practice quiz where learners need a way to report uncertainty
 
 1. Read the scoring rule and choose one radio option for each question. "I don't know" is always last.
 2. Select "Check my answers". Unanswered questions get visible messages. Focus moves to the first unanswered question's first radio.
-3. Read the score and counts. The report groups wrong answers with your choice and the explanation, unknown answers with the explanation, and right answers with the question only. Empty groups say "None."
-4. Changing an answer clears the old results. Submit again to get feedback. "Start again" appears after results and clears every pick and result, then focuses the first radio.
+3. Answers lock after a complete submission. Each chosen option shows "Correct", "Not quite" or "You chose I don't know" with a Tabler icon. Wrong and unknown answers also show the correct option and the authored explanation below the options.
+4. Focus moves to the score below the questions. Read the counts and follow the review links to wrong or unknown questions. Zero counts and an empty review list are omitted.
+5. Select "Start over" to clear the answers and feedback, re-enable the radios and focus the first radio.
 
 Without JavaScript, use the native radios, then open "Answers" to read each correct option and explanation.
 
@@ -42,11 +43,22 @@ All text is plain text and escaped when rendered.
 
 `validateContent` rejects unknown fields, empty strings, duplicate identities and invalid correct-option references. Whitespace-only strings are allowed, as in the reference pattern. `x-uniqueBy` and `x-optionReference` describe cross-field checks. Ordinary JSON Schema validators need `validateContent` for those checks.
 
-Praxity Studio imports `logic.js`, `content.schema.json` and `strings.js` without DOM code. `score(content, picks)` returns `{ points, total, right, wrong, unknown, unanswered }`. Groups contain question identities in content order. `total` is the all-right score, `questions.length * points.right`. Missing picks are unanswered, never unknown. Invalid picks throw. `DONT_KNOW` is `dont-know`. This new pattern changes no existing pattern's content or interface.
+## Logic
+
+`logic.js` has no DOM code, so another host can build its own interface on it.
+
+| Export | Returns |
+| --- | --- |
+| `DONT_KNOW` | The reserved option identity `dont-know`. |
+| `validateContent(content)` | Nothing. Throws an `Error` naming the first bad field. |
+| `score(content, picks)` | `{ points, total, right, wrong, unknown, unanswered }`. Each group contains question identities in content order. `total` is `questions.length * points.right`. Missing picks are unanswered. Invalid picks throw. |
+| `validateState(content, value)` | A copied `{ picks, shown }`, or `null` for invalid saved state. A shown result requires complete picks. |
+| `displayPoints(value, positive)` | A number as text, using a mathematical minus sign and an optional plus sign. |
+| `format(template, values)` | Text with known `{key}` placeholders replaced once. Inserted values stay literal. |
 
 ## Use it
 
-Copy `patterns/dont-know/` and `lib/`, keeping their relative paths. Include `pattern.css`. Give every instance a unique id prefix. Render HTML on your server and call `enhance` in the browser.
+Copy `patterns/dont-know/` and `lib/`, keeping their relative paths. Link `lib/base.css`, then `patterns/dont-know/pattern.css`. Give every instance a unique id prefix. Render HTML on your server and call `enhance` in the browser.
 
 ```js
 import { render } from './patterns/dont-know/render.js';
@@ -66,7 +78,7 @@ Optional `state: { read, write }` stores `{ picks: { [questionId]: optionId | 'd
 
 ## Accessibility
 
-Native fieldsets, legends and radios work before enhancement. Unanswered messages describe the fieldsets and radios, and the first missing radio receives focus. Successful submission keeps focus on the button. One status region starts empty and announces only the score once per submission, or the reset message. Results use words and decorative icons. There is no animation or time limit.
+Native fieldsets, legends and radios work before enhancement. Unanswered messages describe the fieldsets and radios, and the first missing radio receives focus. Successful submission focuses the score. Review links target focusable question fieldsets. One status region starts empty and announces only the score once per submission, or the reset message. Restoring a shown state neither announces nor moves focus. Results use words and decorative Tabler icons. There is no animation or time limit.
 
 Browser checks cover axe WCAG 2.0, 2.1 and 2.2 AA rules at load, errors, results and reset in Chromium, Firefox and WebKit. They also cover keyboard focus, French language, no JavaScript, two instances, saved state, repeated enhancement, 320 CSS pixels with text spacing and Chromium forced colours.
 
@@ -76,7 +88,7 @@ Screen reader passes: not yet
 
 The nearest evidence is certainty-based marking. Gardner-Medwin's conference abstract reports that asking students for certainty and penalising confident errors improved exam reliability. Its scoring uses certainty levels. This pattern uses a single "I don't know" option, so it is a different scoring method. [Gardner-Medwin, Analysis of exams using certainty-based marking](https://www.physoc.org/abstracts/analysis-of-exams-using-certainty-based-marking/).
 
-This exact scoring has not been tested. A penalty for wrong answers may discourage guessing. Separating wrong answers from unknown answers gives learners two lists to review, but it does not establish their confidence or prove a learning benefit.
+This exact scoring has not been tested. A penalty for wrong answers may discourage guessing. Choosing "I don't know" records uncertainty, but it does not establish learners' confidence or prove a learning benefit.
 
 Logic unit tested. Not tried with learners.
 
