@@ -83,7 +83,7 @@ Unknown fields, empty strings, duplicate section ids, unknown question sections 
 
 The section index is zero-based. Host restoration requires an integer in range and a recognized format, with no extra keys. Invalid state is ignored as a whole, without clamping or announcing. If you reorder or replace sections, the host should invalidate old state.
 
-Format changes cross-fade for 160 ms and switch instantly under reduced motion. Slides use a 16:9 frame that grows for narrow widths and enlarged text. Text uses article paragraphs. The outline numbers all sections and expands only the current section's points.
+Format changes cross-fade for 160 ms and switch instantly under reduced motion. Format buttons keep their labels on one line and wrap into rows on narrow screens. Slides use a 16:9 frame that grows for narrow widths and enlarged text. Text uses article paragraphs. The outline numbers all sections and expands only the current section's points.
 
 The narration view is labelled "Sample, no audio". It has a disabled Play button, an empty progress track and "0:00 / 1:20". Evenly spaced timestamps illustrate an 80-second sample. The script includes the title, sentences and example in order. It provides no recording, playback, synthesized speech or timed progression.
 

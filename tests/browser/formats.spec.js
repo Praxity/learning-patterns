@@ -435,3 +435,21 @@ for (const [lang, label] of [['en', 'Sample, no audio'], ['fr', 'Exemple, sans a
     await expect(audio.locator(':scope > p')).toHaveCount(0);
   });
 }
+
+for (const lang of ['en', 'fr']) for (const width of [320, 390]) {
+  test(`owner audit: control labels keep words together with text spacing (${lang}, ${width}px)`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 }); await open(page, `/formats/${lang}.html`);
+    await page.addStyleTag({ content: '*{line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important}p{margin-bottom:2em!important}' });
+    await page.locator('[data-lp-next]').click();
+    const words = await page.locator('[data-lp-formats] button span, [data-lp-navigation] button span').evaluateAll(labels => labels.flatMap(label => {
+      const button = label.closest('button').getBoundingClientRect();
+      return [...label.textContent.matchAll(/\S+/g)].map(match => {
+        const range = document.createRange(); range.setStart(label.firstChild, match.index); range.setEnd(label.firstChild, match.index + match[0].length);
+        const rects = [...range.getClientRects()];
+        return { word: match[0], lines: rects.length, withinButton: rects.every(rect => rect.left >= button.left && rect.right <= button.right) };
+      });
+    }));
+    for (const word of words) { expect(word.lines, word.word).toBe(1); expect(word.withinButton, word.word).toBe(true); }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  });
+}
