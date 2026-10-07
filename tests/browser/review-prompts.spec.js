@@ -22,6 +22,83 @@ async function observe(page) {
 const part = page => page.locator('[data-lp-part]').first();
 const scan = async page => expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()).violations).toEqual([]);
 
+for (const width of [1280, 390]) {
+  test(`running text is unboxed and only prompts use the activity box (${width}px)`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 }); await open(page);
+    const root = page.locator('[data-lp-pattern]');
+    await expect(root).toHaveAttribute('class', 'lp lp-unboxed lp-review-prompts');
+    await expect(root).toHaveCSS('border-top-width', '0px');
+    await expect(root).toHaveCSS('padding-top', '0px');
+    await expect(root).toHaveCSS('font-family', /Source Sans 3/);
+    await expect(root).toHaveCSS('font-size', width === 1280 ? '19px' : '18px');
+    for (const [index, authored] of english.parts.entries()) {
+      const block = page.locator('[data-lp-part]').nth(index);
+      const heading = block.getByRole('heading', { level: 3 });
+      await expect(heading).toHaveText(authored.heading);
+      await expect(heading).toHaveCSS('font-family', /Source Serif 4/);
+      await expect(heading).toHaveCSS('font-size', width === 1280 ? '24px' : '21px');
+      await expect(heading).toHaveCSS('font-weight', '600');
+      await expect(block).toHaveCSS('border-top-width', '0px');
+      const paragraphs = block.locator(':scope > p');
+      await expect(paragraphs).toHaveText(authored.paragraphs);
+      for (const paragraph of await paragraphs.all()) await expect(paragraph).toHaveCSS('border-top-width', '0px');
+      const box = block.locator('.lp-box');
+      await expect(box).toHaveCount(1);
+      await expect(box).toHaveCSS('border-top-width', '1px');
+      await expect(box).toHaveCSS('border-radius', '8px');
+      await expect(box).toHaveCSS('padding-top', width === 1280 ? '24px' : '16px');
+      await expect(box.locator('.lp-box')).toHaveCount(0);
+      await expect(box.locator(':scope > .lp-run-in')).toHaveText('Check yourself');
+      await expect(box.locator(':scope > .lp-stem')).toHaveText(authored.question);
+      await expect(box.locator(':scope > .lp-small')).toHaveText('Answer in your head before opening the answer.');
+      await expect(box.locator(':scope > details.lp-details > summary')).toHaveText('Show the answer');
+      expect(await box.evaluate(el => el.previousElementSibling?.tagName)).toBe('P');
+      await box.locator('summary').click();
+      await expect(box.locator('.lp-quote[data-lp-answer]')).toHaveText(authored.answer);
+      await expect(box.locator('.lp-quote')).toHaveCSS('border-left-width', '2px');
+    }
+  });
+}
+
+for (const restored of [false, true]) {
+  test(`pressed buttons keep plain labels without a checkmark, restored=${restored}`, async ({ page }) => {
+    if (restored) await page.addInitScript(() => { window.lpSeed = { results: { stonewalling: { result: 'remembered', reviewOn: '2026-10-09' } } }; });
+    await open(page);
+    const button = part(page).getByRole('button', { name: 'I remembered', exact: true });
+    if (!restored) { await part(page).locator('summary').click(); await button.click(); }
+    await expect(button).toHaveAttribute('aria-pressed', 'true');
+    await expect(button).toHaveText('I remembered');
+    await expect(button.locator('*')).toHaveCount(0);
+  });
+}
+
+test('rating toggles keep their labels, use a 2px accent border and add no checkmark', async ({ page }) => {
+  await open(page); await observe(page); await part(page).locator('summary').click();
+  const remembered = part(page).getByRole('button', { name: 'I remembered', exact: true });
+  const forgot = part(page).getByRole('button', { name: 'I forgot', exact: true });
+  for (const button of [remembered, forgot]) {
+    await expect(button).toHaveClass('lp-button lp-button-secondary');
+    await expect(button).toHaveCSS('border-top-width', '1px');
+    await expect(button).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+  }
+  for (const [selected, other, label] of [[remembered, forgot, 'I remembered'], [forgot, remembered, 'I forgot']]) {
+    await selected.click(); await expect(selected).toBeFocused();
+    await expect(selected).toHaveText(label);
+    await expect(selected).toHaveAttribute('aria-pressed', 'true');
+    await expect(other).toHaveAttribute('aria-pressed', 'false');
+    await expect(selected).toHaveCSS('border-top-width', '2px');
+    await expect(selected).toHaveCSS('border-top-color', 'rgb(29, 61, 107)');
+    await expect(selected).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+    await expect(other).toHaveCSS('border-top-width', '1px');
+    await expect(part(page).locator('[data-lp-review]')).toHaveClass('lp-run-in');
+    await expect(part(page).locator('[data-lp-mark], svg, [aria-hidden="true"]')).toHaveCount(0);
+  }
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Next review: Friday, October 9, 2026', 'Next review: Wednesday, October 7, 2026']);
+  // The shared token also controls the pressed border for hosts that change their accent.
+  await page.locator('[data-lp-pattern]').evaluate(el => el.style.setProperty('--lp-accent', '#123456'));
+  await expect(forgot).toHaveCSS('border-top-color', 'rgb(18, 52, 86)');
+});
+
 test('keyboard journey keeps native details and focus, updates dates, saves state and announces once', async ({ page }) => {
   await open(page); await observe(page);
   const first = part(page), summary = first.locator('summary');
@@ -123,7 +200,7 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     expect(await page.evaluate(() => [...document.querySelectorAll('p, button, summary, h3')].filter(el => el.getClientRects().length && !el.matches('[role="status"]')).filter(el => el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1).map(el => el.textContent))).toEqual([]);
-    expect(await page.locator('.lp-review-prompts-actions').evaluateAll(groups => groups.flatMap(group => {
+    expect(await page.locator('[data-lp-rating] .lp-actions').evaluateAll(groups => groups.flatMap(group => {
       const [first, second] = [...group.children].map(el => el.getBoundingClientRect());
       return Math.min(first.right, second.right) > Math.max(first.left, second.left) + 1 && Math.min(first.bottom, second.bottom) > Math.max(first.top, second.top) + 1 ? ['overlapping buttons'] : [];
     }))).toEqual([]);
@@ -224,7 +301,8 @@ test('forced colours preserves focus outlines and a visible pressed state', asyn
     expect(await target.evaluate(el => { const css = getComputedStyle(el); return [css.outlineWidth, css.outlineStyle, css.outlineOffset]; })).toEqual(['2px', 'solid', '2px']);
     expect(await target.evaluate(el => getComputedStyle(el).outlineColor)).not.toBe('rgba(0, 0, 0, 0)');
   }
-  expect(await part(page).getByRole('button', { name: 'I remembered' }).evaluate(el => getComputedStyle(el).borderStyle)).toBe('double');
+  expect(await part(page).getByRole('button', { name: 'I remembered' }).evaluate(el => [getComputedStyle(el).borderWidth, getComputedStyle(el).borderStyle])).toEqual(['2px', 'solid']);
   expect(await part(page).getByRole('button', { name: 'I forgot' }).evaluate(el => getComputedStyle(el).borderStyle)).toBe('solid');
-  await expect(part(page).locator('[aria-hidden="true"]')).toHaveCount(1);
+  expect(await part(page).getByRole('button', { name: 'I forgot' }).evaluate(el => getComputedStyle(el).borderWidth)).toBe('1px');
+  await expect(part(page).locator('[aria-hidden="true"], [data-lp-mark], svg')).toHaveCount(0);
 });
