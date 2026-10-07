@@ -1,10 +1,11 @@
 export namespace strings {
     namespace en {
-        let scene: string;
         let keyInstruction: string;
         let evidenceInstruction: string;
         let controls: string;
         let count: string;
+        let limitOne: string;
+        let limitMany: string;
         let check: string;
         let restart: string;
         let answer: string;
@@ -17,8 +18,6 @@ export namespace strings {
         let evidenceSummary: string;
     }
     namespace fr {
-        let scene_1: string;
-        export { scene_1 as scene };
         let keyInstruction_1: string;
         export { keyInstruction_1 as keyInstruction };
         let evidenceInstruction_1: string;
@@ -27,6 +26,10 @@ export namespace strings {
         export { controls_1 as controls };
         let count_1: string;
         export { count_1 as count };
+        let limitOne_1: string;
+        export { limitOne_1 as limitOne };
+        let limitMany_1: string;
+        export { limitMany_1 as limitMany };
         let check_1: string;
         export { check_1 as check };
         let restart_1: string;

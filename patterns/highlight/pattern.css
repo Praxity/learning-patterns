@@ -2,27 +2,27 @@
 .lp-highlight-passage > p + p { margin-block-start: 18px; }
 .lp-highlight-chunk { padding-block: 2px; border-radius: 3px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 .lp-highlight-chunk[role="button"] { cursor: pointer; }
-.lp-highlight-chunk[role="button"]:hover { text-decoration: underline; text-underline-offset: 4px; }
+.lp-highlight-chunk[role="button"]:not([aria-disabled="true"]):hover { text-decoration: underline; text-underline-offset: 4px; }
 .lp-highlight-chunk[role="button"]:focus { outline: 2px solid var(--lp-focus); outline-offset: 2px; }
 /* The paper highlighter is local to this reading activity; shared tokens supply result inks. */
 .lp-highlight-chunk[aria-pressed="true"] { background: #ffe49a; }
 .lp-highlight-chunk[data-lp-outcome="correct"] { background: var(--lp-success-soft); text-decoration: underline solid var(--lp-success-ink) 2px; text-underline-offset: 4px; }
-.lp-highlight-chunk[data-lp-outcome="missed"] { background: var(--lp-warning-soft); text-decoration: underline dashed var(--lp-warning-ink) 2px; text-underline-offset: 4px; }
-.lp-highlight-chunk[data-lp-outcome="wrong"] { background: transparent; text-decoration: underline dotted var(--lp-ink-2) 2px; text-underline-offset: 4px; }
+.lp-highlight-chunk[data-lp-outcome="missed"] { text-decoration: underline dashed var(--lp-warning-ink) 2px; text-underline-offset: 4px; }
+.lp-highlight-chunk[data-lp-outcome="wrong"] { text-decoration: none; }
 .lp-highlight-chunk[aria-disabled="true"] { cursor: default; }
 .lp-highlight-feedback { margin-inline-start: 5px; font-size: var(--lp-type-small); font-weight: 600; line-height: 1.45; }
 .lp-highlight-feedback > .lp-icon { display: inline-block; vertical-align: -.2em; margin-inline-end: 3px; }
 .lp-highlight-feedback[data-lp-outcome="correct"] { color: var(--lp-success-ink); }
 .lp-highlight-feedback[data-lp-outcome="missed"] { color: var(--lp-warning-ink); }
-.lp-highlight-feedback[data-lp-outcome="wrong"] { color: var(--lp-ink-2); }
+.lp-highlight-feedback[data-lp-outcome="wrong"] { display: inline-block; max-inline-size: 100%; margin-inline-start: 0; padding: 3px 10px; border-radius: 12px; color: var(--lp-ink); background: var(--lp-paper-2); font-size: var(--lp-type-body); font-weight: 400; text-wrap: pretty; }
 .lp-highlight-count { font-variant-numeric: tabular-nums; }
 .lp-highlight-summary { margin-block-start: 12px; }
 .lp-highlight-answer { padding-inline-start: 22px; }
 .lp-highlight-answer > li + li { margin-block-start: 12px; }
 @media (forced-colors: active) {
   .lp-highlight-chunk[aria-pressed="true"] { border: 1px solid Highlight; text-decoration: underline solid Highlight 2px; text-underline-offset: 4px; }
-  .lp-highlight-chunk[data-lp-outcome="correct"] { text-decoration: underline double CanvasText 3px; }
+  .lp-highlight-chunk[data-lp-outcome="correct"] { text-decoration: underline solid CanvasText 2px; }
   .lp-highlight-chunk[data-lp-outcome="missed"] { text-decoration: underline dashed CanvasText 2px; }
-  .lp-highlight-chunk[data-lp-outcome="wrong"] { text-decoration: underline dotted CanvasText 2px; }
+  .lp-highlight-chunk[data-lp-outcome="wrong"] { text-decoration: none; }
   .lp-highlight-chunk[role="button"]:focus { outline-color: Highlight; }
 }

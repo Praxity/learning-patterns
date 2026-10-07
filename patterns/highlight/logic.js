@@ -1,5 +1,5 @@
 /** @typedef {{ id: string, text: string, key?: boolean, note?: string }} Chunk */
-/** @typedef {{ mode: 'key' | 'evidence', title: string, question?: string, paragraphs: Chunk[][] }} Content */
+/** @typedef {{ mode: 'key' | 'evidence', title: string, question?: string, maxMarks?: number, paragraphs: Chunk[][] }} Content */
 /** @typedef {{ marked: string[], shown: boolean }} LearnerState */
 /** @typedef {{ id: string, text: string, marked: boolean, outcome: 'correct' | 'missed' | 'wrong' | 'unmarked', note: string | null }} Outcome */
 
@@ -28,12 +28,13 @@ function text(value, field) {
  */
 export function validateContent(content) {
   if (!object(content)) throw new Error('Invalid content');
-  fields(content, ['mode', 'title', 'question', 'paragraphs'], 'content');
+  fields(content, ['mode', 'title', 'question', 'maxMarks', 'paragraphs'], 'content');
   for (const field of ['mode', 'title', 'paragraphs']) if (!Object.hasOwn(content, field)) throw new Error(`Invalid ${field}`);
   if (content.mode !== 'key' && content.mode !== 'evidence') throw new Error('Invalid mode');
   text(content.title, 'title');
   if (content.mode === 'evidence' && !Object.hasOwn(content, 'question')) throw new Error('Invalid question');
   if (Object.hasOwn(content, 'question')) text(content.question, 'question');
+  if (Object.hasOwn(content, 'maxMarks') && (typeof content.maxMarks !== 'number' || !Number.isInteger(content.maxMarks) || content.maxMarks <= 0)) throw new Error('Invalid maxMarks');
   if (!Array.isArray(content.paragraphs) || !content.paragraphs.length) throw new Error('Invalid paragraphs');
   const known = new Set();
   let targets = 0;
@@ -57,6 +58,13 @@ export function validateContent(content) {
   if (!targets) throw new Error('Invalid paragraphs: at least one key is required');
 }
 
+/** Maximum selected chunks. Pass validated content.
+ * @param {Content} content @returns {number}
+ */
+export function markLimit(content) {
+  return content.maxMarks ?? (content.paragraphs.flat().filter(chunk => chunk.key === true).length + (content.mode === 'key' ? 1 : 0));
+}
+
 /** Compare marks with the author's targets. Duplicate marks count once.
  * @param {Content} content @param {string[]} markedIds
  * @returns {{ found: number, total: number, marked: number, wrong: number, items: Outcome[] }}
@@ -68,6 +76,7 @@ export function check(content, markedIds) {
   const known = new Set(chunks.map(chunk => chunk.id));
   for (const id of markedIds) if (!known.has(id)) throw new Error(`Unknown chunk: ${id}`);
   const marked = new Set(markedIds);
+  if (marked.size > markLimit(content)) throw new Error('Invalid markedIds: exceeds maxMarks');
   const found = chunks.filter(chunk => chunk.key === true && marked.has(chunk.id)).length;
   return {
     found, total: chunks.filter(chunk => chunk.key === true).length, marked: marked.size, wrong: marked.size - found,
@@ -85,6 +94,6 @@ export function check(content, markedIds) {
 export function validateState(content, value) {
   if (!object(value) || !Object.hasOwn(value, 'marked') || !Object.hasOwn(value, 'shown') || Object.keys(value).some(key => !['marked', 'shown'].includes(key)) || !Array.isArray(value.marked) || typeof value.shown !== 'boolean') return null;
   const known = new Set(content.paragraphs.flat().map(chunk => chunk.id));
-  if (Array.from(value.marked).some(id => typeof id !== 'string' || !known.has(id)) || new Set(value.marked).size !== value.marked.length) return null;
+  if (value.marked.length > markLimit(content) || Array.from(value.marked).some(id => typeof id !== 'string' || !known.has(id)) || new Set(value.marked).size !== value.marked.length) return null;
   return { marked: [...value.marked], shown: value.shown };
 }
