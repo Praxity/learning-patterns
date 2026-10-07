@@ -9,20 +9,35 @@ learners: not tried
 ---
 # Highlight the passage
 
-Read a short passage, mark chunks of text, and check them against the author's targets. The article stays in place: checks identify matched targets, dashed underlines identify missed targets, and neutral feedback explains selected text that is not a target.
+You mark key ideas or answers in a passage, then compare your marks with the author's choices beside the text.
 
 ## When to use it
 
-Use key mode to compare the ideas a learner notices with an author's selection. Use evidence mode when the learner needs to find a passage that answers a specific question. Keep passages short and split them at meaningful boundaries. Learners choose whole chunks, not individual words.
+Use it to compare the ideas a learner notices with the author's selection, or to find text that answers a question. Keep passages short and split them at meaningful boundaries. Do not use it when learners need to select individual words, since they choose whole chunks. Searching visible text does not test recall.
 
 ## How it works
 
-1. Read the article. In key mode, highlight the key ideas. In evidence mode, read the question and highlight the text that answers it.
-2. Click or tap chunks to mark or unmark them. The count below the article updates without an announcement.
-3. Select "Check". Correct marks, missed targets and selected non-targets receive feedback beside their text. A one-line summary gives the number of targets found. Marks are locked until reset.
-4. Select "Start over" to clear the marks and feedback and return to the first chunk.
+1. You read the passage and any question above it.
+2. You mark the key ideas or the text that answers the question. You can select a marked piece again to remove the mark.
+3. You select "Check" and read the feedback beside your marks and any targets you missed.
+4. You read how many targets you found, then select "Start over" if you want to try again.
 
-Without JavaScript, the article is plain text. Native "Answer" details lists the target passages and every authored note.
+## Evidence
+
+Dunlosky and colleagues rated highlighting low utility. It did not consistently improve students' performance across the conditions they reviewed. [Dunlosky et al., 2013, Improving students' learning with effective learning techniques](https://doi.org/10.1177/1529100612453266), [author's institutional record and abstract](https://scholars.duke.edu/publication/954654).
+
+This pattern adds a question in evidence mode and compares marks with authored targets. Searching visible text is not recall practice. The combination has not been tested with learners. The review does not establish a learning benefit for it.
+
+Logic unit tested. Not tried with learners.
+
+## Accessibility
+
+Meets the shared baseline in the root README.
+
+- The passage has one tab stop. Left or Up and Right or Down move between chunks and wrap at the ends; Home and End jump to the first and last.
+- Space or Enter toggles a mark. Each chunk exposes its pressed state and has linked keyboard instructions.
+- Checked chunks remain readable and navigable. Feedback beside each chunk explains correct marks, missed targets and other selections.
+- Checking announces the target count. If Check has focus when it hides, focus moves to Start over. Reset focuses the first chunk without an announcement.
 
 ## Content fields
 
@@ -53,6 +68,12 @@ Text fields must contain non-whitespace text. Unknown fields and duplicate ident
 | `check(content, markedIds)` | `{ found, total, marked, wrong, items }`. Counts are unique selected targets, all targets, unique selected chunks, and selected non-targets. `items` follows paragraph and chunk order; each item is `{ id, text, marked, outcome, note }`, with `outcome` one of `correct`, `missed`, `wrong`, `unmarked`, and `note` the authored string or `null`. Duplicate marks count once; unknown IDs or invalid mark arrays throw. |
 | `validateState(content, value)` | An independent `{ marked: string[], shown: boolean }` or `null`. Unknown IDs, duplicate marks, extra fields and invalid shapes are ignored. Pass validated content. |
 
+Without JavaScript, the article is plain text. Native "Answer" details lists the target passages and every authored note.
+
+After checking, marks are locked until reset. Mark counts update silently.
+
+Use a different id prefix per instance. Optional `state: { read(), write(value) }` stores `{ marked, shown }`. Valid saved results rebuild without an announcement; invalid saved values are ignored. State adapter errors propagate to the host. Repeated enhancement returns the same instance. `instance.destroy()` removes listeners, clears interaction attributes and restores the plain passage and native answer; the same root can be enhanced again.
+
 ## Use it
 
 Copy `patterns/highlight/` and `lib/`, preserving their relative paths. Link `lib/base.css` before `patterns/highlight/pattern.css`. Render on the server, then enhance the resulting root in the browser:
@@ -75,22 +96,10 @@ const instance = enhance(document.querySelector('[data-lp-pattern="highlight"]')
 });
 ```
 
-Use a different id prefix per instance. Optional `state: { read(), write(value) }` stores `{ marked, shown }`. Valid saved results rebuild without an announcement; invalid saved values are ignored. State adapter errors propagate to the host. Repeated enhancement returns the same instance. `instance.destroy()` removes listeners, clears interaction attributes and restores the plain passage and native answer; the same root can be enhanced again.
+## Adapt it with your agent
 
-## Accessibility
-
-The passage has one tab stop. Left/Up and Right/Down move to the previous or next chunk, wrapping at the ends; Home/End jump to the first/last chunk. Space/Enter toggles a mark. Instructions describe pointer and keyboard use and are associated with every chunk. Each chunk has `role="button"`, `aria-pressed`, a visible focus ring, and `aria-disabled` after checking. Disabled chunks remain readable and navigable. Only checking updates the single status region, once, without moving focus. Reset focuses the first chunk and makes no announcement. Result feedback uses words and decorative icons as well as colour.
-
-Automated browser checks cover both languages, both modes, keyboard navigation, axe at each stage, saved state, independent instances, repeated enhancement, destruction, no JavaScript, 320 CSS pixels, 400% zoom, text spacing and forced colours in the supported engines. Screen reader passes: not yet.
-
-## Evidence
-
-Dunlosky and colleagues rated highlighting low utility: it did not consistently improve students' performance across the conditions they reviewed. [Dunlosky et al., 2013, Improving students' learning with effective learning techniques](https://doi.org/10.1177/1529100612453266), [author's institutional record and abstract](https://scholars.duke.edu/publication/954654).
-
-This pattern adds a question in evidence mode and a comparison with authored targets. Searching visible text is not retrieval practice. This combination has not been tested with learners; the review does not establish a learning benefit for it.
+> Adapt the highlight examples to [topic] for [audience]. Keep `{ mode, title, question?, paragraphs: [[{ id, text, key?, note? }]] }`. Choose key ideas or evidence for a focused question. Split the passage at meaningful boundaries, keep ids unique and include at least one target. Write notes that explain selected non-targets. Keep English and Québec French together, using vous in French. Preserve the plain passage and native answer, keyboard navigation, local feedback, state, escaping and CSS token contracts. Make no claim that highlighting or searching visible text tests recall. Update examples and tests. Show both languages for review.
 
 ## Licence
 
 MIT. Keep the [licence notice](../../LICENSE) with copied code.
-
-Logic unit tested. Not tried with learners.
