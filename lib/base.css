@@ -184,7 +184,7 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
   transition: background .15s, transform .1s;
 }
 .lp-button:hover { background: var(--lp-accent-ink); }
-.lp-button:active { transform: translateY(1px); }
+.lp-button:active { transform: scale(.96); }
 .lp-button-secondary { color: var(--lp-ink); background: var(--lp-paper); border-color: var(--lp-line-mid); box-shadow: 0 1px 2px rgb(22 24 29 / .06); }
 .lp-button-secondary:hover { background: var(--lp-paper-2); border-color: var(--lp-line); }
 .lp-button-secondary[aria-pressed="true"] { color: var(--lp-accent-ink); background: var(--lp-accent-soft); border-color: var(--lp-accent); box-shadow: inset 0 0 0 1px var(--lp-accent); }
