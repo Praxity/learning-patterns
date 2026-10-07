@@ -1,75 +1,8 @@
-.lp-write-distractors {
-  --lp-text: #202124;
-  --lp-muted: #50555a;
-  --lp-surface: #fff;
-  --lp-border: #62676c;
-  --lp-accent: #174f78;
-  --lp-on-accent: #fff;
-  --lp-error: #9f2020;
-  --lp-focus: #005fcc;
-  --lp-space: 1rem;
-  --lp-radius: .25rem;
-  --lp-font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --lp-font-size: 1rem;
-  --lp-line-height: 1.5;
-  box-sizing: border-box;
-  max-width: 40rem;
-  color: var(--lp-text);
-  background: var(--lp-surface);
-  font-family: var(--lp-font);
-  font-size: var(--lp-font-size);
-  line-height: var(--lp-line-height);
-  overflow-wrap: anywhere;
-  margin-block: var(--lp-space);
-}
-.lp-write-distractors *, .lp-write-distractors *::before, .lp-write-distractors *::after { box-sizing: border-box; }
-.lp-write-distractors [hidden] { display: none !important; }
-.lp-write-distractors p { margin-block: var(--lp-space); white-space: pre-line; }
-.lp-write-distractors h2 { font-size: 1.125em; margin-block: var(--lp-space) calc(var(--lp-space) / 2); }
-.lp-write-distractors-option { min-width: 0; margin-block: var(--lp-space); padding: var(--lp-space); border: 1px solid var(--lp-border); border-radius: var(--lp-radius); }
-.lp-write-distractors-option legend { max-width: 100%; padding-inline: calc(var(--lp-space) / 2); font-weight: 600; }
-.lp-write-distractors-option label { display: block; font-weight: 600; margin-block: calc(var(--lp-space) / 2); }
-.lp-write-distractors :is(textarea, select, input) {
-  display: block;
-  width: 100%;
-  min-width: 0;
-  min-height: 44px;
-  padding: calc(var(--lp-space) / 2);
-  border: 1px solid var(--lp-border);
-  border-radius: var(--lp-radius);
-  color: var(--lp-text);
-  background: var(--lp-surface);
-  font: inherit;
-}
-.lp-write-distractors textarea { min-height: 6rem; resize: vertical; }
-.lp-write-distractors-error { color: var(--lp-error); }
-.lp-write-distractors-button {
-  min-height: 44px;
-  max-width: 100%;
-  margin-block: var(--lp-space);
-  padding: calc(var(--lp-space) / 2) var(--lp-space);
-  border: 1px solid var(--lp-accent);
-  border-radius: var(--lp-radius);
-  color: var(--lp-on-accent);
-  background: var(--lp-accent);
-  font: inherit;
-  white-space: normal;
-  overflow-wrap: anywhere;
-  cursor: pointer;
-}
-.lp-write-distractors-button-secondary { color: var(--lp-accent); background: transparent; }
-.lp-write-distractors :is(button, textarea, select, input, summary):focus { outline: 2px solid var(--lp-focus); outline-offset: 2px; }
-.lp-write-distractors-fallback summary { padding-block: calc(var(--lp-space) / 2); cursor: pointer; }
-.lp-write-distractors ul { padding-inline-start: calc(var(--lp-space) * 1.5); }
-.lp-write-distractors li { margin-block: var(--lp-space); }
-.lp-write-distractors-mark { display: inline-block; margin-inline-end: calc(var(--lp-space) / 2); }
-.lp-write-distractors .lp-write-distractors-status {
-  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
-  overflow: hidden; clip-path: inset(50%); white-space: nowrap;
-}
-@media (forced-colors: active) {
-  .lp-write-distractors :is(button, textarea, select, input, summary):focus { outline-color: Highlight; }
-  .lp-write-distractors-button { color: ButtonText; background: ButtonFace; border-color: ButtonText; }
-  .lp-write-distractors-button-secondary { border-style: dashed; }
-  .lp-write-distractors-option, .lp-write-distractors :is(textarea, select, input) { border-color: CanvasText; }
-}
+/* Shared styles and tokens live in lib/base.css; link it first. */
+.lp-write-distractors-option { min-inline-size: 0; padding: 0; border: 0; }
+.lp-write-distractors-option > legend { max-inline-size: 100%; padding: 0; margin-block-end: 16px; }
+.lp-write-distractors-option > div + div { margin-block-start: 16px; }
+.lp-write-distractors-option .lp-error-text { margin-block-start: 8px; }
+.lp-write-distractors-list { display: grid; gap: 16px; padding-inline-start: 24px; }
+.lp-write-distractors-list > li > p + p { margin-block-start: 4px; }
+.lp-write-distractors-match { display: flex; gap: 8px; align-items: flex-start; }

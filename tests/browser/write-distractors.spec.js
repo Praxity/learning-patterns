@@ -32,6 +32,44 @@ async function observe(page) {
   });
 }
 
+test('shared course design keeps one frame and local icon feedback', async ({ page }) => {
+  await open(page);
+  const root = page.locator('[data-lp-pattern]');
+  await expect(root).toHaveClass('lp lp-write-distractors');
+  expect(await root.locator('fieldset').evaluateAll(rows => rows.map(row => getComputedStyle(row).borderWidth))).toEqual(['0px', '0px']);
+  await expect(root.locator('legend.lp-run-in')).toHaveText(['Wrong option 1', 'Wrong option 2']);
+  await page.locator('[data-lp-compare]').click();
+  for (const error of await root.locator('.lp-error-text:visible').all()) {
+    await expect(error.locator('svg')).toHaveAttribute('aria-hidden', 'true');
+    await expect(error.locator('path[d="M12 8v4"]')).toHaveCount(1);
+  }
+  await fill(page, true); await page.locator('[data-lp-compare]').click();
+  await expect(root.locator('[data-lp-result]')).toHaveClass('lp-section');
+  await expect(root.locator('[data-lp-summary]')).toHaveClass('lp-run-in');
+  await expect(root.locator('[data-lp-summary] + p')).toHaveClass('lp-small');
+  const yours = root.locator('[data-lp-yours] > li');
+  await expect(yours.nth(0).locator('.lp-met')).toHaveText('Same misconception as an author option');
+  await expect(yours.nth(0).locator('.lp-met path[d="M5 12l5 5l10 -10"]')).toHaveCount(1);
+  await expect(yours.nth(1).locator('.lp-neutral')).toHaveText("A misconception the author's options don't cover");
+  await expect(yours.nth(1).locator('.lp-neutral path[d="M8.56 3.69a9 9 0 0 0 -2.92 1.95"]')).toHaveCount(1);
+  expect(await yours.nth(0).locator('.lp-met').evaluate(el => getComputedStyle(el).color)).toBe('rgb(20, 108, 67)');
+  expect(await yours.nth(1).locator('.lp-neutral').evaluate(el => getComputedStyle(el).color)).toBe('rgb(74, 80, 90)');
+  for (const item of await yours.all()) {
+    await expect(item.locator('p').nth(1)).toHaveClass(/lp-(met|neutral)/);
+    await expect(item.locator('p').nth(2)).toHaveClass('lp-small');
+  }
+  const restart = root.getByRole('button', { name: 'Start over', exact: true });
+  await expect(restart).toHaveClass('lp-button lp-button-quiet');
+  await expect(restart.locator('svg')).toHaveAttribute('aria-hidden', 'true');
+  expect(await restart.evaluate(el => {
+    const css = getComputedStyle(el);
+    return [css.backgroundColor, css.textDecorationLine, css.minHeight];
+  })).toEqual(['rgba(0, 0, 0, 0)', 'underline', '44px']);
+  await restart.click();
+  await expect(root.locator('textarea').first()).toBeFocused();
+  await expect(root.locator('[role="status"]')).toHaveText('Options cleared.');
+});
+
 test('controls reveal in place, custom field toggles without a live Targets line', async ({ page }) => {
   await open(page);
   await expect(page.locator('[data-lp-flow]')).toBeVisible();
@@ -83,7 +121,7 @@ for (const lang of ['en', 'fr']) {
     expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([message]);
     await expect(page.locator('[data-lp-summary] + p')).toHaveText(note);
     await expect(page.locator('[data-lp-result]').getByText(note, { exact: true })).toHaveCount(1);
-    expect(await page.locator('[data-lp-summary]').evaluate(el => getComputedStyle(el).fontWeight)).toBe('400');
+    expect(await page.locator('[data-lp-summary]').evaluate(el => getComputedStyle(el).fontWeight)).toBe('600');
     expect(await page.locator('[data-lp-summary] + p').evaluate(el => getComputedStyle(el).fontWeight)).toBe('400');
     await expect(page.locator('[data-lp-result]')).not.toContainText(lang === 'en' ? 'Compared' : 'comparées');
     await expect(page.getByRole('heading', { name: lang === 'en' ? "Misconceptions you didn't target" : "Idées fausses que vous n'avez pas ciblées" })).toBeVisible();
@@ -187,8 +225,9 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
       await expect(author.nth(index)).toContainText(content.misconceptions.find(target => target.id === item.misconception).label);
     }
     const yours = page.locator('[data-lp-yours] li');
-    await expect(yours.nth(0)).toContainText(lang === 'en' ? 'Targets the same misconception' : 'Cible la même idée fausse');
-    await expect(yours.nth(1)).toContainText(lang === 'en' ? 'do not cover' : 'ne couvrent pas');
+    await expect(yours.nth(0)).toContainText(lang === 'en' ? 'Same misconception as an author option' : "Même idée fausse qu'une réponse de l'auteur");
+    await expect(yours.nth(1)).toContainText(lang === 'en' ? "A misconception the author's options don't cover" : "Une idée fausse que les réponses de l'auteur ne couvrent pas");
+    await expect(page.locator('[data-lp-clear]')).toHaveAccessibleName(lang === 'en' ? 'Start over' : 'Recommencer');
     await expect(yours.locator('[aria-hidden="true"]')).toHaveCount(2);
     await expect(page.locator('[data-lp-summary]')).toHaveText(lang === 'en'
       ? "You targeted 1 of the author's 4 misconceptions, and 1 of your own."
@@ -224,7 +263,7 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     await page.locator('[data-lp-compare]').click();
     const check = async () => {
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-      expect(await page.evaluate(() => [...document.querySelectorAll('p, label, legend, button, li, h2')].filter(el => el.getClientRects().length && !el.matches('[role="status"]')).flatMap(el => {
+      expect(await page.evaluate(() => [...document.querySelectorAll('p, label, legend, button, li, h2, h3')].filter(el => el.getClientRects().length && !el.matches('[role="status"]')).flatMap(el => {
         const failures = [];
         if (el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1) failures.push(el.textContent);
         const children = [...el.children].filter(child => child.getClientRects().length);
@@ -346,7 +385,7 @@ test('result text escapes hostile learner input and custom tags', async ({ page 
   expect(await page.evaluate(() => window.lpInjected)).toBeUndefined();
 });
 
-test('forced colours keeps focus rings and distinct secondary button', async ({ page, browserName }) => {
+test('forced colours keeps focus rings and quiet Start over', async ({ page, browserName }) => {
   test.skip(browserName !== 'chromium', 'Forced colours emulation checked in Chromium.');
   await page.emulateMedia({ forcedColors: 'active' }); await open(page); await fill(page, true); await page.locator('[data-lp-compare]').click();
   for (const field of [page.locator('textarea').first(), page.locator('select').first(), page.locator('input').nth(1), page.locator('[data-lp-compare]'), page.locator('[data-lp-clear]')]) {
@@ -357,13 +396,23 @@ test('forced colours keeps focus rings and distinct secondary button', async ({ 
   const colors = await page.evaluate(() => {
     const probe = document.createElement('span'); document.body.append(probe);
     probe.style.color = 'ButtonText'; const text = getComputedStyle(probe).color;
-    probe.style.color = 'ButtonFace'; const face = getComputedStyle(probe).color; probe.remove(); return { text, face };
+    probe.style.color = 'ButtonFace'; const face = getComputedStyle(probe).color;
+    probe.style.color = 'LinkText'; const link = getComputedStyle(probe).color;
+    probe.remove();
+    // Chromium replaces a focused transparent button border in forced colours.
+    // Resolve that native border in the active palette, just like system ink.
+    const button = document.createElement('button');
+    button.style.cssText = 'border:1px solid transparent;color:LinkText;background:ButtonFace';
+    document.body.append(button); button.focus();
+    const quietBorder = getComputedStyle(button).borderColor;
+    button.remove(); document.querySelector('[data-lp-clear]').focus();
+    return { text, face, link, quietBorder };
   });
   const styles = await page.locator('[data-lp-flow] button').evaluateAll(elements => elements.map(el => {
-    const css = getComputedStyle(el); return { color: css.color, background: css.backgroundColor, border: css.borderColor, style: css.borderStyle };
+    const css = getComputedStyle(el); return { color: css.color, background: css.backgroundColor, border: css.borderColor, style: css.borderStyle, underline: css.textDecorationLine };
   }));
   expect(styles).toEqual([
-    { color: colors.text, background: colors.face, border: colors.text, style: 'solid' },
-    { color: colors.text, background: colors.face, border: colors.text, style: 'dashed' }
+    { color: colors.text, background: colors.face, border: colors.text, style: 'solid', underline: 'none' },
+    { color: colors.link, background: colors.face, border: colors.quietBorder, style: 'solid', underline: 'underline' }
   ]);
 });

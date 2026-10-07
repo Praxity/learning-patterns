@@ -1,4 +1,5 @@
 import { escapeHtml as html } from '../../lib/html.js';
+import { icons } from '../../lib/icons.js';
 import { validateContent, targetOf, MAX_OPTION, MAX_CUSTOM, OTHER } from './logic.js';
 
 /** @param {import('./logic.js').Content} content
@@ -11,39 +12,51 @@ export function render(content, strings, { id, lang }) {
     const prefix = `${id}-option-${index}`;
     /** @param {string} field */
     const fieldId = field => html(`${prefix}-${field}`);
-    return `<fieldset class="lp-write-distractors-option" data-lp-option>
-    <legend>${html(strings.option.replaceAll('{n}', String(index + 1)))}</legend>
-    <label for="${fieldId('text')}">${html(strings.text)}</label>
-    <textarea id="${fieldId('text')}" data-lp-text rows="3" maxlength="${MAX_OPTION}" aria-describedby="${fieldId('text-error')}"></textarea>
-    <p class="lp-write-distractors-error" id="${fieldId('text-error')}" data-lp-text-error hidden></p>
-    <label for="${fieldId('misconception')}">${html(strings.misconception)}</label>
-    <select id="${fieldId('misconception')}" data-lp-misconception aria-describedby="${fieldId('misconception-error')}">
+    return `<div class="lp-section">
+  <fieldset class="lp-write-distractors-option" data-lp-option>
+    <legend class="lp-run-in">${html(strings.option.replaceAll('{n}', String(index + 1)))}</legend>
+    <div>
+    <label class="lp-label" for="${fieldId('text')}">${html(strings.text)}</label>
+    <textarea class="lp-input" id="${fieldId('text')}" data-lp-text rows="3" maxlength="${MAX_OPTION}" aria-describedby="${fieldId('text-error')}"></textarea>
+    <p class="lp-error-text" id="${fieldId('text-error')}" data-lp-text-error hidden></p>
+    </div>
+    <div>
+    <label class="lp-label" for="${fieldId('misconception')}">${html(strings.misconception)}</label>
+    <select class="lp-input" id="${fieldId('misconception')}" data-lp-misconception aria-describedby="${fieldId('misconception-error')}">
       <option value="">${html(strings.chooseOne)}</option>
       ${content.misconceptions.map(item => `<option value="${html(item.id)}">${html(item.label)}</option>`).join('\n      ')}
       <option value="${OTHER}">${html(strings.other)}</option>
     </select>
-    <p class="lp-write-distractors-error" id="${fieldId('misconception-error')}" data-lp-misconception-error hidden></p>
-    <div data-lp-custom-wrap hidden>
-      <label for="${fieldId('custom')}">${html(strings.custom)}</label>
-      <input id="${fieldId('custom')}" data-lp-custom type="text" maxlength="${MAX_CUSTOM}" aria-describedby="${fieldId('custom-error')}">
-      <p class="lp-write-distractors-error" id="${fieldId('custom-error')}" data-lp-custom-error hidden></p>
+    <p class="lp-error-text" id="${fieldId('misconception-error')}" data-lp-misconception-error hidden></p>
     </div>
-  </fieldset>`;
+    <div data-lp-custom-wrap hidden>
+      <label class="lp-label" for="${fieldId('custom')}">${html(strings.custom)}</label>
+      <input class="lp-input" id="${fieldId('custom')}" data-lp-custom type="text" maxlength="${MAX_CUSTOM}" aria-describedby="${fieldId('custom-error')}">
+      <p class="lp-error-text" id="${fieldId('custom-error')}" data-lp-custom-error hidden></p>
+    </div>
+  </fieldset>
+  </div>`;
   }).join('\n  ');
-  return `<section class="lp-write-distractors" data-lp-pattern="write-distractors" lang="${html(lang)}">
-  <h2>${html(strings.question)}</h2><p>${html(content.question)}</p>
-  <h2>${html(strings.rightAnswer)}</h2><p>${html(content.rightAnswer)}</p>
-  <details class="lp-write-distractors-fallback" data-lp-fallback>
+  return `<section class="lp lp-write-distractors" data-lp-pattern="write-distractors" lang="${html(lang)}">
+  <p class="lp-stem">${html(content.question)}</p>
+  <div class="lp-stack">
+    <p class="lp-run-in">${html(strings.rightAnswer)}</p><p>${html(content.rightAnswer)}</p>
+  </div>
+  <details class="lp-details lp-section" data-lp-fallback>
     <summary>${html(strings.author)}</summary>
-    <ul>${content.authorOptions.map(item => `<li><p>${html(item.text)}</p><p>${html(strings.targets.replaceAll('{target}', targetOf(content, item)))}</p></li>`).join('')}</ul>
+    <ul class="lp-write-distractors-list">${content.authorOptions.map(item => `<li><p>${html(item.text)}</p><p class="lp-small">${html(strings.targets.replaceAll('{target}', targetOf(content, item)))}</p></li>`).join('')}</ul>
   </details>
   <div data-lp-flow hidden>
-    <p>${html(strings.instruction.replaceAll('{count}', String(content.count)))}</p>
+    <p class="lp-small">${html(strings.instruction.replaceAll('{count}', String(content.count)))}</p>
     ${fields}
-    <button class="lp-write-distractors-button" type="button" data-lp-compare>${html(strings.compare)}</button>
-    <div data-lp-result hidden></div>
-    <button class="lp-write-distractors-button lp-write-distractors-button-secondary" type="button" data-lp-clear hidden>${html(strings.clear)}</button>
+    <div class="lp-actions">
+      <button class="lp-button" type="button" data-lp-compare>${html(strings.compare)}</button>
+    </div>
+    <div class="lp-section" data-lp-result hidden></div>
+    <div class="lp-actions">
+      <button class="lp-button lp-button-quiet" type="button" data-lp-clear hidden>${icons.refresh}${html(strings.clear)}</button>
+    </div>
   </div>
-  <p class="lp-write-distractors-status" role="status" aria-atomic="true"></p>
+  <p class="lp-visually-hidden" role="status" aria-atomic="true"></p>
 </section>`;
 }
