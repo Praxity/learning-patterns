@@ -27,7 +27,7 @@ export function render(content, strings, { id, lang }) {
         <p data-lp-fallback-answer>${html(part.answer)}</p>
       </details>
       <button class="lp-button lp-button-secondary" type="button" data-lp-commit aria-controls="${answer}" hidden>${html(strings.commit)}</button>
-      <div class="lp-reveal" id="${answer}" data-lp-answer role="region" aria-label="${html(strings.answer)}" tabindex="-1" hidden>
+      <div id="${answer}" data-lp-answer role="region" aria-label="${html(strings.answer)}" tabindex="-1" hidden>
         <p>${html(part.answer)}</p>
       </div>
       <div class="lp-stack" data-lp-rating hidden>

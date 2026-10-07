@@ -411,15 +411,12 @@ test('forced colours preserves focus outlines and a visible pressed state', asyn
   await expect(part(page).locator('[data-lp-mark]')).toHaveCount(0);
 });
 
-for (const reducedMotion of ['no-preference', 'reduce']) {
-  test('answer uses the shared rise without height animation, motion=' + reducedMotion, async ({ page }) => {
-    await page.emulateMedia({ reducedMotion }); await open(page);
-    await part(page).locator('[data-lp-commit]').click();
-    const answer = part(page).locator('[data-lp-answer]');
-    await expect(answer).toHaveClass(/lp-reveal/);
-    await expect(answer).toHaveCSS('animation-name', reducedMotion === 'reduce' ? 'none' : 'lp-rise');
-    await expect(answer).toHaveCSS('animation-duration', reducedMotion === 'reduce' ? '0s' : '0.3s');
-    expect(await answer.evaluate(el => [...document.styleSheets].flatMap(sheet => [...sheet.cssRules]).filter(rule => rule.name === 'lp-rise').flatMap(rule => [...rule.cssRules]).flatMap(rule => [...rule.style]))).toEqual(['opacity', 'transform']);
-    await expect(answer).toBeFocused();
-  });
-}
+test('answer opens at once, with no rise or fade', async ({ page }) => {
+  await open(page);
+  await part(page).locator('[data-lp-commit]').click();
+  const answer = part(page).locator('[data-lp-answer]');
+  await expect(answer).toBeVisible();
+  await expect(answer).toHaveCSS('animation-name', 'none');
+  await expect(answer).toHaveCSS('transition-duration', '0s');
+  await expect(answer).toBeFocused();
+});
