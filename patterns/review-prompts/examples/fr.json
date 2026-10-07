@@ -1,0 +1,38 @@
+{
+  "parts": [
+    {
+      "id": "stonewalling",
+      "heading": "Ce qu'est l'évitement",
+      "paragraphs": [
+        "Le psychologue John Gottman et ses collègues ont observé des couples discuter pendant 15 minutes. À partir de cette seule observation, ils pouvaient prédire avec une précision de 93 % quels couples allaient divorcer. Ils ont nommé quatre comportements qui annoncent une rupture : la critique, la défensive, le mépris et l'évitement.",
+        "Ces comportements nuisent aussi aux relations de travail, y compris entre un gestionnaire et son équipe. Quand le blâme, le mépris et l'évitement prennent le dessus, la confiance diminue et le travail en souffre.",
+        "L'évitement consiste à vous retirer de la conversation. Vous vous taisez, changez de sujet ou quittez la pièce. Cela arrive souvent quand vous vous sentez dépassé. L'autre personne ne le voit pas. Elle vous voit partir sans un mot et se sent ignorée ou rejetée."
+      ],
+      "question": "À quoi ressemble l'évitement et comment l'autre personne se sent-elle?",
+      "answer": "Vous vous retirez sans un mot. Vous vous taisez, changez de sujet ou partez. L'autre personne se sent ignorée ou rejetée."
+    },
+    {
+      "id": "time_out",
+      "heading": "Ce qu'est un temps mort",
+      "paragraphs": [
+        "Un temps mort vous permet aussi de prendre du recul, mais vous l'annoncez. Dites à l'autre personne que vous avez besoin de quelques minutes pour réfléchir, puis reprenez la conversation. Elle sait que vous reviendrez et ne se sent donc pas abandonnée.",
+        "Roxanne a tendance à prendre du recul quand quelqu'un dit quelque chose qui la contrarie. Maintenant, quand elle fait une pause, elle dit à la personne qu'elle a besoin de temps pour réfléchir. Elle ne l'évite pas et ne l'ignore pas.",
+        "Supposons que Michel sente la colère monter pendant une réunion tendue. Fixer son écran jusqu'à la fin de la réunion, c'est de l'évitement. Sortir pour se calmer sans dire pourquoi aussi. Un temps mort ressemble plutôt à ceci : \"J'ai besoin de quelques minutes. Reprenons après la pause.\""
+      ],
+      "question": "Qu'est-ce qui transforme une pause en temps mort?",
+      "answer": "Vous dites que vous avez besoin de temps pour réfléchir avant de vous éloigner. Puis vous reprenez la conversation."
+    },
+    {
+      "id": "return",
+      "heading": "Comment reprendre la conversation",
+      "paragraphs": [
+        "Reprenez la même conversation. Si vous changez de sujet à votre retour, vous êtes encore dans l'évitement, car le problème reste entier.",
+        "Reconnaître ces comportements est la première étape. Quand vous en remarquez un, prévoyez ce que vous ferez à la place. N'attendez pas que les problèmes se règlent d'eux-mêmes. Les émotions négatives peuvent durer.",
+        "Si vous avez évité la conversation avant de penser à un temps mort, revenez sur ce qui s'est passé pour réparer la relation. Retournez voir la personne et parlez-en. Reconnaissez votre part et présentez vos excuses. Proposez ensuite de poursuivre sur un ton plus positif."
+      ],
+      "question": "Vous avez quitté une réunion tendue sans un mot. Que faites-vous maintenant?",
+      "answer": "Retournez voir la personne. Reconnaissez votre part et présentez vos excuses. Proposez ensuite de poursuivre sur un ton plus positif."
+    }
+  ],
+  "reviewDays": { "remembered": 3, "forgot": 1 }
+}

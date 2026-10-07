@@ -1,0 +1,41 @@
+{
+  "parts": [
+    {
+      "id": "stonewalling",
+      "heading": "What stonewalling is",
+      "paragraphs": [
+        "Psychologist John Gottman and his colleagues watched couples talk for 15 minutes. From that alone, they could predict with 93% accuracy which couples would divorce. They named four behaviours that signal a break-up. They called them the four horsemen: criticism, defensiveness, contempt and stonewalling.",
+        "The horsemen damage working relationships too, including between a leader and their team. Where blame, contempt and stonewalling take over, trust fades and work suffers.",
+        "Stonewalling means you withdraw from the conversation. You go quiet, change the subject or leave the room. It usually happens when you feel overwhelmed. The other person can't see that. They see you leave without a word, and they feel ignored or rejected."
+      ],
+      "question": "What does stonewalling look like, and how does the other person feel?",
+      "answer": "You withdraw without a word. You go quiet, change the subject or leave. The other person feels ignored or rejected."
+    },
+    {
+      "id": "time_out",
+      "heading": "What a time-out is",
+      "paragraphs": [
+        "A time-out also gives you distance, but you announce it. Tell the other person you need a few minutes to think, then come back to the conversation. They know you will return, so they don't feel abandoned.",
+        "Roxanne tends to step back when someone says something upsetting. Now when she pauses, she tells the person she needs time to think. She isn't avoiding or ignoring them.",
+        "Say Michel feels his anger rising in a tense meeting. Staring at his screen until the meeting ends is stonewalling. So is walking out to calm down without saying why. A time-out sounds like \"I need a few minutes. Let's pick this up after the break.\""
+      ],
+      "question": "What turns a pause into a time-out?",
+      "answer": "You say you need time to think before you step away. Then you come back to the conversation."
+    },
+    {
+      "id": "return",
+      "heading": "How to come back",
+      "paragraphs": [
+        "Return to the same conversation. If you change the subject when you come back, you are still stonewalling, because the problem stays where it was.",
+        "Spotting the horsemen is the first step. When you see one, plan what you'll do instead. Don't wait for problems to settle by themselves. Bad feelings can last.",
+        "If you stonewalled before you thought of a time-out, repair it with a recovery conversation. Go back to the person and talk through what happened. Acknowledge your part and apologise. Then offer to carry on in a more positive tone."
+      ],
+      "question": "You walked out of a tense meeting without a word. What do you do now?",
+      "answer": "Go back to the person. Acknowledge your part and apologise. Then offer to carry on in a more positive tone."
+    }
+  ],
+  "reviewDays": {
+    "remembered": 3,
+    "forgot": 1
+  }
+}
