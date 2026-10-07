@@ -263,7 +263,7 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     await page.locator('[data-lp-compare]').click();
     const check = async () => {
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-      expect(await page.evaluate(() => [...document.querySelectorAll('p, label, legend, button, li, h2')].filter(el => el.getClientRects().length && !el.matches('[role="status"]')).flatMap(el => {
+      expect(await page.evaluate(() => [...document.querySelectorAll('p, label, legend, button, li, h2, h3')].filter(el => el.getClientRects().length && !el.matches('[role="status"]')).flatMap(el => {
         const failures = [];
         if (el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1) failures.push(el.textContent);
         const children = [...el.children].filter(child => child.getClientRects().length);
