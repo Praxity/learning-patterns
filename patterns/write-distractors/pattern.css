@@ -1,4 +1,4 @@
-﻿/* Shared styles and tokens live in lib/base.css; link it first. */
+/* Shared styles and tokens live in lib/base.css; link it first. */
 .lp-write-distractors-option { min-inline-size: 0; padding: 0; border: 0; }
 .lp-write-distractors-option > legend { max-inline-size: 100%; padding: 0; margin-block-end: 16px; }
 .lp-write-distractors-option > div + div { margin-block-start: 16px; }

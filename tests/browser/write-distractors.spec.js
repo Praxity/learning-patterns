@@ -52,6 +52,8 @@ test('shared course design keeps one frame and local icon feedback', async ({ pa
   await expect(yours.nth(0).locator('.lp-met path[d="M5 12l5 5l10 -10"]')).toHaveCount(1);
   await expect(yours.nth(1).locator('.lp-neutral')).toHaveText("A misconception the author's options don't cover");
   await expect(yours.nth(1).locator('.lp-neutral path[d="M8.56 3.69a9 9 0 0 0 -2.92 1.95"]')).toHaveCount(1);
+  expect(await yours.nth(0).locator('.lp-met').evaluate(el => getComputedStyle(el).color)).toBe('rgb(20, 108, 67)');
+  expect(await yours.nth(1).locator('.lp-neutral').evaluate(el => getComputedStyle(el).color)).toBe('rgb(74, 80, 90)');
   for (const item of await yours.all()) {
     await expect(item.locator('p').nth(1)).toHaveClass(/lp-(met|neutral)/);
     await expect(item.locator('p').nth(2)).toHaveClass('lp-small');
@@ -396,13 +398,21 @@ test('forced colours keeps focus rings and quiet Start over', async ({ page, bro
     probe.style.color = 'ButtonText'; const text = getComputedStyle(probe).color;
     probe.style.color = 'ButtonFace'; const face = getComputedStyle(probe).color;
     probe.style.color = 'LinkText'; const link = getComputedStyle(probe).color;
-    probe.remove(); return { text, face, link };
+    probe.remove();
+    // Chromium replaces a focused transparent button border in forced colours.
+    // Resolve that native border in the active palette, just like system ink.
+    const button = document.createElement('button');
+    button.style.cssText = 'border:1px solid transparent;color:LinkText;background:ButtonFace';
+    document.body.append(button); button.focus();
+    const quietBorder = getComputedStyle(button).borderColor;
+    button.remove(); document.querySelector('[data-lp-clear]').focus();
+    return { text, face, link, quietBorder };
   });
   const styles = await page.locator('[data-lp-flow] button').evaluateAll(elements => elements.map(el => {
     const css = getComputedStyle(el); return { color: css.color, background: css.backgroundColor, border: css.borderColor, style: css.borderStyle, underline: css.textDecorationLine };
   }));
   expect(styles).toEqual([
     { color: colors.text, background: colors.face, border: colors.text, style: 'solid', underline: 'none' },
-    { color: colors.link, background: colors.face, border: 'rgba(0, 0, 0, 0)', style: 'solid', underline: 'underline' }
+    { color: colors.link, background: colors.face, border: colors.quietBorder, style: 'solid', underline: 'underline' }
   ]);
 });
