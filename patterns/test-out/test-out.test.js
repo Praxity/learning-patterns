@@ -116,6 +116,15 @@ test('server HTML has scene, outline, grouped keyed questions, native answers an
   assert.match(b, /lang="fr"/); assert.ok(b.includes('Vérification des acquis'));
 });
 
+test('advanced answer explanations describe course credit without claiming mastery evidence', () => {
+  const en = render(content, strings.en, { id: 'en', lang: 'en' });
+  const fr = render(french, strings.fr, { id: 'fr', lang: 'fr' });
+  assert.ok(en.includes('Passing this section also credits Roles in a meeting.'));
+  assert.ok(en.includes('Passing this section also credits Roles in a meeting and Running the discussion.'));
+  assert.ok(fr.includes('Réussir cette section vous donne aussi le crédit pour la section sur les rôles en réunion.'));
+  assert.ok(fr.includes('Réussir cette section vous donne aussi le crédit pour les sections sur les rôles et la discussion.'));
+});
+
 test('render escapes authored content, status templates and attributes; inserted placeholders stay literal', () => {
   const hostile = '<script>alert("x")</script> & \'quoted\' {section}';
   const c = structuredClone(content); c.title = hostile; c.sections[0].title = hostile;

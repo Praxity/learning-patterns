@@ -33,7 +33,7 @@
         { "id": "wait", "text": "Let them speak until the meeting ends" },
         { "id": "delegate", "text": "Ask the note taker to decide for everyone" }
       ],
-      "correct": "invite", "explanation": "The facilitator makes room for other people to contribute. This question also checks your understanding of meeting roles."
+      "correct": "invite", "explanation": "The facilitator makes room for other people to contribute. Passing this section also credits Roles in a meeting."
     },
     {
       "id": "follow-up", "section": 4, "text": "What should you confirm before the meeting ends?",
@@ -42,7 +42,7 @@
         { "id": "actions", "text": "The decisions, who will act and by when" },
         { "id": "next-meeting", "text": "That another meeting is already booked" }
       ],
-      "correct": "actions", "explanation": "Confirm decisions, action owners and deadlines. This question also checks the roles and discussion sections it builds on."
+      "correct": "actions", "explanation": "Confirm decisions, action owners and deadlines. Passing this section also credits Roles in a meeting and Running the discussion."
     }
   ]
 }

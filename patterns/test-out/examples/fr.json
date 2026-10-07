@@ -33,7 +33,7 @@
         { "id": "wait", "text": "La laisser parler jusqu'à la fin de la réunion" },
         { "id": "delegate", "text": "Demander à la personne qui prend les notes de décider pour tout le monde" }
       ],
-      "correct": "invite", "explanation": "La personne qui anime la réunion laisse de la place aux autres. Cette question vérifie aussi votre compréhension des rôles en réunion."
+      "correct": "invite", "explanation": "La personne qui anime la réunion laisse de la place aux autres. Réussir cette section vous donne aussi le crédit pour la section sur les rôles en réunion."
     },
     {
       "id": "follow-up", "section": 4, "text": "Que devriez-vous confirmer avant la fin de la réunion?",
@@ -42,7 +42,7 @@
         { "id": "actions", "text": "Les décisions, les personnes qui agiront et les échéances" },
         { "id": "next-meeting", "text": "Qu'une autre réunion est déjà prévue" }
       ],
-      "correct": "actions", "explanation": "Confirmez les décisions, les responsables des actions et les échéances. Cette question vérifie aussi les notions des sections sur les rôles et la discussion."
+      "correct": "actions", "explanation": "Confirmez les décisions, les responsables des actions et les échéances. Réussir cette section vous donne aussi le crédit pour les sections sur les rôles et la discussion."
     }
   ]
 }
