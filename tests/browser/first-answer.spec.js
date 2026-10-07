@@ -472,3 +472,13 @@ test('Chromium forced colours keeps focus rings, borders and quiet link actions'
     expect(await page.locator(selector).evaluate(el => [getComputedStyle(el).color, getComputedStyle(el).outlineColor, getComputedStyle(el).outlineWidth])).toEqual([colors.LinkText, colors.Highlight, '2px']);
   }
 });
+
+test('at the end of the course the first answer shows once, under the new answer', async ({ page }) => {
+  await open(page);
+  await saveFirst(page);
+  await expect(page.locator('[data-lp-first-step]')).toBeVisible();
+  await page.locator('[data-lp-skip]').click();
+  await expect(page.locator('[data-lp-first-step]')).toBeHidden();
+  await compare(page);
+  await expect(page.getByText('Stop interrupting me.', { exact: true }).filter({ visible: true })).toHaveCount(1);
+});

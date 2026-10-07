@@ -82,7 +82,7 @@ export function enhance(root, { content, strings, state }) {
    */
   function paint(restoreDraft = false) {
     if (first) {
-      first.step.hidden = record.first === null && record.now !== null;
+      first.step.hidden = (record.first === null && record.now !== null) || (stage === 'both' && endOpen);
       first.editor.hidden = record.first !== null;
       first.saved.hidden = record.first === null;
       first.save.hidden = record.first !== null;
