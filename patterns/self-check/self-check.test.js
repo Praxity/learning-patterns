@@ -87,9 +87,9 @@ test('render escapes all plain text and attribute values and prefixes every id',
   for (const part of content.parts) assert.ok(a.includes(part.missed));
 });
 
-test('render keeps Start again hidden until the checklist step', () => {
+test('render keeps Start over hidden until the checklist step', () => {
   const html = render(content, strings.en, { id: 'practice', lang: 'en' });
-  assert.match(html, /<button\b[^>]*data-lp-restart[^>]*\bhidden\b[^>]*>(?:<svg[\s\S]*?<\/svg>)?Start again<\/button>/);
+  assert.match(html, /<button\b[^>]*data-lp-restart[^>]*\bhidden\b[^>]*>(?:<svg[\s\S]*?<\/svg>)?Start over<\/button>/);
 });
 
 test('English and French UI keys and placeholders match', () => {

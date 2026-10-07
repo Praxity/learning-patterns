@@ -46,7 +46,7 @@ test('keyboard-only journey, error association, focus and one mutation per annou
   await expect(page.locator('[data-lp-result]')).toContainText('Included');
   await expect(page.locator('[data-lp-result]')).toContainText('Not included');
   await page.keyboard.press('Enter'); await expect(show).toBeFocused();
-  await page.keyboard.press('Tab'); await expect(page.getByRole('button', { name: 'Start again' })).toBeFocused();
+  await page.keyboard.press('Tab'); await expect(page.getByRole('button', { name: 'Start over' })).toBeFocused();
   await page.keyboard.press('Enter'); await expect(answer).toBeFocused();
   await expect(answer).toHaveValue(''); await expect(page.locator('[data-lp-ticks]')).toBeHidden();
   await expect(page.locator('[data-lp-result]')).toBeHidden();
@@ -74,7 +74,7 @@ for (const [lang, content, included, notIncluded] of [
   });
 }
 
-test('Start again is hidden initially and after reset, and available from the checklist', async ({ page }) => {
+test('Start over is hidden initially and after reset, and available from the checklist', async ({ page }) => {
   await open(page); await observeStatus(page);
   const restart = page.locator('[data-lp-restart]');
   await expect(restart).toBeHidden();
@@ -90,7 +90,7 @@ test('Start again is hidden initially and after reset, and available from the ch
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Cleared.', 'You ticked 0 of 6 parts.', 'Cleared.']);
 });
 
-test('Start again is a quiet text button with an icon, the same target size and focus ring', async ({ page }) => {
+test('Start over is a quiet text button with an icon, the same target size and focus ring', async ({ page }) => {
   await open(page); await ticks(page);
   const restart = page.locator('[data-lp-restart]');
   const style = await restart.evaluate(el => {
@@ -100,7 +100,7 @@ test('Start again is a quiet text button with an icon, the same target size and 
   expect(style).toMatchObject({ background: 'rgba(0, 0, 0, 0)', color: 'rgb(29, 61, 107)', border: 'rgba(0, 0, 0, 0)', underline: 'underline', minHeight: '44px' });
   expect(style.height).toBeGreaterThanOrEqual(44);
   await expect(restart.locator('svg')).toHaveAttribute('aria-hidden', 'true');
-  await expect(restart).toHaveAccessibleName('Start again');
+  await expect(restart).toHaveAccessibleName('Start over');
   for (const name of ['check', 'show', 'restart']) {
     const button = page.locator(`[data-lp-${name}]`);
     if (name !== 'restart') {
@@ -142,7 +142,7 @@ test('editing answers or ticks preserves feedback, next submit replaces it and s
   await page.getByRole('button', { name: 'Show feedback' }).click();
   await expect(page.locator('[data-lp-result] > p').first()).toHaveText('You ticked 2 of 6 parts.');
   await expect(page.locator('[data-lp-result] > ul')).toHaveCount(1);
-  await page.getByRole('button', { name: 'Start again' }).click();
+  await page.getByRole('button', { name: 'Start over' }).click();
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ answer: '', ticked: [], shown: false });
 });
 

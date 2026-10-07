@@ -11,7 +11,7 @@ export const strings = {
     summary: 'You ticked {count} of {total} parts.',
     included: 'Included',
     notIncluded: 'Not included',
-    restart: 'Start again',
+    restart: 'Start over',
     cleared: 'Cleared.'
   },
   fr: {

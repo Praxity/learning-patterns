@@ -20,7 +20,7 @@ Use it when learners can judge their own answers against a short list of clear p
 1. Write an answer and select "Check my answer". An empty answer gets an error next to the text box.
 2. Tick the parts your answer includes.
 3. Select "Show feedback". Each result names the part with "Included" or "Not included". Unticked parts also show a hint on its own line. Read the count and model answer. You can edit your answer and ticks, then submit again.
-4. "Start again" appears with the checklist. Select it to clear the answer, ticks and result. It hides again after reset.
+4. "Start over" appears with the checklist. Select it to clear the answer, ticks and result. It hides again after reset.
 
 Without JavaScript, open "Check your own answer" to read every part's hint and the model answer.
 
