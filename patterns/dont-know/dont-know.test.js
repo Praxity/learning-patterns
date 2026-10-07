@@ -115,11 +115,39 @@ test('render escapes text, strings and attributes; ids and radio groups are inst
   assert.ok(ids.every(id => id.startsWith('a-') || id.startsWith('b-')));
   assert.equal((a.match(/role="status"/g) || []).length, 1);
   assert.match(a, /role="status"[^>]*><\/p>/);
-  assert.match(a, /Right \+1, wrong −1, I don&#39;t know 0/);
+  assert.match(a, /A right answer scores a point\. A wrong answer costs a point\. &quot;I don&#39;t know&quot; costs nothing\./);
   assert.match(a, /data-lp-restart hidden/);
   assert.match(a, /<details[^>]*data-lp-fallback/);
   assert.equal((a.match(/type="radio"/g) || []).length, 16);
   for (const q of content.questions) assert.ok(a.includes(q.explanation));
+});
+
+test('render explains authored scoring in words, including sign, zero, singular and plural in both languages', () => {
+  const cases = [
+    ['en', { right: 1, wrong: -1, unknown: 0 }, 'A right answer scores a point. A wrong answer costs a point. &quot;I don&#39;t know&quot; costs nothing.'],
+    ['en', { right: 2, wrong: -0.5, unknown: 0.25 }, 'A right answer scores 2 points. A wrong answer costs 0.5 points. &quot;I don&#39;t know&quot; scores 0.25 points.'],
+    ['en', { right: -2, wrong: 1, unknown: -1 }, 'A right answer costs 2 points. A wrong answer scores a point. &quot;I don&#39;t know&quot; costs a point.'],
+    ['en', { right: 0, wrong: -0, unknown: 1 }, 'A right answer scores no points. A wrong answer costs nothing. &quot;I don&#39;t know&quot; scores a point.'],
+    ['fr', { right: 1, wrong: -1, unknown: 0 }, 'Une bonne réponse rapporte un point. Une mauvaise réponse coûte un point. « Je ne sais pas » ne coûte rien.'],
+    ['fr', { right: 2.5, wrong: -2, unknown: 0.25 }, 'Une bonne réponse rapporte 2,5 points. Une mauvaise réponse coûte 2 points. « Je ne sais pas » rapporte 0,25 point.'],
+    ['fr', { right: -1, wrong: 0, unknown: 2 }, 'Une bonne réponse coûte un point. Une mauvaise réponse ne coûte rien. « Je ne sais pas » rapporte 2 points.'],
+    ['fr', { right: 0, wrong: 1, unknown: -0.5 }, 'Une bonne réponse ne rapporte aucun point. Une mauvaise réponse rapporte un point. « Je ne sais pas » coûte 0,5 point.']
+  ];
+  for (const [lang, points, expected] of cases) {
+    assert.ok(render({ ...content, points }, strings[lang], { id: 'scoring', lang }).includes(expected), expected);
+  }
+});
+
+test('server markup uses shared course styles and focusable question targets without inner boxes', () => {
+  const output = render(content, strings.en, { id: 'practice', lang: 'en' });
+  assert.match(output, /class="lp lp-dont-know"/);
+  assert.equal((output.match(/class="lp-choices"/g) || []).length, 4);
+  assert.equal((output.match(/<legend class="lp-stem"/g) || []).length, 4);
+  assert.equal((output.match(/class="lp-choice"/g) || []).length, 16);
+  assert.equal((output.match(/id="practice-question-\d" tabindex="-1"/g) || []).length, 4);
+  assert.match(output, /class="lp-details lp-section"/);
+  assert.match(output, /class="lp-button lp-button-quiet"[^>]*data-lp-restart hidden/);
+  assert.match(output, /lp-error-text[^>]*data-lp-question-error hidden><svg[\s\S]*?Choose an answer/);
 });
 
 test('English and French keys and template placeholders match', () => {

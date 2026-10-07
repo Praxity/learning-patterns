@@ -23,6 +23,26 @@ async function observe(page) {
 }
 const scan = async page => expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()).violations).toEqual([]);
 
+test('shared course styles give one box, serif stems, full-width choices and an untinted selected border', async ({ page }) => {
+  await open(page);
+  const root = page.locator('[data-lp-pattern]');
+  await expect(root).toHaveClass('lp lp-dont-know');
+  await expect(root).toHaveCSS('border-top-width', '1px');
+  await expect(root).toHaveCSS('border-radius', '8px');
+  for (const question of await page.locator('fieldset').all()) {
+    await expect(question).toHaveCSS('border-top-width', '0px');
+    await expect(question.locator('legend')).toHaveCSS('font-family', /Source Serif 4/);
+    await expect(question.locator('legend')).toHaveCSS('font-size', '24px');
+  }
+  await page.locator('input').first().check();
+  const selected = page.locator('label:has(input:checked)');
+  await expect(selected).toHaveCSS('border-top-width', '2px');
+  await expect(selected).toHaveCSS('border-top-color', 'rgb(29, 61, 107)');
+  await expect(selected).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+  const sizes = await root.evaluate(el => [...el.querySelectorAll('.lp-choice')].map(row => [row.getBoundingClientRect().width, row.parentElement.getBoundingClientRect().width]));
+  expect(sizes.every(([row, question]) => Math.abs(row - question) < 1)).toBe(true);
+});
+
 test('keyboard journey associates each unanswered error, focuses first missing radio and announces each result once', async ({ page }) => {
   await open(page); await observe(page);
   const questions = page.locator('fieldset');
@@ -39,27 +59,33 @@ test('keyboard journey associates each unanswered error, focuses first missing r
     const id = await fieldset.getAttribute('aria-describedby');
     await expect(page.locator(`[id="${id}"]`)).toHaveText('Choose an answer');
     await expect(fieldset.locator('input').first()).toHaveAttribute('aria-describedby', id);
+    await expect(fieldset.locator('[data-lp-question-error] svg[aria-hidden="true"]')).toHaveCount(1);
   }
+  await expect(page.locator('[data-lp-error] svg[aria-hidden="true"]')).toHaveCount(1);
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
   await page.keyboard.press('Space'); await page.keyboard.press('Tab');
   await page.keyboard.press('ArrowDown'); await page.keyboard.press('ArrowDown'); await page.keyboard.press('ArrowDown');
   await page.keyboard.press('Tab'); await page.keyboard.press('Space');
   await page.keyboard.press('Tab'); await expect(check).toBeFocused(); await page.keyboard.press('Enter');
-  await expect(check).toBeFocused();
+  await expect(page.locator('[data-lp-result] > p').first()).toBeFocused();
   await expect(page.locator('[data-lp-result] > p').first()).toHaveText('Score 1 out of 4.');
-  await page.keyboard.press('Enter'); await expect(check).toBeFocused();
-  await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-restart]')).toBeFocused();
+  await expect(check).toBeHidden();
+  await page.keyboard.press('Tab'); await expect(page.getByRole('link', { name: english.questions[1].text, exact: true })).toBeFocused();
+  await page.keyboard.press('Enter'); await expect(questions.nth(1)).toBeFocused();
+  await page.locator('[data-lp-result] > p').first().focus();
+  for (let n = 0; n < 3; n++) await page.keyboard.press('Tab');
+  await expect(page.locator('[data-lp-restart]')).toBeFocused();
   await page.keyboard.press('Enter'); await expect(questions.first().locator('input').first()).toBeFocused();
   await expect(page.locator('input:checked')).toHaveCount(0);
   await expect(page.locator('[data-lp-result]')).toBeHidden(); await expect(page.locator('[data-lp-restart]')).toBeHidden();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Score 1 out of 4.', 'Score 1 out of 4.', 'Answers cleared.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Score 1 out of 4.', 'Cleared.']);
 });
 
-for (const [lang, content, labels, counts] of [
-  ['en', english, ['Wrong: review these first', "I don't know: gaps to fill", 'Right'], '2 right, 1 wrong, 1 "I don\'t know".'],
-  ['fr', french, ["Mauvaises réponses : à revoir d'abord", 'Je ne sais pas : notions à apprendre', 'Bonnes réponses'], 'Bonnes réponses : 2, mauvaises réponses : 1, « Je ne sais pas » : 1.']
+for (const [lang, content, correct, wrong, answer, unknown, counts] of [
+  ['en', english, 'Correct', 'Not quite', 'Correct answer', "You chose I don't know", '2 right, 1 wrong, 1 "I don\'t know"'],
+  ['fr', french, 'Correct', 'Pas tout à fait', 'Bonne réponse', 'Vous avez choisi « Je ne sais pas »', '2 bonnes réponses, 1 mauvaise réponse, 1 « Je ne sais pas »']
 ]) {
-  test(`results show summary, counts, wrong explanation and choice, gaps, then right (${lang})`, async ({ page }) => {
+  test(`results mark choices in place, explain only gaps and link back to questions (${lang})`, async ({ page }) => {
     await open(page, `/dont-know/${lang}.html`); await observe(page);
     await expect(page.locator('[data-lp-pattern]')).toHaveAttribute('lang', lang);
     await expect(page.locator('[data-lp-restart]')).toBeHidden();
@@ -67,17 +93,33 @@ for (const [lang, content, labels, counts] of [
     await pick(page); await page.locator('[data-lp-check]').click();
     const result = page.locator('[data-lp-result]');
     await expect(result.locator(':scope > p').nth(1)).toHaveText(counts);
-    await expect(result.getByRole('heading')).toHaveCount(3);
-    for (const [index, label] of labels.entries()) await expect(result.getByRole('heading').nth(index)).toHaveAccessibleName(label);
-    const groups = result.locator('[data-lp-group]');
-    await expect(groups.nth(0)).toContainText(content.questions[1].text);
-    const chosen = content.questions[1].options[0].text;
-    await expect(groups.nth(0)).toContainText(lang === 'en' ? `You chose "${chosen}".` : `Vous avez choisi « ${chosen} ».`);
-    await expect(groups.nth(0)).toContainText(content.questions[1].explanation);
-    await expect(groups.nth(1)).toContainText(content.questions[2].text);
-    await expect(groups.nth(1)).toContainText(content.questions[2].explanation);
-    await expect(groups.nth(2).locator('li')).toHaveText([content.questions[0].text, content.questions[3].text]);
-    await expect(result.locator('[aria-hidden="true"]')).toHaveCount(3);
+    await expect(page.locator('[data-lp-group]')).toHaveCount(0);
+    await expect(page.locator('[data-lp-check]')).toBeHidden();
+    await expect(page.locator('input:disabled')).toHaveCount(16);
+    await expect(page.locator('input:checked')).toHaveCount(4);
+    const questions = page.locator('fieldset');
+    for (const index of [0, 3]) {
+      await expect(questions.nth(index).locator('label:has(input:checked)')).toHaveAttribute('data-lp-mark', 'correct');
+      await expect(questions.nth(index).locator('.lp-choice-mark')).toHaveText(correct);
+      await expect(questions.nth(index).locator('[data-lp-explanation]')).toBeHidden();
+    }
+    await expect(questions.nth(1).locator('label:has(input:checked)')).toHaveAttribute('data-lp-mark', 'wrong');
+    await expect(questions.nth(1).locator('label:has(input:checked) .lp-choice-mark')).toHaveText(wrong);
+    await expect(questions.nth(2).locator('label:has(input:checked) .lp-choice-mark.lp-neutral')).toHaveText(unknown);
+    await expect(questions.nth(2).locator('label:has(input:checked)')).not.toHaveAttribute('data-lp-mark');
+    for (const index of [1, 2]) {
+      await expect(questions.nth(index).locator(`label:has(input[value="${content.questions[index].correct}"])`)).toHaveAttribute('data-lp-mark', 'correct');
+      await expect(questions.nth(index).locator(`label:has(input[value="${content.questions[index].correct}"]) .lp-choice-mark`)).toHaveText(answer);
+      await expect(questions.nth(index).locator('[data-lp-explanation]')).toHaveText(content.questions[index].explanation);
+    }
+    await expect(page.locator('.lp-choice-mark')).toHaveCount(6);
+    await expect(page.locator('.lp-choice-mark svg[aria-hidden="true"][focusable="false"]')).toHaveCount(6);
+    const links = result.getByRole('link');
+    await expect(links).toHaveText([content.questions[1].text, content.questions[2].text]);
+    for (const index of [1, 2]) {
+      await links.nth(index - 1).click();
+      await expect(questions.nth(index)).toBeFocused();
+    }
     expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([lang === 'en' ? 'Score 1 out of 4.' : 'Score de 1 sur 4.']);
   });
 
@@ -135,17 +177,21 @@ for (const path of ['/dont-know/en.html', '/dont-know/fr.html', '/dont-know/two.
   });
 }
 
-test('all wrong uses true minus; empty groups say None; all unknown and all right are separate', async ({ page }) => {
+test('all wrong, all unknown and all right omit zero counts and unnecessary review links', async ({ page }) => {
   await open(page);
-  await expect(page.locator('.lp-dont-know-rule')).toHaveText("Right +1, wrong −1, I don't know 0.");
-  for (const [values, summary, empty] of [
-    [english.questions.map(q => q.options.find(o => o.id !== q.correct).id), 'Score −4 out of 4.', [1, 2]],
-    [english.questions.map(() => 'dont-know'), 'Score 0 out of 4.', [0, 2]],
-    [english.questions.map(q => q.correct), 'Score 4 out of 4.', [0, 1]]
+  await expect(page.locator('.lp-dont-know-rule')).toHaveText('A right answer scores a point. A wrong answer costs a point. "I don\'t know" costs nothing.');
+  for (const [values, summary, counts, reviews, explanations] of [
+    [english.questions.map(q => q.options.find(o => o.id !== q.correct).id), 'Score −4 out of 4.', '4 wrong', 4, 4],
+    [english.questions.map(() => 'dont-know'), 'Score 0 out of 4.', '4 "I don\'t know"', 4, 4],
+    [english.questions.map(q => q.correct), 'Score 4 out of 4.', '4 right', 0, 0]
   ]) {
     await pick(page, values); await page.locator('[data-lp-check]').click();
     await expect(page.locator('[data-lp-result] > p').first()).toHaveText(summary);
-    for (const index of empty) await expect(page.locator('[data-lp-group]').nth(index).locator('p')).toHaveText('None.');
+    await expect(page.locator('[data-lp-result] > p').nth(1)).toHaveText(counts);
+    await expect(page.locator('[data-lp-result] a')).toHaveCount(reviews);
+    await expect(page.locator('[data-lp-review]')).toHaveCount(reviews ? 1 : 0);
+    await expect(page.locator('[data-lp-explanation]:visible')).toHaveCount(explanations);
+    await page.locator('[data-lp-restart]').click();
   }
 });
 
@@ -162,21 +208,29 @@ test('authored fractional points reach the rule and total; feedback preserves ho
     document.querySelector('main').innerHTML = render(content, strings.en, { id: 'authored', lang: 'en' });
     enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en });
   }, english);
-  await expect(page.locator('.lp-dont-know-rule')).toHaveText("Right +2, wrong −0.5, I don't know +0.25.");
+  await expect(page.locator('.lp-dont-know-rule')).toHaveText('A right answer scores 2 points. A wrong answer costs 0.5 points. "I don\'t know" scores 0.25 points.');
   await pick(page); await page.locator('[data-lp-check]').click();
   await expect(page.locator('[data-lp-result] > p').first()).toHaveText('Score 3.75 out of 8.');
-  await expect(page.locator('[data-lp-group="wrong"] li p')).toHaveText(['You chose "<img src=x onerror=alert(1)> {option} & "quoted"".','<script>alert(1)</script> {total}']);
+  await expect(page.locator('fieldset').nth(1).locator('label:has(input:checked)')).toContainText('<img src=x onerror=alert(1)> {option} & "quoted"');
+  await expect(page.locator('fieldset').nth(1).locator('[data-lp-explanation]')).toHaveText('<script>alert(1)</script> {total}');
   await expect(page.locator('[data-lp-pattern] img, [data-lp-pattern] script')).toHaveCount(0);
 });
 
-test('reset uses a secondary button and theme tokens reach controls and focus', async ({ page }) => {
+test('reset uses a quiet button and theme tokens reach controls and focus', async ({ page }) => {
   await open(page); await pick(page); await page.locator('[data-lp-check]').click();
   const restart = page.locator('[data-lp-restart]');
   await expect(restart).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
   await expect(restart).toHaveCSS('min-height', '44px');
   await page.locator('[data-lp-pattern]').evaluate(el => { el.style.setProperty('--lp-accent', '#123456'); el.style.setProperty('--lp-focus', '#654321'); });
-  await expect(restart).toHaveCSS('color', 'rgb(18, 52, 86)'); await expect(restart).toHaveCSS('border-color', 'rgb(18, 52, 86)');
-  for (const control of [page.locator('input').first(), page.locator('[data-lp-check]'), restart]) {
+  await expect(restart).toHaveCSS('color', 'rgb(18, 52, 86)'); await expect(restart).toHaveCSS('border-color', 'rgba(0, 0, 0, 0)');
+  await expect(restart).toHaveCSS('text-decoration-line', 'underline');
+  await expect(restart.locator('svg[aria-hidden="true"]')).toHaveCount(1);
+  await restart.focus();
+  await expect(restart).toHaveCSS('outline-color', 'rgb(101, 67, 33)');
+  await expect(restart).toHaveCSS('outline-style', 'solid');
+  await expect(restart).toHaveCSS('outline-width', '2px');
+  await restart.click();
+  for (const control of [page.locator('input').first(), page.locator('[data-lp-check]')]) {
     await control.focus();
     await expect(control).toHaveCSS('outline-color', 'rgb(101, 67, 33)');
     await expect(control).toHaveCSS('outline-style', 'solid');
@@ -184,15 +238,28 @@ test('reset uses a secondary button and theme tokens reach controls and focus', 
   }
 });
 
-test('changing a pick clears stale results and announcements wait for submission; host saves changes', async ({ page }) => {
-  await open(page); await observe(page); await pick(page); await page.locator('[data-lp-check]').click();
-  await page.locator('fieldset').nth(1).locator('input[value="longer-more-interest"]').check();
-  await expect(page.locator('[data-lp-result]')).toBeHidden(); await expect(page.locator('[data-lp-restart]')).toBeHidden();
-  expect(await page.evaluate(() => window.lpSaved)).toEqual({ picks: { q1: mixed[0], q2: 'longer-more-interest', q3: mixed[2], q4: mixed[3] }, shown: false });
-  await page.locator('[data-lp-check]').click(); await expect(page.locator('[role="status"]')).toHaveText('Score 3 out of 4.');
+test('answers lock on submit; Start over clears marks, explanations and host state', async ({ page }) => {
+  await open(page); await observe(page);
+  await page.locator('input').first().check();
+  expect(await page.evaluate(() => window.lpSaved)).toEqual({ picks: { q1: mixed[0] }, shown: false });
+  await pick(page); await page.locator('[data-lp-check]').click();
+  expect(await page.evaluate(() => window.lpSaved)).toEqual({ picks: { q1: mixed[0], q2: mixed[1], q3: mixed[2], q4: mixed[3] }, shown: true });
+  await expect(page.locator('input:disabled')).toHaveCount(16);
+  await expect(page.locator('[data-lp-result] > p').first()).toBeFocused();
+  await page.locator('[data-lp-check]').evaluate(button => button.click());
+  await expect(page.locator('.lp-choice-mark')).toHaveCount(6);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Score 1 out of 4.']);
   await page.locator('[data-lp-restart]').click();
+  await expect(page.locator('input:disabled, input:checked, [data-lp-mark], .lp-choice-mark')).toHaveCount(0);
+  await expect(page.locator('[data-lp-explanation]:visible')).toHaveCount(0);
+  await expect(page.locator('[data-lp-result]')).toBeEmpty();
+  await expect(page.locator('[data-lp-result]')).toBeHidden();
+  await expect(page.locator('[data-lp-restart]')).toBeHidden();
+  await expect(page.locator('[data-lp-check]')).toBeVisible();
+  await expect(page.locator('input').first()).toBeFocused();
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ picks: {}, shown: false });
-  expect((await page.evaluate(() => window.lpAnnouncements)).filter(Boolean)).toEqual(['Score 1 out of 4.', 'Score 3 out of 4.', 'Answers cleared.']);
+  await pick(page); await page.locator('[data-lp-check]').click();
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Score 1 out of 4.', 'Cleared.', 'Score 1 out of 4.']);
 });
 
 for (const shown of [false, true]) {
@@ -200,7 +267,15 @@ for (const shown of [false, true]) {
     await page.addInitScript(value => { window.lpSeed = value; }, { picks: Object.fromEntries(english.questions.map((q, i) => [q.id, mixed[i]])), shown });
     await open(page); await expect(page.locator('input:checked')).toHaveCount(4);
     await expect(page.locator('[role="status"]')).toHaveText('');
-    if (shown) { await expect(page.locator('[data-lp-result]')).toContainText('Score 1 out of 4.'); await expect(page.locator('[data-lp-restart]')).toBeVisible(); }
+    if (shown) {
+      await expect(page.locator('[data-lp-result]')).toContainText('Score 1 out of 4.');
+      await expect(page.locator('[data-lp-restart]')).toBeVisible();
+      await expect(page.locator('input:disabled')).toHaveCount(16);
+      await expect(page.locator('.lp-choice-mark')).toHaveCount(6);
+      await expect(page.locator('[data-lp-explanation]:visible')).toHaveCount(2);
+      await expect(page.locator('[data-lp-check]')).toBeHidden();
+      await expect(page.locator('[data-lp-result] > p').first()).not.toBeFocused();
+    }
     else { await expect(page.locator('[data-lp-result]')).toBeHidden(); await expect(page.locator('[data-lp-restart]')).toBeHidden(); }
   });
 }
@@ -235,7 +310,11 @@ test('enhance twice returns one instance; destroy removes listeners and safely r
   await page.evaluate(() => { window.lpEnhance(); window.lpInstances[0].destroy(); });
   await expect(page.locator('[data-lp-flow]')).toBeVisible();
   expect(await page.evaluate(() => window.lpEnhance() === window.lpEnhance())).toBe(true);
-  await pick(page); await page.locator('[data-lp-check]').click(); await expect(page.locator('[data-lp-group]')).toHaveCount(3);
+  await expect(page.locator('input:disabled')).toHaveCount(16);
+  await expect(page.locator('.lp-choice-mark')).toHaveCount(6);
+  await expect(page.locator('[role="status"]')).toHaveText('');
+  await page.locator('[data-lp-restart]').click();
+  await pick(page); await page.locator('[data-lp-check]').click(); await expect(page.locator('.lp-choice-mark')).toHaveCount(6);
 });
 
 test('missing and mismatched markup fail loudly', async ({ page }) => {
@@ -245,10 +324,14 @@ test('missing and mismatched markup fail loudly', async ({ page }) => {
     const { strings } = await import('/patterns/dont-know/strings.js');
     enhance(document.createElement('section'), { content, strings: strings.en });
   }, english)).rejects.toThrow('Missing dont-know markup');
-  for (const violation of ['missing-radio', 'wrong-value', 'wrong-question', 'missing-error', 'duplicate-name']) {
+  for (const violation of ['missing-radio', 'wrong-value', 'wrong-question', 'missing-error', 'duplicate-name', 'missing-target', 'missing-tabindex', 'missing-label', 'missing-explanation']) {
     await open(page);
     await page.evaluate(kind => {
       window.lpInstances[0].destroy();
+      if (kind === 'missing-tabindex') document.querySelector('fieldset').removeAttribute('tabindex');
+      if (kind === 'missing-target') document.querySelector('fieldset').removeAttribute('id');
+      if (kind === 'missing-label') document.querySelector('label').replaceWith(document.querySelector('input'));
+      if (kind === 'missing-explanation') document.querySelector('[data-lp-explanation]').remove();
       if (kind === 'missing-radio') document.querySelector('input').remove();
       if (kind === 'wrong-value') document.querySelector('input').value = 'bad';
       if (kind === 'wrong-question') document.querySelector('fieldset').dataset.lpQuestion = 'bad';
@@ -259,16 +342,24 @@ test('missing and mismatched markup fail loudly', async ({ page }) => {
   }
 });
 
-test('secondary reset and forced colours preserve focus rings and button distinction', async ({ page, browserName }) => {
+test('quiet reset and forced colours preserve focus rings and button distinction', async ({ page, browserName }) => {
   test.skip(browserName !== 'chromium', 'Forced colours emulation checked in Chromium.');
   await page.emulateMedia({ forcedColors: 'active' }); await open(page); await pick(page); await page.locator('[data-lp-check]').click();
-  for (const locator of [page.locator('input').first(), page.locator('[data-lp-check]'), page.locator('[data-lp-restart]')]) {
+  await expect(page.locator('[data-lp-mark]').first()).toHaveCSS('border-style', 'double');
+  await page.locator('[data-lp-restart]').focus();
+  await expect(page.locator('[data-lp-restart]')).toHaveCSS('text-decoration-line', 'underline');
+  await page.locator('[data-lp-restart]').click();
+  // Programmatic question focus inherits the current input modality. Exercise keyboard focus.
+  await page.keyboard.press('Tab');
+  for (const locator of [page.locator('input').first(), page.locator('[data-lp-check]'), page.locator('fieldset').first()]) {
     await locator.focus();
     const style = await locator.evaluate(el => { const css = getComputedStyle(el); return [css.outlineWidth, css.outlineStyle, css.outlineOffset, css.outlineColor]; });
     expect(style.slice(0, 3)).toEqual(['2px', 'solid', '2px']); expect(style[3]).not.toBe('rgba(0, 0, 0, 0)');
   }
   await expect(page.locator('[data-lp-check]')).toHaveCSS('border-style', 'solid');
-  await expect(page.locator('[data-lp-restart]')).toHaveCSS('border-style', 'dashed');
+  await pick(page); await page.locator('[data-lp-check]').click();
+  await page.locator('[data-lp-restart]').focus();
+  await expect(page.locator('[data-lp-restart]')).toHaveCSS('outline-width', '2px');
 });
 
 test('one unanswered question uses the singular message in English and French', async ({ page }) => {

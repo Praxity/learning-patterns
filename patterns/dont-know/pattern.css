@@ -1,62 +1,15 @@
-.lp-dont-know {
-  --lp-text: #202124;
-  --lp-muted: #50555a;
-  --lp-surface: #fff;
-  --lp-border: #62676c;
-  --lp-accent: #174f78;
-  --lp-on-accent: #fff;
-  --lp-error: #9f2020;
-  --lp-focus: #005fcc;
-  --lp-space: 1rem;
-  --lp-radius: .25rem;
-  --lp-font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --lp-font-size: 1rem;
-  --lp-line-height: 1.5;
-  box-sizing: border-box;
-  max-width: 40rem;
-  color: var(--lp-text);
-  background: var(--lp-surface);
-  font-family: var(--lp-font);
-  font-size: var(--lp-font-size);
-  line-height: var(--lp-line-height);
-  overflow-wrap: anywhere;
-  margin-block: var(--lp-space);
-}
-.lp-dont-know *, .lp-dont-know *::before, .lp-dont-know *::after { box-sizing: border-box; }
-.lp-dont-know [hidden] { display: none !important; }
-.lp-dont-know p { margin-block: var(--lp-space); white-space: pre-line; }
-.lp-dont-know-question { min-width: 0; margin-block: var(--lp-space); padding: var(--lp-space); border: 1px solid var(--lp-border); border-radius: var(--lp-radius); }
-.lp-dont-know-question legend { max-width: 100%; padding-inline: calc(var(--lp-space) / 2); font-weight: 600; white-space: pre-line; }
-.lp-dont-know-option { display: flex; align-items: baseline; gap: calc(var(--lp-space) / 2); min-height: 44px; padding-block: calc(var(--lp-space) / 2); cursor: pointer; }
-.lp-dont-know-option input { flex: none; width: 1.25rem; height: 1.25rem; margin: 0; accent-color: var(--lp-accent); }
-.lp-dont-know-option span { min-width: 0; white-space: pre-line; }
-.lp-dont-know-error { color: var(--lp-error); }
-.lp-dont-know-button {
-  min-height: 44px;
-  max-width: 100%;
-  margin-block: var(--lp-space);
-  padding: calc(var(--lp-space) / 2) var(--lp-space);
-  border: 1px solid var(--lp-accent);
-  border-radius: var(--lp-radius);
-  color: var(--lp-on-accent);
-  background: var(--lp-accent);
-  font: inherit;
-  white-space: normal;
-  overflow-wrap: anywhere;
-  cursor: pointer;
-}
-.lp-dont-know-button-secondary { color: var(--lp-accent); background: transparent; }
-.lp-dont-know :is(button, input, summary):focus { outline: 2px solid var(--lp-focus); outline-offset: 2px; }
-.lp-dont-know-summary { font-weight: 600; }
-.lp-dont-know-heading { font-size: 1.125em; margin-block: var(--lp-space) calc(var(--lp-space) / 2); }
-.lp-dont-know-result ul, .lp-dont-know-fallback ul { padding-inline-start: calc(var(--lp-space) * 1.5); }
-.lp-dont-know-result li, .lp-dont-know-fallback li { margin-block: var(--lp-space); }
-.lp-dont-know-result li p { margin-block: calc(var(--lp-space) / 2); }
-.lp-dont-know-fallback summary { cursor: pointer; padding-block: calc(var(--lp-space) / 2); }
-.lp-dont-know .lp-dont-know-status { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+/* Dont-know specifics. Link lib/base.css first for shared styles and tokens. */
+.lp-dont-know-fallback-list { display: grid; gap: 16px; padding-inline-start: 24px; }
+.lp-dont-know-fallback-list li > * + * { margin-block-start: 8px; }
+.lp-dont-know-unknown { flex-wrap: wrap; }
+.lp-dont-know .lp-choice > span:not(.lp-choice-mark) { min-inline-size: 0; flex: 1; white-space: pre-line; }
+.lp-dont-know .lp-stem { white-space: pre-line; }
+/* Shared base currently omits links from the focus rules; move this upstream with other patterns' review links. */
+.lp-dont-know-review a { color: var(--lp-accent); text-underline-offset: 3px; }
+.lp-dont-know-review a:focus { outline: 2px solid var(--lp-focus); outline-offset: 2px; }
 @media (forced-colors: active) {
-  .lp-dont-know :is(button, input, summary):focus { outline-color: Highlight; }
-  .lp-dont-know-button { color: ButtonText; background: ButtonFace; border-color: ButtonText; }
-  .lp-dont-know-button-secondary { border-style: dashed; }
-  .lp-dont-know-question { border-color: CanvasText; }
+  /* Shared selected-row specificity overrides its forced-colour double border. Move this fix into base.css. */
+  .lp-dont-know .lp-choice[data-lp-mark] { border-style: double; }
+  .lp-dont-know-review a { color: LinkText; }
+  .lp-dont-know-review a:focus { outline-color: Highlight; }
 }
