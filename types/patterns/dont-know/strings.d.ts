@@ -3,6 +3,7 @@ export namespace strings {
         let unknown: string;
         let rule: string;
         let check: string;
+        let unansweredOne: string;
         let unanswered: string;
         let choose: string;
         let summary: string;
@@ -24,6 +25,8 @@ export namespace strings {
         export { rule_1 as rule };
         let check_1: string;
         export { check_1 as check };
+        let unansweredOne_1: string;
+        export { unansweredOne_1 as unansweredOne };
         let unanswered_1: string;
         export { unanswered_1 as unanswered };
         let choose_1: string;

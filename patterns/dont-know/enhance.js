@@ -74,7 +74,7 @@ export function enhance(root, { content, strings, state }) {
     /** @param {string} title @param {string[]} ids @param {'wrong' | 'unknown' | 'right'} kind */
     function group(title, ids, kind) {
       const mark = kind === 'wrong' ? '×' : kind === 'unknown' ? '?' : '✓';
-      return `<div data-lp-group="${kind}"><h2 class="lp-dont-know-heading"><span aria-hidden="true">${mark}</span> ${html(title)}</h2>${ids.length ? `<ul>${content.questions.filter(q => ids.includes(q.id)).map(q => `<li><strong>${html(q.text)}</strong>${kind === 'wrong' ? `<p>${html(format(strings.chosen, { option: q.options.find(o => o.id === selected[q.id])?.text ?? '' }))}</p>` : ''}${kind === 'right' ? '' : `<p>${html(q.explanation)}</p>`}</li>`).join('')}</ul>` : `<p>${html(strings.none)}</p>`}</div>`;
+      return `<div data-lp-group="${kind}"><h3 class="lp-dont-know-heading"><span aria-hidden="true">${mark}</span> ${html(title)}</h3>${ids.length ? `<ul>${content.questions.filter(q => ids.includes(q.id)).map(q => `<li><strong>${html(q.text)}</strong>${kind === 'wrong' ? `<p>${html(format(strings.chosen, { option: q.options.find(o => o.id === selected[q.id])?.text ?? '' }))}</p>` : ''}${kind === 'right' ? '' : `<p>${html(q.explanation)}</p>`}</li>`).join('')}</ul>` : `<p>${html(strings.none)}</p>`}</div>`;
     }
     result.innerHTML = `<p class="lp-dont-know-summary">${html(summary)}</p>
       <p>${html(format(strings.counts, { right: outcome.right.length, wrong: outcome.wrong.length, unknown: outcome.unknown.length }))}</p>
@@ -96,7 +96,7 @@ export function enhance(root, { content, strings, state }) {
     const outcome = score(content, picks());
     if (outcome.unanswered.length) {
       clearResults();
-      error.textContent = format(strings.unanswered, { count: outcome.unanswered.length }); error.hidden = false;
+      error.textContent = outcome.unanswered.length === 1 ? strings.unansweredOne : format(strings.unanswered, { count: outcome.unanswered.length }); error.hidden = false;
       const missing = questions.filter(({ q }) => outcome.unanswered.includes(q.id));
       for (const { fieldset, radios, message } of missing) {
         message.hidden = false; fieldset.setAttribute('aria-describedby', message.id);

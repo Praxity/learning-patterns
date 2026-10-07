@@ -71,7 +71,8 @@ for (const [lang, content, labels, counts] of [
     for (const [index, label] of labels.entries()) await expect(result.getByRole('heading').nth(index)).toHaveAccessibleName(label);
     const groups = result.locator('[data-lp-group]');
     await expect(groups.nth(0)).toContainText(content.questions[1].text);
-    await expect(groups.nth(0)).toContainText(`${lang === 'en' ? 'You chose' : 'Vous avez choisi'} ${content.questions[1].options[0].text}.`);
+    const chosen = content.questions[1].options[0].text;
+    await expect(groups.nth(0)).toContainText(lang === 'en' ? `You chose "${chosen}".` : `Vous avez choisi « ${chosen} ».`);
     await expect(groups.nth(0)).toContainText(content.questions[1].explanation);
     await expect(groups.nth(1)).toContainText(content.questions[2].text);
     await expect(groups.nth(1)).toContainText(content.questions[2].explanation);
@@ -107,7 +108,7 @@ for (const [lang, content, labels, counts] of [
       if (stage === 'error') await page.locator('[data-lp-check]').click();
       if (stage === 'result') { await pick(page); await page.locator('[data-lp-check]').click(); }
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-      const problems = await page.evaluate(() => [...document.querySelectorAll('p, label, legend, button, li, h2')].filter(el => el.getClientRects().length && !el.matches('[role="status"]')).flatMap(el => {
+      const problems = await page.evaluate(() => [...document.querySelectorAll('p, label, legend, button, li, h2, h3')].filter(el => el.getClientRects().length && !el.matches('[role="status"]')).flatMap(el => {
         const failures = [];
         if (el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1) failures.push(el.textContent);
         const children = [...el.children].filter(child => child.getClientRects().length);
@@ -164,7 +165,7 @@ test('authored fractional points reach the rule and total; feedback preserves ho
   await expect(page.locator('.lp-dont-know-rule')).toHaveText("Right +2, wrong −0.5, I don't know +0.25.");
   await pick(page); await page.locator('[data-lp-check]').click();
   await expect(page.locator('[data-lp-result] > p').first()).toHaveText('Score 3.75 out of 8.');
-  await expect(page.locator('[data-lp-group="wrong"] li p')).toHaveText(['You chose <img src=x onerror=alert(1)> {option} & "quoted".', '<script>alert(1)</script> {total}']);
+  await expect(page.locator('[data-lp-group="wrong"] li p')).toHaveText(['You chose "<img src=x onerror=alert(1)> {option} & "quoted"".','<script>alert(1)</script> {total}']);
   await expect(page.locator('[data-lp-pattern] img, [data-lp-pattern] script')).toHaveCount(0);
 });
 
@@ -268,4 +269,13 @@ test('secondary reset and forced colours preserve focus rings and button distinc
   }
   await expect(page.locator('[data-lp-check]')).toHaveCSS('border-style', 'solid');
   await expect(page.locator('[data-lp-restart]')).toHaveCSS('border-style', 'dashed');
+});
+
+test('one unanswered question uses the singular message in English and French', async ({ page }) => {
+  for (const [lang, text] of [['en', "1 question unanswered. Choose an option, or I don't know."], ['fr', '1 question sans réponse. Choisissez une option ou « Je ne sais pas ».']]) {
+    await open(page, `/dont-know/${lang}.html`);
+    await pick(page, mixed.slice(0, 3));
+    await page.locator('[data-lp-check]').click();
+    await expect(page.locator('[data-lp-error]')).toHaveText(text);
+  }
 });
