@@ -53,6 +53,7 @@ All content fields are plain text. HTML characters are escaped.
 | `context.to` | The message recipient. |
 | `context.initials` | Decorative recipient initials. |
 | `context.subject` | The message subject. |
+| `context.placeholder` | Optional text shown in the empty message field. It may include line breaks and is never saved as an answer. |
 | `parts` | At least one part, in display order. |
 | `parts[].id` | A unique identity using letters, digits, underscores or hyphens. |
 | `parts[].label` | The checkbox label and the part's name in feedback. |
@@ -60,7 +61,7 @@ All content fields are plain text. HTML characters are escaped.
 | `parts[].evidence` | Exact text that occurs once in the model, or `null` for a whole-message part. |
 | `model` | The model answer. |
 
-Strings must be nonempty. `validateContent` rejects unknown fields and duplicate part identities. The schema's `x-uniqueBy` and `x-occursOnceIn` annotations describe identity uniqueness and evidence matching. Ordinary JSON Schema tools need these cross-field checks from `validateContent`.
+Required strings must be nonempty. The optional placeholder must be a string when present; an empty string is allowed. `validateContent` rejects unknown fields and duplicate part identities. The schema's `x-uniqueBy` and `x-occursOnceIn` annotations describe identity uniqueness and evidence matching. Ordinary JSON Schema tools need these cross-field checks from `validateContent`.
 
 ## Logic
 
@@ -73,7 +74,7 @@ Strings must be nonempty. `validateContent` rejects unknown fields and duplicate
 | `annotate(model, parts, includedIds)` | `{ text, partIndex, included }[]` in model order. Unmarked text has `partIndex: null` and `included: false`. Part indexes refer to author order. Pass validated content and an array of included ids. If evidence overlaps, the first span in model order owns the text. Whole-message parts have no mark. |
 | `validateState(content, value)` | A clean `{ answer, ticked, shown }`, or `null` when `value` isn't valid saved state. |
 
-Without JavaScript, open "Check your own answer" to read every part's hint and the model answer.
+Without JavaScript, open "Check your message for these parts." to read every part's hint and the model answer.
 
 Pass optional `state: { read, write }` to store `{ answer, ticked, shown }` in your host. Invalid saved values are ignored. A nonempty saved draft opens the checklist. A shown result is rebuilt from the saved ticks without an announcement. Editing preserves the visible result until the next submission. Call `instance.destroy()` to remove listeners and restore the native fallback.
 
@@ -87,7 +88,7 @@ import { enhance } from './patterns/self-check/enhance.js';
 import { strings } from './patterns/self-check/strings.js';
 const content = {
   task: 'Explain why you need another day.',
-  context: { to: 'Sam', initials: 'S', subject: 'Report' },
+  context: { to: 'Sam', initials: 'S', subject: 'Report', placeholder: 'Hi Sam,\n\nType your message here…' },
   parts: [{ id: 'reason', label: 'Reason', missed: 'Explain the delay.', evidence: 'The data arrived late.' }],
   model: 'The data arrived late. Could I have until Tuesday?'
 };

@@ -2,7 +2,8 @@
   "context": {
     "to": "Sam, your manager",
     "initials": "S",
-    "subject": "Client report"
+    "subject": "Client report",
+    "placeholder": "Hi Sam,\n\nType your message here…"
   },
   "task": "Your client report is due Friday. The sales data arrived three days late, so you need until Tuesday. Write the message to your manager.",
   "parts": [

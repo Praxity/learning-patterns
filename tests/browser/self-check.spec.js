@@ -7,7 +7,7 @@ const french = JSON.parse(await readFile(new URL('../../patterns/self-check/exam
 
 test('shared scene spans the card and centres its tile on the task', async ({ page }) => {
   await open(page);
-  await expect(page.locator('.lp-scene-label')).toHaveText('Your task');
+  await expect(page.locator('.lp-scene-label')).toHaveCount(0);
   await expect(page.locator('.lp-scene-title')).toHaveText(english.task);
   for (const width of [1280, 390, 320]) {
     await page.setViewportSize({ width, height: 900 });
@@ -17,6 +17,96 @@ test('shared scene spans the card and centres its tile on the task', async ({ pa
       return [scene.left - card.left, card.right - scene.right, tile.top + tile.height / 2 - text.top - text.height / 2];
     });
     for (const difference of geometry) expect(Math.abs(difference)).toBeLessThanOrEqual(1);
+  }
+});
+
+for (const [lang, placeholder, instruction] of [
+  ['en', 'Hi Sam,\n\nType your message here…', 'Select each part you can point to in your message.'],
+  ['fr', 'Bonjour Sam,\n\nÉcrivez votre message ici…', 'Sélectionnez chaque élément que vous trouvez dans votre message.']
+]) {
+  test(`composer labels size to content and recipient stays on one line (${lang})`, async ({ page }) => {
+    await open(page, `/self-check/${lang}.html`);
+    await page.evaluate(() => document.fonts.ready);
+    for (const width of [1280, 390, 320]) {
+      await page.setViewportSize({ width, height: 900 });
+      const geometry = await page.locator('.lp-self-check-composer').evaluate(el => {
+        const keys = [...el.querySelectorAll('.lp-self-check-meta-key')];
+        const widths = keys.map(key => key.getBoundingClientRect().width);
+        const textWidths = keys.map(key => { const range = document.createRange(); range.selectNodeContents(key); return range.getBoundingClientRect().width; });
+        const recipient = el.querySelector('.lp-self-check-recipient');
+        const range = document.createRange(); range.selectNodeContents(recipient.lastChild);
+        return { widths, textWidths, recipientLines: range.getClientRects().length, overflow: document.documentElement.scrollWidth > innerWidth };
+      });
+      expect(geometry.widths[0]).toBeCloseTo(geometry.widths[1], 0);
+      expect(geometry.widths[0]).toBeCloseTo(Math.max(...geometry.textWidths), 0);
+      expect(geometry.recipientLines).toBe(1);
+      expect(geometry.overflow).toBe(false);
+    }
+  });
+
+  test(`placeholder is authored, empty, labelled and has 4.5:1 contrast (${lang})`, async ({ page }) => {
+    await open(page, `/self-check/${lang}.html`);
+    await expect(page.getByRole('textbox')).toHaveAccessibleName(lang === 'fr' ? 'Votre message' : 'Your message');
+    await expect(page.getByRole('textbox')).toHaveAttribute('placeholder', placeholder);
+    await expect(page.getByRole('textbox')).toHaveValue('');
+    const contrast = await page.getByRole('textbox').evaluate(el => {
+      const luminance = color => color.match(/[\d.]+/g).slice(0, 3).map(Number).map(value => value / 255).map(value => value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4).reduce((sum, value, index) => sum + value * [.2126, .7152, .0722][index], 0);
+      const placeholder = getComputedStyle(el, '::placeholder');
+      const text = luminance(placeholder.color), background = luminance(getComputedStyle(el).backgroundColor);
+      return { ratio: (Math.max(text, background) + .05) / (Math.min(text, background) + .05), opacity: placeholder.opacity };
+    });
+    expect(contrast.ratio).toBeGreaterThanOrEqual(4.5); expect(contrast.opacity).toBe('1');
+    await page.locator('[data-lp-check]').click();
+    await expect(page.getByRole('textbox')).toHaveAttribute('aria-invalid', 'true');
+    await page.getByRole('textbox').fill('Draft');
+    await page.locator('[data-lp-check]').click();
+    await expect(page.locator('[data-lp-ticks] legend')).toContainText(instruction);
+    await expect(page.locator('[data-lp-ticks] .lp-small')).toHaveCount(0);
+  });
+}
+
+for (const forcedColors of ['none', 'active']) {
+  test(`message focus outlines the whole composer (${forcedColors})`, async ({ page, browserName }) => {
+    test.skip(forcedColors === 'active' && browserName !== 'chromium', 'Forced colours emulation checked in Chromium.');
+    await page.emulateMedia({ forcedColors });
+    await open(page);
+    await page.getByRole('textbox').focus();
+    const styles = await page.locator('.lp-self-check-composer').evaluate(el => {
+      const css = getComputedStyle(el), textarea = getComputedStyle(el.querySelector('textarea'));
+      const probe = document.createElement('span'); probe.style.color = 'Highlight'; el.append(probe);
+      const highlight = getComputedStyle(probe).color; probe.remove();
+      return { width: css.outlineWidth, style: css.outlineStyle, offset: css.outlineOffset, color: css.outlineColor, radius: css.borderRadius, fieldStyle: textarea.outlineStyle, highlight };
+    });
+    expect(styles.width).toBe('2px'); expect(styles.style).toBe('solid'); expect(styles.offset).toBe('2px');
+    expect(styles.radius).toBe('10px'); expect(styles.fieldStyle).toBe('none');
+    expect(styles.color).toBe(forcedColors === 'active' ? styles.highlight : 'rgb(44, 85, 201)');
+    await page.getByRole('textbox').blur();
+    await expect(page.locator('.lp-self-check-composer')).toHaveCSS('outline-style', 'none');
+  });
+}
+
+test('feedback badges and number keys stay at the first line of long part labels', async ({ page }) => {
+  await open(page);
+  await page.evaluate(async () => {
+    const { render } = await import('/patterns/self-check/render.js');
+    const { enhance } = await import('/patterns/self-check/enhance.js');
+    const { strings } = await import('/patterns/self-check/strings.js');
+    const content = { task: 'Write a message.', context: { to: 'Sam', initials: 'S', subject: 'Report' }, model: 'Tuesday', parts: [{ id: 'date', label: 'Name the report, explain the late sales data and ask your manager to approve a new deadline of Tuesday', evidence: null, missed: 'Ask for Tuesday.' }] };
+    window.lpInstances[0].destroy();
+    document.querySelector('main').innerHTML = render(content, strings.en, { id: 'long', lang: 'en' });
+    enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en });
+  });
+  await ticks(page); await page.locator('[data-lp-show]').click();
+  for (const width of [1280, 390, 320]) {
+    await page.setViewportSize({ width, height: 900 });
+    const positions = await page.locator('.lp-self-check-legend-item').evaluate(el => {
+      const label = el.querySelector('.lp-self-check-legend-label');
+      const key = el.querySelector(':scope > .lp-self-check-ann-n');
+      const badge = el.querySelector('.lp-self-check-legend-status');
+      return { label: label.getBoundingClientRect().top, key: key.getBoundingClientRect().top, badge: badge.getBoundingClientRect().top };
+    });
+    expect(Math.abs(positions.key - positions.label)).toBeLessThanOrEqual(4);
+    expect(Math.abs(positions.badge - positions.label)).toBeLessThanOrEqual(4);
   }
 });
 
@@ -95,7 +185,7 @@ test('comparison escapes draft text and summaries cover one missing part and all
   await expect(page.locator('mark[data-lp-included="false"]')).toHaveCount(1);
   await expect(page.locator('.lp-self-check-legend-hint')).toHaveCount(1);
   await page.getByRole('checkbox').nth(4).check(); await page.locator('[data-lp-show]').click();
-  await expect(page.locator('.lp-self-check-result-head')).toContainText('Every part is there. Compare your wording with the model.');
+  await expect(page.locator('.lp-self-check-result-head')).toContainText('Compare your wording with the model.');
   await expect(page.locator('mark[data-lp-included="true"]')).toHaveCount(5);
   await expect(page.locator('.lp-self-check-legend-hint')).toHaveCount(0);
 });
@@ -241,6 +331,7 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     const page = await context.newPage();
     await page.goto(`/self-check/${lang}.html`);
     await expect(page.getByRole('textbox')).toHaveAttribute('rows', '5');
+    await expect(page.getByRole('textbox')).toHaveAttribute('placeholder', lang === 'en' ? 'Hi Sam,\n\nType your message here…' : 'Bonjour Sam,\n\nÉcrivez votre message ici…');
     await page.locator('summary').click(); await expect(page.locator('details')).toHaveAttribute('open', '');
     for (const part of content.parts) await expect(page.locator('details')).toContainText(part.missed);
     for (const part of content.parts) await expect(page.locator('details')).toContainText(part.label);

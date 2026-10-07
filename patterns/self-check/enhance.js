@@ -67,7 +67,7 @@ export function enhance(root, { content, strings, state }) {
     const [firstMissing] = missing;
     const sub = !firstMissing ? strings.resultAll : missing.length === 1
       ? strings.resultOne.replaceAll('{label}', firstMissing.label)
-      : strings.resultMany.replaceAll('{n}', String(missing.length));
+      : strings.resultMany;
     const model = annotate(content.model, content.parts, ticked()).map(segment => segment.partIndex === null ? html(segment.text)
       : `<mark class="lp-self-check-ann" data-lp-included="${segment.included}"><span class="lp-self-check-ann-n" aria-hidden="true">${segment.partIndex + 1}</span>${html(segment.text)}</mark>`).join('');
     result.innerHTML = `<div class="lp-self-check-result-head">${ring(outcome.count, outcome.total, 64)}<div><h3 class="lp-stem">${html(summary)}</h3><p class="lp-small">${html(sub)}</p></div></div>

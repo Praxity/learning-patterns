@@ -1,13 +1,11 @@
 export namespace strings {
     namespace en {
-        let scenario: string;
         let to: string;
         let subject: string;
         let answer: string;
         let check: string;
         let empty: string;
         let tick: string;
-        let tickHelp: string;
         let meter: string;
         let show: string;
         let resultAll: string;
@@ -22,12 +20,9 @@ export namespace strings {
         let restart: string;
         let cleared: string;
         let checkOwn: string;
-        let partsQuestion: string;
         let summary: string;
     }
     namespace fr {
-        let scenario_1: string;
-        export { scenario_1 as scenario };
         let to_1: string;
         export { to_1 as to };
         let subject_1: string;
@@ -40,8 +35,6 @@ export namespace strings {
         export { empty_1 as empty };
         let tick_1: string;
         export { tick_1 as tick };
-        let tickHelp_1: string;
-        export { tickHelp_1 as tickHelp };
         let meter_1: string;
         export { meter_1 as meter };
         let show_1: string;
@@ -70,8 +63,6 @@ export namespace strings {
         export { cleared_1 as cleared };
         let checkOwn_1: string;
         export { checkOwn_1 as checkOwn };
-        let partsQuestion_1: string;
-        export { partsQuestion_1 as partsQuestion };
         let summary_1: string;
         export { summary_1 as summary };
     }
