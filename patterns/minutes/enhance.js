@@ -50,7 +50,7 @@ export function enhance(root, { content, strings, state }) {
   function showAuthorView() {
     toggle.setAttribute('aria-pressed', String(current.authorView));
     instruction.hidden = !current.authorView;
-    for (const block of blocks) block.inputs.hidden = !current.authorView;
+    for (const block of blocks) { block.inputs.hidden = !current.authorView; block.breakdown.hidden = current.authorView; }
   }
   /** @param {{ input: HTMLInputElement, error: HTMLElement, text: HTMLElement }} field @param {string | null} message */
   function showError(field, message) {
@@ -131,7 +131,7 @@ export function enhance(root, { content, strings, state }) {
       for (const block of blocks) for (const field of block.fields) field.input.value = String(current.sections[block.section.id]?.[field.key]);
       update(false);
       toggle.hidden = true; toggle.setAttribute('aria-pressed', 'false'); instruction.hidden = true;
-      for (const block of blocks) block.inputs.hidden = true;
+      for (const block of blocks) { block.inputs.hidden = true; block.breakdown.hidden = false; }
       status.textContent = ''; instances.delete(root);
     }
   };

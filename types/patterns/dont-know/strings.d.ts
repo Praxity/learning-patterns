@@ -1,6 +1,5 @@
 export namespace strings {
     namespace en {
-        let quickCheck: string;
         let questionNumber: string;
         let unknown: string;
         let ruleRightGain: string;
@@ -37,8 +36,6 @@ export namespace strings {
         let cleared: string;
     }
     namespace fr {
-        let quickCheck_1: string;
-        export { quickCheck_1 as quickCheck };
         let questionNumber_1: string;
         export { questionNumber_1 as questionNumber };
         let unknown_1: string;

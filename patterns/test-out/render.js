@@ -12,7 +12,7 @@ export function render(content, strings, { id, lang }) {
   return `<section class="lp lp-test-out" data-lp-pattern="test-out" lang="${html(lang)}">
   <header class="lp-scene">
     <span class="lp-scene-icon">${icons['list-details']}</span>
-    <div><p class="lp-scene-label">${html(strings.placement)}</p><h2 class="lp-scene-title">${html(content.title)}</h2></div>
+    <div><h2 class="lp-scene-title">${html(content.title)}</h2></div>
   </header>
   <div class="lp-test-out-stepper" data-lp-stepper>
     <div class="lp-test-out-panel" data-lp-panel="outline">
@@ -20,7 +20,7 @@ export function render(content, strings, { id, lang }) {
       <p class="lp-run-in" data-lp-result hidden></p>
       <ol class="lp-test-out-outline-list">${content.sections.map(s => `<li>
         <div class="lp-test-out-outline-row">
-          <div><p class="lp-run-in">${html(s.title)}</p><p class="lp-small" data-lp-credit hidden></p></div>
+          <p class="lp-run-in">${html(s.title)}</p>
           <span class="lp-small lp-test-out-status" data-lp-section-status="${s.id}" hidden></span>
         </div>
       </li>`).join('')}</ol>
@@ -33,7 +33,6 @@ export function render(content, strings, { id, lang }) {
       ${questions.map((q, index) => `<div class="lp-test-out-panel lp-section" data-lp-panel="question" data-lp-section="${q.section}">
         <h3 class="lp-label" tabindex="-1" data-lp-panel-heading>${html(format(strings.question, { number: index + 1, total: questions.length }))}</h3>
         <div aria-hidden="true" class="lp-test-out-progress"><span style="inline-size: ${(index + 1) / questions.length * 100}%"></span></div>
-        <p class="lp-small">${html(content.sections.find(s => s.id === q.section)?.title ?? '')}</p>
         <fieldset class="lp-choices" id="${html(`${id}-question-${q.id}`)}" tabindex="-1" data-lp-question="${html(q.id)}">
           <legend class="lp-stem">${html(q.text)}</legend>
           ${q.options.map((o, n) => `<label class="lp-choice" for="${html(`${id}-question-${q.id}-option-${n}`)}"><input type="radio" id="${html(`${id}-question-${q.id}-option-${n}`)}" name="${html(`${id}-question-${q.id}`)}" value="${html(o.id)}"><span>${html(o.text)}</span></label>`).join('\n          ')}

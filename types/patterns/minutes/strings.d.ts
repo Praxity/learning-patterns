@@ -7,7 +7,6 @@ export function formatText(template: string, values: Record<string, number>, lan
 export function summaryText(strings: Strings, total: number, flagged: number, lang: string): string;
 export namespace strings {
     namespace en {
-        let outline: string;
         let authorView: string;
         let instruction: string;
         let words: string;
@@ -29,8 +28,6 @@ export namespace strings {
         let assumptions: string;
     }
     namespace fr {
-        let outline_1: string;
-        export { outline_1 as outline };
         let authorView_1: string;
         export { authorView_1 as authorView };
         let instruction_1: string;

@@ -251,7 +251,7 @@ test('forced colours keeps pressed state, radio choices, marks and focus visible
 for (const width of [1280, 390]) {
   test(`course scene, format icons and border selection at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 }); await open(page);
-    await expect(page.locator('.lp-scene')).toContainText('Choose how to learn this');
+    await expect(page.locator('.lp-scene-label')).toHaveCount(0);
     await expect(page.locator('.lp-scene h3')).toHaveText(english.title);
     await expect(page.locator('.lp-scene svg')).toHaveAttribute('aria-hidden', 'true');
     await expect(page.locator('[data-lp-format] svg')).toHaveCount(5);
@@ -416,3 +416,12 @@ test('320px French navigation stays within equal slots with text spacing at ever
   }
   expect(new Set(heights).size).toBe(1);
 });
+
+for (const width of [1280, 390, 320]) {
+  test('owner audit: section counter sits next to content at ' + width, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 }); await open(page);
+    await expect(page.locator('.lp-formats-lesson > [data-lp-place]')).toHaveText('Section 1 of 3');
+    const gap = await page.locator('[data-lp-place]').evaluate(el => document.querySelector('[data-lp-point]:not([hidden]) h4').getBoundingClientRect().top - el.getBoundingClientRect().bottom);
+    expect(gap).toBeGreaterThanOrEqual(0); expect(gap).toBeLessThanOrEqual(8);
+  });
+}

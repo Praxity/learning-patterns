@@ -15,7 +15,7 @@ async function author(page) { await page.getByRole('button', { name: 'Author vie
 
 test('course outline has a scene header, breakdowns, clock estimates, warnings and total', async ({ page }) => {
   await open(page);
-  await expect(page.locator('.lp-scene-label')).toHaveText('Course outline');
+  await expect(page.locator('.lp-scene-label')).toHaveCount(0);
   await expect(page.getByRole('heading', { level: 2 })).toHaveText('The four horsemen');
   await expect(page.locator('[data-lp-minutes]')).toHaveText(['1 min', '3 min', '4 min', '3 min', '17 min']);
   await expect(row(page).locator('[data-lp-breakdown]')).toHaveText('120 words, 0 questions');
@@ -159,7 +159,7 @@ for (const lang of ['en', 'fr']) {
 test('French estimates, field feedback and committed announcements use authored French', async ({ page }) => {
   await open(page, 'fr'); await observe(page);
   await expect(page.locator('[data-lp-pattern]')).toHaveAttribute('lang', 'fr');
-  await expect(page.locator('.lp-scene-label')).toHaveText('Plan du cours');
+  await expect(page.locator('.lp-scene-label')).toHaveCount(0);
   await page.getByRole('button', { name: 'Vue auteur' }).click();
   const input = row(page).getByRole('spinbutton', { name: /Mots/ });
   await input.fill('3200'); await input.press('Tab');
@@ -264,3 +264,30 @@ test('forced colours preserves readable chips, warning words and keyboard focus'
   await row(page).locator('input').first().focus(); await expect(row(page).locator('input').first()).toHaveCSS('outline-style', 'solid');
   await expect(page.locator('[data-lp-warning]:visible')).toHaveText('Over 15 minutes'); await scan(page);
 });
+
+for (const lang of ['en', 'fr']) {
+  test('owner audit: counts appear once and return after destroy (' + lang + ')', async ({ page }) => {
+    await open(page, lang);
+    await expect(page.locator('[data-lp-breakdown]:visible')).toHaveCount(5);
+    await page.locator('[data-lp-toggle]').click();
+    await expect(page.locator('[data-lp-breakdown]:visible')).toHaveCount(0);
+    await expect(page.locator('[data-lp-inputs]:visible')).toHaveCount(5);
+    await page.locator('[data-lp-toggle]').click();
+    await expect(page.locator('[data-lp-breakdown]:visible')).toHaveCount(5);
+    await page.locator('[data-lp-toggle]').click();
+    await page.evaluate(() => window.lpInstances[0].destroy());
+    await expect(page.locator('[data-lp-breakdown]:visible')).toHaveCount(5);
+    await expect(page.locator('[data-lp-inputs]:visible')).toHaveCount(0);
+  });
+}
+for (const width of [1280, 390, 320]) {
+  test('owner audit: time badge stays beside the first title line at ' + width, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 }); await open(page, 'fr');
+    const positions = await row(page).evaluate(el => {
+      const title = el.querySelector('h3').getBoundingClientRect(), chip = el.querySelector('[data-lp-minutes]').getBoundingClientRect();
+      return { titleTop: title.top, chipTop: chip.top, titleRight: title.right, chipLeft: chip.left };
+    });
+    expect(Math.abs(positions.titleTop - positions.chipTop)).toBeLessThanOrEqual(1);
+    expect(positions.titleRight).toBeLessThanOrEqual(positions.chipLeft);
+  });
+}

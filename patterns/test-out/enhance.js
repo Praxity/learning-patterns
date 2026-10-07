@@ -33,8 +33,6 @@ export function enhance(root, { content, strings, state }) {
   const status = /** @type {HTMLElement} */ (required(root, '[role="status"]'));
   const outline = [...root.querySelectorAll('[data-lp-section-status]')].map(el => /** @type {HTMLElement} */ (el));
   if (outline.length !== content.sections.length || outline.some((el, i) => el.dataset.lpSectionStatus !== String(content.sections[i].id))) throw new Error('Invalid test-out outline markup');
-  const credits = [...root.querySelectorAll('[data-lp-credit]')].map(el => /** @type {HTMLElement} */ (el));
-  if (credits.length !== content.sections.length) throw new Error('Invalid test-out credit markup');
   const fieldsets = [...root.querySelectorAll('fieldset')];
   if (fieldsets.length !== content.questions.length) throw new Error('Invalid test-out questions markup');
   const names = new Set();
@@ -116,23 +114,20 @@ export function enhance(root, { content, strings, state }) {
   /** @param {import('./logic.js').PlanRow[]} rows */
   function showOutline(rows) {
     rows.forEach((row, i) => {
-      const by = content.sections.find(s => s.id === row.by);
-      const word = row.action === 'passed' ? strings.passed : row.action === 'credited' ? strings.credited : strings.todo;
+      const word = row.action === 'take' ? strings.todo : strings.passed;
       outline[i].hidden = false;
       outline[i].classList.toggle('lp-met', row.action !== 'take');
       outline[i].classList.toggle('lp-neutral', row.action === 'take');
-      outline[i].innerHTML = `${row.action === 'passed' ? icons.check : row.action === 'credited' ? icons['arrow-right'] : icons['circle-dashed']}<span>${html(word)}</span>`;
-      credits[i].hidden = row.action !== 'credited';
-      credits[i].textContent = row.action === 'credited' ? format(strings.creditFrom, { section: by?.title ?? '' }) : '';
+      outline[i].innerHTML = `${row.action === 'take' ? icons['circle-dashed'] : icons.check}<span>${html(word)}</span>`;
     });
   }
   function clearResults() {
+    outlineHeading.textContent = strings.outline;
     result.textContent = ''; result.hidden = true; restart.hidden = true; shown = false;
     restartActions.hidden = true; review.hidden = true; review.open = false; intro.hidden = false;
     if (startActions) startActions.hidden = false;
     stepper.append(questionList);
     for (const el of outline) { el.hidden = true; el.textContent = ''; el.classList.remove('lp-met', 'lp-neutral'); }
-    for (const el of credits) { el.hidden = true; el.textContent = ''; }
     for (const { radios, rows, explanation } of questions) {
       for (const radio of radios) radio.disabled = false;
       for (const row of rows) { row.removeAttribute('data-lp-mark'); row.querySelector('.lp-choice-mark')?.remove(); }
@@ -157,6 +152,7 @@ export function enhance(root, { content, strings, state }) {
         rows[i].append(mark);
       });
     }
+    outlineHeading.textContent = strings.resultOutline;
     showOutline(outcome.rows);
     result.textContent = summary; result.hidden = false; restart.hidden = false; shown = true;
     intro.hidden = true; if (startActions) startActions.hidden = true;

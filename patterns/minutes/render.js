@@ -12,7 +12,7 @@ export function render(content, strings, { id, lang }) {
   return `<section class="lp lp-minutes" data-lp-pattern="minutes" lang="${html(lang)}" aria-labelledby="${title}">
   <header class="lp-scene">
     <span class="lp-scene-icon">${icons['list-details']}</span>
-    <div><p class="lp-scene-label">${html(strings.outline)}</p><h2 class="lp-scene-title" id="${title}">${html(content.title)}</h2></div>
+    <div><h2 class="lp-scene-title" id="${title}">${html(content.title)}</h2></div>
   </header>
   <button type="button" class="lp-button lp-button-secondary" data-lp-toggle aria-pressed="false" hidden>${html(strings.authorView)}</button>
   <p class="lp-small" data-lp-instruction hidden>${html(strings.instruction)}</p>

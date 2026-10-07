@@ -4,7 +4,7 @@
 .lp-dont-know-question-number + .lp-choices { margin-block-start: 0; }
 .lp-dont-know-explanation { display: flex; gap: 8px; align-items: flex-start; margin-block-start: 8px; }
 .lp-dont-know-explanation .lp-icon { margin-block-start: .2em; color: var(--lp-ink-2); }
-.lp-dont-know-result-head { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 16px; align-items: center; }
+.lp-dont-know-result-head { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 16px; align-items: start; }
 .lp-dont-know-result-head [data-lp-counts] { margin-block-start: 4px; }
 .lp-dont-know-score-ring { display: block; inline-size: 64px; block-size: 64px; }
 .lp-dont-know-ring-track, .lp-dont-know-ring-fill { fill: none; stroke-width: 5; }

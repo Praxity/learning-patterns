@@ -98,9 +98,9 @@ test('state copies all author counts, handles special ids and ignores invalid sn
 
 test('render escapes authored text and attributes, prefixes ids and keeps static estimates', () => {
   const value = copy(); value.title = '<script>"&'; value.sections[0].title = '<img src=x>';
-  const output = render(value, { ...strings.en, outline: '<outline>' }, { id: 'x"', lang: 'en"' });
+  const output = render(value, { ...strings.en, authorView: '<author>' }, { id: 'x"', lang: 'en"' });
   assert.match(output, /class="lp lp-minutes" data-lp-pattern="minutes"/);
-  assert.match(output, /&lt;script&gt;&quot;&amp;/); assert.match(output, /&lt;img src=x&gt;/); assert.match(output, /&lt;outline&gt;/);
+  assert.match(output, /&lt;script&gt;&quot;&amp;/); assert.match(output, /&lt;img src=x&gt;/); assert.match(output, /&lt;author&gt;/);
   assert.match(output, /lang="en&quot;"/); assert.doesNotMatch(output, /<script>|<img/);
   for (const match of output.matchAll(/\bid="([^"]+)"/g)) assert.ok(match[1].startsWith('x&quot;-'));
   assert.equal((output.match(/role="status"/g) ?? []).length, 1);
@@ -134,5 +134,12 @@ test('a section with one question says "1 question", in English and French', asy
     const html = render(content, strings[lang], { id: 'one', lang });
     assert.match(html, lang === 'en' ? /\b1 question</ : /\b1 question</);
     assert.doesNotMatch(html, /\b1 questions\b/);
+  }
+});
+
+test('owner audit: scene contains only icon and title', () => {
+  for (const lang of ['en', 'fr']) {
+    const markup = render(content, strings[lang], { id: 'audit', lang });
+    assert.doesNotMatch(markup, /lp-scene-label/);
   }
 });

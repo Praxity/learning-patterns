@@ -165,11 +165,18 @@ test('quiz scene renders escaped authored titles, bilingual question numbers and
   ]) {
     const output = render({ ...source, title }, strings[lang], { id: 'quiz', lang });
     assert.match(output, /<header class="lp-scene">/);
-    assert.ok(output.includes(label));
+    assert.equal(output.includes(label), false);
     assert.ok(output.includes(title.replaceAll("'", '&#39;')));
     assert.ok(output.includes(number));
     assert.equal((output.match(/class="lp-small lp-dont-know-question-number"/g) || []).length, 4);
     assert.equal((output.match(/class="lp-quote lp-dont-know-explanation"/g) || []).length, 4);
     assert.match(output, /data-lp-explanation hidden><svg[^>]+aria-hidden="true"/);
+  }
+});
+
+test('owner audit: scene contains only icon and title', () => {
+  for (const lang of ['en', 'fr']) {
+    const markup = render(content, strings[lang], { id: 'audit', lang });
+    assert.doesNotMatch(markup, /lp-scene-label/);
   }
 });

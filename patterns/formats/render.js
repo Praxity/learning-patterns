@@ -20,13 +20,13 @@ export function render(content, strings, { id, lang }) {
   return `<section class="lp lp-formats" data-lp-pattern="formats" lang="${html(lang)}">
   <header class="lp-scene">
     <span class="lp-scene-icon">${icons.presentation}</span>
-    <div><p class="lp-scene-label">${html(strings.scene)}</p><h3 class="lp-scene-title">${html(content.title)}</h3></div>
+    <div><h3 class="lp-scene-title">${html(content.title)}</h3></div>
   </header>
   <div class="lp-formats-switcher" role="group" aria-label="${html(strings.formats)}" data-lp-formats hidden>
     ${FORMATS.map(format => `<button type="button" class="lp-button lp-button-secondary" data-lp-format="${format}" aria-pressed="${format === 'text'}">${icons[formatIcons[format]]}<span>${html(strings[format])}</span></button>`).join('\n    ')}
   </div>
-  <p class="lp-small" data-lp-place hidden></p>
   <div class="lp-section lp-formats-lesson">
+  <p class="lp-small" data-lp-place hidden></p>
   ${content.points.map((point, index) => `<section class="lp-formats-point" data-lp-point="${html(point.id)}" aria-labelledby="${html(`${id}-heading-${index}`)}">
     <article class="lp-stack lp-formats-article" data-lp-view="text">
       <h4 class="lp-stem" id="${html(`${id}-heading-${index}`)}">${html(point.title)}</h4>

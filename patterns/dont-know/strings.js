@@ -1,6 +1,5 @@
 export const strings = {
   en: {
-    quickCheck: 'Quick check',
     questionNumber: 'Question {number} of {total}',
     unknown: "I don't know",
     ruleRightGain: 'A right answer scores {points}.',
@@ -37,7 +36,6 @@ export const strings = {
     cleared: 'Cleared.'
   },
   fr: {
-    quickCheck: 'Vérification rapide',
     questionNumber: 'Question {number} sur {total}',
     unknown: 'Je ne sais pas',
     ruleRightGain: 'Une bonne réponse rapporte {points}.',

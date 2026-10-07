@@ -19,7 +19,7 @@ Use it when learners need an estimate of course length or authors need to check 
 
 1. You read the outline and the estimated minutes beside each section.
 2. You see a warning beside sections estimated at more than 15 minutes and read the course total.
-3. If you are editing the course, you select "Author view" and change the word, narration or question counts.
+3. If you are editing the course, you select "Author view" and change the word, narration or question counts. The fields replace the count breakdowns.
 4. You finish editing a number to see the new total. You correct any numbers with an error beside them.
 
 ## Evidence

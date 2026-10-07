@@ -8,7 +8,7 @@ const seed = { first: { text: 'Stop interrupting me.', savedAt: FIRST }, now: { 
 
 test('shared scene spans the journal card and centres its tile on the prompt', async ({ page }) => {
   await open(page);
-  await expect(page.locator('.lp-scene-label')).toHaveText('Your journal');
+  await expect(page.locator('.lp-scene-label')).toHaveCount(0);
   for (const width of [1280, 390, 320]) {
     await page.setViewportSize({ width, height: 900 });
     const geometry = await page.locator('.lp-scene').evaluate(el => {
@@ -102,7 +102,7 @@ for (const [lang, journal, day, end, note] of [
   test(`journal scene, dated entry and course timeline (${lang})`, async ({ page }) => {
     await open(page, `/first-answer/${lang}.html`);
     const scene = page.locator('.lp-scene');
-    await expect(scene.locator('.lp-scene-label')).toHaveText(journal);
+    await expect(scene.locator('.lp-scene-label')).toHaveCount(0);
     await expect(scene.getByRole('heading')).toHaveCount(1);
     await expect(scene.locator('svg')).toHaveAttribute('aria-hidden', 'true');
     await expect(page.locator('[data-lp-first-step]').getByRole('heading')).toHaveText(day);
@@ -111,7 +111,7 @@ for (const [lang, journal, day, end, note] of [
     })).toEqual(['rgb(255, 255, 255)', '16px 18px', 28.05]);
     await saveFirst(page);
     const saved = page.locator('[data-lp-first-saved]');
-    await expect(saved.locator('.lp-first-answer-note')).toHaveText(note);
+    await expect(saved.locator('.lp-first-answer-note')).toHaveCount(0);
     await expect(saved.locator('.lp-first-answer-date svg')).toHaveAttribute('aria-hidden', 'true');
     expect(await saved.evaluate(el => {
       const children = [...el.children]; return children.indexOf(el.querySelector('.lp-first-answer-date')) < children.indexOf(el.querySelector('[data-lp-first-quote]'));
@@ -127,7 +127,7 @@ for (const [lang, journal, day, end, note] of [
     await expect(timeline).toBeHidden(); await compare(page);
     const card = page.locator('[data-lp-panel-first-card]');
     await expect(card.getByRole('heading')).toHaveText(day);
-    await expect(card.locator('.lp-first-answer-note')).toHaveText(note);
+    await expect(card.locator('.lp-first-answer-note')).toHaveCount(0);
     await expect(card.locator('[data-lp-panel-first-date]')).toHaveText(await saved.locator('[data-lp-first-date]').textContent());
     await expect(card.locator('[data-lp-panel-first]')).toHaveText('Stop interrupting me.');
     expect(await card.evaluate(el => el.compareDocumentPosition(document.querySelector('fieldset')) & Node.DOCUMENT_POSITION_FOLLOWING)).toBeTruthy();
@@ -217,7 +217,7 @@ test('keyboard journey links blank errors and announces successful submissions o
   await expect(page.locator('[data-lp-first-error]')).toBeVisible();
   await page.keyboard.press('Tab'); await page.keyboard.press('Enter');
   await expect(page.locator('[data-lp-skip]')).toBeFocused(); await expect(page.locator('[data-lp-first-quote]')).toHaveText('Stop interrupting me.');
-  await expect(page.locator('[data-lp-first-saved] .lp-first-answer-note')).toHaveText('It stays as you wrote it.');
+  await expect(page.locator('[data-lp-first-saved] .lp-first-answer-note')).toHaveCount(0);
   await expect(first).not.toHaveAttribute('aria-invalid', 'true');
   await expect(save).toBeHidden();
   await page.keyboard.press('Enter'); await expect(page.locator('[data-lp-end-heading]')).toBeFocused();
@@ -293,7 +293,7 @@ for (const [lang, savedNote, summary] of [['en', 'It stays as you wrote it.', 'Y
     await expect(page.locator('[data-lp-pattern]')).toHaveAttribute('lang', lang);
     await expect(page.locator('[role="status"]')).toBeEmpty();
     await expect(page.locator('[data-lp-end-step]')).toBeVisible(); await expect(page.locator('[data-lp-skip]')).toBeHidden();
-    await expect(page.locator('[data-lp-first-saved] .lp-first-answer-note')).toHaveText(savedNote);
+    await expect(page.locator('[data-lp-first-saved] .lp-first-answer-note')).toHaveCount(0);
     await expect(page.locator('[data-lp-panel-first]')).toHaveText(seed.first.text);
     await expect(page.locator('[data-lp-now-input]')).toHaveValue(seed.now.text);
     await expect(page.getByRole('checkbox').nth(2)).toBeChecked();
@@ -417,13 +417,13 @@ test('missing or mismatched server markup fails loudly through enhance', async (
     const { render } = await import('../patterns/first-answer/render.js');
     const { strings } = await import('../patterns/first-answer/strings.js');
     const content = { prompt: 'A', checks: [{ id: 'a', label: 'B' }] };
-    return ['', render(content, strings.en, { id: 'bad', lang: 'en' }).replace('value="a"', 'value="unknown"'), render(content, strings.en, { id: 'bad', lang: 'en' }).replace('data-lp-panel-note', 'data-planted-missing-note')].map(markup => {
+    return ['', render(content, strings.en, { id: 'bad', lang: 'en' }).replace('value="a"', 'value="unknown"'), render(content, strings.en, { id: 'bad', lang: 'en' }).replace('data-lp-panel-first-date', 'data-planted-missing-date')].map(markup => {
       const wrapper = document.createElement('div'); wrapper.innerHTML = markup;
       try { enhance(wrapper.firstElementChild || wrapper, { content, strings: strings.en }); return ''; } catch (error) { return error.message; }
     });
   });
   expect(failures[0]).toMatch(/markup|stage/); expect(failures[1]).toMatch(/checks markup/);
-  expect(failures[2]).toContain('Missing first-answer markup: [data-lp-panel-note]');
+  expect(failures[2]).toContain('Missing first-answer markup: [data-lp-panel-first-date]');
 });
 
 for (const lang of ['en', 'fr']) {

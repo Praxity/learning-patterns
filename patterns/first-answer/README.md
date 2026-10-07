@@ -72,7 +72,7 @@ Strings must be nonempty. `validateContent` rejects unknown fields and duplicate
 
 Entries are `{ text, savedAt }`. Actions accept `null` state as empty state and throw on invalid inputs.
 
-`render` accepts `stage: 'first' | 'end' | 'both'`, default `'both'`. First and end placements can appear on different course pages. Each placement has a notebook scene header labelled "Your journal", with the prompt as its title. Steps use "Day one" and "End of the course" as headings. The demo uses both, with a dashed timeline, a course note and a skip button after saving. Skip opens the end section and focuses its heading. Restored answers open the end section directly. An end placement with no first answer explains the missing comparison and still accepts an answer now.
+`render` accepts `stage: 'first' | 'end' | 'both'`, default `'both'`. First and end placements can appear on different course pages. Each placement has a notebook icon and the prompt as its title. Saved entries show the answer and its date. Steps use "Day one" and "End of the course" as headings. The demo uses both, with a dashed timeline, a course note and a skip button after saving. Skip opens the end section and focuses its heading. Restored answers open the end section directly. An end placement with no first answer explains the missing comparison and still accepts an answer now.
 
 Without JavaScript, the prompt, a first-answer textarea and a saving note remain available in every placement.
 

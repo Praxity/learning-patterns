@@ -1,7 +1,7 @@
 .lp-minutes-outline { padding: 0; list-style: none; }
 .lp-minutes-section + .lp-minutes-section { margin-block-start: 20px; padding-block-start: 20px; border-block-start: 1px solid var(--lp-rule); }
-.lp-minutes-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: start; justify-content: space-between; }
-.lp-minutes-heading { flex: 1 1 16rem; min-inline-size: 0; }
+.lp-minutes-row { display: grid; grid-template-columns: minmax(0, 1fr) fit-content(45%); gap: 12px; align-items: start; }
+.lp-minutes-heading { min-inline-size: 0; padding-block-start: 5px; }
 .lp-minutes-heading > p { margin-block-start: 5px; }
 .lp-minutes-chip, .lp-minutes-warning { display: inline-flex; gap: 6px; align-items: center; max-inline-size: 100%; }
 .lp-minutes-chip { padding: 4px 10px; border: 1px solid var(--lp-line-mid); border-radius: var(--lp-radius-control); font-variant-numeric: tabular-nums; }

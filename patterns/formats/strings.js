@@ -1,7 +1,7 @@
 /** @typedef {typeof strings.en} Strings */
 export const strings = {
   en: {
-    scene: 'Choose how to learn this', formats: 'Lesson format',
+    formats: 'Lesson format',
     text: 'Text', slides: 'Slides', audio: 'Audio script', outline: 'Outline', quiz: 'Quiz',
     place: 'Section {n} of {total}', showing: 'Showing {format}, section {n}.',
     previous: 'Previous', next: 'Next',
@@ -12,7 +12,7 @@ export const strings = {
     quizSummary: '{count} of {total} questions checked.', summary: 'What to remember'
   },
   fr: {
-    scene: 'Choisissez comment apprendre', formats: 'Format de la leçon',
+    formats: 'Format de la leçon',
     text: 'Texte', slides: 'Diapositives', audio: 'Texte de narration', outline: 'Plan', quiz: 'Quiz',
     place: 'Section {n} sur {total}', showing: 'Format affiché : {format}, section {n}.',
     previous: 'Précédent', next: 'Suivant',

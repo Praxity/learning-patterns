@@ -18,7 +18,7 @@ Use it when a short lesson benefits from different ways to read, review or pract
 ## How it works
 
 1. You choose text, slides, the sample narration script, an outline or a quiz.
-2. You use Previous and Next to move through the sections. You can switch formats and keep your place.
+2. You use Previous and Next to move through the sections. The section counter sits above the content heading. You can switch formats and keep your place.
 3. In the quiz, you choose an option and select "Check answer" to read feedback beside it. You can change your answer and check again.
 4. If a section has no quiz question, you read its outline and continue.
 5. In the last section, you read the lesson summary. In the quiz, you also see how many questions you have checked.

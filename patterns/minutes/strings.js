@@ -1,6 +1,6 @@
 export const strings = {
   en: {
-    outline: 'Course outline', authorView: 'Author view',
+    authorView: 'Author view',
     instruction: 'Change the counts to see how much time each section needs.',
     words: 'Words', narrationSeconds: 'Narration in seconds', questions: 'Questions',
     breakdown: '{words} words, {questions} questions', breakdownOne: '{words} words, 1 question', minutes: '{n} min',
@@ -14,7 +14,7 @@ export const strings = {
     assumptions: 'Assumes {readingWordsPerMinute} words per minute and {minutesPerQuestion} minutes per question. Narration plays during reading.'
   },
   fr: {
-    outline: 'Plan du cours', authorView: 'Vue auteur',
+    authorView: 'Vue auteur',
     instruction: 'Modifiez les nombres pour voir le temps nécessaire à chaque section.',
     words: 'Mots', narrationSeconds: 'Narration en secondes', questions: 'Questions',
     breakdown: '{words} mots, {questions} questions', breakdownOne: '{words} mots, 1 question', minutes: '{n} min',

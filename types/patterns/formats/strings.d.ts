@@ -1,6 +1,5 @@
 export namespace strings {
     namespace en {
-        let scene: string;
         let formats: string;
         let text: string;
         let slides: string;
@@ -24,8 +23,6 @@ export namespace strings {
         let summary: string;
     }
     namespace fr {
-        let scene_1: string;
-        export { scene_1 as scene };
         let formats_1: string;
         export { formats_1 as formats };
         let text_1: string;

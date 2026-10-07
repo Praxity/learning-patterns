@@ -137,7 +137,7 @@ test('journal scene, day headings and dated cards render in both languages and e
   ]) for (const stage of ['first', 'end', 'both']) {
     const markup = render(content, strings[lang], { id: 'journal', lang, stage });
     assert.match(markup, /<header class="lp-scene">/);
-    assert.ok(markup.includes(journal));
+    assert.equal(markup.includes(journal), false);
     assert.equal(markup.split(content.prompt).length - 1, 1);
     assert.equal(markup.includes('Step 1'), false); assert.equal(markup.includes('Étape 1'), false);
     if (stage !== 'end') assert.ok(markup.includes(`id="journal-start">${day}</h3>`));
@@ -145,7 +145,7 @@ test('journal scene, day headings and dated cards render in both languages and e
       assert.ok(markup.includes(`tabindex="-1">${end}</h3>`));
       assert.match(markup, /data-lp-panel-first-card/);
     }
-    assert.ok(markup.includes(note.replaceAll("'", '&#39;')));
+    assert.equal(markup.includes(note.replaceAll("'", '&#39;')), false);
     assert.match(markup, /lp-first-answer-date[^>]*>.*<svg[^>]*aria-hidden="true"/s);
     if (stage === 'both') assert.match(markup, /class="lp-first-answer-timeline" data-lp-course hidden/);
   }
@@ -157,5 +157,22 @@ test('English and French strings are nonempty with matching keys and placeholder
   for (const key of Object.keys(strings.en)) {
     assert.ok(strings.en[key]); assert.ok(strings.fr[key]);
     assert.deepEqual(strings.en[key].match(/\{\w+\}/g), strings.fr[key].match(/\{\w+\}/g));
+  }
+});
+
+test('owner audit: scene contains only icon and title', () => {
+  for (const lang of ['en', 'fr']) {
+    const markup = render(content, strings[lang], { id: 'audit', lang });
+    assert.doesNotMatch(markup, /lp-scene-label/);
+  }
+});
+
+test('owner audit: saved entry notes removed from both placements and languages', () => {
+  for (const lang of ['en', 'fr']) {
+    assert.equal(Object.hasOwn(strings[lang], 'kept'), false);
+    const markup = render(content, strings[lang], { id: 'audit', lang });
+    assert.doesNotMatch(markup, /lp-first-answer-note|data-lp-panel-note/);
+    assert.match(markup, /data-lp-first-date/);
+    assert.match(markup, /data-lp-panel-first-date/);
   }
 });

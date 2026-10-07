@@ -55,7 +55,7 @@ All fields are plain text. HTML characters are escaped.
 
 `validateContent` rejects empty strings, unknown fields, invalid ids and duplicate ids. Whitespace is allowed. The schema's `x-uniqueBy` annotation records id uniqueness; ordinary JSON Schema tools also need the validator's uniqueness check.
 
-English and Québec French strings share the keys `takeAway`, `instruction`, `dateLabel`, `dateError`, `dateChanged`, `sides`, `front`, `back`, `questions`, `answers`, `frontInstruction`, `backInstruction`, `print`, `printHint`, `printing` and `summary`. Only `dateChanged` uses a placeholder, `{date}`. Authors write all learner-facing text.
+English and Québec French strings share the keys `instruction`, `dateLabel`, `dateError`, `dateChanged`, `sides`, `front`, `back`, `questions`, `answers`, `backInstruction`, `print`, `printHint`, and `printing`. Only `dateChanged` uses a placeholder, `{date}`. Authors write all learner-facing text.
 
 ## Logic
 
@@ -71,7 +71,7 @@ English and Québec French strings share the keys `takeAway`, `instruction`, `da
 
 Seven days is a demo default, not an established optimum for every topic or learner. Calendar scheduling handles month boundaries, leap years and daylight-saving changes.
 
-The screen preview uses A4 proportions, a paper edge and a soft shadow. Narrow screens and enlarged text let the page grow. The scene header uses the shared file-text icon, "Take it with you" label and module title. Interface colours and fonts use the shared `--lp-*` tokens.
+The screen preview uses A4 proportions, a paper edge and a soft shadow. Narrow screens and enlarged text let the page grow. The scene header uses the shared file-text icon and module title. The recall instruction appears once, on the front, and stays visible in print. Interface colours and fonts use the shared `--lp-*` tokens.
 
 Without JavaScript, both sides appear in order with the server's default date. Use your browser's Print command. Interactive controls stay hidden.
 

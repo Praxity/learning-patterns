@@ -3,8 +3,7 @@
 .lp-test-out-outline-list { display: grid; gap: 20px; padding-inline-start: 24px; }
 .lp-test-out-outline-list li::marker { color: var(--lp-ink-2); font-size: var(--lp-type-small); }
 .lp-test-out-outline-row { display: flex; gap: 16px; align-items: flex-start; }
-.lp-test-out-outline-row > div { flex: 1; min-inline-size: 0; }
-.lp-test-out-outline-row [data-lp-credit] { margin-block-start: 4px; }
+.lp-test-out-outline-row > .lp-run-in { flex: 1; min-inline-size: 0; }
 .lp-test-out-status { display: inline-flex; align-items: center; gap: 4px; flex: none; white-space: nowrap; font-weight: 600; }
 .lp-test-out-progress { block-size: 3px; background: var(--lp-rule); }
 .lp-test-out-progress > span { display: block; block-size: 100%; background: var(--lp-accent); }
@@ -17,10 +16,6 @@
 .lp-test-out .lp-choice-mark { white-space: normal; }
 .lp-test-out-fallback-list { display: grid; gap: 20px; padding-inline-start: 24px; }
 .lp-test-out-fallback-list li > * + * { margin-block-start: 8px; }
-@container (max-width: 34rem) {
-  .lp-test-out .lp-choice[data-lp-mark] { display: grid; grid-template-columns: auto minmax(0, 1fr); row-gap: 6px; }
-  .lp-test-out .lp-choice-mark { grid-column: 2; justify-self: start; margin-inline-start: 0; }
-}
 @media (prefers-reduced-motion: reduce) {
   .lp-test-out-enter { animation: none; }
 }

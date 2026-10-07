@@ -112,7 +112,7 @@ test('saved step rejects out-of-range, inconsistent and disabled placement panel
 
 test('server outline is clean, scene is shared, and Start is absent when required', () => {
   const output = render(content, strings.en, { id: 'stepper', lang: 'en' });
-  for (const name of ['lp-scene', 'lp-scene-icon', 'lp-scene-label', 'lp-scene-title']) assert.ok(output.includes(`class="${name}"`));
+  for (const name of ['lp-scene', 'lp-scene-icon', 'lp-scene-title']) assert.ok(output.includes(`class="${name}"`));
   assert.ok(output.includes("What you&#39;ll cover"));
   assert.ok(output.includes('Start the check'));
   assert.equal(output.includes('To do'), false);
@@ -126,7 +126,7 @@ test('server outline is clean, scene is shared, and Start is absent when require
 test('server HTML has scene, outline, grouped keyed questions, native answers and one empty status', () => {
   const a = render(content, strings.en, { id: 'first', lang: 'en' });
   assert.match(a, /class="lp lp-test-out"/); assert.match(a, /data-lp-pattern="test-out" lang="en"/);
-  assert.match(a, /Placement check/); assert.match(a, /Meetings: a refresher/);
+  assert.doesNotMatch(a, /Placement check/); assert.match(a, /Meetings: a refresher/);
   assert.equal((a.match(/data-lp-section-status/g) || []).length, 4);
   assert.equal((a.match(/class="lp-choices"/g) || []).length, 4);
   assert.equal((a.match(/class="lp-choice"/g) || []).length, 12);
@@ -136,7 +136,7 @@ test('server HTML has scene, outline, grouped keyed questions, native answers an
   const b = render(french, strings.fr, { id: 'second', lang: 'fr' });
   const ids = [...(a + b).matchAll(/\bid="([^"]+)"/g)].map(m => m[1]);
   assert.equal(new Set(ids).size, ids.length); assert.ok(ids.every(id => /^(first|second)-/.test(id)));
-  assert.match(b, /lang="fr"/); assert.ok(b.includes('Vérification des acquis'));
+  assert.match(b, /lang="fr"/); assert.equal(b.includes('Vérification des acquis'), false);
 });
 
 test('advanced answer explanations describe course credit without claiming mastery evidence', () => {
@@ -168,4 +168,21 @@ test('bilingual strings, example identities and schema fields agree', async () =
   assert.deepEqual(schema.required, ['title', 'allowTestOut', 'sections', 'questions']);
   assert.equal(schema.additionalProperties, false);
   assert.deepEqual(schema.properties.questions.items.required, ['id', 'section', 'text', 'options', 'correct', 'explanation']);
+});
+
+test('owner audit: scene contains only icon and title', () => {
+  for (const lang of ['en', 'fr']) {
+    const markup = render(content, strings[lang], { id: 'audit', lang });
+    assert.doesNotMatch(markup, /lp-scene-label/);
+  }
+});
+
+test('owner audit: question carries its context and outline has no credit message', () => {
+  const markup = render(content, strings.en, { id: 'audit', lang: 'en' });
+  assert.doesNotMatch(markup, /data-lp-credit/);
+  assert.doesNotMatch(markup, /<p class="lp-small">Writing an agenda<\/p>/);
+  for (const lang of ['en', 'fr']) {
+    assert.equal(Object.hasOwn(strings[lang], 'credited'), false);
+    assert.equal(Object.hasOwn(strings[lang], 'creditFrom'), false);
+  }
 });
