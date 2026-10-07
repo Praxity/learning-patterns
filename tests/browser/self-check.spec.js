@@ -107,6 +107,11 @@ test('feedback badges and number keys stay at the first line of long part labels
     });
     expect(Math.abs(positions.key - positions.label)).toBeLessThanOrEqual(4);
     expect(Math.abs(positions.badge - positions.label)).toBeLessThanOrEqual(4);
+    const summary = await page.locator('.lp-self-check-result-head').evaluate(el => ({
+      ring: el.querySelector('svg').getBoundingClientRect().top,
+      title: el.querySelector('h3').getBoundingClientRect().top
+    }));
+    expect(Math.abs(summary.ring - summary.title)).toBeLessThanOrEqual(1);
   }
 });
 
