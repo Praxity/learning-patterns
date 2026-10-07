@@ -1,0 +1,45 @@
+{
+  "questions": [
+    {
+      "id": "q1", "text": "What is an emergency fund for?",
+      "options": [
+        { "id": "unexpected-expenses", "text": "Covering unexpected expenses" },
+        { "id": "planned-holidays", "text": "Paying for planned holidays" },
+        { "id": "before-payday", "text": "Buying things before payday" }
+      ],
+      "correct": "unexpected-expenses",
+      "explanation": "An emergency fund covers unexpected expenses, such as an urgent repair."
+    },
+    {
+      "id": "q2", "text": "What usually happens if you pay only your credit card's minimum each month?",
+      "options": [
+        { "id": "no-interest", "text": "You avoid all interest charges" },
+        { "id": "longer-more-interest", "text": "Repayment takes longer and costs more interest" },
+        { "id": "balance-disappears", "text": "The remaining balance disappears" }
+      ],
+      "correct": "longer-more-interest",
+      "explanation": "Paying only the minimum usually takes longer and costs more interest than paying more."
+    },
+    {
+      "id": "q3", "text": "How does compound interest help savings grow over time?",
+      "options": [
+        { "id": "interest-on-interest", "text": "You earn interest on your savings and earlier interest" },
+        { "id": "initial-savings-only", "text": "You earn interest only on the money you first saved" },
+        { "id": "fixed-growth", "text": "Your savings grow by the same fixed amount forever" }
+      ],
+      "correct": "interest-on-interest",
+      "explanation": "Compound interest earns interest on your savings and the interest already added."
+    },
+    {
+      "id": "q4", "text": "What does a budget help you do?",
+      "options": [
+        { "id": "plan-spending-saving", "text": "Plan how to use your income for spending and saving" },
+        { "id": "guarantee-income", "text": "Guarantee that your income will increase" },
+        { "id": "avoid-surprises", "text": "Avoid every unexpected expense" }
+      ],
+      "correct": "plan-spending-saving",
+      "explanation": "A budget helps you plan spending and saving based on your income."
+    }
+  ],
+  "points": { "right": 1, "wrong": -1, "unknown": 0 }
+}
