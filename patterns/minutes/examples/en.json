@@ -1,0 +1,11 @@
+{
+  "title": "The four horsemen",
+  "rates": { "readingWordsPerMinute": 200, "minutesPerQuestion": 0.75 },
+  "sections": [
+    { "id": "intro", "title": "Do you avoid the four horsemen?", "words": 120, "questions": 0, "narrationSeconds": 60 },
+    { "id": "horsemen", "title": "The four horsemen", "words": 450, "questions": 0, "narrationSeconds": 180 },
+    { "id": "identify", "title": "Which horseman is it?", "words": 150, "questions": 4, "narrationSeconds": 0 },
+    { "id": "pause", "title": "Withdrawal or time-out?", "words": 220, "questions": 1, "narrationSeconds": 90 },
+    { "id": "reflection", "title": "Your challenge and reflection", "words": 300, "questions": 3, "narrationSeconds": 840 }
+  ]
+}
