@@ -194,12 +194,40 @@ test('render uses the shared frame, text roles, sectioned fields and quiet Start
   assert.match(output, /class="lp lp-write-distractors"/);
   assert.match(output, /<h2 class="lp-scene-title">Is taking a real break/);
   assert.match(output, /<p class="lp-run-in lp-met">Right answer<\/p>/);
-  assert.match(output, /<p class="lp-small">Write 2 wrong answers/);
+  assert.match(output, /data-lp-write-heading[^>]*>Write two wrong options and the misconception behind each\.<\/h3>/);
   assert.equal((output.match(/class="lp-write-distractors-builder lp-section"/g) || []).length, 2);
-  assert.equal((output.match(/<legend class="lp-run-in">Wrong option/g) || []).length, 2);
+  assert.equal((output.match(/<legend class="lp-run-in"[^>]*>Wrong option/g) || []).length, 2);
   assert.equal((output.match(/class="lp-input"/g) || []).length, 6);
   assert.equal((output.match(/class="lp-error-text"/g) || []).length, 7);
   assert.match(output, /class="lp-section lp-reveal" data-lp-result hidden/);
   assert.match(output, /class="lp-button lp-button-quiet"[^>]*data-lp-clear hidden><svg[\s\S]*?<\/svg>Start over<\/button>/);
   assert.match(render(fr, strings.fr, { id: 'fr', lang: 'fr' }), /<\/svg>Recommencer<\/button>/);
+});
+
+test('render merges repeated instructions and names builders by their answer keys', () => {
+  for (const [lang, authored, answer, legends] of [
+    ['en', content, 'Write your answer first.', ['Wrong option B', 'Wrong option C']],
+    ['fr', fr, "Rédigez d'abord votre réponse.", ['Mauvaise réponse B', 'Mauvaise réponse C']]
+  ]) {
+    const output = render(authored, strings[lang], { id: 'copy', lang });
+    assert.ok(!output.includes('lp-scene-label'));
+    assert.match(output, new RegExp(`<label[^>]+for="copy-answer">${answer.replaceAll("'", '&#39;')}</label>`));
+    assert.ok(!output.includes('data-lp-option-key'));
+    assert.ok(!output.includes('Your wrong option') && !output.includes('Votre mauvaise réponse'));
+    assert.deepEqual([...output.matchAll(/<legend[^>]*>([^<]+)<\/legend>/g)].map(match => match[1]), legends);
+    for (const index of [0, 1]) assert.match(output, new RegExp(`aria-labelledby="copy-option-${index}-legend"`));
+  }
+});
+
+test('render writes counts two to five in words in both languages, then digits', () => {
+  for (const [lang, authored, headings] of [
+    ['en', content, ['Write one wrong option and the misconception behind it.', ...['two', 'three', 'four', 'five', '6', '12'].map(n => `Write ${n} wrong options and the misconception behind each.`)]],
+    ['fr', fr, ["Rédigez une mauvaise réponse et l'idée fausse derrière celle-ci.", ...['deux', 'trois', 'quatre', 'cinq', '6', '12'].map(n => `Rédigez ${n} mauvaises réponses et l'idée fausse derrière chacune.`)]]
+  ]) {
+    for (const [index, count] of [1, 2, 3, 4, 5, 6, 12].entries()) {
+      const output = render({ ...authored, count }, strings[lang], { id: 'count', lang });
+      assert.equal(output.match(/data-lp-write-heading[^>]*>([^<]+)</)[1], headings[index].replaceAll("'", '&#39;'));
+      assert.equal((output.match(/<fieldset/g) || []).length, count);
+    }
+  }
 });

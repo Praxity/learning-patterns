@@ -1,6 +1,7 @@
 import { validateContent, validateOptions, validateState, coverage, coverageMessage, targetOf, optionKey, OTHER, MAX_OPTION, MAX_CUSTOM } from './logic.js';
 import { escapeHtml as html } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
+import { renderQuestionPreview } from './render.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
 const instances = new WeakMap();
@@ -115,24 +116,14 @@ export function enhance(root, { content, strings, state }) {
     /** @param {import('./logic.js').AuthorOption | import('./logic.js').LearnerOption} item */
     const targetLine = item => html(strings.targets.replaceAll('{target}', targetOf(content, item)));
     fields.forEach((field, index) => {
-      field.summary.innerHTML = `<span>${html(values[index].text)}</span><span class="lp-small">${targetLine(values[index])}</span>`;
+      field.summary.innerHTML = `<span class="lp-choice-key">${html(optionKey(index + 1))}</span><span data-lp-option-text>${html(values[index].text)}</span><p class="lp-small">${targetLine(values[index])}</p>`;
       field.editor.hidden = true; field.summary.hidden = false;
     });
-    result.innerHTML = `<div class="lp-stack" data-lp-preview>
-      <h3 class="lp-label">${html(strings.yourQuestion)}</h3>
-      <p class="lp-run-in">${html(content.question)}</p>
-      <ol class="lp-write-distractors-preview">
-        ${[content.rightAnswer, ...values.map(item => item.text)].map((text, index) => `<li class="lp-choice lp-write-distractors-preview-row"${index === 0 ? ' data-lp-mark="correct"' : ''}><span class="lp-choice-key lp-write-distractors-key" data-lp-preview-key>${html(optionKey(index))}</span><span>${html(text)}${index === 0 ? `<span class="lp-choice-mark lp-met">${icons.check}${html(strings.correctAnswer)}</span>` : ''}</span></li>`).join('')}
-      </ol>
-      </div>
-      <p class="lp-run-in" data-lp-summary data-lp-coverage>${html(message)}</p>
-      <p class="lp-small">${html(strings.comparisonNote)}</p>
-      <h3 class="lp-run-in">${html(strings.author)}</h3>
-      <ul class="lp-write-distractors-list" data-lp-author>${content.authorOptions.map(item => `<li><p>${html(item.text)}</p><p class="lp-small">${targetLine(item)}</p></li>`).join('')}</ul>
-      <h3 class="lp-run-in">${html(strings.untargeted)}</h3>
-      <ul class="lp-write-distractors-list" data-lp-untargeted>${(counts.untargeted.length ? counts.untargeted : [strings.none]).map(label => `<li>${html(label)}</li>`).join('')}</ul>
-      <h3 class="lp-run-in">${html(strings.yours)}</h3>
-      <ul class="lp-write-distractors-list" data-lp-yours>${values.map((item, index) => `<li><p>${html(item.text)}</p><p class="lp-write-distractors-match ${outcome.matches[index] ? 'lp-met' : 'lp-neutral'}">${outcome.matches[index] ? icons.check : icons['circle-dashed']}<span>${html(outcome.matches[index] ? strings.match : strings.noMatch)}</span></p><p class="lp-small">${targetLine(item)}</p></li>`).join('')}</ul>`;
+    result.innerHTML = `<p class="lp-run-in" data-lp-summary data-lp-coverage>${html(message)}</p>
+      <div class="lp-write-distractors-comparison">
+        ${renderQuestionPreview(content, strings, values, { matches: outcome.matches })}
+        ${renderQuestionPreview(content, strings, content.authorOptions, { author: true })}
+      </div>`;
     result.hidden = false; clear.hidden = false; shown = true;
     // A single replacement announces each submit, including an identical comparison.
     if (announce) status.textContent = message;
