@@ -18,7 +18,7 @@ Use it to compare the ideas a learner notices with the author's selection, or to
 ## How it works
 
 1. You read the passage and any question above it.
-2. You mark the key ideas or the text that answers the question. You can select a marked piece again to remove the mark.
+2. You mark the key ideas or the text that answers the question. The count shows your marks and the limit. Select a marked piece again to remove its mark.
 3. You select "Check" and read the feedback beside your marks and any targets you missed.
 4. You read how many targets you found, then select "Start over" if you want to try again.
 
@@ -37,6 +37,8 @@ Meets the shared baseline in the root README.
 - The passage has one tab stop. Left or Up and Right or Down move between chunks and wrap at the ends; Home and End jump to the first and last.
 - Space or Enter toggles a mark. Each chunk exposes its pressed state and has linked keyboard instructions.
 - Checked chunks remain readable and navigable. Feedback beside each chunk explains correct marks, missed targets and other selections.
+- At the limit, trying another chunk shows a message below the passage and announces it once. Removing a mark clears it.
+- Found targets have green highlights and solid underlines. Missed targets have dashed underlines and no highlight. Other selections keep their yellow highlights, with readable notes in neutral pills. Icons and words identify each outcome, including in forced colours.
 - Checking announces the target count. If Check has focus when it hides, focus moves to Start over. Reset focuses the first chunk without an announcement.
 
 ## Content fields
@@ -48,6 +50,7 @@ All learner-facing content is authored plain text. HTML characters are escaped.
 | `mode` | `key` or `evidence`. Both use `key: true` as the target. |
 | `title` | The article title. |
 | `question` | Required in evidence mode. Optional in key mode; shown above the passage when present. |
+| `maxMarks` | Optional positive integer. Defaults to the target count in evidence mode, or the key count plus one in key mode. |
 | `paragraphs` | A nonempty array of paragraphs; each paragraph is a nonempty array of chunks. |
 | `paragraphs[][].id` | Unique across all paragraphs; letters, digits, underscores and hyphens only. |
 | `paragraphs[][].text` | The chunk's text, with no leading or trailing whitespace. Adjacent chunks are joined by one space. |
@@ -65,8 +68,9 @@ Text fields must contain non-whitespace text. Unknown fields and duplicate ident
 | Function | Returns |
 | --- | --- |
 | `validateContent(content)` | Nothing; throws an `Error` naming the first bad field. |
-| `check(content, markedIds)` | `{ found, total, marked, wrong, items }`. Counts are unique selected targets, all targets, unique selected chunks, and selected non-targets. `items` follows paragraph and chunk order; each item is `{ id, text, marked, outcome, note }`, with `outcome` one of `correct`, `missed`, `wrong`, `unmarked`, and `note` the authored string or `null`. Duplicate marks count once; unknown IDs or invalid mark arrays throw. |
-| `validateState(content, value)` | An independent `{ marked: string[], shown: boolean }` or `null`. Unknown IDs, duplicate marks, extra fields and invalid shapes are ignored. Pass validated content. |
+| `markLimit(content)` | Maximum marked chunks from the override or mode default. Pass validated content. |
+| `check(content, markedIds)` | `{ found, total, marked, wrong, items }`. Counts are unique selected targets, all targets, unique selected chunks, and selected non-targets. `items` follows paragraph and chunk order; each item is `{ id, text, marked, outcome, note }`, with `outcome` one of `correct`, `missed`, `wrong`, `unmarked`, and `note` the authored string or `null`. Duplicate marks count once; unknown IDs, invalid mark arrays or selections over the limit throw. |
+| `validateState(content, value)` | An independent `{ marked: string[], shown: boolean }` or `null`. Unknown IDs, duplicate marks, excess marks, extra fields and invalid shapes are ignored. Pass validated content. |
 
 Without JavaScript, the article is plain text. Native "Answer" details lists the target passages and every authored note.
 
@@ -98,7 +102,7 @@ const instance = enhance(document.querySelector('[data-lp-pattern="highlight"]')
 
 ## Adapt it with your agent
 
-> Adapt the highlight examples to [topic] for [audience]. Keep `{ mode, title, question?, paragraphs: [[{ id, text, key?, note? }]] }`. Choose key ideas or evidence for a focused question. Split the passage at meaningful boundaries, keep ids unique and include at least one target. Write notes that explain selected non-targets. Keep English and Québec French together, using vous in French. Preserve the plain passage and native answer, keyboard navigation, local feedback, state, escaping and CSS token contracts. Make no claim that highlighting or searching visible text tests recall. Update examples and tests. Show both languages for review.
+> Adapt the highlight examples to [topic] for [audience]. Keep `{ mode, title, question?, maxMarks?, paragraphs: [[{ id, text, key?, note? }]] }`. Choose key ideas or evidence for a focused question. Split the passage at meaningful boundaries, keep ids unique and include at least one target. Write notes that explain selected non-targets. Keep English and Québec French together, using vous in French. Preserve the plain passage and native answer, keyboard navigation, local feedback, state, escaping and CSS token contracts. Make no claim that highlighting or searching visible text tests recall. Update examples and tests. Show both languages for review.
 
 ## Licence
 
