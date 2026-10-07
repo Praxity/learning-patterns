@@ -83,9 +83,7 @@ export function enhance(root, { content, strings, state }) {
       first.step.hidden = record.first === null && record.now !== null;
       first.editor.hidden = record.first !== null;
       first.saved.hidden = record.first === null;
-      first.save.hidden = false;
-      // aria-disabled retains the submit button's focus after its editor disappears.
-      first.save.setAttribute('aria-disabled', String(record.first !== null));
+      first.save.hidden = record.first !== null;
       first.quote.textContent = record.first?.text ?? '';
       first.date.textContent = record.first ? strings.saved.replaceAll('{date}', when(record.first.savedAt)) : '';
     }
@@ -140,7 +138,11 @@ export function enhance(root, { content, strings, state }) {
       if (stage === 'both') endOpen = true;
       paint(true); return;
     }
-    if (persist(withFirstAnswer(content, record, result.text, new Date().toISOString()), strings.firstSaved)) paint();
+    if (!persist(withFirstAnswer(content, record, result.text, new Date().toISOString()), strings.firstSaved)) return;
+    paint();
+    // The save button hides with its editor, so focus moves on: to Skip in the demo, else to the saved answer.
+    if (skip && !skip.hidden) skip.focus();
+    else { first.saved.tabIndex = -1; first.saved.focus(); }
   });
   if (skip && end) listen(skip, 'click', () => {
     endOpen = true; paint(); end.heading.focus();

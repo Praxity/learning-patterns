@@ -60,11 +60,10 @@ test('keyboard journey links blank errors and announces successful submissions o
   // Feedback changes on submission, not typing.
   await expect(page.locator('[data-lp-first-error]')).toBeVisible();
   await page.keyboard.press('Tab'); await page.keyboard.press('Enter');
-  await expect(save).toBeFocused(); await expect(page.locator('[data-lp-first-quote]')).toHaveText('Stop interrupting me.');
+  await expect(page.locator('[data-lp-skip]')).toBeFocused(); await expect(page.locator('[data-lp-first-quote]')).toHaveText('Stop interrupting me.');
   await expect(page.locator('[data-lp-first-date]')).toContainText('It stays as you wrote it.');
   await expect(first).not.toHaveAttribute('aria-invalid', 'true');
-  await expect(save).toHaveAttribute('aria-disabled', 'true');
-  await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-skip]')).toBeFocused();
+  await expect(save).toBeHidden();
   await page.keyboard.press('Enter'); await expect(page.locator('[data-lp-end-heading]')).toBeFocused();
   await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-now-input]')).toBeFocused();
   await page.keyboard.press('Tab'); await page.keyboard.press('Enter');
@@ -201,6 +200,7 @@ test('end only allows a current answer with no saved first; reset focuses curren
 
 test('first and end placements share state across course pages', async ({ page }) => {
   await mount(page, ['first']); await expect(page.locator('[data-lp-end-step]')).toHaveCount(0); await saveFirst(page);
+  await expect(page.locator('[data-lp-save-first]')).toBeHidden(); await expect(page.locator('[data-lp-first-saved]')).toBeFocused();
   const saved = await page.evaluate(() => window.lpSaved); await mount(page, ['end'], saved);
   await expect(page.locator('[data-lp-first-step]')).toHaveCount(0); await expect(page.locator('[data-lp-missing]')).toBeHidden();
   await compare(page); expect((await page.evaluate(() => window.lpSaved)).first).toEqual(saved.first);
@@ -307,8 +307,11 @@ test('desktop comparison panels are side by side and theme tokens reach secondar
 
 test('Chromium forced colours keeps focus rings, borders and secondary distinction', async ({ page, browserName }) => {
   test.skip(browserName !== 'chromium', 'Forced-colour emulation is checked in Chromium.');
-  await page.emulateMedia({ forcedColors: 'active' }); await open(page); await saveFirst(page);
-  for (const selector of ['[data-lp-save-first]', '[data-lp-skip]', '[data-lp-restart]']) {
+  await page.emulateMedia({ forcedColors: 'active' }); await open(page);
+  await page.locator('[data-lp-save-first]').focus();
+  expect(await page.locator('[data-lp-save-first]').evaluate(el => [getComputedStyle(el).outlineWidth, getComputedStyle(el).outlineStyle, getComputedStyle(el).outlineOffset])).toEqual(['2px', 'solid', '2px']);
+  await saveFirst(page);
+  for (const selector of ['[data-lp-skip]', '[data-lp-restart]']) {
     await page.locator(selector).focus();
     expect(await page.locator(selector).evaluate(el => [getComputedStyle(el).outlineWidth, getComputedStyle(el).outlineStyle, getComputedStyle(el).outlineOffset])).toEqual(['2px', 'solid', '2px']);
   }
