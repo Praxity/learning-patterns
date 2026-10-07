@@ -14,6 +14,8 @@
 .lp-test-out-question-group .lp-stem { font-size: var(--lp-type-body); line-height: 1.4; }
 .lp-test-out .lp-choice > span:not(.lp-choice-mark) { white-space: pre-line; }
 .lp-test-out .lp-choice-mark { white-space: normal; }
+/* Shared disabled-to-active background fades briefly put white text on a pale background. */
+.lp-test-out [data-lp-check] { transition-property: transform; }
 .lp-test-out-fallback-list { display: grid; gap: 20px; padding-inline-start: 24px; }
 .lp-test-out-fallback-list li > * + * { margin-block-start: 8px; }
 @container (max-width: 34rem) {

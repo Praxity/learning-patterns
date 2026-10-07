@@ -172,6 +172,26 @@ test('reduced motion applies and new scene colours meet contrast', async ({ page
   expect((luminance(paper) + .05) / (luminance(ink) + .05)).toBeGreaterThanOrEqual(3);
 });
 
+test('reset keeps Check text at AA contrast throughout its colour change', async ({ page }) => {
+  await open(page); await pick(page); await page.locator('[data-lp-check]').click();
+  await expect(page.locator('[data-lp-check]')).toHaveCSS('background-color', 'rgb(247, 248, 250)');
+  const ratios = await page.evaluate(async () => {
+    const button = document.querySelector('[data-lp-check]');
+    const luminance = rgb => rgb.match(/\d+/g).slice(0, 3).map(Number).map(x => x / 255).map(x => x <= .04045 ? x / 12.92 : ((x + .055) / 1.055) ** 2.4).reduce((sum, x, i) => sum + x * [.2126, .7152, .0722][i], 0);
+    const measure = () => {
+      const css = getComputedStyle(button), a = luminance(css.color), b = luminance(css.backgroundColor);
+      return (Math.max(a, b) + .05) / (Math.min(a, b) + .05);
+    };
+    // Commit the disabled state before resetting so both ends of the transition exist.
+    await new Promise(requestAnimationFrame);
+    document.querySelector('[data-lp-restart]').click();
+    const values = [measure()];
+    for (let frame = 0; frame < 15; frame++) { await new Promise(requestAnimationFrame); values.push(measure()); }
+    return values;
+  });
+  expect(Math.min(...ratios)).toBeGreaterThanOrEqual(4.5);
+});
+
 test('two questions group under their section, and hostile content stays literal', async ({ page }) => {
   await open(page);
   const content = structuredClone(english);
