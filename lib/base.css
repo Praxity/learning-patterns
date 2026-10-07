@@ -1,38 +1,47 @@
 /* Shared look for every pattern. Copy it with lib/ and link it before the pattern's own CSS.
-   It follows the published-course rules Praxity Studio uses: one bordered box per activity and
-   none inside it, sections split by space and a top rule, status shown by icon, word and ink,
-   six type sizes, radii 8/6/4, no shadows, no tints except behind status messages.
-   Hosts restyle a pattern by overriding the --lp-* tokens on .lp or any ancestor. */
+   One card per activity, quiet sections inside it, keyed choice rows, status shown by icon,
+   word and colour together. Hosts restyle a pattern by overriding the --lp-* tokens on .lp
+   or any ancestor. Every text and control colour pair passes WCAG 2.2 AA. */
 
 .lp {
   --lp-paper: #fff;
-  --lp-paper-2: #f4f5f7;
-  --lp-ink: #1b1e23;
-  --lp-ink-2: #4a505a;
-  --lp-line: #7d838d;
-  --lp-rule: #d7dae0;
-  --lp-accent: #1d3d6b;
+  --lp-paper-2: #f7f8fa;
+  --lp-ink: #16181d;
+  --lp-ink-2: #555c67;
+  --lp-line: #868d98;
+  --lp-line-mid: #d5d9df;
+  --lp-rule: #e6e8ec;
+  --lp-accent: #2c55c9;
+  --lp-accent-ink: #1c3c94;
+  --lp-accent-soft: #eef2fd;
   --lp-on-accent: #fff;
-  --lp-success-ink: #146c43;
-  --lp-error-ink: #a3262c;
+  --lp-success-ink: #12704f;
+  --lp-success-soft: #e6f4ee;
+  --lp-error-ink: #b42318;
+  --lp-error-soft: #fdeceb;
+  --lp-warning-ink: #a24a07;
+  --lp-warning-soft: #fdf1e4;
   --lp-focus: var(--lp-accent);
   --lp-font-body: "Source Sans 3", "Source Sans Pro", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --lp-font-heading: "Source Serif 4", "Source Serif Pro", Georgia, "Times New Roman", serif;
+  --lp-font-heading: var(--lp-font-body);
   --lp-type-small: .9375rem;
-  --lp-type-body: 1.1875rem;
-  --lp-type-h3: 1.5rem;
-  --lp-radius-box: 8px;
-  --lp-radius-control: 6px;
+  --lp-type-body: 1.0625rem;
+  --lp-type-h3: 1.3125rem;
+  --lp-radius-box: 16px;
+  --lp-radius-control: 10px;
+  --lp-shadow: 0 1px 2px rgb(22 24 29 / .05), 0 16px 40px -20px rgb(22 34 70 / .28);
+  --lp-ease: cubic-bezier(.2, .8, .2, 1);
 
   box-sizing: border-box;
   container-type: inline-size;
-  max-inline-size: 46rem;
+  max-inline-size: 50rem;
   margin-block: 32px;
-  padding: 24px;
+  padding: 28px;
   border: 1px solid var(--lp-rule);
   border-radius: var(--lp-radius-box);
   color: var(--lp-ink);
   background: var(--lp-paper);
+  box-shadow: var(--lp-shadow);
   font-family: var(--lp-font-body);
   font-size: var(--lp-type-body);
   font-weight: 400;
@@ -41,19 +50,19 @@
 }
 .lp *, .lp *::before, .lp *::after { box-sizing: border-box; }
 .lp [hidden] { display: none !important; }
-.lp :where(p, ul, ol, fieldset, details) { margin: 0; }
+.lp :where(p, ul, ol, fieldset, details, figure, h2, h3, h4) { margin: 0; }
 .lp :where(p) { white-space: pre-line; }
 .lp > * + *, .lp-stack > * + * { margin-block-start: 16px; }
 
 /* Text roles */
-.lp-stem { font-family: var(--lp-font-heading); font-size: var(--lp-type-h3); font-weight: 600; line-height: 1.25; }
-.lp-label { display: block; font-weight: 600; }
-.lp-label + .lp-input { margin-block-start: 8px; }
+.lp-stem { font-family: var(--lp-font-heading); font-size: var(--lp-type-h3); font-weight: 600; line-height: 1.3; letter-spacing: -.005em; text-wrap: pretty; }
+.lp-label { display: block; font-size: var(--lp-type-small); font-weight: 600; color: var(--lp-ink-2); }
+.lp-label + .lp-input { margin-block-start: 6px; }
 .lp-small { color: var(--lp-ink-2); font-size: var(--lp-type-small); line-height: 1.45; }
 .lp-run-in { font-size: var(--lp-type-body); font-weight: 600; line-height: 1.3; }
-.lp-quote { padding-inline-start: 16px; border-inline-start: 2px solid var(--lp-rule); }
+.lp-quote { padding: 12px 16px; border-inline-start: 3px solid var(--lp-line-mid); border-radius: 0 8px 8px 0; background: var(--lp-paper-2); }
 
-/* A section inside the box: space and a rule, never another box. */
+/* A section inside the card: space and a hairline, never another card. */
 .lp-section { margin-block-start: 24px; padding-block-start: 24px; border-block-start: 1px solid var(--lp-rule); }
 .lp-section > * + * { margin-block-start: 16px; }
 
@@ -62,48 +71,82 @@
   display: block;
   inline-size: 100%;
   min-block-size: 44px;
-  padding: 12px 16px;
+  padding: 11px 14px;
   border: 1px solid var(--lp-line);
   border-radius: var(--lp-radius-control);
   color: var(--lp-ink);
   background: var(--lp-paper);
   font: inherit;
+  transition: border-color .15s;
 }
-textarea.lp-input { min-block-size: 8rem; resize: vertical; }
-.lp-input[readonly] { background: var(--lp-paper-2); border-color: var(--lp-rule); }
-.lp-input[aria-invalid="true"] { border: 2px solid var(--lp-error-ink); padding: 11px 15px; }
-.lp-error-text { display: flex; gap: 8px; align-items: flex-start; color: var(--lp-error-ink); font-weight: 600; }
+textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
+.lp-input:hover { border-color: var(--lp-ink-2); }
+.lp-input[readonly] { color: var(--lp-ink); background: var(--lp-paper-2); border-color: var(--lp-line-mid); }
+.lp-input[aria-invalid="true"] { border: 2px solid var(--lp-error-ink); padding: 10px 13px; }
+.lp-error-text { display: flex; gap: 6px; align-items: flex-start; color: var(--lp-error-ink); font-size: var(--lp-type-small); font-weight: 600; }
 
-/* Choice rows: full width, control at the start, selection by a 2px accent border, no tint. */
-.lp-choices { display: grid; gap: 8px; padding: 0; border: 0; min-inline-size: 0; }
-.lp-choices > legend { padding: 0; margin-block-end: 12px; font-weight: 600; }
+/* Choice rows, after Tally: a light row, a letter key for single choice, a square for
+   multiple choice. The native input stays in the row for keyboards and screen readers. */
+.lp-choices { display: grid; gap: 8px; padding: 0; border: 0; min-inline-size: 0; counter-reset: lp-key; }
+.lp-choices > legend { padding: 0; margin-block-end: 12px; }
 .lp-choice {
+  position: relative;
   display: flex;
   gap: 12px;
-  align-items: flex-start;
-  min-block-size: 44px;
-  padding: 12px 16px;
-  border: 1px solid var(--lp-line);
+  align-items: center;
+  min-block-size: 48px;
+  padding: 10px 14px;
+  border: 1px solid var(--lp-line-mid);
   border-radius: var(--lp-radius-control);
+  background: var(--lp-paper);
+  line-height: 1.35;
   cursor: pointer;
+  counter-increment: lp-key;
+  transition: border-color .15s, background .15s;
 }
-.lp-choice:has(input:checked) { border: 2px solid var(--lp-accent); padding: 11px 15px; }
-.lp-choice input { flex: none; inline-size: 20px; block-size: 20px; margin: 3px 0 0; accent-color: var(--lp-accent); }
+.lp-choice:hover { border-color: var(--lp-line); background: var(--lp-paper-2); }
+.lp-choice:has(input:checked) { border-color: var(--lp-accent); background: var(--lp-accent-soft); box-shadow: inset 0 0 0 1px var(--lp-accent); }
+.lp-choice:has(input:focus-visible) { outline: 2px solid var(--lp-focus); outline-offset: 2px; }
+/* Single choice: the radio sits under a letter key. */
+.lp-choice:has(> input[type="radio"])::before {
+  content: counter(lp-key, upper-alpha);
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: 26px;
+  block-size: 26px;
+  border: 1px solid var(--lp-line);
+  border-radius: 6px;
+  color: var(--lp-ink-2);
+  background: var(--lp-paper);
+  font-size: 13px;
+  font-weight: 600;
+}
+.lp-choice:has(> input[type="radio"]:checked)::before { color: var(--lp-on-accent); background: var(--lp-accent); border-color: var(--lp-accent); }
+.lp-choice > input[type="radio"] { position: absolute; inset-inline-start: 14px; inline-size: 26px; block-size: 26px; margin: 0; opacity: 0; cursor: pointer; }
+/* Multiple choice: a square that fills. */
+.lp-choice > input[type="checkbox"] { appearance: none; position: relative; flex: none; inline-size: 22px; block-size: 22px; margin: 0; border: 1.5px solid var(--lp-line); border-radius: 6px; background: var(--lp-paper); cursor: pointer; }
+.lp-choice > input[type="checkbox"]::after { content: ""; position: absolute; inset-inline-start: 6.5px; inset-block-start: 2.5px; inline-size: 5px; block-size: 10px; border: solid var(--lp-on-accent); border-width: 0 2px 2px 0; transform: rotate(45deg); opacity: 0; }
+.lp-choice > input[type="checkbox"]:checked { border-color: var(--lp-accent); background: var(--lp-accent); }
+.lp-choice > input[type="checkbox"]:checked::after { opacity: 1; }
+.lp-choice > span:not(.lp-choice-mark) { min-inline-size: 0; flex: 1; }
 
-/* Marking a choice after submit: the chosen and the correct option, by icon, word and ink. */
+/* Marking a choice after submit: icon, word and colour on the row itself. */
 .lp-choice[data-lp-mark] { flex-wrap: wrap; cursor: default; }
-.lp-choice[data-lp-mark="correct"], .lp-choice[data-lp-mark="correct"]:has(input:checked) { border: 2px solid var(--lp-success-ink); padding: 11px 15px; }
-.lp-choice[data-lp-mark="wrong"], .lp-choice[data-lp-mark="wrong"]:has(input:checked) { border: 2px solid var(--lp-error-ink); padding: 11px 15px; }
-.lp-choice-mark { display: inline-flex; gap: 6px; align-items: flex-start; flex-basis: 100%; padding-inline-start: 32px; font-weight: 600; }
+.lp-choice[data-lp-mark="correct"], .lp-choice[data-lp-mark="correct"]:has(input:checked) { border-color: var(--lp-success-ink); background: var(--lp-success-soft); box-shadow: inset 0 0 0 1px var(--lp-success-ink); }
+.lp-choice[data-lp-mark="wrong"], .lp-choice[data-lp-mark="wrong"]:has(input:checked) { border-color: var(--lp-error-ink); background: var(--lp-error-soft); box-shadow: inset 0 0 0 1px var(--lp-error-ink); }
+.lp-choice[data-lp-mark="correct"]:has(> input[type="radio"])::before { color: var(--lp-on-accent); background: var(--lp-success-ink); border-color: var(--lp-success-ink); }
+.lp-choice[data-lp-mark="wrong"]:has(> input[type="radio"])::before { color: var(--lp-on-accent); background: var(--lp-error-ink); border-color: var(--lp-error-ink); }
+.lp-choice-mark { display: inline-flex; gap: 4px; align-items: center; margin-inline-start: auto; padding: 2px 10px 2px 8px; border-radius: 999px; background: var(--lp-paper); font-size: var(--lp-type-small); font-weight: 600; white-space: nowrap; }
 .lp-choice-mark.lp-met { color: var(--lp-success-ink); }
 .lp-choice-mark.lp-missed { color: var(--lp-error-ink); }
 .lp-choice-mark.lp-neutral { color: var(--lp-ink-2); }
 .lp-choice:has(input:disabled) { cursor: default; }
-.lp-choice input:disabled { opacity: 1; }
+.lp-choice > input[type="checkbox"]:disabled { opacity: 1; }
 
-/* A pattern that sits in running text keeps its root unboxed and boxes only its activities. */
-.lp.lp-unboxed { padding: 0; border: 0; background: transparent; }
-.lp-box { padding: 24px; border: 1px solid var(--lp-rule); border-radius: var(--lp-radius-box); background: var(--lp-paper); }
+/* A pattern that sits in running text keeps its root plain and makes each activity a card. */
+.lp.lp-unboxed { padding: 0; border: 0; background: transparent; box-shadow: none; }
+.lp-box { padding: 24px; border: 1px solid var(--lp-rule); border-radius: var(--lp-radius-box); background: var(--lp-paper); box-shadow: var(--lp-shadow); }
 .lp-box > * + * { margin-block-start: 16px; }
 
 /* Buttons */
@@ -115,26 +158,34 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; }
   align-items: center;
   min-block-size: 44px;
   max-inline-size: 100%;
-  padding: 10px 20px;
-  border: 1px solid var(--lp-accent);
+  padding: 10px 18px;
+  border: 1px solid var(--lp-accent-ink);
   border-radius: var(--lp-radius-control);
   color: var(--lp-on-accent);
   background: var(--lp-accent);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .18), 0 1px 2px rgb(22 24 29 / .12);
   font: inherit;
+  font-size: 1rem;
   font-weight: 600;
   line-height: 1.2;
   text-align: start;
   cursor: pointer;
+  transition: background .15s, transform .1s;
 }
-.lp-button-secondary { color: var(--lp-ink); background: transparent; border-color: var(--lp-line); }
-.lp-button-secondary[aria-pressed="true"] { border: 2px solid var(--lp-accent); padding: 9px 19px; color: var(--lp-accent); }
-.lp-button-quiet { padding-inline: 8px; color: var(--lp-accent); background: transparent; border-color: transparent; font-weight: 400; text-decoration: underline; text-underline-offset: 3px; }
-.lp-button:disabled, .lp-button[aria-disabled="true"] { color: var(--lp-ink-2); background: var(--lp-paper-2); border-color: var(--lp-rule); cursor: default; }
+.lp-button:hover { background: var(--lp-accent-ink); }
+.lp-button:active { transform: translateY(1px); }
+.lp-button-secondary { color: var(--lp-ink); background: var(--lp-paper); border-color: var(--lp-line-mid); box-shadow: 0 1px 2px rgb(22 24 29 / .06); }
+.lp-button-secondary:hover { background: var(--lp-paper-2); border-color: var(--lp-line); }
+.lp-button-secondary[aria-pressed="true"] { color: var(--lp-accent-ink); background: var(--lp-accent-soft); border-color: var(--lp-accent); box-shadow: inset 0 0 0 1px var(--lp-accent); }
+.lp-button-quiet { padding-inline: 10px; color: var(--lp-ink-2); background: transparent; border-color: transparent; box-shadow: none; }
+.lp-button-quiet:hover { color: var(--lp-ink); background: var(--lp-paper-2); }
+.lp-button:disabled, .lp-button[aria-disabled="true"] { color: var(--lp-ink-2); background: var(--lp-paper-2); border-color: var(--lp-rule); box-shadow: none; cursor: default; }
 
-/* Status: icon, word and ink; never colour alone. */
-.lp-icon { flex: none; inline-size: 1.25em; block-size: 1.25em; margin-block-start: .1em; }
-.lp-outcomes { display: grid; gap: 12px; padding: 0; list-style: none; }
-.lp-outcome { display: grid; grid-template-columns: auto 1fr; column-gap: 8px; }
+/* Status: icon, word and colour; never colour alone. */
+.lp-icon { flex: none; inline-size: 1.15em; block-size: 1.15em; }
+.lp-outcomes { display: grid; gap: 6px; padding: 0; list-style: none; }
+.lp-outcome { display: grid; grid-template-columns: auto 1fr; column-gap: 10px; align-items: start; padding: 8px 10px; border-radius: 8px; }
+.lp-outcome > .lp-icon { margin-block-start: .2em; }
 .lp-outcome > :not(.lp-icon) { grid-column: 2; }
 .lp-outcome-word { font-weight: 600; }
 .lp-outcome-detail { color: var(--lp-ink-2); }
@@ -145,13 +196,14 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; }
 /* Native disclosure */
 .lp-details > summary { display: flex; gap: 8px; align-items: center; min-block-size: 44px; font-weight: 600; cursor: pointer; list-style: none; }
 .lp-details > summary::-webkit-details-marker { display: none; }
-.lp-details > summary::before { content: ""; inline-size: .5em; block-size: .5em; border-block-end: 2px solid; border-inline-end: 2px solid; transform: rotate(-45deg); }
+.lp-details > summary::before { content: ""; inline-size: .45em; block-size: .45em; border-block-end: 2px solid; border-inline-end: 2px solid; transform: rotate(-45deg); transition: transform .15s var(--lp-ease); }
 .lp-details[open] > summary::before { transform: rotate(45deg); }
-.lp-details > :not(summary) { margin-block-start: 16px; }
+.lp-details > :not(summary) { margin-block-start: 12px; }
 
-.lp a { color: var(--lp-accent); text-underline-offset: 3px; }
-.lp :is(a, button, input, textarea, select, summary):focus,
+.lp a { color: var(--lp-accent-ink); text-underline-offset: 3px; }
+.lp :is(a, button, textarea, select, summary, input:not([type="radio"], [type="checkbox"])):focus,
 .lp [tabindex="-1"]:focus-visible { outline: 2px solid var(--lp-focus); outline-offset: 2px; }
+.lp-input:focus { border-color: var(--lp-accent); }
 
 .lp-visually-hidden {
   position: absolute !important;
@@ -164,21 +216,33 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; }
   white-space: nowrap;
 }
 
+/* Feedback appears with a short rise; nothing loops and nothing celebrates. */
+.lp-reveal { animation: lp-rise .3s var(--lp-ease); }
+@keyframes lp-rise { from { opacity: 0; transform: translateY(6px); } }
+
 @container (max-width: 30rem) {
-  .lp-stem { font-size: 1.3125rem; }
+  .lp-actions > .lp-button:not(.lp-button-quiet) { flex: 1 1 100%; justify-content: center; }
 }
 @media (max-width: 30rem) {
-  .lp { padding: 16px; font-size: 1.125rem; }
-  .lp-box { padding: 16px; }
+  .lp { padding: 18px 16px; }
+  .lp-box { padding: 18px 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lp *, .lp *::before, .lp *::after { transition: none !important; animation: none !important; }
 }
 @media (forced-colors: active) {
   .lp, .lp-box, .lp-input, .lp-choice, .lp-button { border-color: CanvasText; }
   .lp.lp-unboxed { border-color: transparent; }
-  .lp-choice[data-lp-mark], .lp-choice[data-lp-mark]:has(input:checked) { border-style: double; border-color: CanvasText; }
-  .lp-choice:has(input:checked) { border-color: Highlight; }
+  .lp-choice:has(input:checked) { border: 2px solid Highlight; }
+  .lp-choice > input[type="radio"] { position: static; opacity: 1; appearance: auto; inline-size: 20px; block-size: 20px; }
+  .lp-choice:has(> input[type="radio"])::before { display: none; }
+  .lp-choice > input[type="checkbox"] { appearance: auto; }
+  .lp-choice > input[type="checkbox"]::after { display: none; }
+  .lp-choice[data-lp-mark], .lp-choice[data-lp-mark]:has(input:checked) { border-style: double; border-width: 3px; border-color: CanvasText; }
   .lp-button { color: ButtonText; background: ButtonFace; border-color: ButtonText; }
   .lp-button-quiet { border-color: transparent; color: LinkText; }
   .lp a { color: LinkText; }
-  .lp :is(a, button, input, textarea, select, summary):focus,
+  .lp :is(a, button, textarea, select, summary, input:not([type="radio"], [type="checkbox"])):focus,
   .lp [tabindex="-1"]:focus-visible { outline-color: Highlight; }
+  .lp-choice:has(input:focus-visible) { outline-color: Highlight; }
 }
