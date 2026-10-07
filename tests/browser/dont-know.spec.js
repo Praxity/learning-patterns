@@ -176,7 +176,10 @@ test('reset uses a secondary button and theme tokens reach controls and focus', 
   await page.locator('[data-lp-pattern]').evaluate(el => { el.style.setProperty('--lp-accent', '#123456'); el.style.setProperty('--lp-focus', '#654321'); });
   await expect(restart).toHaveCSS('color', 'rgb(18, 52, 86)'); await expect(restart).toHaveCSS('border-color', 'rgb(18, 52, 86)');
   for (const control of [page.locator('input').first(), page.locator('[data-lp-check]'), restart]) {
-    await control.focus(); await expect(control).toHaveCSS('outline', 'rgb(101, 67, 33) solid 2px');
+    await control.focus();
+    await expect(control).toHaveCSS('outline-color', 'rgb(101, 67, 33)');
+    await expect(control).toHaveCSS('outline-style', 'solid');
+    await expect(control).toHaveCSS('outline-width', '2px');
   }
 });
 
