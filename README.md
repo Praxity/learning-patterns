@@ -23,6 +23,7 @@ Copy its folder under `patterns/` and the shared `lib/` folder. Keep their relat
 | [Your first answer comes back](patterns/first-answer/README.md) | Save an answer at the start of a course and compare it with a new one at the end. |
 | [Test out of sections](patterns/test-out/README.md) | A short placement check marks which sections of a course you can skip; passing an advanced section credits the sections it builds on. |
 | [Write the wrong options](patterns/write-distractors/README.md) | Write wrong options for a question, tag the misconception behind each, and compare with the author's. |
+| [Switch formats](patterns/formats/README.md) | Read a lesson as text, slides, an audio script, an outline or a quiz while keeping your section. |
 
 ## Look and theme tokens
 
