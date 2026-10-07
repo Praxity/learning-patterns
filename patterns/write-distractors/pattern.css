@@ -12,6 +12,8 @@
 .lp-write-distractors-body .lp-reveal { animation-name: lp-write-distractors-rise; }
 @keyframes lp-write-distractors-rise { from { transform: translateY(6px); } }
 textarea.lp-write-distractors-answer { min-block-size: 0; }
+/* Swap disabled ink and background together; reset must retain contrast on every frame. */
+.lp-write-distractors-body [data-lp-check] { transition: none; }
 .lp-write-distractors-body .lp-error-text { margin-block-start: 8px; }
 .lp-write-distractors-right { display: flex; gap: 12px; align-items: flex-start; padding: 16px; border-radius: var(--lp-radius-control); background: var(--lp-success-soft); }
 .lp-write-distractors-right > .lp-icon { margin-block-start: 3px; color: var(--lp-success-ink); }

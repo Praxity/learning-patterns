@@ -57,8 +57,10 @@ for (const lang of ['en', 'fr']) {
     await expect(page.locator('[data-lp-answer-error]')).toBeVisible();
     await answer.fill('My attempt');
     await expect(answer).not.toHaveAttribute('aria-invalid');
+    // Check by keyboard so focus retention is independent of native pointer behaviour.
+    await check.focus();
     await observe(page);
-    await check.click();
+    await check.press('Enter');
     await expect(answer).toHaveAttribute('readonly', '');
     await expect(check).toBeFocused();
     await expect(check).toHaveAttribute('aria-disabled', 'true');
