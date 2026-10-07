@@ -30,7 +30,7 @@ export function render(content, strings, { id, lang }) {
       <button class="lp-self-check-button" type="button" data-lp-show>${html(strings.show)}</button>
     </fieldset>
     <div class="lp-self-check-result" data-lp-result hidden></div>
-    <button class="lp-self-check-button" type="button" data-lp-restart>${html(strings.restart)}</button>
+    <button class="lp-self-check-button lp-self-check-button-secondary" type="button" data-lp-restart hidden>${html(strings.restart)}</button>
   </div>
   <p class="lp-self-check-status" role="status" aria-atomic="true"></p>
 </section>`;

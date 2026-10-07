@@ -24,16 +24,25 @@ function matches(value, rule) {
   return typeof value === 'string' && value.length >= rule.minLength && (!rule.pattern || new RegExp(rule.pattern).test(value));
 }
 
-test('feedback counts unique known ticks and returns authored messages in part order', () => {
+test('feedback counts unique known ticks and returns labels and missed hints in part order', () => {
   assert.equal(feedback(content, []).count, 0);
   const result = feedback(content, ['reason', 'reason', 'no_blame']);
   assert.equal(result.count, 2);
   assert.equal(result.total, 6);
-  assert.equal(result.items[1].text, 'Reason given.');
-  assert.equal(result.items[5].text, 'No blame.');
-  assert.equal(result.items[0].text, 'Name the client report and its Friday deadline.');
+  assert.deepEqual(result.items[1], { id: 'reason', included: true, label: 'Reason for the delay', hint: null });
+  assert.deepEqual(result.items[5], { id: 'no_blame', included: true, label: 'No blame', hint: null });
+  assert.deepEqual(result.items[0], { id: 'work_deadline', included: false, label: 'Client report and Friday deadline', hint: 'Name the client report and its Friday deadline.' });
   assert.equal(feedback(content, content.parts.map(part => part.id)).count, 6);
   assert.throws(() => feedback(content, ['unknown']), /Unknown part: unknown/);
+});
+
+test('content parts need only id, label and missed; the removed met field is rejected', () => {
+  const value = { task: 'Explain the delay.', parts: [{ id: 'reason', label: 'Reason', missed: 'Say why.' }], model: 'The data arrived late.' };
+  assert.doesNotThrow(() => validateContent(value));
+  assert.equal(matches(value, schema), true);
+  const obsolete = { ...value, parts: [{ ...value.parts[0], met: 'Reason given.' }] };
+  assert.throws(() => validateContent(obsolete), /parts\[0\]\.met/);
+  assert.equal(matches(obsolete, schema), false);
 });
 
 test('content validator and schema agree on shared valid and planted invalid fields', async () => {
@@ -45,7 +54,7 @@ test('content validator and schema agree on shared valid and planted invalid fie
     for (const value of ['', 3, null, undefined]) bad({ ...content, [field]: value }, field);
   }
   for (const value of [[], 'parts', null]) bad({ ...content, parts: value }, 'parts');
-  for (const field of ['id', 'label', 'met', 'missed']) {
+  for (const field of ['id', 'label', 'missed']) {
     for (const value of ['', 3, undefined]) bad({ ...content, parts: [{ ...content.parts[0], [field]: value }] }, field);
   }
   bad({ ...content, parts: [null] }, 'parts[0]');
@@ -61,7 +70,7 @@ test('content validator and schema agree on shared valid and planted invalid fie
 
 test('render escapes all plain text and attribute values and prefixes every id', () => {
   const hostile = '<script>alert("x")</script> & \'quoted\'';
-  const value = { task: hostile, model: hostile, parts: [{ id: 'one', label: hostile, met: hostile, missed: hostile }] };
+  const value = { task: hostile, model: hostile, parts: [{ id: 'one', label: hostile, missed: hostile }] };
   const ui = Object.fromEntries(Object.keys(strings.en).map(key => [key, hostile]));
   const html = render(value, ui, { id: 'first"', lang: 'en"' });
   assert.equal(html.includes('<script>'), false);
@@ -76,6 +85,11 @@ test('render escapes all plain text and attribute values and prefixes every id',
   assert.ok(a.includes('rows="5"'));
   assert.equal(a.includes('placeholder='), false);
   for (const part of content.parts) assert.ok(a.includes(part.missed));
+});
+
+test('render keeps Start again hidden until the checklist step', () => {
+  const html = render(content, strings.en, { id: 'practice', lang: 'en' });
+  assert.match(html, /<button\b[^>]*data-lp-restart[^>]*\bhidden\b[^>]*>Start again<\/button>/);
 });
 
 test('English and French UI keys and placeholders match', () => {

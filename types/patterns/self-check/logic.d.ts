@@ -10,7 +10,8 @@ export function feedback(content: Content, ticked: string[]): {
     items: {
         id: string;
         included: boolean;
-        text: string;
+        label: string;
+        hint: string | null;
     }[];
 };
 /** Ignore invalid host state; return an independent copy of a valid value.
@@ -20,7 +21,6 @@ export function validateState(content: Content, value: unknown): LearnerState | 
 export type Part = {
     id: string;
     label: string;
-    met: string;
     missed: string;
 };
 export type Content = {

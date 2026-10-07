@@ -10,8 +10,8 @@ Use it when learners can judge their own answers against a short list of clear p
 
 1. Write an answer and select "Check my answer". An empty answer gets an error next to the text box.
 2. Tick the parts your answer includes.
-3. Select "Show feedback". Read the count, the message for each part and the model answer. You can edit your answer and ticks, then submit again.
-4. Select "Start again" to clear the answer, ticks and result.
+3. Select "Show feedback". Each result names the part with "Included" or "Not included". Unticked parts also show a hint on its own line. Read the count and model answer. You can edit your answer and ticks, then submit again.
+4. "Start again" appears with the checklist. Select it to clear the answer, ticks and result. It hides again after reset.
 
 Without JavaScript, open "Check your own answer" to read every part's hint and the model answer.
 
@@ -24,12 +24,13 @@ All content fields are plain text. HTML characters are escaped.
 | `task` | The writing task. |
 | `parts` | At least one part, in display order. |
 | `parts[].id` | A unique identity using letters, digits, underscores or hyphens. |
-| `parts[].label` | The checkbox label. |
-| `parts[].met` | The message when the learner ticks this part. |
+| `parts[].label` | The checkbox label and the part's name in feedback. |
 | `parts[].missed` | The hint when the learner leaves this part unticked. |
 | `model` | The model answer. |
 
 Strings must be nonempty. `validateContent` rejects unknown fields and duplicate part identities. The schema's `x-uniqueBy` annotation describes identity uniqueness. Ordinary JSON Schema tools need this extra check from `validateContent`.
+
+Praxity Studio imports `logic.js`, `content.schema.json` and `strings.js` and builds its own UI. Content parts now contain `{ id, label, missed }`. Remove the former `met` field, which the validator and schema reject. `feedback(content, ticked)` returns `{ count, total, items }`. Each item contains `{ id, included, label, hint }`; `hint` is `null` for included parts and the authored `missed` text otherwise. This replaces the former `text` field. The bilingual string keys are unchanged.
 
 ## Use it
 
@@ -41,7 +42,7 @@ import { enhance } from './patterns/self-check/enhance.js';
 import { strings } from './patterns/self-check/strings.js';
 const content = {
   task: 'Explain why you need another day.',
-  parts: [{ id: 'reason', label: 'Reason', met: 'Reason included.', missed: 'Explain the delay.' }],
+  parts: [{ id: 'reason', label: 'Reason', missed: 'Explain the delay.' }],
   model: 'The data arrived late. Could I have until Tuesday?'
 };
 document.querySelector('main').innerHTML = render(content, strings.en, { id: 'practice', lang: 'en' });
@@ -72,7 +73,7 @@ Logic unit tested. Not tried with learners.
 
 Copy this prompt and fill in your topic and audience.
 
-> Rewrite the self-check example content for my topic: [topic]. My learners are [audience]. Ask them to write an answer they could use in their work. Keep the pattern contract and plain-text content shape `{ task, parts: [{ id, label, met, missed }], model }`. Keep unique part ids. Write every learner-facing message, including specific hints for unticked parts. Keep English and Québec French together and address French learners with vous. A model may only choose authored messages. Keep the render, enhancement, state, accessibility and CSS token contracts. Update the examples and tests. Show me both languages for review.
+> Rewrite the self-check example content for my topic: [topic]. My learners are [audience]. Ask them to write an answer they could use in their work. Keep the pattern contract and plain-text content shape `{ task, parts: [{ id, label, missed }], model }`. Keep unique part ids. Write clear labels that name each part in the checklist and feedback. Write specific hints for unticked parts. Keep English and Québec French together and address French learners with vous. A model may only choose authored messages. Keep the render, enhancement, state, accessibility and CSS token contracts. Update the examples and tests. Show me both languages for review.
 
 ## Licence
 

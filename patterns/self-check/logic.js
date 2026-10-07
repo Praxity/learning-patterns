@@ -1,4 +1,4 @@
-/** @typedef {{ id: string, label: string, met: string, missed: string }} Part */
+/** @typedef {{ id: string, label: string, missed: string }} Part */
 /** @typedef {{ task: string, parts: Part[], model: string }} Content */
 /** @typedef {{ answer: string, ticked: string[], shown: boolean }} LearnerState */
 
@@ -29,8 +29,8 @@ export function validateContent(content) {
   content.parts.forEach((part, index) => {
     const path = `parts[${index}]`;
     if (!object(part)) throw new Error(`Invalid ${path}`);
-    fields(part, ['id', 'label', 'met', 'missed'], path);
-    for (const field of ['id', 'label', 'met', 'missed']) {
+    fields(part, ['id', 'label', 'missed'], path);
+    for (const field of ['id', 'label', 'missed']) {
       if (typeof part[field] !== 'string' || part[field].length === 0) throw new Error(`Invalid ${path}.${field}`);
     }
     if (typeof part.id !== 'string' || !/^[a-zA-Z0-9_-]+$/.test(part.id) || known.has(part.id)) throw new Error(`Invalid ${path}.id`);
@@ -50,7 +50,8 @@ export function feedback(content, ticked) {
     items: content.parts.map(part => ({
       id: part.id,
       included: included.has(part.id),
-      text: included.has(part.id) ? part.met : part.missed
+      label: part.label,
+      hint: included.has(part.id) ? null : part.missed
     }))
   };
 }

@@ -13,12 +13,11 @@
       "x-uniqueBy": "id",
       "items": {
         "type": "object",
-        "required": ["id", "label", "met", "missed"],
+        "required": ["id", "label", "missed"],
         "additionalProperties": false,
         "properties": {
           "id": { "type": "string", "minLength": 1, "pattern": "^[a-zA-Z0-9_-]+$" },
           "label": { "type": "string", "minLength": 1 },
-          "met": { "type": "string", "minLength": 1 },
           "missed": { "type": "string", "minLength": 1 }
         }
       }

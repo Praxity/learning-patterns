@@ -54,6 +54,66 @@ test('keyboard-only journey, error association, focus and one mutation per annou
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You ticked 1 of 6 parts.', 'You ticked 1 of 6 parts.', 'Cleared.']);
 });
 
+for (const [lang, content, included, notIncluded] of [
+  ['en', english, 'Included', 'Not included'],
+  ['fr', french, 'Inclus', 'Non inclus']
+]) {
+  test(`feedback names every part and puts missed hints on their own line (${lang})`, async ({ page }) => {
+    await open(page, `/${lang}.html`);
+    await page.getByRole('textbox').fill('Draft'); await page.locator('[data-lp-check]').click();
+    await page.getByRole('checkbox').first().check(); await page.locator('[data-lp-show]').click();
+    const rows = page.locator('[data-lp-result] li');
+    await expect(rows).toHaveCount(content.parts.length);
+    for (const [index, part] of content.parts.entries()) {
+      const row = rows.nth(index);
+      // Ignore decorative icons, then compare the visible lines.
+      const lines = (await row.innerText()).split('\n').map(line => line.trim()).filter(line => line && line !== '✓' && line !== '○');
+      expect(lines).toEqual(index === 0 ? [`${included} ${part.label}`] : [`${notIncluded} ${part.label}`, part.missed]);
+      await expect(row.locator('[aria-hidden="true"]')).toHaveCount(1);
+    }
+  });
+}
+
+test('Start again is hidden initially and after reset, and available from the checklist', async ({ page }) => {
+  await open(page); await observeStatus(page);
+  const restart = page.locator('[data-lp-restart]');
+  await expect(restart).toBeHidden();
+  await page.locator('[data-lp-check]').click();
+  await expect(restart).toBeHidden();
+  await ticks(page); await expect(restart).toBeVisible();
+  await restart.click();
+  await expect(restart).toBeHidden(); await expect(page.locator('[data-lp-ticks]')).toBeHidden();
+  await expect(page.getByRole('textbox')).toHaveValue(''); await expect(page.getByRole('textbox')).toBeFocused();
+  await ticks(page); await page.locator('[data-lp-show]').click();
+  await expect(restart).toBeVisible(); await restart.click();
+  await expect(restart).toBeHidden(); await expect(page.locator('[data-lp-result]')).toBeHidden();
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Cleared.', 'You ticked 0 of 6 parts.', 'Cleared.']);
+});
+
+test('Start again uses a secondary button with accent border and the same target and focus ring', async ({ page }) => {
+  await open(page); await ticks(page);
+  const restart = page.locator('[data-lp-restart]');
+  const style = await restart.evaluate(el => {
+    const css = getComputedStyle(el);
+    return { background: css.backgroundColor, color: css.color, border: css.borderColor, borderStyle: css.borderStyle, minHeight: css.minHeight, height: el.getBoundingClientRect().height };
+  });
+  expect(style).toMatchObject({ background: 'rgba(0, 0, 0, 0)', color: 'rgb(23, 79, 120)', border: 'rgb(23, 79, 120)', borderStyle: 'solid', minHeight: '44px' });
+  expect(style.height).toBeGreaterThanOrEqual(44);
+  for (const name of ['check', 'show', 'restart']) {
+    const button = page.locator(`[data-lp-${name}]`);
+    if (name !== 'restart') {
+      const primary = await button.evaluate(el => { const css = getComputedStyle(el); return { background: css.backgroundColor, color: css.color }; });
+      expect(primary).toEqual({ background: 'rgb(23, 79, 120)', color: 'rgb(255, 255, 255)' });
+    }
+    await button.focus();
+    const outline = await button.evaluate(el => { const css = getComputedStyle(el); return [css.outlineWidth, css.outlineStyle, css.outlineOffset, css.outlineColor]; });
+    expect(outline).toEqual(['2px', 'solid', '2px', 'rgb(0, 95, 204)']);
+  }
+  // Theme overrides must also reach the secondary button.
+  await page.locator('[data-lp-pattern]').evaluate(el => el.style.setProperty('--lp-accent', '#123456'));
+  expect(await restart.evaluate(el => [getComputedStyle(el).color, getComputedStyle(el).borderColor])).toEqual(['rgb(18, 52, 86)', 'rgb(18, 52, 86)']);
+});
+
 for (const path of ['/en.html', '/fr.html', '/two.html']) {
   test(`axe at load, checklist and feedback: ${path}`, async ({ page }) => {
     await open(page, path);
@@ -92,6 +152,7 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     await expect(page.getByRole('textbox')).toHaveAttribute('rows', '5');
     await page.locator('summary').click(); await expect(page.locator('details')).toHaveAttribute('open', '');
     for (const part of content.parts) await expect(page.locator('details')).toContainText(part.missed);
+    for (const part of content.parts) await expect(page.locator('details')).toContainText(part.label);
     await expect(page.locator('details')).toContainText(content.model);
     await expect(page.locator('[data-lp-flow]')).toBeHidden();
     await context.close();
@@ -131,6 +192,7 @@ for (const shown of [false, true]) {
     await page.addInitScript(value => { window.lpSeed = value; }, { answer: 'Saved answer', ticked: ['reason'], shown });
     await open(page); await expect(page.getByRole('textbox')).toHaveValue('Saved answer');
     await expect(page.getByRole('checkbox').nth(1)).toBeChecked(); await expect(page.locator('[data-lp-ticks]')).toBeVisible();
+    await expect(page.locator('[data-lp-restart]')).toBeVisible();
     await expect(page.locator('[role="status"]')).toHaveText('');
     if (shown) await expect(page.locator('[data-lp-result]')).toContainText('You ticked 1 of 6 parts.');
     else await expect(page.locator('[data-lp-result]')).toBeHidden();
@@ -141,6 +203,7 @@ test('invalid saved state is ignored', async ({ page }) => {
   await page.addInitScript(() => { window.lpSeed = { answer: 'Invalid', ticked: ['unknown'], shown: true }; });
   await open(page); await expect(page.getByRole('textbox')).toHaveValue('');
   await expect(page.locator('[data-lp-ticks]')).toBeHidden(); await expect(page.locator('[role="status"]')).toHaveText('');
+  await expect(page.locator('[data-lp-restart]')).toBeHidden();
 });
 
 test('enhance is idempotent and destroy removes listeners and restores fallback', async ({ page }) => {
@@ -190,9 +253,26 @@ test('missing or mismatched markup throws a useful error', async ({ page }) => {
 test('forced colours keeps a 2px focus outline on buttons and checkboxes', async ({ page, browserName }) => {
   test.skip(browserName !== 'chromium', 'Forced colours emulation checked in Chromium.');
   await page.emulateMedia({ forcedColors: 'active' }); await open(page); await ticks(page);
-  for (const locator of [page.getByRole('checkbox').first(), page.locator('[data-lp-show]')]) {
+  for (const locator of [page.getByRole('checkbox').first(), page.locator('[data-lp-check]'), page.locator('[data-lp-show]'), page.locator('[data-lp-restart]')]) {
     await locator.focus();
     const outline = await locator.evaluate(el => { const css = getComputedStyle(el); return { width: css.outlineWidth, style: css.outlineStyle, offset: css.outlineOffset, color: css.outlineColor }; });
     expect(outline.width).toBe('2px'); expect(outline.style).toBe('solid'); expect(outline.offset).toBe('2px'); expect(outline.color).not.toBe('rgba(0, 0, 0, 0)');
   }
+  const styles = await page.locator('[data-lp-flow] button').evaluateAll(buttons => buttons.map(el => {
+    const css = getComputedStyle(el);
+    return { color: css.color, background: css.backgroundColor, borderColor: css.borderColor, borderStyle: css.borderStyle, borderWidth: css.borderWidth };
+  }));
+  // Resolve system colours in the active palette, without hardcoding a theme.
+  const system = await page.evaluate(() => {
+    const probe = document.createElement('span'); document.body.append(probe);
+    const colors = {};
+    for (const name of ['ButtonText', 'ButtonFace']) { probe.style.color = name; colors[name] = getComputedStyle(probe).color; }
+    probe.remove(); return colors;
+  });
+  for (const style of styles) {
+    expect(style.color).toBe(system.ButtonText); expect(style.background).toBe(system.ButtonFace);
+    expect(style.borderColor).toBe(system.ButtonText); expect(style.borderWidth).toBe('1px');
+  }
+  expect(styles[0].borderStyle).toBe('solid'); expect(styles[1].borderStyle).toBe('solid');
+  expect(styles[2].borderStyle).toBe('dashed');
 });

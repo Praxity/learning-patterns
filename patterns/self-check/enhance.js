@@ -23,6 +23,7 @@ export function enhance(root, { content, strings, state }) {
   const flow = /** @type {HTMLElement} */ (required('[data-lp-flow]'));
   const fieldset = /** @type {HTMLFieldSetElement} */ (required('[data-lp-ticks]'));
   const result = /** @type {HTMLElement} */ (required('[data-lp-result]'));
+  const restart = /** @type {HTMLButtonElement} */ (required('[data-lp-restart]'));
   const status = /** @type {HTMLElement} */ (required('[role="status"]'));
   const boxes = [...fieldset.querySelectorAll('input')];
   if (boxes.length !== content.parts.length) throw new Error('Invalid self-check parts markup');
@@ -55,7 +56,7 @@ export function enhance(root, { content, strings, state }) {
     const outcome = feedback(content, ticked());
     const summary = strings.summary.replaceAll('{count}', String(outcome.count)).replaceAll('{total}', String(outcome.total));
     result.innerHTML = `<p class="lp-self-check-summary">${html(summary)}</p>
-      <ul class="lp-self-check-feedback">${outcome.items.map(item => `<li><span class="lp-self-check-mark" aria-hidden="true">${item.included ? '✓' : '○'}</span><div><strong>${html(item.included ? strings.included : strings.notIncluded)}</strong><p>${html(item.text)}</p></div></li>`).join('')}</ul>
+      <ul class="lp-self-check-feedback">${outcome.items.map(item => `<li><span class="lp-self-check-mark" aria-hidden="true">${item.included ? '✓' : '○'}</span><div><strong>${html(item.included ? strings.included : strings.notIncluded)}</strong> ${html(item.label)}${item.hint === null ? '' : `<p>${html(item.hint)}</p>`}</div></li>`).join('')}</ul>
       <h2 class="lp-self-check-model-label">${html(strings.model)}</h2><p>${html(content.model)}</p>`;
     result.hidden = false;
     shown = true;
@@ -69,11 +70,13 @@ export function enhance(root, { content, strings, state }) {
     fieldset.hidden = !(saved.answer.trim() || saved.ticked.length || saved.shown);
     if (saved.shown) show(false);
   }
+  restart.hidden = fieldset.hidden;
   listen(answer, 'input', () => { clearError(); save(); });
   for (const box of boxes) listen(box, 'change', save);
   listen(required('[data-lp-check]'), 'click', () => {
     if (!hasAnswer()) return;
     fieldset.hidden = false;
+    restart.hidden = false;
     boxes[0]?.focus();
     save();
   });
@@ -82,11 +85,12 @@ export function enhance(root, { content, strings, state }) {
     show(true);
     save();
   });
-  listen(required('[data-lp-restart]'), 'click', () => {
+  listen(restart, 'click', () => {
     answer.value = '';
     for (const box of boxes) box.checked = false;
     result.replaceChildren(); result.hidden = true;
     shown = false; fieldset.hidden = true;
+    restart.hidden = true;
     clearError();
     answer.focus();
     status.textContent = strings.cleared;
@@ -102,6 +106,7 @@ export function enhance(root, { content, strings, state }) {
       flow.hidden = true;
       fallback.hidden = false;
       fieldset.hidden = true;
+      restart.hidden = true;
       result.replaceChildren(); result.hidden = true;
       status.textContent = '';
       clearError();

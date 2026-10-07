@@ -1,12 +1,12 @@
 {
   "task": "Your client report is due Friday. The sales data arrived three days late, so you need until Tuesday. Write the message to your manager.",
   "parts": [
-    { "id": "work_deadline", "label": "Client report and Friday deadline", "met": "Work and original deadline named.", "missed": "Name the client report and its Friday deadline." },
-    { "id": "reason", "label": "Reason for the delay", "met": "Reason given.", "missed": "Say the sales data arrived late." },
-    { "id": "new_date", "label": "New deadline of Tuesday", "met": "Tuesday proposed.", "missed": "Ask to finish by Tuesday." },
-    { "id": "impact", "label": "Offer to limit the impact", "met": "An offer limits the impact.", "missed": "Offer a draft or finished sections by Friday." },
-    { "id": "agreement", "label": "Manager's agreement or input", "met": "Manager's input requested.", "missed": "Ask whether Tuesday works for your manager." },
-    { "id": "no_blame", "label": "No blame", "met": "No blame.", "missed": "Say what happened, not whose fault it is." }
+    { "id": "work_deadline", "label": "Client report and Friday deadline", "missed": "Name the client report and its Friday deadline." },
+    { "id": "reason", "label": "Reason for the delay", "missed": "Say the sales data arrived late." },
+    { "id": "new_date", "label": "New deadline of Tuesday", "missed": "Ask to finish by Tuesday." },
+    { "id": "impact", "label": "Offer to limit the impact", "missed": "Offer a draft or finished sections by Friday." },
+    { "id": "agreement", "label": "Manager's agreement or input", "missed": "Ask whether Tuesday works for your manager." },
+    { "id": "no_blame", "label": "No blame", "missed": "Say what happened, not whose fault it is." }
   ],
   "model": "Hi Sam, the client report is due Friday. The sales data arrived three days late, so I need until Tuesday to finish it. I can send the finished sections by Friday. Would Tuesday work for you?"
 }
