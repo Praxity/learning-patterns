@@ -1,13 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { validateContent, validateOptions, validateState, coverage, coverageMessage, targetOf } from './logic.js';
+import { validateContent, validateOptions, validateState, coverage, coverageMessage, targetOf, optionKey } from './logic.js';
 import { render } from './render.js';
 import { strings } from './strings.js';
 
 const content = JSON.parse(await readFile(new URL('./examples/en.json', import.meta.url)));
 const fr = JSON.parse(await readFile(new URL('./examples/fr.json', import.meta.url)));
 const option = (text = 'Yes, keep working.', misconception = 'push-through', custom = '') => ({ text, misconception, custom });
+
+test('quiz keys reserve A for the answer and continue after Z', () => {
+  assert.deepEqual([0, 1, 2, 25, 26, 27, 51, 52].map(optionKey), ['A', 'B', 'C', 'Z', 'AA', 'AB', 'AZ', 'BA']);
+  for (const index of [-1, 1.5, NaN, Infinity, Number.MAX_SAFE_INTEGER + 1, '1', null]) assert.throws(() => optionKey(index), /Invalid option index/);
+});
 
 // Check precisely the schema keywords and relational annotations this content uses.
 function matches(value, rule, root = value) {
@@ -129,13 +134,30 @@ test('coverage counts unique normalized author targets rather than the whole tax
 });
 
 test('state copies drafts, rejects bad shapes and requires a valid shown submission', () => {
-  const draft = { options: [option('', ''), option('', 'other', '')], shown: false };
+  const draft = { answer: '', hadIt: null, options: [option('', ''), option('', 'other', '')], shown: false };
   assert.deepEqual(validateState(content, draft), draft);
-  const saved = { options: [option('A'), option('B', 'other', 'Focus')], shown: true };
+  const saved = { answer: 'No, pauses help.', hadIt: false, options: [option('A'), option('B', 'other', 'Focus')], shown: true };
   const copy = validateState(content, saved);
   assert.deepEqual(copy, saved); assert.notEqual(copy.options, saved.options); assert.notEqual(copy.options[0], saved.options[0]);
   for (const value of [null, [], {}, { ...saved, shown: 'yes' }, { ...saved, options: [] }, { ...saved, options: [null, option()] }, { options: [option('A', 'unknown'), option()], shown: false }, { options: [option('x'.repeat(301)), option()], shown: false }, { options: [option('A', 'other', 'x'.repeat(121)), option()], shown: false }, { ...draft, shown: true }, { ...saved, extra: 1 }, { options: [{ ...option('A'), extra: 1 }, option('B')], shown: false }]) {
     assert.equal(validateState(content, value), null);
+  }
+});
+
+test('legacy state preserves options but requires retrieval before showing a comparison', () => {
+  for (const shown of [false, true]) {
+    const options = [option('A'), option('B')];
+    assert.deepEqual(validateState(content, { options, shown }), { answer: '', hadIt: null, options, shown: false });
+  }
+});
+
+test('retrieval state accepts either unscored choice and rejects planted stage violations', () => {
+  const saved = { answer: 'My answer', hadIt: true, options: [option('A'), option('B')], shown: true };
+  assert.deepEqual(validateState(content, saved), saved);
+  assert.deepEqual(validateState(content, { ...saved, hadIt: false }), { ...saved, hadIt: false });
+  assert.deepEqual(validateState(content, { ...saved, hadIt: null, shown: false }), { ...saved, hadIt: null, shown: false });
+  for (const bad of [{ answer: 3 }, { hadIt: 'yes' }, { answer: ' ' }, { hadIt: null }, { answer: undefined }, { hadIt: undefined }]) {
+    assert.equal(validateState(content, { ...saved, ...bad }), null);
   }
 });
 
@@ -170,14 +192,14 @@ test('English and French keys and placeholders match', () => {
 test('render uses the shared frame, text roles, sectioned fields and quiet Start over', () => {
   const output = render(content, strings.en, { id: 'design', lang: 'en' });
   assert.match(output, /class="lp lp-write-distractors"/);
-  assert.match(output, /<p class="lp-stem">Is taking a real break/);
-  assert.match(output, /<p class="lp-run-in">Right answer<\/p>/);
+  assert.match(output, /<h2 class="lp-stem">Is taking a real break/);
+  assert.match(output, /<p class="lp-run-in lp-met">Right answer<\/p>/);
   assert.match(output, /<p class="lp-small">Write 2 wrong answers/);
-  assert.equal((output.match(/class="lp-section"[^>]*>\s*<fieldset/g) || []).length, 2);
+  assert.equal((output.match(/class="lp-write-distractors-builder lp-section"/g) || []).length, 2);
   assert.equal((output.match(/<legend class="lp-run-in">Wrong option/g) || []).length, 2);
   assert.equal((output.match(/class="lp-input"/g) || []).length, 6);
-  assert.equal((output.match(/class="lp-error-text"/g) || []).length, 6);
-  assert.match(output, /class="lp-section" data-lp-result hidden/);
+  assert.equal((output.match(/class="lp-error-text"/g) || []).length, 7);
+  assert.match(output, /class="lp-section lp-reveal" data-lp-result hidden/);
   assert.match(output, /class="lp-button lp-button-quiet"[^>]*data-lp-clear hidden><svg[\s\S]*?<\/svg>Start over<\/button>/);
   assert.match(render(fr, strings.fr, { id: 'fr', lang: 'fr' }), /<\/svg>Recommencer<\/button>/);
 });

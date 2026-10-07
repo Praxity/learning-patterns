@@ -1,4 +1,4 @@
-import { validateContent, validateOptions, validateState, coverage, coverageMessage, targetOf, OTHER, MAX_OPTION, MAX_CUSTOM } from './logic.js';
+import { validateContent, validateOptions, validateState, coverage, coverageMessage, targetOf, optionKey, OTHER, MAX_OPTION, MAX_CUSTOM } from './logic.js';
 import { escapeHtml as html } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
 
@@ -19,6 +19,14 @@ export function enhance(root, { content, strings, state }) {
     return /** @type {T} */ (element);
   }
   const fallback = /** @type {HTMLDetailsElement} */ (required(root, '[data-lp-fallback]'));
+  const answerFallback = /** @type {HTMLDetailsElement} */ (required(root, '[data-lp-answer-fallback]'));
+  const answer = /** @type {HTMLTextAreaElement} */ (required(root, '[data-lp-answer]'));
+  const answerError = /** @type {HTMLElement} */ (required(root, '[data-lp-answer-error]'));
+  const check = /** @type {HTMLButtonElement} */ (required(root, '[data-lp-check]'));
+  const retrieval = /** @type {HTMLElement} */ (required(root, '[data-lp-retrieval]'));
+  const yes = /** @type {HTMLButtonElement} */ (required(root, '[data-lp-had-it]'));
+  const notQuite = /** @type {HTMLButtonElement} */ (required(root, '[data-lp-not-quite]'));
+  const writeHeading = /** @type {HTMLElement} */ (required(root, '[data-lp-write-heading]'));
   const flow = /** @type {HTMLElement} */ (required(root, '[data-lp-flow]'));
   const result = /** @type {HTMLElement} */ (required(root, '[data-lp-result]'));
   const clear = /** @type {HTMLButtonElement} */ (required(root, '[data-lp-clear]'));
@@ -42,6 +50,9 @@ export function enhance(root, { content, strings, state }) {
   // A throwing host read must not leave partially registered listeners.
   const saved = validateState(content, state?.read());
   let shown = false;
+  let checkedAnswer = false;
+  /** @type {boolean | null} */
+  let hadIt = null;
   let destroyed = false;
   /** @type {(() => void)[]} */
   const removals = [];
@@ -51,7 +62,23 @@ export function enhance(root, { content, strings, state }) {
     removals.push(() => element.removeEventListener(event, handler));
   }
   const options = () => fields.map(field => ({ text: field.inputs.text.value, misconception: field.inputs.misconception.value, custom: field.inputs.custom.value }));
-  const save = () => state?.write({ options: options(), shown });
+  const save = () => state?.write({ answer: answer.value, hadIt, options: options(), shown });
+  function clearAnswerError() {
+    answerError.hidden = true;
+    answer.removeAttribute('aria-invalid');
+  }
+  function showAnswer() {
+    checkedAnswer = true;
+    answer.readOnly = true;
+    check.setAttribute('aria-disabled', 'true');
+    retrieval.hidden = false;
+    clear.hidden = false;
+  }
+  function paintChoice() {
+    yes.setAttribute('aria-pressed', String(hadIt === true));
+    notQuite.setAttribute('aria-pressed', String(hadIt === false));
+    flow.hidden = hadIt === null;
+  }
   /** @param {number} index @param {import('./logic.js').Field} name */
   function clearError(index, name) {
     const field = fields[index];
@@ -73,7 +100,6 @@ export function enhance(root, { content, strings, state }) {
   function hideResult() {
     shown = false;
     result.replaceChildren(); result.hidden = true;
-    clear.hidden = true;
   }
   /** @param {import('./logic.js').LearnerOption[]} values @param {boolean} announce */
   function show(values, announce) {
@@ -85,7 +111,14 @@ export function enhance(root, { content, strings, state }) {
       .replaceAll('{ownExtra}', String(counts.ownExtra));
     /** @param {import('./logic.js').AuthorOption | import('./logic.js').LearnerOption} item */
     const targetLine = item => html(strings.targets.replaceAll('{target}', targetOf(content, item)));
-    result.innerHTML = `<p class="lp-run-in" data-lp-summary data-lp-coverage>${html(message)}</p>
+    result.innerHTML = `<div class="lp-stack" data-lp-preview>
+      <h3 class="lp-label">${html(strings.yourQuestion)}</h3>
+      <p class="lp-run-in">${html(content.question)}</p>
+      <ol class="lp-write-distractors-preview">
+        ${[content.rightAnswer, ...values.map(item => item.text)].map((text, index) => `<li class="lp-choice lp-write-distractors-preview-row"${index === 0 ? ' data-lp-mark="correct"' : ''}><span class="lp-write-distractors-key" data-lp-preview-key>${html(optionKey(index))}</span><span>${html(text)}${index === 0 ? `<span class="lp-choice-mark lp-met">${icons.check}${html(strings.correctAnswer)}</span>` : ''}</span></li>`).join('')}
+      </ol>
+      </div>
+      <p class="lp-run-in" data-lp-summary data-lp-coverage>${html(message)}</p>
       <p class="lp-small">${html(strings.comparisonNote)}</p>
       <h3 class="lp-run-in">${html(strings.author)}</h3>
       <ul class="lp-write-distractors-list" data-lp-author>${content.authorOptions.map(item => `<li><p>${html(item.text)}</p><p class="lp-small">${targetLine(item)}</p></li>`).join('')}</ul>
@@ -98,9 +131,35 @@ export function enhance(root, { content, strings, state }) {
     if (announce) status.textContent = message;
   }
   if (saved) {
+    answer.value = saved.answer;
+    hadIt = saved.hadIt;
+    if (hadIt !== null) showAnswer();
     saved.options.forEach((option, index) => {
       const field = fields[index];
       for (const name of /** @type {const} */ (['text', 'misconception', 'custom'])) field.inputs[name].value = option[name];
+    });
+  }
+  paintChoice();
+  listen(answer, 'input', () => { clearAnswerError(); save(); });
+  listen(check, 'click', () => {
+    if (checkedAnswer) return;
+    if (!answer.value.trim()) {
+      answerError.hidden = false;
+      answer.setAttribute('aria-invalid', 'true');
+      answer.focus();
+      status.textContent = strings.errorsOne;
+      return;
+    }
+    clearAnswerError(); showAnswer(); save();
+    status.textContent = content.rightAnswer;
+  });
+  for (const [button, value] of /** @type {[HTMLButtonElement, boolean][]} */ ([[yes, true], [notQuite, false]])) {
+    listen(button, 'click', () => {
+      if (!checkedAnswer || hadIt === value) return;
+      hadIt = value;
+      paintChoice(); save();
+      status.textContent = strings.noted;
+      writeHeading.focus();
     });
   }
   fields.forEach((field, index) => {
@@ -114,6 +173,7 @@ export function enhance(root, { content, strings, state }) {
     }
   });
   listen(compare, 'click', () => {
+    if (hadIt === null) return;
     clearErrors();
     const checked = validateOptions(content, options());
     if (!checked.ok) {
@@ -138,23 +198,28 @@ export function enhance(root, { content, strings, state }) {
     show(checked.options, true); save();
   });
   listen(clear, 'click', () => {
+    answer.value = ''; answer.readOnly = false;
+    checkedAnswer = false; hadIt = null;
+    clearAnswerError(); paintChoice();
+    retrieval.hidden = true; check.removeAttribute('aria-disabled'); clear.hidden = true;
     fields.forEach((field, index) => {
       for (const input of Object.values(field.inputs)) input.value = '';
       selection(index);
     });
     clearErrors(); hideResult();
-    fields[0].inputs.text.focus();
+    answer.focus();
     status.textContent = strings.cleared; save();
   });
   if (saved?.shown) show(saved.options, false);
-  fallback.hidden = true; flow.hidden = false;
+  fallback.hidden = true; answerFallback.hidden = true; check.hidden = false;
   const instance = {
     destroy() {
       if (destroyed) return;
       destroyed = true;
       for (const remove of removals) remove();
-      clearErrors(); hideResult(); status.textContent = '';
-      flow.hidden = true; fallback.hidden = false;
+      clearErrors(); clearAnswerError(); hideResult(); status.textContent = '';
+      answer.readOnly = false; check.hidden = true; check.removeAttribute('aria-disabled'); retrieval.hidden = true; clear.hidden = true;
+      flow.hidden = true; fallback.hidden = false; answerFallback.hidden = false;
       instances.delete(root);
     }
   };
