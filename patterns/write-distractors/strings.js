@@ -1,5 +1,9 @@
 export const strings = {
   en: {
+    scene: 'Write the quiz', answerFirst: 'Answer it first', answer: 'Your answer',
+    check: 'Check my answer', emptyAnswer: 'Write your answer first.',
+    hadIt: 'Did you have it?', yes: 'Yes', notQuite: 'Not quite', noted: 'Noted.',
+    write: 'Write the wrong options', yourQuestion: 'Your question', correctAnswer: 'Correct answer',
     question: 'Question', rightAnswer: 'Right answer',
     instruction: 'Write {count} wrong answers a learner might pick. Name the misconception behind each one.',
     option: 'Wrong option {n}', text: 'Your wrong option', misconception: 'Which misconception does it target?',
@@ -16,9 +20,13 @@ export const strings = {
     coverageMany: "You targeted {authorTargeted} of the author's {authorTotal} misconceptions, and {ownExtra} of your own.",
     untargeted: "Misconceptions you didn't target", none: 'None.',
     comparisonNote: 'Your tags decide the comparison.',
-    clear: 'Start over', cleared: 'Options cleared.'
+    clear: 'Start over', cleared: 'Answer and options cleared.'
   },
   fr: {
+    scene: 'Rédigez le quiz', answerFirst: "Répondez d'abord", answer: 'Votre réponse',
+    check: 'Vérifier ma réponse', emptyAnswer: "Écrivez d'abord votre réponse.",
+    hadIt: 'Aviez-vous la bonne réponse?', yes: 'Oui', notQuite: 'Pas tout à fait', noted: 'Noté.',
+    write: 'Rédigez les mauvaises réponses', yourQuestion: 'Votre question', correctAnswer: 'Bonne réponse',
     question: 'Question', rightAnswer: 'Bonne réponse',
     instruction: 'Rédigez {count} mauvaises réponses qu\'une personne pourrait choisir. Nommez l\'idée fausse derrière chacune.',
     option: 'Mauvaise réponse {n}', text: 'Votre mauvaise réponse', misconception: 'Quelle idée fausse cible-t-elle?',

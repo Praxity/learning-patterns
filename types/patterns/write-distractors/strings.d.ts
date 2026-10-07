@@ -1,5 +1,17 @@
 export namespace strings {
     namespace en {
+        let scene: string;
+        let answerFirst: string;
+        let answer: string;
+        let check: string;
+        let emptyAnswer: string;
+        let hadIt: string;
+        let yes: string;
+        let notQuite: string;
+        let noted: string;
+        let write: string;
+        let yourQuestion: string;
+        let correctAnswer: string;
         let question: string;
         let rightAnswer: string;
         let instruction: string;
@@ -33,6 +45,30 @@ export namespace strings {
         let cleared: string;
     }
     namespace fr {
+        let scene_1: string;
+        export { scene_1 as scene };
+        let answerFirst_1: string;
+        export { answerFirst_1 as answerFirst };
+        let answer_1: string;
+        export { answer_1 as answer };
+        let check_1: string;
+        export { check_1 as check };
+        let emptyAnswer_1: string;
+        export { emptyAnswer_1 as emptyAnswer };
+        let hadIt_1: string;
+        export { hadIt_1 as hadIt };
+        let yes_1: string;
+        export { yes_1 as yes };
+        let notQuite_1: string;
+        export { notQuite_1 as notQuite };
+        let noted_1: string;
+        export { noted_1 as noted };
+        let write_1: string;
+        export { write_1 as write };
+        let yourQuestion_1: string;
+        export { yourQuestion_1 as yourQuestion };
+        let correctAnswer_1: string;
+        export { correctAnswer_1 as correctAnswer };
         let question_1: string;
         export { question_1 as question };
         let rightAnswer_1: string;
