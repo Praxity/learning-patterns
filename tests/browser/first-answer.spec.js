@@ -48,13 +48,52 @@ async function mount(page, stages, value = undefined, mode = '') {
   }, { stages, value, mode });
 }
 
+for (const [lang, journal, day, end, note] of [
+  ['en', 'Your journal', 'Day one', 'End of the course', 'It stays as you wrote it.'],
+  ['fr', 'Votre journal', 'Premier jour', 'Fin du cours', "Elle reste telle que vous l'avez écrite."]
+]) {
+  test(`journal scene, dated entry and course timeline (${lang})`, async ({ page }) => {
+    await open(page, `/first-answer/${lang}.html`);
+    const scene = page.locator('.lp-first-answer-scene');
+    await expect(scene.locator('.lp-label')).toHaveText(journal);
+    await expect(scene.getByRole('heading')).toHaveCount(1);
+    await expect(scene.locator('svg')).toHaveAttribute('aria-hidden', 'true');
+    await expect(page.locator('[data-lp-first-step]').getByRole('heading')).toHaveText(day);
+    expect(await page.locator('[data-lp-first-input]').evaluate(el => {
+      const css = getComputedStyle(el); return [css.backgroundColor, css.padding, Number(parseFloat(css.lineHeight).toFixed(2))];
+    })).toEqual(['rgb(255, 255, 255)', '16px 18px', 28.05]);
+    await saveFirst(page);
+    const saved = page.locator('[data-lp-first-saved]');
+    await expect(saved.locator('.lp-first-answer-note')).toHaveText(note);
+    await expect(saved.locator('.lp-first-answer-date svg')).toHaveAttribute('aria-hidden', 'true');
+    expect(await saved.evaluate(el => {
+      const children = [...el.children]; return children.indexOf(el.querySelector('.lp-first-answer-date')) < children.indexOf(el.querySelector('[data-lp-first-quote]'));
+    })).toBe(true);
+    const timeline = page.locator('[data-lp-course]');
+    await expect(timeline).toBeVisible();
+    await expect(timeline.locator('svg')).toHaveAttribute('aria-hidden', 'true');
+    expect(await timeline.evaluate(el => {
+      const css = getComputedStyle(el, '::before'); return [css.borderInlineStartWidth, css.borderInlineStartStyle, css.borderInlineStartColor];
+    })).toEqual(['2px', 'dashed', 'rgb(213, 217, 223)']);
+    await page.locator('[data-lp-skip]').click();
+    await expect(page.locator('[data-lp-end-heading]')).toHaveText(end);
+    await expect(timeline).toBeHidden(); await compare(page);
+    const card = page.locator('[data-lp-panel-first-card]');
+    await expect(card.getByRole('heading')).toHaveText(day);
+    await expect(card.locator('.lp-first-answer-note')).toHaveText(note);
+    await expect(card.locator('[data-lp-panel-first-date]')).toHaveText(await saved.locator('[data-lp-first-date]').textContent());
+    await expect(card.locator('[data-lp-panel-first]')).toHaveText('Stop interrupting me.');
+    expect(await card.evaluate(el => el.compareDocumentPosition(document.querySelector('fieldset')) & Node.DOCUMENT_POSITION_FOLLOWING)).toBeTruthy();
+  });
+}
+
 test('comparison locks the current answer and refuses another Compare activation', async ({ page }) => {
   await mount(page, ['both']); await observe(page);
   await saveFirst(page); await page.locator('[data-lp-skip]').click(); await compare(page);
   await expect(page.locator('[data-lp-now-input]')).toHaveAttribute('readonly', '');
   await expect(page.locator('[data-lp-compare]')).toBeHidden();
   await expect(page.locator('[data-lp-panel-now]')).toHaveCount(0);
-  await expect(page.locator('[data-lp-panel-first-date]')).toContainText('Your first answer,');
+  await expect(page.locator('[data-lp-panel-first-date]')).toContainText('Saved ');
   const before = await page.evaluate(() => window.lpSaved);
   await page.locator('[data-lp-compare]').evaluate(el => el.click());
   expect(await page.evaluate(() => window.lpSaved)).toEqual(before);
@@ -131,7 +170,7 @@ test('keyboard journey links blank errors and announces successful submissions o
   await expect(page.locator('[data-lp-first-error]')).toBeVisible();
   await page.keyboard.press('Tab'); await page.keyboard.press('Enter');
   await expect(page.locator('[data-lp-skip]')).toBeFocused(); await expect(page.locator('[data-lp-first-quote]')).toHaveText('Stop interrupting me.');
-  await expect(page.locator('[data-lp-first-date]')).toContainText('It stays as you wrote it.');
+  await expect(page.locator('[data-lp-first-saved] .lp-first-answer-note')).toHaveText('It stays as you wrote it.');
   await expect(first).not.toHaveAttribute('aria-invalid', 'true');
   await expect(save).toBeHidden();
   await page.keyboard.press('Enter'); await expect(page.locator('[data-lp-end-heading]')).toBeFocused();
@@ -207,13 +246,13 @@ for (const [lang, savedNote, summary] of [['en', 'It stays as you wrote it.', 'Y
     await expect(page.locator('[data-lp-pattern]')).toHaveAttribute('lang', lang);
     await expect(page.locator('[role="status"]')).toBeEmpty();
     await expect(page.locator('[data-lp-end-step]')).toBeVisible(); await expect(page.locator('[data-lp-skip]')).toBeHidden();
-    await expect(page.locator('[data-lp-first-date]')).toContainText(savedNote);
+    await expect(page.locator('[data-lp-first-saved] .lp-first-answer-note')).toHaveText(savedNote);
     await expect(page.locator('[data-lp-panel-first]')).toHaveText(seed.first.text);
     await expect(page.locator('[data-lp-now-input]')).toHaveValue(seed.now.text);
     await expect(page.getByRole('checkbox').nth(2)).toBeChecked();
     await expect(page.locator('[data-lp-summary]')).toHaveText(summary);
     const date = await page.evaluate(({ lang, first }) => new Intl.DateTimeFormat(lang, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(first)), { lang, first: FIRST });
-    await expect(page.locator('[data-lp-panel-first-date]')).toHaveText(`${lang === 'en' ? 'Your first answer' : 'Votre première réponse'}, ${date}`);
+    await expect(page.locator('[data-lp-panel-first-date]')).toHaveText(`${lang === 'en' ? 'Saved' : 'Enregistrée le'} ${date}`);
     await scan(page);
   });
 }
@@ -269,6 +308,8 @@ test('end only allows a current answer with no saved first; reset focuses curren
   expect((await page.evaluate(() => window.lpSaved)).first).toBeNull();
   await expect(page.locator('[data-lp-panel-first]')).toHaveText("Your first answer wasn't saved, so there's nothing to compare yet.");
   await expect(page.locator('[data-lp-panel-first-date]')).toBeEmpty(); await expect(page.getByRole('checkbox')).toHaveCount(3); await scan(page);
+  await expect(page.locator('[data-lp-panel-note]')).toBeHidden();
+  await expect(page.locator('[data-lp-panel-first-card] .lp-first-answer-date')).toBeHidden();
   await page.getByRole('checkbox').nth(2).check(); await page.locator('[data-lp-restart]').click();
   await expect(page.locator('[data-lp-now-input]')).toBeFocused(); await expect(page.locator('[data-lp-now-input]')).toHaveValue('');
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Compared. Tick what improved.', 'Started over.']);
@@ -329,12 +370,13 @@ test('missing or mismatched server markup fails loudly through enhance', async (
     const { render } = await import('../patterns/first-answer/render.js');
     const { strings } = await import('../patterns/first-answer/strings.js');
     const content = { prompt: 'A', checks: [{ id: 'a', label: 'B' }] };
-    return ['', render(content, strings.en, { id: 'bad', lang: 'en' }).replace('value="a"', 'value="unknown"')].map(markup => {
+    return ['', render(content, strings.en, { id: 'bad', lang: 'en' }).replace('value="a"', 'value="unknown"'), render(content, strings.en, { id: 'bad', lang: 'en' }).replace('data-lp-panel-note', 'data-planted-missing-note')].map(markup => {
       const wrapper = document.createElement('div'); wrapper.innerHTML = markup;
       try { enhance(wrapper.firstElementChild || wrapper, { content, strings: strings.en }); return ''; } catch (error) { return error.message; }
     });
   });
   expect(failures[0]).toMatch(/markup|stage/); expect(failures[1]).toMatch(/checks markup/);
+  expect(failures[2]).toContain('Missing first-answer markup: [data-lp-panel-note]');
 });
 
 for (const lang of ['en', 'fr']) {
@@ -386,19 +428,19 @@ test('one activity box uses shared text, choice, readonly and quiet button style
       fieldsetBorder: css('fieldset').borderWidth,
       stemFont: css('.lp-stem').fontFamily,
       stemSize: css('.lp-stem').fontSize,
-      stepSize: css('[data-lp-first-step] > .lp-small').fontSize,
+      dateSize: css('.lp-first-answer-date').fontSize,
       headingWeight: css('[data-lp-end-heading]').fontWeight,
       readonlyBackground: css('[data-lp-now-input]').backgroundColor
     };
   });
-  expect(styles).toMatchObject({ stepBorder: '0px', sectionBorder: '1px', fieldsetBorder: '0px', stemSize: '24px', stepSize: '15px', headingWeight: '600', readonlyBackground: 'rgb(244, 245, 247)' });
-  expect(styles.stemFont).toContain('Source Serif 4');
+  expect(styles).toMatchObject({ stepBorder: '0px', sectionBorder: '1px', fieldsetBorder: '0px', stemSize: '21px', dateSize: '15px', headingWeight: '600', readonlyBackground: 'rgb(247, 248, 250)' });
+  expect(styles.stemFont).toContain('Source Sans 3');
   await page.getByRole('checkbox').first().check();
   const choice = page.locator('.lp-choice').first();
-  expect(await choice.evaluate(el => [getComputedStyle(el).borderWidth, getComputedStyle(el).borderColor, getComputedStyle(el).backgroundColor])).toEqual(['2px', 'rgb(29, 61, 107)', 'rgba(0, 0, 0, 0)']);
-  await page.locator('[data-lp-pattern]').evaluate(el => el.style.setProperty('--lp-accent', '#123456'));
+  await expect.poll(() => choice.evaluate(el => [getComputedStyle(el).borderWidth, getComputedStyle(el).borderTopColor, getComputedStyle(el).backgroundColor])).toEqual(['1px', 'rgb(44, 85, 201)', 'rgb(238, 242, 253)']);
+  await page.locator('[data-lp-pattern]').evaluate(el => el.style.setProperty('--lp-ink-2', '#123456'));
   const restart = page.locator('[data-lp-restart]');
-  expect(await restart.evaluate(el => [getComputedStyle(el).backgroundColor, getComputedStyle(el).color, getComputedStyle(el).borderColor, getComputedStyle(el).textDecorationLine, getComputedStyle(el).minHeight])).toEqual(['rgba(0, 0, 0, 0)', 'rgb(18, 52, 86)', 'rgba(0, 0, 0, 0)', 'underline', '44px']);
+  expect(await restart.evaluate(el => [getComputedStyle(el).backgroundColor, getComputedStyle(el).color, getComputedStyle(el).borderTopColor, getComputedStyle(el).textDecorationLine, getComputedStyle(el).minHeight])).toEqual(['rgba(0, 0, 0, 0)', 'rgb(18, 52, 86)', 'rgba(0, 0, 0, 0)', 'none', '44px']);
 });
 
 test('Chromium forced colours keeps focus rings, borders and quiet link actions', async ({ page, browserName }) => {

@@ -130,6 +130,27 @@ test('render stages select the two placements; only both has the course skip', (
   assert.throws(() => render(content, strings.en, { id: 'p', lang: 'en', stage: 'bad' }), /stage/);
 });
 
+test('journal scene, day headings and dated cards render in both languages and every placement', () => {
+  for (const [lang, journal, day, end, note] of [
+    ['en', 'Your journal', 'Day one', 'End of the course', 'It stays as you wrote it.'],
+    ['fr', 'Votre journal', 'Premier jour', 'Fin du cours', "Elle reste telle que vous l'avez écrite."]
+  ]) for (const stage of ['first', 'end', 'both']) {
+    const markup = render(content, strings[lang], { id: 'journal', lang, stage });
+    assert.match(markup, /<header class="lp-first-answer-scene">/);
+    assert.ok(markup.includes(journal));
+    assert.equal(markup.split(content.prompt).length - 1, 1);
+    assert.equal(markup.includes('Step 1'), false); assert.equal(markup.includes('Étape 1'), false);
+    if (stage !== 'end') assert.ok(markup.includes(`id="journal-start">${day}</h3>`));
+    if (stage !== 'first') {
+      assert.ok(markup.includes(`tabindex="-1">${end}</h3>`));
+      assert.match(markup, /data-lp-panel-first-card/);
+    }
+    assert.ok(markup.includes(note.replaceAll("'", '&#39;')));
+    assert.match(markup, /lp-first-answer-date[^>]*>.*<svg[^>]*aria-hidden="true"/s);
+    if (stage === 'both') assert.match(markup, /class="lp-first-answer-timeline" data-lp-course hidden/);
+  }
+});
+
 test('English and French strings are nonempty with matching keys and placeholders', () => {
   assert.ok(Object.keys(strings.en).length >= 20);
   assert.deepEqual(Object.keys(strings.en).sort(), Object.keys(strings.fr).sort());
