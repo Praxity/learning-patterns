@@ -25,7 +25,7 @@ async function observe(page) {
 }
 async function scan(page) {
   // Axe checks each completed panel, rather than sampling its entrance opacity.
-  await page.locator('[data-lp-pattern]').evaluateAll(roots => Promise.all(roots.flatMap(root => root.getAnimations({ subtree: true }).map(animation => animation.finished))));
+  await page.waitForFunction(() => [...document.querySelectorAll('[data-lp-pattern]')].every(root => root.getAnimations({ subtree: true }).every(animation => animation.playState !== 'running')));
   expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()).violations).toEqual([]);
 }
 async function authored(page, content) {
