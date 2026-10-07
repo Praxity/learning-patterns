@@ -32,6 +32,42 @@ async function observe(page) {
   });
 }
 
+test('shared course design keeps one frame and local icon feedback', async ({ page }) => {
+  await open(page);
+  const root = page.locator('[data-lp-pattern]');
+  await expect(root).toHaveClass('lp lp-write-distractors');
+  expect(await root.locator('fieldset').evaluateAll(rows => rows.map(row => getComputedStyle(row).borderWidth))).toEqual(['0px', '0px']);
+  await expect(root.locator('legend.lp-run-in')).toHaveText(['Wrong option 1', 'Wrong option 2']);
+  await page.locator('[data-lp-compare]').click();
+  for (const error of await root.locator('.lp-error-text:visible').all()) {
+    await expect(error.locator('svg')).toHaveAttribute('aria-hidden', 'true');
+    await expect(error.locator('path[d="M12 8v4"]')).toHaveCount(1);
+  }
+  await fill(page, true); await page.locator('[data-lp-compare]').click();
+  await expect(root.locator('[data-lp-result]')).toHaveClass('lp-section');
+  await expect(root.locator('[data-lp-summary]')).toHaveClass('lp-run-in');
+  await expect(root.locator('[data-lp-summary] + p')).toHaveClass('lp-small');
+  const yours = root.locator('[data-lp-yours] > li');
+  await expect(yours.nth(0).locator('.lp-met')).toHaveText('Same misconception as an author option');
+  await expect(yours.nth(0).locator('.lp-met path[d="M5 12l5 5l10 -10"]')).toHaveCount(1);
+  await expect(yours.nth(1).locator('.lp-neutral')).toHaveText("A misconception the author's options don't cover");
+  await expect(yours.nth(1).locator('.lp-neutral path[d="M8.56 3.69a9 9 0 0 0 -2.92 1.95"]')).toHaveCount(1);
+  for (const item of await yours.all()) {
+    await expect(item.locator('p').nth(1)).toHaveClass(/lp-(met|neutral)/);
+    await expect(item.locator('p').nth(2)).toHaveClass('lp-small');
+  }
+  const restart = root.getByRole('button', { name: 'Start over', exact: true });
+  await expect(restart).toHaveClass('lp-button lp-button-quiet');
+  await expect(restart.locator('svg')).toHaveAttribute('aria-hidden', 'true');
+  expect(await restart.evaluate(el => {
+    const css = getComputedStyle(el);
+    return [css.backgroundColor, css.textDecorationLine, css.minHeight];
+  })).toEqual(['rgba(0, 0, 0, 0)', 'underline', '44px']);
+  await restart.click();
+  await expect(root.locator('textarea').first()).toBeFocused();
+  await expect(root.locator('[role="status"]')).toHaveText('Options cleared.');
+});
+
 test('controls reveal in place, custom field toggles without a live Targets line', async ({ page }) => {
   await open(page);
   await expect(page.locator('[data-lp-flow]')).toBeVisible();

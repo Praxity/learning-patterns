@@ -166,3 +166,18 @@ test('English and French keys and placeholders match', () => {
   assert.deepEqual(Object.keys(strings.en).sort(), Object.keys(strings.fr).sort());
   for (const key of Object.keys(strings.en)) assert.deepEqual(strings.en[key].match(/\{\w+\}/g), strings.fr[key].match(/\{\w+\}/g));
 });
+
+test('render uses the shared frame, text roles, sectioned fields and quiet Start over', () => {
+  const output = render(content, strings.en, { id: 'design', lang: 'en' });
+  assert.match(output, /class="lp lp-write-distractors"/);
+  assert.match(output, /<p class="lp-stem">Is taking a real break/);
+  assert.match(output, /<p class="lp-run-in">Right answer<\/p>/);
+  assert.match(output, /<p class="lp-small">Write 2 wrong answers/);
+  assert.equal((output.match(/class="lp-section"[^>]*>\s*<fieldset/g) || []).length, 2);
+  assert.equal((output.match(/<legend class="lp-run-in">Wrong option/g) || []).length, 2);
+  assert.equal((output.match(/class="lp-input"/g) || []).length, 6);
+  assert.equal((output.match(/class="lp-error-text"/g) || []).length, 6);
+  assert.match(output, /class="lp-section" data-lp-result hidden/);
+  assert.match(output, /class="lp-button lp-button-quiet"[^>]*data-lp-clear hidden><svg[\s\S]*?<\/svg>Start over<\/button>/);
+  assert.match(render(fr, strings.fr, { id: 'fr', lang: 'fr' }), /<\/svg>Recommencer<\/button>/);
+});
