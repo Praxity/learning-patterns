@@ -92,6 +92,8 @@ test('state copies all author counts, handles special ids and ignores invalid sn
   for (const value of bad) assert.equal(validateState(content, value), null);
   const special = copy(); special.sections[0].id = '__proto__';
   assert.ok(validateState(special, { authorView: false, sections: Object.fromEntries(special.sections.map(({ id, words, questions, narrationSeconds }) => [id, { words, questions, narrationSeconds }])) }));
+  const changedRates = copy(); changedRates.rates.minutesPerQuestion = Number.MAX_SAFE_INTEGER;
+  assert.equal(validateState(changedRates, saved), null);
 });
 
 test('render escapes authored text and attributes, prefixes ids and keeps static estimates', () => {

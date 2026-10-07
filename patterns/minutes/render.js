@@ -25,7 +25,7 @@ export function render(content, strings, { id, lang }) {
       <p class="lp-small" data-lp-breakdown>${html(formatText(strings.breakdown, { words: section.words, questions: section.questions }, lang))}</p></div>
       <span class="lp-small lp-minutes-chip">${icons.history}<span data-lp-minutes>${html(formatText(strings.minutes, { n: row?.minutes ?? 0 }, lang))}</span></span>
     </div>
-    <p class="lp-small lp-minutes-warning" data-lp-warning${row?.overLimit ? '' : ' hidden'}>${icons['alert-circle']}<span>${html(strings.warning)}</span></p>
+    <p class="lp-small lp-minutes-chip lp-minutes-warning" data-lp-warning${row?.overLimit ? '' : ' hidden'}>${icons['alert-circle']}<span>${html(strings.warning)}</span></p>
     <div class="lp-minutes-inputs" data-lp-inputs role="group" aria-labelledby="${heading}" hidden>
       ${COUNT_FIELDS.map(key => {
         const fieldId = html(`${id}-${index}-${key}`), errorId = html(`${id}-${index}-${key}-error`), labelId = html(`${id}-${index}-${key}-label`);

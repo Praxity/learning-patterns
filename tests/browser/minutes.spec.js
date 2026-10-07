@@ -90,6 +90,46 @@ test('invalid fields show local authored feedback, suppress estimates and preser
   await scan(page);
 });
 
+test('overflowing section and course estimates show errors and never save invalid counts', async ({ page }) => {
+  await open(page);
+  await page.evaluate(async () => {
+    const { render } = await import('/patterns/minutes/render.js');
+    const { enhance } = await import('/patterns/minutes/enhance.js');
+    const { strings } = await import('/patterns/minutes/strings.js');
+    const content = { title: 'Boundary course', rates: { readingWordsPerMinute: 200, minutesPerQuestion: Number.MAX_SAFE_INTEGER },
+      sections: ['one', 'two'].map(id => ({ id, title: id, words: 0, questions: 0, narrationSeconds: 0 })) };
+    window.lpInstances[0].destroy();
+    document.querySelector('main').innerHTML = render(content, strings.en, { id: 'boundary', lang: 'en' });
+    enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en, state: { read: () => null, write: value => window.lpSaved = value } });
+  });
+  await author(page);
+  const first = page.locator('[data-lp-section]').first().locator('[data-lp-field="questions"]');
+  await first.fill('2'); await first.press('Tab');
+  await expect(first).toHaveAttribute('aria-invalid', 'true');
+  await expect(row(page).locator('[data-lp-minutes]')).toHaveText('No estimate until fixed');
+  await expect(row(page).locator('[data-lp-error="questions"]')).toHaveText('These counts make the estimate too large. Enter smaller numbers.');
+  expect(await page.evaluate(() => window.lpSaved.sections.one.questions)).toBe(0);
+  await first.fill('1'); await first.press('Tab');
+  await expect(first).not.toHaveAttribute('aria-invalid');
+  const second = page.locator('[data-lp-section]').nth(1).locator('[data-lp-field="questions"]');
+  await second.fill('1'); await second.press('Tab');
+  await expect(page.locator('input[aria-invalid="true"]')).toHaveCount(6);
+  await expect(page.locator('[data-lp-summary]')).toHaveText('Fix the highlighted numbers to see the total.');
+  expect(await page.evaluate(() => window.lpSaved.sections.two.questions)).toBe(0);
+  await second.fill('0'); await second.press('Tab');
+  await expect(page.locator('input[aria-invalid="true"]')).toHaveCount(0);
+});
+
+test('hidden author fields ignore programmatic input and change events', async ({ page }) => {
+  await open(page); await observe(page);
+  await row(page).locator('input').first().evaluate(input => {
+    input.value = '3200'; input.dispatchEvent(new Event('input', { bubbles: true })); input.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+  await expect(row(page).locator('[data-lp-minutes]')).toHaveText('1 min');
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
+  expect(await page.evaluate(() => window.lpSaved)).toBeUndefined();
+});
+
 for (const lang of ['en', 'fr']) {
   test(`axe at outline, author, changed and invalid stages (${lang})`, async ({ page }) => {
     await open(page, lang); await scan(page);
@@ -172,7 +212,9 @@ test('idempotent enhancement and destruction keep the outline and remove old lis
   await expect(row(page).locator('[data-lp-minutes]')).toHaveText('16 min'); await expect(page.getByRole('status')).toHaveText('');
   await input.evaluate(el => { el.value = '0'; el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); });
   await expect(row(page).locator('[data-lp-minutes]')).toHaveText('16 min');
-  await page.evaluate(() => { window.lpEnhance(); window.lpOld.destroy(); }); await author(page);
+  await page.evaluate(() => { window.lpEnhance(); window.lpOld.destroy(); });
+  await expect(page.locator('[data-lp-toggle]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(input).toBeVisible();
   await expect(input).toHaveValue('3200');
   await observe(page); await input.fill('120'); await input.press('Tab');
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Total 28 min. 1 section over 15 minutes.']);
@@ -186,7 +228,7 @@ test('planted missing and mismatched markup errors occur before controls are rev
     const original = document.querySelector('[data-lp-pattern]');
     const content = { title: 'A course', rates: { readingWordsPerMinute: 200, minutesPerQuestion: 0.75 }, sections: [...original.querySelectorAll('[data-lp-section]')].map(el => ({ id: el.dataset.lpSection, title: 'Section', words: 0, questions: 0, narrationSeconds: 0 })) };
     const outcomes = [];
-    for (const kind of ['empty', 'identity', 'count', 'field count', 'field identity', 'field type', '[role="status"]', '[data-lp-toggle]', '[data-lp-summary]', '[data-lp-inputs]', '[data-lp-minutes]', '[data-lp-breakdown]', '[data-lp-warning]', '[data-lp-error="words"]']) {
+    for (const kind of ['empty', 'identity', 'count', 'field count', 'field identity', 'field type', '[role="status"]', '[data-lp-toggle]', '[data-lp-instruction]', '[data-lp-summary]', '[data-lp-inputs]', '[data-lp-minutes]', '[data-lp-breakdown]', '[data-lp-warning]', '[data-lp-error="words"] span', '[data-lp-error="words"]']) {
       const root = original.cloneNode(true); root.querySelector('[data-lp-toggle]').hidden = true;
       if (kind === 'empty') root.replaceChildren();
       else if (kind === 'identity') root.querySelector('[data-lp-section]').dataset.lpSection = 'other';
