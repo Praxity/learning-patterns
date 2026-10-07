@@ -26,7 +26,7 @@ export function render(content, strings, { id, lang, stage = 'both' }) {
     <div class="lp-actions">
       <button class="lp-button" type="button" data-lp-save-first hidden>${html(strings.saveFirst)}</button>
     </div>
-    <div class="lp-stack" data-lp-first-saved hidden>
+    <div class="lp-stack lp-first-answer-saved" data-lp-first-saved hidden>
       <blockquote class="lp-quote lp-first-answer-quote" data-lp-first-quote></blockquote><p class="lp-small" data-lp-first-date></p>
     </div>
   </section>`;

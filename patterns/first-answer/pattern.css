@@ -3,3 +3,9 @@
 .lp-first-answer-quote { margin: 16px 0 0; white-space: pre-wrap; }
 .lp-first-answer-quote:first-child { margin-block-start: 0; }
 .lp-first-answer-check-text { min-inline-size: 0; }
+/* base.css covers these targets only on :focus-visible. Pointer actions focus them too.
+   Move this programmatic-focus rule to the shared stylesheet when its focus selector expands. */
+.lp-first-answer-heading:focus, .lp-first-answer-saved:focus { outline: 2px solid var(--lp-focus); outline-offset: 2px; }
+@media (forced-colors: active) {
+  .lp-first-answer-heading:focus, .lp-first-answer-saved:focus { outline-color: Highlight; }
+}
