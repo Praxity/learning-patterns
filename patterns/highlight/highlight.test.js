@@ -81,7 +81,8 @@ test('content validator catches every planted field violation, including global 
     for (const value of [null, '', '  ', 3, undefined]) bad({ ...content, paragraphs: [[{ ...chunks[0], [field]: value }]] }, field);
   }
   bad({ ...content, paragraphs: [[{ ...chunks[0], id: 'bad id' }]] }, 'id');
-  for (const value of [' text', 'text ']) bad({ ...content, paragraphs: [[{ ...chunks[0], text: value }]] }, 'text');
+  for (const suffix of ['\n', '\r', '\r\n', '\u2028', '\u2029']) bad({ ...content, paragraphs: [[{ ...chunks[0], id: `safe${suffix}` }]] }, 'id');
+  for (const value of [' text', 'text ', 'text\n', 'text\r', 'text\r\n', 'text\u2028', 'text\u2029']) bad({ ...content, paragraphs: [[{ ...chunks[0], text: value }]] }, 'text');
   bad({ ...content, paragraphs: [[{ ...chunks[0], extra: true }]] }, 'extra');
   for (const value of [null, 'true', 1]) bad({ ...content, paragraphs: [[{ ...chunks[0], key: value }]] }, 'key');
   for (const value of [null, '', '  ', 1]) bad({ ...content, paragraphs: [[{ ...chunks[0], note: value }]] }, 'note');
