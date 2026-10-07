@@ -71,8 +71,9 @@ export function scheduleReview(date, choice, reviewDays = REVIEW_DAYS) {
   if (!result(choice)) throw new RangeError(`Unsupported result: ${String(choice)}`);
   validateReviewDays(reviewDays);
   const next = new Date(date.getTime());
-  next.setHours(0, 0, 0, 0);
   next.setDate(next.getDate() + reviewDays[choice]);
+  // Set midnight on the target day: the source day may have a DST gap at midnight.
+  next.setHours(0, 0, 0, 0);
   if (Number.isNaN(next.getTime()) || next.getFullYear() < 0 || next.getFullYear() > 9999) throw new RangeError('Unsupported date range');
   return next;
 }

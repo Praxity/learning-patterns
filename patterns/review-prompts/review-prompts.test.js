@@ -55,6 +55,14 @@ test('calendar days span DST changes rather than fixed 24-hour periods', () => {
   assert.deepEqual(JSON.parse(result), [['2026-03-10', 0], ['2026-11-03', 0]]);
 });
 
+test('a source day with a missing midnight does not move a later review to 1am', () => {
+  const code = `import { scheduleReview, isoDate } from ${JSON.stringify(new URL('./logic.js', import.meta.url).href)};
+    const next = scheduleReview(new Date(2018,10,4,12), 'remembered');
+    console.log(JSON.stringify([isoDate(next), next.getHours()]));`;
+  const result = execFileSync(process.execPath, ['--input-type=module', '-e', code], { env: { ...process.env, TZ: 'America/Sao_Paulo' }, encoding: 'utf8' });
+  assert.deepEqual(JSON.parse(result), ['2018-11-07', 0]);
+});
+
 test('scheduling and date serialization reject planted invalid inputs and date overflow', () => {
   for (const date of ['2026-10-06', undefined, null, new Date(NaN)]) {
     assert.throws(() => scheduleReview(date, 'forgot'), /valid Date/);
