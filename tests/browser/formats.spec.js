@@ -425,3 +425,13 @@ for (const width of [1280, 390, 320]) {
     expect(gap).toBeGreaterThanOrEqual(0); expect(gap).toBeLessThanOrEqual(8);
   });
 }
+
+for (const [lang, label] of [['en', 'Sample, no audio'], ['fr', 'Exemple, sans audio']]) {
+  test(`owner audit: audio uses one sample label (${lang})`, async ({ page }) => {
+    await open(page, `/formats/${lang}.html`);
+    await button(page, 'audio').click();
+    const audio = point(page).locator('[data-lp-view="audio"]');
+    await expect(audio.locator('.lp-formats-player-detail p')).toHaveText(label);
+    await expect(audio.locator(':scope > p')).toHaveCount(0);
+  });
+}

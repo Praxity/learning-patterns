@@ -149,3 +149,11 @@ test('owner audit: place belongs to the lesson above its content', () => {
   assert.ok(markup.indexOf('lp-formats-lesson') < markup.indexOf('data-lp-place'));
   assert.ok(markup.indexOf('data-lp-place') < markup.indexOf('data-lp-point'));
 });
+
+test('owner audit: narration has one sample instruction in each view', () => {
+  for (const lang of ['en', 'fr']) {
+    const markup = render(content, strings[lang], { id: 'audit', lang });
+    assert.equal(Object.hasOwn(strings[lang], 'scriptNote'), false);
+    assert.equal(markup.split(strings[lang].sample).length - 1, content.points.length);
+  }
+});

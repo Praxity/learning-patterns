@@ -13,7 +13,6 @@ export namespace strings {
         let play: string;
         let playUnavailable: string;
         let sample: string;
-        let scriptNote: string;
         let noQuestion: string;
         let check: string;
         let choose: string;
@@ -49,8 +48,6 @@ export namespace strings {
         export { playUnavailable_1 as playUnavailable };
         let sample_1: string;
         export { sample_1 as sample };
-        let scriptNote_1: string;
-        export { scriptNote_1 as scriptNote };
         let noQuestion_1: string;
         export { noQuestion_1 as noQuestion };
         let check_1: string;

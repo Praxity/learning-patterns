@@ -44,7 +44,6 @@ export function render(content, strings, { id, lang }) {
         <div class="lp-formats-player-detail"><p class="lp-small">${html(strings.sample)}</p><div class="lp-formats-track" aria-hidden="true"></div></div>
         <span class="lp-small lp-formats-player-time">${timestamp(0)} / ${timestamp(SAMPLE_SECONDS)}</span>
       </div>
-      <p class="lp-small">${html(strings.scriptNote)}</p>
       <ol class="lp-formats-script">${spokenLines(point).map((line, n, lines) => {
         // Evenly spaced cues illustrate an 80-second sample, not recording timings.
         const seconds = Math.floor(n * SAMPLE_SECONDS / lines.length);
