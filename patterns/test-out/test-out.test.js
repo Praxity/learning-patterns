@@ -93,11 +93,34 @@ test('plan and score refuse invalid host input, including unknown references and
 });
 
 test('state copies valid partial and shown picks and ignores every invalid saved value', () => {
-  for (const value of [null, [], {}, { picks: [], shown: false }, { picks: {}, shown: 'yes' }, { picks: {}, shown: true }, { picks: { agenda: 'missing' }, shown: false }, { picks: { other: 'outcomes' }, shown: false }, { picks: { agenda: 'outcomes' }, shown: true }, { picks: {}, shown: false, extra: 1 }]) assert.equal(validateState(content, value), null);
-  const partial = { picks: { agenda: 'outcomes' }, shown: false };
+  for (const value of [null, [], {}, { picks: [], shown: false }, { picks: {}, shown: 'yes' }, { picks: {}, shown: true }, { picks: { agenda: 'missing' }, shown: false }, { picks: { other: 'outcomes' }, shown: false }, { picks: { agenda: 'outcomes' }, shown: true }, { picks: {}, shown: false, extra: 1 }]) assert.equal(validateState(content, value && !Array.isArray(value) ? { ...value, step: value.shown === true ? 5 : 0 } : value), null);
+  const partial = { picks: { agenda: 'outcomes' }, shown: false, step: 2 };
   assert.deepEqual(validateState(content, partial), partial);
-  const saved = { picks: all(q => q.correct), shown: true };
+  const saved = { picks: all(q => q.correct), shown: true, step: 5 };
   assert.deepEqual(validateState(content, saved), saved); assert.notEqual(validateState(content, saved).picks, saved.picks);
+});
+
+test('saved step rejects out-of-range, inconsistent and disabled placement panels', () => {
+  for (const step of [-1, 6, 1.5, '2', null, undefined, NaN]) {
+    assert.equal(validateState(content, { picks: {}, shown: false, step }), null);
+  }
+  assert.equal(validateState(content, { picks: {}, shown: false, step: 5 }), null);
+  assert.equal(validateState(content, { picks: all(q => q.correct), shown: true, step: 2 }), null);
+  assert.equal(validateState({ ...content, allowTestOut: false }, { picks: {}, shown: false, step: 1 }), null);
+  assert.deepEqual(validateState(content, { picks: {}, shown: false, step: 0 }), { picks: {}, shown: false, step: 0 });
+});
+
+test('server outline is clean, scene is shared, and Start is absent when required', () => {
+  const output = render(content, strings.en, { id: 'stepper', lang: 'en' });
+  for (const name of ['lp-scene', 'lp-scene-icon', 'lp-scene-label', 'lp-scene-title']) assert.ok(output.includes(`class="${name}"`));
+  assert.ok(output.includes("What you&#39;ll cover"));
+  assert.ok(output.includes('Start the check'));
+  assert.equal(output.includes('To do'), false);
+  assert.equal((output.match(/data-lp-panel="question"/g) || []).length, 4);
+  assert.equal((output.match(/aria-hidden="true" class="lp-test-out-progress"/g) || []).length, 4);
+  const required = render({ ...content, allowTestOut: false }, strings.en, { id: 'required', lang: 'en' });
+  assert.equal(required.includes('data-lp-start'), false);
+  assert.ok(required.includes(strings.en.required));
 });
 
 test('server HTML has scene, outline, grouped keyed questions, native answers and one empty status', () => {
@@ -109,7 +132,7 @@ test('server HTML has scene, outline, grouped keyed questions, native answers an
   assert.equal((a.match(/class="lp-choice"/g) || []).length, 12);
   assert.equal((a.match(/role="status"/g) || []).length, 1);
   assert.match(a, /role="status"[^>]*><\/p>/); assert.match(a, /<details[^>]*data-lp-fallback/);
-  assert.match(a, /data-lp-restart hidden/); assert.match(a, /data-lp-flow hidden/);
+  assert.match(a, /data-lp-restart hidden/); assert.match(a, /data-lp-start-actions hidden/);
   const b = render(french, strings.fr, { id: 'second', lang: 'fr' });
   const ids = [...(a + b).matchAll(/\bid="([^"]+)"/g)].map(m => m[1]);
   assert.equal(new Set(ids).size, ids.length); assert.ok(ids.every(id => /^(first|second)-/.test(id)));

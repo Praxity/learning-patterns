@@ -51,6 +51,7 @@ export type Content = {
 export type LearnerState = {
     picks: Record<string, string>;
     shown: boolean;
+    step: number;
 };
 export type PlanRow = {
     id: number;

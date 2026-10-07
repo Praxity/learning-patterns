@@ -9,21 +9,22 @@ learners: not tried
 ---
 # Test out of sections
 
-A placement check beside a four-section course outline. Answer the meeting-refresher questions, check your answers, then see which sections you can skip. Correct advanced answers also credit their prerequisites.
+A placement check that starts with a four-section course outline, then shows one meeting-refresher question at a time. Check your answers to see which sections you can skip. Correct advanced answers also credit their prerequisites.
 
 ## When to use it
 
 Use it for a small refresher where authors can justify skipping a section after one or two questions. Each advanced question must actually test the prerequisite knowledge it credits. An authored prerequisite link alone does not establish that coverage.
 
-Some clients require evidence that learners saw every section. Set `allowTestOut` to `false` for those courses. The answers still receive feedback, but every outline row stays "To do" and the summary permits no skipping. The learner cannot change this setting. This pattern recommends sections to skip; the host course owns navigation and completion records.
+Some clients require evidence that learners saw every section. Set `allowTestOut` to `false` for those courses. The outline explains that every section is required and offers no Start button. Without JavaScript, the questions and native Answers remain available. The learner cannot change this setting. This pattern recommends sections to skip; the host course owns navigation and completion records.
 
 ## How it works
 
-1. Read the course outline and answer each section's one or two questions. Section headings list prerequisites. Choices use native radios with letter keys.
-2. Select "Check my answers". Missing answers get a message beside their question and a one-line summary. Focus stays on Check.
-3. Complete submissions lock the answers. The chosen row shows "Correct" or "Not quite" with an icon. A wrong answer also reveals the correct row and the author's explanation.
-4. The outline shows "Passed, you can skip it" for direct passes and "Credited from {section}" for prerequisites. A direct pass requires every question in the section to be correct. Credit follows prerequisite links transitively. If several passes credit a section, the lowest numeric passed section id supplies the credit. A direct pass takes precedence over credit.
-5. One summary gives the number of skippable sections and is announced once, without moving focus. Check remains focused with `aria-disabled="true"` until reset. "Start over" clears picks, marks and outline statuses and focuses the first radio.
+1. Read "What you'll cover", a numbered outline with no status words. "Start the check" opens the first question.
+2. Each panel shows "Question {n} of {total}", a decorative progress bar, the section title, a stem and keyed native radios. Back preserves answers. Next needs an answer and shows a field error if one is missing. The last action is "Check my answers".
+3. Complete submissions lock the answers. The outline returns with a one-line skip summary and compact "Skip", "Credited" or "Take it" statuses. Credit sources appear below their section titles.
+4. A direct pass requires every question in the section to be correct. Credit follows prerequisite links transitively. If several passes credit a section, the lowest numeric passed section id supplies the credit. A direct pass takes precedence over credit.
+5. "Review answers" opens the original questions in a native details element. The chosen row shows "Correct" or "Not quite" with an icon. A wrong answer also reveals the correct row and the author's explanation.
+6. Each panel change focuses its heading and announces its progress once. Results announce the summary once. Panels enter horizontally over 240 ms and switch instantly under reduced motion. "Start over" clears answers, marks and statuses and returns focus to the outline heading.
 
 Without JavaScript, the outline and native questions remain usable. Open "Answers" for the correct options and explanations. There is no computed placement result in this baseline.
 
@@ -60,7 +61,7 @@ All authored text is plain text and escaped when rendered. Keep the English and 
 | `validateContent(content)` | Nothing. Throws an `Error` naming the bad field. |
 | `plan(sections, passed, allowTestOut = true)` | `{ rows, skip }`. Rows keep outline order and contain `{ id, title, action: 'take' \| 'passed' \| 'credited', by? }`. `by` is the source section id for credit. Rejects invalid sections, passed ids and settings. |
 | `score(content, picks)` | `{ right, wrong, unanswered, passed, rows, skip }`. Question groups contain ids in content order. `passed` contains section ids in outline order. Partial answers can pass fully answered sections; the enhancer waits for complete picks. Invalid picks throw. |
-| `validateState(content, value)` | Copied `{ picks, shown }` or `null` for invalid saved state. Shown state requires every answer. |
+| `validateState(content, value)` | Copied `{ picks, shown, step }` or `null` for invalid saved state. Step 0 is the outline, 1 through question count are question panels, and question count + 1 is results. Shown state requires every answer and the result step. Test-out disabled accepts only step 0. |
 | `format(template, values)` | Known `{key}` placeholders replaced once. Inserted values stay literal. |
 
 ## Use it
@@ -77,11 +78,11 @@ document.querySelector('main').innerHTML = render(content, strings.en, { id: 'pl
 const instance = enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en });
 ```
 
-Optional `state: { read, write }` stores `{ picks: { [questionId]: optionId }, shown }`. Invalid saved values are ignored. Partial picks restore; complete shown results rebuild silently without moving focus. Each pick, submission and reset writes state. Repeated enhancement returns the same instance. `destroy()` removes listeners, clears feedback, unlocks radios and restores native Answers. Host state errors propagate to the host.
+Optional `state: { read, write }` stores `{ picks: { [questionId]: optionId }, shown, step }`. Invalid saved values are ignored. Partial picks restore to their saved panel; complete shown results rebuild silently without moving focus. Each pick, panel change, submission and reset writes state. If a restored last panel lacks earlier answers, Check returns to the first unanswered question. Repeated enhancement returns the same instance. `destroy()` removes listeners, clears feedback, unlocks radios and restores native Answers. Host state errors propagate to the host.
 
 ## Accessibility
 
-Native fieldsets, legends and labelled radios work before enhancement. Results use text and decorative Tabler icons. Missing messages describe their fieldsets and radios. One initially empty status region announces a summary once; successful submission keeps focus on Check. Restoration is silent. Reset focuses the first radio. Outline and questions stack within narrow containers.
+Native fieldsets, legends and labelled radios work before enhancement. Results use text and decorative Tabler icons. Missing messages describe their fieldsets and radios. One initially empty status region announces each panel change and the result summary once. Panel headings receive focus, while validation errors leave focus on the action button. Restoration is silent. Reset focuses the outline heading. One panel at a time keeps the activity usable in narrow containers.
 
 Browser checks cover axe WCAG 2.0, 2.1 and 2.2 AA rules, keyboard use, both languages, native Answers, independent instances, state, enhancement guards, 320 CSS pixels with text spacing and Chromium forced colours. Motion follows shared reduced-motion styles. Screen reader passes: not yet.
 
