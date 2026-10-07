@@ -1,0 +1,60 @@
+{
+  "mode": "evidence",
+  "title": "What stonewalling is",
+  "question": "Why does the other person feel ignored or rejected?",
+  "paragraphs": [
+    [
+      {
+        "id": "observation",
+        "text": "Psychologist John Gottman and his colleagues watched couples talk for 15 minutes."
+      },
+      {
+        "id": "prediction",
+        "text": "From that alone, they could predict with 93% accuracy which couples would divorce."
+      },
+      {
+        "id": "signals",
+        "text": "They named four behaviours that signal a break-up."
+      },
+      {
+        "id": "horsemen",
+        "text": "They called them the four horsemen: criticism, defensiveness, contempt and stonewalling."
+      }
+    ],
+    [
+      {
+        "id": "work",
+        "text": "The horsemen damage working relationships too, including between a leader and their team."
+      },
+      {
+        "id": "harm",
+        "text": "Where blame, contempt and stonewalling take over, trust fades and work suffers."
+      }
+    ],
+    [
+      {
+        "id": "withdraw",
+        "text": "Stonewalling means you withdraw from the conversation."
+      },
+      {
+        "id": "actions",
+        "text": "You go quiet, change the subject or leave the room.",
+        "note": "This describes what you do, rather than why the other person feels rejected."
+      },
+      {
+        "id": "overwhelmed",
+        "text": "It usually happens when you feel overwhelmed.",
+        "note": "This explains how you feel. The question asks about the other person."
+      },
+      {
+        "id": "unseen",
+        "text": "The other person can't see that."
+      },
+      {
+        "id": "ignored",
+        "text": "They see you leave without a word, and they feel ignored or rejected.",
+        "key": true
+      }
+    ]
+  ]
+}
