@@ -1,0 +1,8 @@
+{
+  "prompt": "Que diriez-vous à un collègue qui vous interrompt sans cesse?",
+  "checks": [
+    { "id": "specific", "label": "Plus précise" },
+    { "id": "behaviour", "label": "Décrit le comportement, et non la personne" },
+    { "id": "view", "label": "Demande son point de vue" }
+  ]
+}
