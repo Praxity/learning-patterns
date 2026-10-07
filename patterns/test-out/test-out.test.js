@@ -54,6 +54,7 @@ test('every content guard catches a planted violation and names its field', () =
   for (const value of [null, 1, 'yes', undefined]) bad(c => c.allowTestOut = value, 'allowTestOut');
   for (const value of [null, [], 'sections', undefined]) bad(c => c.sections = value, 'sections');
   bad(c => c.sections[0] = null, 'sections[0]');
+  bad(c => delete c.sections[0], 'sections[0]');
   bad(c => c.sections[0].extra = 1, 'extra');
   for (const value of [0, -1, 1.5, '1', Infinity, Number.MAX_SAFE_INTEGER + 1, undefined]) bad(c => c.sections[0].id = value, 'id');
   bad(c => c.sections[1].id = 1, 'id');
@@ -65,6 +66,7 @@ test('every content guard catches a planted violation and names its field', () =
   bad(c => { c.sections[1].requires = [4]; }, 'requires');
   for (const value of [null, [], 'questions', undefined]) bad(c => c.questions = value, 'questions');
   bad(c => c.questions[0] = null, 'questions[0]'); bad(c => c.questions[0].extra = 1, 'extra');
+  bad(c => delete c.questions[0], 'questions[0]');
   for (const field of ['id', 'text', 'correct', 'explanation']) {
     for (const value of ['', ' ', null, 1, undefined]) bad(c => c.questions[0][field] = value, field);
   }
@@ -75,6 +77,7 @@ test('every content guard catches a planted violation and names its field', () =
   bad(c => c.questions[0].correct = 'missing', 'correct');
   for (const value of [null, [], 'options', undefined]) bad(c => c.questions[0].options = value, 'options');
   bad(c => c.questions[0].options[0] = null, 'options[0]');
+  bad(c => delete c.questions[0].options[0], 'options[0]');
   bad(c => c.questions[0].options[0].extra = 1, 'extra');
   for (const field of ['id', 'text']) for (const value of ['', ' ', null, 1, undefined]) bad(c => c.questions[0].options[0][field] = value, field);
   bad(c => c.questions[0].options[0].id = 'bad id', 'id');
@@ -82,7 +85,7 @@ test('every content guard catches a planted violation and names its field', () =
 });
 
 test('plan and score refuse invalid host input, including unknown references and inherited picks', () => {
-  for (const passed of [null, '4', [99], ['4'], [undefined]]) assert.throws(() => plan(content.sections, passed), /passed/);
+  for (const passed of [null, '4', [99], ['4'], [undefined], Array(1)]) assert.throws(() => plan(content.sections, passed), /passed/);
   assert.throws(() => plan(content.sections, [], 'yes'), /allowTestOut/);
   assert.throws(() => plan([{ ...content.sections[0], requires: [99] }], []), /requires/);
   for (const picks of [null, [], { agenda: null }, { agenda: 1 }, { agenda: 'missing' }, { other: 'outcomes' }, { agenda: undefined }]) assert.throws(() => score(content, picks), /picks/);

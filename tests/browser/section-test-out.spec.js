@@ -43,7 +43,8 @@ test('scene and course outline sit beside keyed questions and stack in a narrow 
   await page.locator('input').first().check();
   const row = page.locator('label:has(input:checked)');
   await expect(row).toHaveCSS('border-top-color', 'rgb(44, 85, 201)');
-  await expect(row).toHaveCSS('border-top-width', '2px');
+  await expect(row).toHaveCSS('border-top-width', '1px');
+  await expect(row).toHaveCSS('box-shadow', 'rgb(44, 85, 201) 0px 0px 0px 1px inset');
   expect(await row.evaluate(el => getComputedStyle(el, '::before').content)).toBe('counter(lp-key, upper-alpha)');
   await page.locator('[data-lp-pattern]').evaluate(el => el.style.width = '300px');
   expect((await outline.boundingBox()).y).toBeLessThan((await questions.boundingBox()).y);
@@ -154,6 +155,21 @@ test('all right, all wrong, advanced credit and author refusal', async ({ page }
   await expect(page.locator('[data-lp-section-status]')).toHaveText(['To do', 'To do', 'To do', 'To do']);
   await expect(page.locator('[data-lp-policy]')).toContainText('The author requires every section.');
   await expect(page.locator('[data-lp-mark="correct"]')).toHaveCount(4); await scan(page);
+});
+
+test('French summary uses singular for one skippable section', async ({ page }) => {
+  await open(page, '/test-out/fr.html');
+  await pick(page, ['outcomes', 'decide', 'wait', 'next-meeting']);
+  await page.locator('[data-lp-check]').click();
+  await expect(page.locator('[data-lp-result]')).toHaveText('Vous pouvez passer 1 section sur 4.');
+});
+
+test('reduced motion applies and new scene colours meet contrast', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' }); await open(page);
+  await expect(page.locator('.lp-choice').first()).toHaveCSS('transition-duration', '0s');
+  const [ink, paper] = await page.locator('.lp-test-out-icon').evaluate(el => [getComputedStyle(el).color, getComputedStyle(el).backgroundColor]);
+  const luminance = rgb => rgb.match(/\d+/g).slice(0, 3).map(Number).map(x => x / 255).map(x => x <= .04045 ? x / 12.92 : ((x + .055) / 1.055) ** 2.4).reduce((sum, x, i) => sum + x * [.2126, .7152, .0722][i], 0);
+  expect((luminance(paper) + .05) / (luminance(ink) + .05)).toBeGreaterThanOrEqual(3);
 });
 
 test('two questions group under their section, and hostile content stays literal', async ({ page }) => {

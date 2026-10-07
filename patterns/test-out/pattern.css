@@ -1,0 +1,22 @@
+/* Test-out specifics. Link lib/base.css first. Scene styles stay local until shared. */
+.lp-test-out-scene { display: flex; gap: 14px; align-items: flex-start; }
+.lp-test-out-icon { display: grid; place-items: center; flex: none; inline-size: 40px; block-size: 40px; border-radius: var(--lp-radius-control); color: var(--lp-accent-ink); background: var(--lp-accent-soft); }
+.lp-test-out-icon .lp-icon { inline-size: 22px; block-size: 22px; }
+.lp-test-out-scene .lp-stem { margin-block-start: 2px; }
+.lp-test-out-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 28px; }
+.lp-test-out-layout > * { min-inline-size: 0; margin-block-start: 0; }
+.lp-test-out-outline-list { display: grid; gap: 22px; margin-block-start: 16px; padding-inline-start: 24px; }
+.lp-test-out-outline-list li::marker { color: var(--lp-ink-2); font-size: var(--lp-type-small); }
+.lp-test-out-status { display: flex; gap: 6px; align-items: flex-start; margin-block-start: 6px; }
+.lp-test-out-status .lp-icon { margin-block-start: 2px; }
+.lp-test-out-questions > * + *, .lp-test-out-question-group > * + * { margin-block-start: 12px; }
+.lp-test-out-question-group:first-of-type { margin-block-start: 24px; }
+.lp-test-out-question-group .lp-stem { font-size: var(--lp-type-body); line-height: 1.4; }
+.lp-test-out .lp-choice > span:not(.lp-choice-mark) { white-space: pre-line; }
+.lp-test-out .lp-choice-mark { white-space: normal; }
+.lp-test-out-fallback-list { display: grid; gap: 20px; padding-inline-start: 24px; }
+.lp-test-out-fallback-list li > * + * { margin-block-start: 8px; }
+@container (max-width: 34rem) {
+  .lp-test-out-layout { grid-template-columns: minmax(0, 1fr); }
+  .lp-test-out-questions { padding-block-start: 24px; border-block-start: 1px solid var(--lp-rule); }
+}
