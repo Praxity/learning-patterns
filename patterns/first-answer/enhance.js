@@ -30,7 +30,7 @@ export function enhance(root, { content, strings, state }) {
     input: /** @type {HTMLTextAreaElement} */ (required('[data-lp-now-input]')), error: required('[data-lp-now-error]'),
     compare: required('[data-lp-compare]'), missing: required('[data-lp-missing]'), result: required('[data-lp-result]'),
     firstQuote: required('[data-lp-panel-first]'), firstDate: required('[data-lp-panel-first-date]'),
-    nowQuote: required('[data-lp-panel-now]'), nowDate: required('[data-lp-panel-now-date]'), summary: required('[data-lp-summary]')
+    retry: required('[data-lp-try-again]'), summary: required('[data-lp-summary]')
   };
   const course = stage === 'both' ? required('[data-lp-course]') : null;
   const skip = stage === 'both' ? required('[data-lp-skip]') : null;
@@ -47,6 +47,8 @@ export function enhance(root, { content, strings, state }) {
   let record = emptyState(content);
   let blocked = false;
   let endOpen = stage === 'end';
+  // Retrying edits a local draft; the saved now answer survives until Compare succeeds.
+  let editing = false;
   let destroyed = false;
   /** @type {(() => void)[]} */
   const removals = [];
@@ -91,11 +93,13 @@ export function enhance(root, { content, strings, state }) {
     if (end) {
       end.step.hidden = !endOpen;
       end.missing.hidden = record.first !== null;
-      end.result.hidden = record.now === null;
+      const locked = record.now !== null && !editing;
+      end.result.hidden = !locked;
+      end.input.readOnly = locked;
+      end.compare.hidden = locked;
+      end.retry.hidden = !locked;
       end.firstQuote.textContent = record.first?.text ?? strings.missing;
-      end.firstDate.textContent = record.first ? when(record.first.savedAt) : '';
-      end.nowQuote.textContent = record.now?.text ?? '';
-      end.nowDate.textContent = record.now ? when(record.now.savedAt) : '';
+      end.firstDate.textContent = record.first ? strings.firstPanel.replaceAll('{date}', when(record.first.savedAt)) : '';
       for (const box of boxes) box.checked = record.checks[box.value];
       end.summary.textContent = strings.summary.replaceAll('{count}', String(boxes.filter(box => box.checked).length)).replaceAll('{total}', String(content.checks.length));
       if (restoreDraft) end.input.value = record.now?.text ?? '';
@@ -149,9 +153,16 @@ export function enhance(root, { content, strings, state }) {
   });
   if (end) {
     listen(end.compare, 'click', () => {
+      if (blocked || (record.now && !editing)) return;
       const result = answer(end.input, end.error);
       if (!result.ok || !readHost()) return;
-      if (persist(withAnswerNow(content, record, result.text, new Date().toISOString()), strings.compared)) paint();
+      if (persist(withAnswerNow(content, record, result.text, new Date().toISOString()), strings.compared)) {
+        editing = false; paint();
+      }
+    });
+    listen(end.retry, 'click', () => {
+      if (!record.now || editing) return;
+      editing = true; paint(); end.input.focus();
     });
     for (const box of boxes) listen(box, 'change', () => {
       const checked = box.checked;
@@ -163,7 +174,7 @@ export function enhance(root, { content, strings, state }) {
   }
   listen(restart, 'click', () => {
     if (!persist(emptyState(content), strings.cleared)) return;
-    blocked = false; endOpen = stage === 'end';
+    blocked = false; endOpen = stage === 'end'; editing = false;
     firstInput.value = ''; fieldError(firstInput, firstError, '');
     if (end) { end.input.value = ''; fieldError(end.input, end.error, ''); }
     paint();
@@ -184,7 +195,7 @@ export function enhance(root, { content, strings, state }) {
         first.step.hidden = false; first.editor.hidden = false; first.saved.hidden = true;
         first.save.hidden = true; first.save.removeAttribute('aria-disabled');
       }
-      if (end) { end.step.hidden = true; end.result.hidden = true; fieldError(end.input, end.error, ''); }
+      if (end) { end.step.hidden = true; end.result.hidden = true; end.retry.hidden = true; end.input.readOnly = false; end.compare.hidden = false; fieldError(end.input, end.error, ''); }
       if (course) course.hidden = true;
       restart.hidden = true; showProblem(''); status.textContent = '';
       fieldError(firstInput, firstError, ''); instances.delete(root);
