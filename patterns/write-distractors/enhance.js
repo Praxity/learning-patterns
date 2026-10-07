@@ -1,5 +1,6 @@
 import { validateContent, validateOptions, validateState, coverage, coverageMessage, targetOf, OTHER, MAX_OPTION, MAX_CUSTOM } from './logic.js';
 import { escapeHtml as html } from '../../lib/html.js';
+import { icons } from '../../lib/icons.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
 const instances = new WeakMap();
@@ -84,14 +85,14 @@ export function enhance(root, { content, strings, state }) {
       .replaceAll('{ownExtra}', String(counts.ownExtra));
     /** @param {import('./logic.js').AuthorOption | import('./logic.js').LearnerOption} item */
     const targetLine = item => html(strings.targets.replaceAll('{target}', targetOf(content, item)));
-    result.innerHTML = `<p class="lp-write-distractors-summary" data-lp-summary data-lp-coverage>${html(message)}</p>
-      <p>${html(strings.comparisonNote)}</p>
-      <h2>${html(strings.author)}</h2>
-      <ul data-lp-author>${content.authorOptions.map(item => `<li><p>${html(item.text)}</p><p>${targetLine(item)}</p></li>`).join('')}</ul>
-      <h2>${html(strings.untargeted)}</h2>
-      <ul data-lp-untargeted>${(counts.untargeted.length ? counts.untargeted : [strings.none]).map(label => `<li>${html(label)}</li>`).join('')}</ul>
-      <h2>${html(strings.yours)}</h2>
-      <ul data-lp-yours>${values.map((item, index) => `<li><p>${html(item.text)}</p><p>${targetLine(item)}</p><p><span class="lp-write-distractors-mark" aria-hidden="true">${outcome.matches[index] ? '✓' : '○'}</span>${html(outcome.matches[index] ? strings.match : strings.noMatch)}</p></li>`).join('')}</ul>`;
+    result.innerHTML = `<p class="lp-run-in" data-lp-summary data-lp-coverage>${html(message)}</p>
+      <p class="lp-small">${html(strings.comparisonNote)}</p>
+      <h3 class="lp-run-in">${html(strings.author)}</h3>
+      <ul class="lp-write-distractors-list" data-lp-author>${content.authorOptions.map(item => `<li><p>${html(item.text)}</p><p class="lp-small">${targetLine(item)}</p></li>`).join('')}</ul>
+      <h3 class="lp-run-in">${html(strings.untargeted)}</h3>
+      <ul class="lp-write-distractors-list" data-lp-untargeted>${(counts.untargeted.length ? counts.untargeted : [strings.none]).map(label => `<li>${html(label)}</li>`).join('')}</ul>
+      <h3 class="lp-run-in">${html(strings.yours)}</h3>
+      <ul class="lp-write-distractors-list" data-lp-yours>${values.map((item, index) => `<li><p>${html(item.text)}</p><p class="lp-write-distractors-match ${outcome.matches[index] ? 'lp-met' : 'lp-neutral'}">${outcome.matches[index] ? icons.check : icons['circle-dashed']}<span>${html(outcome.matches[index] ? strings.match : strings.noMatch)}</span></p><p class="lp-small">${targetLine(item)}</p></li>`).join('')}</ul>`;
     result.hidden = false; clear.hidden = false; shown = true;
     // A single replacement announces each submit, including an identical comparison.
     if (announce) status.textContent = message;
@@ -119,9 +120,10 @@ export function enhance(root, { content, strings, state }) {
       hideResult();
       for (const error of checked.errors) {
         const field = fields[error.option];
-        field.errors[error.field].textContent = strings[error.code]
+        const message = strings[error.code]
           .replaceAll('{n}', String(error.option + 1))
           .replaceAll('{max}', String(error.field === 'text' ? MAX_OPTION : MAX_CUSTOM));
+        field.errors[error.field].innerHTML = `${icons['alert-circle']}<span>${html(message)}</span>`;
         field.errors[error.field].hidden = false;
         field.inputs[error.field].setAttribute('aria-invalid', 'true');
       }

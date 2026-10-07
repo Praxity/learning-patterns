@@ -5,8 +5,8 @@ export const strings = {
     option: 'Wrong option {n}', text: 'Your wrong option', misconception: 'Which misconception does it target?',
     chooseOne: 'Choose one', other: 'Something else', custom: 'Describe the misconception',
     compare: "Compare with the author's", author: "The author's wrong options", yours: 'Your wrong options',
-    targets: 'Targets: {target}', match: 'Targets the same misconception as an author option.',
-    noMatch: 'Targets a misconception the author options do not cover.',
+    targets: 'Targets: {target}', match: 'Same misconception as an author option',
+    noMatch: "A misconception the author's options don't cover",
     empty: 'Write wrong option {n}.', longText: 'Keep option {n} to {max} characters or fewer.',
     right: 'Option {n} is the right answer. Write a wrong one.', duplicate: 'Make option {n} different from your earlier options.',
     choose: 'Choose what option {n} targets.', describe: 'Describe the misconception for option {n}.',
@@ -16,7 +16,7 @@ export const strings = {
     coverageMany: "You targeted {authorTargeted} of the author's {authorTotal} misconceptions, and {ownExtra} of your own.",
     untargeted: "Misconceptions you didn't target", none: 'None.',
     comparisonNote: 'Your tags decide the comparison.',
-    clear: 'Clear', cleared: 'Options cleared.'
+    clear: 'Start over', cleared: 'Options cleared.'
   },
   fr: {
     question: 'Question', rightAnswer: 'Bonne réponse',
@@ -24,8 +24,8 @@ export const strings = {
     option: 'Mauvaise réponse {n}', text: 'Votre mauvaise réponse', misconception: 'Quelle idée fausse cible-t-elle?',
     chooseOne: 'Choisissez une idée fausse', other: 'Autre idée fausse', custom: 'Décrivez l\'idée fausse',
     compare: 'Comparer avec les réponses de l\'auteur', author: 'Les mauvaises réponses de l\'auteur', yours: 'Vos mauvaises réponses',
-    targets: 'Cible : {target}', match: 'Cible la même idée fausse qu\'une réponse de l\'auteur.',
-    noMatch: 'Cible une idée fausse que les réponses de l\'auteur ne couvrent pas.',
+    targets: 'Cible : {target}', match: 'Même idée fausse qu\'une réponse de l\'auteur',
+    noMatch: 'Une idée fausse que les réponses de l\'auteur ne couvrent pas',
     empty: 'Rédigez la mauvaise réponse {n}.', longText: 'Limitez la réponse {n} à {max} caractères.',
     right: 'La réponse {n} est la bonne réponse. Rédigez-en une mauvaise.', duplicate: 'La réponse {n} doit être différente de vos réponses précédentes.',
     choose: 'Choisissez ce que la réponse {n} cible.', describe: 'Décrivez l\'idée fausse pour la réponse {n}.',
@@ -35,7 +35,7 @@ export const strings = {
     coverageMany: 'Vous avez ciblé {authorTargeted} sur {authorTotal} idées fausses de l\'auteur, et {ownExtra} des vôtres.',
     untargeted: 'Idées fausses que vous n\'avez pas ciblées', none: 'Aucune.',
     comparisonNote: 'Vos étiquettes déterminent la comparaison.',
-    clear: 'Effacer', cleared: 'Réponses effacées.'
+    clear: 'Recommencer', cleared: 'Réponses effacées.'
   }
 };
 /** @typedef {typeof strings.en} Strings */

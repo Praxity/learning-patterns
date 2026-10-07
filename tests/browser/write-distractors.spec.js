@@ -119,7 +119,7 @@ for (const lang of ['en', 'fr']) {
     expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([message]);
     await expect(page.locator('[data-lp-summary] + p')).toHaveText(note);
     await expect(page.locator('[data-lp-result]').getByText(note, { exact: true })).toHaveCount(1);
-    expect(await page.locator('[data-lp-summary]').evaluate(el => getComputedStyle(el).fontWeight)).toBe('400');
+    expect(await page.locator('[data-lp-summary]').evaluate(el => getComputedStyle(el).fontWeight)).toBe('600');
     expect(await page.locator('[data-lp-summary] + p').evaluate(el => getComputedStyle(el).fontWeight)).toBe('400');
     await expect(page.locator('[data-lp-result]')).not.toContainText(lang === 'en' ? 'Compared' : 'comparées');
     await expect(page.getByRole('heading', { name: lang === 'en' ? "Misconceptions you didn't target" : "Idées fausses que vous n'avez pas ciblées" })).toBeVisible();
@@ -223,8 +223,9 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
       await expect(author.nth(index)).toContainText(content.misconceptions.find(target => target.id === item.misconception).label);
     }
     const yours = page.locator('[data-lp-yours] li');
-    await expect(yours.nth(0)).toContainText(lang === 'en' ? 'Targets the same misconception' : 'Cible la même idée fausse');
-    await expect(yours.nth(1)).toContainText(lang === 'en' ? 'do not cover' : 'ne couvrent pas');
+    await expect(yours.nth(0)).toContainText(lang === 'en' ? 'Same misconception as an author option' : "Même idée fausse qu'une réponse de l'auteur");
+    await expect(yours.nth(1)).toContainText(lang === 'en' ? "A misconception the author's options don't cover" : "Une idée fausse que les réponses de l'auteur ne couvrent pas");
+    await expect(page.locator('[data-lp-clear]')).toHaveAccessibleName(lang === 'en' ? 'Start over' : 'Recommencer');
     await expect(yours.locator('[aria-hidden="true"]')).toHaveCount(2);
     await expect(page.locator('[data-lp-summary]')).toHaveText(lang === 'en'
       ? "You targeted 1 of the author's 4 misconceptions, and 1 of your own."
@@ -382,7 +383,7 @@ test('result text escapes hostile learner input and custom tags', async ({ page 
   expect(await page.evaluate(() => window.lpInjected)).toBeUndefined();
 });
 
-test('forced colours keeps focus rings and distinct secondary button', async ({ page, browserName }) => {
+test('forced colours keeps focus rings and quiet Start over', async ({ page, browserName }) => {
   test.skip(browserName !== 'chromium', 'Forced colours emulation checked in Chromium.');
   await page.emulateMedia({ forcedColors: 'active' }); await open(page); await fill(page, true); await page.locator('[data-lp-compare]').click();
   for (const field of [page.locator('textarea').first(), page.locator('select').first(), page.locator('input').nth(1), page.locator('[data-lp-compare]'), page.locator('[data-lp-clear]')]) {
@@ -393,13 +394,15 @@ test('forced colours keeps focus rings and distinct secondary button', async ({ 
   const colors = await page.evaluate(() => {
     const probe = document.createElement('span'); document.body.append(probe);
     probe.style.color = 'ButtonText'; const text = getComputedStyle(probe).color;
-    probe.style.color = 'ButtonFace'; const face = getComputedStyle(probe).color; probe.remove(); return { text, face };
+    probe.style.color = 'ButtonFace'; const face = getComputedStyle(probe).color;
+    probe.style.color = 'LinkText'; const link = getComputedStyle(probe).color;
+    probe.remove(); return { text, face, link };
   });
   const styles = await page.locator('[data-lp-flow] button').evaluateAll(elements => elements.map(el => {
-    const css = getComputedStyle(el); return { color: css.color, background: css.backgroundColor, border: css.borderColor, style: css.borderStyle };
+    const css = getComputedStyle(el); return { color: css.color, background: css.backgroundColor, border: css.borderColor, style: css.borderStyle, underline: css.textDecorationLine };
   }));
   expect(styles).toEqual([
-    { color: colors.text, background: colors.face, border: colors.text, style: 'solid' },
-    { color: colors.text, background: colors.face, border: colors.text, style: 'dashed' }
+    { color: colors.text, background: colors.face, border: colors.text, style: 'solid', underline: 'none' },
+    { color: colors.link, background: colors.face, border: 'rgba(0, 0, 0, 0)', style: 'solid', underline: 'underline' }
   ]);
 });

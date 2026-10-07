@@ -21,7 +21,7 @@ Use it after learners have seen the right answer and can name common misconcepti
 2. Choose the misconception each option targets. "Something else" opens a field for your own description.
 3. Select "Compare with the author's". Errors appear beside their fields, focus moves to the first error, and the status announces the number of fields needing attention.
 4. Read how many author misconceptions you targeted and how many of your own you added. Below the author's options, a list shows the author misconceptions you did not target. Each of your options says whether its tag matches an author option.
-5. "Clear" appears after a successful comparison. It empties the fields and returns focus to the first textarea. Editing a field hides the comparison until you submit again.
+5. "Start over" appears after a successful comparison. It empties the fields and returns focus to the first textarea. Editing a field hides the comparison until you submit again.
 
 Without JavaScript, the question and right answer remain visible. Open "The author's wrong options" to read the options and their misconceptions.
 
@@ -43,15 +43,26 @@ All content fields are plain text. HTML characters are escaped.
 
 Strings must be nonempty. Unknown fields, duplicate IDs, and unknown author references throw errors naming the field. The schema annotations `x-uniqueBy` and `x-reference` document relational checks. Use `validateContent` alongside an ordinary JSON Schema validator for these checks.
 
-Praxity Studio imports `logic.js`, `content.schema.json` and `strings.js` without DOM code. `validateOptions(content, options)` returns either `{ ok: true, options }` with normalized text, or `{ ok: false, errors }`. Each error has `{ option, field, code }`, with a zero-based option index. All submitted options have `{ text, misconception, custom }`. Named targets use an empty `custom` string. Limits are 300 characters for options and 120 for custom tags, checked before normalization. Comparison rejects the right answer and repeated options after case and whitespace normalization.
+## Logic
 
-`coverage(content, options)` returns `{ targeted, missed, extra, matches }`. It compares labels after case and whitespace normalization, so a custom tag that repeats an authored label matches it. `missed` now lists only unique targets from the author's options that the learner did not target, rather than every unused label in `misconceptions`. `extra` lists unique learner targets the author's options do not cover. `matches` keeps one boolean per learner option.
+`logic.js` has no DOM code. Hosts can use these functions to build their own interface.
 
-`coverageMessage(content, options)` now returns `{ authorTargeted, authorTotal, ownExtra, untargeted }`. It takes no strings argument and returns no formatted text. `authorTotal` counts unique targets in the author's options. `authorTargeted` counts how many of those the learner targeted. `ownExtra` counts unique learner targets outside the author's options. `untargeted` contains the same labels as `coverage().missed`, in author-option order. Duplicate tags count once, including custom aliases. The enhancer formats these counts with `coverageOne` or `coverageMany` from `strings.js`, then lists the untargeted labels or `None.`. These replace the earlier targeted, missed, addition and closing-summary strings.
+| Function | Returns |
+| --- | --- |
+| `validateContent(content)` | Nothing. Throws an `Error` naming the first bad field. |
+| `validateOptions(content, options)` | `{ ok: true, options }` with clean text, or `{ ok: false, errors }`. Each error has `{ option, field, code }`, with a zero-based option index. |
+| `targetOf(content, option)` | The named target's label or the learner's custom description. Throws for an unknown target. |
+| `coverage(content, options)` | `{ targeted, missed, extra, matches }`. The first three fields hold unique target labels. `matches` holds one boolean per learner option. |
+| `coverageMessage(content, options)` | `{ authorTargeted, authorTotal, ownExtra, untargeted }`. Counts unique targets in the author's options and the learner's extra targets. `untargeted` holds missed author labels in author-option order. |
+| `validateState(content, value)` | A copy of valid `{ options, shown }` state, or `null` for invalid state. |
+
+Each submitted option has `{ text, misconception, custom }`. Named targets use an empty `custom` string. Exported constants `MAX_OPTION`, `MAX_CUSTOM` and `OTHER` are `300`, `120` and `'other'`. Length checks run before trimming and collapsing whitespace. Comparison rejects the right answer and duplicate options after ignoring case and extra whitespace.
+
+Coverage compares tags after ignoring case and extra whitespace. A custom tag that repeats an authored label matches it. Duplicate tags count once. `missed` lists only targets from the author's options; `extra` lists learner targets those options do not cover. The enhancer formats counts with `coverageOne` or `coverageMany`, then lists missed labels or "None."
 
 ## Use it
 
-Copy this folder and `lib/`, keeping their relative paths. Load `pattern.css` and render on your server.
+Copy this folder and `lib/`, keeping their relative paths. Link `lib/base.css`, then `patterns/write-distractors/pattern.css`. Render on your server with a unique id prefix for each instance.
 
 ```js
 import { render } from './patterns/write-distractors/render.js';
@@ -71,13 +82,13 @@ const instance = enhance(document.querySelector('[data-lp-pattern="write-distrac
 instance.destroy();
 ```
 
-The optional state adapter stores `{ options: [{ text, misconception, custom }], shown }`. It saves drafts on input and selection, normalized options on success, and empty options on clear. The host decides how to collect submissions for the author. This pattern uses no localStorage and keeps no suggestion list. Invalid state is ignored. Valid results restore without announcements. State adapter errors propagate to the host. Repeated enhancement returns the same instance.
+The optional state adapter stores `{ options: [{ text, misconception, custom }], shown }`. It saves drafts on input and selection, normalized options on success, and empty options on Start over. The host decides how to collect submissions for the author. This pattern uses no localStorage and keeps no suggestion list. Invalid state is ignored. Valid results restore without announcements. State adapter errors propagate to the host. Repeated enhancement returns the same instance.
 
-Override the root's `--lp-*` tokens for colours, spacing, radius, fonts and focus. See the root README for the token defaults.
+Override the root's `--lp-*` tokens for colours, radius, fonts and focus. See the root README for the token defaults.
 
 ## Accessibility
 
-Each option has a fieldset and legend. Every field has a visible label and an error linked through `aria-describedby`. The selected misconception stays in the native select. Results repeat its full label. The single status region starts empty and announces the short coverage summary once per submission. Successful comparison keeps focus on the submit button. Clear returns focus to the first textarea. Results show the summary and a note about tag comparison, the author's options, untargeted misconceptions, and your options with text and decorative icons.
+Each option has a borderless fieldset and legend. Every field has a visible label and an error linked through `aria-describedby`. Errors use an alert icon beside the message. The selected misconception stays in the native select. Results repeat its full label. The single status region starts empty and announces the short coverage summary once per submission. Successful comparison keeps focus on the submit button. Start over returns focus to the first textarea. Results show the summary and a note about tag comparison, the author's options, untargeted misconceptions, and your options. Each learner option shows a check or dashed circle beside its match label, followed by its target.
 
 The English and French examples, two-instance page, errors, results, state restoration and native fallback have automated axe and keyboard checks in Chromium, Firefox and WebKit. Checks cover 320 CSS pixels with text spacing, equivalent to reflow at 400% zoom from 1280 pixels, and Chromium forced colours. Human screen-reader passes remain a separate check. There are no time limits or animations.
 
