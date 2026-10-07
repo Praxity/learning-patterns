@@ -192,6 +192,16 @@ test('reset keeps Check text at AA contrast throughout its colour change', async
   expect(Math.min(...ratios)).toBeGreaterThanOrEqual(4.5);
 });
 
+test('narrow French feedback sits below option text without squeezing it', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 900 }); await open(page, '/test-out/fr.html');
+  await pick(page); await page.locator('[data-lp-check]').click();
+  for (const row of await page.locator('[data-lp-mark]').all()) {
+    const text = await row.locator(':scope > span:not(.lp-choice-mark)').boundingBox();
+    const mark = await row.locator('.lp-choice-mark').boundingBox();
+    expect(mark.y).toBeGreaterThanOrEqual(text.y + text.height);
+  }
+});
+
 test('two questions group under their section, and hostile content stays literal', async ({ page }) => {
   await open(page);
   const content = structuredClone(english);

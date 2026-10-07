@@ -21,4 +21,6 @@
 @container (max-width: 34rem) {
   .lp-test-out-layout { grid-template-columns: minmax(0, 1fr); }
   .lp-test-out-questions { padding-block-start: 24px; border-block-start: 1px solid var(--lp-rule); }
+  .lp-test-out .lp-choice[data-lp-mark] { display: grid; grid-template-columns: auto minmax(0, 1fr); row-gap: 6px; }
+  .lp-test-out .lp-choice-mark { grid-column: 2; justify-self: start; margin-inline-start: 0; }
 }
