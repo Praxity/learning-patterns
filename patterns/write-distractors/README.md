@@ -20,7 +20,7 @@ Use it after learners have seen the right answer and can name common misconcepti
 1. Read the question and right answer. Write the requested number of wrong options.
 2. Choose the misconception each option targets. "Something else" opens a field for your own description.
 3. Select "Compare with the author's". Errors appear beside their fields, focus moves to the first error, and the status announces the number of fields needing attention.
-4. Read which misconceptions you targeted and left untargeted, plus any the author did not cover. Compare the author's options and your own. Each of yours says whether its tag matches an author option.
+4. Read how many author misconceptions you targeted and how many of your own you added. Below the author's options, a list shows the author misconceptions you did not target. Each of your options says whether its tag matches an author option.
 5. "Clear" appears after a successful comparison. It empties the fields and returns focus to the first textarea. Editing a field hides the comparison until you submit again.
 
 Without JavaScript, the question and right answer remain visible. Open "The author's wrong options" to read the options and their misconceptions.
@@ -45,7 +45,9 @@ Strings must be nonempty. Unknown fields, duplicate IDs, and unknown author refe
 
 Praxity Studio imports `logic.js`, `content.schema.json` and `strings.js` without DOM code. `validateOptions(content, options)` returns either `{ ok: true, options }` with normalized text, or `{ ok: false, errors }`. Each error has `{ option, field, code }`, with a zero-based option index. All submitted options have `{ text, misconception, custom }`. Named targets use an empty `custom` string. Limits are 300 characters for options and 120 for custom tags, checked before normalization. Comparison rejects the right answer and repeated options after case and whitespace normalization.
 
-`coverage(content, options)` returns `{ targeted, missed, extra, matches }`. It compares normalized labels, so a custom tag that repeats an authored label matches it. `missed` lists the authored misconceptions the learner did not target; `extra` lists learner targets the author's options do not cover. `coverageMessage(content, options, strings)` formats this result. The demo's "same ones" message now says the author covers every learner target, which remains accurate for a subset. Arbitrary counts support more than two additions.
+`coverage(content, options)` returns `{ targeted, missed, extra, matches }`. It compares labels after case and whitespace normalization, so a custom tag that repeats an authored label matches it. `missed` now lists only unique targets from the author's options that the learner did not target, rather than every unused label in `misconceptions`. `extra` lists unique learner targets the author's options do not cover. `matches` keeps one boolean per learner option.
+
+`coverageMessage(content, options)` now returns `{ authorTargeted, authorTotal, ownExtra, untargeted }`. It takes no strings argument and returns no formatted text. `authorTotal` counts unique targets in the author's options. `authorTargeted` counts how many of those the learner targeted. `ownExtra` counts unique learner targets outside the author's options. `untargeted` contains the same labels as `coverage().missed`, in author-option order. Duplicate tags count once, including custom aliases. The enhancer formats these counts with `coverageOne` or `coverageMany` from `strings.js`, then lists the untargeted labels or `None.`. These replace the earlier targeted, missed, addition and closing-summary strings.
 
 ## Use it
 
@@ -75,7 +77,7 @@ Override the root's `--lp-*` tokens for colours, spacing, radius, fonts and focu
 
 ## Accessibility
 
-Each option has a fieldset and legend. Every field has a visible label and an error linked through `aria-describedby`. A wrapped line repeats the selected misconception so a long native select label remains readable at narrow widths. The single status region starts empty and announces one coverage message per submission. Successful comparison keeps focus on the submit button. Clear returns focus to the first textarea. Results include text and decorative icons, with a short closing summary.
+Each option has a fieldset and legend. Every field has a visible label and an error linked through `aria-describedby`. The selected misconception stays in the native select. Results repeat its full label. The single status region starts empty and announces the short coverage summary once per submission. Successful comparison keeps focus on the submit button. Clear returns focus to the first textarea. Results show the summary and a note about tag comparison, the author's options, untargeted misconceptions, and your options with text and decorative icons.
 
 The English and French examples, two-instance page, errors, results, state restoration and native fallback have automated axe and keyboard checks in Chromium, Firefox and WebKit. Checks cover 320 CSS pixels with text spacing, equivalent to reflow at 400% zoom from 1280 pixels, and Chromium forced colours. Human screen-reader passes remain a separate check. There are no time limits or animations.
 

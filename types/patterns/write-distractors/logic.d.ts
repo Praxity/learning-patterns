@@ -20,13 +20,21 @@ export function targetOf(content: Content, option: AuthorOption | LearnerOption)
  * @param {Content} content @param {LearnerOption[]} options
  */
 export function coverage(content: Content, options: LearnerOption[]): {
-    targeted: any[];
+    targeted: string[];
     missed: string[];
-    extra: any[];
+    extra: string[];
     matches: boolean[];
 };
-/** @param {Content} content @param {LearnerOption[]} options @param {import('./strings.js').Strings} strings */
-export function coverageMessage(content: Content, options: LearnerOption[], strings: import("./strings.js").Strings): string;
+/** Return comparison counts and labels; the host formats learner-facing text.
+ * @param {Content} content @param {LearnerOption[]} options
+ * @returns {{ authorTargeted: number, authorTotal: number, ownExtra: number, untargeted: string[] }}
+ */
+export function coverageMessage(content: Content, options: LearnerOption[]): {
+    authorTargeted: number;
+    authorTotal: number;
+    ownExtra: number;
+    untargeted: string[];
+};
 /** Accept incomplete drafts; shown results must pass submission validation.
  * @param {Content} content @param {unknown} value @returns {LearnerState | null}
  */

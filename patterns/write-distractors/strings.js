@@ -12,12 +12,10 @@ export const strings = {
     choose: 'Choose what option {n} targets.', describe: 'Describe the misconception for option {n}.',
     longCustom: 'Keep the misconception for option {n} to {max} characters or fewer.',
     errorsOne: '1 field needs attention.', errorsMany: '{count} fields need attention.',
-    targeted: 'You targeted: {targets}.', missed: 'Not targeted: {targets}.', none: 'none',
-    same: 'The author covers all the misconceptions you targeted.',
-    extraOne: 'The author doesn\'t cover {targets}. Yours adds it.',
-    extraTwo: 'The author doesn\'t cover {targets}. Yours adds both.',
-    extraMany: 'The author doesn\'t cover {targets}. Yours adds them.', or: ' or ',
-    summary: 'Compared {count} wrong options. The comparison uses your misconception tags.',
+    coverageOne: "You targeted {authorTargeted} of the author's {authorTotal} misconception, and {ownExtra} of your own.",
+    coverageMany: "You targeted {authorTargeted} of the author's {authorTotal} misconceptions, and {ownExtra} of your own.",
+    untargeted: "Misconceptions you didn't target", none: 'None.',
+    comparisonNote: 'Your tags decide the comparison.',
     clear: 'Clear', cleared: 'Options cleared.'
   },
   fr: {
@@ -33,12 +31,10 @@ export const strings = {
     choose: 'Choisissez ce que la réponse {n} cible.', describe: 'Décrivez l\'idée fausse pour la réponse {n}.',
     longCustom: 'Limitez l\'idée fausse de la réponse {n} à {max} caractères.',
     errorsOne: '1 champ demande votre attention.', errorsMany: '{count} champs demandent votre attention.',
-    targeted: 'Vous avez ciblé : {targets}.', missed: 'Non ciblées : {targets}.', none: 'aucune',
-    same: 'L\'auteur couvre toutes les idées fausses que vous avez ciblées.',
-    extraOne: 'L\'auteur ne couvre pas {targets}. Votre réponse l\'ajoute.',
-    extraTwo: 'L\'auteur ne couvre pas {targets}. Vos réponses ajoutent les deux.',
-    extraMany: 'L\'auteur ne couvre pas {targets}. Vos réponses les ajoutent.', or: ' ou ',
-    summary: '{count} mauvaises réponses comparées. La comparaison utilise les idées fausses que vous avez indiquées.',
+    coverageOne: 'Vous avez ciblé {authorTargeted} sur {authorTotal} idée fausse de l\'auteur, et {ownExtra} des vôtres.',
+    coverageMany: 'Vous avez ciblé {authorTargeted} sur {authorTotal} idées fausses de l\'auteur, et {ownExtra} des vôtres.',
+    untargeted: 'Idées fausses que vous n\'avez pas ciblées', none: 'Aucune.',
+    comparisonNote: 'Vos étiquettes déterminent la comparaison.',
     clear: 'Effacer', cleared: 'Réponses effacées.'
   }
 };

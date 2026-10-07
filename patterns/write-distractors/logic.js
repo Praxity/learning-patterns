@@ -103,26 +103,38 @@ export function targetOf(content, option) {
 export function coverage(content, options) {
   const checked = validateOptions(content, options);
   if (!checked.ok) throw new Error('Invalid options for coverage');
-  const author = new Set(content.authorOptions.map(item => key(targetOf(content, item))));
+  /** @type {Map<string, string>} */
+  const author = new Map();
+  for (const item of content.authorOptions) {
+    const target = targetOf(content, item);
+    if (!author.has(key(target))) author.set(key(target), target);
+  }
   const targets = checked.options.map(item => targetOf(content, item));
+  /** @type {Map<string, string>} */
   const unique = new Map();
   // Preserve the first spelling when two custom tags name the same misconception.
   for (const target of targets) if (!unique.has(key(target))) unique.set(key(target), target);
   return {
     targeted: [...unique.values()],
-    missed: content.misconceptions.filter(item => !unique.has(key(item.label))).map(item => item.label),
+    missed: [...author].filter(([name]) => !unique.has(name)).map(([, label]) => label),
     extra: [...unique].filter(([name]) => !author.has(name)).map(([, label]) => label),
     matches: targets.map(target => author.has(key(target)))
   };
 }
 
-/** @param {Content} content @param {LearnerOption[]} options @param {import('./strings.js').Strings} strings */
-export function coverageMessage(content, options, strings) {
+/** Return comparison counts and labels; the host formats learner-facing text.
+ * @param {Content} content @param {LearnerOption[]} options
+ * @returns {{ authorTargeted: number, authorTotal: number, ownExtra: number, untargeted: string[] }}
+ */
+export function coverageMessage(content, options) {
   const result = coverage(content, options);
-  const quoted = result.extra.map(target => `"${target}"`);
-  const template = quoted.length === 0 ? strings.same : quoted.length === 1 ? strings.extraOne : quoted.length === 2 ? strings.extraTwo : strings.extraMany;
-  const extra = template.replaceAll('{targets}', quoted.join(strings.or));
-  return `${strings.targeted.replaceAll('{targets}', result.targeted.join('; '))} ${strings.missed.replaceAll('{targets}', result.missed.join('; ') || strings.none)} ${extra}`;
+  const authorTargeted = result.targeted.length - result.extra.length;
+  return {
+    authorTargeted,
+    authorTotal: authorTargeted + result.missed.length,
+    ownExtra: result.extra.length,
+    untargeted: result.missed
+  };
 }
 
 /** Accept incomplete drafts; shown results must pass submission validation.

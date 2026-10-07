@@ -102,17 +102,30 @@ test('coverage identifies targeted, missed, extra and matching targets without r
   assert.throws(() => coverage(content, [option('', '') , option()]), /Invalid options/);
 });
 
-test('coverage messages retain demo additions, fix subset wording and describe omissions', () => {
-  const message = coverageMessage(content, [option('A'), option('B', 'phone')], strings.en);
-  assert.ok(message.includes('The author covers all the misconceptions you targeted.'));
-  assert.ok(message.includes('Not targeted: Breaks are for people'));
-  const one = coverageMessage(content, [option('A', 'other', 'Focus lost'), option('B')], strings.en);
-  assert.ok(one.includes('The author doesn\'t cover "Focus lost". Yours adds it.'));
-  const two = coverageMessage(content, [option('A', 'other', 'Focus lost'), option('B', 'other', 'Rest earned')], strings.en);
-  assert.ok(two.includes('The author doesn\'t cover "Focus lost" or "Rest earned". Yours adds both.'));
-  const many = coverageMessage({ ...content, count: 3 }, [option('A', 'other', 'X'), option('B', 'other', 'Y'), option('C', 'other', 'Z')], strings.en);
-  assert.ok(many.includes('Yours adds them.'));
-  assert.ok(coverageMessage({ ...content, count: 4 }, content.authorOptions.map(item => option(item.text, item.misconception)), strings.fr).includes('Non ciblées : aucune.'));
+test('coverageMessage returns counts and untargeted author labels without formatting strings', () => {
+  assert.deepEqual(coverageMessage(content, [option('A'), option('B', 'other', 'Focus lost')]), {
+    authorTargeted: 1, authorTotal: 4, ownExtra: 1,
+    untargeted: [content.misconceptions[0].label, content.misconceptions[2].label, content.misconceptions[3].label]
+  });
+  assert.deepEqual(coverageMessage(content, [option('A', 'other', 'Focus lost'), option('B', 'other', 'focus  LOST')]), {
+    authorTargeted: 0, authorTotal: 4, ownExtra: 1, untargeted: content.misconceptions.map(item => item.label)
+  });
+  assert.deepEqual(coverageMessage({ ...content, count: 4 }, content.authorOptions.map(item => option(item.text, item.misconception))), {
+    authorTargeted: 4, authorTotal: 4, ownExtra: 0, untargeted: []
+  });
+  assert.equal(coverageMessage({ ...content, count: 3 }, [option('A', 'other', 'X'), option('B', 'other', 'Y'), option('C', 'other', 'Z')]).ownExtra, 3);
+});
+
+test('coverage counts unique normalized author targets rather than the whole taxonomy', () => {
+  const partial = { ...content, authorOptions: [content.authorOptions[0], { text: 'Another busy answer', misconception: 'busy' }] };
+  assert.deepEqual(coverageMessage(partial, [option('A'), option('B', 'phone')]), {
+    authorTargeted: 0, authorTotal: 1, ownExtra: 2, untargeted: [content.misconceptions[0].label]
+  });
+  assert.deepEqual(coverage(partial, [option('A'), option('B', 'phone')]).missed, [content.misconceptions[0].label]);
+  const aliases = { ...partial, misconceptions: [...content.misconceptions, { id: 'alias', label: "  BREAKS are for people who aren't busy  " }], authorOptions: [...partial.authorOptions, { text: 'Alias answer', misconception: 'alias' }] };
+  assert.deepEqual(coverageMessage(aliases, [option('A', 'alias'), option('B', 'other', "BREAKS are for people who aren't BUSY")]), {
+    authorTargeted: 1, authorTotal: 1, ownExtra: 0, untargeted: []
+  });
 });
 
 test('state copies drafts, rejects bad shapes and requires a valid shown submission', () => {
@@ -145,6 +158,7 @@ test('render escapes text and attributes, prefixes IDs, supplies field associati
   assert.equal((a.match(/maxlength="120"/g) || []).length, 2);
   assert.ok(a.includes('<details')); assert.ok(a.includes('data-lp-flow hidden'));
   assert.match(a, /data-lp-clear hidden/);
+  assert.ok(!a.includes('data-lp-selected'));
   for (const item of content.authorOptions) assert.ok(a.includes(item.text.replaceAll("'", '&#39;')));
 });
 

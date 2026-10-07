@@ -42,8 +42,6 @@
   font: inherit;
 }
 .lp-write-distractors textarea { min-height: 6rem; resize: vertical; }
-/* Native single-line selects clip long labels. The selected label is repeated below. */
-.lp-write-distractors-selected { color: var(--lp-muted); }
 .lp-write-distractors-error { color: var(--lp-error); }
 .lp-write-distractors-button {
   min-height: 44px;
@@ -65,7 +63,6 @@
 .lp-write-distractors ul { padding-inline-start: calc(var(--lp-space) * 1.5); }
 .lp-write-distractors li { margin-block: var(--lp-space); }
 .lp-write-distractors-mark { display: inline-block; margin-inline-end: calc(var(--lp-space) / 2); }
-.lp-write-distractors-summary, .lp-write-distractors-coverage { font-weight: 600; }
 .lp-write-distractors .lp-write-distractors-status {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip-path: inset(50%); white-space: nowrap;

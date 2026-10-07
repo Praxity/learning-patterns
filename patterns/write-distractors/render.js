@@ -22,7 +22,6 @@ export function render(content, strings, { id, lang }) {
       ${content.misconceptions.map(item => `<option value="${html(item.id)}">${html(item.label)}</option>`).join('\n      ')}
       <option value="${OTHER}">${html(strings.other)}</option>
     </select>
-    <p class="lp-write-distractors-selected" data-lp-selected hidden></p>
     <p class="lp-write-distractors-error" id="${fieldId('misconception-error')}" data-lp-misconception-error hidden></p>
     <div data-lp-custom-wrap hidden>
       <label for="${fieldId('custom')}">${html(strings.custom)}</label>

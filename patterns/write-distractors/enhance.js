@@ -36,8 +36,7 @@ export function enhance(root, { content, strings, state }) {
       misconception: /** @type {HTMLElement} */ (required(row, '[data-lp-misconception-error]')),
       custom: /** @type {HTMLElement} */ (required(row, '[data-lp-custom-error]'))
     },
-    customWrap: /** @type {HTMLElement} */ (required(row, '[data-lp-custom-wrap]')),
-    selected: /** @type {HTMLElement} */ (required(row, '[data-lp-selected]'))
+    customWrap: /** @type {HTMLElement} */ (required(row, '[data-lp-custom-wrap]'))
   }));
   // A throwing host read must not leave partially registered listeners.
   const saved = validateState(content, state?.read());
@@ -69,8 +68,6 @@ export function enhance(root, { content, strings, state }) {
     const field = fields[index];
     const value = field.inputs.misconception.value;
     field.customWrap.hidden = value !== OTHER;
-    field.selected.hidden = value === '' || value === OTHER;
-    field.selected.textContent = field.selected.hidden ? '' : strings.targets.replaceAll('{target}', targetOf(content, { text: '', misconception: value }));
   }
   function hideResult() {
     shown = false;
@@ -80,15 +77,21 @@ export function enhance(root, { content, strings, state }) {
   /** @param {import('./logic.js').LearnerOption[]} values @param {boolean} announce */
   function show(values, announce) {
     const outcome = coverage(content, values);
-    const message = coverageMessage(content, values, strings);
+    const counts = coverageMessage(content, values);
+    const message = (counts.authorTotal === 1 ? strings.coverageOne : strings.coverageMany)
+      .replaceAll('{authorTargeted}', String(counts.authorTargeted))
+      .replaceAll('{authorTotal}', String(counts.authorTotal))
+      .replaceAll('{ownExtra}', String(counts.ownExtra));
     /** @param {import('./logic.js').AuthorOption | import('./logic.js').LearnerOption} item */
     const targetLine = item => html(strings.targets.replaceAll('{target}', targetOf(content, item)));
-    result.innerHTML = `<p class="lp-write-distractors-coverage" data-lp-coverage>${html(message)}</p>
+    result.innerHTML = `<p class="lp-write-distractors-summary" data-lp-summary data-lp-coverage>${html(message)}</p>
+      <p>${html(strings.comparisonNote)}</p>
       <h2>${html(strings.author)}</h2>
       <ul data-lp-author>${content.authorOptions.map(item => `<li><p>${html(item.text)}</p><p>${targetLine(item)}</p></li>`).join('')}</ul>
+      <h2>${html(strings.untargeted)}</h2>
+      <ul data-lp-untargeted>${(counts.untargeted.length ? counts.untargeted : [strings.none]).map(label => `<li>${html(label)}</li>`).join('')}</ul>
       <h2>${html(strings.yours)}</h2>
-      <ul data-lp-yours>${values.map((item, index) => `<li><p>${html(item.text)}</p><p>${targetLine(item)}</p><p><span class="lp-write-distractors-mark" aria-hidden="true">${outcome.matches[index] ? '✓' : '○'}</span>${html(outcome.matches[index] ? strings.match : strings.noMatch)}</p></li>`).join('')}</ul>
-      <p class="lp-write-distractors-summary" data-lp-summary>${html(strings.summary.replaceAll('{count}', String(values.length)))}</p>`;
+      <ul data-lp-yours>${values.map((item, index) => `<li><p>${html(item.text)}</p><p>${targetLine(item)}</p><p><span class="lp-write-distractors-mark" aria-hidden="true">${outcome.matches[index] ? '✓' : '○'}</span>${html(outcome.matches[index] ? strings.match : strings.noMatch)}</p></li>`).join('')}</ul>`;
     result.hidden = false; clear.hidden = false; shown = true;
     // A single replacement announces each submit, including an identical comparison.
     if (announce) status.textContent = message;

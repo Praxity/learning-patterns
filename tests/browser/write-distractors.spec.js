@@ -32,7 +32,7 @@ async function observe(page) {
   });
 }
 
-test('controls reveal in place, custom field toggles and selected labels wrap', async ({ page }) => {
+test('controls reveal in place, custom field toggles without a live Targets line', async ({ page }) => {
   await open(page);
   await expect(page.locator('[data-lp-flow]')).toBeVisible();
   await expect(page.locator('[data-lp-fallback]')).toBeHidden();
@@ -46,7 +46,8 @@ test('controls reveal in place, custom field toggles and selected labels wrap', 
   await row.locator('input').fill('My tag');
   await row.locator('select').selectOption('phone');
   await expect(row.locator('input')).toBeHidden();
-  await expect(row.locator('[data-lp-selected]')).toHaveText(`Targets: ${english.misconceptions[2].label}`);
+  await expect(row.locator('[data-lp-selected]')).toHaveCount(0);
+  await expect(row).not.toContainText('Targets:');
   await row.locator('select').selectOption('other');
   await expect(row.locator('input')).toHaveValue('My tag');
 });
@@ -67,6 +68,68 @@ test('empty submit announces field count, links each error and focuses first tex
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['4 fields need attention.']);
   await expect(page.locator('[data-lp-clear]')).toBeHidden();
 });
+
+for (const lang of ['en', 'fr']) {
+  test(`coverage summary and untargeted list appear once with per-option targets (${lang})`, async ({ page }) => {
+    const content = lang === 'en' ? english : french;
+    await open(page, lang); await observe(page); await fill(page, true);
+    expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
+    await page.locator('[data-lp-compare]').click();
+    const message = lang === 'en' ? "You targeted 1 of the author's 4 misconceptions, and 1 of your own."
+      : "Vous avez ciblé 1 sur 4 idées fausses de l'auteur, et 1 des vôtres.";
+    const note = lang === 'en' ? 'Your tags decide the comparison.' : 'Vos étiquettes déterminent la comparaison.';
+    await expect(page.locator('[data-lp-summary]')).toHaveText(message);
+    await expect(page.locator('[role="status"]')).toHaveText(message);
+    expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([message]);
+    await expect(page.locator('[data-lp-summary] + p')).toHaveText(note);
+    await expect(page.locator('[data-lp-result]').getByText(note, { exact: true })).toHaveCount(1);
+    expect(await page.locator('[data-lp-summary]').evaluate(el => getComputedStyle(el).fontWeight)).toBe('400');
+    expect(await page.locator('[data-lp-summary] + p').evaluate(el => getComputedStyle(el).fontWeight)).toBe('400');
+    await expect(page.locator('[data-lp-result]')).not.toContainText(lang === 'en' ? 'Compared' : 'comparées');
+    await expect(page.getByRole('heading', { name: lang === 'en' ? "Misconceptions you didn't target" : "Idées fausses que vous n'avez pas ciblées" })).toBeVisible();
+    await expect(page.locator('[data-lp-untargeted] > li')).toHaveText([content.misconceptions[0].label, content.misconceptions[2].label, content.misconceptions[3].label]);
+    const sections = await page.locator('[data-lp-result]').evaluate(el => [...el.children].map(child => child.matches('[data-lp-author]') ? 'author' : child.matches('[data-lp-untargeted]') ? 'untargeted' : child.matches('[data-lp-yours]') ? 'yours' : 'other'));
+    expect(sections.indexOf('untargeted')).toBeGreaterThan(sections.indexOf('author'));
+    expect(sections.indexOf('yours')).toBeGreaterThan(sections.indexOf('untargeted'));
+    await expect(page.locator('[data-lp-author] > li > p:nth-child(2)')).toHaveText(content.misconceptions.map(item => `${lang === 'en' ? 'Targets:' : 'Cible :'} ${item.label}`));
+    await expect(page.locator('[data-lp-yours] [aria-hidden="true"]')).toHaveCount(2);
+  });
+
+  for (const fixture of [
+    { name: 'zero author, two own', author: 0, total: 4, own: 2, targets: ['other', 'other'], customs: ['New one', 'New two'] },
+    { name: 'two author, zero own', author: 2, total: 4, own: 0, targets: ['busy', 'phone'] },
+    { name: 'one author with duplicate tags and a custom alias', author: 1, total: 1, own: 0, targets: ['busy', 'other'], alias: true },
+    { name: 'zero of one author, repeated own tag', author: 0, total: 1, own: 1, targets: ['other', 'other'], customs: ['New tag', ' new TAG '] }
+  ]) {
+    test(`count grammar and unique author coverage: ${fixture.name} (${lang})`, async ({ page }) => {
+      const original = lang === 'en' ? english : french;
+      const content = { ...original, authorOptions: fixture.total === 1 ? [original.authorOptions[0], { ...original.authorOptions[0], text: 'Another author option' }] : original.authorOptions };
+      await open(page, lang);
+      await page.evaluate(async ({ content, lang }) => {
+        const { render } = await import('/patterns/write-distractors/render.js');
+        const { enhance } = await import('/patterns/write-distractors/enhance.js');
+        const { strings } = await import('/patterns/write-distractors/strings.js');
+        window.lpInstances[0].destroy();
+        document.querySelector('[data-lp-pattern]').outerHTML = render(content, strings[lang], { id: 'counts', lang });
+        enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings[lang] });
+      }, { content, lang });
+      await observe(page);
+      for (let index = 0; index < 2; index++) {
+        const row = page.locator('[data-lp-option]').nth(index);
+        await row.locator('textarea').fill(`Wrong answer ${index + 1}`);
+        await row.locator('select').selectOption(fixture.targets[index]);
+        if (fixture.targets[index] === 'other') await row.locator('input').fill(fixture.alias ? `  ${content.misconceptions[0].label.toUpperCase()}  ` : fixture.customs[index]);
+      }
+      await page.locator('[data-lp-compare]').click();
+      const message = lang === 'en' ? `You targeted ${fixture.author} of the author's ${fixture.total} ${fixture.total === 1 ? 'misconception' : 'misconceptions'}, and ${fixture.own} of your own.`
+        : `Vous avez ciblé ${fixture.author} sur ${fixture.total} ${fixture.total === 1 ? 'idée fausse' : 'idées fausses'} de l'auteur, et ${fixture.own} des vôtres.`;
+      await expect(page.locator('[data-lp-summary]')).toHaveText(message);
+      expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([message]);
+      const missed = content.authorOptions.map(item => content.misconceptions.find(target => target.id === item.misconception).label);
+      await expect(page.locator('[data-lp-untargeted] > li')).toHaveText(fixture.total === 1 ? fixture.author === 1 ? [lang === 'en' ? 'None.' : 'Aucune.'] : [missed[0]] : fixture.author === 0 ? missed : [original.misconceptions[1].label, original.misconceptions[3].label]);
+    });
+  }
+}
 
 test('keyboard-only error, custom tag, comparison, repeated announcement and clear', async ({ page }) => {
   await open(page); await observe(page);
@@ -89,7 +152,7 @@ test('keyboard-only error, custom tag, comparison, repeated announcement and cle
   await expect(page.locator('[data-lp-compare]')).toBeFocused();
   const coverage = await page.locator('[data-lp-coverage]').innerText();
   await expect(page.locator('[role="status"]')).toHaveText(coverage);
-  await expect(page.locator('[data-lp-result]')).toContainText('Yours adds it.');
+  await expect(page.locator('[data-lp-coverage]')).toHaveText("You targeted 1 of the author's 4 misconceptions, and 1 of your own.");
   await page.keyboard.press('Enter');
   await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-clear]')).toBeFocused();
   await page.keyboard.press('Enter'); await expect(texts.nth(0)).toBeFocused();
@@ -127,7 +190,9 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     await expect(yours.nth(0)).toContainText(lang === 'en' ? 'Targets the same misconception' : 'Cible la même idée fausse');
     await expect(yours.nth(1)).toContainText(lang === 'en' ? 'do not cover' : 'ne couvrent pas');
     await expect(yours.locator('[aria-hidden="true"]')).toHaveCount(2);
-    await expect(page.locator('[data-lp-summary]')).toContainText(lang === 'en' ? 'Compared 2 wrong options.' : '2 mauvaises réponses comparées.');
+    await expect(page.locator('[data-lp-summary]')).toHaveText(lang === 'en'
+      ? "You targeted 1 of the author's 4 misconceptions, and 1 of your own."
+      : "Vous avez ciblé 1 sur 4 idées fausses de l'auteur, et 1 des vôtres.");
   });
 
   test(`native no-JavaScript baseline (${lang})`, async ({ browser }) => {
@@ -173,7 +238,7 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     await check(); await fill(page, true); await check();
     await page.locator('[data-lp-compare]').click(); await check();
     await page.locator('select').first().selectOption('phone');
-    await expect(page.locator('[data-lp-selected]').first()).toContainText(content.misconceptions[2].label); await check();
+    await expect(page.locator('[data-lp-selected]')).toHaveCount(0); await check();
   });
 }
 
