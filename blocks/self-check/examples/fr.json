@@ -1,0 +1,12 @@
+{
+  "task": "Votre rapport client est attendu vendredi. Les données de vente sont arrivées avec trois jours de retard. Il vous faut jusqu’à mardi. Écrivez le message à votre gestionnaire.",
+  "parts": [
+    { "id": "work_deadline", "label": "Rapport client et date de remise du vendredi", "met": "Le travail et la date de remise initiale sont nommés.", "missed": "Nommez le rapport client et sa date de remise du vendredi." },
+    { "id": "reason", "label": "Raison du retard", "met": "La raison est donnée.", "missed": "Dites que les données de vente sont arrivées en retard." },
+    { "id": "new_date", "label": "Nouvelle date de remise du mardi", "met": "Mardi est proposé.", "missed": "Demandez de terminer le rapport d'ici mardi." },
+    { "id": "impact", "label": "Offre pour limiter les conséquences", "met": "Une offre limite les conséquences.", "missed": "Offrez une version préliminaire ou les sections terminées d'ici vendredi." },
+    { "id": "agreement", "label": "Accord ou avis du gestionnaire", "met": "L'avis du gestionnaire est demandé.", "missed": "Demandez si mardi convient à votre gestionnaire." },
+    { "id": "no_blame", "label": "Aucun blâme", "met": "Aucun blâme.", "missed": "Dites ce qui s'est passé, sans chercher de coupable." }
+  ],
+  "model": "Bonjour Sam, le rapport client est attendu vendredi. Les données de vente sont arrivées avec trois jours de retard. Il me faut donc jusqu'à mardi pour le terminer. Je peux vous envoyer les sections terminées d'ici vendredi. Est-ce que mardi vous conviendrait?"
+}
