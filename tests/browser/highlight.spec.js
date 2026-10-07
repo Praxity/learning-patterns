@@ -66,7 +66,7 @@ test('keyboard passage has one tab stop, complete roving navigation, silent togg
 test('evidence check puts authored and default feedback in place, locks marks, announces once without focus movement', async ({ page }) => {
   await open(page); await observeStatus(page);
   await chunk(page, 'actions').click(); await chunk(page, 'withdraw').click();
-  await page.locator('[data-lp-check]').click();
+  await page.locator('[data-lp-check]').focus(); await page.keyboard.press('Enter');
   await expect(page.locator('[data-lp-check]')).toBeFocused();
   await expect(feedback(page, 'actions')).toHaveText(english.paragraphs.flat().find(c => c.id === 'actions').note);
   await expect(feedback(page, 'withdraw')).toHaveText("This doesn't answer the question.");
@@ -84,7 +84,7 @@ test('evidence check puts authored and default feedback in place, locks marks, a
   await page.locator('[data-lp-check]').click({ force: true });
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Passages that answer the question: 0 of 1.']);
   await page.locator('[data-lp-restart]').click();
-  await expect(chunk(page, 'withdraw')).toBeFocused();
+  await expect(page.locator('[data-lp-chunk]').first()).toBeFocused();
   await expect(page.locator('[data-lp-summary]')).toBeHidden();
   await expect(page.locator('[data-lp-chunk][aria-pressed="true"]')).toHaveCount(0);
   await expect(page.locator('[data-lp-check]')).not.toHaveAttribute('aria-disabled', 'true');

@@ -10,6 +10,9 @@ function object(value) {
 
 /** @param {Record<string, unknown>} value @param {string[]} allowed @param {string} path */
 function fields(value, allowed, path) {
+  for (const field of allowed) {
+    if (field in value && !Object.hasOwn(value, field)) throw new Error(`Invalid ${path}.${field}`);
+  }
   for (const field of Object.keys(value)) {
     if (!allowed.includes(field)) throw new Error(`Invalid ${path}.${field}`);
   }

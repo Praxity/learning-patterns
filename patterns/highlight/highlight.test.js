@@ -67,6 +67,7 @@ test('content validator catches every planted field violation, including global 
   bad(Object.create(content), 'mode');
   const inheritedQuestion = Object.assign(Object.create({ question: content.question }), { mode: content.mode, title: content.title, paragraphs: content.paragraphs });
   bad(inheritedQuestion, 'question');
+  bad(Object.assign(Object.create({ question: 42 }), example('key')), 'question');
   const sparseParagraphs = Array(2); sparseParagraphs[1] = chunks;
   bad({ ...content, paragraphs: sparseParagraphs }, 'paragraphs[0]');
   bad({ ...content, extra: true }, 'extra');
@@ -81,6 +82,10 @@ test('content validator catches every planted field violation, including global 
   for (const value of [null, [], {}, 'paragraph']) bad({ ...content, paragraphs: [value] }, 'paragraphs[0]');
   for (const value of [null, [], 'chunk', 3]) bad({ ...content, paragraphs: [[value]] }, 'paragraphs[0][0]');
   bad({ ...content, paragraphs: [[Object.create(chunks[0])]] }, 'id');
+  for (const [field, value] of [['note', 42], ['key', true]]) {
+    const inherited = Object.assign(Object.create({ [field]: value }), { id: 'inherited', text: 'Plain text.' });
+    bad({ ...content, paragraphs: [[chunks[0], inherited]] }, field);
+  }
   for (const field of ['id', 'text']) {
     for (const value of [null, '', '  ', 3, undefined]) bad({ ...content, paragraphs: [[{ ...chunks[0], [field]: value }]] }, field);
   }
