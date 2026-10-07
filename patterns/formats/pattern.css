@@ -1,27 +1,59 @@
-.lp-formats-scene { display: flex; align-items: flex-start; gap: 14px; }
-.lp-formats-scene-icon { display: grid; place-items: center; flex: none; inline-size: 44px; block-size: 44px; border-radius: var(--lp-radius-control); color: var(--lp-accent-ink); background: var(--lp-paper-2); }
-.lp-formats-scene-icon .lp-icon { inline-size: 28px; block-size: 28px; }
-.lp-formats-scene h3 { margin-block-start: 4px; }
-.lp-formats-switcher { display: flex; flex-wrap: wrap; gap: 8px; margin-block-start: 24px; }
-.lp-formats-switcher .lp-button { flex: 1 1 auto; justify-content: center; padding-inline: 12px; }
-.lp-formats-navigation { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+.lp-formats-switcher { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); padding: 3px; border: 1px solid var(--lp-line); border-radius: var(--lp-radius-control); }
+.lp-formats-switcher .lp-button { justify-content: center; padding: 10px 6px; border: 2px solid transparent; border-radius: 7px; box-shadow: none; }
+.lp-formats-switcher .lp-button span { min-inline-size: 0; overflow-wrap: anywhere; }
+.lp-formats-switcher .lp-button[aria-pressed="true"] { color: var(--lp-accent-ink); background: var(--lp-accent-soft); border-color: var(--lp-accent); box-shadow: none; }
+.lp-formats-navigation { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.lp-formats-navigation > * { margin: 0; }
+.lp-formats-nav-slot { display: flex; min-block-size: 44px; }
+.lp-formats-nav-slot:last-child { justify-content: end; }
+.lp-formats-nav-slot .lp-button { margin: 0; }
+.lp-formats-lesson { --lp-formats-fade-duration: 160ms; }
+.lp-formats-point { position: relative; }
+.lp-formats-exiting { position: absolute; inset-block-start: 0; inset-inline: 0; pointer-events: none; }
 .lp-formats-lesson > .lp-formats-point + .lp-formats-point { margin-block-start: 24px; padding-block-start: 24px; border-block-start: 1px solid var(--lp-rule); }
 .lp-formats-point[hidden] + .lp-formats-point { margin-block-start: 0; padding-block-start: 0; border-block-start: 0; }
-.lp-formats-outline, .lp-formats-script { padding-inline-start: 1.5em; }
-.lp-formats-outline > li + li, .lp-formats-script > li + li { margin-block-start: 12px; }
-.lp-formats-slide { padding-block: 16px; }
-.lp-formats-slide .lp-formats-outline { font-size: var(--lp-type-h3); line-height: 1.5; }
+.lp-formats-article { max-inline-size: 62ch; font-size: 1.1875rem; line-height: 1.7; }
+.lp-formats-article h4 { font-size: 1.5rem; }
+.lp-formats-points { padding-inline-start: 1.25em; }
+.lp-formats-points > li + li { margin-block-start: 12px; }
+.lp-formats-slide { display: flex; flex-direction: column; aspect-ratio: 16 / 9; padding: 32px; border: 1px solid var(--lp-rule); border-radius: 12px; background: var(--lp-paper); box-shadow: var(--lp-shadow); }
+.lp-formats-slide h4 { font-size: 2rem; line-height: 1.2; }
+.lp-formats-slide .lp-formats-points { font-size: 1.5rem; line-height: 1.4; }
+.lp-formats-slide-number { align-self: end; margin-block-start: auto; padding-block-start: 20px; font-variant-numeric: tabular-nums; }
+.lp-formats-player { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding-block: 12px; border-block: 1px solid var(--lp-rule); }
+.lp-formats-player-detail { flex: 1; min-inline-size: 6rem; }
+.lp-formats-track { block-size: 4px; margin-block-start: 8px; border-radius: 2px; background: var(--lp-line); }
+.lp-formats-player-time { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.lp-formats-script { padding: 0; list-style: none; }
+.lp-formats-script > li { display: grid; grid-template-columns: 3.25em minmax(0, 1fr); gap: 12px; padding-block: 12px; }
+.lp-formats-script time { color: var(--lp-ink-2); font-size: var(--lp-type-small); font-variant-numeric: tabular-nums; }
+.lp-formats-outline { padding-inline-start: 1.5em; }
+.lp-formats-outline > li { padding-inline-start: 6px; }
+.lp-formats-outline > li + li { margin-block-start: 20px; }
+.lp-formats-outline > li::marker { color: var(--lp-ink-2); }
+.lp-formats-outline .lp-formats-points { margin-block-start: 16px; }
 .lp-formats .lp-choice > .lp-formats-feedback { flex: 1 1 100%; font-size: var(--lp-type-small); }
-/* Local contract overrides: shared v2 rows and buttons add tints and shadows.
-   Formats uses a 2px border for selection and keeps content on plain paper. */
-.lp.lp-formats, .lp-formats .lp-button, .lp-formats .lp-choice { box-shadow: none; }
+/* Preserve this pattern's existing keyed quiz rows and feedback treatment. */
+.lp-formats .lp-choice { box-shadow: none; }
 .lp-formats .lp-quote { background: transparent; }
-.lp-formats .lp-button-secondary[aria-pressed="true"] { border: 2px solid var(--lp-accent); padding: 9px 11px; background: var(--lp-paper); }
 .lp-formats .lp-choice:has(input:checked) { border: 2px solid var(--lp-accent); padding: 9px 13px; background: var(--lp-paper); box-shadow: none; }
 .lp-formats .lp-choice[data-lp-mark="correct"], .lp-formats .lp-choice[data-lp-mark="correct"]:has(input:checked) { border-color: var(--lp-success-ink); background: var(--lp-paper); box-shadow: none; }
 .lp-formats .lp-choice[data-lp-mark="wrong"], .lp-formats .lp-choice[data-lp-mark="wrong"]:has(input:checked) { border-color: var(--lp-error-ink); background: var(--lp-paper); box-shadow: none; }
+@container (max-width: 36rem) {
+  .lp-formats-switcher { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .lp-formats-switcher .lp-button { grid-column: span 2; flex-direction: column; gap: 6px; font-size: var(--lp-type-small); }
+  .lp-formats-switcher .lp-button:nth-last-child(-n+2) { grid-column: span 3; }
+  .lp-formats-slide { padding: 20px; }
+  .lp-formats-slide h4 { font-size: 1.5rem; }
+  .lp-formats-slide .lp-formats-points { font-size: 1.1875rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lp-formats-lesson { --lp-formats-fade-duration: 0ms; }
+}
 @media (forced-colors: active) {
-  .lp-formats .lp-button-secondary[aria-pressed="true"] { border-color: Highlight; background: ButtonFace; color: ButtonText; }
+  .lp-formats-switcher, .lp-formats-slide { border-color: CanvasText; }
+  .lp-formats-switcher .lp-button[aria-pressed="true"] { border-color: Highlight; background: ButtonFace; color: ButtonText; }
+  .lp-formats-track { background: GrayText; }
   .lp-formats .lp-choice:has(input:checked) { border-color: Highlight; background: Canvas; }
   .lp-formats .lp-choice[data-lp-mark], .lp-formats .lp-choice[data-lp-mark]:has(input:checked) { border-color: CanvasText; border-style: double; border-width: 3px; }
 }

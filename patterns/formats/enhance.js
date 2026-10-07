@@ -24,6 +24,7 @@ export function enhance(root, { content, strings, state }) {
   // Check every block before revealing controls or attaching listeners.
   const status = /** @type {HTMLElement} */ (required(root, '[role="status"]'));
   const switcher = /** @type {HTMLElement} */ (required(root, '[data-lp-formats]'));
+  const lesson = /** @type {HTMLElement} */ (required(root, '.lp-formats-lesson'));
   const buttons = [...switcher.querySelectorAll('button')];
   markup(buttons.length === FORMATS.length && buttons.every((button, i) => button.dataset.lpFormat === FORMATS[i]), 'formats');
   const place = /** @type {HTMLElement} */ (required(root, '[data-lp-place]'));
@@ -66,7 +67,7 @@ export function enhance(root, { content, strings, state }) {
   const checked = new Set();
   /** @type {(() => void)[]} */
   const removals = [];
-  /** @param {Element} target @param {string} event @param {() => void} handler */
+  /** @param {EventTarget} target @param {string} event @param {() => void} handler */
   function listen(target, event, handler) {
     target.addEventListener(event, handler);
     removals.push(() => target.removeEventListener(event, handler));
@@ -80,7 +81,34 @@ export function enhance(root, { content, strings, state }) {
     quizSummary.hidden = current.format !== 'quiz';
     quizSummary.textContent = fill(strings.quizSummary, { count: checked.size, total: content.quiz.length });
   }
+  /** @type {{ view: HTMLElement, animations: Animation[] } | undefined} */
+  let fading;
+  function stopFade() {
+    if (!fading) return;
+    fading.animations.forEach(animation => animation.cancel());
+    fading.view.hidden = true;
+    fading.view.inert = false;
+    fading.view.removeAttribute('aria-hidden');
+    fading.view.classList.remove('lp-formats-exiting');
+    fading = undefined;
+  }
+  const motion = root.ownerDocument.defaultView?.matchMedia('(prefers-reduced-motion: reduce)');
+  if (motion) listen(motion, 'change', stopFade);
+  /** @param {HTMLElement} outgoing */
+  function crossFade(outgoing) {
+    if (motion?.matches) return;
+    const incoming = blocks[current.section].views[FORMATS.indexOf(current.format)];
+    const duration = parseFloat(getComputedStyle(lesson).getPropertyValue('--lp-formats-fade-duration'));
+    // Keep the outgoing view only for the visual overlap; it is inert and unannounced.
+    outgoing.hidden = false; outgoing.inert = true; outgoing.setAttribute('aria-hidden', 'true');
+    outgoing.classList.add('lp-formats-exiting');
+    const leaving = outgoing.animate({ opacity: [1, 0] }, { duration, easing: 'ease-in-out' });
+    const entering = incoming.animate({ opacity: [0, 1] }, { duration, easing: 'ease-in-out' });
+    fading = { view: outgoing, animations: [leaving, entering] };
+    leaving.onfinish = stopFade;
+  }
   function show() {
+    stopFade();
     buttons.forEach((button, i) => button.setAttribute('aria-pressed', String(FORMATS[i] === current.format)));
     blocks.forEach((block, i) => {
       block.section.hidden = i !== current.section;
@@ -88,8 +116,8 @@ export function enhance(root, { content, strings, state }) {
     });
     place.textContent = fill(strings.place, { n: current.section + 1, total: content.points.length });
     navigation.setAttribute('aria-label', place.textContent);
-    previous.setAttribute('aria-disabled', String(current.section === 0));
-    next.setAttribute('aria-disabled', String(current.section === content.points.length - 1));
+    previous.hidden = current.section === 0;
+    next.hidden = current.section === content.points.length - 1;
     showSummary();
   }
   function changed() {
@@ -110,7 +138,9 @@ export function enhance(root, { content, strings, state }) {
   buttons.forEach((button, i) => listen(button, 'click', () => {
     const format = FORMATS[i];
     if (switcher.hidden || format === current.format) return;
+    const outgoing = blocks[current.section].views[FORMATS.indexOf(current.format)];
     current = switchFormat(current, format); changed();
+    crossFade(outgoing);
   }));
   for (const [button, action] of /** @type {const} */ ([[previous, 'previous'], [next, 'next']])) {
     listen(button, 'click', () => {
@@ -149,7 +179,7 @@ export function enhance(root, { content, strings, state }) {
   const instance = {
     destroy() {
       if (destroyed) return;
-      destroyed = true; removals.forEach(remove => remove());
+      destroyed = true; stopFade(); removals.forEach(remove => remove());
       switcher.hidden = true; navigation.hidden = true; place.hidden = true; summary.hidden = false; quizSummary.hidden = true;
       buttons.forEach((button, i) => button.setAttribute('aria-pressed', String(i === 0)));
       blocks.forEach(block => { block.section.hidden = false; block.views.forEach((view, i) => { view.hidden = i !== 0; }); });

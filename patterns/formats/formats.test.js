@@ -112,7 +112,13 @@ test('render supplies the complete text baseline, scene, hidden controls and one
   assert.match(markup, /role="status" aria-atomic="true"><\/p>/);
   for (const point of content.points) for (const text of point.sentences) assert.ok(markup.includes(text.replaceAll("'", '&#39;')));
   assert.ok(markup.includes(content.summary));
-  assert.doesNotMatch(markup, /speechSynthesis|<audio|>Play</);
+  assert.doesNotMatch(markup, /speechSynthesis|<audio/);
+  assert.match(markup, /disabled aria-label="Play unavailable: sample, no audio recording"/);
+  assert.match(markup, /class="lp-scene"/);
+  assert.equal((markup.match(/data-lp-slide-number/g) || []).length, 3);
+  assert.match(markup, /data-lp-slide-number>1 \/ 3</);
+  assert.match(markup, /<time datetime="PT0S">0:00<\/time>/);
+  assert.match(markup, /<ol class="lp-formats-outline">/);
 });
 
 test('all authored text and attributes are escaped, ids are prefixed and bilingual strings agree', () => {

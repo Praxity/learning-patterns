@@ -11,6 +11,9 @@ export namespace strings {
         let showing: string;
         let previous: string;
         let next: string;
+        let play: string;
+        let playUnavailable: string;
+        let sample: string;
         let scriptNote: string;
         let noQuestion: string;
         let check: string;
@@ -43,6 +46,12 @@ export namespace strings {
         export { previous_1 as previous };
         let next_1: string;
         export { next_1 as next };
+        let play_1: string;
+        export { play_1 as play };
+        let playUnavailable_1: string;
+        export { playUnavailable_1 as playUnavailable };
+        let sample_1: string;
+        export { sample_1 as sample };
         let scriptNote_1: string;
         export { scriptNote_1 as scriptNote };
         let noQuestion_1: string;

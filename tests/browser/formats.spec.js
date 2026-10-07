@@ -12,7 +12,11 @@ async function open(page, path = '/formats/en.html') {
 const button = (page, name) => page.locator(`[data-lp-format="${name}"]`);
 const point = page => page.locator('[data-lp-point]:visible');
 const question = page => page.locator('[data-lp-question]:visible');
-const scan = async page => expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()).violations).toEqual([]);
+const scan = async page => {
+  // Audit the settled representation; the overlap has its own motion/lifecycle checks.
+  await expect(page.locator('.lp-formats-exiting')).toHaveCount(0);
+  expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()).violations).toEqual([]);
+};
 async function observe(page) {
   await page.evaluate(() => {
     window.lpObserver?.disconnect(); window.lpAnnouncements = [];
@@ -51,15 +55,16 @@ test('keyboard switching preserves section, announces once, keeps focus and save
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ format: 'quiz', section: 2 });
 });
 
-test('boundaries and selecting the current format are inert and preserve focus', async ({ page }) => {
+test('boundaries hide unavailable navigation, keep slots and ignore programmatic actions', async ({ page }) => {
   await open(page); await observe(page);
   const previous = page.locator('[data-lp-previous]'), next = page.locator('[data-lp-next]');
-  await previous.focus(); await page.keyboard.press('Enter'); await expect(previous).toBeFocused();
+  await expect(previous).toBeHidden();
+  await previous.evaluate(el => el.click());
   await button(page, 'text').focus(); await page.keyboard.press('Enter'); await expect(button(page, 'text')).toBeFocused();
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
   expect(await page.evaluate(() => window.lpSaved)).toBeUndefined();
   await next.click(); await next.click(); await observe(page);
-  await next.focus(); await page.keyboard.press('Enter'); await expect(next).toBeFocused(); await expect(next).toHaveAttribute('aria-disabled', 'true');
+  await expect(next).toBeHidden(); await next.evaluate(el => el.click());
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
   await expect(page.locator('[data-lp-summary]')).toBeVisible();
   await expect(page.locator('[data-lp-summary]')).toContainText(english.summary);
@@ -115,10 +120,10 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
         const view = point(page).locator(`[data-lp-view="${format}"]`);
         if (format === 'text') await expect(view.locator('p').first()).toHaveText(content.points[i].sentences.join(' '));
         if (format === 'audio') {
-          await expect(view.locator('li')).toHaveText([content.points[i].title, ...content.points[i].sentences, ...(content.points[i].example ?? [])]);
-          await expect(view.getByRole('button')).toHaveCount(0);
+          await expect(view.locator('[data-lp-script-line]')).toHaveText([content.points[i].title, ...content.points[i].sentences, ...(content.points[i].example ?? [])]);
+          await expect(view.getByRole('button')).toBeDisabled();
         }
-        if (format === 'slides' || format === 'outline') await expect(view.locator('li')).toHaveText([...content.points[i].outline, ...(content.points[i].exampleOutline ? [content.points[i].exampleOutline] : [])]);
+        if (format === 'slides' || format === 'outline') await expect(view.locator('.lp-formats-points > li')).toHaveText([...content.points[i].outline, ...(content.points[i].exampleOutline ? [content.points[i].exampleOutline] : [])]);
         await scan(page);
         if (format === 'quiz' && await question(page).count()) {
           await question(page).getByRole('button').click(); await scan(page);
@@ -212,7 +217,7 @@ test('idempotency and destroy keep original text nodes and allow fresh enhanceme
 
 test('planted missing and mismatched markup fail before enhancement changes the baseline', async ({ page }) => {
   await open(page);
-  for (const selector of ['[data-lp-point]', '[data-lp-view="slides"]', '[data-lp-format="text"]', '[data-lp-next]', '[data-lp-question]', '[data-lp-check]', '[data-lp-error]', '[data-lp-feedback]', '[data-lp-mark-word]', '[data-lp-place]', '[data-lp-summary]', '[data-lp-quiz-summary]', '[role="status"]', 'fieldset', 'input', 'identity', 'format identity', 'question identity', 'option identity']) {
+  for (const selector of ['.lp-formats-lesson', '[data-lp-point]', '[data-lp-view="slides"]', '[data-lp-format="text"]', '[data-lp-next]', '[data-lp-question]', '[data-lp-check]', '[data-lp-error]', '[data-lp-feedback]', '[data-lp-mark-word]', '[data-lp-place]', '[data-lp-summary]', '[data-lp-quiz-summary]', '[role="status"]', 'fieldset', 'input', 'identity', 'format identity', 'question identity', 'option identity']) {
     await page.evaluate(kind => {
       window.lpInstances[0].destroy();
       if (kind === 'identity') document.querySelector('[data-lp-point]').dataset.lpPoint = 'unknown';
@@ -245,15 +250,128 @@ test('forced colours keeps pressed state, radio choices, marks and focus visible
 for (const width of [1280, 390]) {
   test(`course scene, format icons and border selection at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 }); await open(page);
-    await expect(page.locator('.lp-formats-scene')).toContainText('Choose how to learn this');
-    await expect(page.locator('.lp-formats-scene h3')).toHaveText(english.title);
-    await expect(page.locator('.lp-formats-scene svg')).toHaveAttribute('aria-hidden', 'true');
+    await expect(page.locator('.lp-scene')).toContainText('Choose how to learn this');
+    await expect(page.locator('.lp-scene h3')).toHaveText(english.title);
+    await expect(page.locator('.lp-scene svg')).toHaveAttribute('aria-hidden', 'true');
     await expect(page.locator('[data-lp-format] svg')).toHaveCount(5);
     for (const format of formats) {
       await button(page, format).click(); await expect(button(page, format)).toHaveCSS('border-top-width', '2px');
-      await expect(button(page, format)).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+      await expect(button(page, format)).toHaveCSS('background-color', 'rgb(238, 242, 253)');
     }
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await expect(button(page, 'quiz')).toHaveCSS('transition-duration', '0s');
   });
 }
+
+test('formats have article, slide, sample player and nested outline layouts', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 }); await open(page);
+  await expect(point(page).locator('[data-lp-view="text"]')).toHaveClass(/lp-formats-article/);
+  await expect(point(page).locator('[data-lp-view="text"] p').first()).toHaveCSS('font-size', '19px');
+  await button(page, 'slides').click();
+  const slide = point(page).locator('.lp-formats-slide');
+  await expect(slide).toHaveCSS('aspect-ratio', '16 / 9');
+  await expect(slide).toHaveCSS('border-radius', '12px');
+  expect(await slide.evaluate(el => getComputedStyle(el).boxShadow)).not.toBe('none');
+  await expect(slide.getByRole('heading')).toHaveCSS('font-size', '32px');
+  await expect(slide.locator('[data-lp-slide-number]')).toHaveText('1 / 3');
+  await page.locator('[data-lp-next]').click();
+  await expect(point(page).locator('[data-lp-slide-number]')).toHaveText('2 / 3');
+  await button(page, 'audio').click();
+  const audio = point(page).locator('[data-lp-view="audio"]');
+  await expect(audio.getByRole('button', { name: 'Play unavailable: sample, no audio recording' })).toBeDisabled();
+  await expect(audio.locator('.lp-formats-player')).toContainText('Sample, no audio');
+  await expect(audio.locator('.lp-formats-player')).toContainText('0:00 / 1:20');
+  await expect(audio.locator('.lp-formats-track')).toBeVisible();
+  await expect(audio.locator('time')).toHaveCount(3);
+  await expect(audio.locator('time').first()).toHaveText('0:00');
+  await button(page, 'outline').click();
+  const outline = point(page).locator('[data-lp-view="outline"]');
+  await expect(outline.locator('.lp-formats-outline > li > :first-child')).toHaveText(english.points.map(p => p.title));
+  await expect(outline.locator('ol ol')).toHaveCount(1);
+  await expect(outline.locator('[aria-current="step"] .lp-formats-points > li')).toHaveText(english.points[1].outline);
+});
+
+for (const width of [1280, 390]) test(`segmented group wraps and navigation slots align at ${width}px`, async ({ page }) => {
+  await page.setViewportSize({ width, height: 900 }); await open(page);
+  const switcher = page.locator('[data-lp-formats]');
+  await expect(switcher).toHaveCSS('border-top-width', '1px');
+  const tops = await page.locator('[data-lp-format]').evaluateAll(els => els.map(el => Math.round(el.getBoundingClientRect().top)));
+  expect(new Set(tops).size).toBe(width === 390 ? 2 : 1);
+  const initialNext = await page.locator('[data-lp-next]').boundingBox();
+  await page.locator('[data-lp-next]').click();
+  const previous = await page.locator('[data-lp-previous]').boundingBox();
+  const next = await page.locator('[data-lp-next]').boundingBox();
+  expect(previous.y).toBe(next.y); expect(previous.height).toBe(next.height);
+  expect(next.x).toBe(initialNext.x);
+});
+
+test('format switching fades opacity for 160ms and stops under reduced motion and destroy', async ({ page }) => {
+  await open(page); await page.emulateMedia({ reducedMotion: 'no-preference' });
+  const lesson = page.locator('.lp-formats-lesson');
+  const animations = await button(page, 'slides').evaluate(el => {
+    el.click();
+    return document.querySelector('.lp-formats-lesson').getAnimations({ subtree: true }).map(animation => ({
+      duration: animation.effect.getTiming().duration,
+      opacity: animation.effect.getKeyframes().map(frame => frame.opacity)
+    }));
+  });
+  expect(animations).toEqual([{ duration: 160, opacity: ['1', '0'] }, { duration: 160, opacity: ['0', '1'] }]);
+  await expect(page.locator('.lp-formats-exiting')).toHaveCount(0);
+  await expect(point(page).locator('[data-lp-view="slides"]')).toBeVisible();
+  await expect(lesson).toHaveCSS('opacity', '1');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await button(page, 'audio').click(); await expect(lesson).toHaveCSS('opacity', '1');
+  expect(await lesson.evaluate(el => el.getAnimations({ subtree: true }).length)).toBe(0);
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await button(page, 'outline').click();
+  await page.evaluate(() => window.lpInstances[0].destroy());
+  await expect(page.locator('[data-lp-point]:visible')).toHaveCount(3);
+  await expect(lesson).toHaveCSS('opacity', '1');
+  await page.waitForTimeout(350);
+  await expect(page.locator('[data-lp-view="text"]:visible')).toHaveCount(3);
+});
+
+test('rapid switches, navigation and a reduced-motion change cancel the outgoing view', async ({ page }) => {
+  await open(page); await observe(page);
+  const overlap = await page.evaluate(() => {
+    document.querySelector('[data-lp-format="slides"]').click();
+    document.querySelector('[data-lp-format="audio"]').click();
+    const outgoing = document.querySelector('.lp-formats-exiting');
+    return { count: document.querySelectorAll('.lp-formats-exiting').length, inert: outgoing.inert, hidden: outgoing.getAttribute('aria-hidden') };
+  });
+  expect(overlap).toEqual({ count: 1, inert: true, hidden: 'true' });
+  await expect(point(page).getByRole('heading')).toHaveText(english.points[0].title);
+  await page.evaluate(() => {
+    document.querySelector('[data-lp-format="outline"]').click();
+    document.querySelector('[data-lp-next]').click();
+  });
+  await expect(page.locator('.lp-formats-exiting')).toHaveCount(0);
+  await expect(point(page)).toHaveAttribute('data-lp-point', 'problem');
+  await expect(point(page).locator('[data-lp-view="outline"]')).toBeVisible();
+  await page.evaluate(() => document.querySelector('[data-lp-format="quiz"]').click());
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(page.locator('.lp-formats-exiting')).toHaveCount(0);
+  expect(await page.locator('.lp-formats-lesson').evaluate(el => el.getAnimations({ subtree: true }).length)).toBe(0);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([
+    'Showing Slides, section 1.', 'Showing Audio script, section 1.',
+    'Showing Outline, section 1.', 'Showing Outline, section 2.', 'Showing Quiz, section 2.'
+  ]);
+});
+
+test('a one-section lesson has two empty navigation slots', async ({ page }) => {
+  await open(page);
+  await page.evaluate(async content => {
+    window.lpInstances[0].destroy();
+    const { render } = await import('/patterns/formats/render.js');
+    const { enhance } = await import('/patterns/formats/enhance.js');
+    const { strings } = await import('/patterns/formats/strings.js');
+    const single = { ...content, points: [content.points[0]], quiz: [content.quiz[0]] };
+    const host = document.createElement('div'); host.innerHTML = render(single, strings.en, { id: 'single', lang: 'en' });
+    document.querySelector('[data-lp-pattern]').replaceWith(host.firstElementChild);
+    enhance(document.querySelector('[data-lp-pattern]'), { content: single, strings: strings.en });
+  }, english);
+  await expect(page.locator('.lp-formats-nav-slot')).toHaveCount(2);
+  await expect(page.locator('[data-lp-previous]')).toBeHidden();
+  await expect(page.locator('[data-lp-next]')).toBeHidden();
+  await expect(page.locator('[data-lp-summary]')).toBeVisible();
+});

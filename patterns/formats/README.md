@@ -9,7 +9,7 @@ learners: not tried
 ---
 # Switch formats
 
-A small course lesson with five formats and one shared section index. Choose text, slides, a sample narration script, an outline or a short quiz. Switching keeps your place. The examples preserve demo 27's three points about stonewalling and time-outs, Roxanne's example and two quiz questions, with a Québec French translation.
+A small course lesson with five formats and one shared section index. Choose an article, slides, a sample narration script, a numbered outline or a short quiz. Switching keeps your place. The examples cover stonewalling and time-outs, with Roxanne's example and two quiz questions in English and Québec French.
 
 ## When to use it
 
@@ -17,9 +17,9 @@ Use it when a short lesson benefits from different ways to read, review or pract
 
 ## How it works
 
-1. The scene header names the lesson. Five buttons select the format, each with visible text and a decorative icon.
-2. Previous and Next change the section. Switching format preserves that section and announces "Showing {format}, section {n}." once. Focus stays on the control.
-3. Text shows the section's sentences and example. Slides show larger outline points and the example. The narration script lists the title, sentences and example in order. There is no audio file, playback control, synthesized speech or timed progression. Outline shows concise points, including any example outline.
+1. The shared scene header names the lesson. A bordered segmented control selects the format, with visible text and decorative icons. The selected segment has an accent border and soft fill. The group wraps to two rows in narrow containers.
+2. Previous and Next share one row. At either end the unavailable button is hidden in an empty slot. Switching format preserves the section, keeps focus on its control and announces "Showing {format}, section {n}." once. Format changes cross-fade for 160 ms, with no animation under reduced motion.
+3. Text uses an article column with reading-size paragraphs. Slides use a 16:9 frame with a large title, concise outline points, any example outline and a slide number. The frame grows when narrow widths or text spacing need more room. The sample player shows a disabled Play button, an empty progress track and "0:00 / 1:20", labelled "Sample, no audio". Timestamped narration lines contain the title, sentences and example in order. The evenly spaced timestamps illustrate an 80-second sample; no recording, playback, synthesized speech or timed progression is provided. Outline numbers all section titles, with only the current section's points expanded.
 4. Quiz shows the questions assigned to the section. Choose an option, then Check answer to see its authored feedback beside the selected row. You can change your answer and submit again. A section with no question shows its outline and a message explaining how to continue.
 5. The last section ends with an authored summary. In Quiz it also reports how many questions currently have checked answers, without a score.
 
@@ -39,7 +39,7 @@ All content is authored plain text. HTML characters are escaped.
 | `points[].title` | Section heading. |
 | `points[].sentences` | Nonempty array of sentences for text and narration. |
 | `points[].outline` | Nonempty array of concise points for slides and outline. |
-| `points[].example` | Optional nonempty array of example sentences for text, slides and narration. |
+| `points[].example` | Optional nonempty array of example sentences for text and narration. |
 | `points[].exampleOutline` | Optional concise example for outline and slides. |
 | `quiz` | Nonempty array of authored questions. |
 | `quiz[].section` | An existing `points[].id`, used to associate a question with a section. |
@@ -87,9 +87,9 @@ State is optional. Each navigation or format change writes an independent copy. 
 
 ## Accessibility
 
-The scene uses text, an `h3` lesson title and `h4` section headings. Format buttons have visible names and `aria-pressed`. All five remain in the tab order. Previous and Next use `aria-disabled` at the boundaries so focus stays on the control; activating a boundary does nothing. Quiz choices use native radios with keyed rows. Feedback appears only on submit, with an icon, a word and authored text on the chosen row. Changing a choice clears its old feedback. An empty submission displays an error at the question, announces it once and keeps focus on Check answer.
+The scene uses text, an `h3` lesson title and `h4` section headings. Format buttons have visible names and `aria-pressed`. All five remain in the tab order. Unavailable navigation buttons are hidden and absent from the tab order. The disabled Play button's accessible name explains that no recording is available. Quiz choices use native radios with keyed rows. Feedback appears only on submit, with an icon, a word and authored text on the chosen row. Changing a choice clears its old feedback. An empty submission displays an error at the question, announces it once and keeps focus on Check answer.
 
-One initially empty status region announces each action once. Restoring state and initial enhancement do not announce. No automatic playback, time limits or content animation. Local CSS keeps selections on plain paper with a 2px border and removes shared shadows. Shared theme tokens control colours, focus, fonts and spacing.
+One initially empty status region announces each action once. Restoring state and initial enhancement do not announce. During a cross-fade the outgoing view is inert and hidden from assistive technology. Rapid switches, navigation, reduced-motion changes and destruction cancel the overlap. No automatic playback or time limits. Quiz selections stay on plain paper with a 2px border. Shared theme tokens control colours, shadows, focus, fonts and spacing.
 
 Browser tests cover keyboard use, axe WCAG 2.0, 2.1 and 2.2 AA checks in Chromium, WebKit and Firefox, French, no JavaScript, two instances, lifecycle, state restoration, guard violations, reduced motion, 320 CSS pixels with text spacing and Chromium forced colours. Screen reader passes are a separate human check.
 
