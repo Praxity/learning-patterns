@@ -99,6 +99,7 @@ export function enhance(root, { content, strings, state }) {
     if (motion?.matches) return;
     const incoming = blocks[current.section].views[FORMATS.indexOf(current.format)];
     const duration = parseFloat(getComputedStyle(lesson).getPropertyValue('--lp-formats-fade-duration'));
+    if (!Number.isFinite(duration) || duration <= 0) return;
     // Keep the outgoing view only for the visual overlap; it is inert and unannounced.
     outgoing.hidden = false; outgoing.inert = true; outgoing.setAttribute('aria-hidden', 'true');
     outgoing.classList.add('lp-formats-exiting');

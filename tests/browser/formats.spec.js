@@ -220,7 +220,8 @@ test('planted missing and mismatched markup fail before enhancement changes the 
   for (const selector of ['.lp-formats-lesson', '[data-lp-point]', '[data-lp-view="slides"]', '[data-lp-format="text"]', '[data-lp-next]', '[data-lp-question]', '[data-lp-check]', '[data-lp-error]', '[data-lp-feedback]', '[data-lp-mark-word]', '[data-lp-place]', '[data-lp-summary]', '[data-lp-quiz-summary]', '[role="status"]', 'fieldset', 'input', 'identity', 'format identity', 'question identity', 'option identity']) {
     await page.evaluate(kind => {
       window.lpInstances[0].destroy();
-      if (kind === 'identity') document.querySelector('[data-lp-point]').dataset.lpPoint = 'unknown';
+      if (kind === '.lp-formats-lesson') document.querySelector(kind).classList.remove('lp-formats-lesson');
+      else if (kind === 'identity') document.querySelector('[data-lp-point]').dataset.lpPoint = 'unknown';
       else if (kind === 'format identity') document.querySelector('[data-lp-format]').dataset.lpFormat = 'unknown';
       else if (kind === 'question identity') document.querySelector('[data-lp-question]').dataset.lpQuestion = '99';
       else if (kind === 'option identity') document.querySelector('input').value = '99';
@@ -376,4 +377,18 @@ test('a one-section lesson has two empty navigation slots', async ({ page }) => 
   await expect(page.locator('[data-lp-previous]')).toBeHidden();
   await expect(page.locator('[data-lp-next]')).toBeHidden();
   await expect(page.locator('[data-lp-summary]')).toBeVisible();
+});
+
+test('switching without the stylesheet or with an invalid fade token keeps the current view usable', async ({ page }) => {
+  await open(page);
+  const errors = []; page.on('pageerror', error => errors.push(error.message));
+  await page.addStyleTag({ content: '.lp-formats-lesson { --lp-formats-fade-duration: invalid; }' });
+  await button(page, 'slides').evaluate(el => el.click());
+  await expect(point(page).getByRole('heading')).toHaveText(english.points[0].title);
+  await expect(point(page).locator('[data-lp-view="text"]')).toBeHidden();
+  await page.evaluate(() => [...document.styleSheets].forEach(sheet => { sheet.disabled = true; }));
+  await button(page, 'audio').evaluate(el => el.click());
+  await expect(point(page).locator('[data-lp-view="slides"]')).toBeHidden();
+  await expect(point(page).locator('[data-lp-view="audio"]')).toBeVisible();
+  expect(errors).toEqual([]);
 });
