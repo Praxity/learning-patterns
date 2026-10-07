@@ -34,7 +34,9 @@ export function enhance(root, { content, strings, state }) {
   const status = /** @type {HTMLElement} */ (required(root, '[role="status"]'));
   const rows = [...root.querySelectorAll('[data-lp-option]')];
   if (rows.length !== content.count) throw new Error('Invalid write-distractors option count');
-  const fields = rows.map(row => ({
+  const fields = rows.map((row, index) => ({
+    editor: /** @type {HTMLElement} */ (row),
+    summary: /** @type {HTMLElement} */ (required(root, `[data-lp-option-summary="${index}"]`)),
     inputs: {
       text: /** @type {HTMLTextAreaElement} */ (required(row, '[data-lp-text]')),
       misconception: /** @type {HTMLSelectElement} */ (required(row, '[data-lp-misconception]')),
@@ -100,6 +102,7 @@ export function enhance(root, { content, strings, state }) {
   function hideResult() {
     shown = false;
     result.replaceChildren(); result.hidden = true;
+    for (const field of fields) { field.editor.hidden = false; field.summary.hidden = true; field.summary.replaceChildren(); }
   }
   /** @param {import('./logic.js').LearnerOption[]} values @param {boolean} announce */
   function show(values, announce) {
@@ -111,6 +114,10 @@ export function enhance(root, { content, strings, state }) {
       .replaceAll('{ownExtra}', String(counts.ownExtra));
     /** @param {import('./logic.js').AuthorOption | import('./logic.js').LearnerOption} item */
     const targetLine = item => html(strings.targets.replaceAll('{target}', targetOf(content, item)));
+    fields.forEach((field, index) => {
+      field.summary.innerHTML = `<span>${html(values[index].text)}</span><span class="lp-small">${targetLine(values[index])}</span>`;
+      field.editor.hidden = true; field.summary.hidden = false;
+    });
     result.innerHTML = `<div class="lp-stack" data-lp-preview>
       <h3 class="lp-label">${html(strings.yourQuestion)}</h3>
       <p class="lp-run-in">${html(content.question)}</p>
@@ -195,7 +202,8 @@ export function enhance(root, { content, strings, state }) {
     checked.options.forEach((option, index) => {
       for (const name of /** @type {const} */ (['text', 'misconception', 'custom'])) fields[index].inputs[name].value = option[name];
     });
-    show(checked.options, true); save();
+    // WebKit pointer clicks can leave focus in a builder that is about to hide.
+    compare.focus(); show(checked.options, true); save();
   });
   listen(clear, 'click', () => {
     answer.value = ''; answer.readOnly = false;

@@ -164,7 +164,7 @@ test('quiz scene renders escaped authored titles, bilingual question numbers and
     ['fr', french, "Les bases de l'argent", 'Vérification rapide', 'Question 1 sur 4']
   ]) {
     const output = render({ ...source, title }, strings[lang], { id: 'quiz', lang });
-    assert.match(output, /<header class="lp-dont-know-scene">/);
+    assert.match(output, /<header class="lp-scene">/);
     assert.ok(output.includes(label));
     assert.ok(output.includes(title.replaceAll("'", '&#39;')));
     assert.ok(output.includes(number));

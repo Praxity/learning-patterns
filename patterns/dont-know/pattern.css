@@ -1,12 +1,5 @@
 /* Dont-know specifics. Link lib/base.css first for shared styles and tokens. */
-.lp-dont-know-scene { display: flex; gap: 14px; align-items: flex-start; margin: -28px -28px 0; padding: 22px 28px; border-start-start-radius: var(--lp-radius-box); border-start-end-radius: var(--lp-radius-box); background: var(--lp-paper-2); }
-.lp-dont-know-scene > div { min-inline-size: 0; }
-/* Scene and result primitives are local until another pattern needs them in lib/. */
-.lp-dont-know-scene-icon { display: grid; flex: none; place-items: center; inline-size: 40px; block-size: 40px; border-radius: var(--lp-radius-control); color: var(--lp-accent-ink); background: var(--lp-accent-soft); }
-.lp-dont-know-scene-icon .lp-icon { inline-size: 22px; block-size: 22px; }
-.lp-dont-know-title { margin-block-start: 2px; }
-.lp-dont-know-rule { margin-block-start: 8px; }
-.lp-dont-know-scene + .lp-section { border-block-start: 0; padding-block-start: 0; }
+.lp-dont-know > .lp-section:first-of-type { border-block-start: 0; padding-block-start: 0; }
 .lp-dont-know-question-number { margin-block-end: 6px; }
 .lp-dont-know-question-number + .lp-choices { margin-block-start: 0; }
 .lp-dont-know-explanation { display: flex; gap: 8px; align-items: flex-start; margin-block-start: 8px; }
@@ -30,9 +23,6 @@
 .lp-dont-know .lp-choice > span:not(.lp-choice-mark) { min-inline-size: 0; flex: 1; white-space: pre-line; }
 .lp-dont-know .lp-stem { white-space: pre-line; }
 
-@media (max-width: 30rem) {
-  .lp-dont-know-scene { margin: -18px -16px 0; padding: 18px 16px; }
-}
 @media (forced-colors: active) {
   /* Underlining keeps the quiet reset distinct when system colours replace button fills. */
   .lp-dont-know .lp-button-quiet { text-decoration: underline; text-underline-offset: 3px; }

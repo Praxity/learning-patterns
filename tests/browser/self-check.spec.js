@@ -5,6 +5,21 @@ import { readFile } from 'node:fs/promises';
 const english = JSON.parse(await readFile(new URL('../../patterns/self-check/examples/en.json', import.meta.url)));
 const french = JSON.parse(await readFile(new URL('../../patterns/self-check/examples/fr.json', import.meta.url)));
 
+test('shared scene spans the card and centres its tile on the task', async ({ page }) => {
+  await open(page);
+  await expect(page.locator('.lp-scene-label')).toHaveText('Your task');
+  await expect(page.locator('.lp-scene-title')).toHaveText(english.task);
+  for (const width of [1280, 390, 320]) {
+    await page.setViewportSize({ width, height: 900 });
+    const geometry = await page.locator('.lp-scene').evaluate(el => {
+      const scene = el.getBoundingClientRect(), card = el.parentElement.getBoundingClientRect();
+      const tile = el.querySelector('.lp-scene-icon').getBoundingClientRect(), text = el.querySelector('div').getBoundingClientRect();
+      return [scene.left - card.left, card.right - scene.right, tile.top + tile.height / 2 - text.top - text.height / 2];
+    });
+    for (const difference of geometry) expect(Math.abs(difference)).toBeLessThanOrEqual(1);
+  }
+});
+
 async function open(page, path = '/self-check/en.html') {
   await page.goto(path);
   await page.waitForFunction(() => window.lpReady);

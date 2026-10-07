@@ -49,9 +49,9 @@ export function render(content, strings, { id, lang, stage = 'both' }) {
     </div>
   </section>`;
   return `<section class="lp lp-first-answer" data-lp-pattern="first-answer" data-lp-stage="${stage}" lang="${html(lang)}">
-  <header class="lp-first-answer-scene">
-    <span class="lp-first-answer-scene-icon">${icons.notebook}</span>
-    <div><p class="lp-label">${html(strings.journal)}</p><h2 class="lp-stem">${html(content.prompt)}</h2></div>
+  <header class="lp-scene">
+    <span class="lp-scene-icon">${icons.notebook}</span>
+    <div><p class="lp-scene-label">${html(strings.journal)}</p><h2 class="lp-scene-title">${html(content.prompt)}</h2></div>
   </header>
   <p class="lp-error-text" data-lp-storage-error hidden></p>
   ${stage === 'end' ? '' : first}

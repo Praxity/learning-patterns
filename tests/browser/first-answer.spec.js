@@ -6,6 +6,20 @@ const END = '2026-10-07T09:40:00.000Z';
 const checks = { specific: false, behaviour: false, view: false };
 const seed = { first: { text: 'Stop interrupting me.', savedAt: FIRST }, now: { text: 'When you cut in, I lose my thread. What is happening for you?', savedAt: END }, checks: { ...checks, view: true } };
 
+test('shared scene spans the journal card and centres its tile on the prompt', async ({ page }) => {
+  await open(page);
+  await expect(page.locator('.lp-scene-label')).toHaveText('Your journal');
+  for (const width of [1280, 390, 320]) {
+    await page.setViewportSize({ width, height: 900 });
+    const geometry = await page.locator('.lp-scene').evaluate(el => {
+      const scene = el.getBoundingClientRect(), card = el.parentElement.getBoundingClientRect();
+      const tile = el.querySelector('.lp-scene-icon').getBoundingClientRect(), text = el.querySelector('div').getBoundingClientRect();
+      return [scene.left - card.left, card.right - scene.right, tile.top + tile.height / 2 - text.top - text.height / 2];
+    });
+    for (const difference of geometry) expect(Math.abs(difference)).toBeLessThanOrEqual(1);
+  }
+});
+
 async function open(page, path = '/first-answer/en.html') {
   await page.goto(path); await page.waitForFunction(() => window.lpReady);
 }
@@ -20,6 +34,39 @@ async function observe(page) {
 async function saveFirst(root) {
   await root.locator('[data-lp-first-input]').fill('Stop interrupting me.');
   await root.locator('[data-lp-save-first]').click();
+}
+
+for (const width of [1280, 390, 320]) {
+  test(`journal timeline shares one axis and has no saved-entry rule at ${width}px with text spacing`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 1000 });
+    await open(page);
+    await page.addStyleTag({ content: '*{line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important}p{margin-bottom:2em!important}' });
+    await saveFirst(page);
+    const geometry = await page.locator('[data-lp-course]').evaluate(el => {
+      const rect = el.getBoundingClientRect();
+      const line = getComputedStyle(el, '::before');
+      const icon = el.querySelector('svg').getBoundingClientRect();
+      const note = el.querySelector('p').getBoundingClientRect();
+      const button = el.querySelector('button').getBoundingClientRect();
+      return {
+        lineX: rect.left + parseFloat(line.left) + parseFloat(line.borderLeftWidth) / 2,
+        iconX: icon.left + icon.width / 2,
+        top: line.top, bottom: line.bottom,
+        iconTop: icon.top - rect.top, iconBottom: icon.bottom - rect.top, height: rect.height,
+        noteX: note.left, buttonX: button.left
+      };
+    });
+    expect(Math.abs(geometry.lineX - geometry.iconX)).toBeLessThanOrEqual(1);
+    expect(Math.abs(geometry.noteX - geometry.buttonX)).toBeLessThanOrEqual(1);
+    expect(geometry.noteX).toBeGreaterThan(geometry.lineX);
+    expect(geometry.top).toBe('0px'); expect(geometry.bottom).toBe('0px');
+    expect(geometry.iconTop).toBeGreaterThan(0); expect(geometry.iconBottom).toBeLessThan(geometry.height);
+    await expect(page.locator('.lp-first-answer-history')).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+    await expect(page.locator('[data-lp-first-saved]')).toHaveCSS('border-left-width', '0px');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.locator('[data-lp-skip]').click(); await compare(page);
+    await expect(page.locator('[data-lp-panel-first-card]')).toHaveCSS('border-left-width', '0px');
+  });
 }
 async function compare(root) {
   await root.locator('[data-lp-now-input]').fill('When you cut in, I lose my thread. What is happening for you?');
@@ -54,8 +101,8 @@ for (const [lang, journal, day, end, note] of [
 ]) {
   test(`journal scene, dated entry and course timeline (${lang})`, async ({ page }) => {
     await open(page, `/first-answer/${lang}.html`);
-    const scene = page.locator('.lp-first-answer-scene');
-    await expect(scene.locator('.lp-label')).toHaveText(journal);
+    const scene = page.locator('.lp-scene');
+    await expect(scene.locator('.lp-scene-label')).toHaveText(journal);
     await expect(scene.getByRole('heading')).toHaveCount(1);
     await expect(scene.locator('svg')).toHaveAttribute('aria-hidden', 'true');
     await expect(page.locator('[data-lp-first-step]').getByRole('heading')).toHaveText(day);
@@ -426,14 +473,14 @@ test('one activity box uses shared text, choice, readonly and quiet button style
       stepBorder: css('[data-lp-first-step]').borderWidth,
       sectionBorder: css('[data-lp-end-step]').borderTopWidth,
       fieldsetBorder: css('fieldset').borderWidth,
-      stemFont: css('.lp-stem').fontFamily,
-      stemSize: css('.lp-stem').fontSize,
+      stemFont: css('.lp-scene-title').fontFamily,
+      stemSize: css('.lp-scene-title').fontSize,
       dateSize: css('.lp-first-answer-date').fontSize,
       headingWeight: css('[data-lp-end-heading]').fontWeight,
       readonlyBackground: css('[data-lp-now-input]').backgroundColor
     };
   });
-  expect(styles).toMatchObject({ stepBorder: '0px', sectionBorder: '1px', fieldsetBorder: '0px', stemSize: '21px', dateSize: '15px', headingWeight: '600', readonlyBackground: 'rgb(247, 248, 250)' });
+  expect(styles).toMatchObject({ stepBorder: '0px', sectionBorder: '1px', fieldsetBorder: '0px', stemSize: '19px', dateSize: '15px', headingWeight: '600', readonlyBackground: 'rgb(247, 248, 250)' });
   expect(styles.stemFont).toContain('Source Sans 3');
   await page.getByRole('checkbox').first().check();
   const choice = page.locator('.lp-choice').first();
@@ -449,6 +496,10 @@ test('Chromium forced colours keeps focus rings, borders and quiet link actions'
   await page.locator('[data-lp-save-first]').focus();
   expect(await page.locator('[data-lp-save-first]').evaluate(el => [getComputedStyle(el).outlineWidth, getComputedStyle(el).outlineStyle, getComputedStyle(el).outlineOffset])).toEqual(['2px', 'solid', '2px']);
   await saveFirst(page);
+  await expect(page.locator('[data-lp-course] p')).toHaveText('In a course, the lessons happen here.');
+  await page.addStyleTag({ content: '.lp-first-answer-timeline::before{display:none}' });
+  await expect(page.locator('[data-lp-first-quote]')).toHaveText('Stop interrupting me.');
+  await expect(page.locator('[data-lp-skip]')).toHaveText('Skip to the end of the course');
   for (const selector of ['[data-lp-skip]', '[data-lp-restart]']) {
     await page.locator(selector).focus();
     expect(await page.locator(selector).evaluate(el => [getComputedStyle(el).outlineWidth, getComputedStyle(el).outlineStyle, getComputedStyle(el).outlineOffset])).toEqual(['2px', 'solid', '2px']);

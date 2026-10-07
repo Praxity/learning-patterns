@@ -24,11 +24,11 @@ export function render(content, strings, { id, lang }) {
     rule(content.points.unknown, strings.ruleUnknownGain, strings.ruleUnknownLoss, strings.ruleUnknownZero)
   ].join(' ');
   return `<section class="lp lp-dont-know" data-lp-pattern="dont-know" lang="${html(lang)}">
-  <header class="lp-dont-know-scene">
-    <span class="lp-dont-know-scene-icon">${icons['list-check']}</span>
-    <div><p class="lp-label">${html(strings.quickCheck)}</p>
-      <h2 class="lp-stem lp-dont-know-title">${html(content.title)}</h2>
-      <p class="lp-small lp-dont-know-rule">${html(scoring)}</p></div>
+  <header class="lp-scene">
+    <span class="lp-scene-icon">${icons['list-check']}</span>
+    <div><p class="lp-scene-label">${html(strings.quickCheck)}</p>
+      <h2 class="lp-scene-title">${html(content.title)}</h2>
+      <p class="lp-scene-sub">${html(scoring)}</p></div>
   </header>
   ${content.questions.map((q, n) => `<div class="lp-section">
   <p class="lp-small lp-dont-know-question-number">${html(format(strings.questionNumber, { number: n + 1, total: content.questions.length }))}</p>

@@ -6,6 +6,21 @@ const english = JSON.parse(await readFile(new URL('../../patterns/write-distract
 const french = JSON.parse(await readFile(new URL('../../patterns/write-distractors/examples/fr.json', import.meta.url)));
 const draft = (text, misconception, custom = '') => ({ text, misconception, custom });
 
+test('shared scene spans the quiz builder card and centres its tile on the question', async ({ page }) => {
+  await open(page, 'en', false);
+  await expect(page.locator('.lp-scene-label')).toHaveText('Write the quiz');
+  await expect(page.locator('.lp-scene-title')).toHaveText(english.question);
+  for (const width of [1280, 390, 320]) {
+    await page.setViewportSize({ width, height: 900 });
+    const geometry = await page.locator('.lp-scene').evaluate(el => {
+      const scene = el.getBoundingClientRect(), card = el.parentElement.getBoundingClientRect();
+      const tile = el.querySelector('.lp-scene-icon').getBoundingClientRect(), text = el.querySelector('div').getBoundingClientRect();
+      return [scene.left - card.left, card.right - scene.right, tile.top + tile.height / 2 - text.top - text.height / 2];
+    });
+    for (const difference of geometry) expect(Math.abs(difference)).toBeLessThanOrEqual(1);
+  }
+});
+
 async function retrieve(root) {
   if (await root.locator('[data-lp-flow]').isVisible()) return;
   await root.locator('[data-lp-answer]').fill('No, breaks help.');
@@ -38,6 +53,25 @@ async function observe(page) {
     window.lpStatusObserver.observe(document.querySelector('[role="status"]'), { childList: true, characterData: true, subtree: true });
   });
 }
+
+test('Compare collapses builders to key, text and tag summaries; Start over restores fields', async ({ page }) => {
+  await open(page); await fill(page, true);
+  await page.locator('[data-lp-compare]').click();
+  const builders = page.locator('.lp-write-distractors-builder');
+  await expect(builders.locator('fieldset:visible')).toHaveCount(0);
+  await expect(page.locator('[data-lp-compare]')).toBeFocused();
+  await expect(builders.locator('textarea:visible, select:visible, input:visible')).toHaveCount(0);
+  await expect(builders.nth(0)).toContainText('B');
+  await expect(builders.nth(0)).toContainText('Yes, breaks slow you down.');
+  await expect(builders.nth(0)).toContainText(english.misconceptions.find(item => item.id === 'push-through').label);
+  await expect(builders.nth(1)).toContainText('C');
+  await expect(builders.nth(1)).toContainText('Yes, breaks make you lose your place.');
+  await expect(builders.nth(1)).toContainText('Breaks disrupt focus');
+  await page.locator('[data-lp-clear]').click(); await retrieve(page);
+  await expect(builders.locator('fieldset:visible')).toHaveCount(2);
+  await expect(builders.locator('textarea:visible, select:visible')).toHaveCount(4);
+  for (const field of await builders.locator('textarea, select, input').all()) await expect(field).toHaveValue('');
+});
 
 for (const lang of ['en', 'fr']) {
   test(`answer first, unscored self-report, keyed builder and finished question (${lang})`, async ({ page }) => {
@@ -434,6 +468,7 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     };
     await check(); await fill(page, true); await check();
     await page.locator('[data-lp-compare]').click(); await check();
+    await page.locator('[data-lp-clear]').click(); await retrieve(page); await fill(page, true);
     await page.locator('select').first().selectOption('phone');
     await expect(page.locator('[data-lp-selected]')).toHaveCount(0); await check();
   });
@@ -452,16 +487,17 @@ test('right answer, duplicate and custom errors use the field and update only on
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['1 field needs attention.', '1 field needs attention.']);
 });
 
-test('draft state saves every field, submitted state is clean, edits hide stale results', async ({ page }) => {
+test('draft state saves every field, submitted state is clean, Start over clears the comparison', async ({ page }) => {
   await open(page); await observe(page); await fill(page, true);
   const before = await page.evaluate(() => window.lpSaved);
   expect(before.shown).toBe(false); expect(before.options[1].custom).toBe('Breaks disrupt focus');
   await page.locator('[data-lp-text]').first().fill('  A  B  '); await page.locator('[data-lp-compare]').click();
   expect((await page.evaluate(() => window.lpSaved)).options[0].text).toBe('A B');
-  await page.locator('[data-lp-text]').first().fill('');
+  await expect(page.locator('[data-lp-text]').first()).toBeHidden();
+  await page.locator('[data-lp-clear]').click();
   await expect(page.locator('[data-lp-result]')).toBeHidden();
   expect((await page.evaluate(() => window.lpSaved)).shown).toBe(false);
-  expect((await page.evaluate(() => window.lpAnnouncements)).length).toBe(1);
+  expect((await page.evaluate(() => window.lpAnnouncements)).length).toBe(2);
 });
 
 for (const shown of [false, true]) {
@@ -473,7 +509,11 @@ for (const shown of [false, true]) {
     await expect(page.locator('[data-lp-had-it]')).toHaveAttribute('aria-pressed', 'false');
     await expect(page.locator('[data-lp-not-quite]')).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('[data-lp-text]').first()).toHaveValue('A');
-    await expect(page.locator('input').nth(1)).toBeVisible(); await expect(page.locator('input').nth(1)).toHaveValue('Focus lost');
+    await expect(page.locator('input').nth(1)).toHaveValue('Focus lost');
+    if (shown) {
+      await expect(page.locator('input').nth(1)).toBeHidden();
+      await expect(page.locator('[data-lp-option-summary]').nth(1)).toContainText('Focus lost');
+    } else await expect(page.locator('input').nth(1)).toBeVisible();
     await expect(page.locator('[role="status"]')).toHaveText('');
     if (shown) { await expect(page.locator('[data-lp-result]')).toContainText('Focus lost'); await expect(page.locator('[data-lp-clear]')).toBeVisible(); }
     else { await expect(page.locator('[data-lp-result]')).toBeHidden(); await expect(page.locator('[data-lp-clear]')).toBeVisible(); }
@@ -529,6 +569,8 @@ test('enhance twice, destroy twice, re-enhance: one listener and restored baseli
   await expect(page.locator('[data-lp-flow]')).toBeHidden(); await expect(page.locator('[data-lp-fallback]')).toBeVisible();
   await page.evaluate(() => { window.lpEnhance(); window.lpInstances[0].destroy(); });
   await expect(page.locator('[data-lp-flow]')).toBeVisible();
+  await expect(page.locator('[data-lp-option]').first()).toBeHidden();
+  await page.locator('[data-lp-clear]').click();
   await retrieve(page.locator('[data-lp-pattern]'));
   await observe(page); await fill(page); await page.locator('[data-lp-compare]').click();
   expect((await page.evaluate(() => window.lpAnnouncements)).length).toBe(1);
@@ -562,6 +604,14 @@ test('injected length violations are caught even beyond HTML maxlength', async (
   await expect(page.locator('[role="status"]')).toHaveText('2 fields need attention.');
 });
 
+test('missing builder summary fails loudly before partial enhancement', async ({ page }) => {
+  await open(page, 'en', false);
+  await page.evaluate(() => { window.lpInstances[0].destroy(); document.querySelector('[data-lp-option-summary]').remove(); });
+  await expect(page.evaluate(() => window.lpEnhance())).rejects.toThrow('Missing write-distractors markup: [data-lp-option-summary="0"]');
+  await expect(page.locator('[data-lp-fallback]')).toBeVisible();
+  await expect(page.locator('[data-lp-check]')).toBeHidden();
+});
+
 test('result text escapes hostile learner input and custom tags', async ({ page }) => {
   await open(page); await fill(page, true);
   await page.locator('[data-lp-text]').first().fill('<img src=x onerror="window.lpInjected=true">');
@@ -569,17 +619,21 @@ test('result text escapes hostile learner input and custom tags', async ({ page 
   await page.locator('[data-lp-compare]').click();
   await expect(page.locator('[data-lp-result] img, [data-lp-result] script')).toHaveCount(0);
   await expect(page.locator('[data-lp-result]')).toContainText('<script>window.lpInjected=true</script>');
+  await expect(page.locator('[data-lp-option-summary] img, [data-lp-option-summary] script')).toHaveCount(0);
+  await expect(page.locator('[data-lp-option-summary]').nth(1)).toContainText('<script>window.lpInjected=true</script>');
   expect(await page.evaluate(() => window.lpInjected)).toBeUndefined();
 });
 
 test('forced colours keeps focus rings and quiet Start over', async ({ page, browserName }) => {
   test.skip(browserName !== 'chromium', 'Forced colours emulation checked in Chromium.');
-  await page.emulateMedia({ forcedColors: 'active' }); await open(page); await fill(page, true); await page.locator('[data-lp-compare]').click();
+  await page.emulateMedia({ forcedColors: 'active' }); await open(page); await fill(page, true);
   for (const field of [page.locator('[data-lp-text]').first(), page.locator('select').first(), page.locator('input').nth(1), page.locator('[data-lp-compare]'), page.locator('[data-lp-clear]')]) {
     await field.focus();
     const style = await field.evaluate(el => { const css = getComputedStyle(el); return [css.outlineWidth, css.outlineStyle, css.outlineOffset, css.outlineColor]; });
     expect(style.slice(0, 3)).toEqual(['2px', 'solid', '2px']); expect(style[3]).not.toBe('rgba(0, 0, 0, 0)');
   }
+  await page.locator('[data-lp-compare]').click();
+  await expect(page.locator('[data-lp-option-summary]').nth(1)).toContainText('Breaks disrupt focus');
   const colors = await page.evaluate(() => {
     const probe = document.createElement('span'); document.body.append(probe);
     probe.style.color = 'ButtonText'; const text = getComputedStyle(probe).color;

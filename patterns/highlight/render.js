@@ -10,8 +10,10 @@ export function render(content, strings, { id, lang }) {
   validateContent(content);
   const chunks = content.paragraphs.flat();
   return `<section class="lp lp-highlight" data-lp-pattern="highlight" lang="${html(lang)}">
-  <header class="lp-highlight-scene">${icons['file-text']}<p class="lp-small">${html(strings.scene)}</p></header>
-  <h2 class="lp-highlight-title">${html(content.title)}</h2>
+  <header class="lp-scene">
+    <span class="lp-scene-icon">${icons['file-text']}</span>
+    <div><p class="lp-scene-label">${html(strings.scene)}</p><h2 class="lp-scene-title">${html(content.title)}</h2></div>
+  </header>
   ${content.question ? `<p class="lp-stem">${html(content.question)}</p>` : ''}
   <p class="lp-run-in">${html(content.mode === 'key' ? strings.keyInstruction : strings.evidenceInstruction)}</p>
   <p class="lp-small" id="${html(`${id}-instructions`)}" data-lp-instructions hidden>${html(strings.controls)}</p>

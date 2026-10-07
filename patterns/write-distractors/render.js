@@ -36,12 +36,13 @@ export function render(content, strings, { id, lang }) {
       <p class="lp-error-text" id="${fieldId('custom-error')}" data-lp-custom-error hidden></p>
     </div>
   </fieldset>
+  <p class="lp-write-distractors-summary" data-lp-option-summary="${index}" hidden></p>
   </div>`;
   }).join('\n  ');
   return `<section class="lp lp-write-distractors" data-lp-pattern="write-distractors" lang="${html(lang)}">
-  <header class="lp-write-distractors-scene" data-lp-scene>
-    <span class="lp-write-distractors-scene-icon">${icons.pencil}</span>
-    <div><p class="lp-label">${html(strings.scene)}</p><h2 class="lp-stem">${html(content.question)}</h2></div>
+  <header class="lp-scene" data-lp-scene>
+    <span class="lp-scene-icon">${icons.pencil}</span>
+    <div><p class="lp-scene-label">${html(strings.scene)}</p><h2 class="lp-scene-title">${html(content.question)}</h2></div>
   </header>
   <div class="lp-write-distractors-body">
   <div class="lp-stack">

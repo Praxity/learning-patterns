@@ -136,7 +136,7 @@ test('journal scene, day headings and dated cards render in both languages and e
     ['fr', 'Votre journal', 'Premier jour', 'Fin du cours', "Elle reste telle que vous l'avez écrite."]
   ]) for (const stage of ['first', 'end', 'both']) {
     const markup = render(content, strings[lang], { id: 'journal', lang, stage });
-    assert.match(markup, /<header class="lp-first-answer-scene">/);
+    assert.match(markup, /<header class="lp-scene">/);
     assert.ok(markup.includes(journal));
     assert.equal(markup.split(content.prompt).length - 1, 1);
     assert.equal(markup.includes('Step 1'), false); assert.equal(markup.includes('Étape 1'), false);

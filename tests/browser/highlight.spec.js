@@ -6,6 +6,25 @@ const english = JSON.parse(await readFile(new URL('../../patterns/highlight/exam
 const french = JSON.parse(await readFile(new URL('../../patterns/highlight/examples/fr.json', import.meta.url)));
 const englishKey = JSON.parse(await readFile(new URL('../../patterns/highlight/examples/en-key.json', import.meta.url)));
 const frenchKey = JSON.parse(await readFile(new URL('../../patterns/highlight/examples/fr-key.json', import.meta.url)));
+
+test('shared scene gives the passage a full header with a centred file tile', async ({ page }) => {
+  for (const [lang, content, label] of [['en', english, 'Read and highlight'], ['fr', french, 'Lisez et surlignez']]) {
+    await open(page, `/highlight/${lang}.html`);
+    await expect(page.locator('.lp-scene-label')).toHaveText(label);
+    await expect(page.locator('.lp-scene-title')).toHaveText(content.title);
+    await expect(page.locator('.lp-scene-icon svg')).toHaveAttribute('aria-hidden', 'true');
+    await expect(page.getByRole('heading', { level: 2 })).toHaveCount(1);
+    for (const width of [1280, 390, 320]) {
+      await page.setViewportSize({ width, height: 900 });
+      const geometry = await page.locator('.lp-scene').evaluate(el => {
+        const scene = el.getBoundingClientRect(), card = el.parentElement.getBoundingClientRect();
+        const tile = el.querySelector('.lp-scene-icon').getBoundingClientRect(), text = el.querySelector('div').getBoundingClientRect();
+        return [scene.left - card.left, card.right - scene.right, tile.top + tile.height / 2 - text.top - text.height / 2];
+      });
+      for (const difference of geometry) expect(Math.abs(difference)).toBeLessThanOrEqual(1);
+    }
+  }
+});
 const chunk = (page, id) => page.locator(`[data-lp-chunk="${id}"]`);
 const feedback = (page, id) => chunk(page, id).locator('+ [data-lp-feedback]');
 

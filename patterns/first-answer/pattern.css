@@ -1,13 +1,7 @@
 /* First-answer specifics. Link lib/base.css before this file. */
-/* Scene styling stays here until lib/base.css owns a shared scene header. */
-.lp-first-answer-scene { display: flex; gap: 14px; align-items: flex-start; margin: -28px -28px 24px; padding: 24px 28px; border-block-end: 1px solid var(--lp-rule); border-radius: var(--lp-radius-box) var(--lp-radius-box) 0 0; background: var(--lp-paper-2); }
-.lp-first-answer-scene > div { min-inline-size: 0; }
-.lp-first-answer-scene .lp-stem { margin-block-start: 4px; }
-.lp-first-answer-scene-icon { display: grid; place-items: center; flex: none; inline-size: 40px; block-size: 40px; border-radius: var(--lp-radius-control); color: var(--lp-accent-ink); background: var(--lp-accent-soft); }
-.lp-first-answer-scene-icon .lp-icon { inline-size: 22px; block-size: 22px; }
 .lp-first-answer .lp-first-answer-page { padding: 16px 18px; line-height: 1.65; }
 .lp-first-answer .lp-first-answer-page[aria-invalid="true"] { padding: 15px 17px; }
-.lp-first-answer-card { padding: 18px; border-inline-start: 3px solid var(--lp-line-mid); border-radius: 0 var(--lp-radius-control) var(--lp-radius-control) 0; background: var(--lp-paper); }
+.lp-first-answer-card { padding: 18px; border-radius: var(--lp-radius-control); background: var(--lp-paper-2); }
 .lp-first-answer-card > * + * { margin-block-start: 12px; }
 .lp-first-answer-date { display: flex; gap: 6px; align-items: baseline; }
 .lp-first-answer-date > .lp-icon { align-self: flex-start; margin-block-start: .15em; }
@@ -22,10 +16,7 @@
 /* base.css covers these targets only on :focus-visible. Pointer actions focus them too.
    Move this programmatic-focus rule to the shared stylesheet when its focus selector expands. */
 .lp-first-answer-heading:focus, .lp-first-answer-saved:focus { outline: 2px solid var(--lp-focus); outline-offset: 2px; }
-@media (max-width: 30rem) {
-  .lp-first-answer-scene { margin: -18px -16px 24px; padding: 18px 16px; }
-}
 @media (forced-colors: active) {
   .lp-first-answer-heading:focus, .lp-first-answer-saved:focus { outline-color: Highlight; }
-  .lp-first-answer-card, .lp-first-answer-timeline::before { border-color: CanvasText; }
+  .lp-first-answer-timeline::before { border-color: CanvasText; }
 }
