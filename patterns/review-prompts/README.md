@@ -44,13 +44,25 @@ All content is plain text. HTML characters are escaped.
 
 `validateContent` rejects empty strings, unknown fields and duplicate part ids. Whitespace is allowed. The schema's `x-uniqueBy` annotation records identity uniqueness; ordinary JSON Schema tools also need the validator's uniqueness check.
 
-Praxity Studio imports `logic.js`, `content.schema.json` and `strings.js` and builds its own UI. This pattern introduces the content shape `{ parts: [{ id, heading, paragraphs, question, answer }], reviewDays: { remembered, forgot } }`. The pure exports are `validateContent`, `scheduleReview`, `isoDate`, `validateState` and the frozen default `REVIEW_DAYS`. Strings in both languages share the keys `check`, `instruction`, `show`, `remembered`, `forgot` and `nextReview`. The last string contains `{date}`.
+Strings in both languages share the keys `check`, `instruction`, `show`, `remembered`, `forgot` and `nextReview`. The last string contains `{date}`.
 
 The examples preserve the demo's three parts about stonewalling and time-outs, including its reported 93% prediction claim. That example claim is not evidence for this pattern. Check subject-matter claims before publishing your own reading.
 
+## Logic
+
+`logic.js` has no DOM code, so another host can build its own interface on it.
+
+| Export | Returns |
+| --- | --- |
+| `validateContent(content)` | Nothing. Throws an `Error` naming the first bad field. |
+| `scheduleReview(date, result, reviewDays?)` | A new `Date` at local midnight after the configured calendar days. Defaults to three days for `remembered` and one for `forgot`. |
+| `isoDate(date)` | The local calendar date as `YYYY-MM-DD`. |
+| `validateState(content, value)` | A copied `{ results: { [partId]: { result, reviewOn } } }`, or `null` for invalid saved state. |
+| `REVIEW_DAYS` | A frozen `{ remembered: 3, forgot: 1 }` default. |
+
 ## Use it
 
-Copy `patterns/review-prompts/` and `lib/`, preserving their relative paths. Include `pattern.css` and give each instance a unique id prefix. Render the HTML on the server before calling the enhancer in the browser.
+Copy `patterns/review-prompts/` and `lib/`, preserving their relative paths. Link `lib/base.css`, then `patterns/review-prompts/pattern.css`. Give each instance a unique id prefix. Render the HTML on the server before calling the enhancer in the browser.
 
 ```js
 import { render } from './patterns/review-prompts/render.js';
@@ -72,9 +84,9 @@ The host can read `reviewOn` to remind the learner. This pattern sends no remind
 
 ## Accessibility
 
-Native details work with and without JavaScript. Each part has an `h3`; prompt groups have visible labels. Buttons have visible words, pressed states and a decorative check mark. One status region is present and empty at load. Each rating announces its date once, including repeated submissions. Opening answers and restoring state do not announce. Focus stays on the learner's control. There is no animation or time limit.
+Native details work with and without JavaScript. Each part has an `h3`; prompt groups have visible labels. Reading text stays unboxed, and each prompt has one activity box. Rating buttons keep their visible labels and use `aria-pressed` with a 2px accent border for the chosen rating. One status region is present and empty at load. Each rating announces its date once, including repeated submissions. Opening answers and restoring state do not announce. Focus stays on the learner's control. There is no animation or time limit.
 
-Automated checks cover axe WCAG 2.0, 2.1 and 2.2 AA rules at load, answer, rating and changed-choice stages in Chromium, WebKit and Firefox. Keyboard checks cover focus, dates and announcements. Tests also cover French, no JavaScript, two instances, state restoration, 320 CSS pixels with text spacing, and Chromium forced colours. Root `--lp-*` tokens control colours, spacing, radius, font and focus.
+Automated checks cover axe WCAG 2.0, 2.1 and 2.2 AA rules at load, answer, rating and changed-choice stages in Chromium, WebKit and Firefox. Keyboard checks cover focus, dates and announcements. Tests also cover French, no JavaScript, two instances, state restoration, 320 CSS pixels with text spacing, and Chromium forced colours. Shared `--lp-*` tokens control colours, radius, font and focus.
 
 Screen reader passes: not yet
 

@@ -60,13 +60,6 @@ export function enhance(root, { content, strings, state }) {
     for (const button of block.buttons) {
       const selected = button.dataset.lpResult === record.result;
       button.setAttribute('aria-pressed', String(selected));
-      button.querySelector('[data-lp-mark]')?.remove();
-      if (selected) {
-        const mark = root.ownerDocument.createElement('span');
-        mark.dataset.lpMark = ''; mark.className = 'lp-review-prompts-mark';
-        mark.setAttribute('aria-hidden', 'true'); mark.textContent = '✓ ';
-        button.prepend(mark);
-      }
     }
     return strings.nextReview.replaceAll('{date}', date);
   }
@@ -94,7 +87,7 @@ export function enhance(root, { content, strings, state }) {
       for (const remove of removals) remove();
       for (const block of blocks) {
         block.rating.hidden = true; block.review.replaceChildren(); block.review.hidden = true;
-        for (const button of block.buttons) { button.setAttribute('aria-pressed', 'false'); button.querySelector('[data-lp-mark]')?.remove(); }
+        for (const button of block.buttons) button.setAttribute('aria-pressed', 'false');
       }
       status.textContent = '';
       instances.delete(root);
