@@ -1,7 +1,7 @@
 ---
 title: Switch formats
 title_fr: Changez de format
-summary: Choose text, slides, a narration script, an outline or a quiz and keep your current lesson section.
+summary: The same section as text, slides, an audio script or a quiz. Switching keeps your place.
 section: course
 ai: no
 offline: yes
@@ -9,7 +9,7 @@ learners: not tried
 ---
 # Switch formats
 
-You switch between text, slides, a narration script, an outline and a quiz while keeping your lesson section.
+The same section as text, slides, an audio script or a quiz. Switching keeps your place.
 
 ## When to use it
 
@@ -17,7 +17,7 @@ Use it when a short lesson benefits from different ways to read, review or pract
 
 ## How it works
 
-1. You choose text, slides, the sample narration script, an outline or a quiz.
+1. You choose text, slides, the sample audio script or a quiz.
 2. You use Previous and Next to move through the sections. The section counter sits above the content heading. You can switch formats and keep your place.
 3. In the quiz, you choose an option and select "Check answer" to read feedback beside it. You can change your answer and check again.
 4. If a section has no quiz question, you read its outline and continue.
@@ -39,7 +39,7 @@ Logic unit tested. Not tried with learners.
 
 Meets the shared baseline in the root README.
 
-- All five format buttons stay in the tab order and expose the chosen format as pressed. Unavailable navigation buttons leave the tab order.
+- All four format buttons stay in the tab order and expose the chosen format as pressed. Unavailable navigation buttons leave the tab order.
 - The disabled Play button explains that no recording is available. It does not start audio.
 - Quiz feedback appears beside the chosen option on submit. An empty submission shows a question error and keeps focus on Check answer.
 - Format changes keep focus on the chosen control and announce the format and section. During a cross-fade, the outgoing view is inert and hidden from assistive technology.
@@ -55,9 +55,9 @@ All content is authored plain text. HTML characters are escaped.
 | `points[].id` | Unique stable id using letters, digits, underscores or hyphens. |
 | `points[].title` | Section heading. |
 | `points[].sentences` | Nonempty array of sentences for text and narration. |
-| `points[].outline` | Nonempty array of concise points for slides and outline. |
+| `points[].outline` | Nonempty array of concise points for slides and quiz sections without a question. |
 | `points[].example` | Optional nonempty array of example sentences for text and narration. |
-| `points[].exampleOutline` | Optional concise example for outline and slides. |
+| `points[].exampleOutline` | Optional concise example for slides and quiz sections without a question. |
 | `quiz` | Nonempty array of authored questions. |
 | `quiz[].section` | An existing `points[].id`, used to associate a question with a section. |
 | `quiz[].prompt` | Question text. |
@@ -73,7 +73,7 @@ Unknown fields, empty strings, duplicate section ids, unknown question sections 
 | Export | Returns |
 | --- | --- |
 | `validateContent(content)` | Nothing. Throws an Error naming the first bad field. |
-| `FORMATS` | Frozen `['text', 'slides', 'audio', 'outline', 'quiz']`. `audio` selects the sample script. |
+| `FORMATS` | Frozen `['text', 'slides', 'audio', 'quiz']`. `audio` selects the sample script. |
 | `clampPoint(index, count)` | Section index truncated and clamped to `0..count-1`. Nonfinite indices return zero. Invalid counts throw. |
 | `movePlace(place, action, count)` | Clamped index after `next`, `previous` or `{ set: index }`. Unknown actions throw. |
 | `switchFormat(state, format)` | New `{ format, section }`, keeping the section. Unknown formats throw. |
@@ -83,7 +83,7 @@ Unknown fields, empty strings, duplicate section ids, unknown question sections 
 
 The section index is zero-based. Host restoration requires an integer in range and a recognized format, with no extra keys. Invalid state is ignored as a whole, without clamping or announcing. If you reorder or replace sections, the host should invalidate old state.
 
-Format changes cross-fade for 160 ms and switch instantly under reduced motion. Format buttons keep their labels on one line and wrap into rows on narrow screens. Slides use a 16:9 frame that grows for narrow widths and enlarged text. Text uses article paragraphs. The outline numbers all sections and expands only the current section's points.
+Format changes cross-fade for 160 ms and switch instantly under reduced motion. The four format buttons stay in one row at narrow widths and with increased text spacing. Icons sit above labels on narrow screens, and labels wrap only between words. Selection uses a 2px accent border and tint. Focus on the selected format extends that border into one thicker edge; other formats keep the shared outer focus ring. Slides use a 16:9 frame that grows for narrow widths and enlarged text. Text uses article paragraphs.
 
 The narration view is labelled "Sample, no audio". It has a disabled Play button, an empty progress track and "0:00 / 1:20". Evenly spaced timestamps illustrate an 80-second sample. The script includes the title, sentences and example in order. It provides no recording, playback, synthesized speech or timed progression.
 

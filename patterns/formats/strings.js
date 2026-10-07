@@ -2,7 +2,7 @@
 export const strings = {
   en: {
     formats: 'Lesson format',
-    text: 'Text', slides: 'Slides', audio: 'Audio script', outline: 'Outline', quiz: 'Quiz',
+    text: 'Text', slides: 'Slides', audio: 'Audio script', quiz: 'Quiz',
     place: 'Section {n} of {total}', showing: 'Showing {format}, section {n}.',
     previous: 'Previous', next: 'Next',
     play: 'Play', playUnavailable: 'Play unavailable: sample, no audio recording', sample: 'Sample, no audio',
@@ -12,7 +12,7 @@ export const strings = {
   },
   fr: {
     formats: 'Format de la leçon',
-    text: 'Texte', slides: 'Diapositives', audio: 'Texte de narration', outline: 'Plan', quiz: 'Quiz',
+    text: 'Texte', slides: 'Diapos', audio: 'Script audio', quiz: 'Quiz',
     place: 'Section {n} sur {total}', showing: 'Format affiché : {format}, section {n}.',
     previous: 'Précédent', next: 'Suivant',
     play: 'Lire', playUnavailable: 'Lecture indisponible : exemple sans enregistrement audio', sample: 'Exemple, sans audio',

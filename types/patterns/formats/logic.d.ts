@@ -25,7 +25,7 @@ export function checkQuizAnswer(questionIndex: number, optionIndex: number, quiz
  * @param {Content} content @param {unknown} value @returns {LearnerState | null}
  */
 export function validateState(content: Content, value: unknown): LearnerState | null;
-/** @typedef {'text' | 'slides' | 'audio' | 'outline' | 'quiz'} Format */
+/** @typedef {'text' | 'slides' | 'audio' | 'quiz'} Format */
 /** @typedef {{ id: string, title: string, sentences: string[], outline: string[], example?: string[], exampleOutline?: string }} Point */
 /** @typedef {{ text: string, feedback: string, correct?: boolean }} Option */
 /** @typedef {{ section: string, prompt: string, options: Option[] }} Question */
@@ -33,7 +33,7 @@ export function validateState(content: Content, value: unknown): LearnerState | 
 /** @typedef {{ format: Format, section: number }} LearnerState */
 /** @type {readonly Format[]} */
 export const FORMATS: readonly Format[];
-export type Format = "text" | "slides" | "audio" | "outline" | "quiz";
+export type Format = "text" | "slides" | "audio" | "quiz";
 export type Point = {
     id: string;
     title: string;

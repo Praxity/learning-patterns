@@ -1,4 +1,4 @@
-/** @typedef {'text' | 'slides' | 'audio' | 'outline' | 'quiz'} Format */
+/** @typedef {'text' | 'slides' | 'audio' | 'quiz'} Format */
 /** @typedef {{ id: string, title: string, sentences: string[], outline: string[], example?: string[], exampleOutline?: string }} Point */
 /** @typedef {{ text: string, feedback: string, correct?: boolean }} Option */
 /** @typedef {{ section: string, prompt: string, options: Option[] }} Question */
@@ -6,7 +6,7 @@
 /** @typedef {{ format: Format, section: number }} LearnerState */
 
 /** @type {readonly Format[]} */
-export const FORMATS = Object.freeze(['text', 'slides', 'audio', 'outline', 'quiz']);
+export const FORMATS = Object.freeze(['text', 'slides', 'audio', 'quiz']);
 /** @param {unknown} value @returns {value is Record<string, unknown>} */
 function object(value) { return value !== null && typeof value === 'object' && !Array.isArray(value); }
 /** @param {Record<string, unknown>} value @param {string[]} allowed @param {string} path */
