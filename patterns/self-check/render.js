@@ -12,9 +12,9 @@ export function render(content, strings, { id, lang }) {
   const answerId = html(`${id}-answer`);
   const errorId = html(`${id}-error`);
   return `<section class="lp lp-self-check" data-lp-pattern="self-check" lang="${html(lang)}">
-  <header class="lp-self-check-scene">
-    <span class="lp-self-check-scene-icon">${icons.mail}</span>
-    <div><p class="lp-label">${html(strings.scenario)}</p><p class="lp-stem">${html(content.task)}</p></div>
+  <header class="lp-scene">
+    <span class="lp-scene-icon">${icons.mail}</span>
+    <div><p class="lp-scene-label">${html(strings.scenario)}</p><p class="lp-scene-title">${html(content.task)}</p></div>
   </header>
   <div class="lp-self-check-composer">
     <p class="lp-self-check-meta"><span class="lp-self-check-meta-key">${html(strings.to)}</span><span class="lp-self-check-recipient"><span class="lp-self-check-avatar" aria-hidden="true">${html(content.context.initials)}</span>${html(content.context.to)}</span></p>

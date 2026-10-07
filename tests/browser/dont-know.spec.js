@@ -6,6 +6,21 @@ const english = JSON.parse(await readFile(new URL('../../patterns/dont-know/exam
 const french = JSON.parse(await readFile(new URL('../../patterns/dont-know/examples/fr.json', import.meta.url)));
 const mixed = ['unexpected-expenses', 'no-interest', 'dont-know', 'plan-spending-saving'];
 
+test('shared scene spans the card and centres its tile on title and scoring', async ({ page }) => {
+  await open(page);
+  await expect(page.locator('.lp-scene-title')).toHaveText(english.title);
+  await expect(page.locator('.lp-scene-sub')).toContainText("I don't know");
+  for (const width of [1280, 390, 320]) {
+    await page.setViewportSize({ width, height: 900 });
+    const geometry = await page.locator('.lp-scene').evaluate(el => {
+      const scene = el.getBoundingClientRect(), card = el.parentElement.getBoundingClientRect();
+      const tile = el.querySelector('.lp-scene-icon').getBoundingClientRect(), text = el.querySelector('div').getBoundingClientRect();
+      return [scene.left - card.left, card.right - scene.right, tile.top + tile.height / 2 - text.top - text.height / 2];
+    });
+    for (const difference of geometry) expect(Math.abs(difference)).toBeLessThanOrEqual(1);
+  }
+});
+
 async function open(page, path = '/dont-know/en.html') {
   await page.goto(path);
   await page.waitForFunction(() => window.lpReady);
@@ -29,8 +44,8 @@ for (const [lang, title, label, number] of [
 ]) {
   test(`quiz card has a scene, numbered questions, explanation panels and a score ring (${lang})`, async ({ page }) => {
     await open(page, `/dont-know/${lang}.html`);
-    const scene = page.locator('.lp-dont-know-scene');
-    await expect(scene.locator('.lp-label')).toHaveText(label);
+    const scene = page.locator('.lp-scene');
+    await expect(scene.locator('.lp-scene-label')).toHaveText(label);
     await expect(scene.getByRole('heading')).toHaveText(title);
     await expect(scene.locator('svg[aria-hidden="true"][focusable="false"]')).toHaveCount(1);
     await expect(page.locator('.lp-dont-know-question-number')).toHaveText(Array.from({ length: 4 }, (_, i) => number.replace('1', String(i + 1))));
@@ -213,7 +228,7 @@ for (const path of ['/dont-know/en.html', '/dont-know/fr.html', '/dont-know/two.
 
 test('all wrong, all unknown and all right omit zero counts and unnecessary review links', async ({ page }) => {
   await open(page);
-  await expect(page.locator('.lp-dont-know-rule')).toHaveText('A right answer scores a point. A wrong answer costs a point. "I don\'t know" costs nothing.');
+  await expect(page.locator('.lp-scene-sub')).toHaveText('A right answer scores a point. A wrong answer costs a point. "I don\'t know" costs nothing.');
   for (const [values, summary, counts, reviews, explanations, offset] of [
     [english.questions.map(q => q.options.find(o => o.id !== q.correct).id), 'Score −4 out of 4.', '4 wrong', 4, 4, '100'],
     [english.questions.map(() => 'dont-know'), 'Score 0 out of 4.', '4 "I don\'t know"', 4, 4, '100'],
@@ -243,7 +258,7 @@ test('authored fractional points reach the rule and total; feedback preserves ho
     document.querySelector('main').innerHTML = render(content, strings.en, { id: 'authored', lang: 'en' });
     enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en });
   }, english);
-  await expect(page.locator('.lp-dont-know-rule')).toHaveText('A right answer scores 2 points. A wrong answer costs 0.5 points. "I don\'t know" scores 0.25 points.');
+  await expect(page.locator('.lp-scene-sub')).toHaveText('A right answer scores 2 points. A wrong answer costs 0.5 points. "I don\'t know" scores 0.25 points.');
   await pick(page); await page.locator('[data-lp-check]').click();
   await expect(page.locator('[data-lp-score]').first()).toHaveText('Score 3.75 out of 8.');
   await expect(page.locator('.lp-dont-know-ring-fill')).toHaveAttribute('stroke-dashoffset', '53.125');
