@@ -2,7 +2,7 @@
 /** @typedef {{ id: string, text: string }} Option */
 /** @typedef {{ id: string, section: number, text: string, options: Option[], correct: string, explanation: string }} Question */
 /** @typedef {{ title: string, allowTestOut: boolean, sections: Section[], questions: Question[] }} Content */
-/** @typedef {{ picks: Record<string, string>, shown: boolean }} LearnerState */
+/** @typedef {{ picks: Record<string, string>, shown: boolean, step: number }} LearnerState */
 /** @typedef {{ id: number, title: string, action: 'take' | 'passed' | 'credited', by?: number }} PlanRow */
 
 /** @param {unknown} value @returns {value is Record<string, unknown>} */
@@ -147,11 +147,14 @@ export function score(content, picks) {
 
 /** @param {Content} content @param {unknown} value @returns {LearnerState | null} */
 export function validateState(content, value) {
-  if (!object(value) || typeof value.shown !== 'boolean' || Object.keys(value).some(key => !['picks', 'shown'].includes(key))) return null;
+  if (!object(value) || typeof value.shown !== 'boolean' || Object.keys(value).some(key => !['picks', 'shown', 'step'].includes(key))) return null;
+  const step = value.step;
+  if (typeof step !== 'number' || !Number.isInteger(step) || step < 0 || step > content.questions.length + 1) return null;
+  if (value.shown !== (step === content.questions.length + 1) || (!content.allowTestOut && step !== 0)) return null;
   try { validatePicks(content, value.picks); } catch { return null; }
   const picks = value.picks;
   if (value.shown && content.questions.some(q => !Object.hasOwn(picks, q.id))) return null;
-  return { picks: { ...picks }, shown: value.shown };
+  return { picks: { ...picks }, shown: value.shown, step };
 }
 
 /** Replace placeholders once so inserted values stay literal.
