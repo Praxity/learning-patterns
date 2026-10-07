@@ -1,0 +1,56 @@
+{
+  "mode": "evidence",
+  "title": "Ce qu'est l'évitement",
+  "question": "Pourquoi l'autre personne se sent-elle ignorée ou rejetée?",
+  "paragraphs": [
+    [
+      {
+        "id": "observation",
+        "text": "Le psychologue John Gottman et ses collègues ont observé des couples discuter pendant 15 minutes."
+      },
+      {
+        "id": "prediction",
+        "text": "À partir de cette seule observation, ils pouvaient prédire avec une précision de 93 % quels couples allaient divorcer."
+      },
+      {
+        "id": "horsemen",
+        "text": "Ils ont nommé quatre comportements qui annoncent une rupture : la critique, la défensive, le mépris et l'évitement."
+      }
+    ],
+    [
+      {
+        "id": "work",
+        "text": "Ces comportements nuisent aussi aux relations de travail, y compris entre un gestionnaire et son équipe."
+      },
+      {
+        "id": "harm",
+        "text": "Quand le blâme, le mépris et l'évitement prennent le dessus, la confiance diminue et le travail en souffre."
+      }
+    ],
+    [
+      {
+        "id": "withdraw",
+        "text": "L'évitement consiste à vous retirer de la conversation."
+      },
+      {
+        "id": "actions",
+        "text": "Vous vous taisez, changez de sujet ou quittez la pièce.",
+        "note": "Ce passage décrit ce que vous faites, plutôt que la raison pour laquelle l'autre personne se sent rejetée."
+      },
+      {
+        "id": "overwhelmed",
+        "text": "Cela arrive souvent quand vous vous sentez dépassé.",
+        "note": "Ce passage explique ce que vous ressentez. La question porte sur l'autre personne."
+      },
+      {
+        "id": "unseen",
+        "text": "L'autre personne ne le voit pas."
+      },
+      {
+        "id": "ignored",
+        "text": "Elle vous voit partir sans un mot et se sent ignorée ou rejetée.",
+        "key": true
+      }
+    ]
+  ]
+}

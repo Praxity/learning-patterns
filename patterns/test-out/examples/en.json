@@ -1,0 +1,48 @@
+{
+  "title": "Meetings: a refresher",
+  "allowTestOut": true,
+  "sections": [
+    { "id": 1, "title": "Writing an agenda", "requires": [] },
+    { "id": 2, "title": "Roles in a meeting", "requires": [] },
+    { "id": 3, "title": "Running the discussion", "requires": [2] },
+    { "id": 4, "title": "Decisions and follow-up", "requires": [2, 3] }
+  ],
+  "questions": [
+    {
+      "id": "agenda", "section": 1, "text": "What should an agenda tell people before a meeting?",
+      "options": [
+        { "id": "attendees", "text": "Only who will attend" },
+        { "id": "outcomes", "text": "The topics, intended outcomes and time for each item" },
+        { "id": "everything", "text": "Everything the organiser knows about the topic" }
+      ],
+      "correct": "outcomes", "explanation": "An agenda sets out the topics, intended outcomes and time for each item so people can prepare."
+    },
+    {
+      "id": "roles", "section": 2, "text": "Which task belongs to the person taking notes?",
+      "options": [
+        { "id": "decide", "text": "Make every decision for the group" },
+        { "id": "speak", "text": "Speak for everyone who stays quiet" },
+        { "id": "record", "text": "Record decisions, action owners and deadlines" }
+      ],
+      "correct": "record", "explanation": "The note taker records decisions, action owners and deadlines. The group makes the decisions."
+    },
+    {
+      "id": "discussion", "section": 3, "text": "One person dominates the discussion. What should the facilitator do?",
+      "options": [
+        { "id": "invite", "text": "Pause and invite others to contribute" },
+        { "id": "wait", "text": "Let them speak until the meeting ends" },
+        { "id": "delegate", "text": "Ask the note taker to decide for everyone" }
+      ],
+      "correct": "invite", "explanation": "The facilitator makes room for other people to contribute. Passing this section also credits Roles in a meeting."
+    },
+    {
+      "id": "follow-up", "section": 4, "text": "What should you confirm before the meeting ends?",
+      "options": [
+        { "id": "equal-time", "text": "That everyone spoke for the same amount of time" },
+        { "id": "actions", "text": "The decisions, who will act and by when" },
+        { "id": "next-meeting", "text": "That another meeting is already booked" }
+      ],
+      "correct": "actions", "explanation": "Confirm decisions, action owners and deadlines. Passing this section also credits Roles in a meeting and Running the discussion."
+    }
+  ]
+}

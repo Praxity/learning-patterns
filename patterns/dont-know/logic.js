@@ -1,6 +1,6 @@
 /** @typedef {{ id: string, text: string }} Option */
 /** @typedef {{ id: string, text: string, options: Option[], correct: string, explanation: string }} Question */
-/** @typedef {{ questions: Question[], points: { right: number, wrong: number, unknown: number } }} Content */
+/** @typedef {{ title: string, questions: Question[], points: { right: number, wrong: number, unknown: number } }} Content */
 /** @typedef {{ picks: Record<string, string>, shown: boolean }} LearnerState */
 
 export const DONT_KNOW = 'dont-know';
@@ -23,7 +23,8 @@ function text(value, path) {
 /** @param {unknown} content @returns {asserts content is Content} */
 export function validateContent(content) {
   if (!object(content)) throw new Error('Invalid content');
-  fields(content, ['questions', 'points'], 'content');
+  fields(content, ['title', 'questions', 'points'], 'content');
+  text(content.title, 'title');
   if (!Array.isArray(content.questions) || content.questions.length === 0) throw new Error('Invalid questions');
   const ids = new Set();
   content.questions.forEach((q, index) => {

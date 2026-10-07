@@ -1,5 +1,7 @@
 export const strings = {
   en: {
+    quickCheck: 'Quick check',
+    questionNumber: 'Question {number} of {total}',
     unknown: "I don't know",
     ruleRightGain: 'A right answer scores {points}.',
     ruleRightLoss: 'A right answer costs {points}.',
@@ -28,13 +30,15 @@ export const strings = {
     markWrong: 'Not quite',
     markAnswer: 'Correct answer',
     markUnknown: "You chose I don't know",
-    review: 'Review: ',
+    review: 'Review',
     answers: 'Answers',
     correct: 'Correct answer: {option}.',
     restart: 'Start over',
     cleared: 'Cleared.'
   },
   fr: {
+    quickCheck: 'Vérification rapide',
+    questionNumber: 'Question {number} sur {total}',
     unknown: 'Je ne sais pas',
     ruleRightGain: 'Une bonne réponse rapporte {points}.',
     ruleRightLoss: 'Une bonne réponse coûte {points}.',
@@ -63,7 +67,7 @@ export const strings = {
     markWrong: 'Pas tout à fait',
     markAnswer: 'Bonne réponse',
     markUnknown: 'Vous avez choisi « Je ne sais pas »',
-    review: 'À revoir : ',
+    review: 'À revoir',
     answers: 'Réponses',
     correct: 'Bonne réponse : {option}.',
     restart: 'Recommencer',

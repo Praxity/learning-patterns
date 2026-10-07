@@ -1,7 +1,7 @@
 ---
 title: Check your own answer
 title_fr: Vérifiez votre réponse
-summary: Write an answer, tick the parts it includes, then see a hint for each part you missed and a model answer.
+summary: Compose a message, check its parts, then compare it beside an annotated model with hints for parts to add.
 section: question
 ai: no
 offline: yes
@@ -9,7 +9,7 @@ learners: not tried
 ---
 # Check your own answer
 
-Write an answer, check which parts you included, then compare it with authored feedback and a model answer.
+Compose a message to your manager, check which parts you included, then compare it beside an annotated model. Each numbered part has an authored hint when you leave it unticked.
 
 ## When to use it
 
@@ -17,10 +17,10 @@ Use it when learners can judge their own answers against a short list of clear p
 
 ## How it works
 
-1. Write an answer and select "Check my answer". An empty answer gets an error next to the text box.
-2. Tick the parts your answer includes.
-3. Select "Show feedback". Each result names the part with "Included" or "Not included". Unticked parts also show a hint on its own line. Read the count and model answer. You can edit your answer and ticks, then submit again.
-4. "Start over" appears with the checklist. Select it to clear the answer, ticks and result. It hides again after reset.
+1. Read the task and the message recipient and subject. Write your message and select "Check my answer". An empty message gets an error next to the text box.
+2. Tick the parts your message includes. The count and decorative ring update with your selections.
+3. Select "Show feedback". Your message appears beside the annotated model in wide containers, or above it in narrow ones. Numbered marks match the parts list. Each part says "Included" or "To add"; parts to add have a hint on its own line. Whole-message parts appear in the list. You can edit your message and ticks, then submit again.
+4. "Start over" appears with the checklist. Select it to clear the message, ticks and result. It hides again after reset.
 
 Without JavaScript, open "Check your own answer" to read every part's hint and the model answer.
 
@@ -31,13 +31,17 @@ All content fields are plain text. HTML characters are escaped.
 | Field | Meaning |
 | --- | --- |
 | `task` | The writing task. |
+| `context.to` | The message recipient. |
+| `context.initials` | Decorative recipient initials. |
+| `context.subject` | The message subject. |
 | `parts` | At least one part, in display order. |
 | `parts[].id` | A unique identity using letters, digits, underscores or hyphens. |
 | `parts[].label` | The checkbox label and the part's name in feedback. |
 | `parts[].missed` | The hint when the learner leaves this part unticked. |
+| `parts[].evidence` | Exact text that occurs once in the model, or `null` for a whole-message part. |
 | `model` | The model answer. |
 
-Strings must be nonempty. `validateContent` rejects unknown fields and duplicate part identities. The schema's `x-uniqueBy` annotation describes identity uniqueness. Ordinary JSON Schema tools need this extra check from `validateContent`.
+Strings must be nonempty. `validateContent` rejects unknown fields and duplicate part identities. The schema's `x-uniqueBy` and `x-occursOnceIn` annotations describe identity uniqueness and evidence matching. Ordinary JSON Schema tools need these cross-field checks from `validateContent`.
 
 ## Logic
 
@@ -47,11 +51,12 @@ Strings must be nonempty. `validateContent` rejects unknown fields and duplicate
 | --- | --- |
 | `validateContent(content)` | Nothing. Throws an `Error` naming the first bad field. |
 | `feedback(content, ticked)` | `{ count, total, items }`. Each item is `{ id, included, label, hint }`; `hint` is `null` for an included part and the authored `missed` text otherwise. |
+| `annotate(model, parts, includedIds)` | `{ text, partIndex, included }[]` in model order. Unmarked text has `partIndex: null` and `included: false`. Part indexes refer to author order. Pass validated content and an array of included ids. If evidence overlaps, the first span in model order owns the text. Whole-message parts have no mark. |
 | `validateState(content, value)` | A clean `{ answer, ticked, shown }`, or `null` when `value` isn't valid saved state. |
 
 ## Use it
 
-Copy `patterns/self-check/` and `lib/`, preserving their relative paths. Link `lib/base.css`, then `patterns/self-check/pattern.css`. Give each instance its own id prefix. This ten-line example shows the server and browser calls together. In a server-rendered project, send the rendered HTML to the browser before calling `enhance`.
+Copy `patterns/self-check/` and `lib/`, preserving their relative paths. Link `lib/base.css`, then `patterns/self-check/pattern.css`. Give each instance its own id prefix. This example shows the server and browser calls together. In a server-rendered project, send the rendered HTML to the browser before calling `enhance`.
 
 ```js
 import { render } from './patterns/self-check/render.js';
@@ -59,7 +64,8 @@ import { enhance } from './patterns/self-check/enhance.js';
 import { strings } from './patterns/self-check/strings.js';
 const content = {
   task: 'Explain why you need another day.',
-  parts: [{ id: 'reason', label: 'Reason', missed: 'Explain the delay.' }],
+  context: { to: 'Sam', initials: 'S', subject: 'Report' },
+  parts: [{ id: 'reason', label: 'Reason', missed: 'Explain the delay.', evidence: 'The data arrived late.' }],
   model: 'The data arrived late. Could I have until Tuesday?'
 };
 document.querySelector('main').innerHTML = render(content, strings.en, { id: 'practice', lang: 'en' });
@@ -70,7 +76,7 @@ Pass optional `state: { read, write }` to store `{ answer, ticked, shown }` in y
 
 ## Accessibility
 
-Automated tests check axe's WCAG 2.0, 2.1 and 2.2 AA rules at load, checklist and feedback stages in Chromium, WebKit and Firefox. Keyboard tests check errors, focus, reset and one status text change per submission. Tests also cover French language, no JavaScript, two instances, saved state, 320 CSS pixels with text spacing, and Chromium forced colours. Results use visible words and decorative icons. There is no animation or time limit.
+Automated tests check axe's WCAG 2.0, 2.1 and 2.2 AA rules at load, checklist and feedback stages in Chromium, WebKit and Firefox. Keyboard tests check errors, focus, reset and one status text change per submission. Tests also cover French language, no JavaScript, two instances, saved state, 320 CSS pixels with text spacing, and Chromium forced colours. Results use visible words and decorative icons. Feedback uses the shared short reveal, which stops under reduced motion. There is no time limit.
 
 Screen reader passes: not yet
 
@@ -90,7 +96,7 @@ Logic unit tested. Not tried with learners.
 
 Copy this prompt and fill in your topic and audience.
 
-> Rewrite the self-check example content for my topic: [topic]. My learners are [audience]. Ask them to write an answer they could use in their work. Keep the pattern contract and plain-text content shape `{ task, parts: [{ id, label, missed }], model }`. Keep unique part ids. Write clear labels that name each part in the checklist and feedback. Write specific hints for unticked parts. Keep English and Québec French together and address French learners with vous. A model may only choose authored messages. Keep the render, enhancement, state, accessibility and CSS token contracts. Update the examples and tests. Show me both languages for review.
+> Rewrite the self-check example content for my topic: [topic]. My learners are [audience]. Ask them to write an answer they could use in their work. Keep the pattern contract and plain-text content shape `{ task, context: { to, initials, subject }, parts: [{ id, label, missed, evidence }], model }`. Keep unique part ids. Evidence must occur exactly once in the model, or be null for a part that spans the whole message. Write clear labels that name each part in the checklist and feedback. Write specific hints for unticked parts. Keep English and Québec French together and address French learners with vous. A model may only choose authored messages. Keep the render, enhancement, state, accessibility and CSS token contracts. Update the examples and tests. Show me both languages for review.
 
 ## Licence
 

@@ -2,7 +2,7 @@
 /** @typedef {{ text: string, misconception: string }} AuthorOption */
 /** @typedef {{ question: string, rightAnswer: string, misconceptions: Misconception[], authorOptions: AuthorOption[], count: number }} Content */
 /** @typedef {{ text: string, misconception: string, custom: string }} LearnerOption */
-/** @typedef {{ options: LearnerOption[], shown: boolean }} LearnerState */
+/** @typedef {{ answer: string, hadIt: boolean | null, options: LearnerOption[], shown: boolean }} LearnerState */
 /** @typedef {'text' | 'misconception' | 'custom'} Field */
 /** @typedef {'empty' | 'longText' | 'right' | 'duplicate' | 'choose' | 'describe' | 'longCustom'} ErrorCode */
 /** @typedef {{ option: number, field: Field, code: ErrorCode }} FieldError */
@@ -10,6 +10,20 @@
 export const OTHER = 'other';
 export const MAX_OPTION = 300;
 export const MAX_CUSTOM = 120;
+
+/** Key A belongs to the right answer; wrong options start at index 1.
+ * @param {number} index @returns {string}
+ */
+export function optionKey(index) {
+  if (!Number.isSafeInteger(index) || index < 0) throw new Error('Invalid option index');
+  let value = index + 1, label = '';
+  while (value > 0) {
+    value--;
+    label = String.fromCharCode(65 + value % 26) + label;
+    value = Math.floor(value / 26);
+  }
+  return label;
+}
 
 /** @param {unknown} value @returns {value is Record<string, unknown>} */
 function object(value) { return value !== null && typeof value === 'object' && !Array.isArray(value); }
@@ -142,10 +156,18 @@ export function coverageMessage(content, options) {
  */
 export function validateState(content, value) {
   validateContent(content);
-  if (!object(value) || Object.keys(value).length !== 2 || typeof value.shown !== 'boolean' || !Array.isArray(value.options) || value.options.length !== content.count) return null;
+  if (!object(value) || typeof value.shown !== 'boolean' || !Array.isArray(value.options) || value.options.length !== content.count) return null;
+  const legacy = Object.keys(value).length === 2 && !Object.hasOwn(value, 'answer') && !Object.hasOwn(value, 'hadIt');
+  if (!legacy && (Object.keys(value).length !== 4 || typeof value.answer !== 'string'
+    || (value.hadIt !== null && typeof value.hadIt !== 'boolean')
+    || (value.hadIt !== null && !value.answer.trim()) || (value.shown && value.hadIt === null))) return null;
   const known = new Set(['', OTHER, ...content.misconceptions.map(item => item.id)]);
   if (!value.options.every(item => isOption(item) && item.text.length <= MAX_OPTION && item.custom.length <= MAX_CUSTOM && known.has(item.misconception))) return null;
   const options = /** @type {LearnerOption[]} */ (value.options);
   if (value.shown && !validateOptions(content, options).ok) return null;
-  return { options: options.map(item => ({ ...item })), shown: value.shown };
+  return {
+    answer: legacy ? '' : /** @type {string} */ (value.answer),
+    hadIt: legacy ? null : /** @type {boolean | null} */ (value.hadIt),
+    options: options.map(item => ({ ...item })), shown: legacy ? false : value.shown
+  };
 }

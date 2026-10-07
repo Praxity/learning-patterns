@@ -3,12 +3,55 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { scheduleReview, isoDate, validateContent, validateState } from './logic.js';
+import * as logic from './logic.js';
 import { render } from './render.js';
 import { strings } from './strings.js';
 
 const content = JSON.parse(await readFile(new URL('./examples/en.json', import.meta.url)));
 const french = JSON.parse(await readFile(new URL('./examples/fr.json', import.meta.url)));
 const schema = JSON.parse(await readFile(new URL('./content.schema.json', import.meta.url)));
+
+test('article title is required plain text in both the validator and schema', () => {
+  for (const title of ['', null, 2, undefined]) {
+    const value = { ...content, title };
+    assert.throws(() => validateContent(value), /title/);
+    assert.equal(matches(value, schema), false);
+  }
+  const value = { ...content, title: 'Stonewalling and time-outs' };
+  assert.doesNotThrow(() => validateContent(value));
+  assert.equal(matches(value, schema), true);
+});
+
+test('reading minutes count authored text at 200 words per minute, rounded up with a one-minute minimum', () => {
+  assert.equal(typeof logic.readingMinutes, 'function');
+  const article = count => ({ title: 'Title', reviewDays: content.reviewDays, parts: [{
+    id: 'one', heading: 'Heading', paragraphs: ['word '.repeat(count)], question: 'Question', answer: 'Answer'
+  }] });
+  assert.equal(logic.readingMinutes(article(196)), 1);
+  assert.equal(logic.readingMinutes(article(197)), 2);
+  const spaced = { ...article(1), title: ' \n ', parts: [{ ...article(1).parts[0], heading: ' ', paragraphs: ['\t '], question: ' ', answer: ' ' }] };
+  assert.equal(logic.readingMinutes(spaced), 1);
+  assert.equal(logic.readingMinutes({ ...article(1), parts: [article(197).parts[0], { ...article(197).parts[0], id: 'two' }] }), 3);
+  assert.throws(() => logic.readingMinutes({ ...article(1), title: '' }), /title/);
+});
+
+test('render includes an escaped article header, localized reading time, silent progress and decorative recall icons', () => {
+  for (const [lang, title, minutes, progress] of [
+    ['en', 'Stonewalling & time-outs', '1 min read', '0 of 1 checked'],
+    ['fr', "L'évitement et le temps mort", '1 min de lecture', '0 sur 1 vérifiés']
+  ]) {
+    const value = { ...content, title, parts: [{ ...content.parts[0], paragraphs: ['A short reading.'] }] };
+    const markup = render(value, strings[lang], { id: 'article', lang });
+    assert.match(markup, /<header\b/);
+    assert.match(markup, /<h2[^>]*id="article-title"/);
+    assert.ok(markup.includes(title.replaceAll('&', '&amp;').replaceAll("'", '&#39;')));
+    assert.ok(markup.includes(minutes));
+    assert.match(markup, new RegExp(`class="lp-small" data-lp-progress hidden>${progress}</p>`));
+    assert.equal((markup.match(/aria-hidden="true"/g) || []).length, 2);
+    assert.match(markup, /data-lp-review-text><\/span>/);
+    assert.doesNotMatch(markup, /data-lp-progress[^>]*(?:aria-live|role=)/);
+  }
+});
 
 // These are the schema keywords this content uses, including its uniqueness annotation.
 function matches(value, rule) {
@@ -116,13 +159,14 @@ test('render keeps native details, h3 headings, hidden rating controls and one e
   assert.equal((markup.match(/data-lp-rating[^>]* hidden/g) || []).length, 3);
   assert.match(markup, /role="status" aria-atomic="true"><\/p>/);
   assert.equal((markup.match(/role="status"/g) || []).length, 1);
-  assert.doesNotMatch(markup, /<h[12]\b|<table\b|score|summary-banner/);
+  assert.equal((markup.match(/<h2\b/g) || []).length, 1);
+  assert.doesNotMatch(markup, /<h1\b|<table\b|score|summary-banner/);
   for (const part of content.parts) for (const text of [part.heading, ...part.paragraphs, part.question, part.answer]) assert.ok(markup.includes(text.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll("'", '&#39;')));
 });
 
 test('render escapes all text and attributes and prefixes ids across instances', () => {
   const hostile = '<script>alert("x")</script> & \'quoted\'';
-  const value = { ...content, parts: [{ id: 'one', heading: hostile, paragraphs: [hostile], question: hostile, answer: hostile }] };
+  const value = { ...content, title: hostile, parts: [{ id: 'one', heading: hostile, paragraphs: [hostile], question: hostile, answer: hostile }] };
   const ui = Object.fromEntries(Object.keys(strings.en).map(key => [key, hostile]));
   const markup = render(value, ui, { id: 'first"', lang: 'fr"' });
   assert.doesNotMatch(markup, /<script>/);

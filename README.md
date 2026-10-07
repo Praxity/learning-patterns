@@ -17,7 +17,9 @@ Copy its folder under `patterns/` and the shared `lib/` folder. Keep their relat
 | [Check your own answer](patterns/self-check/README.md) | Write an answer, tick the parts it includes, then see a hint for each part you missed and a model answer. |
 | ["I don't know" as an answer](patterns/dont-know/README.md) | Multiple choice where "I don't know" scores zero and a wrong answer costs a point, so guesses don't hide gaps. |
 | [Questions inside the reading](patterns/review-prompts/README.md) | Short recall questions between sections of text, each with a next review date. |
+| [Highlight the passage](patterns/highlight/README.md) | Mark the parts of a passage that answer a question, or its key ideas, then compare with the author's choices in place. |
 | [Your first answer comes back](patterns/first-answer/README.md) | Save an answer at the start of a course and compare it with a new one at the end. |
+| [Test out of sections](patterns/test-out/README.md) | A short placement check marks which sections of a course you can skip; passing an advanced section credits the sections it builds on. |
 | [Write the wrong options](patterns/write-distractors/README.md) | Write wrong options for a question, tag the misconception behind each, and compare with the author's. |
 
 ## Look and theme tokens

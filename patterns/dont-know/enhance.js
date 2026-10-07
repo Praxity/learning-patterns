@@ -112,12 +112,22 @@ export function enhance(root, { content, strings, state }) {
       { ids: outcome.unknown, one: strings.countUnknownOne, many: strings.countUnknownMany }
     ].filter(({ ids }) => ids.length).map(({ ids, one, many }) => format(ids.length === 1 ? one : many, { count: ids.length })).join(', ');
     const review = questions.filter(({ q }) => !outcome.right.includes(q.id));
-    result.innerHTML = `<p class="lp-run-in" tabindex="-1">${html(summary)}</p>
-      <p>${html(counts)}</p>
-      ${review.length ? `<p class="lp-dont-know-review" data-lp-review>${html(strings.review)}${review.map(({ q, fieldset }) => `<a href="#${html(fieldset.id)}">${html(q.text)}</a>`).join(', ')}</p>` : ''}`;
+    // Negative scores have an empty ring. Text preserves every authored score and total.
+    const progress = outcome.total > 0 ? Math.max(0, Math.min(1, outcome.points / outcome.total)) : 0;
+    // Explicit tabindex includes review links in WebKit's keyboard navigation on Windows.
+    result.innerHTML = `<div class="lp-dont-know-result-head">
+      <svg class="lp-dont-know-score-ring" width="64" height="64" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+        <circle class="lp-dont-know-ring-track" cx="32" cy="32" r="29"/>
+        <circle class="lp-dont-know-ring-fill" cx="32" cy="32" r="29" pathLength="100" stroke-dasharray="100" stroke-dashoffset="${100 * (1 - progress)}" transform="rotate(-90 32 32)"/>
+      </svg>
+      <div><p class="lp-stem" data-lp-score tabindex="-1">${html(summary)}</p>
+        <p class="lp-small" data-lp-counts>${html(counts)}</p></div>
+      </div>
+      ${review.length ? `<div class="lp-dont-know-review" data-lp-review><h3 class="lp-run-in">${html(strings.review)}</h3>
+        <ul>${review.map(({ q, fieldset }) => `<li><a href="#${html(fieldset.id)}" tabindex="0">${icons['arrow-right']}<span>${html(q.text)}</span></a></li>`).join('')}</ul></div>` : ''}`;
     result.hidden = false; restart.hidden = false; check.hidden = true; shown = true;
     if (announce) {
-      /** @type {HTMLElement} */ (required(result, '.lp-run-in')).focus();
+      /** @type {HTMLElement} */ (required(result, '[data-lp-score]')).focus();
       status.textContent = summary;
     }
   }

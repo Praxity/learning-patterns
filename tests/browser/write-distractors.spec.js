@@ -6,15 +6,22 @@ const english = JSON.parse(await readFile(new URL('../../patterns/write-distract
 const french = JSON.parse(await readFile(new URL('../../patterns/write-distractors/examples/fr.json', import.meta.url)));
 const draft = (text, misconception, custom = '') => ({ text, misconception, custom });
 
-async function open(page, lang = 'en') {
+async function retrieve(root) {
+  if (await root.locator('[data-lp-flow]').isVisible()) return;
+  await root.locator('[data-lp-answer]').fill('No, breaks help.');
+  await root.locator('[data-lp-check]').click();
+  await root.locator('[data-lp-had-it]').click();
+}
+async function open(page, lang = 'en', authoring = true) {
   await page.goto(`/write-distractors/${lang}.html`);
   await page.waitForFunction(() => window.lpReady);
+  if (authoring) for (const root of await page.locator('[data-lp-pattern]').all()) await retrieve(root);
 }
 async function fill(root, custom = false) {
   const rows = root.locator('[data-lp-option]');
-  await rows.nth(0).locator('textarea').fill('Yes, breaks slow you down.');
+  await rows.nth(0).locator('[data-lp-text]').fill('Yes, breaks slow you down.');
   await rows.nth(0).locator('select').selectOption('push-through');
-  await rows.nth(1).locator('textarea').fill('Yes, breaks make you lose your place.');
+  await rows.nth(1).locator('[data-lp-text]').fill('Yes, breaks make you lose your place.');
   await rows.nth(1).locator('select').selectOption(custom ? 'other' : 'phone');
   if (custom) await rows.nth(1).locator('input').fill('Breaks disrupt focus');
 }
@@ -32,6 +39,143 @@ async function observe(page) {
   });
 }
 
+for (const lang of ['en', 'fr']) {
+  test(`answer first, unscored self-report, keyed builder and finished question (${lang})`, async ({ page }) => {
+    const content = lang === 'en' ? english : french;
+    await open(page, lang, false);
+    const answer = page.locator('[data-lp-answer]');
+    const check = page.locator('[data-lp-check]');
+    await expect(page.locator('[data-lp-scene]')).toContainText(lang === 'en' ? 'Write the quiz' : 'Rédigez le quiz');
+    await expect(page.locator('[data-lp-scene] svg')).toHaveAttribute('aria-hidden', 'true');
+    await expect(answer).toHaveAttribute('rows', '3');
+    await expect(page.locator('[data-lp-right]')).toBeHidden();
+    await expect(page.locator('[data-lp-flow]')).toBeHidden();
+    await expect(page.locator('[data-lp-fallback]')).toBeHidden();
+    await check.click();
+    await expect(answer).toBeFocused();
+    await expect(answer).toHaveAttribute('aria-invalid', 'true');
+    await expect(page.locator('[data-lp-answer-error]')).toBeVisible();
+    await answer.fill('My attempt');
+    await expect(answer).not.toHaveAttribute('aria-invalid');
+    // Check by keyboard so focus retention is independent of native pointer behaviour.
+    await check.focus();
+    await observe(page);
+    await check.press('Enter');
+    await expect(answer).toHaveAttribute('readonly', '');
+    await expect(check).toBeFocused();
+    await expect(check).toHaveAttribute('aria-disabled', 'true');
+    await expect(page.locator('[data-lp-right]')).toContainText(content.rightAnswer);
+    await expect(page.locator('[data-lp-right] svg')).toHaveAttribute('aria-hidden', 'true');
+    await expect(page.locator('[data-lp-flow]')).toBeHidden();
+    await expect(page.locator('[data-lp-fallback]')).toBeHidden();
+    await expect(page.locator('[data-lp-had-it]')).toHaveAttribute('aria-pressed', 'false');
+    await expect(page.locator('[data-lp-not-quite]')).toHaveAttribute('aria-pressed', 'false');
+    await expect(page.locator('[data-lp-had-it]')).toHaveClass('lp-button lp-button-secondary');
+    await observe(page);
+    await page.locator('[data-lp-not-quite]').click();
+    await expect(page.locator('[data-lp-not-quite]')).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('[data-lp-write-heading]')).toBeFocused();
+    expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([lang === 'en' ? 'Noted.' : 'Noté.']);
+    expect(await page.evaluate(() => window.lpSaved.hadIt)).toBe(false);
+    await expect(page.locator('[data-lp-option-key]')).toHaveText(['B', 'C']);
+    await fill(page);
+    await page.locator('[data-lp-compare]').click();
+    const preview = page.locator('[data-lp-preview]');
+    await expect(preview).toContainText(content.question);
+    await expect(preview.locator('[data-lp-preview-key]')).toHaveText(['A', 'B', 'C']);
+    await expect(preview.locator('li').first()).toContainText(content.rightAnswer);
+    await expect(preview.locator('li').first()).toContainText(lang === 'en' ? 'Correct answer' : 'Bonne réponse');
+    await expect(preview.locator('li').nth(1)).toContainText('Yes, breaks slow you down.');
+    await expect(preview.locator('input, button, textarea')).toHaveCount(0);
+    await expect(page.locator('[data-lp-author]')).toBeVisible();
+    await page.locator('[data-lp-clear]').click();
+    await expect(answer).toBeFocused();
+    await expect(answer).toHaveValue('');
+    await expect(answer).not.toHaveAttribute('readonly');
+    await expect(check).toBeVisible();
+    await expect(page.locator('[data-lp-right]')).toBeHidden();
+    await expect(page.locator('[data-lp-flow]')).toBeHidden();
+    expect(await page.evaluate(() => window.lpSaved)).toEqual({ answer: '', hadIt: null, options: [draft('', ''), draft('', '')], shown: false });
+  });
+}
+
+test('old saved results restore as hidden drafts until retrieval is done', async ({ page }) => {
+  await page.addInitScript(value => { window.lpSeed = value; }, { options: [draft('Old B', 'busy'), draft('Old C', 'phone')], shown: true });
+  await open(page, 'en', false);
+  await expect(page.locator('[data-lp-answer]')).toHaveValue('');
+  await expect(page.locator('[data-lp-flow]')).toBeHidden();
+  await expect(page.locator('[data-lp-result]')).toBeHidden();
+  await expect(page.locator('[role="status"]')).toHaveText('');
+  await page.locator('[data-lp-answer]').fill('No');
+  await page.locator('[data-lp-check]').click();
+  await page.locator('[data-lp-had-it]').click();
+  await expect(page.locator('[data-lp-text]').nth(0)).toHaveValue('Old B');
+  await expect(page.locator('[data-lp-text]').nth(1)).toHaveValue('Old C');
+});
+
+test('retrieval guards reject blank answers and prevent skipping or repeating steps', async ({ page }) => {
+  await open(page, 'en', false); await observe(page);
+  await page.locator('[data-lp-answer]').fill(' \n ');
+  await page.locator('[data-lp-check]').click();
+  await expect(page.locator('[data-lp-answer]')).toHaveAttribute('aria-invalid', 'true');
+  await page.evaluate(() => {
+    document.querySelector('[data-lp-had-it]').click();
+    document.querySelector('[data-lp-compare]').click();
+  });
+  await expect(page.locator('[data-lp-flow]')).toBeHidden();
+  await expect(page.locator('[data-lp-result]')).toBeHidden();
+  await page.locator('[data-lp-answer]').fill('A remembered answer');
+  await observe(page);
+  await page.locator('[data-lp-check]').click();
+  await page.evaluate(() => document.querySelector('[data-lp-check]').click());
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([english.rightAnswer]);
+  await observe(page);
+  await page.locator('[data-lp-had-it]').click();
+  await page.locator('[data-lp-had-it]').click();
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Noted.']);
+  expect(await page.evaluate(() => window.lpSaved.hadIt)).toBe(true);
+  await page.locator('[data-lp-not-quite]').click();
+  await expect(page.locator('[data-lp-had-it]')).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.locator('[data-lp-not-quite]')).toHaveAttribute('aria-pressed', 'true');
+  expect(await page.evaluate(() => window.lpSaved.hadIt)).toBe(false);
+  await expect(page.locator('[data-lp-result]')).toBeHidden();
+});
+
+test('keyboard retrieval reveals the answer, records self-report and focuses authoring', async ({ page }) => {
+  await open(page, 'en', false); await observe(page);
+  await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-answer]')).toBeFocused();
+  await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-check]')).toBeFocused();
+  await page.keyboard.press('Enter'); await expect(page.locator('[data-lp-answer]')).toBeFocused();
+  await page.keyboard.type('No, attention needs a break.');
+  await page.keyboard.press('Tab'); await page.keyboard.press('Enter');
+  await expect(page.locator('[data-lp-check]')).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.locator('[data-lp-had-it]')).toBeFocused();
+  await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-not-quite]')).toBeFocused();
+  await page.keyboard.press('Space');
+  await expect(page.locator('[data-lp-write-heading]')).toBeFocused();
+  await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-text]').first()).toBeFocused();
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['1 field needs attention.', english.rightAnswer, 'Noted.']);
+});
+
+test('answer drafts restore in step one without revealing the answer', async ({ page }) => {
+  await page.addInitScript(value => { window.lpSeed = value; }, { answer: 'My draft', hadIt: null, options: [draft('', ''), draft('', '')], shown: false });
+  await open(page, 'en', false);
+  await expect(page.locator('[data-lp-answer]')).toHaveValue('My draft');
+  await expect(page.locator('[data-lp-answer]')).not.toHaveAttribute('readonly');
+  await expect(page.locator('[data-lp-right]')).toBeHidden();
+  await expect(page.locator('[role="status"]')).toHaveText('');
+  await page.locator('[data-lp-check]').click();
+  await page.locator('[data-lp-had-it]').click();
+  await expect(page.locator('[data-lp-answer]')).toHaveValue('My draft');
+});
+
+test('reduced motion stops every reveal', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' }); await open(page);
+  await fill(page); await page.locator('[data-lp-compare]').click();
+  expect(await page.locator('.lp-reveal').evaluateAll(elements => elements.map(el => getComputedStyle(el).animationName))).toEqual(['none', 'none', 'none']);
+});
+
 test('shared course design keeps one frame and local icon feedback', async ({ page }) => {
   await open(page);
   const root = page.locator('[data-lp-pattern]');
@@ -44,7 +188,7 @@ test('shared course design keeps one frame and local icon feedback', async ({ pa
     await expect(error.locator('path[d="M12 8v4"]')).toHaveCount(1);
   }
   await fill(page, true); await page.locator('[data-lp-compare]').click();
-  await expect(root.locator('[data-lp-result]')).toHaveClass('lp-section');
+  await expect(root.locator('[data-lp-result]')).toHaveClass('lp-section lp-reveal');
   await expect(root.locator('[data-lp-summary]')).toHaveClass('lp-run-in');
   await expect(root.locator('[data-lp-summary] + p')).toHaveClass('lp-small');
   const yours = root.locator('[data-lp-yours] > li');
@@ -52,8 +196,8 @@ test('shared course design keeps one frame and local icon feedback', async ({ pa
   await expect(yours.nth(0).locator('.lp-met path[d="M5 12l5 5l10 -10"]')).toHaveCount(1);
   await expect(yours.nth(1).locator('.lp-neutral')).toHaveText("A misconception the author's options don't cover");
   await expect(yours.nth(1).locator('.lp-neutral path[d="M8.56 3.69a9 9 0 0 0 -2.92 1.95"]')).toHaveCount(1);
-  expect(await yours.nth(0).locator('.lp-met').evaluate(el => getComputedStyle(el).color)).toBe('rgb(20, 108, 67)');
-  expect(await yours.nth(1).locator('.lp-neutral').evaluate(el => getComputedStyle(el).color)).toBe('rgb(74, 80, 90)');
+  expect(await yours.nth(0).locator('.lp-met').evaluate(el => getComputedStyle(el).color)).toBe('rgb(18, 112, 79)');
+  expect(await yours.nth(1).locator('.lp-neutral').evaluate(el => getComputedStyle(el).color)).toBe('rgb(85, 92, 103)');
   for (const item of await yours.all()) {
     await expect(item.locator('p').nth(1)).toHaveClass(/lp-(met|neutral)/);
     await expect(item.locator('p').nth(2)).toHaveClass('lp-small');
@@ -64,10 +208,10 @@ test('shared course design keeps one frame and local icon feedback', async ({ pa
   expect(await restart.evaluate(el => {
     const css = getComputedStyle(el);
     return [css.backgroundColor, css.textDecorationLine, css.minHeight];
-  })).toEqual(['rgba(0, 0, 0, 0)', 'underline', '44px']);
+  })).toEqual(['rgba(0, 0, 0, 0)', 'none', '44px']);
   await restart.click();
-  await expect(root.locator('textarea').first()).toBeFocused();
-  await expect(root.locator('[role="status"]')).toHaveText('Options cleared.');
+  await expect(root.locator('[data-lp-answer]')).toBeFocused();
+  await expect(root.locator('[role="status"]')).toHaveText('Answer and options cleared.');
 });
 
 test('controls reveal in place, custom field toggles without a live Targets line', async ({ page }) => {
@@ -75,7 +219,7 @@ test('controls reveal in place, custom field toggles without a live Targets line
   await expect(page.locator('[data-lp-flow]')).toBeVisible();
   await expect(page.locator('[data-lp-fallback]')).toBeHidden();
   await expect(page.locator('fieldset')).toHaveCount(2);
-  await expect(page.locator('textarea').first()).toHaveAttribute('maxlength', '300');
+  await expect(page.locator('[data-lp-text]').first()).toHaveAttribute('maxlength', '300');
   const row = page.locator('fieldset').first();
   await expect(row.locator('input')).toBeHidden();
   await row.locator('select').selectOption('other');
@@ -93,7 +237,7 @@ test('controls reveal in place, custom field toggles without a live Targets line
 test('empty submit announces field count, links each error and focuses first textarea', async ({ page }) => {
   await open(page); await observe(page);
   await page.locator('[data-lp-compare]').click();
-  await expect(page.locator('textarea').first()).toBeFocused();
+  await expect(page.locator('[data-lp-text]').first()).toBeFocused();
   await expect(page.locator('[role="status"]')).toHaveText('4 fields need attention.');
   const inputs = page.locator('[aria-invalid="true"]');
   await expect(inputs).toHaveCount(4);
@@ -101,10 +245,10 @@ test('empty submit announces field count, links each error and focuses first tex
     const id = await input.getAttribute('aria-describedby');
     await expect(page.locator(`[id="${id}"]`)).toBeVisible();
   }
-  await page.locator('textarea').first().fill('Draft');
-  await expect(page.locator('textarea').first()).not.toHaveAttribute('aria-invalid');
+  await page.locator('[data-lp-text]').first().fill('Draft');
+  await expect(page.locator('[data-lp-text]').first()).not.toHaveAttribute('aria-invalid');
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['4 fields need attention.']);
-  await expect(page.locator('[data-lp-clear]')).toBeHidden();
+  await expect(page.locator('[data-lp-clear]')).toBeVisible();
 });
 
 for (const lang of ['en', 'fr']) {
@@ -151,10 +295,11 @@ for (const lang of ['en', 'fr']) {
         document.querySelector('[data-lp-pattern]').outerHTML = render(content, strings[lang], { id: 'counts', lang });
         enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings[lang] });
       }, { content, lang });
+      await retrieve(page.locator('[data-lp-pattern]'));
       await observe(page);
       for (let index = 0; index < 2; index++) {
         const row = page.locator('[data-lp-option]').nth(index);
-        await row.locator('textarea').fill(`Wrong answer ${index + 1}`);
+        await row.locator('[data-lp-text]').fill(`Wrong answer ${index + 1}`);
         await row.locator('select').selectOption(fixture.targets[index]);
         if (fixture.targets[index] === 'other') await row.locator('input').fill(fixture.alias ? `  ${content.misconceptions[0].label.toUpperCase()}  ` : fixture.customs[index]);
       }
@@ -171,7 +316,7 @@ for (const lang of ['en', 'fr']) {
 
 test('keyboard-only error, custom tag, comparison, repeated announcement and clear', async ({ page }) => {
   await open(page); await observe(page);
-  const texts = page.locator('textarea'), selects = page.locator('select');
+  const texts = page.locator('[data-lp-text]'), selects = page.locator('select');
   await page.keyboard.press('Tab'); await expect(texts.nth(0)).toBeFocused();
   await page.keyboard.press('Tab'); await expect(selects.nth(0)).toBeFocused();
   await page.keyboard.press('Tab'); await expect(texts.nth(1)).toBeFocused();
@@ -193,16 +338,25 @@ test('keyboard-only error, custom tag, comparison, repeated announcement and cle
   await expect(page.locator('[data-lp-coverage]')).toHaveText("You targeted 1 of the author's 4 misconceptions, and 1 of your own.");
   await page.keyboard.press('Enter');
   await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-clear]')).toBeFocused();
-  await page.keyboard.press('Enter'); await expect(texts.nth(0)).toBeFocused();
+  await page.keyboard.press('Enter'); await expect(page.locator('[data-lp-answer]')).toBeFocused();
   for (const field of await page.locator('textarea, select, input').all()) await expect(field).toHaveValue('');
   await expect(page.locator('[data-lp-result]')).toBeHidden(); await expect(page.locator('[data-lp-clear]')).toBeHidden();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['4 fields need attention.', '1 field needs attention.', coverage, coverage, 'Options cleared.']);
-  expect(await page.evaluate(() => window.lpSaved)).toEqual({ options: [draft('', ''), draft('', '')], shown: false });
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['4 fields need attention.', '1 field needs attention.', coverage, coverage, 'Answer and options cleared.']);
+  expect(await page.evaluate(() => window.lpSaved)).toEqual({ answer: '', hadIt: null, options: [draft('', ''), draft('', '')], shown: false });
 });
 
 for (const lang of ['en', 'fr', 'two']) {
   test(`axe at load, field errors, custom input and results (${lang})`, async ({ page }) => {
-    await open(page, lang); await scan(page);
+    await open(page, lang, false); await scan(page);
+    for (const root of await page.locator('[data-lp-pattern]').all()) await root.locator('[data-lp-check]').click();
+    await scan(page);
+    for (const root of await page.locator('[data-lp-pattern]').all()) {
+      await root.locator('[data-lp-answer]').fill('No, breaks help.');
+      await root.locator('[data-lp-check]').click();
+    }
+    await scan(page);
+    for (const root of await page.locator('[data-lp-pattern]').all()) await root.locator('[data-lp-had-it]').click();
+    await scan(page);
     for (const root of await page.locator('[data-lp-pattern]').all()) await root.locator('[data-lp-compare]').click();
     await scan(page);
     for (const root of await page.locator('[data-lp-pattern]').all()) await fill(root, true);
@@ -239,10 +393,14 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     const page = await context.newPage(); await page.goto(`/write-distractors/${lang}.html`);
     await expect(page.locator('[data-lp-pattern]')).toContainText(content.question);
     await expect(page.locator('[data-lp-pattern]')).toContainText(content.rightAnswer);
-    await page.keyboard.press('Tab'); await expect(page.locator('summary')).toBeFocused();
-    await page.keyboard.press('Enter'); await expect(page.locator('details')).toHaveAttribute('open', '');
-    for (const item of content.authorOptions) await expect(page.locator('details')).toContainText(item.text);
-    for (const item of content.misconceptions) await expect(page.locator('details')).toContainText(item.label);
+    await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-answer]')).toBeFocused();
+    await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-answer-fallback] summary')).toBeFocused();
+    await page.keyboard.press('Enter'); await expect(page.locator('[data-lp-answer-fallback]')).toHaveAttribute('open', '');
+    await expect(page.locator('[data-lp-answer-fallback]')).toContainText(content.rightAnswer);
+    await page.keyboard.press('Tab'); await page.keyboard.press('Enter');
+    await expect(page.locator('[data-lp-fallback]')).toHaveAttribute('open', '');
+    for (const item of content.authorOptions) await expect(page.locator('[data-lp-fallback]')).toContainText(item.text);
+    for (const item of content.misconceptions) await expect(page.locator('[data-lp-fallback]')).toContainText(item.label);
     await expect(page.locator('[data-lp-flow]')).toBeHidden(); await expect(page.locator('[role="status"]')).toHaveText('');
     // axe schedules script callbacks, which cannot run with JavaScript disabled.
     // Scan an exact copy of the baseline DOM, with its scripts removed.
@@ -283,13 +441,13 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
 
 test('right answer, duplicate and custom errors use the field and update only on submit', async ({ page }) => {
   await open(page); await observe(page); await fill(page);
-  await page.locator('textarea').first().fill(english.rightAnswer.toUpperCase());
+  await page.locator('[data-lp-text]').first().fill(english.rightAnswer.toUpperCase());
   await page.locator('[data-lp-compare]').click();
-  await expect(page.locator('textarea').first()).toBeFocused();
+  await expect(page.locator('[data-lp-text]').first()).toBeFocused();
   await expect(page.locator('[data-lp-text-error]').first()).toContainText('is the right answer');
-  await page.locator('textarea').first().fill('Same'); await page.locator('textarea').nth(1).fill(' SAME ');
+  await page.locator('[data-lp-text]').first().fill('Same'); await page.locator('[data-lp-text]').nth(1).fill(' SAME ');
   await page.locator('[data-lp-compare]').click();
-  await expect(page.locator('textarea').nth(1)).toBeFocused();
+  await expect(page.locator('[data-lp-text]').nth(1)).toBeFocused();
   await expect(page.locator('[data-lp-text-error]').nth(1)).toContainText('different');
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['1 field needs attention.', '1 field needs attention.']);
 });
@@ -298,9 +456,9 @@ test('draft state saves every field, submitted state is clean, edits hide stale 
   await open(page); await observe(page); await fill(page, true);
   const before = await page.evaluate(() => window.lpSaved);
   expect(before.shown).toBe(false); expect(before.options[1].custom).toBe('Breaks disrupt focus');
-  await page.locator('textarea').first().fill('  A  B  '); await page.locator('[data-lp-compare]').click();
+  await page.locator('[data-lp-text]').first().fill('  A  B  '); await page.locator('[data-lp-compare]').click();
   expect((await page.evaluate(() => window.lpSaved)).options[0].text).toBe('A B');
-  await page.locator('textarea').first().fill('');
+  await page.locator('[data-lp-text]').first().fill('');
   await expect(page.locator('[data-lp-result]')).toBeHidden();
   expect((await page.evaluate(() => window.lpSaved)).shown).toBe(false);
   expect((await page.evaluate(() => window.lpAnnouncements)).length).toBe(1);
@@ -308,29 +466,57 @@ test('draft state saves every field, submitted state is clean, edits hide stale 
 
 for (const shown of [false, true]) {
   test(`valid saved custom state restores with shown=${shown}, silently`, async ({ page }) => {
-    await page.addInitScript(value => { window.lpSeed = value; }, { options: [draft('A', 'push-through'), draft('B', 'other', 'Focus lost')], shown });
+    await page.addInitScript(value => { window.lpSeed = value; }, { answer: 'No', hadIt: false, options: [draft('A', 'push-through'), draft('B', 'other', 'Focus lost')], shown });
     await open(page);
-    await expect(page.locator('textarea').first()).toHaveValue('A');
+    await expect(page.locator('[data-lp-answer]')).toHaveValue('No');
+    await expect(page.locator('[data-lp-answer]')).toHaveAttribute('readonly', '');
+    await expect(page.locator('[data-lp-had-it]')).toHaveAttribute('aria-pressed', 'false');
+    await expect(page.locator('[data-lp-not-quite]')).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('[data-lp-text]').first()).toHaveValue('A');
     await expect(page.locator('input').nth(1)).toBeVisible(); await expect(page.locator('input').nth(1)).toHaveValue('Focus lost');
     await expect(page.locator('[role="status"]')).toHaveText('');
     if (shown) { await expect(page.locator('[data-lp-result]')).toContainText('Focus lost'); await expect(page.locator('[data-lp-clear]')).toBeVisible(); }
-    else { await expect(page.locator('[data-lp-result]')).toBeHidden(); await expect(page.locator('[data-lp-clear]')).toBeHidden(); }
+    else { await expect(page.locator('[data-lp-result]')).toBeHidden(); await expect(page.locator('[data-lp-clear]')).toBeVisible(); }
   });
 }
 
 test('invalid state is ignored', async ({ page }) => {
   await page.addInitScript(() => { window.lpSeed = { options: [{ text: 'Invalid', misconception: 'unknown', custom: '' }], shown: true }; });
-  await open(page); await expect(page.locator('textarea').first()).toHaveValue('');
+  await open(page, 'en', false); await expect(page.locator('[data-lp-answer]')).toHaveValue('');
   await expect(page.locator('[data-lp-result]')).toBeHidden(); await expect(page.locator('[role="status"]')).toHaveText('');
 });
 
+test('destroy and re-enhance without host state resets the self-report controls', async ({ page }) => {
+  await open(page, 'en', false);
+  await page.evaluate(async content => {
+    const { render } = await import('/patterns/write-distractors/render.js');
+    const { enhance } = await import('/patterns/write-distractors/enhance.js');
+    const { strings } = await import('/patterns/write-distractors/strings.js');
+    window.lpInstances[0].destroy();
+    document.querySelector('[data-lp-pattern]').outerHTML = render(content, strings.en, { id: 'no-state', lang: 'en' });
+    const root = document.querySelector('[data-lp-pattern]');
+    const instance = enhance(root, { content, strings: strings.en });
+    root.querySelector('[data-lp-answer]').value = 'No';
+    root.querySelector('[data-lp-check]').click();
+    root.querySelector('[data-lp-had-it]').click();
+    instance.destroy();
+    enhance(root, { content, strings: strings.en });
+  }, english);
+  await expect(page.locator('[data-lp-had-it]')).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.locator('[data-lp-not-quite]')).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.locator('[data-lp-flow]')).toBeHidden();
+  await expect(page.locator('[data-lp-answer]')).not.toHaveAttribute('readonly');
+  await expect(page.locator('[data-lp-check]')).not.toHaveAttribute('aria-disabled');
+});
+
 test('two instances have unique IDs and independent fields and results', async ({ page }) => {
-  await open(page, 'two');
+  await open(page, 'two', false);
   const ids = await page.locator('[id]').evaluateAll(elements => elements.map(el => el.id));
   expect(new Set(ids).size).toBe(ids.length);
   const roots = page.locator('[data-lp-pattern]');
+  await retrieve(roots.first());
   await fill(roots.first()); await roots.first().locator('[data-lp-compare]').click();
-  await expect(roots.nth(1).locator('textarea').first()).toHaveValue('');
+  await expect(roots.nth(1).locator('[data-lp-text]').first()).toHaveValue('');
   await expect(roots.nth(1).locator('[data-lp-result]')).toBeHidden();
   await expect(roots.nth(1).locator('[role="status"]')).toHaveText('');
 });
@@ -340,9 +526,10 @@ test('enhance twice, destroy twice, re-enhance: one listener and restored baseli
   await observe(page); await fill(page); await page.locator('[data-lp-compare]').click();
   expect((await page.evaluate(() => window.lpAnnouncements)).length).toBe(1);
   await page.evaluate(() => window.lpInstances[0].destroy());
-  await expect(page.locator('[data-lp-flow]')).toBeHidden(); await expect(page.locator('details')).toBeVisible();
+  await expect(page.locator('[data-lp-flow]')).toBeHidden(); await expect(page.locator('[data-lp-fallback]')).toBeVisible();
   await page.evaluate(() => { window.lpEnhance(); window.lpInstances[0].destroy(); });
   await expect(page.locator('[data-lp-flow]')).toBeVisible();
+  await retrieve(page.locator('[data-lp-pattern]'));
   await observe(page); await fill(page); await page.locator('[data-lp-compare]').click();
   expect((await page.evaluate(() => window.lpAnnouncements)).length).toBe(1);
 });
@@ -367,7 +554,7 @@ test('missing and mismatched markup throws, state adapter failures propagate', a
 
 test('injected length violations are caught even beyond HTML maxlength', async ({ page }) => {
   await open(page); await fill(page, true);
-  await page.locator('textarea').first().evaluate(el => { el.value = 'x'.repeat(301); });
+  await page.locator('[data-lp-text]').first().evaluate(el => { el.value = 'x'.repeat(301); });
   await page.locator('input').nth(1).evaluate(el => { el.value = 'y'.repeat(121); });
   await page.locator('[data-lp-compare]').click();
   await expect(page.locator('[data-lp-text-error]').first()).toContainText('300');
@@ -377,7 +564,7 @@ test('injected length violations are caught even beyond HTML maxlength', async (
 
 test('result text escapes hostile learner input and custom tags', async ({ page }) => {
   await open(page); await fill(page, true);
-  await page.locator('textarea').first().fill('<img src=x onerror="window.lpInjected=true">');
+  await page.locator('[data-lp-text]').first().fill('<img src=x onerror="window.lpInjected=true">');
   await page.locator('input').nth(1).fill('<script>window.lpInjected=true</script>');
   await page.locator('[data-lp-compare]').click();
   await expect(page.locator('[data-lp-result] img, [data-lp-result] script')).toHaveCount(0);
@@ -388,7 +575,7 @@ test('result text escapes hostile learner input and custom tags', async ({ page 
 test('forced colours keeps focus rings and quiet Start over', async ({ page, browserName }) => {
   test.skip(browserName !== 'chromium', 'Forced colours emulation checked in Chromium.');
   await page.emulateMedia({ forcedColors: 'active' }); await open(page); await fill(page, true); await page.locator('[data-lp-compare]').click();
-  for (const field of [page.locator('textarea').first(), page.locator('select').first(), page.locator('input').nth(1), page.locator('[data-lp-compare]'), page.locator('[data-lp-clear]')]) {
+  for (const field of [page.locator('[data-lp-text]').first(), page.locator('select').first(), page.locator('input').nth(1), page.locator('[data-lp-compare]'), page.locator('[data-lp-clear]')]) {
     await field.focus();
     const style = await field.evaluate(el => { const css = getComputedStyle(el); return [css.outlineWidth, css.outlineStyle, css.outlineOffset, css.outlineColor]; });
     expect(style.slice(0, 3)).toEqual(['2px', 'solid', '2px']); expect(style[3]).not.toBe('rgba(0, 0, 0, 0)');
@@ -408,11 +595,11 @@ test('forced colours keeps focus rings and quiet Start over', async ({ page, bro
     button.remove(); document.querySelector('[data-lp-clear]').focus();
     return { text, face, link, quietBorder };
   });
-  const styles = await page.locator('[data-lp-flow] button').evaluateAll(elements => elements.map(el => {
+  const styles = await page.locator('[data-lp-compare], [data-lp-clear]').evaluateAll(elements => elements.map(el => {
     const css = getComputedStyle(el); return { color: css.color, background: css.backgroundColor, border: css.borderColor, style: css.borderStyle, underline: css.textDecorationLine };
   }));
   expect(styles).toEqual([
     { color: colors.text, background: colors.face, border: colors.text, style: 'solid', underline: 'none' },
-    { color: colors.link, background: colors.face, border: colors.quietBorder, style: 'solid', underline: 'underline' }
+    { color: colors.link, background: colors.face, border: colors.quietBorder, style: 'solid', underline: 'none' }
   ]);
 });

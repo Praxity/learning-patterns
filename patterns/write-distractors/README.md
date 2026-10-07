@@ -1,7 +1,7 @@
 ---
 title: Write the wrong options
 title_fr: Rédigez les mauvaises réponses
-summary: Write wrong answers, tag the misconceptions behind them, then compare their coverage with the author's options.
+summary: Answer a question first, then build wrong options and compare their tags with the author's.
 section: question
 ai: no
 offline: yes
@@ -9,21 +9,22 @@ learners: not tried
 ---
 # Write the wrong options
 
-Write plausible wrong answers to a given question. Tag the misconception behind each one, then compare with the author's wrong options.
+Act as the quiz author. Answer the question from memory first, then check the right answer. Write plausible wrong options, tag their misconceptions, and compare with the author's. The finished question shows your options beside the right answer.
 
 ## When to use it
 
-Use it after learners have seen the right answer and can name common misconceptions. Authors can review learner submissions to find possible distractors for a quiz. The pattern compares tags. A person must judge whether a wrong option actually expresses its tag and would tempt a learner.
+Use it when learners can recall the topic and name common misconceptions. Authors can review learner submissions to find possible distractors for a quiz. The pattern compares tags. A person must judge whether a wrong option actually expresses its tag and would tempt a learner.
 
 ## How it works
 
-1. Read the question and right answer. Write the requested number of wrong options.
-2. Choose the misconception each option targets. "Something else" opens a field for your own description.
-3. Select "Compare with the author's". Errors appear beside their fields, focus moves to the first error, and the status announces the number of fields needing attention.
-4. Read how many author misconceptions you targeted and how many of your own you added. Below the author's options, a list shows the author misconceptions you did not target. Each of your options says whether its tag matches an author option.
-5. "Start over" appears after a successful comparison. It empties the fields and returns focus to the first textarea. Editing a field hides the comparison until you submit again.
+1. Read the question under "Write the quiz". Write "Your answer", then select "Check my answer". An empty answer gets a field error.
+2. Your answer locks and the right answer appears. Choose "Yes" or "Not quite" under "Did you have it?". The choice is saved without a score. Focus moves to "Write the wrong options".
+3. Build the requested wrong options beside letter keys B, C and onward. The right answer owns A. Choose a misconception for each option. "Something else" opens a field for your own description.
+4. Select "Compare with the author's". Errors appear beside their fields. Focus moves to the first error, and the status announces the number of fields needing attention.
+5. Read "Your question", a preview with A marked "Correct answer" and your wrong options below. The coverage summary counts the author's tags you targeted and your extra tags. The author's options follow, then missed tags and your options with match marks.
+6. "Start over" clears your answer, self-report and wrong options. It returns focus to "Your answer". Editing a wrong option hides the comparison until you submit again.
 
-Without JavaScript, the question and right answer remain visible. Open "The author's wrong options" to read the options and their misconceptions.
+The author's wrong options stay hidden until a valid comparison. Without JavaScript, the question and answer field remain available. Two native disclosures show "Right answer" and "The author's wrong options".
 
 ## Content fields
 
@@ -32,7 +33,7 @@ All content fields are plain text. HTML characters are escaped.
 | Field | Meaning |
 | --- | --- |
 | `question` | Given question. |
-| `rightAnswer` | Given right answer, displayed throughout. |
+| `rightAnswer` | Authored right answer, revealed after checking or through the native disclosure. |
 | `misconceptions` | At least one named misconception, in select order. |
 | `misconceptions[].id` | Unique letters, digits, underscores or hyphens. `other` is reserved for "Something else". |
 | `misconceptions[].label` | Select label and target name in results. |
@@ -54,7 +55,8 @@ Strings must be nonempty. Unknown fields, duplicate IDs, and unknown author refe
 | `targetOf(content, option)` | The named target's label or the learner's custom description. Throws for an unknown target. |
 | `coverage(content, options)` | `{ targeted, missed, extra, matches }`. The first three fields hold unique target labels. `matches` holds one boolean per learner option. |
 | `coverageMessage(content, options)` | `{ authorTargeted, authorTotal, ownExtra, untargeted }`. Counts unique targets in the author's options and the learner's extra targets. `untargeted` holds missed author labels in author-option order. |
-| `validateState(content, value)` | A copy of valid `{ options, shown }` state, or `null` for invalid state. |
+| `validateState(content, value)` | A copy of valid `{ answer, hadIt, options, shown }` state, or `null`. Legacy `{ options, shown }` restores as a draft with `answer: ''`, `hadIt: null`, `shown: false`. |
+| `optionKey(index)` | A letter key for a zero-based index: `0` gives A, `1` gives B, `26` gives AA. Throws for an index that is not a nonnegative safe integer. |
 
 Each submitted option has `{ text, misconception, custom }`. Named targets use an empty `custom` string. Exported constants `MAX_OPTION`, `MAX_CUSTOM` and `OTHER` are `300`, `120` and `'other'`. Length checks run before trimming and collapsing whitespace. Comparison rejects the right answer and duplicate options after ignoring case and extra whitespace.
 
@@ -82,15 +84,15 @@ const instance = enhance(document.querySelector('[data-lp-pattern="write-distrac
 instance.destroy();
 ```
 
-The optional state adapter stores `{ options: [{ text, misconception, custom }], shown }`. It saves drafts on input and selection, normalized options on success, and empty options on Start over. The host decides how to collect submissions for the author. This pattern uses no localStorage and keeps no suggestion list. Invalid state is ignored. Valid results restore without announcements. State adapter errors propagate to the host. Repeated enhancement returns the same instance.
+The optional state adapter stores `{ answer, hadIt, options: [{ text, misconception, custom }], shown }`. `answer` holds the learner's text. `hadIt` is `true` for Yes, `false` for Not quite, and `null` before self-report. It saves drafts on input and selection, normalized options on comparison, and empty fields on Start over. A saved draft with `hadIt: null` returns to the answer step, even if the answer was checked before leaving. Legacy state preserves the wrong-option draft and requires the answer step again. The host decides how to collect submissions for the author. This pattern uses no localStorage and keeps no suggestion list. Invalid state is ignored. Valid results restore without announcements. State adapter errors propagate to the host. Repeated enhancement returns the same instance.
 
 Override the root's `--lp-*` tokens for colours, radius, fonts and focus. See the root README for the token defaults.
 
 ## Accessibility
 
-Each option has a borderless fieldset and legend. Every field has a visible label and an error linked through `aria-describedby`. Errors use an alert icon beside the message. The selected misconception stays in the native select. Results repeat its full label. The single status region starts empty and announces the short coverage summary once per submission. Successful comparison keeps focus on the submit button. Start over returns focus to the first textarea. Results show the summary and a note about tag comparison, the author's options, untargeted misconceptions, and your options. Each learner option shows a check or dashed circle beside its match label, followed by its target.
+The scene has a question heading and a decorative pencil icon beside its label. Each builder row has a letter key and a borderless fieldset with a legend. Every field has a visible label and an error linked through `aria-describedby`. Errors use an alert icon beside the message. The selected misconception stays in the native select. Results repeat its full label. The single status region starts empty. It announces the right answer once on checking, "Noted." once per changed self-report, and the coverage summary once per comparison. Checking keeps focus on the check button, which stays visible with `aria-disabled="true"`. Either self-report gives focus to the authoring heading. Successful comparison keeps focus on the submit button. Start over returns focus to the answer textarea. Results show the finished-question preview, the summary and a note about tag comparison, the author's options, untargeted misconceptions, and your options. Each learner option shows a check or dashed circle beside its match label, followed by its target.
 
-The English and French examples, two-instance page, errors, results, state restoration and native fallback have automated axe and keyboard checks in Chromium, Firefox and WebKit. Checks cover 320 CSS pixels with text spacing, equivalent to reflow at 400% zoom from 1280 pixels, and Chromium forced colours. Human screen-reader passes remain a separate check. There are no time limits or animations.
+The English and French examples, two-instance page, errors, results, state restoration and native fallback have automated axe and keyboard checks in Chromium, Firefox and WebKit. Checks cover 320 CSS pixels with text spacing, equivalent to reflow at 400% zoom from 1280 pixels, and Chromium forced colours. Human screen-reader passes remain a separate check. There are no time limits. Reveals use a short rise with opaque text and stop under reduced motion.
 
 ## Evidence
 

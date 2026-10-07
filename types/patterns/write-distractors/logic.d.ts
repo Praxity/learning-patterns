@@ -1,3 +1,7 @@
+/** Key A belongs to the right answer; wrong options start at index 1.
+ * @param {number} index @returns {string}
+ */
+export function optionKey(index: number): string;
 /** Validate plain authored content and its misconception references.
  * @param {unknown} content @returns {asserts content is Content}
  */
@@ -43,7 +47,7 @@ export function validateState(content: Content, value: unknown): LearnerState | 
 /** @typedef {{ text: string, misconception: string }} AuthorOption */
 /** @typedef {{ question: string, rightAnswer: string, misconceptions: Misconception[], authorOptions: AuthorOption[], count: number }} Content */
 /** @typedef {{ text: string, misconception: string, custom: string }} LearnerOption */
-/** @typedef {{ options: LearnerOption[], shown: boolean }} LearnerState */
+/** @typedef {{ answer: string, hadIt: boolean | null, options: LearnerOption[], shown: boolean }} LearnerState */
 /** @typedef {'text' | 'misconception' | 'custom'} Field */
 /** @typedef {'empty' | 'longText' | 'right' | 'duplicate' | 'choose' | 'describe' | 'longCustom'} ErrorCode */
 /** @typedef {{ option: number, field: Field, code: ErrorCode }} FieldError */
@@ -71,6 +75,8 @@ export type LearnerOption = {
     custom: string;
 };
 export type LearnerState = {
+    answer: string;
+    hadIt: boolean | null;
     options: LearnerOption[];
     shown: boolean;
 };
