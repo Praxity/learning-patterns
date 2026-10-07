@@ -89,7 +89,7 @@ export function enhance(root, { content, strings, state }) {
     const outcome = score(content, selected);
     const summary = format(strings.summary, { points: displayPoints(outcome.points), total: displayPoints(outcome.total) });
     for (const { q, radios, rows, explanation } of questions) {
-      const right = selected[q.id] === q.correct;
+      const right = outcome.right.includes(q.id);
       explanation.hidden = right;
       radios.forEach((radio, index) => {
         radio.disabled = true;
