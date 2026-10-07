@@ -220,6 +220,19 @@ test('idempotent enhancement and destruction keep the outline and remove old lis
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Total 28 min. 1 section over 15 minutes.']);
 });
 
+test('destroying an invalid draft leaves a usable outline with the last valid estimates', async ({ page }) => {
+  await open(page); await author(page);
+  const input = row(page).locator('input').first();
+  await input.fill('1200'); await input.press('Tab');
+  await input.fill('-1'); await input.press('Tab');
+  await expect(row(page).locator('[data-lp-minutes]')).toHaveText('No estimate until fixed');
+  await page.evaluate(() => window.lpInstances[0].destroy());
+  await expect(row(page).locator('[data-lp-minutes]')).toHaveText('6 min');
+  await expect(page.locator('[data-lp-summary]')).toHaveText('Total 33 min. 1 section over 15 minutes.');
+  await expect(page.getByRole('spinbutton')).toHaveCount(0);
+  await expect(page.getByRole('status')).toHaveText('');
+});
+
 test('planted missing and mismatched markup errors occur before controls are revealed', async ({ page }) => {
   await open(page);
   const result = await page.evaluate(async () => {

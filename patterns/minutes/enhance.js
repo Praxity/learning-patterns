@@ -127,6 +127,9 @@ export function enhance(root, { content, strings, state }) {
       if (destroyed) return;
       destroyed = true;
       toggle.removeEventListener('click', onToggle); root.removeEventListener('input', onEdit); root.removeEventListener('change', onEdit);
+      // Invalid drafts cannot be fixed once the author fields are hidden.
+      for (const block of blocks) for (const field of block.fields) field.input.value = String(current.sections[block.section.id]?.[field.key]);
+      update(false);
       toggle.hidden = true; toggle.setAttribute('aria-pressed', 'false'); instruction.hidden = true;
       for (const block of blocks) block.inputs.hidden = true;
       status.textContent = ''; instances.delete(root);

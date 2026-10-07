@@ -72,7 +72,7 @@ const instance = enhance(document.querySelector('[data-lp-pattern="minutes"]'), 
 });
 ```
 
-The server outline has all estimates and warnings without JavaScript. Enhancement keeps that markup and reveals Author view. Repeated enhancement returns the same instance. `destroy()` removes listeners and hides author controls, keeping the current outline. Repeated destruction is safe.
+The server outline has all estimates and warnings without JavaScript. Enhancement keeps that markup and reveals Author view. Repeated enhancement returns the same instance. `destroy()` removes listeners and hides author controls, keeping the last valid outline and discarding invalid drafts. Repeated destruction is safe.
 
 Pass optional `state: { read, write }` to save the author toggle and a complete set of section counts. Invalid snapshots are ignored as a whole. Valid snapshots restore without announcements. Each committed valid edit or toggle writes an independent snapshot. Invalid drafts are not saved. Fixing an invalid field restores its estimate; while any field is invalid the total is unavailable. This demo estimates duration and does not measure learner time.
 
