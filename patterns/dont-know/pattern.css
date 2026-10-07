@@ -1,6 +1,41 @@
 /* Dont-know specifics. Link lib/base.css first for shared styles and tokens. */
+.lp-dont-know-scene { display: flex; gap: 14px; align-items: flex-start; margin: -28px -28px 0; padding: 22px 28px; border-start-start-radius: var(--lp-radius-box); border-start-end-radius: var(--lp-radius-box); background: var(--lp-paper-2); }
+.lp-dont-know-scene > div { min-inline-size: 0; }
+/* Scene and result primitives are local until another pattern needs them in lib/. */
+.lp-dont-know-scene-icon { display: grid; flex: none; place-items: center; inline-size: 40px; block-size: 40px; border-radius: var(--lp-radius-control); color: var(--lp-accent-ink); background: var(--lp-accent-soft); }
+.lp-dont-know-scene-icon .lp-icon { inline-size: 22px; block-size: 22px; }
+.lp-dont-know-title { margin-block-start: 2px; }
+.lp-dont-know-rule { margin-block-start: 8px; }
+.lp-dont-know-scene + .lp-section { border-block-start: 0; padding-block-start: 0; }
+.lp-dont-know-question-number { margin-block-end: 6px; }
+.lp-dont-know-question-number + .lp-choices { margin-block-start: 0; }
+.lp-dont-know-explanation { display: flex; gap: 8px; align-items: flex-start; margin-block-start: 8px; }
+.lp-dont-know-explanation .lp-icon { margin-block-start: .2em; color: var(--lp-ink-2); }
+.lp-dont-know-result-head { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 16px; align-items: center; }
+.lp-dont-know-result-head [data-lp-counts] { margin-block-start: 4px; }
+.lp-dont-know-score-ring { display: block; inline-size: 64px; block-size: 64px; }
+.lp-dont-know-ring-track, .lp-dont-know-ring-fill { fill: none; stroke-width: 5; }
+.lp-dont-know-ring-track { stroke: var(--lp-rule); }
+.lp-dont-know-ring-fill { stroke: var(--lp-success-ink); }
+.lp-dont-know-review ul { display: grid; gap: 8px; margin-block-start: 8px; padding: 0; list-style: none; }
+.lp-dont-know-review a { display: inline-flex; gap: 8px; align-items: flex-start; }
+.lp-dont-know-review .lp-icon { margin-block-start: .2em; }
+.lp-dont-know-review span { min-inline-size: 0; }
 .lp-dont-know-fallback-list { display: grid; gap: 16px; padding-inline-start: 24px; }
 .lp-dont-know-fallback-list li > * + * { margin-block-start: 8px; }
 .lp-dont-know-unknown { flex-wrap: wrap; }
+/* Long French marks need their own line at 400% zoom and with text spacing. */
+.lp-dont-know .lp-choice-mark { flex-basis: 100%; max-inline-size: 100%; white-space: normal; }
+.lp-dont-know .lp-choice-mark > span { min-inline-size: 0; }
 .lp-dont-know .lp-choice > span:not(.lp-choice-mark) { min-inline-size: 0; flex: 1; white-space: pre-line; }
 .lp-dont-know .lp-stem { white-space: pre-line; }
+
+@media (max-width: 30rem) {
+  .lp-dont-know-scene { margin: -18px -16px 0; padding: 18px 16px; }
+}
+@media (forced-colors: active) {
+  /* Underlining keeps the quiet reset distinct when system colours replace button fills. */
+  .lp-dont-know .lp-button-quiet { text-decoration: underline; text-underline-offset: 3px; }
+  .lp-dont-know-ring-track { stroke: GrayText; }
+  .lp-dont-know-ring-fill { stroke: CanvasText; }
+}
