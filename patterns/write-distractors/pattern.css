@@ -1,12 +1,5 @@
 /* Shared styles and tokens live in lib/base.css; link it first. */
-.lp-write-distractors { padding: 0; }
-/* Scene tiles and builder keys are local until another pattern needs them. */
-.lp-write-distractors-scene { display: flex; gap: 14px; align-items: flex-start; padding: 22px 24px; border-block-end: 1px solid var(--lp-rule); border-radius: var(--lp-radius-box) var(--lp-radius-box) 0 0; background: var(--lp-paper-2); }
-.lp-write-distractors-scene > div { min-inline-size: 0; }
-.lp-write-distractors-scene .lp-stem { margin-block-start: 4px; }
-.lp-write-distractors-scene-icon { display: grid; place-items: center; flex: none; inline-size: 40px; block-size: 40px; border-radius: 10px; color: var(--lp-accent-ink); background: var(--lp-accent-soft); }
-.lp-write-distractors-scene-icon .lp-icon { inline-size: 22px; block-size: 22px; }
-.lp-write-distractors-body { margin-block-start: 0; padding: 24px; }
+.lp-write-distractors-body { margin-block-start: 0; }
 .lp-write-distractors-body > * + * { margin-block-start: 24px; }
 /* Keep text opaque throughout the shared reveal so contrast holds on every frame. */
 .lp-write-distractors-body .lp-reveal { animation-name: lp-write-distractors-rise; }
@@ -20,6 +13,7 @@ textarea.lp-write-distractors-answer { min-block-size: 0; }
 .lp-write-distractors-right p + p { margin-block-start: 4px; }
 .lp-write-distractors-toggles { display: flex; flex-wrap: wrap; gap: 8px; }
 .lp-write-distractors-builder { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; }
+.lp-write-distractors-summary { display: flex; flex-wrap: wrap; gap: 4px 12px; min-inline-size: 0; margin-block-start: 0; }
 .lp-write-distractors-key, .lp-choice > span.lp-write-distractors-key { display: grid; place-items: center; flex: none; min-inline-size: 28px; block-size: 28px; padding-inline: 4px; border: 1px solid var(--lp-line); border-radius: 6px; color: var(--lp-ink-2); background: var(--lp-paper); font-size: var(--lp-type-small); font-weight: 600; line-height: 1; }
 .lp-write-distractors-preview { display: grid; gap: 8px; padding: 0; list-style: none; }
 .lp-write-distractors-preview-row { cursor: default; }
@@ -36,8 +30,6 @@ textarea.lp-write-distractors-answer { min-block-size: 0; }
 .lp-write-distractors-list > li > p + p { margin-block-start: 4px; }
 .lp-write-distractors-match { display: flex; gap: 8px; align-items: flex-start; }
 @media (max-width: 30rem) {
-  .lp-write-distractors-scene { padding: 18px 16px; }
-  .lp-write-distractors-body { padding: 18px 16px; }
   .lp-write-distractors-builder { gap: 10px; }
 }
 @media (forced-colors: active) {
