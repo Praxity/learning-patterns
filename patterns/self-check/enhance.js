@@ -1,5 +1,6 @@
 import { feedback, validateContent, validateState } from './logic.js';
 import { escapeHtml as html } from '../../lib/html.js';
+import { icons } from '../../lib/icons.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
 const instances = new WeakMap();
@@ -55,9 +56,9 @@ export function enhance(root, { content, strings, state }) {
   function show(announce) {
     const outcome = feedback(content, ticked());
     const summary = strings.summary.replaceAll('{count}', String(outcome.count)).replaceAll('{total}', String(outcome.total));
-    result.innerHTML = `<p class="lp-self-check-summary">${html(summary)}</p>
-      <ul class="lp-self-check-feedback">${outcome.items.map(item => `<li><span class="lp-self-check-mark" aria-hidden="true">${item.included ? '✓' : '○'}</span><div><strong>${html(item.included ? strings.included : strings.notIncluded)}</strong> ${html(item.label)}${item.hint === null ? '' : `<p>${html(item.hint)}</p>`}</div></li>`).join('')}</ul>
-      <h2 class="lp-self-check-model-label">${html(strings.model)}</h2><p>${html(content.model)}</p>`;
+    result.innerHTML = `<p class="lp-run-in">${html(summary)}</p>
+      <ul class="lp-outcomes">${outcome.items.map(item => `<li class="lp-outcome">${item.included ? icons.check : icons['circle-dashed']}<p><span class="lp-outcome-word ${item.included ? 'lp-met' : 'lp-neutral'}">${html(item.included ? strings.included : strings.notIncluded)}</span> ${html(item.label)}</p>${item.hint === null ? '' : `<p class="lp-outcome-detail">${html(item.hint)}</p>`}</li>`).join('')}</ul>
+      <h3 class="lp-run-in">${html(strings.model)}</h3><p class="lp-quote">${html(content.model)}</p>`;
     result.hidden = false;
     shown = true;
     // One replacement also announces a repeated submission with the same count.

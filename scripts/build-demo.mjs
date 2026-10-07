@@ -13,6 +13,20 @@ const COPIED = ['logic.js', 'render.js', 'enhance.js', 'strings.js', 'pattern.cs
 
 await rm(output, { recursive: true, force: true });
 await copyInto('lib/html.js');
+await copyInto('lib/icons.js');
+await copyInto('lib/base.css');
+// The demo pages load the course fonts the base styles name. They are dev dependencies (OFL), not part of a pattern.
+const FONTS = ['source-sans-3-latin-400-normal', 'source-sans-3-latin-600-normal', 'source-serif-4-latin-400-normal', 'source-serif-4-latin-600-normal'];
+await mkdir(join(output, 'fonts'), { recursive: true });
+for (const font of FONTS) {
+  const pkg = font.startsWith('source-sans') ? 'source-sans-3' : 'source-serif-4';
+  await copyFile(join(root, 'node_modules', '@fontsource', pkg, 'files', `${font}.woff2`), join(output, 'fonts', `${font}.woff2`));
+}
+const FONT_FACES = FONTS.map(font => {
+  const family = font.startsWith('source-sans') ? 'Source Sans 3' : 'Source Serif 4';
+  const weight = font.includes('-600-') ? 600 : 400;
+  return `@font-face{font-family:"${family}";font-weight:${weight};font-display:swap;src:url(../fonts/${font}.woff2) format("woff2")}`;
+}).join('');
 
 const patterns = [];
 for (const entry of await readdir(join(root, 'patterns'), { withFileTypes: true })) {
@@ -45,8 +59,9 @@ async function copyInto(path) {
 function page({ name, lang, title, content, ids, render, strings }) {
   return `<!doctype html>
 <html lang="${lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow"><title>${escapeHtml(title)}</title>
+<link rel="stylesheet" href="../lib/base.css">
 <link rel="stylesheet" href="../patterns/${name}/pattern.css">
-<style>body{margin:0;padding:1rem;background:#fff;color:#202124;font:1rem/1.5 system-ui,sans-serif}main{max-width:40rem;margin:auto}h1{font-size:1.5rem}</style></head>
+<style>${FONT_FACES}body{margin:0;padding:1rem;background:#fff;color:#1b1e23;font:1.1875rem/1.55 "Source Sans 3",system-ui,sans-serif}main{max-width:46rem;margin:auto}h1{font:600 2.375rem/1.2 "Source Serif 4",Georgia,serif}</style></head>
 <body><main><h1>${escapeHtml(title)}</h1>
 ${ids.map(id => render(content, strings[lang], { id, lang })).join('\n')}
 </main><script type="module">

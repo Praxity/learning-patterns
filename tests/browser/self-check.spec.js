@@ -90,28 +90,30 @@ test('Start again is hidden initially and after reset, and available from the ch
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Cleared.', 'You ticked 0 of 6 parts.', 'Cleared.']);
 });
 
-test('Start again uses a secondary button with accent border and the same target and focus ring', async ({ page }) => {
+test('Start again is a quiet text button with an icon, the same target size and focus ring', async ({ page }) => {
   await open(page); await ticks(page);
   const restart = page.locator('[data-lp-restart]');
   const style = await restart.evaluate(el => {
     const css = getComputedStyle(el);
-    return { background: css.backgroundColor, color: css.color, border: css.borderColor, borderStyle: css.borderStyle, minHeight: css.minHeight, height: el.getBoundingClientRect().height };
+    return { background: css.backgroundColor, color: css.color, border: css.borderColor, underline: css.textDecorationLine, minHeight: css.minHeight, height: el.getBoundingClientRect().height };
   });
-  expect(style).toMatchObject({ background: 'rgba(0, 0, 0, 0)', color: 'rgb(23, 79, 120)', border: 'rgb(23, 79, 120)', borderStyle: 'solid', minHeight: '44px' });
+  expect(style).toMatchObject({ background: 'rgba(0, 0, 0, 0)', color: 'rgb(29, 61, 107)', border: 'rgba(0, 0, 0, 0)', underline: 'underline', minHeight: '44px' });
   expect(style.height).toBeGreaterThanOrEqual(44);
+  await expect(restart.locator('svg')).toHaveAttribute('aria-hidden', 'true');
+  await expect(restart).toHaveAccessibleName('Start again');
   for (const name of ['check', 'show', 'restart']) {
     const button = page.locator(`[data-lp-${name}]`);
     if (name !== 'restart') {
       const primary = await button.evaluate(el => { const css = getComputedStyle(el); return { background: css.backgroundColor, color: css.color }; });
-      expect(primary).toEqual({ background: 'rgb(23, 79, 120)', color: 'rgb(255, 255, 255)' });
+      expect(primary).toEqual({ background: 'rgb(29, 61, 107)', color: 'rgb(255, 255, 255)' });
     }
     await button.focus();
     const outline = await button.evaluate(el => { const css = getComputedStyle(el); return [css.outlineWidth, css.outlineStyle, css.outlineOffset, css.outlineColor]; });
-    expect(outline).toEqual(['2px', 'solid', '2px', 'rgb(0, 95, 204)']);
+    expect(outline).toEqual(['2px', 'solid', '2px', 'rgb(29, 61, 107)']);
   }
-  // Theme overrides must also reach the secondary button.
+  // Theme overrides reach the quiet button too.
   await page.locator('[data-lp-pattern]').evaluate(el => el.style.setProperty('--lp-accent', '#123456'));
-  expect(await restart.evaluate(el => [getComputedStyle(el).color, getComputedStyle(el).borderColor])).toEqual(['rgb(18, 52, 86)', 'rgb(18, 52, 86)']);
+  expect(await restart.evaluate(el => getComputedStyle(el).color)).toBe('rgb(18, 52, 86)');
 });
 
 for (const path of ['/self-check/en.html', '/self-check/fr.html', '/self-check/two.html']) {
@@ -266,13 +268,13 @@ test('forced colours keeps a 2px focus outline on buttons and checkboxes', async
   const system = await page.evaluate(() => {
     const probe = document.createElement('span'); document.body.append(probe);
     const colors = {};
-    for (const name of ['ButtonText', 'ButtonFace']) { probe.style.color = name; colors[name] = getComputedStyle(probe).color; }
+    for (const name of ['ButtonText', 'ButtonFace', 'LinkText']) { probe.style.color = name; colors[name] = getComputedStyle(probe).color; }
     probe.remove(); return colors;
   });
-  for (const style of styles) {
+  // Primary buttons draw a system border; the quiet restart button reads as a link.
+  for (const style of styles.slice(0, 2)) {
     expect(style.color).toBe(system.ButtonText); expect(style.background).toBe(system.ButtonFace);
-    expect(style.borderColor).toBe(system.ButtonText); expect(style.borderWidth).toBe('1px');
+    expect(style.borderColor).toBe(system.ButtonText); expect(style.borderWidth).toBe('1px'); expect(style.borderStyle).toBe('solid');
   }
-  expect(styles[0].borderStyle).toBe('solid'); expect(styles[1].borderStyle).toBe('solid');
-  expect(styles[2].borderStyle).toBe('dashed');
+  expect(styles[2].color).toBe(system.LinkText);
 });

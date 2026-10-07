@@ -89,7 +89,7 @@ test('render escapes all plain text and attribute values and prefixes every id',
 
 test('render keeps Start again hidden until the checklist step', () => {
   const html = render(content, strings.en, { id: 'practice', lang: 'en' });
-  assert.match(html, /<button\b[^>]*data-lp-restart[^>]*\bhidden\b[^>]*>Start again<\/button>/);
+  assert.match(html, /<button\b[^>]*data-lp-restart[^>]*\bhidden\b[^>]*>(?:<svg[\s\S]*?<\/svg>)?Start again<\/button>/);
 });
 
 test('English and French UI keys and placeholders match', () => {
