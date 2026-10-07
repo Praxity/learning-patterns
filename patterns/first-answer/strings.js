@@ -1,11 +1,10 @@
 export const strings = {
   en: {
-    stepFirst: 'Step 1', start: 'Start of the course',
+    journal: 'Your journal', start: 'Day one',
     firstLabel: 'Your first answer', saveFirst: 'Save my first answer',
-    saved: 'Saved {date}. It stays as you wrote it.', firstSaved: 'First answer saved.',
+    saved: 'Saved {date}', kept: 'It stays as you wrote it.', firstSaved: 'First answer saved.',
     courseNote: 'In a course, the lessons happen here.', skip: 'Skip to the end of the course',
-    stepEnd: 'Step 2', end: 'End of the course', nowLabel: 'Your answer now', compare: 'Compare',
-    firstPanel: 'Your first answer, {date}',
+    end: 'End of the course', nowLabel: 'Your answer now', compare: 'Compare',
     tick: 'Has your new answer improved in any of these ways?', compared: 'Compared. Tick what improved.',
     missing: "Your first answer wasn't saved, so there's nothing to compare yet.",
     tryAgain: 'Try again', restart: 'Start over', cleared: 'Started over.',
@@ -16,12 +15,11 @@ export const strings = {
     summary: 'You ticked {count} of {total} checks for your answer now.'
   },
   fr: {
-    stepFirst: 'Étape 1', start: 'Début du cours',
+    journal: 'Votre journal', start: 'Premier jour',
     firstLabel: 'Votre première réponse', saveFirst: 'Enregistrer ma première réponse',
-    saved: 'Enregistrée le {date}. Elle reste telle que vous l\'avez écrite.', firstSaved: 'Première réponse enregistrée.',
+    saved: 'Enregistrée le {date}', kept: 'Elle reste telle que vous l\'avez écrite.', firstSaved: 'Première réponse enregistrée.',
     courseNote: 'Dans un cours, les leçons se déroulent ici.', skip: 'Passer à la fin du cours',
-    stepEnd: 'Étape 2', end: 'Fin du cours', nowLabel: 'Votre réponse maintenant', compare: 'Comparer',
-    firstPanel: 'Votre première réponse, {date}',
+    end: 'Fin du cours', nowLabel: 'Votre réponse maintenant', compare: 'Comparer',
     tick: "Votre nouvelle réponse s'est-elle améliorée sur l'un de ces points?", compared: "Comparaison affichée. Cochez ce qui s'est amélioré.",
     missing: "Votre première réponse n'a pas été enregistrée. Il n'y a donc rien à comparer pour le moment.",
     tryAgain: 'Réessayer', restart: 'Recommencer', cleared: 'Vous avez recommencé.',

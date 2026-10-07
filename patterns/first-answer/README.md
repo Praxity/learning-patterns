@@ -1,7 +1,7 @@
 ---
 title: Your first answer comes back
 title_fr: Votre première réponse revient
-summary: Save an answer at the start of a course, write it again at the end, then compare the two and check what improved.
+summary: Keep a dated journal entry from day one, answer again at the end of the course, then compare and check what improved.
 section: course
 ai: no
 offline: yes
@@ -9,7 +9,7 @@ learners: not tried
 ---
 # Your first answer comes back
 
-Save your first answer to a prompt. At the end of the course, answer the same prompt and read your first attempt below your new answer. Tick authored checks about what improved. The pattern does not grade either answer.
+Your journal keeps a dated entry from day one. At the end of the course, answer the same prompt and read your first entry below your new answer. Tick authored checks about what improved. The pattern does not grade either answer.
 
 ## When to use it
 
@@ -18,12 +18,12 @@ Use it near the start and end of a course when learners can revisit the same que
 ## How it works
 
 1. Write your first answer and select "Save my first answer". Blank answers show a linked error. Answers have a 2,000-character limit. Leading and trailing whitespace is trimmed when saving.
-2. The saved answer appears as a quote with its date. It cannot change until you select "Start over".
+2. The saved entry appears as a dated card with a calendar icon and "It stays as you wrote it." It cannot change until you select "Start over".
 3. At the end, write your answer now and select "Compare". The text box becomes read-only and Compare hides. Read your dated first answer below it, then tick the checks. A short summary counts your ticks.
 4. Select "Try again" to rewrite. The comparison hides, Compare returns and focus moves to the text box. Your text stays. The saved answer now changes only when you select Compare again. Your first answer and ticks stay saved.
 5. "Start over" clears the answers and ticks through the host's state adapter. It returns focus to the first text box. In an end-only placement, it returns focus to the current-answer text box.
 
-`render` accepts `stage: 'first' | 'end' | 'both'`, default `'both'`. First and end placements can appear on different course pages. The demo uses both, with a course note and a skip button after saving. Skip opens step 2 and focuses its heading. Restored answers open step 2 directly. An end placement with no first answer explains the missing comparison and still accepts an answer now.
+`render` accepts `stage: 'first' | 'end' | 'both'`, default `'both'`. First and end placements can appear on different course pages. Each placement has a notebook scene header labelled "Your journal", with the prompt as its title. Steps use "Day one" and "End of the course" as headings. The demo uses both, with a dashed timeline, a course note and a skip button after saving. Skip opens the end section and focuses its heading. Restored answers open the end section directly. An end placement with no first answer explains the missing comparison and still accepts an answer now.
 
 Without JavaScript, the prompt, a first-answer textarea and a saving note remain available in every placement.
 
@@ -33,7 +33,7 @@ All fields are plain text. HTML characters are escaped.
 
 | Field | Meaning |
 | --- | --- |
-| `prompt` | The same question at both course placements. |
+| `prompt` | The journal header's title, the same question at both course placements. |
 | `checks` | At least one authored self-assessment check, in display order. |
 | `checks[].id` | Unique letters, digits, underscores or hyphens. Keep stable across placements. |
 | `checks[].label` | The visible checkbox label. |
@@ -87,7 +87,7 @@ State must contain a boolean for every known check. Saved answers must be trimme
 
 Browser tests check axe WCAG 2.0, 2.1 and 2.2 AA at each stage in Chromium, WebKit and Firefox. They cover keyboard focus, linked errors and one status change per message. They also check French language and dates, two instances, saved state and the no-JavaScript baseline. Layout checks use 320 CSS pixels with text spacing. Chromium checks forced colours.
 
-Each placement uses one activity box. Steps and the course note use space and a rule. Saving hides the editor and save button, moving focus to Skip in the demo or to the saved answer in a first-only placement. Compare hides after submission without an explicit focus move. Try again focuses the current-answer text box without an announcement. Skip and reset move focus as described above. Try again and Start over have decorative Tabler icons beside visible text. There is no animation or time limit.
+Each placement uses one activity box. The journal fields have extra padding and 1.65 line height. Dated cards use an inset rule; the end section uses space and a top rule. Saving hides the editor and save button, moving focus to Skip in the demo or to the saved entry in a first-only placement. Compare hides after submission without an explicit focus move. Try again focuses the current-answer text box without an announcement. Skip and reset move focus as described above. Notebook, calendar and history icons are decorative and paired with visible text. Try again and Start over also have decorative Tabler icons. There is no animation or time limit.
 
 Screen reader passes: not yet
 
