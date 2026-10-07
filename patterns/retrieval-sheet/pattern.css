@@ -1,0 +1,94 @@
+.lp-retrieval-sheet-controls { display: flex; flex-wrap: wrap; gap: 20px; align-items: end; }
+.lp-retrieval-sheet-date-field { flex: 1 1 14rem; min-inline-size: 0; max-inline-size: 20rem; }
+.lp-retrieval-sheet-date-field .lp-error-text { margin-block-start: 8px; }
+.lp-retrieval-sheet-tabs { display: flex; flex-wrap: wrap; gap: 4px; }
+.lp-retrieval-sheet-tab {
+  min-block-size: 44px;
+  max-inline-size: 100%;
+  padding: 10px 16px;
+  border: 0;
+  border-block-end: 3px solid transparent;
+  color: var(--lp-ink-2);
+  background: var(--lp-paper);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.lp-retrieval-sheet-tab[aria-selected="true"] { color: var(--lp-accent-ink); border-block-end-color: var(--lp-accent); }
+.lp-retrieval-sheet-pages { display: grid; gap: 24px; }
+/* The paper sheet can grow when text wraps or is enlarged. */
+.lp-retrieval-sheet-page {
+  aspect-ratio: 210 / 297;
+  padding: 32px;
+  background: var(--lp-paper);
+  box-shadow: var(--lp-shadow);
+  border: 1px solid var(--lp-rule);
+  border-radius: 0;
+  min-inline-size: 0;
+}
+.lp-retrieval-sheet-page-header { margin-block-end: 20px; padding-block-end: 16px; border-block-end: 1px solid var(--lp-rule); }
+.lp-retrieval-sheet-page-header > * + * { margin-block-start: 6px; }
+.lp-retrieval-sheet-page-header time { display: inline-block; max-inline-size: 100%; }
+.lp-retrieval-sheet-list { padding-inline-start: 24px; margin-block-start: 20px !important; }
+.lp-retrieval-sheet-list > li + li { margin-block-start: 16px; }
+.lp-retrieval-sheet-list > li::marker { color: var(--lp-ink-2); font-weight: 600; }
+.lp-retrieval-sheet-space { block-size: 48px; border-block-end: 1px solid var(--lp-line); }
+
+@media (max-width: 30rem) {
+  .lp-retrieval-sheet-page { padding: 20px 16px; }
+}
+@media (forced-colors: active) {
+  .lp-retrieval-sheet-page { border-color: CanvasText; }
+  .lp-retrieval-sheet-tab[aria-selected="true"] { border-block-end-color: Highlight; }
+}
+
+@page lp-retrieval-sheet { size: auto; margin: 12mm; }
+@media print {
+  /* The copied stylesheet hides host chrome without knowing its class names.
+     Ancestors of a sheet stay in flow. Multiple sheets print in document order. */
+  body:has(.lp-retrieval-sheet) :not(.lp-retrieval-sheet, .lp-retrieval-sheet *, :has(.lp-retrieval-sheet)) { display: none !important; }
+  body:has(.lp-retrieval-sheet), body:has(.lp-retrieval-sheet) :has(.lp-retrieval-sheet) {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    max-inline-size: none !important;
+    background: #fff !important;
+    color: #000 !important;
+  }
+  body:has(.lp-retrieval-sheet[data-lp-printing]) .lp-retrieval-sheet:not([data-lp-printing]) { display: none !important; }
+  .lp.lp-retrieval-sheet {
+    container-type: normal;
+    max-inline-size: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: #fff;
+    color: #000;
+    font-size: 11pt;
+    line-height: 1.35;
+  }
+  .lp-retrieval-sheet > :not(.lp-retrieval-sheet-pages) { display: none !important; }
+  .lp-retrieval-sheet-pages { display: block; margin: 0; }
+  .lp.lp-retrieval-sheet [data-lp-side], .lp.lp-retrieval-sheet [data-lp-side][hidden] {
+    display: block !important;
+    page: lp-retrieval-sheet;
+    aspect-ratio: auto;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+    color: #000;
+    background: #fff;
+  }
+  .lp-retrieval-sheet-page + .lp-retrieval-sheet-page, .lp-retrieval-sheet ~ .lp-retrieval-sheet { break-before: page; }
+  .lp-retrieval-sheet-page-header { margin-block-end: 4mm; padding-block-end: 3mm; border-color: #000; }
+  .lp-retrieval-sheet-page .lp-small { color: #000; font-size: 10pt; line-height: 1.35; }
+  .lp-retrieval-sheet-page .lp-stem { font-size: 16pt; }
+  .lp-retrieval-sheet-list { margin-block-start: 4mm !important; }
+  .lp-retrieval-sheet-list > li { break-inside: avoid; }
+  .lp-retrieval-sheet-list > li + li { margin-block-start: 3mm; }
+  .lp-retrieval-sheet-list > li::marker { color: #000; }
+  .lp-retrieval-sheet-space { block-size: 18mm; border-color: #000; }
+}

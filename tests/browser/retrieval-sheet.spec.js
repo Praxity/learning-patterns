@@ -105,15 +105,18 @@ test('restores an exact saved date and side without an announcement', async ({ p
   expect(await page.evaluate(() => window.lpSaved)).toBeUndefined();
 });
 
-test('ignores each planted invalid saved value as a whole', async ({ page }) => {
-  for (const value of [null, [], {}, { date: '2026-02-29', side: 'back' }, { date: '2026-10-13', side: 'other' }, { date: '2026-10-13', side: 'back', extra: 1 }]) {
+for (const [name, value] of Object.entries({
+  null: null, array: [], empty: {}, impossibleDate: { date: '2026-02-29', side: 'back' },
+  unknownSide: { date: '2026-10-13', side: 'other' }, extraField: { date: '2026-10-13', side: 'back', extra: 1 }
+})) {
+  test(`ignores planted invalid saved state as a whole: ${name}`, async ({ page }) => {
     await page.addInitScript(value => { window.lpSeed = value; }, value);
     await open(page);
     await expect(root(page).getByLabel('Test myself on')).toHaveValue('2026-10-13');
     await expect(side(page, 'front')).toBeVisible(); await expect(side(page, 'back')).toBeHidden();
     await expect(root(page).getByRole('status')).toHaveText('');
-  }
-});
+  });
+}
 
 test('repeated enhancement keeps markup and destroy restores both native sides and removes listeners', async ({ page }) => {
   await open(page);
@@ -170,6 +173,21 @@ test('printing calls the host print dialog and announces once without moving foc
   await button.focus(); await button.press('Enter'); await expect(button).toBeFocused();
   expect(await page.evaluate(() => window.lpPrintCalls)).toBe(1);
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Print dialog opened.']);
+});
+
+test('a print button targets its own sheet and afterprint restores document printing', async ({ page }) => {
+  await open(page, '/retrieval-sheet/two.html');
+  await page.evaluate(() => { window.print = () => {}; });
+  const second = page.locator('[data-lp-pattern]').nth(1);
+  await second.getByRole('button', { name: 'Print the sheet' }).click();
+  await page.emulateMedia({ media: 'print' });
+  await expect(root(page)).toBeHidden(); await expect(second).toBeVisible();
+  await expect(second.locator('[data-lp-side="front"]')).toBeVisible();
+  await expect(second.locator('[data-lp-side="back"]')).toBeVisible();
+  await page.evaluate(() => window.dispatchEvent(new Event('afterprint')));
+  await expect(root(page)).toBeVisible(); await expect(second).toBeVisible();
+  await page.emulateMedia({ media: 'screen' });
+  await expect(second.locator('[data-lp-side="back"]')).toBeHidden();
 });
 
 for (const lang of ['en', 'fr']) {
