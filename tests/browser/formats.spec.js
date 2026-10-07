@@ -333,16 +333,18 @@ test('format switching fades opacity for 160ms and stops under reduced motion an
 
 test('rapid switches, navigation and a reduced-motion change cancel the outgoing view', async ({ page }) => {
   await open(page); await observe(page);
-  const overlap = await page.evaluate(() => {
+  const overlap = await page.evaluate(async () => {
     document.querySelector('[data-lp-format="slides"]').click();
+    await Promise.resolve();
     document.querySelector('[data-lp-format="audio"]').click();
     const outgoing = document.querySelector('.lp-formats-exiting');
     return { count: document.querySelectorAll('.lp-formats-exiting').length, inert: outgoing.inert, hidden: outgoing.getAttribute('aria-hidden') };
   });
   expect(overlap).toEqual({ count: 1, inert: true, hidden: 'true' });
   await expect(point(page).getByRole('heading')).toHaveText(english.points[0].title);
-  await page.evaluate(() => {
+  await page.evaluate(async () => {
     document.querySelector('[data-lp-format="outline"]').click();
+    await Promise.resolve();
     document.querySelector('[data-lp-next]').click();
   });
   await expect(page.locator('.lp-formats-exiting')).toHaveCount(0);
