@@ -202,7 +202,8 @@ export function enhance(root, { content, strings, state }) {
     checked.options.forEach((option, index) => {
       for (const name of /** @type {const} */ (['text', 'misconception', 'custom'])) fields[index].inputs[name].value = option[name];
     });
-    show(checked.options, true); save();
+    // WebKit pointer clicks can leave focus in a builder that is about to hide.
+    compare.focus(); show(checked.options, true); save();
   });
   listen(clear, 'click', () => {
     answer.value = ''; answer.readOnly = false;
