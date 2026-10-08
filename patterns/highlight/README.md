@@ -30,8 +30,8 @@ Highlighting alone is a weak study strategy. A major review rated it low utility
 
 Meets the shared baseline in the root README.
 
-- The passage has one tab stop. Left or Up and Right or Down move between chunks and wrap at the ends; Home and End jump to the first and last.
-- Space or Enter toggles a mark. Each chunk exposes its pressed state and has linked keyboard instructions.
+- Each chunk is a native button. Tab and Shift+Tab move between chunks in passage order; Space or Enter toggles a mark. These keys work in screen-reader browse mode without a mode switch.
+- Arrow keys are extra shortcuts when the screen reader passes them to the page. Left or Up and Right or Down move between chunks and wrap at the ends; Home and End jump to the first and last. Each chunk exposes its pressed state and has linked keyboard instructions.
 - Checked chunks remain readable and navigable. Feedback beside each chunk explains correct marks, missed targets and other selections.
 - At the limit, trying another chunk shows a message below the passage and announces it once. Removing a mark clears it.
 - Found targets have green highlights and solid underlines. Missed targets have dashed underlines and no highlight. Other selections keep their yellow highlights, with readable notes in neutral pills. Icons and words identify each outcome, including in forced colours.
@@ -72,7 +72,7 @@ Without JavaScript, the article is plain text. Native "Answer" details lists the
 
 After checking, marks are locked until reset. Mark counts update silently.
 
-Use a different id prefix per instance. Optional `state: { read(), write(value) }` stores `{ marked, shown }`. Valid saved results rebuild without an announcement; invalid saved values are ignored. State adapter errors propagate to the host. Repeated enhancement returns the same instance. `instance.destroy()` removes listeners, clears interaction attributes and restores the plain passage and native answer; the same root can be enhanced again.
+Use a different id prefix per instance. Optional `state: { read(), write(value) }` stores `{ marked, shown }`. Valid saved results rebuild without an announcement; invalid saved values are ignored. State adapter errors propagate to the host. Enhancement replaces plain chunk spans with native buttons, preserving the paragraphs and feedback nodes. Repeated enhancement returns the same instance. `instance.destroy()` removes listeners and restores the original spans and native answer; the same root can be enhanced again.
 
 ## Use it
 

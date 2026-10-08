@@ -53,7 +53,7 @@ Every pattern follows this shared baseline. The [browser tests](tests/browser/) 
 
 - Automated axe checks cover WCAG 2.2 AA rules, including the WCAG 2.0 and 2.1 rules, at the interaction's tested stages.
 - Keyboard journeys check the learner's steps, errors and focus.
-- One empty status region is present at load. Each result updates it once; tests count announcement changes.
+- One empty status region is present at load. Each result is announced once through that region or a prescribed focus move; tests check status updates and focus without duplicate speech.
 - Layout checks use 320 CSS pixels, equivalent to reflow at 400% zoom from a 1280-pixel viewport. They apply WCAG 1.4.12 text spacing and check for overflow and clipped text.
 - Forced-colour checks in Chromium check visible controls, marks and keyboard focus.
 - Shared styles remove transitions and animations under reduced motion. Patterns with scripted view changes also check that setting.

@@ -29,6 +29,7 @@ export function enhance(root, { content, strings, state }) {
     step: required('[data-lp-end-step]'), heading: required('[data-lp-end-heading]'),
     input: /** @type {HTMLTextAreaElement} */ (required('[data-lp-now-input]')), error: required('[data-lp-now-error]'),
     compare: required('[data-lp-compare]'), missing: required('[data-lp-missing]'), result: required('[data-lp-result]'),
+    resultHeading: required('[data-lp-result-heading]'),
     firstQuote: required('[data-lp-panel-first]'), firstDate: required('[data-lp-panel-first-date]'),
     retry: required('[data-lp-try-again]'), summary: required('[data-lp-summary]')
   };
@@ -157,7 +158,7 @@ export function enhance(root, { content, strings, state }) {
       const result = answer(end.input, end.error);
       if (!result.ok || !readHost()) return;
       if (persist(withAnswerNow(content, record, result.text, new Date().toISOString()), strings.compared)) {
-        editing = false; paint();
+        editing = false; paint(); end.resultHeading.focus();
       }
     });
     listen(end.retry, 'click', () => {

@@ -19,7 +19,10 @@ async function review(page) { await page.locator('[data-lp-review] > summary').c
 async function observe(page) {
   await page.evaluate(() => {
     window.lpAnnouncements = [];
-    new MutationObserver(records => records.forEach(record => window.lpAnnouncements.push(record.target.textContent)))
+    new MutationObserver(records => records.forEach(record => {
+      // Clearing stale feedback produces no speech.
+      if (record.target.textContent) window.lpAnnouncements.push(record.target.textContent);
+    }))
       .observe(document.querySelector('[role="status"]'), { childList: true, characterData: true, subtree: true });
   });
 }
@@ -41,6 +44,19 @@ async function authored(page, content) {
   }, content);
 }
 
+test('repeating a course plan announces each result once and leaves progress to heading focus', async ({ page }) => {
+  await open(page); await observe(page);
+  for (let attempt = 0; attempt < 2; attempt++) {
+    await pick(page); await page.locator('[data-lp-check]').click();
+    await expect(page.locator('[data-lp-outline-heading]')).toBeFocused();
+    if (attempt === 0) {
+      await page.locator('[data-lp-restart]').click();
+      await expect(page.getByRole('status')).toHaveText('');
+    }
+  }
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You can skip 2 of 3 sections.', 'You can skip 2 of 3 sections.']);
+});
+
 for (const [lang, headings] of [
   ['en', ['Question 1 of 3: Writing an agenda', 'Question 2 of 3: Running the discussion', 'Question 3 of 3: Decisions and follow-up']],
   ['fr', ['Question 1 sur 3 : Préparer un ordre du jour', 'Question 2 sur 3 : Animer la discussion', 'Question 3 sur 3 : Les décisions et le suivi']]
@@ -53,7 +69,8 @@ for (const [lang, headings] of [
     await page.locator('[data-lp-start]').click();
     for (const heading of headings) {
       await expect(page.locator('[data-lp-panel-heading]:visible')).toHaveText(heading);
-      await expect(page.locator('[role="status"]')).toHaveText(heading);
+      await expect(page.locator('[data-lp-panel-heading]:visible')).toBeFocused();
+      await expect(page.locator('[role="status"]')).toHaveText('');
       await expect(page.locator('[data-lp-panel="question"]:visible > p, [data-lp-panel="question"]:visible > h3:not([data-lp-panel-heading])')).toHaveCount(0);
       await page.locator('fieldset:visible input').first().check();
       if (heading !== headings.at(-1)) await page.locator('[data-lp-next]:visible').click();
@@ -98,7 +115,7 @@ test('shared scene and clean outline lead to one keyed question at a time', asyn
   await expect(row).toHaveCSS('border-top-color', 'rgb(44, 85, 201)');
   await expect(row).toHaveCSS('border-top-width', '2px');
   await expect(row).toHaveCSS('box-shadow', 'none');
-  expect(await row.evaluate(el => getComputedStyle(el, '::before').content)).toBe('counter(lp-key, upper-alpha)');
+  expect(await row.evaluate(el => getComputedStyle(el, '::before').content)).toBe('counter(lp-key, upper-alpha) / ""');
 });
 
 test('keyboard validates only this panel, Back keeps picks, changes announce once and reset returns to outline', async ({ page }) => {
@@ -116,7 +133,7 @@ test('keyboard validates only this panel, Back keeps picks, changes announce onc
   await expect(fieldset.locator('input').first()).toHaveAttribute('aria-describedby', id);
   await expect(fieldset.locator('input').first()).toHaveAttribute('aria-invalid', 'true');
   await page.keyboard.press('Enter');
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Question 1 of 3: Writing an agenda', 'Choose an answer']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Choose an answer']);
   await fieldset.locator('input').first().check();
   await expect(fieldset.locator('input').first()).not.toHaveAttribute('aria-invalid');
   await page.locator('[data-lp-next]:visible').click();
@@ -163,7 +180,7 @@ for (const [lang, content, correct, wrong, answer, summary, statuses] of [
       await expect(qs.nth(n).locator(`label:has(input[value="${content.questions[n].correct}"]) .lp-choice-mark`)).toHaveText(answer);
       await expect(qs.nth(n).locator('[data-lp-explanation]')).toHaveText(content.questions[n].explanation);
     }
-    expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(content.sections.map((section, i) => lang === 'en' ? `Question ${i + 1} of 3: ${section.title}` : `Question ${i + 1} sur 3 : ${section.title}`).concat(summary));
+    expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([summary]);
     expect(await page.evaluate(() => window.lpSaved)).toEqual({ picks: Object.fromEntries(content.questions.map((q, i) => [q.id, mixed[i]])), shown: true, step: 4 });
   });
 
