@@ -1,7 +1,7 @@
 ---
 title: Printable retrieval sheet
 title_fr: Feuille de rappel à imprimer
-summary: Print questions on the front and answers on the back to test yourself on a chosen date, with no connection needed.
+summary: Print questions and answers on opposite sides of a sheet, then test yourself on a chosen date.
 section: course
 ai: no
 offline: yes
@@ -9,88 +9,97 @@ learners: not tried
 ---
 # Printable retrieval sheet
 
-You print questions on the front and answers on the back of a sheet to test yourself on a chosen date.
+Print questions on the front and answers on the back. Choose a date to answer from memory and check your work.
 
 ## When to use it
 
-Use it for a short module with a few ideas or actions worth recalling. Keep questions focused and answers short enough for a sheet. Do not rely on handing out the sheet to bring learners back, since choosing a date sends no reminder.
+Use it for a short module with a few ideas or actions worth recalling. Keep questions focused and answers short.
 
-It also suits learners with patchy or no internet. Print the sheets, or save them as PDFs, while a connection is available, and the practice goes with the learner on paper. In a SCORM package the sheet prints from the course files with nothing to fetch.
+Learners can use the sheet without internet. Print it or save a PDF while connected. A SCORM package prints from its course files without fetching anything.
+
+Choosing a date sends no reminder. Arrange one through your course host if needed.
 
 ## How it works
 
-1. You choose a "Test myself on" date. The suggested date is seven days from today.
-2. You select Front or Back to preview the questions and answers.
-3. You select "Print the sheet" to print the questions first and the answers after them.
-4. On your chosen date, you write answers from memory, compare with the back and revisit what you missed.
+1. Choose when to test yourself: in 2 days, 1 week, 2 weeks or 1 month. Each choice shows its date. The default is 1 week. Choose "Another date" to enter your own date.
+2. Select "Front" to preview questions or "Back" to preview answers.
+3. Select "Print the sheet". Questions print first, then answers.
+4. On your chosen date, write answers from memory. Check the back and revisit what you missed.
 
 ## Evidence
 
-Recalling studied prose improved retention two days and one week later, compared with restudying ([Roediger and Karpicke, 2006](https://doi.org/10.1111/j.1467-9280.2006.01693.x)), and a meta-analysis found that practice tests beat restudying and other study conditions ([Adesope, Trevisan and Sundararajan, 2017](https://doi.org/10.3102/0034654316689306)). Recall tests, like this sheet, produced larger benefits than recognition tests ([Rowland, 2014](https://doi.org/10.1037/a0037559)). The best gap between study and review grows with how long you need to remember ([Cepeda et al., 2008](https://doi.org/10.1111/j.1467-9280.2008.02209.x)), and the seven-day default suits remembering for weeks. The answers on the back give feedback right after each attempt. The weak point is use, since students tend to study when deadlines push them ([Hartwig and Dunlosky, 2012](https://doi.org/10.3758/s13423-011-0181-y)) and choosing a date sends no reminder. This sheet has not been tested with learners.
+Recalling studied prose improved retention two days and one week later compared with restudying ([Roediger and Karpicke, 2006](https://doi.org/10.1111/j.1467-9280.2006.01693.x)). A meta-analysis found that practice tests beat restudying and other study conditions ([Adesope, Trevisan and Sundararajan, 2017](https://doi.org/10.3102/0034654316689306)). Recall tests, like this sheet, produced larger benefits than recognition tests ([Rowland, 2014](https://doi.org/10.1037/a0037559)).
+
+The best gap before review grows with how long you need to remember ([Cepeda et al., 2008](https://doi.org/10.1111/j.1467-9280.2008.02209.x)). The seven-day default suits remembering for weeks. Answers on the back give feedback after each attempt.
+
+Use remains uncertain. Students tend to study when deadlines push them ([Hartwig and Dunlosky, 2012](https://doi.org/10.3758/s13423-011-0181-y)). Choosing a date sends no reminder, and this sheet has not been tested with learners.
 
 ## Accessibility
 
-Meets the shared baseline in the root README.
+Follows the shared baseline in the root README.
 
-- The Front and Back tabs have one tab stop. Left and Right arrows change sides; Home and End choose the first and last tabs.
-- Arrow, Home and End selection updates the tabs and visible panel before moving focus.
-- The date input has a visible label and references its error only while invalid. Date changes and print actions announce once and keep focus.
-- On entering an invalid date state, the focused field's description supplies the error. When focus is elsewhere, the status region announces it. Repeated invalid edits keep the same description.
-- Tab selection conveys the active side without a second status announcement.
-- Known screen reader behaviour: NVDA speaks the newly selected tab twice when an arrow key, Home or End changes sides, in Chrome and Firefox. It does the same with the W3C ARIA Authoring Practices example of tabs that activate on focus, so the repeat comes from NVDA. The tabs keep activating on focus, because requiring Enter or Space would add a step for everyone.
-- Printed questions leave space for handwritten answers. Check your printer's margins and double-sided settings by hand.
+- Front and Back tabs share one tab stop. Left and Right arrows change sides; Home selects Front and End selects Back. Selection updates the tabs and panel before moving focus.
+- A fieldset names the five spacing choices. Each radio's name includes its date, after a comma. Native radios support Tab and arrow keys, with a visible selected row and keyboard focus.
+- "Another date" reveals a field labelled "Date" and announces the date in it. Date changes and printing announce once and keep focus.
+- A newly invalid date announces its error once through the status region. The field gets the error as its description when focus leaves it, so it isn't read twice. Repeated invalid edits stay silent. A valid date, even the same one as before, announces once.
+- Tab selection identifies the active side without another status announcement.
+- NVDA speaks a newly selected tab twice after Arrow, Home or End changes sides in Chrome and Firefox. The W3C ARIA Authoring Practices example also does this. Tabs still activate on focus; requiring Enter or Space would add a step for everyone.
+- Printed questions leave space for handwritten answers. Check printer margins and double-sided settings by hand.
 
 ## Content fields
 
-All fields are plain text. HTML characters are escaped.
+Authors write plain text. Rendering escapes HTML characters.
 
 | Field | Meaning |
 | --- | --- |
-| `title` | Module title in the scene header and on both printed sides. The host owns `h1`; the scene title is `h2`. |
+| `title` | Module title in the scene header and on both printed sides. The host owns `h1`; the scene uses `h2`. |
 | `questions` | At least one question and answer, in sheet order. |
 | `questions[].id` | Unique id using letters, digits, underscores or hyphens. |
-| `questions[].question` | Recall question on the front, with space to write an answer. |
+| `questions[].question` | Front-side recall question, with writing space. |
 | `questions[].answer` | Author's answer at the same number on the back. |
 
-`validateContent` rejects empty strings, unknown fields, invalid ids and duplicate ids. Whitespace is allowed. The schema's `x-uniqueBy` annotation records id uniqueness; ordinary JSON Schema tools also need the validator's uniqueness check.
+`validateContent` rejects empty strings, unknown fields, invalid ids and duplicates. Whitespace is allowed. The schema's `x-uniqueBy` annotation needs the validator's uniqueness check.
 
-English and Québec French strings share the keys `instruction`, `dateLabel`, `dateError`, `dateChanged`, `sides`, `front`, `back`, `questions`, `answers`, `backInstruction`, `print`, `printHint`, and `printing`. Only `dateChanged` uses a placeholder, `{date}`. Authors write all learner-facing text.
+English and Québec French strings share `instruction`, `dateLabel`, `dateError`, `dateChanged`, `sides`, `front`, `back`, `questions`, `answers`, `backInstruction`, `print`, `printHint` and `printing`. The spacing choices use `spacingLegend`, `in2Days`, `in1Week`, `in2Weeks`, `in1Month` and `anotherDate`. The custom field uses `customDateLabel`; `dateLabel` stays on the printed sheet. Only `dateChanged` uses `{date}`. Authors write every learner-facing message.
 
 ## Logic
 
-`logic.js` has no DOM code. Another host can build its own interface on these exports.
+`logic.js` has no DOM code. Hosts can use these exports with their own interface.
 
 | Export | Returns |
 | --- | --- |
 | `validateContent(content)` | Nothing. Throws an `Error` naming the first bad field. |
-| `defaultDate(today)` | Seven local calendar days ahead as `YYYY-MM-DD`, without changing `today`. Invalid dates and unsupported years throw. |
+| `presetDays` | The spacing offsets `[2, 7, 14, 30]` in civil days. |
+| `dateAfterDays(today, days)` | `YYYY-MM-DD`, counting whole days from the local date of `today` with UTC arithmetic. Leaves `today` unchanged. Invalid dates, non-integer offsets and unsupported years throw. |
+| `defaultDate(today)` | Seven local calendar days ahead as `YYYY-MM-DD`. Leaves `today` unchanged. Invalid dates and unsupported years throw. |
 | `isDate(value)` | Whether the value is a real `YYYY-MM-DD` civil date in years 0001 to 9999. |
-| `formatDate(date, lang)` | A readable date using `en-CA` or `fr-CA`. Formats in UTC to keep the saved civil day in every time zone. Invalid civil dates throw. |
-| `validateState(value)` | A copied `{ date, side }`, or `null` for invalid saved state. |
+| `formatDate(date, lang)` | Readable date using `en-CA` or `fr-CA`. UTC formatting preserves the civil day across time zones. Invalid dates throw. |
+| `formatShortDate(date, lang)` | Short weekday and date using `en-CA` or `fr-CA`, such as "Thu, Oct 15" or "jeu. 15 oct.". UTC formatting preserves the civil day. Invalid dates throw. |
+| `validateState(value)` | Copied `{ date, side }`, or `null` for invalid state. |
 
-Seven days is a demo default, not an established optimum for every topic or learner. Calendar scheduling handles month boundaries, leap years and daylight-saving changes.
+The spacing choices offer several gaps because the best gap grows with how long you need to remember, as the evidence above describes. Seven days is a demo default, not an established optimum for every topic or learner. Scheduling handles month boundaries, leap years and daylight-saving changes.
 
-The screen preview uses A4 proportions, a paper edge and a soft shadow. Narrow screens and enlarged text let the page grow. The scene header uses the shared file-text icon and module title. The recall instruction appears once, on the front, and stays visible in print. Interface colours and fonts use the shared `--lp-*` tokens.
+The preview has A4 proportions, a paper edge and a soft shadow. It grows for narrow screens or enlarged text. The scene shows a file-text icon and module title. The recall instruction appears once on the front, including in print. Colours and fonts use shared `--lp-*` tokens.
 
-Without JavaScript, both sides appear in order with the server's default date. Use your browser's Print command. Interactive controls stay hidden.
+Without JavaScript, both sides appear in order with the server's date. Controls stay hidden. Use the browser's Print command.
 
-Printing makes the examples two pages on A4 or Letter, black on white, without controls or site chrome. Choose double-sided printing with the long-edge flip for one physical sheet. Turn off your browser's print headers and footers if it adds a URL or page numbers. Custom content can use more pages; text is never clipped to force it onto one sheet. Check your print preview after editing the questions.
+The examples print as two black-on-white pages on A4 or Letter, without controls or site navigation. Choose double-sided printing with the long-edge flip for one sheet. Turn off browser headers and footers to omit URLs or page numbers. Custom content can use more pages; text is never clipped. Check print preview after editing questions.
 
-`render` accepts an optional `today: Date` for a reproducible build date. Enhancement defaults to seven days after the learner's local day, so a static site's build date does not become its interactive default.
+`render` accepts optional `today: Date` for a reproducible build date. Enhancement uses the learner's local day, so a static build date does not determine the interactive default.
 
-Pass optional `state: { read, write }` to store `{ date, side }`. `date` is a valid `YYYY-MM-DD` civil date; `side` is `front` or `back`. Invalid saved values are ignored as a whole. Valid dates restore exactly, including past dates, without an announcement. Each change passes a fresh copy to `write`; host mutation cannot change the live sheet. Host errors propagate.
+Optional `state: { read, write }` stores `{ date, side }`. `date` is a valid `YYYY-MM-DD` civil date; `side` is `front` or `back`. Invalid state is ignored as a whole. Valid dates restore exactly and silently, including past dates. A date matching a spacing choice from today selects that row. Other dates select "Another date" and fill its field. Each change writes a fresh copy; host mutation cannot change the live sheet. Host errors propagate.
 
-An empty or invalid date shows an error beside the field and disables the print button. The last valid date stays on the sheet and in state until the learner chooses a valid date. The pattern does not restrict learners to future dates.
+Invalid or empty edits in "Another date" show a local error and disable Print. Choosing a preset clears the error and enables Print. The sheet and state keep the last valid date until a valid edit. Past dates are allowed.
 
-Repeated enhancement returns the same instance and keeps the server elements. `destroy()` removes listeners, hides controls and restores the original server dates and both visible sides. Calling it again is safe; enhancement can then run again.
+Repeated enhancement preserves server elements and returns the same instance. `destroy()` removes listeners, hides controls and restores server dates and both visible sides. Repeated destruction is safe; the root can then be enhanced again.
 
-The copied print stylesheet hides everything outside sheet roots while keeping their ancestors in flow. A pattern print button targets its own instance until `afterprint`; the browser's Print command prints all sheet instances in document order. Hosts that print other content on the same page should load this stylesheet only where they want a retrieval-sheet print view.
+The print stylesheet hides everything outside sheet roots and keeps their ancestors in flow. Print buttons target their own instance until `afterprint`. The browser's Print command prints all sheet instances in document order. Load this stylesheet only on pages where this print view is wanted.
 
-Saving a date sends no reminder. Arrange a reminder through your course host if you want one. Printing the sheet does not show that the learner used it.
+Saving a date sends no reminder. Printing does not show that the learner used the sheet.
 
 ## Use it
 
-Copy `patterns/retrieval-sheet/` and `lib/`, keeping their relative paths. Link `lib/base.css`, then `patterns/retrieval-sheet/pattern.css`. Give every instance a unique id prefix. Render on the server before enhancing in the browser.
+Copy `patterns/retrieval-sheet/` and `lib/`, keeping their relative paths. Link `lib/base.css`, then `patterns/retrieval-sheet/pattern.css`. Use a unique id prefix per instance. Render on the server, then enhance in the browser.
 
 ```js
 import { render } from './patterns/retrieval-sheet/render.js';
@@ -102,9 +111,8 @@ const content = {
   questions: [{ id: 'pause', question: 'What makes a pause a time-out?',
     answer: 'Say you need a few minutes, then return to the conversation.' }]
 };
-// On the server:
 const markup = render(content, strings.en, { id: 'take-home', lang: 'en' });
-// After inserting that HTML in the browser:
+// Send markup to the browser, then:
 const instance = enhance(document.querySelector('[data-lp-pattern="retrieval-sheet"]'), {
   content, strings: strings.en
 });
@@ -112,7 +120,7 @@ const instance = enhance(document.querySelector('[data-lp-pattern="retrieval-she
 
 ## Adapt it with your agent
 
-> Write a retrieval sheet for my module: [topic]. My learners are [audience]. Keep `{ title, questions: [{ id, question, answer }] }`. Write focused questions and concise answers. Keep stable unique ids, a native date picker, Front and Back tabs, space for handwritten answers, a no-JavaScript view of both sides and clean two-sided printing. Keep English and Québec French together, addressing French learners with vous. Authors write every message. Preserve the render, enhancement, state, CSS token and accessibility contracts. Update examples and tests. Check A4 and Letter print previews. Show both languages for review.
+> Write a retrieval sheet for [topic] and [audience]. Keep `{ title, questions: [{ id, question, answer }] }` with stable, unique ids. Write focused questions and short answers. Preserve the spacing radio group, the "Another date" field, Front and Back tabs above the preview, writing space, no-JavaScript view and two-sided printing. Write English and Québec French together, using vous. Authors write every message. Preserve render, enhancement, state, CSS tokens and accessibility. Update examples and tests. Check A4 and Letter print previews. Show both languages for review.
 
 ## Licence
 

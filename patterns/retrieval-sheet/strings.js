@@ -1,7 +1,14 @@
 export const strings = {
   en: {
-    instruction: 'On your chosen date, write your answers from memory. Then check the back.',
+    instruction: 'On your chosen date, answer from memory. Then check the back.',
     dateLabel: 'Test myself on',
+    spacingLegend: 'When will you test yourself?',
+    in2Days: 'In 2 days',
+    in1Week: 'In 1 week',
+    in2Weeks: 'In 2 weeks',
+    in1Month: 'In 1 month',
+    anotherDate: 'Another date',
+    customDateLabel: 'Date',
     dateError: 'Choose a valid date.',
     dateChanged: 'Test yourself on {date}.',
     sides: 'Sheet side',
@@ -9,14 +16,21 @@ export const strings = {
     back: 'Back',
     questions: 'Questions',
     answers: 'Answers',
-    backInstruction: 'Compare with your answers. Revisit the questions you missed.',
+    backInstruction: 'Check your answers. Review what you missed.',
     print: 'Print the sheet',
-    printHint: 'Two pages: questions first, answers second. For a double-sided sheet, print on both sides and flip on the long edge.',
+    printHint: 'Questions print first, then answers. For one double-sided sheet, choose the long-edge flip in your print settings.',
     printing: 'Print dialog opened.'
   },
   fr: {
-    instruction: "À la date choisie, écrivez vos réponses de mémoire. Vérifiez-les ensuite au verso.",
+    instruction: "À la date choisie, répondez de mémoire. Vérifiez ensuite au verso.",
     dateLabel: 'Me tester le',
+    spacingLegend: 'Quand voulez-vous vous tester ?',
+    in2Days: 'Dans 2 jours',
+    in1Week: 'Dans 1 semaine',
+    in2Weeks: 'Dans 2 semaines',
+    in1Month: 'Dans 1 mois',
+    anotherDate: 'Une autre date',
+    customDateLabel: 'Date',
     dateError: 'Choisissez une date valide.',
     dateChanged: 'Testez vos connaissances le {date}.',
     sides: 'Côté de la feuille',
@@ -24,9 +38,9 @@ export const strings = {
     back: 'Verso',
     questions: 'Questions',
     answers: 'Réponses',
-    backInstruction: 'Comparez avec vos réponses. Revoyez les questions que vous avez manquées.',
+    backInstruction: 'Vérifiez vos réponses. Revoyez ce que vous avez manqué.',
     print: 'Imprimer la feuille',
-    printHint: "Deux pages : les questions, puis les réponses. Pour une feuille recto verso, imprimez des deux côtés en retournant sur le bord long.",
+    printHint: "Les questions s'impriment avant les réponses. Pour une feuille recto verso, choisissez le retournement sur le bord long dans les réglages d'impression.",
     printing: "La boîte de dialogue d'impression est ouverte."
   }
 };

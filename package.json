@@ -20,7 +20,7 @@
     "budget": "node scripts/check-budget.mjs",
     "demo": "node scripts/build-demo.mjs",
     "test:browser": "playwright test --workers=2",
-    "preview:deploy": "npm run demo && npx wrangler@4 deploy",
+    "preview:deploy": "node scripts/check-deploy-account.mjs && npm run demo && npx wrangler@4 deploy",
     "icons": "node scripts/build-icons.mjs",
     "test:voiceover": "playwright test --config=playwright.voiceover.config.js"
   },

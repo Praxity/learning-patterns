@@ -1,5 +1,5 @@
 {
-  // Unlisted live preview of the demo build. Deploy with `npm run preview:deploy`.
+  // For hosting your own copy of the demos: set "name" to your own Worker name, then run `npm run preview:deploy`.
   "name": "learning-patterns",
   "compatibility_date": "2026-10-01",
   "assets": { "directory": "./demo-dist" },

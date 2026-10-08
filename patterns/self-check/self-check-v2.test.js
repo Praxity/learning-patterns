@@ -57,7 +57,7 @@ test('composer renders escaped context, a labelled answer, and accessible checkl
   assert.ok(markup.includes('&quot;Report&quot;'));
   assert.ok(markup.includes('Your answer'));
   assert.ok(markup.includes('data-lp-meter'));
-  assert.ok(markup.includes('Select each part you can point to in your answer.'));
+  assert.ok(markup.includes('Tick each part your answer includes.'));
   assert.equal((markup.match(/role="status"/g) || []).length, 1);
 });
 
@@ -78,15 +78,15 @@ test('optional authored placeholder is escaped and never becomes the learner ans
 test('scene has only the task and checklist instruction is one fieldset legend', () => {
   const markup = render(content, strings.en, { id: 'message', lang: 'en' });
   assert.doesNotMatch(markup, /lp-scene-label|Your task|Read your answer again/);
-  assert.equal((markup.match(/Select each part you can point to in your answer\./g) || []).length, 1);
-  assert.match(markup, /<legend[^>]*>[\s\S]*?Select each part you can point to in your answer\.[\s\S]*?<\/legend>/);
-  assert.match(markup, /<summary>Check your answer for these parts\.<\/summary>/);
+  assert.equal((markup.match(/Tick each part your answer includes\./g) || []).length, 1);
+  assert.match(markup, /<legend[^>]*>[\s\S]*?Tick each part your answer includes\.[\s\S]*?<\/legend>/);
+  assert.match(markup, /<summary>Check for these parts\.<\/summary>/);
   assert.doesNotMatch(markup, /Did your answer include these parts/);
 });
 
 test('result guidance adds a next step without repeating the count summary', () => {
-  assert.equal(strings.en.resultAll, 'Compare your wording with the model.');
-  assert.equal(strings.en.resultMany, 'Compare the marked parts with your answer.');
-  assert.equal(strings.fr.resultAll, 'Comparez votre formulation avec le modèle.');
-  assert.equal(strings.fr.resultMany, 'Comparez les éléments marqués avec votre réponse.');
+  assert.equal(strings.en.resultAll, 'Compare your wording with the model answer.');
+  assert.equal(strings.en.resultMany, 'Use the hints to add missing parts.');
+  assert.equal(strings.fr.resultAll, 'Comparez votre formulation avec la réponse modèle.');
+  assert.equal(strings.fr.resultMany, 'Ajoutez les éléments manquants à l\'aide des conseils.');
 });

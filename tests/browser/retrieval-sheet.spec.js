@@ -7,6 +7,8 @@ const english = JSON.parse(await readFile(new URL('../../patterns/retrieval-shee
 const french = JSON.parse(await readFile(new URL('../../patterns/retrieval-sheet/examples/fr.json', import.meta.url)));
 const root = page => page.locator('[data-lp-pattern="retrieval-sheet"]').first();
 const side = (page, value) => root(page).locator(`[data-lp-side="${value}"]`);
+// Name computation may put a space before the hidden comma, because the date span is a block.
+const named = (label, date) => new RegExp(String.raw`^${label}\s?, ${date.replaceAll('.', String.raw`\.`)}$`);
 const scan = async page => expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()).violations).toEqual([]);
 
 async function open(page, path = '/retrieval-sheet/en.html') {
@@ -21,6 +23,48 @@ async function observe(page) {
     }).observe(document.querySelector('[role="status"]'), { childList: true, characterData: true, subtree: true });
   });
 }
+
+test('spacing group names five choices, updates both dates once and keeps tabs above the sheet', async ({ page }) => {
+  await open(page); await observe(page);
+  const group = root(page).getByRole('group', { name: 'When will you test yourself?' });
+  await expect(group.getByRole('radio')).toHaveCount(5);
+  for (const [label, short, date, long] of [
+    ['In 2 days', 'Thu, Oct 8', '2026-10-08', 'October 8, 2026'],
+    ['In 1 week', 'Tue, Oct 13', '2026-10-13', 'October 13, 2026'],
+    ['In 2 weeks', 'Tue, Oct 20', '2026-10-20', 'October 20, 2026'],
+    ['In 1 month', 'Thu, Nov 5', '2026-11-05', 'November 5, 2026']
+  ]) {
+    const radio = group.getByRole('radio', { name: named(label, short) });
+    await radio.check(); await expect(radio).toBeChecked();
+    await expect(root(page).locator('time')).toHaveText([long, long]);
+    for (const time of await root(page).locator('time').all()) await expect(time).toHaveAttribute('datetime', date);
+    expect(await page.evaluate(() => window.lpSaved)).toEqual({ date, side: 'front' });
+  }
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([
+    'Test yourself on October 8, 2026.', 'Test yourself on October 13, 2026.',
+    'Test yourself on October 20, 2026.', 'Test yourself on November 5, 2026.'
+  ]);
+  await expect(group.getByRole('radio', { name: 'Another date', exact: true })).toBeVisible();
+  await expect(root(page).getByLabel('Date', { exact: true })).toBeHidden();
+  const choices = await group.boundingBox(), tabs = await root(page).getByRole('tablist').boundingBox();
+  const paper = await side(page, 'front').boundingBox();
+  expect(tabs.y).toBeGreaterThanOrEqual(choices.y + choices.height);
+  expect(paper.y).toBeGreaterThanOrEqual(tabs.y + tabs.height);
+});
+
+for (const [date, label] of [
+  ['2026-10-08', 'In 2 days'], ['2026-10-13', 'In 1 week'],
+  ['2026-10-20', 'In 2 weeks'], ['2026-11-05', 'In 1 month'], ['2028-02-29', 'Another date']
+]) test(`saved date selects ${label} silently`, async ({ page }) => {
+  await page.addInitScript(date => { window.lpSeed = { date, side: 'back' }; }, date);
+  await open(page);
+  await expect(root(page).getByRole('radio', { name: new RegExp(`^${label}`) })).toBeChecked();
+  await expect(root(page).getByLabel('Date', { exact: true })).toHaveValue(date);
+  if (label === 'Another date') await expect(root(page).getByLabel('Date', { exact: true })).toBeVisible();
+  else await expect(root(page).getByLabel('Date', { exact: true })).toBeHidden();
+  await expect(root(page).getByRole('status')).toHaveText('');
+  expect(await page.evaluate(() => window.lpSaved)).toBeUndefined();
+});
 
 for (const width of [1280, 390]) {
   test(`paper preview has a scene header, writing space and authored content (${width}px)`, async ({ page }) => {
@@ -52,7 +96,7 @@ test('keyboard journey uses automatic tabs with arrows, Home and End and keeps a
   });
   const front = root(page).getByRole('tab', { name: 'Front', exact: true });
   const back = root(page).getByRole('tab', { name: 'Back', exact: true });
-  await expect(root(page).getByLabel('Test myself on')).toHaveValue('2026-10-13');
+  await expect(root(page).getByLabel('Date', { exact: true })).toHaveValue('2026-10-13');
   await expect(front).toHaveAttribute('aria-selected', 'true'); await expect(back).toHaveAttribute('tabindex', '-1');
   await front.focus(); await page.keyboard.press('ArrowRight');
   await expect(back).toBeFocused(); await expect(back).toHaveAttribute('aria-selected', 'true');
@@ -94,14 +138,16 @@ test('tab selection and panel switch finish before focus with no later selection
 
 test('date changes update both printed headers, copy state and announce once without moving focus', async ({ page }) => {
   await open(page); await observe(page);
-  const date = root(page).getByLabel('Test myself on');
+  await root(page).getByRole('radio', { name: /^Another date/ }).check();
+  const date = root(page).getByLabel('Date', { exact: true });
   await expect(date).not.toHaveAttribute('aria-describedby');
   await date.fill('2028-02-29'); await date.dispatchEvent('change');
   await expect(date).toBeFocused();
+  await expect(root(page).getByRole('radio', { name: named('Another date', 'Tue, Feb 29') })).toBeChecked();
   await expect(root(page).locator('time')).toHaveText(['February 29, 2028', 'February 29, 2028']);
   for (const time of await root(page).locator('time').all()) await expect(time).toHaveAttribute('datetime', '2028-02-29');
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ date: '2028-02-29', side: 'front' });
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Test yourself on February 29, 2028.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Test yourself on October 13, 2026.', 'Test yourself on February 29, 2028.']);
   await page.evaluate(() => { window.lpSaved.date = '2020-01-01'; });
   await root(page).getByRole('tab', { name: 'Back', exact: true }).click();
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ date: '2028-02-29', side: 'back' });
@@ -109,9 +155,12 @@ test('date changes update both printed headers, copy state and announce once wit
 
 test('empty and out-of-range date edits show local errors and keep the last valid state', async ({ page }) => {
   await open(page); await observe(page);
-  const date = root(page).getByLabel('Test myself on');
+  await root(page).getByRole('radio', { name: /^Another date/ }).check();
+  const date = root(page).getByLabel('Date', { exact: true });
   await date.fill(''); await date.dispatchEvent('change');
   await expect(date).toHaveAttribute('aria-invalid', 'true');
+  await expect(date).not.toHaveAttribute('aria-describedby');
+  await root(page).getByRole('tab').first().focus();
   const errorId = await date.getAttribute('aria-describedby');
   await expect(page.locator(`[id="${errorId}"]`)).toBeVisible();
   await expect(root(page).locator('[data-lp-date-error]')).toHaveText('Choose a valid date.');
@@ -126,12 +175,15 @@ test('empty and out-of-range date edits show local errors and keep the last vali
   await expect(date).not.toHaveAttribute('aria-describedby');
   await expect(root(page).locator('[data-lp-date-error]')).toBeHidden();
   await expect(root(page).getByRole('button', { name: 'Print the sheet' })).toBeEnabled();
-  expect(await page.evaluate(() => window.lpAnnouncements.filter(Boolean))).toEqual(['Test yourself on October 20, 2026.']);
+  expect(await page.evaluate(() => window.lpAnnouncements.filter(Boolean))).toEqual([
+    'Test yourself on October 13, 2026.', 'Choose a valid date.', 'Test yourself on October 20, 2026.'
+  ]);
 });
 
 for (const [lang, message] of [['en', 'Choose a valid date.'], ['fr', 'Choisissez une date valide.']]) {
   for (const focused of [true, false]) test(`invalid date has one announcement source per invalid transition (${lang}, focused=${focused})`, async ({ page }) => {
     await open(page, `/retrieval-sheet/${lang}.html`); await observe(page);
+    await root(page).getByRole('radio', { name: /^(Another date|Une autre date)/ }).check();
     const date = root(page).locator('[data-lp-date]');
     if (focused) await date.focus();
     else await root(page).getByRole('tab').first().focus();
@@ -143,26 +195,87 @@ for (const [lang, message] of [['en', 'Choose a valid date.'], ['fr', 'Choisisse
     });
     await expect(date).toHaveAttribute('aria-invalid', 'true');
     for (let edit = 0; edit < 3; edit++) await date.dispatchEvent('change');
-    expect(await page.evaluate(() => window.lpDateDescriptions.length)).toBe(1);
-    expect(await page.evaluate(message => window.lpAnnouncements.filter(text => text === message).length, message)).toBe(focused ? 0 : 1);
+    expect(await page.evaluate(() => window.lpDateDescriptions.length)).toBe(focused ? 0 : 1);
+    expect(await page.evaluate(message => window.lpAnnouncements.filter(text => text === message).length, message)).toBe(1);
+    if (focused) {
+      await root(page).getByRole('tab').first().focus();
+      expect(await page.evaluate(() => window.lpDateDescriptions.length)).toBe(1);
+      await date.focus();
+    }
     await expect(root(page).locator('[data-lp-date-error]')).toHaveText(message);
     // Recover to the last valid date, then enter the invalid state again.
     await date.evaluate(el => { el.value = '2026-10-13'; el.dispatchEvent(new Event('change', { bubbles: true })); });
     await expect(date).not.toHaveAttribute('aria-describedby');
     await date.evaluate(el => { el.value = ''; el.dispatchEvent(new Event('change', { bubbles: true })); });
-    expect(await page.evaluate(() => window.lpDateDescriptions.length)).toBe(2);
-    expect(await page.evaluate(message => window.lpAnnouncements.filter(text => text === message).length, message)).toBe(focused ? 0 : 2);
+    expect(await page.evaluate(() => window.lpDateDescriptions.length)).toBe(focused ? 1 : 2);
+    expect(await page.evaluate(message => window.lpAnnouncements.filter(text => text === message).length, message)).toBe(2);
+    await page.evaluate(() => { window.lpAnnouncements = []; });
+    await date.evaluate(el => { el.value = '2028-02-29'; el.dispatchEvent(new Event('change', { bubbles: true })); });
+    expect(await page.evaluate(() => window.lpAnnouncements.filter(Boolean))).toEqual([
+      lang === 'fr' ? 'Testez vos connaissances le 29 février 2028.' : 'Test yourself on February 29, 2028.'
+    ]);
   });
 }
+
+for (const [lang, labels, another, status] of [
+  ['en', [['In 2 days', 'Thu, Oct 8'], ['In 1 week', 'Tue, Oct 13']], 'Another date', 'Test yourself on October 13, 2026.'],
+  ['fr', [['Dans 2 jours', 'jeu. 8 oct.'], ['Dans 1 semaine', 'mar. 13 oct.']], 'Une autre date', 'Testez vos connaissances le 13 octobre 2026.']
+]) test(`radio names separate label and date; Another date and same-date recovery speak the date once (${lang})`, async ({ page }) => {
+  await open(page, `/retrieval-sheet/${lang}.html`); await observe(page);
+  for (const [label, date] of labels) await expect(root(page).getByRole('radio', { name: named(label, date) })).toHaveCount(1);
+  await expect(root(page).locator('[data-lp-choice-date-text]').first()).toHaveText(labels[0][1]);
+  await root(page).getByRole('radio', { name: another, exact: true }).check();
+  expect(await page.evaluate(() => window.lpAnnouncements.filter(Boolean))).toEqual([status]);
+  const date = root(page).locator('[data-lp-date]');
+  await date.evaluate(el => { el.value = ''; el.dispatchEvent(new Event('change', { bubbles: true })); });
+  await page.evaluate(() => { window.lpAnnouncements = []; });
+  await date.evaluate(el => { el.value = '2026-10-13'; el.dispatchEvent(new Event('change', { bubbles: true })); });
+  expect(await page.evaluate(() => window.lpAnnouncements.filter(Boolean))).toEqual([status]);
+});
 
 test('restores an exact saved date and side without an announcement', async ({ page }) => {
   await page.addInitScript(() => { window.lpSeed = { date: '2025-01-02', side: 'back' }; });
   await open(page);
   await expect(side(page, 'back')).toBeVisible(); await expect(side(page, 'front')).toBeHidden();
-  await expect(root(page).getByLabel('Test myself on')).toHaveValue('2025-01-02');
+  await expect(root(page).getByLabel('Date', { exact: true })).toHaveValue('2025-01-02');
   await expect(root(page).locator('time')).toHaveText(['January 2, 2025', 'January 2, 2025']);
   await expect(root(page).getByRole('status')).toHaveText('');
   expect(await page.evaluate(() => window.lpSaved)).toBeUndefined();
+});
+
+test('a preset clears a custom date error, restores printing and keeps focus on its radio', async ({ page }) => {
+  await open(page); await observe(page);
+  await root(page).getByRole('radio', { name: /^Another date/ }).check();
+  const date = root(page).getByLabel('Date', { exact: true });
+  await date.fill(''); await date.dispatchEvent('change');
+  const preset = root(page).getByRole('radio', { name: /^In 2 days/ });
+  await preset.focus(); await preset.press('Space');
+  await expect(preset).toBeFocused(); await expect(preset).toBeChecked();
+  await expect(date).toBeHidden(); await expect(date).not.toHaveAttribute('aria-invalid');
+  await expect(date).not.toHaveAttribute('aria-describedby');
+  await expect(root(page).locator('[data-lp-date-error]')).toBeHidden();
+  await expect(root(page).getByRole('button', { name: 'Print the sheet' })).toBeEnabled();
+  await expect(root(page).locator('time')).toHaveText(['October 8, 2026', 'October 8, 2026']);
+  expect(await page.evaluate(() => window.lpAnnouncements.filter(Boolean))).toEqual([
+    'Test yourself on October 13, 2026.', 'Choose a valid date.', 'Test yourself on October 8, 2026.'
+  ]);
+  await preset.press('ArrowRight');
+  await expect(root(page).getByRole('radio', { name: /^In 1 week/ })).toBeFocused();
+  await expect(root(page).getByRole('radio', { name: /^In 1 week/ })).toBeChecked();
+});
+
+test('choice grid uses two columns wide and one narrow, with instant reduced-motion changes', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' }); await open(page);
+  for (const [width, sameRow] of [[1280, true], [390, false]]) {
+    await page.setViewportSize({ width, height: 900 });
+    const radios = root(page).locator('.lp-choice');
+    const first = await radios.nth(0).boundingBox(), second = await radios.nth(1).boundingBox();
+    expect(Math.abs(first.y - second.y) < 1).toBe(sameRow);
+  }
+  await root(page).getByRole('radio', { name: /^Another date/ }).check();
+  await expect(root(page).getByLabel('Date', { exact: true })).toBeVisible();
+  const duration = await root(page).locator('.lp-choice').first().evaluate(el => getComputedStyle(el).transitionDuration);
+  expect(duration.split(',').every(value => parseFloat(value) <= .01)).toBe(true);
 });
 
 for (const [name, value] of Object.entries({
@@ -172,7 +285,7 @@ for (const [name, value] of Object.entries({
   test(`ignores planted invalid saved state as a whole: ${name}`, async ({ page }) => {
     await page.addInitScript(value => { window.lpSeed = value; }, value);
     await open(page);
-    await expect(root(page).getByLabel('Test myself on')).toHaveValue('2026-10-13');
+    await expect(root(page).getByLabel('Date', { exact: true })).toHaveValue('2026-10-13');
     await expect(side(page, 'front')).toBeVisible(); await expect(side(page, 'back')).toBeHidden();
     await expect(root(page).getByRole('status')).toHaveText('');
   });
@@ -201,7 +314,7 @@ test('malformed markup is rejected before partially revealing controls or attach
     const { render } = await import('/patterns/retrieval-sheet/render.js');
     const { enhance } = await import('/patterns/retrieval-sheet/enhance.js');
     const { strings } = await import('/patterns/retrieval-sheet/strings.js');
-    return ['[data-lp-controls]', '[data-lp-tabs]', '[data-lp-date]', '[data-lp-date-error]', '[data-lp-print-controls]', '[data-lp-print]', '[role="status"]', '[data-lp-tab="front"]', '[data-lp-side="back"]', '[data-lp-print-date]'].map(selector => {
+    return ['[data-lp-controls]', '[data-lp-spacing]', '[data-lp-custom-date]', '[data-lp-spacing] input[value="2"]', '[data-lp-choice-date]', '[data-lp-tabs]', '[data-lp-date]', '[data-lp-date-error]', '[data-lp-print-controls]', '[data-lp-print]', '[role="status"]', '[data-lp-tab="front"]', '[data-lp-side="back"]', '[data-lp-print-date]'].map(selector => {
       const wrapper = document.createElement('div');
       wrapper.innerHTML = render(content, strings.en, { id: 'guard', lang: 'en' });
       const sheet = wrapper.firstElementChild; sheet.querySelector(selector).remove();
@@ -218,10 +331,11 @@ test('two instances have unique ids, independent tabs and dates', async ({ page 
   await open(page, '/retrieval-sheet/two.html');
   const second = page.locator('[data-lp-pattern]').nth(1);
   await root(page).getByRole('tab', { name: 'Back', exact: true }).click();
-  await root(page).getByLabel('Test myself on').fill('2026-10-20');
-  await root(page).getByLabel('Test myself on').dispatchEvent('change');
+  await root(page).getByRole('radio', { name: /^Another date/ }).check();
+  await root(page).getByLabel('Date', { exact: true }).fill('2026-10-20');
+  await root(page).getByLabel('Date', { exact: true }).dispatchEvent('change');
   await expect(second.locator('[data-lp-side="front"]')).toBeVisible();
-  await expect(second.getByLabel('Test myself on')).toHaveValue('2026-10-13');
+  await expect(second.getByLabel('Date', { exact: true })).toHaveValue('2026-10-13');
   const ids = await page.locator('[id]').evaluateAll(elements => elements.map(el => el.id));
   expect(new Set(ids).size).toBe(ids.length);
 });
@@ -254,6 +368,7 @@ for (const lang of ['en', 'fr']) {
   test(`axe at load, back and changed date (${lang})`, async ({ page }) => {
     await open(page, `/retrieval-sheet/${lang}.html`); await scan(page);
     await root(page).locator('[data-lp-tab="back"]').click(); await scan(page);
+    await root(page).getByRole('radio', { name: /^(Another date|Une autre date)/ }).check(); await scan(page);
     await root(page).locator('[data-lp-date]').fill('2028-02-29');
     await root(page).locator('[data-lp-date]').dispatchEvent('change'); await scan(page);
     await root(page).locator('[data-lp-date]').fill('');
@@ -269,6 +384,8 @@ for (const lang of ['en', 'fr']) {
     await expect(side(page, 'front').locator('li > p')).toHaveText(content.questions.map(row => row.question));
     await expect(side(page, 'back').locator('li > p')).toHaveText(content.questions.map(row => row.answer));
     await expect(root(page).getByRole('button')).toHaveCount(0);
+    await expect(root(page).getByRole('radio')).toHaveCount(0);
+    await expect(root(page).locator('time').first()).toHaveAttribute('datetime', await root(page).locator('[data-lp-date]').getAttribute('value'));
     if (browserName === 'chromium') {
       await page.emulateMedia({ media: 'print' });
       await expect(page.locator('h1')).toBeHidden();
@@ -283,13 +400,22 @@ for (const lang of ['en', 'fr']) {
 
   test(`320 CSS px with text spacing has no overflow or clipped text (${lang})`, async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 800 }); await open(page, `/retrieval-sheet/${lang}.html`);
+    await root(page).getByRole('radio', { name: /^(Another date|Une autre date)/ }).check();
     await page.addStyleTag({ content: '*{line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important}p{margin-bottom:2em!important}' });
     for (const value of ['front', 'back']) {
       await root(page).locator(`[data-lp-tab="${value}"]`).click();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-      expect(await root(page).evaluate(el => [...el.querySelectorAll('p, button, h2, h3, time')]
-        .filter(el => el.getClientRects().length && !el.matches('[role="status"]'))
-        .filter(el => el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1).map(el => el.textContent))).toEqual([]);
+      // Visually hidden text is clipped on purpose; Firefox counts it as overflow of its parent, so measure without it.
+      expect(await root(page).evaluate(el => {
+        const hidden = [...el.querySelectorAll('.lp-visually-hidden')];
+        for (const node of hidden) node.style.setProperty('display', 'none', 'important');
+        const clipped = [...el.querySelectorAll('p, button, h2, h3, time, legend, label, .lp-choice span')]
+          // clientWidth is 0 for inline boxes, so only non-inline boxes can report clipping.
+          .filter(el => el.getClientRects().length && !el.matches('[role="status"]') && getComputedStyle(el).display !== 'inline')
+          .filter(el => el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1).map(el => el.textContent);
+        for (const node of hidden) node.style.removeProperty('display');
+        return clipped;
+      })).toEqual([]);
     }
   });
 }
@@ -297,12 +423,13 @@ for (const lang of ['en', 'fr']) {
 test('French date, labels, authored answers and announcement use French', async ({ page }) => {
   await open(page, '/retrieval-sheet/fr.html'); await observe(page);
   await expect(root(page).locator('.lp-scene-label')).toHaveCount(0);
-  await root(page).getByLabel('Me tester le').fill('2028-02-29');
-  await root(page).getByLabel('Me tester le').dispatchEvent('change');
+  await root(page).getByRole('radio', { name: /^Une autre date/ }).check();
+  await root(page).getByLabel('Date', { exact: true }).fill('2028-02-29');
+  await root(page).getByLabel('Date', { exact: true }).dispatchEvent('change');
   await expect(root(page).locator('time')).toHaveText(['29 février 2028', '29 février 2028']);
   await root(page).getByRole('tab', { name: 'Verso', exact: true }).click();
   await expect(side(page, 'back').locator('li > p')).toHaveText(french.questions.map(row => row.answer));
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Testez vos connaissances le 29 février 2028.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Testez vos connaissances le 13 octobre 2026.', 'Testez vos connaissances le 29 février 2028.']);
 });
 
 test('forced colours keeps the active tab and keyboard focus visible', async ({ page, browserName }) => {
@@ -313,6 +440,12 @@ test('forced colours keeps the active tab and keyboard focus visible', async ({ 
   await expect(back).toHaveCSS('border-bottom-width', '3px');
   await expect(back).toHaveCSS('border-bottom-style', 'solid');
   await expect(back).toBeFocused(); await scan(page);
+  const radio = root(page).getByRole('radio', { name: /^In 2 days/ });
+  await radio.focus(); await radio.press('Space');
+  await expect(radio).toBeChecked(); await expect(radio).toHaveCSS('opacity', '1');
+  await expect(root(page).locator('.lp-choice').first()).toHaveCSS('border-top-width', '2px');
+  await expect(root(page).locator('.lp-choice').first()).toHaveCSS('outline-style', 'solid');
+  await scan(page);
 });
 
 for (const format of ['A4', 'Letter']) {
@@ -321,6 +454,7 @@ for (const format of ['A4', 'Letter']) {
       test.skip(browserName !== 'chromium', 'PDF generation is Chromium only.');
       await open(page, `/retrieval-sheet/${lang}.html`);
       await root(page).locator('[data-lp-tab="back"]').click();
+      await root(page).getByRole('radio', { name: /^(Another date|Une autre date)/ }).check();
       await root(page).locator('[data-lp-date]').fill('2028-02-29');
       await root(page).locator('[data-lp-date]').dispatchEvent('change');
       await page.emulateMedia({ media: 'print' });
@@ -340,7 +474,7 @@ for (const format of ['A4', 'Letter']) {
       expect(pages).toHaveLength(2);
       const content = lang === 'fr' ? french : english;
       for (const row of content.questions) {
-        expect(pages[0].replace(/\s+/g, ' ')).toContain(row.question);
+        expect(pages[0].replace(/\s+/g, ' ')).toContain(row.question.replace(/\u00a0/g, ' '));
         expect(pages[1].replace(/\s+/g, ' ')).toContain(row.answer.replace(/\u00a0/g, ' '));
       }
       expect(text).not.toContain(lang === 'fr' ? 'À emporter' : 'Take it with you');

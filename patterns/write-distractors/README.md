@@ -1,7 +1,7 @@
 ---
 title: Write the wrong options
 title_fr: Rédigez les mauvaises réponses
-summary: Answer a question, write wrong options and the misconception behind each, then compare with the author's.
+summary: Answer from memory, write wrong options and explain the mistaken idea behind each, then compare with the author.
 section: question
 ai: no
 offline: yes
@@ -9,51 +9,55 @@ learners: not tried
 ---
 # Write the wrong options
 
-You answer a question, write plausible wrong options, name their misconceptions and compare with the author's options.
+Answer from memory, then write wrong options and name the mistaken idea behind each. Compare your options with the author's.
 
 ## When to use it
 
-Use it when learners can recall the topic and name common misconceptions. Authors can review submissions to find possible wrong options for a quiz. Do not use tag matches to judge whether an option expresses its misconception or would tempt a learner, since a person must judge that.
+Use it when learners know enough to answer from memory and explain common mistakes. Authors can review their wrong options for use in quizzes. A person must judge whether each option expresses the chosen misconception and would tempt a learner. Matching labels cannot do that.
 
 ## How it works
 
-1. You write your answer from memory and select "Check my answer" to see the right answer.
-2. You choose "Yes" or "Not quite" to say whether you had it. This choice has no score.
-3. You write the requested wrong options and choose the wrong idea behind each one. You can choose "Something else" and write your own description.
-4. You select "Compare with the author's" and fix any fields with errors.
-5. You compare your finished question with the author's question. Each wrong option shows its misconception underneath. Matching misconceptions get a check mark, and the summary counts the author's labels you used and any extra labels.
-6. You select "Start over" to clear your work and answer the question again.
+1. Answer from memory. Select "Check my answer" to see the right answer.
+2. Choose "Yes" or "Not quite" to say whether your answer was right. This choice has no score.
+3. Write the requested wrong options. Choose the mistaken idea behind each, or choose "Something else" and describe it.
+4. Select "Compare with the author's". Fix any fields with errors.
+5. Compare your question with the author's. Each wrong option names its mistaken idea. A check mark shows a matching label. The summary counts matching and extra labels.
+6. Select "Start over" to clear your work.
 
 ## Evidence
 
-Producing an answer yourself improves memory more than reading it, with an average effect of 0.40 standard deviations across 86 studies ([Bertsch et al., 2007](https://doi.org/10.3758/BF03193441)). Writing questions about a lecture helped university students recall it a week later about as much as answering practice questions ([Ebersbach, Feierabend and Nazari, 2020](https://doi.org/10.1002/acp.3639)), and students who wrote multiple-choice questions for their peers tended to do better in exams, though those studies are correlational ([Hardy et al., 2014](https://doi.org/10.1080/09500693.2014.916831)). Tying each wrong option to a named misconception follows diagnostic test design ([Treagust, 1988](https://doi.org/10.1080/0950069880100204); [Eedi](https://www.eedi.com/news/from-wrong-answers-to-real-insights-how-we-used-a-kaggle-challenge-to-map-student-misconceptions)). Texts that state a misconception and explain why it is wrong improved learning in a meta-analysis ([Schroeder and Kucera, 2022](https://doi.org/10.1007/s10648-021-09656-z)). This pattern shows the right answer but does not refute each misconception. Writing wrong options has not been tested as a learning activity.
+Giving your own answer helps you remember more than reading one. The average effect was 0.40 standard deviations across 86 studies ([Bertsch et al., 2007](https://doi.org/10.3758/BF03193441)). University students wrote questions about a lecture. A week later, they recalled about as much as students who answered practice questions ([Ebersbach, Feierabend and Nazari, 2020](https://doi.org/10.1002/acp.3639)). Students who wrote multiple-choice questions for peers tended to do better in exams. Those studies show a link, not that writing questions caused better scores ([Hardy et al., 2014](https://doi.org/10.1080/09500693.2014.916831)).
+
+Linking each wrong option to a named misconception follows diagnostic test design ([Treagust, 1988](https://doi.org/10.1080/0950069880100204); [Eedi](https://www.eedi.com/news/from-wrong-answers-to-real-insights-how-we-used-a-kaggle-challenge-to-map-student-misconceptions)). Texts that explain why a misconception is wrong improved learning in a meta-analysis ([Schroeder and Kucera, 2022](https://doi.org/10.1007/s10648-021-09656-z)).
+
+This pattern shows the right answer but does not explain why each misconception is wrong. Writing wrong options has not been tested as a learning activity.
 
 ## Accessibility
 
-Meets the shared baseline in the root README.
+Follows the shared baseline in the root README.
 
-- Each wrong-option builder has a fieldset whose legend names its letter key and labels the answer field. Other fields have visible labels. Errors are linked to their fields.
-- Checking announces the right answer and keeps focus on Check my answer. A self-report moves focus to the authoring heading.
-- Invalid comparisons focus the first error and announce the number of fields needing attention. Successful comparisons keep focus on the submit button and announce coverage.
-- After comparison, each builder becomes a read-only summary with its full misconception label. Start over focuses Your answer.
+- Each wrong option has a fieldset. Its legend names the option's letter and labels its answer field. Error messages name options by that letter. Other fields have visible labels. Errors link to their fields.
+- Checking announces the right answer and keeps focus on Check my answer. Choosing Yes or Not quite focuses the next heading.
+- An invalid comparison focuses the first error and announces how many fields need fixing. A valid comparison keeps focus on the submit button and announces the matching-label count.
+- After comparison, each wrong option shows a summary you can read but cannot edit. It includes the full misconception label. Start over focuses Your answer.
 
 ## Content fields
 
-All content fields are plain text. HTML characters are escaped.
+Content is plain text. Rendering escapes HTML characters.
 
 | Field | Meaning |
 | --- | --- |
-| `question` | Given question. |
-| `rightAnswer` | Authored right answer, revealed after checking or through the native disclosure. |
+| `question` | Question to answer. |
+| `rightAnswer` | Right answer, shown after checking or in the native disclosure. |
 | `misconceptions` | At least one named misconception, in select order. |
 | `misconceptions[].id` | Unique letters, digits, underscores or hyphens. `other` is reserved for "Something else". |
-| `misconceptions[].label` | Select label and target name in results. |
+| `misconceptions[].label` | Label in the select menu and results. |
 | `authorOptions` | At least one wrong option for comparison. |
 | `authorOptions[].text` | Authored wrong answer. |
 | `authorOptions[].misconception` | An ID in `misconceptions`. |
-| `count` | Positive safe integer, the number of wrong options to write. The example uses two. Keep this small. |
+| `count` | Positive safe integer. Number of wrong options to write; keep it small. The example uses two. |
 
-Strings must be nonempty. Unknown fields, duplicate IDs, and unknown author references throw errors naming the field. The schema annotations `x-uniqueBy` and `x-reference` document relational checks. Use `validateContent` alongside an ordinary JSON Schema validator for these checks.
+Strings must be nonempty. Unknown fields, duplicate ids and invalid author references throw errors naming the field. Use `validateContent` for the cross-field checks recorded as `x-uniqueBy` and `x-reference`; ordinary JSON Schema tools need these checks.
 
 ## Logic
 
@@ -71,13 +75,17 @@ Strings must be nonempty. Unknown fields, duplicate IDs, and unknown author refe
 
 Each submitted option has `{ text, misconception, custom }`. Named targets use an empty `custom` string. Exported constants `MAX_OPTION`, `MAX_CUSTOM` and `OTHER` are `300`, `120` and `'other'`. Length checks run before trimming and collapsing whitespace. Comparison rejects the right answer and duplicate options after ignoring case and extra whitespace.
 
-Coverage compares tags after ignoring case and extra whitespace. A custom tag that repeats an authored label matches it. Duplicate tags count once. `missed` lists only targets from the author's options; `extra` lists learner targets those options do not cover. The enhancer formats counts with `coverageOne` or `coverageMany` above two question previews. The previews sit side by side when the activity's content area is at least 40rem wide, and stack below that.
+Coverage compares labels, ignoring case and extra whitespace. Custom labels can match authored labels. Repeated labels count once. `missed` lists only labels from the author's options; `extra` lists learner labels absent from those options. `coverageOne` or `coverageMany` formats counts above two question previews. Previews sit side by side at content widths of at least 40rem and stack below that.
 
-Checking locks the first answer. The right answer owns letter key A; wrong options start at B. The builder heading writes counts from two to five in words and larger counts in digits. The author's question stays hidden until a valid comparison. Without JavaScript, the question and answer field remain available, with native disclosures for Right answer and The author's question.
+Checking locks the first answer. The right answer has letter A; wrong options start at B. The heading writes counts two to five in words and larger counts in digits. The author's question appears after a valid comparison. Without JavaScript, learners can read the question, write an answer and open Right answer and The author's question.
 
-The optional state adapter stores `{ answer, hadIt, options: [{ text, misconception, custom }], shown }`. `answer` holds the learner's text. `hadIt` is `true` for Yes, `false` for Not quite, and `null` before self-report. It saves drafts on input and selection, normalized options on comparison, and empty fields on Start over. A saved draft with `hadIt: null` returns to the answer step, even if the answer was checked before leaving. Legacy state preserves the wrong-option draft and requires the answer step again. The host decides how to collect submissions for the author. This pattern uses no localStorage and keeps no suggestion list. Invalid state is ignored. Valid results restore without announcements. State adapter errors propagate to the host. Repeated enhancement returns the same instance.
+Optional host state stores `{ answer, hadIt, options: [{ text, misconception, custom }], shown }`. `answer` is the learner's text. `hadIt` is `true` for Yes, `false` for Not quite, or `null` before that choice. Input and selection save drafts; comparison saves normalized options; Start over saves empty fields.
 
-Override the root's `--lp-*` tokens for colours, radius, fonts and focus. See the root README for the token defaults.
+A saved draft with `hadIt: null` returns to the answer step, even if previously checked. Legacy state keeps the wrong-option draft and requires the answer step again. Invalid state is ignored. Valid results restore silently. State adapter errors reach the host. Repeated enhancement returns the same instance.
+
+The host decides how to collect submissions. The pattern uses no localStorage and keeps no suggestion list.
+
+Override `--lp-*` tokens for colours, radius, fonts and focus. Defaults are in the root README.
 
 ## Use it
 
@@ -105,7 +113,7 @@ instance.destroy();
 
 ## Adapt it with your agent
 
-Give your agent this README, the example content and your question's correct answer. Ask it to draft misconception labels and plausible wrong options for author review. Keep learner-facing feedback authored in `strings.js`. Check the labels against real learner errors before adopting them. Run the logic, schema, type, budget and browser checks after changing the content contract.
+Give your agent this README, the examples and your correct answer. Ask for misconception labels and plausible wrong options to review. Keep feedback authored in `strings.js`. Check labels against real learner errors. If you change the content contract, run logic, schema, type, budget and browser checks.
 
 ## Licence
 
