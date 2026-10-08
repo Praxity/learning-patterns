@@ -9,9 +9,7 @@ test('public configuration supplies the selected provider and both authored noti
     assert.equal(response.status, 200);
     assert.equal(config.providerName, name);
     assert.equal(config.siteKey, 'public-key');
-    assert.ok(config.dataNotice.en.includes(name));
-    assert.ok(config.dataNotice.fr.includes(name));
-    assert.match(config.dataNotice.en, /We don't store your text/);
-    assert.match(config.dataNotice.fr, /Nous ne conservons pas votre texte/);
+    assert.equal(config.dataNotice.en, 'Your answer is sent to a decision model; it is not stored and not used for training.');
+    assert.equal(config.dataNotice.fr, "Votre réponse est envoyée à un modèle de décision. Elle n'est ni conservée ni utilisée pour l'entraînement.");
   }
 });
