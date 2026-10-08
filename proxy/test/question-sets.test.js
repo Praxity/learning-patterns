@@ -4,8 +4,10 @@ import { buildRequest } from "../src/worker.js";
 import misconceptions from "../src/demos/06-misconceptions.js";
 import explainBack from "../src/demos/07-explain-back.js";
 import journal from "../src/demos/13-journal.js";
+import live from "../src/demos/02-live.js";
 
 const cases = [
+ [live, "answer", 1200, { three_actions: "noul", observable: "noul", when: "noul", commitments: "noul" }],
 	[misconceptions, "answer", 1500, { misconception: "choice" }],
 	[explainBack, "answer", 1500, { stonewalling: "noul", pause: "noul", return: "noul" }],	[journal, "answer", 1500, { situation: "noul", action: "noul", next_step: "noul", when: "noul", distress: "noul" }],];
 

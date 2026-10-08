@@ -673,7 +673,7 @@ for (const provider of ['perplexity', 'clef', 'jev']) {
       const response = await s.ask({ block, fields });
       assert.equal(response.status, 200, block);
       const result = await response.json();
-      assert.deepEqual(Object.keys(result.answers), Object.keys(entry.clefQuestions));
+      assert.deepEqual(Object.keys(result.answers), Object.keys(entry.clefQuestions ?? entry.build(fields).questions));
       assert.equal((await (await s.ask({ block, fields })).json()).costUsd, block === '13-journal' ? (provider === 'perplexity' ? 0.00002 : provider === 'clef' ? 0.00024 : 0.000042) : 0);
       invalid = true;
       const badFields = block === '03-branch' ? { node: 'opening', reply: submitted + ' invalid' } : { answer: submitted + ' invalid' };
@@ -682,7 +682,7 @@ for (const provider of ['perplexity', 'clef', 'jev']) {
     }
     const rows = ['results', 'ip_calls', 'spend'].map(table => s.db.prepare(`SELECT * FROM ${table}`).all());
     assert.ok(!JSON.stringify([s.writes, rows, s.calls.alarmAt, logs]).includes(submitted));
-    assert.equal(rows[0].length, 4);
+    assert.equal(rows[0].length, Object.values(demos).filter(entry => entry.cache !== false).length);
     for (const row of rows[0]) {
       assert.match(row.key, /^[a-f0-9]{64}$/);
       const cached = JSON.parse(row.value);
@@ -1022,11 +1022,38 @@ test('each registered block retains only its 8192 token reservation on failed ca
     assert.equal((await s.ask({ block, fields })).status, 502);
     assert.equal(entry.maxInputTokens, 8192, block);
   }
-  assert.equal(s.db.prepare('SELECT nano_usd FROM spend').get().nano_usd, 5 * 344064);
+  assert.equal(s.db.prepare('SELECT nano_usd FROM spend').get().nano_usd, Object.keys(demos).length * 344064);
   s.calls.fail = false;
   s.calls.inputTokens = 8193;
   assert.equal((await s.ask({ answer: 'over bound' })).status, 502);
   assert.equal(s.db.prepare('SELECT count(*) AS n FROM results').get().n, 0);
+});
+
+test('02-live Perplexity calls use fixed questions, retain failed reservations and enforce the budget', async t => {
+  const s = setup(t);
+  s.env.MODEL_PROVIDER = 'perplexity';
+  s.env.PERPLEXITY_API_KEY = 'test-key';
+  s.env.DAILY_BUDGET_USD = '0.0008192';
+  const normalFetch = globalThis.fetch;
+  let calls = 0;
+  t.mock.method(globalThis, 'fetch', async (url, options) => {
+    if (String(url).includes('siteverify')) return normalFetch(url, options);
+    calls++;
+    assert.equal(url, 'https://api.perplexity.ai/v1/decisions');
+    const request = JSON.parse(options.body);
+    assert.equal(request.model, 'pplx-decider-v1.1-27b');
+    assert.deepEqual(Object.keys(request.questions), ['three_actions', 'observable', 'when', 'commitments']);
+    return Response.json({ model: request.model, answers: Object.fromEntries(Object.keys(request.questions).map(key => [key, { type: 'noul', noul: .65 }])), usage: {} });
+  });
+  assert.equal((await s.ask({ block: '02-live', fields: { answer: 'x'.repeat(1201) } })).status, 400);
+  assert.equal(calls, 0);
+  assert.equal((await s.ask({ block: '02-live', answer: 'A plan with uncertain billing.' })).status, 502);
+  assert.equal(s.db.prepare('SELECT nano_usd FROM spend').get().nano_usd, 819200);
+  assert.equal(s.db.prepare('SELECT count(*) AS n FROM results').get().n, 0);
+  const blocked = await s.ask({ block: '02-live', answer: 'A different action plan.' });
+  assert.equal(blocked.status, 429);
+  assert.equal((await blocked.json()).reason, 'budget');
+  assert.equal(calls, 1);
 });
 
 test('daily cleanup uses the expiry index and only schedules an alarm once per object', async (t) => {

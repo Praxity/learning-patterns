@@ -1,0 +1,37 @@
+{
+  "prompt": "Quelles sont les trois actions que vous allez entreprendre, dès maintenant, pour mieux vous affirmer au travail?",
+  "criteria": [
+    {
+      "id": "three_actions",
+      "label": "Au moins trois actions différentes.",
+      "short": "trois actions différentes",
+      "met": "Vous nommez au moins trois actions différentes.",
+      "missed": "Nommez au moins trois actions différentes. Une action reformulée trois fois compte pour une seule.",
+      "unsure": "Je ne peux pas déterminer s'il s'agit de trois actions différentes. Mettez chacune sur une ligne."
+    },
+    {
+      "id": "observable",
+      "label": "Chaque action est quelque chose qu'un collègue pourrait vous voir faire.",
+      "short": "des actions qu'un collègue pourrait observer",
+      "met": "Un collègue pourrait vous voir faire ces actions.",
+      "missed": "Décrivez chaque action pour qu'un collègue puisse l'observer. « Je vais refuser les tâches supplémentaires quand ma semaine est pleine » est observable. « Je vais avoir plus confiance en moi » ne l'est pas.",
+      "unsure": "Je ne peux pas déterminer si un collègue pourrait observer chaque action. Dites ce que vous allez dire ou faire."
+    },
+    {
+      "id": "when",
+      "label": "Au moins une action précise un moment ou une situation.",
+      "short": "le moment où vous allez agir",
+      "met": "Vous précisez un moment ou une situation.",
+      "missed": "Ajoutez un moment ou une situation, comme « à la réunion d'équipe de lundi ».",
+      "unsure": "Je ne peux pas déterminer si vous précisez quand agir. Nommez une journée, une réunion ou une situation."
+    },
+    {
+      "id": "commitments",
+      "label": "Les actions sont les vôtres, pas celles des autres.",
+      "short": "vos propres actions",
+      "met": "Ce sont vos propres actions.",
+      "missed": "Écrivez ce que vous allez faire. « Mon gestionnaire devrait écouter davantage » n'est pas votre action.",
+      "unsure": "Je ne peux pas déterminer si toutes ces actions sont les vôtres. Commencez chacune par « Je vais »."
+    }
+  ]
+}

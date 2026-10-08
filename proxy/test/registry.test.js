@@ -6,9 +6,9 @@ import { MICHEL_REPLIES } from '../src/demos/03-branch.js';
 import { perplexityRequest } from '../src/perplexity.js';
 import { PERPLEXITY_MAX_INPUT_TOKENS } from '../src/limits.js';
 
-const ids = ['03-branch', '06-misconceptions', '07-explain-back', '13-journal', '16-fixtures'];
+const ids = ['02-live', '03-branch', '06-misconceptions', '07-explain-back', '13-journal', '16-fixtures'];
 
-test('the registry exposes exactly the five accepted blocks', () => {
+test('the registry exposes exactly the six accepted blocks', () => {
   assert.deepEqual(Object.keys(blocks), ids);
   for (const id of ids) {
     const block = blocks[id];
@@ -16,7 +16,7 @@ test('the registry exposes exactly the five accepted blocks', () => {
     const request = buildRequest({ block: id, fields });
     assert.equal(request.error, undefined, id);
     assert.deepEqual(request.questions, block.build(fields).questions);
-    assert.deepEqual(buildRequest({ block: id, fields }, 'clef').questions, block.clefQuestions);
+    assert.deepEqual(buildRequest({ block: id, fields }, 'clef').questions, block.clefQuestions ?? request.questions);
     assert.deepEqual(buildRequest({ block: id, fields }, 'jev').questions, request.questions);
     assert.deepEqual(request.state, block.build(fields).state);
   }
@@ -64,7 +64,7 @@ test('journal cache policy belongs to the registry and reaches the guard request
 });
 
 test('unregistered and inherited names refuse requests without throwing', () => {
-  for (const block of ['01-rubric', '02-live', '05-horsemen', '09-self-assess', '14-ask', '15-sincerity', '17-parity', 'constructor', 'toString', '__proto__', undefined, null, {}, []]) {
+  for (const block of ['01-rubric', '05-horsemen', '09-self-assess', '14-ask', '15-sincerity', '17-parity', 'constructor', 'toString', '__proto__', undefined, null, {}, []]) {
     assert.match(buildRequest({ block, fields: { answer: 'hello' } }).error, /Unknown block/);
   }
 });

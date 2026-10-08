@@ -1,0 +1,8 @@
+.lp-live-feedback-results { margin-block-start: 16px; list-style: none; }
+.lp-live-feedback .lp-input::placeholder { color: var(--lp-ink-2); opacity: 1; }
+.lp-live-feedback [data-lp-mark="missing"] { border: 2px solid var(--lp-warning-ink); padding: 9px 13px; background: var(--lp-warning-soft); }
+.lp-live-feedback-to-add { color: var(--lp-warning-ink); }
+.lp-live-feedback [data-lp-challenge] { min-inline-size: 0; }
+@media (forced-colors: active) {
+  .lp-live-feedback [data-lp-mark="missing"] { border: 3px double CanvasText; }
+}

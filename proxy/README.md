@@ -42,6 +42,7 @@ On a custom domain, keep Cloudflare's Pseudo IPv4 setting off or on "Add header"
 
 | Block | Fields and maximum characters |
 | --- | --- |
+| `02-live` | `answer`: 1,200 |
 | `03-branch` | `reply`: 1,200; `node`: 40, one of the authored dialogue nodes |
 | `06-misconceptions` | `answer`: 1,500 |
 | `07-explain-back` | `answer`: 1,500 |
@@ -58,6 +59,7 @@ One named SQLite Durable Object coordinates all live calls. Before contacting a 
 
 | Block | Perplexity reservation, input tokens |
 | --- | --- |
+| `02-live` | 40,960 |
 | `03-branch` | 16,384 |
 | `06-misconceptions` | 16,384 |
 | `07-explain-back` | 40,960 |
