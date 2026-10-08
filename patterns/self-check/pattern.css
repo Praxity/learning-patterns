@@ -17,7 +17,8 @@
 .lp-self-check-composer-foot { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: flex-end; padding: 10px 12px; border-block-start: 1px solid var(--lp-rule); }
 .lp-self-check-composer-foot .lp-error-text { margin-inline-end: auto; }
 .lp-self-check [data-lp-ticks], .lp-self-check [data-lp-result] { margin: 0; padding-block: 24px; }
-.lp-self-check-step-head { display: flex; gap: 16px; align-items: flex-start; justify-content: space-between; }
+/* The 44px meter centres on the question line; top alignment left "5 of 6" below the heading's baseline. */
+.lp-self-check-step-head { display: flex; gap: 16px; align-items: center; justify-content: space-between; }
 .lp-self-check .lp-choices > legend { inline-size: 100%; font-size: 1.1875rem; }
 .lp-self-check-meter { display: inline-flex; gap: 8px; align-items: center; flex: none; color: var(--lp-ink-2); font-size: var(--lp-type-small); font-weight: 600; font-variant-numeric: tabular-nums; }
 .lp-self-check-ring { flex: none; }
@@ -26,6 +27,8 @@
 .lp-self-check .lp-choices { grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 10px; }
 .lp-self-check .lp-choice { min-block-size: 56px; }
 .lp-self-check-step-actions { justify-content: flex-end; }
+/* The quiet button's 10px inset would push its icon off the card's text column. */
+.lp-self-check .lp-button-quiet { margin-inline-start: -10px; }
 .lp-self-check-result-head { display: flex; gap: 16px; align-items: flex-start; }
 .lp-self-check-result-head .lp-self-check-ring-fill { stroke: var(--lp-success-ink); }
 .lp-self-check-result-head .lp-small { margin-block-start: 2px; }
@@ -55,7 +58,7 @@
 @container (max-width: 30rem) {
   .lp-self-check [data-lp-ticks], .lp-self-check [data-lp-result] { padding-block: 18px; }
   .lp-self-check-composer { margin: 0 0 16px; }
-  .lp-self-check-step-head { flex-direction: column-reverse; }
+  .lp-self-check-step-head { flex-direction: column-reverse; align-items: flex-start; }
   .lp-self-check-composer-foot .lp-button { inline-size: 100%; justify-content: center; }
 }
 @container (max-width: 20rem) {
