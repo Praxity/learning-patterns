@@ -141,7 +141,7 @@ for (const lang of ['en', 'fr']) {
     });
   }
 }
-function pageFallback(lang) { return lang === 'fr' ? "La vérification automatique n'est pas disponible. Cochez chaque idée que contient votre explication." : "The automatic check isn't available. Tick each idea your explanation includes."; }
+function pageFallback(lang) { return lang === 'fr' ? "La vérification automatique est indisponible. Cochez les idées dans votre explication." : "Automatic checking is unavailable. Tick the ideas in your explanation."; }
 
 test('keyboard journey validates empty text, submits and rereads without result focus jumps', async ({ page }) => {
   await open(page); await observe(page);
