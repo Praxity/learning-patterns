@@ -33,7 +33,9 @@ Recalling studied prose improved retention two days and one week later, compared
 Meets the shared baseline in the root README.
 
 - The Front and Back tabs have one tab stop. Left and Right arrows change sides; Home and End choose the first and last tabs.
+- Arrow, Home and End selection updates the tabs and visible panel before moving focus.
 - The date input has a visible label and references its error only while invalid. Date changes and print actions announce once and keep focus.
+- On entering an invalid date state, the focused field's description supplies the error. When focus is elsewhere, the status region announces it. Repeated invalid edits keep the same description.
 - Tab selection conveys the active side without a second status announcement.
 - Printed questions leave space for handwritten answers. Check your printer's margins and double-sided settings by hand.
 

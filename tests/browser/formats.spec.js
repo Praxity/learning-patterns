@@ -28,6 +28,17 @@ test('navigation that hides its action focuses the newly shown section', async (
   await expect(point(page).locator('[data-lp-view="text"] h4')).toBeFocused();
   expect(await page.evaluate(() => document.activeElement === document.body)).toBe(false);
 });
+for (const format of formats) test(`section headings supply their title without a duplicate named region (${format})`, async ({ page }) => {
+  await open(page); await button(page, format).click();
+  await page.locator('[data-lp-next]').click();
+  await page.locator('[data-lp-next]').focus(); await page.keyboard.press('Enter');
+  const heading = point(page).locator(`[data-lp-view="${format}"] h4`).first();
+  await expect(heading).toBeFocused();
+  await expect(heading).toHaveAccessibleName(english.points[2].title);
+  const tree = await point(page).ariaSnapshot();
+  expect(tree).toContain(`heading "${english.points[2].title}" [level=4]`);
+  expect(tree).not.toContain('region');
+});
 async function observe(page) {
   await page.evaluate(() => {
     window.lpObserver?.disconnect(); window.lpAnnouncements = [];
