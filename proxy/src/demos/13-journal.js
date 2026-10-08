@@ -1,4 +1,5 @@
 import { criterion } from "../shared.js";
+import { ANSWER_LIMIT } from "../../logic/13-journal.js";
 
 export const TASK = "What did you notice this week when you tried to stay assertive? What happened, and how did the other person react?";
 
@@ -14,7 +15,7 @@ for (const question of Object.values(clefQuestions)) question.instructions.situa
 export default {
 	id: "13-journal",
 	clefQuestions,
-	fields: { answer: 1500 },
+	fields: { answer: ANSWER_LIMIT },
 	sample: { answer: "In yesterday's project meeting, a colleague blamed me for a late report. I listened and accepted that I had missed one update. At tomorrow's check-in I will ask us to agree on a clear deadline and how to flag delays." },
 	build: ({ answer }) => {
 		const questions = {
