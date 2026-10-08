@@ -30,11 +30,11 @@ function matches(value, rule) {
 
 test('four money questions retain their text, answers and descriptive option identities', () => {
   assert.equal(content.title, 'Money basics');
-  assert.equal(french.title, "Notions de base en finances personnelles");
+  assert.equal(french.title, "Les bases des finances personnelles");
   assert.deepEqual(content.questions.map(q => q.text), [
     'What is an emergency fund for?',
-    "What usually happens if you pay only your credit card's minimum each month?",
-    'How does compound interest help savings grow over time?',
+    'What usually happens if you pay only the minimum on your credit card each month?',
+    'How does compound interest grow your savings?',
     'What does a budget help you do?'
   ]);
   assert.deepEqual(content.questions.map(q => q.correct), ['unexpected-expenses', 'longer-more-interest', 'interest-on-interest', 'plan-spending-saving']);
@@ -161,7 +161,7 @@ test('English and French keys and template placeholders match', () => {
 test('quiz scene renders escaped authored titles, bilingual question numbers and explanation panels', () => {
   for (const [lang, source, title, label, number] of [
     ['en', content, 'Money basics', 'Quick check', 'Question 1 of 4'],
-    ['fr', french, "Notions de base en finances personnelles", 'Vérification rapide', 'Question 1 sur 4']
+    ['fr', french, "Les bases des finances personnelles", 'Vérification rapide', 'Question 1 sur 4']
   ]) {
     const output = render({ ...source, title }, strings[lang], { id: 'quiz', lang });
     assert.match(output, /<header class="lp-scene">/);
