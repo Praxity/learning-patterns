@@ -4,6 +4,7 @@ import { sha256 } from "./hash.js";
 import { json } from "./http.js";
 import { DEFAULT_MODEL, JEV_MODEL, browserPrices } from "./prices.js";
 import { CAP_MESSAGES } from "./limits.js";
+import { noticeConfig } from "../../lib/data-notice.js";
 export { CostGuard } from "./cost-guard.js";
 
 const MAX_FIELD = 2000;
@@ -19,7 +20,7 @@ export default {
 		const provider = env.MODEL_PROVIDER ?? "clef";
 		if (provider !== "clef" && provider !== "jev") return json({ error: "Invalid model provider." }, 503);
 		const model = provider === "clef" ? DEFAULT_MODEL : JEV_MODEL;
-		if (url.pathname === "/api/patterns/config") return json({ mock: env.JEV_MOCK === "1", siteKey: env.TURNSTILE_SITE_KEY ?? "", provider, model });
+		if (url.pathname === "/api/patterns/config") return json({ mock: env.JEV_MOCK === "1", siteKey: env.TURNSTILE_SITE_KEY ?? "", provider, model, ...noticeConfig(provider) });
 		if (url.pathname !== "/api/patterns/ask") return json({ error: "Not found" }, 404);
 		if (request.method !== "POST") return json({ error: "POST only" }, 405);
 		if (env.JEV_MOCK !== "1" && ["COOKIE_SIGNING_KEY", "IP_SALT", "CACHE_KEY_SECRET"].some(key => typeof env[key] !== "string" || env[key].length < 32)) return json({ error: "Live checks are misconfigured." }, 503);
