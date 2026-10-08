@@ -21,7 +21,7 @@ test("at most one nudge, in the fixed order", () => {
 test("all present gets the quiet specific line", () => {
 	const f = journalFeedback(answers(0.9, 0.9, 0.9, 0.9));
 	assert.equal(f.kind, "complete");
-	assert.equal(f.text, "You've got a situation, what you did and a next step with a when.");
+	assert.equal(f.text, "Great. You've named a moment, what you did, and a next step with a when.");
 });
 
 test("distress at 0.5 or more replaces any nudge with the support line", () => {
