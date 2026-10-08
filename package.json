@@ -1,10 +1,16 @@
 {
   "name": "learning-patterns",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "license": "MIT",
+  "typesVersions": {
+    "*": {
+      "*.js": ["types/*.d.ts"]
+    }
+  },
   "engines": {
-    "node": "22.x"
+    "node": ">=22"
   },
   "scripts": {
     "test": "node --test",
