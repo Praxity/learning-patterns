@@ -16,6 +16,7 @@ Copy its folder under `patterns/` and the shared `lib/` folder. Keep their relat
 | --- | --- |
 | [Check your own answer](patterns/self-check/README.md) | Write an answer, tick the parts it includes, then see a hint for each part you missed and a model answer. |
 | [Explain it back](patterns/explain-back/README.md) | Explain a short lesson, check its three key ideas, then reread the parts to add. |
+| [Spot the misconception](patterns/misconception/README.md) | Answer a study question, compare an authored refutation or key idea with a model answer. |
 | ["I don't know" as an answer](patterns/dont-know/README.md) | Multiple choice where "I don't know" scores zero and a wrong answer costs a point, so guesses don't hide gaps. |
 | [Questions inside the reading](patterns/review-prompts/README.md) | Short recall questions between sections of text, each with a next review date. |
 | [Printable retrieval sheet](patterns/retrieval-sheet/README.md) | Print questions on the front and answers on the back to test yourself on a chosen date, with no connection needed. |

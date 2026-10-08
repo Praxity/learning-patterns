@@ -18,6 +18,7 @@ await copyInto('lib/base.css');
 await copyInto('lib/data-notice.js');
 await copyInto('lib/ask.js');
 await copyInto('proxy/logic/07-explain-back.js');
+await copyInto('proxy/logic/06-misconceptions.js');
 await copyInto('proxy/logic/shared.js');
 // The demo pages load the course fonts the base styles name. They are dev dependencies (OFL), not part of a pattern.
 const FONTS = ['source-sans-3-latin-400-normal', 'source-sans-3-latin-600-normal', 'source-serif-4-latin-400-normal', 'source-serif-4-latin-600-normal'];
@@ -48,7 +49,7 @@ for (const entry of await readdir(join(root, 'patterns'), { withFileTypes: true 
     await write(`${lang}.html`, ['example']);
     if (lang === 'en') await write('two.html', ['first', 'second']);
   }
-  const preview = name === 'explain-back' ? JSON.parse(await readFile(join(root, 'patterns', name, 'examples', 'en.json'), 'utf8')) : null;
+  const preview = ['explain-back', 'misconception'].includes(name) ? JSON.parse(await readFile(join(root, 'patterns', name, 'examples', 'en.json'), 'utf8')) : null;
   patterns.push({ name, meta, preview });
 }
 
@@ -66,7 +67,7 @@ function page({ name, lang, title, content, ids, render, strings }) {
 <html lang="${lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow"><title>${escapeHtml(title)}</title>
 <link rel="stylesheet" href="../lib/base.css">
 <link rel="stylesheet" href="../patterns/${name}/pattern.css">
-<style>${FONT_FACES}body{margin:0;padding:1rem;background:#fff;color:#1b1e23;font:1.1875rem/1.55 "Source Sans 3",system-ui,sans-serif}main{max-width:46rem;margin:auto}h1{font:600 2.375rem/1.2 "Source Serif 4",Georgia,serif}</style></head>
+<style>${FONT_FACES}body{margin:0;padding:1rem;background:#fff;color:#1b1e23;font:1.1875rem/1.55 "Source Sans 3",system-ui,sans-serif}main{max-width:46rem;margin:auto}h1{font:600 2.375rem/1.2 "Source Serif 4",Georgia,serif;overflow-wrap:break-word}</style></head>
 <body><main><h1>${escapeHtml(title)}</h1>
 ${ids.map(id => render(content, strings[lang], { id, lang })).join('\n')}
 </main><script type="module">
@@ -75,15 +76,16 @@ import { strings } from '../patterns/${name}/strings.js';
 const content = ${JSON.stringify(content).replaceAll('<', '\\u003c')};
 let saved = window.lpSeed;
 const state = { read: () => saved, write: value => { saved = value; window.lpSaved = value; } };
-${name === 'explain-back' ? `const mockConfig = {
+${['explain-back', 'misconception'].includes(name) ? `const mockConfig = {
+  model: '@cf/cloudflare/clef',
   siteKey: '', provider: 'mock', providerName: 'Offline example',
   dataNotice: { en: "This demo uses fixed feedback. Your answer stays in this page and isn't sent or stored.", fr: "Cette démo utilise une rétroaction fixe. Votre réponse reste dans cette page et n'est ni envoyée ni conservée." }
 };
-const fakeAsk = async () => ({ stonewalling: { noul: 1 }, pause: { noul: 1 }, return: { noul: 0 } });
+const fakeAsk = async () => (${name === 'misconception' ? "{ misconception: { choice: 'rereading', confidence: 1 } }" : '{ stonewalling: { noul: 1 }, pause: { noul: 1 }, return: { noul: 0 } }'});
 const injectedAsk = window.lpAsk === null ? undefined : Object.assign(window.lpAsk ?? fakeAsk, { config: async () => mockConfig });` : ''}
 const roots = document.querySelectorAll('[data-lp-pattern]');
-window.lpInstances = [...roots].map(root => enhance(root, { content, strings: strings.${lang}, state${name === 'explain-back' ? ', ask: injectedAsk' : ''} }));
-window.lpEnhance = () => enhance(roots[0], { content, strings: strings.${lang}, state${name === 'explain-back' ? ', ask: injectedAsk' : ''} });
+window.lpInstances = [...roots].map(root => enhance(root, { content, strings: strings.${lang}, state${['explain-back', 'misconception'].includes(name) ? ', ask: injectedAsk' : ''} }));
+window.lpEnhance = () => enhance(roots[0], { content, strings: strings.${lang}, state${['explain-back', 'misconception'].includes(name) ? ', ask: injectedAsk' : ''} });
 window.lpReady = true;
 </script></body></html>`;
 }
@@ -91,11 +93,12 @@ window.lpReady = true;
 function index(list) {
   const items = list.map(({ name, meta, preview }) => `<h2>${escapeHtml(meta.title.en)}</h2>
 <p>${escapeHtml(meta.summary)}</p>
-${preview ? `<div class="lp lp-box lp-preview" aria-label="Explain it back preview"><p class="lp-stem">${escapeHtml(preview.task)}</p><ol class="lp-choices" style="list-style:none">${preview.ideas.map((idea, index) => `<li class="lp-choice"><span class="lp-choice-key" aria-hidden="true">${index + 1}</span><span>${escapeHtml(idea.label)}</span></li>`).join('')}</ol></div>` : ''}
+${preview ? name === 'misconception' ? `<div class="lp lp-preview" aria-label="Spot the misconception preview"><p class="lp-stem" id="misconception-preview-question">${escapeHtml(preview.question)}</p><textarea class="lp-input" rows="3" aria-labelledby="misconception-preview-question" placeholder="Type your answer here…" readonly></textarea><p class="lp-run-in lp-misconception-heading">${escapeHtml(preview.misconceptions[0].label)}</p><p>${escapeHtml(preview.misconceptions[0].why)}</p></div>` : `<div class="lp lp-box lp-preview" aria-label="Explain it back preview"><p class="lp-stem">${escapeHtml(preview.task)}</p><ol class="lp-choices" style="list-style:none">${preview.ideas.map((idea, index) => `<li class="lp-choice"><span class="lp-choice-key" aria-hidden="true">${index + 1}</span><span>${escapeHtml(idea.label)}</span></li>`).join('')}</ol></div>` : ''}
 <ul><li><a href="./${name}/en">English demo</a></li><li><a href="./${name}/fr" hreflang="fr" lang="fr">${escapeHtml(meta.title.fr)}</a></li><li><a href="./${name}.md">Markdown for agents</a></li></ul>`).join('\n');
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow"><title>Learning patterns preview</title>
 <link rel="stylesheet" href="./lib/base.css">
+<link rel="stylesheet" href="./patterns/misconception/pattern.css">
 <style>body{margin:0;padding:1rem;color:#202124;font:1rem/1.5 system-ui,sans-serif}main{max-width:40rem;margin:auto}h1{font-size:1.5rem}h2{font-size:1.2rem;margin-top:2rem}</style></head>
 <body><main><h1>Learning patterns preview</h1>
 <p>Unlisted preview. None of these patterns has been tried with learners yet.</p>
