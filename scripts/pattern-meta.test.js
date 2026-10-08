@@ -34,6 +34,17 @@ test('refuses missing front matter, missing keys, bad values and unknown keys', 
   assert.throws(() => readMeta('x', valid.replace('learners: not tried', 'learners: not tried\nicon: bulb')), /unknown front matter key icon/);
 });
 
+// GitHub and site builds parse front matter as YAML, so values must mean the same there.
+test('reads quoted values as YAML does and refuses values YAML would misread', () => {
+  const meta = (title) => readMeta('x', valid.replace('title: Check your own answer', `title: ${title}`));
+  assert.equal(meta(`'"I don''t know" as an answer'`).title.en, `"I don't know" as an answer`);
+  assert.equal(meta(`"Say \\"no\\" first"`).title.en, 'Say "no" first');
+  assert.throws(() => meta(`"I don't know" as an answer`), /title is not valid YAML/);
+  assert.throws(() => meta(`Note: read first`), /title is not valid YAML/);
+  assert.throws(() => meta(`Read # first`), /title is not valid YAML/);
+  assert.throws(() => meta(`[Draft] title`), /title is not valid YAML/);
+});
+
 test('every pattern README has valid front matter', async () => {
   const root = new URL('../patterns/', import.meta.url);
   for (const entry of await readdir(root, { withFileTypes: true })) {
