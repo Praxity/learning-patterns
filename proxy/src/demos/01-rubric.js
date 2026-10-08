@@ -1,3 +1,4 @@
+import { ANSWER_LIMIT } from "../../logic/rubric.js";
 import { criterion, sincere, clefSincere } from "../shared.js";
 
 export const TASK = "Your client report is due Friday. The sales data arrived three days late, so you need until Tuesday. Write the message to your manager.";
@@ -19,7 +20,7 @@ for (const [key, question] of Object.entries(clefQuestions)) {
 export default {
 	id: "01-rubric",
 	clefQuestions,
-	fields: { answer: 800 },
+	fields: { answer: ANSWER_LIMIT },
 	build: ({ answer }) => ({
 		state: { task: TASK, answer },
 		questions: {

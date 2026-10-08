@@ -1,17 +1,9 @@
-import { band } from "./shared.js";
+import { CRITERIA, rubricBand, labelAnswers } from "./rubric.js";
+export { CRITERIA, rubricBand, labelAnswers } from "./rubric.js";
 
 // Browser-safe task copy. The server owns all question wording.
 export const TASK_EN = "Your client report is due Friday. The sales data arrived three days late, so you need until Tuesday. Write the message to your manager.";
 export const TASK_FR = "Votre rapport client est attendu vendredi. Les données de vente sont arrivées avec trois jours de retard. Il vous faut jusqu’à mardi. Écrivez le message à votre gestionnaire.";
-
-export const CRITERIA = [
-	{"id": "work_deadline", "label": "Client report and Friday deadline"},
-	{"id": "reason", "label": "Reason for the delay"},
-	{"id": "new_date", "label": "New deadline of Tuesday"},
-	{"id": "impact", "label": "Offer to limit the impact"},
-	{"id": "agreement", "label": "Manager's agreement or input"},
-	{"id": "blame", "label": "Blames someone"},
-];
 
 // Expected labels authored before live calls. Met for blame means a mistake.
 export const FIXTURES = [
@@ -115,25 +107,6 @@ export const FIXTURES = [
 		expected: {"work_deadline": "missed", "reason": "missed", "new_date": "missed", "impact": "missed", "agreement": "missed", "blame": "missed"},
 	},
 ];
-
-// Shared rubric calibration, including demos 01 and 15. The shorter deadline
-// wording separates real due dates from draft offers in all three data groups.
-// 0.625 accepts the two remaining clear 0.639+ deadlines; 0.60 agreement resolves
-// both positive and negative hedges without adding credit to any gaming row.
-export function rubricBand(id, noul, model) {
-	if (model !== "@cf/cloudflare/clef") return band(noul);
-	const sure = id === "work_deadline" ? 0.625 : id === "agreement" ? 0.60 : 0.65;
-	return noul >= sure ? "met" : noul <= 1 - sure ? "missed" : "unsure";
-}
-
-/** Return six raw predicate bands. Other answers, including sincere, are ignored. */
-export function labelAnswers(answers, model) {
-	return Object.fromEntries(CRITERIA.map(({ id }) => {
-		const noul = answers?.[id]?.noul;
-		if (!Number.isFinite(noul) || noul < 0 || noul > 1) throw new Error(`Invalid Noul for ${id}`);
-		return [id, rubricBand(id, noul, model)];
-	}));
-}
 
 function validateFixture(fixture) {
 	if (typeof fixture?.id !== "string" || typeof fixture?.name !== "string") throw new Error("Invalid fixture identity");
