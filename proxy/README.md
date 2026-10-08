@@ -27,13 +27,13 @@ Self-hosters must serve their pages and proxy on the same origin. The root confi
 
 The route must belong to this service. Unrecognised API paths return 404. The proxy does not add CORS headers. Your page loads the Turnstile widget, posts to the relative URL `/api/patterns/ask`, sends its token in `x-turnstile-token` on the first request, and lets the browser carry the signed cookie on later requests. The cookie is secure, HttpOnly, SameSite Strict and valid for one hour. Its MAC binds it to the hashed IP key, so another key needs its own Turnstile solve. Turnstile verification requires the request hostname to match the widget's hostname.
 
-The demo build currently has no page that calls the API. Add the page that renders Turnstile and posts to `/api/patterns/ask` to the site's asset build before enabling live checks. The root config's `ASSETS` binding returns page responses and asset 404s without running proxy checks. `npm run preview:deploy` also ships the API; live requests return 503 until `COOKIE_SIGNING_KEY`, `IP_SALT` and `CACHE_KEY_SECRET` are configured.
+The Explain it back demo uses fixed answers offline. For live checks, pass `createAsk()` from `lib/ask.js` to the pattern's enhancer. The client loads Turnstile only after a clearance refusal and retries once. The root config's `ASSETS` binding returns page responses and asset 404s without running proxy checks. `npm run preview:deploy` also ships the API; live requests return 503 until `COOKIE_SIGNING_KEY`, `IP_SALT` and `CACHE_KEY_SECRET` are configured.
 
 On a custom domain, keep Cloudflare's Pseudo IPv4 setting off or on "Add header". "Overwrite headers" replaces `cf-connecting-ip` with a synthetic IPv4 address for each IPv6 address, allowing address rotation to bypass the IPv6 prefix limits.
 
 ## Requests and question sets
 
-`GET /api/patterns/config` returns the public Turnstile site key, provider, model and mock status. `POST /api/patterns/ask` accepts this shape:
+`GET /api/patterns/config` returns the public Turnstile site key, provider, model, mock status, `providerName` and the authored `dataNotice.en` and `dataNotice.fr`. `POST /api/patterns/ask` accepts this shape:
 
 ```json
 { "block": "07-explain-back", "fields": { "answer": "I would announce a pause and agree when to return." } }

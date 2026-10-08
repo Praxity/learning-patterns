@@ -1,4 +1,5 @@
 import { criterion } from "../shared.js";
+import { ANSWER_LIMIT } from "../../logic/07-explain-back.js";
 
 export const TASK = "Explain to a new manager, in two sentences, how a time-out differs from stonewalling.";
 
@@ -22,7 +23,7 @@ Object.assign(clefQuestions.pause.instructions, originalInstructions);
 export default {
 	id: "07-explain-back",
 	clefQuestions,
-	fields: { answer: 1500 },
+	fields: { answer: ANSWER_LIMIT },
 	sample: { answer: "Stonewalling is going silent or leaving without an explanation, so the other person feels ignored. For a useful time-out, tell them you need a few minutes to calm down, agree to return at 3 pm, and actually resume the conversation then." },
 	build: ({ answer }) => {
 		const questions = {

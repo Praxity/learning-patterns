@@ -1,6 +1,9 @@
 import { band } from "./shared.js";
 
+export const ANSWER_LIMIT = 1500;
+
 // The short lesson the learner explains back. Each idea has its own heading, so feedback can link to it.
+/** @type {Record<string, { id: string, heading: string, body: string }>} */
 export const LESSON = {
 	stonewalling: {
 		id: "d07-stonewalling",
@@ -18,6 +21,7 @@ export const LESSON = {
 		body: "A time-out ends when you come back. Agree when you'll return to the conversation, then do it. That way the other person isn't left waiting.",
 	},
 };
+export const IDEA_KEYS = Object.keys(LESSON);
 
 // Authored feedback. Jev only decides which line applies.
 const FEEDBACK = {
@@ -44,6 +48,7 @@ const ALL_MET = "All three ideas are there: what stonewalling is, announcing the
 const MODEL = "Stonewalling means going quiet or pulling away without saying why, so the other person feels ignored. In a time-out you tell them you need a pause, agree when you'll come back, and then come back.";
 
 // Turns Jev's Nouls into authored feedback items. Pure, so tests can call it.
+/** @param {Record<string, { noul: number }>} answers */
 export function explainFeedback(answers) {
 	const items = Object.entries(FEEDBACK).map(([key, text]) => {
 		const state = band(answers[key].noul);

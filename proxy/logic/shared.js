@@ -1,6 +1,7 @@
 // Noul bands. Between the two thresholds the demo should say it isn't sure rather than guess.
 export const MET = 0.65;
 export const MISSED = 0.35;
+/** @param {number} noul @returns {'met' | 'missed' | 'unsure'} */
 export const band = (noul) => (noul >= MET ? "met" : noul <= MISSED ? "missed" : "unsure");
 
 // Three-group calibration for 27B's horseman, study-belief and topic Choices.
