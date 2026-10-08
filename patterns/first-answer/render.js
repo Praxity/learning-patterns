@@ -36,7 +36,7 @@ export function render(content, strings, { id, lang, stage = 'both' }) {
     <div class="lp-actions"><button class="lp-button" type="button" data-lp-compare>${html(strings.compare)}</button></div>
     <div class="lp-stack" data-lp-result hidden>
       <div class="lp-stack lp-first-answer-card" data-lp-panel-first-card>
-        <h4 class="lp-label">${html(strings.start)}</h4>
+        <h4 class="lp-label" tabindex="-1" data-lp-result-heading>${html(strings.start)}</h4>
         <p class="lp-small lp-first-answer-date">${icons.calendar}<span data-lp-panel-first-date></span></p>
         <blockquote class="lp-first-answer-quote" data-lp-panel-first></blockquote>
       </div>

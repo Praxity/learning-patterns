@@ -31,8 +31,8 @@ When learners may withhold an answer, the answers they do give are more accurate
 
 Meets the shared baseline in the root README.
 
-- Unanswered messages are linked to their questions and options. Focus moves to the first unanswered option.
-- Submission focuses the score and announces its summary. Review links move focus to the question they name.
+- Unanswered messages describe each question group once; its options expose an invalid state. Focus moves to the first unanswered option.
+- Submission focuses the score, which supplies its announcement. The status region does not repeat it. Review links move focus to the question they name.
 - Start over returns focus to the first option. Restoring a saved result keeps focus where it is and makes no announcement.
 
 ## Content fields

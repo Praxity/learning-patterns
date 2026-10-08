@@ -33,6 +33,7 @@ Meets the shared baseline in the root README.
 
 - Saved entries show the date and time in the placement's language. First and current answers have separate labels.
 - Blank or long answers get errors linked to the text box. Saving focuses Skip in the demo or the saved entry in a first-only placement.
+- Compare focuses the revealed Day one heading before the saved answer and improvement checks.
 - Try again focuses the current-answer field without an announcement. Reset focuses the first-answer field, or the current-answer field in an end-only placement.
 - Storage problems have visible messages. Restoring valid entries makes no announcement.
 

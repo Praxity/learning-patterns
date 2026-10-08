@@ -127,8 +127,8 @@ export function enhance(root, { content, strings, state }) {
         <ul>${review.map(({ q, fieldset }) => `<li><a href="#${html(fieldset.id)}" tabindex="0">${icons['arrow-right']}<span>${html(q.text)}</span></a></li>`).join('')}</ul></div>` : ''}`;
     result.hidden = false; restart.hidden = false; check.hidden = true; shown = true;
     if (announce) {
+      // Focus already reads the score; repeating it in status would speak it twice.
       /** @type {HTMLElement} */ (required(result, '[data-lp-score]')).focus();
-      status.textContent = summary;
     }
   }
   const saved = validateState(content, state?.read());
@@ -150,7 +150,7 @@ export function enhance(root, { content, strings, state }) {
       const missing = questions.filter(({ q }) => outcome.unanswered.includes(q.id));
       for (const { fieldset, radios, message } of missing) {
         message.hidden = false; fieldset.setAttribute('aria-describedby', message.id);
-        for (const radio of radios) { radio.setAttribute('aria-describedby', message.id); radio.setAttribute('aria-invalid', 'true'); }
+        for (const radio of radios) radio.setAttribute('aria-invalid', 'true');
       }
       missing[0]?.radios[0]?.focus(); save(); return;
     }
