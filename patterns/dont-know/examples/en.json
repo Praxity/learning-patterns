@@ -12,29 +12,29 @@
       "explanation": "An emergency fund covers unexpected expenses, such as an urgent repair."
     },
     {
-      "id": "q2", "text": "What usually happens if you pay only your credit card's minimum each month?",
+      "id": "q2", "text": "What usually happens if you pay only the minimum on your credit card each month?",
       "options": [
         { "id": "no-interest", "text": "You avoid all interest charges" },
-        { "id": "longer-more-interest", "text": "Repayment takes longer and costs more interest" },
+        { "id": "longer-more-interest", "text": "You take longer to repay and pay more interest" },
         { "id": "balance-disappears", "text": "The remaining balance disappears" }
       ],
       "correct": "longer-more-interest",
-      "explanation": "Paying only the minimum usually takes longer and costs more interest than paying more."
+      "explanation": "Paying only the minimum usually means more time to repay and more interest."
     },
     {
-      "id": "q3", "text": "How does compound interest help savings grow over time?",
+      "id": "q3", "text": "How does compound interest grow your savings?",
       "options": [
-        { "id": "interest-on-interest", "text": "You earn interest on your savings and earlier interest" },
+        { "id": "interest-on-interest", "text": "You earn interest on your savings and on past interest" },
         { "id": "initial-savings-only", "text": "You earn interest only on the money you first saved" },
         { "id": "fixed-growth", "text": "Your savings grow by the same fixed amount forever" }
       ],
       "correct": "interest-on-interest",
-      "explanation": "Compound interest earns interest on your savings and the interest already added."
+      "explanation": "You earn interest on the money you saved and on interest already added."
     },
     {
       "id": "q4", "text": "What does a budget help you do?",
       "options": [
-        { "id": "plan-spending-saving", "text": "Plan how to use your income for spending and saving" },
+        { "id": "plan-spending-saving", "text": "Plan your spending and saving based on your income" },
         { "id": "guarantee-income", "text": "Guarantee that your income will increase" },
         { "id": "avoid-surprises", "text": "Avoid every unexpected expense" }
       ],
