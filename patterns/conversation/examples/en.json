@@ -17,7 +17,7 @@
         "pause": "Fine. This afternoon, then."
       },
       "move": "You acknowledged the impact",
-      "debrief": "Naming your part in the change helps you and Michel agree what to do next."
+      "debrief": "Accepting your part helps you and Michel agree what to do next."
     },
     "defend": {
       "line": "I hear your reasons, but I still had to redo my work. What will you do differently?",
@@ -29,7 +29,7 @@
         "pause": "OK. Ten minutes."
       },
       "move": "You defended the change",
-      "debrief": "Shifting the blame leaves Michel's extra work unresolved."
+      "debrief": "Blaming someone else doesn't resolve Michel's extra work."
     },
     "attack": {
       "line": "I'm trying to talk about the plan. Can we discuss that without attacking each other?",
@@ -41,7 +41,7 @@
         "pause": "Yes. Three o'clock."
       },
       "move": "You attacked Michel",
-      "debrief": "A personal attack moves the talk away from the plan and makes agreement harder."
+      "debrief": "Attacking Michel makes it harder to agree on the plan."
     },
     "withdraw": {
       "line": "We still need to resolve the plan. Are you willing to come back to this conversation?",
@@ -53,7 +53,7 @@
         "pause": "OK. After lunch, then."
       },
       "move": "You closed the conversation",
-      "debrief": "Ending the discussion without a return leaves the problem unresolved."
+      "debrief": "Ending the discussion without agreeing to return leaves the problem unresolved."
     },
     "pause": {
       "line": "All right. Let's take ten minutes and come back to agree on the plan.",
@@ -65,7 +65,7 @@
         "pause": "Tomorrow at nine, then. I'll hold you to it."
       },
       "move": "You asked for a pause",
-      "debrief": "Naming when you will return gives you time to think while keeping the discussion open."
+      "debrief": "Agreeing when to return gives you time to think without ending the discussion."
     }
   },
   "examples": {
@@ -115,10 +115,10 @@
   "stageNotes": {
     "attack:attack": "Michel leaves the meeting.",
     "defend:attack": "Michel leaves the meeting.",
-    "withdraw:withdraw": "Michel turns to his screen. He says nothing more in the meeting.",
+    "withdraw:withdraw": "Michel turns to his screen and says nothing more in the meeting.",
     "defend:withdraw": "Michel says nothing for the rest of the meeting."
   },
   "pauseNote": "Ten minutes later, you're back with Michel.",
-  "unsure": "It's not clear how Michel would take that. Say it another way, or choose a reply.",
+  "unsure": "It's unclear how Michel would take that. Rephrase it or choose a reply.",
   "offScript": "Michel is waiting for an answer about the plan."
 }
