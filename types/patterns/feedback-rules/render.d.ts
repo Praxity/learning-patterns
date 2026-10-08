@@ -11,6 +11,7 @@ export function render(content: import("./logic.js").Content, strings: import(".
 }): string;
 /** @param {import('./logic.js').Content} content @param {import('./strings.js').Strings} strings
  * @param {ReturnType<typeof summarize>['rows'][number]} row @param {'en' | 'fr'} language
+ * @param {string} id @param {boolean} [enhanced]
  */
-export function renderRow(content: import("./logic.js").Content, strings: import("./strings.js").Strings, row: ReturnType<typeof summarize>["rows"][number], language: "en" | "fr"): string;
+export function renderRow(content: import("./logic.js").Content, strings: import("./strings.js").Strings, row: ReturnType<typeof summarize>["rows"][number], language: "en" | "fr", id: string, enhanced?: boolean): string;
 import { summarize } from './logic.js';

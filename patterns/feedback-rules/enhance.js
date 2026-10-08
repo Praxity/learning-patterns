@@ -19,6 +19,7 @@ export function enhance(root, { content, strings, ask }) {
   const controls = required('[data-lp-controls]'), notice = required('[data-lp-notice]'), challengeSlot = required('[data-lp-challenge]');
   const run = /** @type {HTMLButtonElement} */ (required('[data-lp-run]'));
   const language = /** @type {HTMLSelectElement} */ (required('[data-lp-language]'));
+  const instanceId = language.id.slice(0, -'-language'.length);
   const body = required('tbody'), summary = required('[data-lp-summary]'), info = required('[data-lp-run-info]');
   const offline = required('[data-lp-offline]'), progress = required('[data-lp-progress]'), errors = required('[data-lp-errors]'), status = required('[role="status"]');
   const lifetime = new AbortController(); let destroyed = false, pending = false, model = '', modelName = '';
@@ -26,14 +27,14 @@ export function enhance(root, { content, strings, ask }) {
   /** @type {import('./logic.js').Results} */ let results = Object.create(null);
   const saved = () => {
     const value = summarize(content, content.savedRun.answers[lang()], content.savedRun.model);
-    body.innerHTML = value.rows.map(row => renderRow(content, strings, row, lang())).join('');
+    body.innerHTML = value.rows.map(row => renderRow(content, strings, row, lang(), instanceId, true)).join('');
     summary.textContent = summaryText(value, strings);
     info.textContent = format(strings.saved, { date: content.savedRun.date, model: content.savedRun.modelName });
     errors.hidden = true; progress.hidden = true;
   };
   const fresh = () => {
     const value = summarize(content, {}, model);
-    body.innerHTML = value.rows.map(row => renderRow(content, strings, row, lang())).join('');
+    body.innerHTML = value.rows.map(row => renderRow(content, strings, row, lang(), instanceId, true)).join('');
     summary.textContent = summaryText(value, strings); info.textContent = format(strings.ready, { model: modelName });
     errors.hidden = true; progress.hidden = true;
   };
@@ -57,7 +58,7 @@ export function enhance(root, { content, strings, ask }) {
     run.setAttribute('aria-disabled', 'true'); run.textContent = strings.running; language.disabled = true;
     info.textContent = format(strings.live, { model: modelName }); progress.hidden = false;
     const value = summarize(content, results, model);
-    body.innerHTML = value.rows.map(row => renderRow(content, strings, row, lang())).join(''); summary.textContent = summaryText(value, strings);
+    body.innerHTML = value.rows.map(row => renderRow(content, strings, row, lang(), instanceId, true)).join(''); summary.textContent = summaryText(value, strings);
     progress.textContent = format(strings.progress, { done: 0, total: content.fixtures.length });
     try {
       // The first sample obtains clearance alone, so concurrent requests never compete for one widget.
@@ -72,7 +73,9 @@ export function enhance(root, { content, strings, ask }) {
       }, (id, answer) => {
         results[id] = answer; const value = summarize(content, results, model);
         const row = /** @type {typeof value.rows[number]} */ (value.rows.find(row => row.id === id));
-        required(`[data-lp-row="${id}"]`).outerHTML = renderRow(content, strings, row, lang());
+        const previous = required(`[data-lp-row="${id}"]`);
+        previous.nextElementSibling?.remove();
+        previous.outerHTML = renderRow(content, strings, row, lang(), instanceId, true);
         summary.textContent = summaryText(value, strings); progress.textContent = format(strings.progress, { done: Object.keys(results).length, total: content.fixtures.length });
       }, lifetime.signal);
       if (destroyed) return;
@@ -86,10 +89,16 @@ export function enhance(root, { content, strings, ask }) {
       if (!destroyed) { pending = false; run.removeAttribute('aria-disabled'); run.textContent = strings.run; language.disabled = false; }
     }
   };
+  /** @param {Event} event */
+  const onToggle = event => {
+    if (event.target instanceof HTMLDetailsElement) event.target.querySelector('summary')?.setAttribute('aria-expanded', String(event.target.open));
+  };
+  root.addEventListener('toggle', onToggle, true);
   language.addEventListener('change', onLanguage); run.addEventListener('click', onRun);
   const instance = { destroy() {
     if (destroyed) return; destroyed = true; lifetime.abort();
     language.removeEventListener('change', onLanguage); run.removeEventListener('click', onRun);
+    root.removeEventListener('toggle', onToggle, true);
     root.innerHTML = original; instances.delete(root);
   } };
   instances.set(root, instance); return instance;

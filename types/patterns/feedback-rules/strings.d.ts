@@ -17,6 +17,9 @@ export namespace strings {
         let failed: string;
         let review: string;
         let answer: string;
+        let cellsNote: string;
+        let cell: string;
+        let allAgree: string;
         let summary: string;
         let disagreement: string;
         let disagreements: string;
@@ -65,6 +68,12 @@ export namespace strings {
         export { review_1 as review };
         let answer_1: string;
         export { answer_1 as answer };
+        let cellsNote_1: string;
+        export { cellsNote_1 as cellsNote };
+        let cell_1: string;
+        export { cell_1 as cell };
+        let allAgree_1: string;
+        export { allAgree_1 as allAgree };
         let summary_1: string;
         export { summary_1 as summary };
         let disagreement_1: string;

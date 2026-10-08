@@ -76,7 +76,7 @@ test('abort stops new work and propagates cancellation', async () => {
 
 test('bilingual examples, saved runs, strict validation and escaped no-JS table', async () => {
   const sample = summarize(content, {}, model).rows[0];
-  assert.ok(renderRow(content, strings.en, sample, 'fr').includes('<span lang="fr">Message complet</span>'));
+  assert.ok(renderRow(content, strings.en, sample, 'fr', 'one').includes('<span lang="fr">Message complet</span>'));
   for (const lang of ['en', 'fr']) {
     const example = JSON.parse(await readFile(new URL(`./examples/${lang}.json`, import.meta.url)));
     validateContent(example);

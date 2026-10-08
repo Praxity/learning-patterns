@@ -34,10 +34,11 @@ export function render(content, strings, { id, lang }) {
     <p class="lp-label" data-lp-summary>${html(summaryText(summary, strings))}</p>
     <p class="lp-small" data-lp-progress hidden></p>
     <p class="lp-small" data-lp-polarity>${html(content.polarityNote)}</p>
+    <p class="lp-small">${html(strings.cellsNote)}</p>
     <div class="lp-feedback-rules-scroll" role="region" aria-labelledby="${html(`${id}-caption`)}" tabindex="0">
       <table><caption class="lp-visually-hidden" id="${html(`${id}-caption`)}">${html(strings.samples)}</caption>
         <thead><tr><th scope="col">${html(strings.samples)}</th>${content.criteria.map(c => `<th scope="col">${html(c.label)}</th>`).join('')}</tr></thead>
-        <tbody>${summary.rows.map(row => renderRow(content, strings, row, language)).join('')}</tbody>
+        <tbody>${summary.rows.map(row => renderRow(content, strings, row, language, id)).join('')}</tbody>
       </table>
     </div>
     <p class="lp-small" data-lp-errors hidden>${html(strings.partial)}</p>
@@ -47,17 +48,22 @@ export function render(content, strings, { id, lang }) {
 
 /** @param {import('./logic.js').Content} content @param {import('./strings.js').Strings} strings
  * @param {ReturnType<typeof summarize>['rows'][number]} row @param {'en' | 'fr'} language
+ * @param {string} id @param {boolean} [enhanced]
  */
-export function renderRow(content, strings, row, language) {
+export function renderRow(content, strings, row, language, id, enhanced = false) {
   const fixture = /** @type {import('./logic.js').Fixture} */ (content.fixtures.find(f => f.id === row.id));
+  const panelId = `${id}-${row.id}-comparison`;
+  const differences = row.cells.filter(cell => cell.model && cell.author !== cell.model);
   return `<tr data-lp-row="${html(row.id)}"><th scope="row"><details class="lp-details"${row.review ? ' data-lp-review' : ''}>
-    <summary><span lang="${language}">${html(fixture.name[language])}</span>${row.review ? `<span class="lp-feedback-rules-review">${icons['alert-circle']}${html(strings.review)}</span>` : ''}</summary>
-    <p class="lp-quote" lang="${language}">${html(fixture.answer[language])}</p>
-    <dl>${row.cells.map(cell => `<dt>${html(/** @type {{ label: string }} */ (content.criteria.find(c => c.id === cell.id)).label)}</dt><dd>${html(strings.author)}: ${html(strings[cell.author])}. ${html(strings.model)}: ${html(cell.model ? strings[cell.model] : strings.notRun)}.</dd>`).join('')}</dl>
+    <summary aria-controls="${html(panelId)}"${enhanced ? ' aria-expanded="false"' : ''}><span lang="${language}">${html(fixture.name[language])}</span><span class="lp-visually-hidden">${html(strings.review.toLowerCase())}</span></summary>
   </details>${row.failed ? `<p class="lp-small">${html(strings.failed)}</p>` : ''}</th>
   ${row.cells.map(cell => {
     const style = cell.outcome === 'agree' ? 'lp-met' : cell.outcome === 'disagree' ? 'lp-missed' : 'lp-neutral';
-    const icon = cell.outcome === 'agree' ? icons.check : cell.outcome === 'disagree' ? icons.x : cell.outcome === 'unsure' ? icons['question-mark'] : icons['circle-dashed'];
-    return `<td><span class="lp-small">${html(strings.author)}: ${html(strings[cell.author])}</span><span class="lp-feedback-rules-outcome ${style}" data-lp-outcome="${cell.outcome}">${icon}${html(strings[cell.outcome])}</span></td>`;
-  }).join('')}</tr>`;
+    const icon = cell.outcome === 'agree' ? icons.check : cell.outcome === 'disagree' ? icons.x : icons['question-mark'];
+    return `<td><span class="lp-feedback-rules-outcome ${style}" data-lp-outcome="${cell.outcome}">${cell.outcome === 'notRun' ? html(strings.notRun) : `<span aria-hidden="true">${html(strings[cell.author])}${icon}</span><span class="lp-visually-hidden">${html(format(strings.cell, { label: strings[cell.author], outcome: strings[cell.outcome] }))}</span>`}</span></td>`;
+  }).join('')}</tr>
+  <tr class="lp-feedback-rules-comparison" id="${html(panelId)}"><td colspan="${content.criteria.length + 1}">
+    <p class="lp-quote" lang="${language}">${html(fixture.answer[language])}</p>
+    ${differences.length ? `<dl>${differences.map(cell => `<div><dt>${html(/** @type {{ label: string }} */ (content.criteria.find(c => c.id === cell.id)).label)}</dt><dd>${html(strings.author)}: ${html(strings[cell.author])}. ${html(strings.model)}: ${html(strings[/** @type {'met' | 'missed' | 'unsure'} */ (cell.model)])}.</dd></div>`).join('')}</dl>` : `<p class="lp-small">${html(row.cells.some(cell => !cell.model) ? strings.notRun : strings.allAgree)}</p>`}
+  </td></tr>`;
 }

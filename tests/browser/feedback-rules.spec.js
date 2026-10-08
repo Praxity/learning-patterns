@@ -41,6 +41,13 @@ async function finish(page) {
   await expect(page.locator('[data-lp-run]')).not.toHaveAttribute('aria-disabled', 'true');
   await expect(page.locator('[role="status"]')).not.toBeEmpty();
 }
+async function visibleText(locator) {
+  return locator.evaluateAll(els => els.map(el => {
+    const copy = el.cloneNode(true);
+    copy.querySelectorAll('.lp-visually-hidden, svg').forEach(node => node.remove());
+    return copy.textContent.trim();
+  }));
+}
 
 for (const lang of ['en', 'fr']) {
   test(`run every sample once, real saved values, one summary, focus and axe (${lang})`, async ({ page }) => {
@@ -91,18 +98,63 @@ for (const lang of ['en', 'fr']) {
     await expect(page.locator('[data-lp-outcome="notRun"]')).toHaveCount(6);
     await expect(page.locator('[data-lp-outcome="unsure"]')).toHaveCount(0);
     await expect(page.locator('[data-lp-row="no_reason"]')).toContainText(strings[lang].failed);
+    const cells = page.locator('[data-lp-row="no_reason"] td');
+    await expect(cells).toHaveText(Array(6).fill(strings[lang].notRun));
+    expect(await cells.evaluateAll(els => els.every(el => !el.querySelector('svg')))).toBe(true);
     await expect(page.locator('[data-lp-errors]')).toBeVisible(); await axe(page);
     expect(await page.evaluate(() => window.lpCalls.length)).toBe(12);
   });
 
-  test(`expand a disagreement with both labels and answer; native keyboard disclosure (${lang})`, async ({ page }) => {
+  test(`compact sample toggle names the comparison and keeps its chevron on the first line (${lang})`, async ({ page }) => {
+    await open(page, lang, 'disagree'); await page.locator('[data-lp-run]').click(); await finish(page);
+    const toggle = page.locator('[data-lp-row="perfect"] summary');
+    await expect(toggle).toHaveAccessibleName(`${examples[lang].fixtures[0].name[lang]} ${strings[lang].review.toLowerCase()}`);
+    expect(await visibleText(toggle)).toEqual([examples[lang].fixtures[0].name[lang]]);
+    expect(await toggle.evaluate(el => getComputedStyle(el).alignItems)).toBe('baseline');
+    expect(await toggle.evaluate(el => getComputedStyle(el, '::before').flexShrink)).toBe('0');
+  });
+
+  test(`full-width disagreement shows the answer and only differing labels; native keyboard disclosure (${lang})`, async ({ page }) => {
     await open(page, lang, 'disagree'); await page.locator('[data-lp-run]').click(); await finish(page);
     const disclosure = page.locator('[data-lp-review]').first();
-    await disclosure.locator('summary').focus(); await page.keyboard.press('Enter');
+    const toggle = disclosure.locator('summary');
+    const row = page.locator('[data-lp-row="perfect"]');
+    const panel = row.locator('xpath=following-sibling::tr[1]');
+    await expect(toggle).toHaveAttribute('aria-controls', await panel.getAttribute('id'));
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await expect(panel).toBeHidden();
+    await toggle.focus(); await page.keyboard.press('Enter');
     await expect(disclosure).toHaveAttribute('open', '');
-    await expect(disclosure.locator('.lp-quote')).toHaveText(examples[lang].fixtures[0].answer[lang]);
-    await expect(disclosure.locator('dd').nth(1)).toHaveText(`${strings[lang].author}: ${strings[lang].met}. ${strings[lang].model}: ${strings[lang].missed}.`);
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    await expect(panel).toBeVisible();
+    await expect(panel.locator('td')).toHaveCount(1);
+    await expect(panel.locator('td')).toHaveAttribute('colspan', '7');
+    await expect(panel.locator('.lp-quote')).toHaveText(examples[lang].fixtures[0].answer[lang]);
+    await expect(panel.locator('dt')).toHaveText(examples[lang].criteria.slice(1, 3).map(c => c.label));
+    await expect(panel.locator('dd').first()).toHaveText(`${strings[lang].author}: ${strings[lang].met}. ${strings[lang].model}: ${strings[lang].missed}.`);
     await expect(disclosure.locator('summary')).toBeFocused(); await axe(page);
+    await page.keyboard.press('Space');
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await expect(panel).toBeHidden();
+  });
+
+  test(`compact cells show author labels with distinct icons and full screen-reader text (${lang})`, async ({ page }) => {
+    await open(page, lang, 'disagree'); await page.locator('[data-lp-run]').click(); await finish(page);
+    const row = page.locator('[data-lp-row="perfect"]');
+    const cells = row.locator('td');
+    expect(await visibleText(cells)).toEqual([
+      strings[lang].met, strings[lang].met, strings[lang].met, strings[lang].met, strings[lang].met, strings[lang].missed
+    ]);
+    await expect(cells.locator('.lp-visually-hidden')).toHaveText([
+      `${strings[lang].met}, ${lang === 'en' ? 'model agrees' : 'modèle en accord'}`,
+      `${strings[lang].met}, ${lang === 'en' ? 'model disagrees' : 'modèle en désaccord'}`,
+      `${strings[lang].met}, ${lang === 'en' ? 'model not sure' : 'modèle incertain'}`,
+      ...Array(2).fill(`${strings[lang].met}, ${lang === 'en' ? 'model agrees' : 'modèle en accord'}`),
+      `${strings[lang].missed}, ${lang === 'en' ? 'model agrees' : 'modèle en accord'}`
+    ]);
+    expect(await cells.evaluateAll(els => els.every(el => el.querySelector('svg[aria-hidden="true"]')))).toBe(true);
+    const icons = await cells.locator('svg').evaluateAll(els => els.slice(0, 3).map(el => el.innerHTML));
+    expect(new Set(icons).size).toBe(3);
   });
 
   for (const mode of ['offline', 'throws', 'invalid']) test(`saved run and date with ${mode} model (${lang})`, async ({ page }) => {
@@ -115,7 +167,10 @@ for (const lang of ['en', 'fr']) {
     await expect(page.locator('[data-lp-outcome="agree"]')).toHaveCount(72);
     await page.locator('[data-lp-language]').selectOption(lang === 'en' ? 'fr' : 'en');
     await page.locator('[data-lp-row="perfect"] summary').click();
-    await expect(page.locator('[data-lp-row="perfect"] .lp-quote')).toHaveAttribute('lang', lang === 'en' ? 'fr' : 'en');
+    const panel = page.locator('[data-lp-row="perfect"]').locator('xpath=following-sibling::tr[1]');
+    await expect(panel.locator('.lp-quote')).toHaveAttribute('lang', lang === 'en' ? 'fr' : 'en');
+    await expect(panel.locator('dl')).toHaveCount(0);
+    await expect(panel).toContainText(lang === 'en' ? 'The model agreed on every label.' : 'Le modèle est en accord avec toutes les étiquettes.');
     await axe(page);
   });
 
@@ -156,8 +211,15 @@ for (const lang of ['en', 'fr']) {
     await expect(page.getByRole('table')).toBeVisible(); await expect(page.locator('[data-lp-controls]')).toBeHidden();
     await expect(page.locator('[data-lp-outcome="agree"]')).toHaveCount(72);
     await expect(page.locator('[data-lp-run-info]')).toContainText('Clef 27B');
-    await page.locator('[data-lp-row="perfect"] summary').click();
-    await expect(page.locator('[data-lp-row="perfect"] .lp-quote')).toHaveText(examples[lang].fixtures[0].answer[lang]);
+    const row = page.locator('[data-lp-row="perfect"]');
+    const panel = row.locator('xpath=following-sibling::tr[1]');
+    await expect(panel).toBeHidden();
+    await row.locator('summary').click();
+    await expect(panel).toBeVisible();
+    await expect(panel.locator('td')).toHaveAttribute('colspan', '7');
+    await expect(panel.locator('.lp-quote')).toHaveText(examples[lang].fixtures[0].answer[lang]);
+    await expect(row.locator('td .lp-visually-hidden').first()).toHaveText(lang === 'en' ? 'met, model agrees' : 'présent, modèle en accord');
+    await row.locator('summary').click(); await expect(panel).toBeHidden();
     await context.close();
   });
 }
@@ -207,7 +269,9 @@ test('forced colours preserve outcome words and visible focus', async ({ page, b
   test.skip(browserName !== 'chromium', 'Chromium implements forced colour emulation.');
   await page.emulateMedia({ forcedColors: 'active' }); await open(page, 'en', 'disagree');
   await page.locator('[data-lp-run]').click(); await finish(page);
-  await expect(page.locator('[data-lp-outcome="disagree"]')).toHaveText('disagrees');
+  await expect(page.locator('[data-lp-outcome="disagree"] .lp-visually-hidden')).toHaveText('met, model disagrees');
+  expect(await visibleText(page.locator('[data-lp-outcome="disagree"]'))).toEqual(['met']);
+  await expect(page.locator('[data-lp-outcome="disagree"] svg')).toBeVisible();
   const region = page.getByRole('region'); await region.focus();
   expect(await region.evaluate(el => getComputedStyle(el).outlineStyle)).not.toBe('none'); await axe(page);
 });
