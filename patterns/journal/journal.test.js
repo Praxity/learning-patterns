@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { feedback, validateContent, validateAnswer, validateState, savedEntry, ANSWER_LIMIT } from './logic.js';
 import { render } from './render.js';
 import { strings } from './strings.js';
+import { blocks } from '../../proxy/src/registry.js';
 
 const content = {
   prompt: 'What did you notice this week when you tried to stay assertive?',
@@ -13,13 +14,29 @@ const content = {
     { id: 'next_step', text: "Want to add one thing you'll try next time?" },
     { id: 'when', text: "Want to add when you'll try it?" }
   ],
-  complete: "You've got a moment, what you did, and a next step with a when.",
+  complete: "Great. You've named a moment, what you did, and a next step with a when.",
   support: "That sounds hard. If it's weighing on you, talk to someone you trust, your workplace's employee assistance programme, or a local support service.",
   supportNote: "If something is weighing on you, talk to someone you trust, your workplace's employee assistance programme, or a local support service.",
   saved: 'Saved in this browser',
   changed: 'Entry changed. No suggestion shown. Select Get a suggestion again.'
 };
 const answers = (values = [1, 1, 1, 1, 0]) => Object.fromEntries(['situation', 'action', 'next_step', 'when', 'distress'].map((key, i) => [key, { noul: values[i] }]));
+
+test('the proxy returns a complete decision and journal content owns its wording', () => {
+  assert.deepEqual(blocks['13-journal'].outcome(answers()), { kind: 'complete' });
+  const custom = { ...content, complete: 'You have described every part.' };
+  assert.deepEqual(feedback(custom, answers()), { kind: 'complete', text: 'You have described every part.' });
+});
+
+test('complete feedback uses authored bilingual content', async () => {
+  for (const [lang, text] of [
+    ['en', "Great. You've named a moment, what you did, and a next step with a when."],
+    ['fr', "Très bien. Vous avez nommé un moment, ce que vous avez fait et une prochaine étape en précisant quand vous l'essaierez."]
+  ]) {
+    const example = JSON.parse(await readFile(new URL(`./examples/${lang}.json`, import.meta.url)));
+    assert.deepEqual(feedback(example, answers()), { kind: 'complete', text });
+  }
+});
 
 test('support wins over missing elements and complete entries, at and below the distress gate', () => {
   for (const values of [[0, 0, 0, 0], [1, 1, 1, 1]]) {

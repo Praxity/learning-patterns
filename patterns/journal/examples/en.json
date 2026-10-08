@@ -6,7 +6,7 @@
     { "id": "next_step", "text": "Want to add one thing you'll try next time?" },
     { "id": "when", "text": "Want to add when you'll try it?" }
   ],
-  "complete": "You've got a moment, what you did, and a next step with a when.",
+  "complete": "Great. You've named a moment, what you did, and a next step with a when.",
   "support": "That sounds hard. If it's weighing on you, talk to someone you trust, your workplace's employee assistance programme, or a local support service.",
   "supportNote": "If something is weighing on you, talk to someone you trust, your workplace's employee assistance programme, or a local support service.",
   "saved": "Saved in this browser",
