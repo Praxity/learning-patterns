@@ -12,6 +12,7 @@ const MAX_BODY_BYTES = 16 * 1024;
 export default {
 	async fetch(request, env) {
 		const url = new URL(request.url);
+		if (!url.pathname.startsWith("/api/patterns/")) return env.ASSETS.fetch(request);
 		if (url.pathname === "/api/patterns/prices.js") return new Response(browserPrices(), { headers: { "content-type": "text/javascript; charset=utf-8", "x-content-type-options": "nosniff" } });
 		if (url.pathname === "/api/patterns/limits.js") return new Response(`export const CAP_MESSAGES = Object.freeze(${JSON.stringify(CAP_MESSAGES)});`, { headers: { "content-type": "text/javascript; charset=utf-8", "x-content-type-options": "nosniff" } });
 		if (developmentMisconfigured(url.hostname, env)) return json({ error: "Live checks are misconfigured." }, 503);
@@ -39,11 +40,23 @@ export default {
 
 		let body;
 		if (Number(request.headers.get("content-length")) > MAX_BODY_BYTES) return reply({ error: "Body is too large" }, 413);
+		const reader = request.body?.getReader();
 		try {
-			const text = await request.text();
-			if (new TextEncoder().encode(text).byteLength > MAX_BODY_BYTES) return reply({ error: "Body is too large" }, 413);
-			body = JSON.parse(text);
+			const decoder = new TextDecoder();
+			let text = "", bytes = 0;
+			if (reader) while (true) {
+				const { done, value } = await reader.read();
+				if (done) break;
+				bytes += value.byteLength;
+				if (bytes > MAX_BODY_BYTES) {
+					await reader.cancel();
+					return reply({ error: "Body is too large" }, 413);
+				}
+				text += decoder.decode(value, { stream: true });
+			}
+			body = JSON.parse(text + decoder.decode());
 		} catch { return reply({ error: "Body must be JSON" }, 400); }
+		finally { reader?.releaseLock(); }
 		const result = buildRequest(body, provider);
 		if (result.error) return reply({ error: result.error }, 400);
 

@@ -69,6 +69,7 @@ function setup(t) {
 	const ask = ({ token = "XXXX.DUMMY.TOKEN.XXXX", cookie, ip = "192.0.2.1", answer = "hello", block = "16-fixtures", fields, host = "demo.example", body, headers = {} } = {}) => worker.fetch(new Request(`https://${host}/api/patterns/ask`, {
 		method: "POST", headers: { "content-type": "application/json", "cf-connecting-ip": ip, ...(token ? { "x-turnstile-token": token } : {}), ...(cookie ? { cookie } : {}), ...headers },
 		body: body ?? JSON.stringify({ block, fields: fields ?? { answer } }),
+		...(body instanceof ReadableStream ? { duplex: 'half' } : {}),
 	}), env);
 	return { env, calls, ask, db, writes, advance: (ms) => { now += ms; } };
 }
@@ -659,6 +660,60 @@ test('the 16 KiB body cap covers declared, undeclared and multibyte bodies', asy
   assert.equal((await s.ask({ body: 'é'.repeat(8193) })).status, 413);
   assert.equal((await s.ask({ body: body.padEnd(16384), headers: { 'content-length': '16384' } })).status, 200);
   assert.equal(s.calls.model, 1);
+});
+
+test('the streamed body cap cancels before pulling a large upload in full', async (t) => {
+  const s = setup(t);
+  let pulled = 0, cancelled = false;
+  const chunk = new Uint8Array(1024).fill(32);
+  const body = new ReadableStream({
+    pull(controller) {
+      if (pulled === 32 * 1024 * 1024) return controller.close();
+      pulled += chunk.byteLength;
+      controller.enqueue(chunk);
+    },
+    cancel() { cancelled = true; },
+  });
+  assert.equal((await s.ask({ body })).status, 413);
+  assert.equal(cancelled, true);
+  assert.ok(pulled <= 18 * 1024, `pulled ${pulled} bytes before refusing`);
+  assert.equal(s.calls.model, 0);
+});
+
+test('streamed JSON decodes UTF-8 characters split across chunks at the exact body cap', async (t) => {
+  const s = setup(t);
+  const text = JSON.stringify({ block: '16-fixtures', fields: { answer: '\u00e9\u6f22' } });
+  const encoded = new TextEncoder().encode(text);
+  const bytes = new TextEncoder().encode(text + ' '.repeat(16384 - encoded.length));
+  const split = encoded.indexOf(0xc3) + 1;
+  const body = new ReadableStream({ start(controller) {
+    controller.enqueue(bytes.slice(0, split));
+    controller.enqueue(bytes.slice(split));
+    controller.close();
+  } });
+  assert.equal((await s.ask({ body })).status, 200);
+  assert.equal(s.calls.model, 1);
+});
+
+test('paths outside the API preserve the asset response before checking proxy configuration', async (t) => {
+  const s = setup(t);
+  const served = [];
+  const page = new Response('<html>Course page</html>', { headers: { 'content-type': 'text/html', etag: 'page' } });
+  const missing = new Response('Asset not found', { status: 404, headers: { 'content-type': 'text/plain', 'x-asset-miss': 'true' } });
+  s.env.ASSETS = { fetch: async request => { served.push(request); return new URL(request.url).pathname === '/' ? page : missing; } };
+  s.env.JEV_MOCK = '1';
+  s.env.MODEL_PROVIDER = 'invalid';
+  for (const [path, expected] of [['/', page], ['/wp-login.php', missing], ['/api', missing], ['/api/patterns', missing], ['/api/patterns-other/ask', missing]]) {
+    const request = new Request(`https://demo.example${path}`);
+    assert.equal(await worker.fetch(request, s.env), expected);
+    assert.equal(served.at(-1), request);
+  }
+  assert.equal((await worker.fetch(new Request('https://demo.example/api/patterns/ask'), s.env)).status, 503);
+  assert.equal(served.length, 5);
+  assert.equal(s.calls.verify, 0);
+  assert.equal(s.calls.limiter, 0);
+  assert.equal(s.calls.model, 0);
+  assert.equal(s.writes.length, 0);
 });
 
 test('public errors never echo input or provider details and all API content uses nosniff', async (t) => {

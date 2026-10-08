@@ -3,7 +3,7 @@
   "name": "learning-patterns",
   "main": "proxy/src/worker.js",
   "compatibility_date": "2026-10-01",
-  "assets": { "directory": "./demo-dist", "run_worker_first": ["/api/patterns/*"] },
+  "assets": { "directory": "./demo-dist", "binding": "ASSETS", "run_worker_first": ["/api/patterns/*"] },
   "workers_dev": true,
   "preview_urls": false,
   "ai": { "binding": "AI" },

@@ -17,6 +17,7 @@ test('the root asset Worker serves the proxy on the same origin with every bindi
   assert.equal(config.name, 'learning-patterns');
   assert.equal(config.main, 'proxy/src/worker.js');
   assert.equal(config.assets.directory, './demo-dist');
+  assert.equal(config.assets.binding, 'ASSETS');
   assert.deepEqual(config.assets.run_worker_first, ['/api/patterns/*']);
   assert.equal(config.ai.binding, 'AI');
   assert.equal(config.vars.IP_DAILY_LIMIT, '20');
