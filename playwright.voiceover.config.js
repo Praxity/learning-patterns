@@ -9,6 +9,6 @@ export default defineConfig({
   timeout: 20 * 60 * 1000,
   outputDir: `test-results/voiceover-${process.env.VO_PHASE ?? 'journeys'}`,
   reporter: [['list']],
-  use: { browserName: 'webkit', headless: false, baseURL: `http://127.0.0.1:${port}`, viewport: { width: 1280, height: 900 } },
+  use: { browserName: 'webkit', headless: false, baseURL: `http://127.0.0.1:${port}`, viewport: { width: 1280, height: 900 }, screenshot: 'only-on-failure' },
   webServer: { command: 'node scripts/serve-demo.mjs', url: `http://127.0.0.1:${port}/index.html`, reuseExistingServer: false, env: { LP_PORT: String(port) } }
 });
