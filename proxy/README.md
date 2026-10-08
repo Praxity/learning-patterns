@@ -34,7 +34,7 @@ On a custom domain, keep Cloudflare's Pseudo IPv4 setting off or on "Add header"
 
 ## Requests and question sets
 
-`GET /api/patterns/config` returns the public Turnstile site key, provider, provider name, model and mock status. By default it reports `provider: "perplexity"`, `providerName: "Perplexity (US)"` and `model: "pplx-decider-v1.1-27b"`. `POST /api/patterns/ask` accepts this shape:
+`GET /api/patterns/config` returns the public Turnstile site key, provider, provider name, decision model and mock status. By default it reports `provider: "perplexity"`, `providerName: "Perplexity (US)"` and `model: "pplx-decider-v1.1-27b"`. `POST /api/patterns/ask` accepts this shape:
 
 ```json
 { "block": "07-explain-back", "fields": { "answer": "I would announce a pause and agree when to return." } }
@@ -48,9 +48,9 @@ On a custom domain, keep Cloudflare's Pseudo IPv4 setting off or on "Add header"
 | `13-journal` | `answer`: 1,500 |
 | `16-fixtures` | `answer`: 800 |
 
-Other blocks, missing fields, extra fields and caller-authored questions are refused. The [registry](src/registry.js) owns the allowed blocks. Their server modules own the question wording and authored context. Adapting these questions to another topic requires changing server code and checking the model's answers on that topic.
+Other blocks, missing fields, extra fields and caller-authored questions are refused. The [registry](src/registry.js) owns the allowed blocks. Their server modules own the question wording and authored context. Adapting these questions to another topic requires changing server code and checking the decision model's answers on that topic.
 
-A successful response includes typed `answers`, server-chosen `questions`, `model`, `tokens`, `ms`, `costUsd` and `mock`. The questions are public, not secret. The model's answers choose authored feedback. It does not write feedback. [logic/](logic/) contains the original browser-safe decision owners; browser code and evaluation code import the same functions. Those files do not import the question sets. Keep the gates and wording together when tuning a block.
+A successful response includes typed `answers`, server-chosen `questions`, `model`, `tokens`, `ms`, `costUsd` and `mock`. The questions are public, not secret. The decision model's answers choose authored feedback. It does not write feedback. [logic/](logic/) contains the original browser-safe decision owners; browser code and evaluation code import the same functions. Those files do not import the question sets. Keep the gates and wording together when tuning a block.
 
 ## Limits and cost
 
@@ -70,24 +70,24 @@ The Decisions endpoint's input limit is 262,144 tokens. These byte-based bounds 
 | --- | --- | --- |
 | Live calls per IPv4 address or IPv6 /64 per UTC day | 20 | `IP_DAILY_LIMIT` in the config |
 | Live calls per IPv4 /24 or IPv6 /48 per UTC day | 60 | Three times `IP_DAILY_LIMIT` |
-| Global model input-token budget per UTC day | $1.00 | `DAILY_BUDGET_USD` in the config |
+| Global decision model input-token budget per UTC day | $1.00 | `DAILY_BUDGET_USD` in the config |
 | Burst requests per IP | 120 per minute | `ratelimits` in the config |
 | Result cache, except `13-journal` | 30 days | `CACHE_TTL` in `src/cost-guard.js`; block policy in the registry |
 | Signed clearance cookie | One hour | `HOUR` and the cookie's `Max-Age` in `src/turnstile.js` |
 
 The network cap is shared. Everyone behind one IPv4 /24 or IPv6 /48 (a school network, a carrier's shared addresses) shares its 60 live calls, so a few heavy users can use them up for the rest of that network until midnight UTC, and a class behind one address shares a single 20-call allowance. These defaults suit a public showcase. A course with its own learners should raise `IP_DAILY_LIMIT` or deploy its own proxy.
 
-The daily defaults and refusal messages live in [src/limits.js](src/limits.js). The sole price table lives in [src/prices.js](src/prices.js); per-block reservation bounds live in the registry. Recheck a block's bound whenever its questions, authored context or field caps grow. Price calculations use integer nanodollars. The budget counts model input tokens only; Cloudflare service charges are separate. [Perplexity costs $0.02 per million input tokens, with free output](https://docs.perplexity.ai/docs/decisions/quickstart#pricing). The input-only list prices are $0.24 per million for Clef 27B and $0.042 per million for Jev 1.13.0. Recheck provider prices and token limits before deploying or changing models.
+The daily defaults and refusal messages live in [src/limits.js](src/limits.js). The sole price table lives in [src/prices.js](src/prices.js); per-block reservation bounds live in the registry. Recheck a block's bound whenever its questions, authored context or field caps grow. Price calculations use integer nanodollars. The budget counts decision model input tokens only; Cloudflare service charges are separate. [Perplexity costs $0.02 per million input tokens, with free output](https://docs.perplexity.ai/docs/decisions/quickstart#pricing). The input-only list prices are $0.24 per million for Clef 27B and $0.042 per million for Jev 1.13.0. Recheck provider prices and token limits before deploying or changing decision models.
 
-The per-IP daily limit, burst limiter and clearance cookie use the full IPv4 address or the IPv6 /64 prefix. A second daily counter groups IPv4 /24 and IPv6 /48 networks. IPv4-mapped IPv6 addresses use their embedded IPv4 address for all guards. The burst limiter runs before Turnstile verification. Cache hits still need clearance and pass through the burst limiter, but spend no model budget and use no daily live call. Editing state, questions, model or `CACHE_KEY_SECRET` changes the HMAC cache key. Expired cache entries are deleted through an expiry index on requests and daily alarms. Each object schedules its first alarm once; daily alarms schedule the next. IP counters and spend rows retain the current and previous UTC day. Request bodies are capped at 16 KiB, including bodies without `content-length`. The proxy counts incoming bytes and cancels the stream as soon as it exceeds that cap.
+The per-IP daily limit, burst limiter and clearance cookie use the full IPv4 address or the IPv6 /64 prefix. A second daily counter groups IPv4 /24 and IPv6 /48 networks. IPv4-mapped IPv6 addresses use their embedded IPv4 address for all guards. The burst limiter runs before Turnstile verification. Cache hits still need clearance and pass through the burst limiter, but spend no decision model budget and use no daily live call. Editing state, questions, decision model or `CACHE_KEY_SECRET` changes the HMAC cache key. Expired cache entries are deleted through an expiry index on requests and daily alarms. Each object schedules its first alarm once; daily alarms schedule the next. IP counters and spend rows retain the current and previous UTC day. Request bodies are capped at 16 KiB, including bodies without `content-length`. The proxy counts incoming bytes and cancels the stream as soon as it exceeds that cap.
 
-A daily refusal returns HTTP 429 with `reason: "ip_daily"` or `reason: "budget"`. Perplexity's rate limit returns 429 without a daily-limit reason; its 504 model timeout follows the same 502 path as a deadline. Missing configuration returns 503; other provider failures return 502. Offer the learner a self-check fallback when live checks cannot run.
+A daily refusal returns HTTP 429 with `reason: "ip_daily"` or `reason: "budget"`. Perplexity's rate limit returns 429 without a daily-limit reason; its 504 decision model timeout follows the same 502 path as a deadline. Missing configuration returns 503; other provider failures return 502. Offer the learner a self-check fallback when live checks cannot run.
 
 ## Optional Clef and Jev providers
 
 Perplexity remains the default even if a Jev secret or Workers AI binding exists. To use Clef 27B, set `MODEL_PROVIDER` to `clef` and keep the `AI` binding. Clef uses its tuned question overrides and gates. To use Jev, set `MODEL_PROVIDER` to `jev` and store `JEV_API_KEY` with `npx wrangler@4.148.0 secret put JEV_API_KEY`. Without the selected provider's secret or binding, calls are refused. Only the server chooses the provider. Perplexity and Jev use Jev's original question wording and gates. Assess each provider for your content.
 
-For local UI work, `JEV_MOCK=1` returns fake answers and bypasses clearance and model calls. The response has `mock: true`. Mock mode and Turnstile test secrets work only on `localhost`, `127.0.0.1` or `[::1]`; other hosts return 503 with a misconfigured error. Use real Turnstile credentials on your deployed origin.
+For local UI work, `JEV_MOCK=1` returns fake answers and bypasses clearance and decision model calls. The response has `mock: true`. Mock mode and Turnstile test secrets work only on `localhost`, `127.0.0.1` or `[::1]`; other hosts return 503 with a misconfigured error. Use real Turnstile credentials on your deployed origin.
 
 ## Data notice
 
@@ -97,7 +97,7 @@ Place this text next to the answer box:
 
 [Perplexity's API FAQ](https://docs.perplexity.ai/docs/resources/faq) says, "We do not retain any query data sent through the API and do not train on any of your data." Self-hosters using another provider must confirm that provider's retention and training terms before using this notice. Before sending learner text in a client course, arrange consent wording and a data agreement with the chosen provider.
 
-The proxy sends the answer and authored context to the provider. Except for `13-journal`, it keeps an HMAC-SHA-256 key of the model, state and questions, validated model answers and response metadata for 30 days. Journal results are never cached or shared between in-flight requests. The cache uses `CACHE_KEY_SECRET`, separate from the IP salt. It stores salted IP and network hashes and daily call and spend counters. It stores neither submitted text nor raw provider responses, and writes no application logs. Extra provider fields are discarded; text in a numeric answer or an unknown choice fails validation before caching. Hosting and model providers have their own data policies.
+The proxy sends the answer and authored context to the provider. Except for `13-journal`, it keeps an HMAC-SHA-256 key of the decision model, state and questions, validated decision model answers and response metadata for 30 days. Journal results are never cached or shared between in-flight requests. The cache uses `CACHE_KEY_SECRET`, separate from the IP salt. It stores salted IP and network hashes and daily call and spend counters. It stores neither submitted text nor raw provider responses, and writes no application logs. Extra provider fields are discarded; text in a numeric answer or an unknown choice fails validation before caching. Hosting and decision model providers have their own data policies.
 
 ## Check a deployment
 
@@ -107,8 +107,8 @@ After deploying, confirm `/api/patterns/config` reports `mock: false`, `provider
 
 Make one maximum-length live call for each block with non-ASCII text, such as 1,500 CJK characters for `13-journal`. Confirm the response's `tokens`, from the provider's `usage.input_tokens`, is a positive integer below that block's reservation in the table above. Missing usage returns 502 and keeps the reservation. Valid usage above the bound returns 502 and records the greater of reported cost and the reservation; revise that block's reservation before offering live checks.
 
-Send 10 distinct concurrent live calls and confirm none reaches the 15 second deadline. [Perplexity limits Decisions to 10 requests per second per organization](https://docs.perplexity.ai/docs/decisions/quickstart#rate-limits); concurrent calls elsewhere in the organization share that limit. A 429 follows the refusal path, with no automatic retry. Each timeout retains that block's reservation at $0.02 per million input tokens. Recheck provider prices, including output-token or neuron charges for optional providers, against the input-only price table. Set a Cloudflare billing alert for service charges outside the model budget.
+Send 10 distinct concurrent live calls and confirm none reaches the 15 second deadline. [Perplexity limits Decisions to 10 requests per second per organization](https://docs.perplexity.ai/docs/decisions/quickstart#rate-limits); concurrent calls elsewhere in the organization share that limit. A 429 follows the refusal path, with no automatic retry. Each timeout retains that block's reservation at $0.02 per million input tokens. Recheck provider prices, including output-token or neuron charges for optional providers, against the input-only price table. Set a Cloudflare billing alert for service charges outside the decision model budget.
 
 ## Tests
 
-`npm run test:proxy` runs the moved cost-guard, clearance, price, adapter, question and decision tests plus registry, provider, privacy and security regression checks. `npm test` includes them too, including in Linux CI with Node 22. The privacy checks submit distinctive text through all five blocks and all three providers, make providers echo it, and inspect SQL writes, every table, alarms and application log calls after live, repeated and failed requests. Tests use fake transports and never call a live model API.
+`npm run test:proxy` runs the moved cost-guard, clearance, price, adapter, question and decision tests plus registry, provider, privacy and security regression checks. `npm test` includes them too, including in Linux CI with Node 22. The privacy checks submit distinctive text through all five blocks and all three providers, make providers echo it, and inspect SQL writes, every table, alarms and application log calls after live, repeated and failed requests. Tests use fake transports and never call a live decision model API.
