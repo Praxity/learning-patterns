@@ -10,11 +10,20 @@
 .lp-highlight-chunk[data-lp-outcome="missed"] { text-decoration: underline dashed var(--lp-warning-ink) 2px; text-underline-offset: 4px; }
 .lp-highlight-chunk[data-lp-outcome="wrong"] { text-decoration: none; }
 .lp-highlight-chunk[aria-disabled="true"] { cursor: default; }
-.lp-highlight-feedback { margin-inline-start: 5px; font-size: var(--lp-type-small); font-weight: 600; line-height: 1.45; }
-.lp-highlight-feedback > .lp-icon { display: inline-block; vertical-align: -.2em; margin-inline-end: 3px; }
+.lp-highlight-feedback { font-size: var(--lp-type-small); font-weight: 600; line-height: 1.45; }
+/* The gap before a label sits on the passage chunk, so a label that wraps to a new line starts flush with the text. */
+.lp-highlight-chunk:has(+ .lp-highlight-feedback[data-lp-outcome]) { margin-inline-end: 5px; }
+/* Centres the icon on the label's capitals (Source Sans 3 cap height; measured within 0.2px at 15px). */
+.lp-highlight-feedback > .lp-icon { display: inline-block; vertical-align: -.23em; margin-inline-end: 3px; }
 .lp-highlight-feedback[data-lp-outcome="correct"] { color: var(--lp-success-ink); }
 .lp-highlight-feedback[data-lp-outcome="missed"] { color: var(--lp-warning-ink); }
-.lp-highlight-feedback[data-lp-outcome="wrong"] { display: inline-block; max-inline-size: 100%; margin-inline-start: 0; padding: 3px 10px; border-radius: 12px; color: var(--lp-ink); background: var(--lp-paper-2); font-size: var(--lp-type-body); font-weight: 400; text-wrap: pretty; }
+/* A short label never wraps between its icon and its word. */
+.lp-highlight-feedback[data-lp-outcome="correct"], .lp-highlight-feedback[data-lp-outcome="missed"] { white-space: nowrap; }
+/* A note on a wrong answer is a pill on its own line, so the passage text after it starts a new line.
+   Its icon fills the first line-high box, so wrapped text hangs under the words, not the icon. */
+.lp-highlight-feedback[data-lp-outcome="wrong"] { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 3px; align-items: start; inline-size: fit-content; max-inline-size: 100%; margin: 8px 0 10px; padding: 3px 10px; border-radius: 12px; color: var(--lp-ink); background: var(--lp-paper-2); font-size: var(--lp-type-body); font-weight: 400; text-wrap: pretty; }
+/* Same optical lift as the date icon: the line-box centre sits about 1.3px low at 17px. */
+.lp-highlight-feedback[data-lp-outcome="wrong"] > .lp-icon { block-size: 1lh; margin: 0; translate: 0 -.06em; }
 .lp-highlight-count { font-variant-numeric: tabular-nums; }
 .lp-highlight-summary { margin-block-start: 12px; }
 .lp-highlight-answer { padding-inline-start: 22px; }
