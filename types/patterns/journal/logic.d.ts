@@ -40,6 +40,7 @@ export type Content = {
     questions: Question[];
     complete: string;
     support: string;
+    supportNote: string;
     saved: string;
     changed: string;
 };

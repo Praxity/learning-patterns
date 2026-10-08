@@ -15,6 +15,7 @@ const content = {
   ],
   complete: "You've got a moment, what you did, and a next step with a when.",
   support: "That sounds hard. If it's weighing on you, talk to someone you trust, your workplace's employee assistance programme, or a local support service.",
+  supportNote: "If something is weighing on you, talk to someone you trust, your workplace's employee assistance programme, or a local support service.",
   saved: 'Saved in this browser',
   changed: 'Entry changed. No suggestion shown. Select Get a suggestion again.'
 };
@@ -50,7 +51,7 @@ test('invalid or missing model probabilities fail loudly for every criterion', (
 
 test('content rejects unknown fields, reordered or missing questions and blank authored text', () => {
   assert.doesNotThrow(() => validateContent(content));
-  for (const key of ['prompt', 'complete', 'support', 'saved', 'changed']) {
+  for (const key of ['prompt', 'complete', 'support', 'supportNote', 'saved', 'changed']) {
     for (const value of ['', '   ', null, 5]) assert.throws(() => validateContent({ ...content, [key]: value }), new RegExp(key));
   }
   for (const mutate of [c => { c.extra = true; }, c => { c.questions.pop(); }, c => { c.questions.reverse(); }, c => { c.questions[0].id = 'unknown'; }, c => { c.questions[0].text = ''; }, c => { c.questions[0].extra = true; }]) {
@@ -76,7 +77,7 @@ test('server markup labels the journal with its title, escapes content, dates it
   for (const lang of ['en', 'fr']) {
     const example = JSON.parse(await readFile(new URL(`./examples/${lang}.json`, import.meta.url)));
     validateContent(example);
-    const markup = render({ ...example, prompt: '<script>bad</script>', support: '<img onerror="bad">' }, strings[lang], { id: 'one', lang, date: new Date(2026, 9, 8) });
+    const markup = render({ ...example, prompt: '<script>bad</script>', supportNote: '<img onerror="bad">' }, strings[lang], { id: 'one', lang, date: new Date(2026, 9, 8) });
     assert.match(markup, /&lt;script&gt;bad&lt;\/script&gt;/);
     assert.match(markup, /&lt;img onerror=&quot;bad&quot;&gt;/);
     assert.match(markup, /datetime="2026-10-08"/);

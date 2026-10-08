@@ -2,7 +2,7 @@ import { ANSWER_LIMIT, NUDGE_KEYS, journalDecision } from '../../proxy/logic/13-
 export { ANSWER_LIMIT };
 
 /** @typedef {{ id: typeof NUDGE_KEYS[number], text: string }} Question */
-/** @typedef {{ prompt: string, questions: Question[], complete: string, support: string, saved: string, changed: string }} Content */
+/** @typedef {{ prompt: string, questions: Question[], complete: string, support: string, supportNote: string, saved: string, changed: string }} Content */
 /** @typedef {{ text: string, savedAt: string }} LearnerState */
 
 /** @param {unknown} value @returns {value is Record<string, unknown>} */
@@ -19,7 +19,7 @@ function textFields(value, keys, path) {
 export function validateContent(content) {
   if (!object(content)) throw new Error('Invalid content');
   const { questions, ...text } = content;
-  textFields(text, ['prompt', 'complete', 'support', 'saved', 'changed'], 'content');
+  textFields(text, ['prompt', 'complete', 'support', 'supportNote', 'saved', 'changed'], 'content');
   if (!Array.isArray(questions) || questions.length !== NUDGE_KEYS.length) throw new Error('Invalid questions');
   questions.forEach((question, index) => {
     if (!object(question)) throw new Error(`Invalid questions[${index}]`);

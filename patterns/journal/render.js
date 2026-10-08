@@ -32,7 +32,7 @@ export function render(content, strings, { id, lang, date = new Date() }) {
       <summary>${html(strings.showQuestions)}</summary>
       <ul class="lp-journal-questions">${content.questions.map(question => `<li>${html(question.text)}</li>`).join('')}</ul>
     </details>
-    <p class="lp-small" data-lp-support>${html(content.support)}</p>
+    <p class="lp-small" data-lp-support>${html(content.supportNote)}</p>
     <p class="lp-small" data-lp-no-script>${html(strings.noScript)}</p>
     <p class="lp-visually-hidden" role="status" aria-atomic="true"></p>
   </section>`;

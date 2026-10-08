@@ -48,11 +48,12 @@ export function enhance(root, { content, strings, state, ask }) {
     } catch { readFailed = true; storageMessage(strings.unreadable); }
   }
   const useFallback = () => {
-    automatic = false; suggest.disabled = false; suggest.textContent = strings.showQuestions;
+    // Without the model the questions show at once; a button that only opened them would repeat the disclosure.
+    automatic = false; suggest.hidden = true;
     notice.hidden = true; suggest.removeAttribute('aria-describedby');
-    support.hidden = false; offline.hidden = false;
+    support.hidden = false; offline.hidden = false; showQuestions();
   };
-  const showQuestions = () => { result.hidden = true; result.textContent = ''; questions.hidden = false; questions.open = true; };
+  function showQuestions() { result.hidden = true; result.textContent = ''; questions.hidden = false; questions.open = true; }
   actions.hidden = false; noScript.hidden = true; questions.hidden = true; questions.open = false; support.hidden = true;
   if (ask) {
     suggest.disabled = true;
@@ -110,7 +111,7 @@ export function enhance(root, { content, strings, state, ask }) {
         else { showQuestions(); status.textContent = strings.fallback; }
       }
     } finally {
-      if (!destroyed) { suggest.removeAttribute('aria-disabled'); suggest.textContent = automatic ? strings.suggest : strings.showQuestions; }
+      if (!destroyed) { suggest.removeAttribute('aria-disabled'); suggest.textContent = strings.suggest; }
     }
   };
   entry.addEventListener('input', onInput); save.addEventListener('click', onSave); suggest.addEventListener('click', onSuggest);
@@ -120,7 +121,7 @@ export function enhance(root, { content, strings, state, ask }) {
     entry.removeEventListener('input', onInput); save.removeEventListener('click', onSave); suggest.removeEventListener('click', onSuggest);
     actions.hidden = true; noScript.hidden = false; notice.hidden = true; offline.hidden = true;
     showQuestions(); support.hidden = false; changed.hidden = true; clearError(); status.textContent = '';
-    suggest.disabled = false; suggest.removeAttribute('aria-disabled'); suggest.removeAttribute('aria-describedby'); suggest.textContent = strings.suggest;
+    suggest.hidden = false; suggest.disabled = false; suggest.removeAttribute('aria-disabled'); suggest.removeAttribute('aria-describedby'); suggest.textContent = strings.suggest;
     instances.delete(root);
   } };
   instances.set(root, instance);

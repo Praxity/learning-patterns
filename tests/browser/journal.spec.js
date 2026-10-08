@@ -46,7 +46,7 @@ async function remount(page, { stateMode = 'normal', askMode = 'normal', support
     const { render } = await import('/patterns/journal/render.js');
     const { strings } = await import('/patterns/journal/strings.js');
     const { noticeConfig } = await import('/lib/data-notice.js');
-    if (support) content.support = support;
+    if (support) { content.support = support; content.supportNote = support; }
     document.querySelector('main').innerHTML = '<h1>Journal with one nudge</h1>' + render(content, strings.en, { id: 'host', lang: 'en' });
     window.lpWriteCount = 0; window.lpHostSaved = null; window.lpAborted = false;
     const state = {
@@ -134,21 +134,18 @@ for (const lang of ['en', 'fr']) {
   for (const mode of ['missing', 'throws', 'invalid']) {
     test(`all questions and visible support when ask ${mode} (${lang})`, async ({ page }) => {
       await open(page, lang, [1, 1, 1, 1, 0], mode); await observe(page);
-      if (mode === 'missing') {
-        await expect(page.locator('[data-lp-suggest]')).toHaveText(strings[lang].showQuestions);
-        await expect(page.locator('[data-lp-support]')).toBeVisible();
-        await expect(page.locator('[data-lp-questions]')).toBeHidden();
-        await page.locator('[data-lp-suggest]').click();
-      } else await submit(page);
-      await expect(page.locator('[data-lp-suggest]')).toHaveText(strings[lang].showQuestions);
+      if (mode !== 'missing') await submit(page);
+      // One way to the questions: the suggestion button hides and the disclosure opens.
+      await expect(page.locator('[data-lp-suggest]')).toBeHidden();
       await expect(page.locator('[data-lp-questions]')).toHaveAttribute('open', '');
       await expect(page.locator('[data-lp-questions] li')).toHaveText(examples[lang].questions.map(q => q.text));
-      await expect(page.locator('[data-lp-support]')).toHaveText(examples[lang].support);
+      await expect(page.locator('[data-lp-support]')).toHaveText(examples[lang].supportNote);
       await expect(page.locator('[data-lp-support]')).toBeVisible();
       await expect(page.locator('[data-lp-notice]')).toBeHidden();
       await expect(page.locator('[data-lp-offline]')).toHaveText(strings[lang].fallback);
       await expect(page.locator('[data-lp-result]')).toBeHidden();
-      expect(await page.evaluate(() => window.lpAnnouncements)).toHaveLength(1);
+      // Without ask the questions are simply shown; a failed request announces the fallback once.
+      expect(await page.evaluate(() => window.lpAnnouncements)).toHaveLength(mode === 'missing' ? 0 : 1);
       expect(await page.evaluate(() => window.lpTestCalls.length)).toBe(mode === 'missing' ? 0 : 1);
       await axe(page);
     });
@@ -157,7 +154,7 @@ for (const lang of ['en', 'fr']) {
   test(`320 px reflow, text spacing and reduced motion for support and fallback (${lang})`, async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     for (const mode of ['ok', 'missing']) {
-      await open(page, lang, [0, 0, 0, 0, 1], mode); await submit(page);
+      await open(page, lang, [0, 0, 0, 0, 1], mode); if (mode === 'ok') await submit(page);
       await page.addStyleTag({ content: '*{line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important}p{margin-bottom:2em!important}' });
       for (const width of [1280, 390, 320]) {
         await page.setViewportSize({ width, height: 900 });
@@ -178,7 +175,9 @@ for (const mode of ['pending', 'pending-throws']) {
     await page.evaluate(() => window.lpResolve());
     await expect(page.locator('[data-lp-suggest]')).not.toHaveAttribute('aria-disabled');
     await expect(page.locator('[data-lp-result]')).toBeHidden();
-    await expect(page.locator('[data-lp-questions]')).toBeHidden();
+    // A failed request switches to the questions; a pending edit still hides the stale result.
+    if (mode === 'pending') await expect(page.locator('[data-lp-questions]')).toBeHidden();
+    else await expect(page.locator('[data-lp-questions]')).toBeVisible();
     await expect(page.locator('[data-lp-changed]')).toHaveText(examples.en.changed);
     expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([examples.en.changed]);
     if (mode === 'pending') {
@@ -210,7 +209,8 @@ test('keyboard validates empty text, saves, suggests and opens native questions 
   await expect(page.locator('[data-lp-result]')).toBeVisible(); await expect(page.locator('[data-lp-suggest]')).toBeFocused();
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([strings.en.empty, examples.en.saved, examples.en.questions[2].text]);
   await open(page, 'en', [1, 1, 1, 1, 0], 'missing');
-  await page.locator('[data-lp-suggest]').focus(); await page.keyboard.press('Enter'); await page.keyboard.press('Tab');
+  // Without ask there is no suggestion button; Tab goes from Save to the open questions.
+  await page.locator('[data-lp-save]').focus(); await page.keyboard.press('Tab');
   await expect(page.locator('[data-lp-questions] summary')).toBeFocused(); await page.keyboard.press('Enter');
   await expect(page.locator('[data-lp-questions]')).not.toHaveAttribute('open'); await page.keyboard.press('Enter');
   await expect(page.locator('[data-lp-questions] li').last()).toBeVisible();
@@ -255,9 +255,9 @@ test('a failed overwrite preserves the previous saved entry and the current draf
 
 test('failed configuration opens authored fallback; host support text replaces the sample', async ({ page }) => {
   await open(page); await remount(page, { askMode: 'config', support: 'Contact the course support team.' });
-  await expect(page.locator('[data-lp-suggest]')).toHaveText(strings.en.showQuestions);
+  await expect(page.locator('[data-lp-suggest]')).toBeHidden();
   await expect(page.locator('[data-lp-support]')).toHaveText('Contact the course support team.');
-  await expect(page.locator('[role="status"]')).toBeEmpty(); await page.locator('[data-lp-suggest]').click();
+  await expect(page.locator('[role="status"]')).toBeEmpty();
   await expect(page.locator('[data-lp-questions] li')).toHaveCount(4);
   await remount(page, { support: 'Contact the course support team.' }); await submit(page);
   await expect(page.locator('[data-lp-result]')).toHaveText('Contact the course support team.');
@@ -348,7 +348,7 @@ test('without JavaScript the dated writing page, questions and authored support 
     await page.goto(`${baseURL}/journal/${lang}.html`);
     await expect(page.getByRole('textbox')).toHaveAccessibleName(examples[lang].prompt); await page.getByRole('textbox').fill('A reflection');
     await expect(page.locator('[data-lp-actions]')).toBeHidden(); await expect(page.locator('[data-lp-questions] li')).toHaveCount(4);
-    await expect(page.locator('[data-lp-support]')).toHaveText(examples[lang].support); await expect(page.locator('[data-lp-support]')).toBeVisible();
+    await expect(page.locator('[data-lp-support]')).toHaveText(examples[lang].supportNote); await expect(page.locator('[data-lp-support]')).toBeVisible();
     await page.locator('[data-lp-questions] summary').click(); await expect(page.locator('[data-lp-questions]')).not.toHaveAttribute('open');
     await page.locator('[data-lp-questions] summary').click(); await expect(page.locator('[data-lp-questions] li').last()).toBeVisible();
   }
