@@ -6,6 +6,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { escapeHtml } from '../lib/html.js';
 import { readMeta } from './pattern-meta.mjs';
+import { DEFAULT_MODEL } from '../proxy/src/prices.js';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const output = join(root, 'demo-dist');
@@ -80,7 +81,7 @@ const content = ${JSON.stringify(content).replaceAll('<', '\\u003c')};
 let saved = window.lpSeed;
 const state = { read: () => saved, write: value => { saved = value; window.lpSaved = value; } };
 ${AI_PATTERNS.includes(name) ? `const mockConfig = {
-  model: '@cf/cloudflare/clef',
+  model: ${JSON.stringify(DEFAULT_MODEL)},
   siteKey: '', provider: 'mock', providerName: 'Offline example',
   dataNotice: ${name === 'journal' ? `{ en: "This demo uses fixed suggestions. Get a suggestion sends no text. Save keeps your entry in this browser.", fr: "Cette démo utilise des suggestions fixes. Obtenir une suggestion n’envoie aucun texte. Enregistrer garde votre entrée dans ce navigateur." }` : `{ en: "This demo uses fixed feedback. Your answer stays in this page and isn't sent or stored.", fr: "Cette démo utilise une rétroaction fixe. Votre réponse reste dans cette page et n'est ni envoyée ni conservée." }`}
 };
