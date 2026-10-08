@@ -9,7 +9,7 @@ learners: not tried
 ---
 # Test your feedback rules
 
-A table compares your labels on sample answers with the model's labels. It counts agreement, disagreement and uncertainty for each rubric criterion. Expand a row to read its answer and compare both labels.
+A table compares your labels on sample answers with the model's labels. It counts agreement, disagreement and uncertainty for each rubric criterion. Expand a row to read its answer across the table and compare only the labels that differ.
 
 ## When to use it
 
@@ -39,7 +39,7 @@ Evidence coming.
 
 ## Accessibility
 
-Meets the shared baseline in the root README. Row and column headers identify the cells. Outcomes pair a decorative icon with a word. The wide table scrolls within its own named, keyboard-focusable region. Native row disclosures open immediately. One status region announces the completed summary once; progressive fills never move focus or announce each cell. The run button retains focus, and the sample language cannot change during a run.
+Meets the shared baseline in the root README. Row and column headers identify the cells. Each cell shows the author's label with a check, cross or question mark for model agreement, disagreement or uncertainty. Hidden text gives screen readers the full label and outcome. Failed cells say "not run". The wide table scrolls within its own named, keyboard-focusable region. Native row disclosures open a full-width comparison row immediately, including without JavaScript. One status region announces the completed summary once; progressive fills never move focus or announce each cell. The run button retains focus, and the sample language cannot change during a run.
 
 Automated checks cover both languages, three browser engines, axe including the table, keyboard, 320 px reflow, text spacing, reduced motion, forced colours and no JavaScript. Human screen-reader checks remain separate.
 
