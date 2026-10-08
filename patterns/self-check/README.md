@@ -32,7 +32,7 @@ Checking an answer against a list of its key ideas is a tested technique. Adults
 Meets the shared baseline in the root README.
 
 - An empty answer gets an error linked to the text box. Checking an answer moves focus to the first checklist item.
-- Checklist labels keep native naming and click activation. Their presentational wrappers avoid an extra "clickable" announcement in Firefox.
+- Checklist labels keep native naming and click activation. Firefox may also announce "clickable" on these native labels.
 - Numbered marks connect the model to the parts list. Each part has a visible status, and each missed part has its own hint.
 - Submitting feedback announces the count of included parts. Start over returns focus to the answer field.
 
