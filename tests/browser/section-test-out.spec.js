@@ -105,7 +105,7 @@ test('shared scene and clean outline lead to one keyed question at a time', asyn
   await expect(page.locator('[data-lp-outline-heading]')).toHaveText("What you'll cover");
   await expect(page.locator('[data-lp-section-status]:visible')).toHaveCount(0);
   await expect(page.locator('fieldset:visible')).toHaveCount(0);
-  await expect(page.locator('[data-lp-intro]')).toHaveText('Answer one question per section. If you pass, you can skip it.');
+  await expect(page.locator('[data-lp-intro]')).toHaveText('Answer the questions to see which sections you can skip.');
   await page.locator('[data-lp-start]').click();
   await expect(page.locator('fieldset:visible')).toHaveCount(1);
   await expect(page.locator('[data-lp-panel-heading]:visible')).toHaveText('Question 1 of 3: Writing an agenda');
@@ -240,7 +240,7 @@ test('all right, all wrong, advanced credit and author refusal', async ({ page }
   await expect(page.locator('[data-lp-start]')).toHaveCount(0);
   await expect(page.locator('fieldset:visible')).toHaveCount(0);
   await expect(page.locator('[data-lp-section-status]:visible')).toHaveCount(0);
-  await expect(page.locator('[data-lp-intro]')).toContainText('The author requires every section.');
+  await expect(page.locator('[data-lp-intro]')).toContainText('You need to take every section in this course.');
   await scan(page);
 });
 

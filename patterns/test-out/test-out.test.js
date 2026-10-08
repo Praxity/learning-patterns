@@ -149,10 +149,10 @@ test('advanced answer explanations describe answers only', () => {
   const fr = render(french, strings.fr, { id: 'fr', lang: 'fr' });
   assert.doesNotMatch(en, /Passing this section|credits/);
   assert.doesNotMatch(fr, /Réussir cette section|crédit/);
-  assert.ok(en.includes('The facilitator makes room for other people to contribute.'));
-  assert.ok(en.includes('Confirm decisions, action owners and deadlines.'));
-  assert.ok(fr.includes('La personne qui anime la réunion donne aux autres l&#39;occasion de participer.'));
-  assert.ok(fr.includes('Confirmez les décisions, les responsables des actions et les échéances.'));
+  assert.ok(en.includes('Invite others to speak so everyone can contribute.'));
+  assert.ok(en.includes('Confirm what was decided, who will do each task and by when.'));
+  assert.ok(fr.includes('Invitez les autres à parler pour que tout le monde puisse contribuer.'));
+  assert.ok(fr.includes('Confirmez les décisions, qui fera chaque tâche et pour quand.'));
 });
 
 test('server counters carry section titles in both languages', () => {

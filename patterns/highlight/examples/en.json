@@ -1,16 +1,16 @@
 {
   "mode": "evidence",
   "title": "What is stonewalling?",
-  "question": "Why does the other person feel ignored or rejected?",
+  "question": "Why does leaving without a word make the other person feel rejected?",
   "paragraphs": [
     [
       {
         "id": "observation",
-        "text": "Psychologist John Gottman and his colleagues watched couples talk for 15 minutes."
+        "text": "Psychologist John Gottman and his colleagues recorded couples talking and followed them for 14 years."
       },
       {
         "id": "prediction",
-        "text": "From that alone, they could predict with 93% accuracy which couples would divorce."
+        "text": "How the couples talked, together with how satisfied they were, predicted divorce with 93% accuracy."
       },
       {
         "id": "signals",
@@ -18,33 +18,33 @@
       },
       {
         "id": "horsemen",
-        "text": "They called them the four horsemen: criticism, defensiveness, contempt and stonewalling."
+        "text": "The four horsemen are criticism, defensiveness, contempt and stonewalling."
       }
     ],
     [
       {
         "id": "work",
-        "text": "The horsemen damage working relationships too, including between a leader and their team."
+        "text": "These behaviours also harm working relationships, including between a leader and their team."
       },
       {
         "id": "harm",
-        "text": "Where blame, contempt and stonewalling take over, trust fades and work suffers."
+        "text": "Blame, contempt and stonewalling damage trust and disrupt work."
       }
     ],
     [
       {
         "id": "withdraw",
-        "text": "Stonewalling means you withdraw from the conversation."
+        "text": "Stonewalling means withdrawing from a conversation."
       },
       {
         "id": "actions",
         "text": "You go quiet, change the subject or leave the room.",
-        "note": "This describes what you do, rather than why the other person feels rejected."
+        "note": "This lists your actions. The question asks why the other person feels rejected."
       },
       {
         "id": "overwhelmed",
         "text": "It usually happens when you feel overwhelmed.",
-        "note": "This explains how you feel. The question asks about the other person."
+        "note": "This explains your feelings. The question asks about the other person."
       },
       {
         "id": "unseen",
@@ -52,7 +52,7 @@
       },
       {
         "id": "ignored",
-        "text": "They see you leave without a word, and they feel ignored or rejected.",
+        "text": "They see you withdraw without a word and feel ignored or rejected.",
         "key": true
       }
     ]

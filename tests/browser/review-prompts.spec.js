@@ -46,26 +46,26 @@ test('progress counts distinct ratings without announcing progress', async ({ pa
   await open(page, undefined, multiple); await observe(page);
   const root = page.locator('[data-lp-pattern]');
   const progress = root.locator('[data-lp-progress]');
-  await expect(progress).toHaveText('0 of 3 checked');
+  await expect(progress).toHaveText('0 of 3 questions checked');
   await expect(progress).toBeVisible();
   expect(await progress.getAttribute('aria-live')).toBeNull();
   expect(await progress.getAttribute('role')).toBeNull();
   await part(page).locator('[data-lp-commit]').click();
-  await expect(progress).toHaveText('0 of 3 checked');
+  await expect(progress).toHaveText('0 of 3 questions checked');
   await part(page).getByRole('button', { name: 'I remembered' }).click();
-  await expect(progress).toHaveText('1 of 3 checked');
+  await expect(progress).toHaveText('1 of 3 questions checked');
   await expect(part(page).locator('[data-lp-review] svg')).toHaveAttribute('aria-hidden', 'true');
   await part(page).getByRole('button', { name: 'I forgot' }).click();
-  await expect(progress).toHaveText('1 of 3 checked');
+  await expect(progress).toHaveText('1 of 3 questions checked');
   const second = root.locator('[data-lp-part]').nth(1);
   await second.locator('[data-lp-commit]').click(); await second.getByRole('button', { name: 'I forgot' }).click();
-  await expect(progress).toHaveText('2 of 3 checked');
+  await expect(progress).toHaveText('2 of 3 questions checked');
   const third = root.locator('[data-lp-part]').nth(2);
   await third.locator('[data-lp-commit]').click(); await third.getByRole('button', { name: 'I remembered' }).click();
-  await expect(progress).toHaveText('3 of 3 checked');
+  await expect(progress).toHaveText('3 of 3 questions checked');
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([
-    'Next review Friday, October 9, 2026', 'Next review Wednesday, October 7, 2026',
-    'Next review Wednesday, October 7, 2026', 'Next review Friday, October 9, 2026'
+    'Review again on Friday, October 9, 2026', 'Review again on Wednesday, October 7, 2026',
+    'Review again on Wednesday, October 7, 2026', 'Review again on Friday, October 9, 2026'
   ]);
 });
 
@@ -75,7 +75,7 @@ test('article metadata uses authored text in French and progress restores withou
   const root = page.locator('[data-lp-pattern]');
   await expect(root.getByRole('heading', { level: 2 })).toHaveText("L'évitement");
   await expect(root.locator('header > .lp-small').first()).toHaveText('1 min de lecture');
-  await expect(root.locator('[data-lp-progress]')).toHaveText('Questions vérifiées : 1 sur 1');
+  await expect(root.locator('[data-lp-progress]')).toHaveText('Questions revues : 1 sur 1');
   await expect(root.getByRole('status')).toHaveText('');
 });
 
@@ -165,7 +165,7 @@ test('rating toggles keep their labels, use the v2 accent and add a calendar rev
     await expect(part(page).locator('[data-lp-review] svg')).toHaveAttribute('aria-hidden', 'true');
     await expect(part(page).locator('[data-lp-mark]')).toHaveCount(0);
   }
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Next review Friday, October 9, 2026', 'Next review Wednesday, October 7, 2026']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Review again on Friday, October 9, 2026', 'Review again on Wednesday, October 7, 2026']);
   // The shared token also controls the pressed border for hosts that change their accent.
   await page.locator('[data-lp-pattern]').evaluate(el => el.style.setProperty('--lp-accent', '#123456'));
   await expect(forgot).toHaveCSS('border-top-color', 'rgb(18, 52, 86)');
@@ -191,14 +191,14 @@ test('keyboard commitment focuses the answer, updates dates, saves state and ann
   await page.keyboard.press('Tab'); await expect(remembered).toBeFocused();
   await page.keyboard.press('Enter'); await expect(remembered).toBeFocused();
   await expect(first.locator('time')).toHaveAttribute('datetime', '2026-10-09');
-  await expect(first.locator('[data-lp-review]')).toHaveText('Next review Friday, October 9, 2026');
+  await expect(first.locator('[data-lp-review]')).toHaveText('Review again on Friday, October 9, 2026');
   await expect(remembered).toHaveAttribute('aria-pressed', 'true');
   await page.keyboard.press('Tab'); await expect(forgot).toBeFocused();
   await page.keyboard.press('Space'); await expect(forgot).toBeFocused();
   await expect(first.locator('time')).toHaveAttribute('datetime', '2026-10-07');
   await expect(remembered).toHaveAttribute('aria-pressed', 'false'); await expect(forgot).toHaveAttribute('aria-pressed', 'true');
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ results: { stonewalling: { result: 'forgot', reviewOn: '2026-10-07' } } });
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Next review Friday, October 9, 2026', 'Next review Wednesday, October 7, 2026']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Review again on Friday, October 9, 2026', 'Review again on Wednesday, October 7, 2026']);
   await page.keyboard.press('Shift+Tab'); await expect(remembered).toBeFocused();
   await expect(answer).toBeVisible();
   await expect(first.locator('time')).toHaveAttribute('datetime', '2026-10-07');
@@ -212,7 +212,7 @@ test('each submitted choice announces once, including repeated choices and separ
   await part(page).getByRole('button', { name: 'I remembered' }).click();
   const second = page.locator('[data-lp-part]').nth(1);
   await second.locator('[data-lp-commit]').click(); await second.getByRole('button', { name: 'I forgot' }).click();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Next review Friday, October 9, 2026', 'Next review Friday, October 9, 2026', 'Next review Wednesday, October 7, 2026']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Review again on Friday, October 9, 2026', 'Review again on Friday, October 9, 2026', 'Review again on Wednesday, October 7, 2026']);
   expect(await page.evaluate(() => window.lpSaved.results)).toEqual({ stonewalling: { result: 'remembered', reviewOn: '2026-10-09' }, time_out: { result: 'forgot', reviewOn: '2026-10-07' } });
 });
 
@@ -298,8 +298,8 @@ test('French root, answer and date use French strings and fr-CA formatting', asy
   await expect(part(page).locator('[data-lp-answer]')).toHaveText(french.parts[0].answer);
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
   await part(page).getByRole('button', { name: "Je m'en souvenais" }).click();
-  await expect(part(page).locator('[data-lp-review]')).toHaveText('Prochaine révision : vendredi 9 octobre 2026');
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Prochaine révision : vendredi 9 octobre 2026']);
+  await expect(part(page).locator('[data-lp-review]')).toHaveText('Révisez de nouveau le vendredi 9 octobre 2026');
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Révisez de nouveau le vendredi 9 octobre 2026']);
 });
 
 test('valid saved dates restore exactly, open rated parts, and do not announce', async ({ page }) => {
@@ -314,7 +314,7 @@ test('valid saved dates restore exactly, open rated parts, and do not announce',
   await expect(page.locator('[data-lp-part]').nth(1).locator('[data-lp-rating]')).toBeHidden();
   await expect(page.locator('[data-lp-part]').nth(2).locator('time')).toHaveAttribute('datetime', '2028-02-29');
   await expect(page.getByRole('status')).toHaveText('');
-  await expect(page.locator('[data-lp-progress]')).toHaveText('2 of 3 checked');
+  await expect(page.locator('[data-lp-progress]')).toHaveText('2 of 3 questions checked');
 });
 
 test('invalid saved state is ignored without revealing answers or announcing', async ({ page }) => {
@@ -322,7 +322,7 @@ test('invalid saved state is ignored without revealing answers or announcing', a
   await open(page); await expect(part(page).locator('[data-lp-answer]')).toBeHidden();
   await expect(part(page).locator('[data-lp-commit]')).toBeVisible();
   await expect(page.locator('time')).toHaveCount(0); await expect(page.getByRole('status')).toHaveText('');
-  await expect(page.locator('[data-lp-progress]')).toHaveText('0 of 1 checked');
+  await expect(page.locator('[data-lp-progress]')).toHaveText('0 of 1 questions checked');
 });
 
 test('two instances have unique ids and independent results', async ({ page }) => {
@@ -332,8 +332,8 @@ test('two instances have unique ids and independent results', async ({ page }) =
   await roots.first().getByRole('button', { name: 'I remembered' }).first().click();
   await expect(roots.nth(1).locator('[data-lp-answer]')).toBeHidden(); await expect(roots.nth(1).locator('time')).toHaveCount(0);
   await expect(roots.nth(1).getByRole('status')).toHaveText('');
-  await expect(roots.first().locator('[data-lp-progress]')).toHaveText('1 of 1 checked');
-  await expect(roots.nth(1).locator('[data-lp-progress]')).toHaveText('0 of 1 checked');
+  await expect(roots.first().locator('[data-lp-progress]')).toHaveText('1 of 1 questions checked');
+  await expect(roots.nth(1).locator('[data-lp-progress]')).toHaveText('0 of 1 questions checked');
 });
 
 test('enhance is idempotent, destroy restores native details and old destroy is harmless', async ({ page }) => {
@@ -354,7 +354,7 @@ test('enhance is idempotent, destroy restores native details and old destroy is 
   await page.evaluate(() => { window.lpEnhance(); window.lpOld.destroy(); });
   await expect(part(page).locator('[data-lp-rating]')).toBeVisible();
   await observe(page); await part(page).getByRole('button', { name: 'I forgot' }).click();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Next review Wednesday, October 7, 2026']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Review again on Wednesday, October 7, 2026']);
 });
 
 test('missing and mismatched markup fail loudly before attaching listeners', async ({ page }) => {
