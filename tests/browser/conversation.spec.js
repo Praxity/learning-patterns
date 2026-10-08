@@ -45,7 +45,7 @@ for (const lang of ['en', 'fr']) {
     page.on('request', request => requests.push(request.url()));
     await open(page, lang); await observe(page);
     await expect(page.locator('[data-lp-michel]')).toHaveText(examples[lang].opening);
-    await expect(page.getByRole('textbox')).toHaveAccessibleName(strings[lang].reply);
+    await expect(page.getByRole('textbox')).toHaveAccessibleName(strings[lang].reply.replace('{name}', examples[lang].person.name));
     await expect(page.getByRole('textbox')).toHaveAttribute('maxlength', '1200');
     await expect(page.locator('[data-lp-notice]')).toContainText(lang === 'fr' ? 'Votre réponse reste' : 'Your answer stays');
     await expect(page.locator('[data-lp-script]')).toBeHidden();
@@ -70,7 +70,8 @@ for (const lang of ['en', 'fr']) {
       await expect(page.locator('[data-lp-michel]').last()).toHaveText(examples[lang].branches[branch].endings[branch]);
       await expect(page.locator('[data-lp-michel]').last()).toBeFocused();
       await expect(page.locator('[data-lp-flow]')).toBeHidden();
-      await expect(page.locator('[data-lp-debrief] li')).toHaveCount(2);
+      // The same move at both rounds is named once.
+      await expect(page.locator('[data-lp-debrief] li')).toHaveCount(1);
       await expect(page.locator('[data-lp-debrief] li').first()).toContainText(examples[lang].branches[branch].move);
       await expect(page.locator('[data-lp-debrief] li').last()).toContainText(examples[lang].branches[branch].debrief);
       expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([examples[lang].branches[branch].line, examples[lang].branches[branch].endings[branch]]);

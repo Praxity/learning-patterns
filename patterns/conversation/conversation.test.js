@@ -5,7 +5,7 @@ import { readFile } from 'node:fs/promises';
 import { BRANCHES, REPLY_LIMIT, confidenceGate } from '../../proxy/logic/03-contract.js';
 import { MICHEL_REPLIES } from '../../proxy/src/demos/03-branch.js';
 import { SECOND, EXAMPLES } from '../../proxy/logic/03-branch.js';
-import { render } from './render.js';
+import { render, renderDebrief } from './render.js';
 import { strings } from './strings.js';
 
 const content = JSON.parse(await readFile(new URL('./examples/en.json', import.meta.url)));
@@ -95,4 +95,17 @@ test('bilingual server markup escapes content and provides a complete static bra
     assert.match(markup, /data-lp-script/);
     for (const [, id] of markup.matchAll(/\sid="([^"]+)"/g)) assert.ok(id.startsWith('one-'), id);
   }
+});
+
+test('a spoken reply has no email header, and its label names the person', () => {
+  const output = render(content, strings.en, { id: 't', lang: 'en' });
+  assert.doesNotMatch(output, />Subject</);
+  assert.match(output, /<label class="lp-visually-hidden" for="t-reply">Your reply to Michel<\/label>/);
+});
+
+test('the debrief names each distinct move once', () => {
+  const twice = { history: [{ branch: 'acknowledge' }, { branch: 'acknowledge' }] };
+  assert.equal(renderDebrief(content, strings.en, twice).match(/<li>/g).length, 1);
+  const two = { history: [{ branch: 'defend' }, { branch: 'acknowledge' }] };
+  assert.equal(renderDebrief(content, strings.en, two).match(/<li>/g).length, 2);
 });

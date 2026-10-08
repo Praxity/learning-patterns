@@ -27,7 +27,6 @@ export type Content = {
         role: string;
         initial: string;
     };
-    subject: string;
     opening: string;
     branches: Record<Branch, BranchContent>;
     examples: Record<"opening" | Branch, Replies>;

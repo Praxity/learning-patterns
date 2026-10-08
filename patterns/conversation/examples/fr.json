@@ -1,7 +1,6 @@
 {
   "setup": "Vous avez changé l’ordre de travail convenu sans consulter Michel. À la réunion de ce matin, il se tourne vers vous.",
   "person": { "name": "Michel", "role": "Votre collègue", "initial": "M" },
-  "subject": "L’ordre de travail",
   "opening": "Ce n’est pas ce qu’on avait convenu. Vous changez toujours le plan à la dernière minute.",
   "branches": {
     "acknowledge": {

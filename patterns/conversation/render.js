@@ -9,7 +9,7 @@ export function renderMichel(content, line, id) {
 
 /** @param {import('./logic.js').Content} content @param {import('./strings.js').Strings} strings @param {import('./logic.js').ConversationState} state */
 export function renderDebrief(content, strings, state) {
-  return `<h3 class="lp-run-in">${html(strings.debrief)}</h3><ol class="lp-conversation-debrief">${state.history.map(({ branch }) => `<li><p class="lp-run-in">${html(content.branches[branch].move)}</p><p>${html(content.branches[branch].debrief)}</p></li>`).join('')}</ol>`;
+  return `<h3 class="lp-run-in">${html(strings.debrief)}</h3><ol class="lp-conversation-debrief">${[...new Set(state.history.map(({ branch }) => branch))].map(branch => `<li><p class="lp-run-in">${html(content.branches[branch].move)}</p><p>${html(content.branches[branch].debrief)}</p></li>`).join('')}</ol>`;
 }
 
 /** @param {import('./logic.js').Content} content @param {'opening' | import('./logic.js').Branch} node */
@@ -27,11 +27,7 @@ export function render(content, strings, { id, lang }) {
     <div data-lp-flow hidden>
       <div data-lp-composer hidden>
         <div class="lp-conversation-composer">
-          <div class="lp-conversation-meta-list">
-            <p class="lp-conversation-meta"><span>${html(strings.to)}</span><span>${html(content.person.name)}</span></p>
-            <p class="lp-conversation-meta"><span>${html(strings.subject)}</span><span>${html(content.subject)}</span></p>
-          </div>
-          <label class="lp-label lp-conversation-label" for="${html(`${id}-reply`)}">${html(strings.reply)}</label>
+          <label class="lp-visually-hidden" for="${html(`${id}-reply`)}">${html(strings.reply.replace('{name}', content.person.name))}</label>
           <textarea class="lp-input lp-conversation-input" id="${html(`${id}-reply`)}" rows="3" maxlength="${REPLY_LIMIT}" placeholder="${html(strings.placeholder)}"></textarea>
           <div class="lp-conversation-foot"><p class="lp-error-text" id="${html(`${id}-error`)}" data-lp-error hidden>${icons['alert-circle']}<span>${html(strings.empty)}</span></p><button class="lp-button" type="button" data-lp-send>${html(strings.send)}</button></div>
         </div>

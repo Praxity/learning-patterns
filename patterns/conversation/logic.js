@@ -4,7 +4,7 @@ export { BRANCHES, REPLY_LIMIT };
 /** @typedef {'acknowledge' | 'defend' | 'attack' | 'withdraw' | 'pause'} Branch */
 /** @typedef {Record<Branch, string>} Replies */
 /** @typedef {{ line: string, endings: Replies, move: string, debrief: string }} BranchContent */
-/** @typedef {{ setup: string, person: { name: string, role: string, initial: string }, subject: string, opening: string, branches: Record<Branch, BranchContent>, examples: Record<'opening' | Branch, Replies>, stageNotes: Record<string, string>, pauseNote: string, unsure: string, offScript: string }} Content */
+/** @typedef {{ setup: string, person: { name: string, role: string, initial: string }, opening: string, branches: Record<Branch, BranchContent>, examples: Record<'opening' | Branch, Replies>, stageNotes: Record<string, string>, pauseNote: string, unsure: string, offScript: string }} Content */
 /** @typedef {{ branch: Branch, reply: string }} Move */
 /** @typedef {{ node: 'opening' | Branch, round: number, history: Move[], end: boolean }} ConversationState */
 /** @typedef {{ conversation: ConversationState, draft: string }} LearnerState */
@@ -27,8 +27,8 @@ function texts(value, keys, path) {
 
 /** @param {unknown} content @returns {asserts content is Content} */
 export function validateContent(content) {
-  fields(content, ['setup', 'person', 'subject', 'opening', 'branches', 'examples', 'stageNotes', 'pauseNote', 'unsure', 'offScript'], 'content');
-  for (const key of ['setup', 'subject', 'opening', 'pauseNote', 'unsure', 'offScript']) text(content[key], `content.${key}`);
+  fields(content, ['setup', 'person', 'opening', 'branches', 'examples', 'stageNotes', 'pauseNote', 'unsure', 'offScript'], 'content');
+  for (const key of ['setup', 'opening', 'pauseNote', 'unsure', 'offScript']) text(content[key], `content.${key}`);
   texts(content.person, ['name', 'role', 'initial'], 'person');
   fields(content.branches, BRANCHES, 'branches');
   for (const branch of BRANCHES) {

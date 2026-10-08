@@ -1,7 +1,5 @@
 export namespace strings {
     namespace en {
-        let to: string;
-        let subject: string;
         let reply: string;
         let placeholder: string;
         let send: string;
@@ -16,10 +14,6 @@ export namespace strings {
         let next: string;
     }
     namespace fr {
-        let to_1: string;
-        export { to_1 as to };
-        let subject_1: string;
-        export { subject_1 as subject };
         let reply_1: string;
         export { reply_1 as reply };
         let placeholder_1: string;

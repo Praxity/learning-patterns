@@ -6,7 +6,6 @@
   "required": [
     "setup",
     "person",
-    "subject",
     "opening",
     "branches",
     "examples",
@@ -44,9 +43,6 @@
           "pattern": "\\S"
         }
       }
-    },
-    "subject": {
-      "$ref": "#/$defs/text"
     },
     "opening": {
       "$ref": "#/$defs/text"
