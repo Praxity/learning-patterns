@@ -180,9 +180,13 @@ test('old saved results restore as hidden drafts until retrieval is done', async
 
 test('retrieval guards reject blank answers and prevent skipping or repeating steps', async ({ page }) => {
   await open(page, 'en', false); await observe(page);
+  // The hidden error isn't linked until it shows, so VoiceOver doesn't read it on arrival.
+  await expect(page.locator('[data-lp-answer]')).not.toHaveAttribute('aria-describedby');
   await page.locator('[data-lp-answer]').fill(' \n ');
   await page.locator('[data-lp-check]').click();
   await expect(page.locator('[data-lp-answer]')).toHaveAttribute('aria-invalid', 'true');
+  const errorId = await page.locator('[data-lp-answer]').getAttribute('aria-describedby');
+  await expect(page.locator(`[id="${errorId}"]`)).toHaveText('Write your answer first.');
   await page.evaluate(() => {
     document.querySelector('[data-lp-had-it]').click();
     document.querySelector('[data-lp-compare]').click();
@@ -190,6 +194,7 @@ test('retrieval guards reject blank answers and prevent skipping or repeating st
   await expect(page.locator('[data-lp-flow]')).toBeHidden();
   await expect(page.locator('[data-lp-result]')).toBeHidden();
   await page.locator('[data-lp-answer]').fill('A remembered answer');
+  await expect(page.locator('[data-lp-answer]')).not.toHaveAttribute('aria-describedby');
   await observe(page);
   await page.locator('[data-lp-check]').click();
   await page.evaluate(() => document.querySelector('[data-lp-check]').click());
@@ -301,6 +306,8 @@ test('empty submit announces field count, links each error and focuses first tex
   await page.locator('[data-lp-compare]').click();
   await expect(page.locator('[data-lp-text]').first()).toBeFocused();
   await expect(page.locator('[role="status"]')).toHaveText('4 fields need attention.');
+  // Errors name each option by the letter its legend shows (B, C), not its position.
+  await expect(page.locator('[data-lp-text-error]')).toHaveText(['Write wrong option B.', 'Write wrong option C.']);
   const inputs = page.locator('[aria-invalid="true"]');
   await expect(inputs).toHaveCount(4);
   for (const input of await inputs.all()) {
