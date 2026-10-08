@@ -27,6 +27,11 @@ jobs:
           sw_vers > test-results/voiceover-environment/runner.txt
           echo "Runner image: $ImageOS $ImageVersion" >> test-results/voiceover-environment/runner.txt
           say -v '?' > test-results/voiceover-environment/voices.txt
+      # VoiceOver moves the pointer; a hot corner opened Quick Note mid-journey in run 37843643548.
+      - name: Disable hot corners
+        run: |
+          for corner in tl tr bl br; do defaults write com.apple.dock "wvous-$corner-corner" -int 0; done
+          killall Dock
       # Setup recording stalled on this image; speech capture does not need ffmpeg.
       - name: Configure Guidepup
         timeout-minutes: 5

@@ -116,7 +116,9 @@ export async function startSession(page, info) {
     for (let i = 0; i < limit; i++) {
       const row = await next(`${label}: VO+Right ${i + 1}`);
       if (row.cursor.some(text => /end of web content|bottom of web content/i.test(text)) || row.speech.some(text => /end of web content|bottom of web content/i.test(text))) break;
-      if (i > 1 && JSON.stringify(row.cursor) === JSON.stringify(rows.at(-2)?.cursor)) break;
+      // VoiceOver reports tab items as empty cursor strings; only a repeated non-empty cursor means the end.
+      const cursor = row.cursor.filter(Boolean);
+      if (i > 1 && cursor.length && JSON.stringify(cursor) === JSON.stringify(rows.at(-2)?.cursor.filter(Boolean))) break;
     }
   }
   return { rows, step, key, next, previous, enter, observe, seek, activate, type, snapshot, read, state,

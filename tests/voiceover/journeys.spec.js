@@ -13,7 +13,7 @@ for (const pattern of patterns) for (const lang of ['en', 'fr']) {
     const s = await startSession(page, info);
     try {
       await s.observe(); await s.enter();
-      for (let i = 0; i < 8; i++) await s.next(`Arrival instructions and labels ${i + 1}`);
+      for (let i = 0; i < (pattern === 'retrieval-sheet' ? 14 : 8); i++) await s.next(`Arrival instructions and labels ${i + 1}`);
       await s.snapshot('arrival');
       await journey(s, page, pattern, lang, content);
       await s.snapshot('result');
@@ -99,19 +99,34 @@ async function journey(s, page, pattern, lang, content) {
     await s.activate('[data-lp-result="forgot"]', 'Rate forgot'); await s.snapshot('forgot');
     await s.activate('[data-lp-result="remembered"]', 'Rate remembered');
   } else if (pattern === 'retrieval-sheet') {
-    await s.seek('[data-lp-date]', 'Date field'); await s.key('ArrowUp', 'Change date segment');
-    await s.key('Tab', 'Leave date'); await s.seek('[data-lp-tab="front"]', 'Front tab');
+    const radios = page.locator('[data-lp-spacing] input'), date = page.locator('[data-lp-date]');
+    await s.seek('[data-lp-spacing] input:checked', 'Spacing group');
+    await s.key('ArrowUp', 'Choose In 2 days');
+    for (const label of ['In 1 week', 'In 2 weeks', 'In 1 month', 'Another date']) await s.key('ArrowDown', `Choose ${label}`);
+    assert.equal(await radios.last().isChecked(), true, 'Another date not selected');
+    assert.equal(await date.isVisible(), true, 'Date field not revealed');
+    await s.key('Tab', 'Date field revealed');
+    // Shift+Tab into WebKit's date control lands on the year segment, which run 7 proved recoverable by typing.
+    const year = Number((await date.inputValue()).slice(0, 4)), rest = (await date.inputValue()).slice(4);
+    for (const [cycle, typed] of [['Different date', year + 1], ['Same date', year + 1]]) {
+      await s.seek('[data-lp-tab][aria-selected="true"]', `${cycle}: leave Date field`);
+      await s.key('Shift+Tab', `${cycle}: return to year segment`);
+      await s.key('Command+A', `${cycle}: select year`); await s.key('Backspace', `${cycle}: clear year`);
+      await s.key('Tab', `${cycle}: leave invalid date`);
+      assert.equal(await date.inputValue(), '', `${cycle}: date not cleared`);
+      await s.snapshot(`incomplete-${cycle === 'Same date' ? 'same' : 'different'}`);
+      await s.key('Shift+Tab', `${cycle}: return to invalid date`);
+      await s.type(String(typed), `${cycle}: recover year with digits`);
+      assert.equal(await date.inputValue(), `${typed}${rest}`, `${cycle}: intended date not recovered`);
+      await s.key('Tab', `${cycle}: leave recovered date`);
+    }
+    await s.seek('[data-lp-tab="front"]', 'Front tab');
     await s.key('ArrowRight', 'Back tab'); await s.key('ArrowLeft', 'Front tab');
     await s.key('End', 'Back tab End'); await s.key('Home', 'Front tab Home');
-    await s.key('ArrowRight', 'Back answers'); await s.read('Back answers and print instructions');
-    await s.seek('[data-lp-date]', 'Date revisit'); await s.key('Command+A', 'Select date');
-    await s.key('Backspace', 'Clear date'); await s.key('Tab', 'Leave blank date');
-    await s.snapshot('incomplete');
-    await s.seek('[data-lp-date]', 'Invalid date error');
-    // Clear date removed only the active year segment; month/day remain 10/15.
-    await s.type('2026', 'Recover date year with keyboard');
-    assert.equal(await page.locator('[data-lp-date]').inputValue(), '2026-10-15', 'Intended date not recovered');
-    await s.key('Tab', 'Leave recovered date');
+    await s.key('ArrowRight', 'Back answers');
+    // Harness-owned: the native print sheet would block WebKit; the page's status write still runs.
+    await page.evaluate(() => { window.print = () => {}; });
+    await s.activate('[data-lp-print]', 'Print');
   } else if (pattern === 'test-out') {
     await s.activate('[data-lp-start]', 'Start check');
     await s.activate('[data-lp-next]:visible', 'Missing first answer Next'); await s.snapshot('incomplete');
