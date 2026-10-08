@@ -128,9 +128,11 @@ test('keyboard validates only this panel, Back keeps picks, changes announce onc
   await page.keyboard.press('Enter');
   await expect(page.locator('[data-lp-question-error]:visible')).toHaveCount(1);
   await expect(page.locator('[data-lp-next]:visible')).toBeFocused();
-  const fieldset = page.locator('fieldset').first(), id = await fieldset.getAttribute('aria-describedby');
+  // Only the radios carry the message; describing the fieldset as well made VoiceOver say it twice.
+  const fieldset = page.locator('fieldset').first(), id = await fieldset.locator('input').first().getAttribute('aria-describedby');
   await expect(page.locator(`[id="${id}"]`)).toHaveText('Choose an answer');
-  await expect(fieldset.locator('input').first()).toHaveAttribute('aria-describedby', id);
+  await expect(fieldset).not.toHaveAttribute('aria-describedby');
+  for (const radio of await fieldset.locator('input').all()) await expect(radio).toHaveAttribute('aria-describedby', id);
   await expect(fieldset.locator('input').first()).toHaveAttribute('aria-invalid', 'true');
   await page.keyboard.press('Enter');
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Choose an answer']);
