@@ -273,6 +273,14 @@ test('failed configuration opens authored fallback; host support text replaces t
   await expect(page.locator('[data-lp-result]')).toHaveText('Contact the course support team.');
 });
 
+test('authored suggestion text stays plain text when feedback includes markup characters', async ({ page }) => {
+  const text = '<img src=x onerror="window.lpInjected=true"> & Contact support.';
+  await open(page); await remount(page, { support: text }); await submit(page);
+  await expect(page.locator('[data-lp-result]')).toHaveText(text);
+  await expect(page.locator('[data-lp-result] img')).toHaveCount(0);
+  expect(await page.evaluate(() => window.lpInjected)).toBeUndefined();
+});
+
 test('typing after a result leaves feedback and saved entry unchanged until the next action', async ({ page }) => {
   await open(page); await submit(page); await observe(page);
   await page.getByRole('textbox').fill('Another reflection');
