@@ -11,7 +11,7 @@ export const strings = {
     ready: "Passer à l'explication", readAgain: 'Relire le texte',
     placeholder: 'Écrivez votre explication ici…', check: 'Vérifier mon explication',
     empty: "Écrivez d'abord une explication.", checking: 'Vérification de votre explication…',
-    summary: '{count} idées clés sur {total}', found: 'Trouvé', missed: 'À ajouter', unsure: 'Pas certain',
+    summary: 'Idées clés : {count} sur {total}', found: 'Trouvé', missed: 'À ajouter', unsure: 'Pas certain',
     reread: 'Relire « {heading} »', model: 'Un modèle de réponse',
     fallback: "La vérification automatique est indisponible. Cochez les idées dans votre explication."
   }

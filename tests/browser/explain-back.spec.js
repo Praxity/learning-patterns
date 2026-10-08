@@ -104,7 +104,7 @@ for (const lang of ['en', 'fr']) {
     await expect(page.locator('[data-lp-mark="correct"]')).toHaveCount(3);
     await expect(page.locator('[data-lp-model]')).toHaveAttribute('open', '');
     await expect(page.locator('[data-lp-model] p')).toHaveText(examples[lang].model);
-    expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([lang === 'fr' ? '3 idées clés sur 3' : '3 of 3 key ideas']);
+    expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([lang === 'fr' ? 'Idées clés : 3 sur 3' : '3 of 3 key ideas']);
     expect(await page.evaluate(() => window.lpTestCalls)).toEqual([{ block: '07-explain-back', fields: { answer: 'My explanation' }, slot: true }]);
     await axe(page);
   });
@@ -312,6 +312,38 @@ test('choice keys share the first text baseline at wide and narrow widths', asyn
     }));
     expect(alignments).toEqual([['baseline', 'baseline'], ['baseline', 'baseline'], ['baseline', 'baseline']]);
   }
+});
+
+test('the error icon centres on the first line of its message at each width', async ({ page }) => {
+  await open(page, 'en', [1, 1, 0]);
+  await page.locator('[data-lp-check]').click();
+  for (const width of [1280, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    await expect(page.locator('[data-lp-error]')).toBeVisible();
+    const offset = await page.locator('[data-lp-error]').evaluate(error => {
+      const icon = error.querySelector('svg').getBoundingClientRect();
+      const range = document.createRange();
+      range.selectNodeContents(error.querySelector('span').firstChild);
+      const line = range.getClientRects()[0];
+      return Math.abs((icon.top + icon.height / 2) - (line.top + line.height / 2));
+    });
+    expect(offset).toBeLessThan(1);
+  }
+});
+
+test('the reading step button fills the narrow row like the explanation step', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 900 });
+  await open(page, 'en', [1, 1, 0], 'ok', true);
+  const ready = await page.getByRole('button', { name: "I'm ready to explain it" }).boundingBox();
+  const lesson = await page.locator('.lp-explain-back-lesson').boundingBox();
+  expect(Math.abs(ready.width - lesson.width)).toBeLessThan(1);
+});
+
+test('feedback links are at least 24 px tall touch targets', async ({ page }) => {
+  await open(page, 'en', [1, 0, 0.5]); await submit(page);
+  const heights = await page.locator('[data-lp-reread]').evaluateAll(links => links.map(link => link.getBoundingClientRect().height));
+  expect(heights).toHaveLength(2);
+  for (const height of heights) expect(height).toBeGreaterThanOrEqual(24);
 });
 
 test('two instances keep independent state and unique prefixed IDs', async ({ page }) => {
