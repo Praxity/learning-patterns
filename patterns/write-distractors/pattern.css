@@ -1,22 +1,26 @@
 /* Shared styles and tokens live in lib/base.css; link it first. */
 .lp-write-distractors-body { margin-block-start: 0; }
 .lp-write-distractors-body > * + * { margin-block-start: 24px; }
-/* Keep text opaque throughout the shared reveal so contrast holds on every frame. */
-.lp-write-distractors-body .lp-reveal { animation-name: lp-write-distractors-rise; }
-@keyframes lp-write-distractors-rise { from { transform: translateY(6px); } }
+/* Revealed answers and results open at once (AGENTS.md motion rules), so the shared rise is off here. */
+.lp-write-distractors-body .lp-reveal { animation: none; }
 textarea.lp-write-distractors-answer { min-block-size: 0; }
 /* Swap disabled ink and background together; reset must retain contrast on every frame. */
 .lp-write-distractors-body [data-lp-check] { transition: none; }
 .lp-write-distractors-body .lp-error-text { margin-block-start: 8px; }
+/* Hang the quiet button's inset padding so its icon lines up with the text column. */
+.lp-write-distractors-body .lp-button-quiet { margin-inline-start: -10px; }
 .lp-write-distractors-right { display: flex; gap: 12px; align-items: flex-start; padding: 16px; border-radius: var(--lp-radius-control); background: var(--lp-success-soft); }
-.lp-write-distractors-right > .lp-icon { margin-block-start: 3px; color: var(--lp-success-ink); }
+/* A 1lh box at the heading's own line height centres the icon on the first line of text. */
+.lp-write-distractors-right > .lp-icon { block-size: 1lh; line-height: 1.3; color: var(--lp-success-ink); }
 .lp-write-distractors-right p + p { margin-block-start: 4px; }
 .lp-write-distractors-toggles { display: flex; flex-wrap: wrap; gap: 8px; }
 .lp-write-distractors-comparison { display: grid; gap: 24px; }
 /* Each question gives the shared choice grid its own available width. */
 .lp-write-distractors-question { container-type: inline-size; min-inline-size: 0; }
 .lp-write-distractors-preview { display: grid; gap: 8px; padding: 0; list-style: none; }
-.lp-write-distractors-option-content > span { display: block; padding-block-start: 2px; }
+/* The first line is a 1.55 line box, the same height as the key, so the key centres on it without an offset. */
+.lp-write-distractors-option-content > span { display: block; line-height: 1.55; }
+.lp-write-distractors-preview-row > .lp-choice-key { align-self: start; }
 .lp-write-distractors-option-content > p { margin-block-start: 6px; }
 .lp-write-distractors-preview-row { cursor: default; }
 .lp-write-distractors-preview-row:hover { background: var(--lp-paper); border-color: var(--lp-line-mid); }

@@ -21,6 +21,25 @@ test('shared scene spans the quiz builder card and centres its tile on the quest
   }
 });
 
+test('right-answer icon, option keys and Start over sit on the text column; revealed answers open at once', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await open(page, 'en', false);
+  await retrieve(page.locator('[data-lp-pattern]'));
+  expect(await page.locator('[data-lp-retrieval]').evaluate(el => getComputedStyle(el).animationName)).toBe('none');
+  const centre = box => box.y + box.height / 2;
+  const icon = await page.locator('[data-lp-right] .lp-icon').boundingBox();
+  const heading = await page.locator('[data-lp-right] .lp-run-in').boundingBox();
+  expect(Math.abs(centre(icon) - centre(heading))).toBeLessThanOrEqual(1);
+  const column = await page.locator('[data-lp-answer]').boundingBox();
+  const startOver = await page.locator('[data-lp-clear] svg').boundingBox();
+  expect(Math.abs(startOver.x - column.x)).toBeLessThanOrEqual(2);
+  await fill(page); await page.locator('[data-lp-compare]').click();
+  const row = page.locator('[data-lp-result] [data-lp-preview="yours"] li').nth(1);
+  const key = await row.locator('.lp-choice-key').boundingBox();
+  const text = await row.locator('[data-lp-option-text]').boundingBox();
+  expect(Math.abs(key.y - text.y)).toBeLessThanOrEqual(1);
+});
+
 async function retrieve(root) {
   if (await root.locator('[data-lp-flow]').isVisible()) return;
   await root.locator('[data-lp-answer]').fill('No, breaks help.');
