@@ -147,11 +147,11 @@ for (const lang of ['en', 'fr']) {
       strings[lang].met, strings[lang].met, strings[lang].met, strings[lang].met, strings[lang].met, strings[lang].missed
     ]);
     await expect(cells.locator('.lp-visually-hidden')).toHaveText([
-      `${strings[lang].met}, ${lang === 'en' ? 'decision model agrees' : 'modèle de décision en accord'}`,
-      `${strings[lang].met}, ${lang === 'en' ? 'decision model disagrees' : 'modèle de décision en désaccord'}`,
-      `${strings[lang].met}, ${lang === 'en' ? 'decision model not sure' : 'modèle de décision incertain'}`,
-      ...Array(2).fill(`${strings[lang].met}, ${lang === 'en' ? 'decision model agrees' : 'modèle de décision en accord'}`),
-      `${strings[lang].missed}, ${lang === 'en' ? 'decision model agrees' : 'modèle de décision en accord'}`
+      `${strings[lang].met}, ${lang === 'en' ? 'decision model agrees' : 'modèle décisionnel en accord'}`,
+      `${strings[lang].met}, ${lang === 'en' ? 'decision model disagrees' : 'modèle décisionnel en désaccord'}`,
+      `${strings[lang].met}, ${lang === 'en' ? 'decision model not sure' : 'modèle décisionnel incertain'}`,
+      ...Array(2).fill(`${strings[lang].met}, ${lang === 'en' ? 'decision model agrees' : 'modèle décisionnel en accord'}`),
+      `${strings[lang].missed}, ${lang === 'en' ? 'decision model agrees' : 'modèle décisionnel en accord'}`
     ]);
     expect(await cells.evaluateAll(els => els.every(el => el.querySelector('svg[aria-hidden="true"]')))).toBe(true);
     const icons = await cells.locator('svg').evaluateAll(els => els.slice(0, 3).map(el => el.innerHTML));
@@ -171,7 +171,7 @@ for (const lang of ['en', 'fr']) {
     const panel = page.locator('[data-lp-row="perfect"]').locator('xpath=following-sibling::tr[1]');
     await expect(panel.locator('.lp-quote')).toHaveAttribute('lang', lang === 'en' ? 'fr' : 'en');
     await expect(panel.locator('dl')).toHaveCount(0);
-    await expect(panel).toContainText(lang === 'en' ? 'The decision model agreed on every label.' : 'Le modèle de décision est en accord avec toutes les étiquettes.');
+    await expect(panel).toContainText(lang === 'en' ? 'The decision model agreed on every label.' : 'Le modèle décisionnel est en accord avec toutes les étiquettes.');
     await axe(page);
   });
 
@@ -222,7 +222,7 @@ for (const lang of ['en', 'fr']) {
     await expect(panel).toBeVisible();
     await expect(panel.locator('td')).toHaveAttribute('colspan', '7');
     await expect(panel.locator('.lp-quote')).toHaveText(examples[lang].fixtures[0].answer[lang]);
-    await expect(row.locator('td .lp-visually-hidden').first()).toHaveText(lang === 'en' ? 'met, decision model agrees' : 'présent, modèle de décision en accord');
+    await expect(row.locator('td .lp-visually-hidden').first()).toHaveText(lang === 'en' ? 'met, decision model agrees' : 'présent, modèle décisionnel en accord');
     await row.locator('summary').click(); await expect(panel).toBeHidden();
     await context.close();
   });
