@@ -1,4 +1,7 @@
 .lp-live-feedback-results { display: grid; gap: 12px; margin-block-start: 16px; padding: 0; list-style: none; }
+.lp-live-feedback-completion { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+.lp-live-feedback-complete { display: flex; align-items: center; gap: 12px; }
+.lp-live-feedback-complete .lp-icon { inline-size: 22px; block-size: 22px; }
 .lp-live-feedback-item { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 12px; transition: transform 200ms var(--lp-ease); }
 .lp-live-feedback-bullet { inline-size: 22px; block-size: 22px; margin-block-start: .12em; color: var(--lp-success-ink); }
 .lp-live-feedback-bullet .lp-icon { display: block; inline-size: 22px; block-size: 22px; }

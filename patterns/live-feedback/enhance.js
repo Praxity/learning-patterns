@@ -27,13 +27,25 @@ export function enhance(root, { content, strings, state, ask }) {
   const fallback = required('[data-lp-fallback]'), fallbackText = required('[data-lp-fallback-text]');
   const checking = required('[data-lp-checking]'), paused = required('[data-lp-paused]');
   const challengeSlot = required('[data-lp-challenge]'), status = required('[role="status"]');
+  const completion = root.ownerDocument.createElement('div');
+  completion.className = 'lp-live-feedback-completion'; completion.hidden = true;
+  const completeLine = root.ownerDocument.createElement('p');
+  completeLine.className = 'lp-live-feedback-complete lp-run-in lp-met';
+  completeLine.dataset.lpComplete = ''; completeLine.innerHTML = icons.check;
+  const completeText = root.ownerDocument.createElement('span');
+  completeText.textContent = strings.complete; completeLine.append(completeText);
+  const edit = root.ownerDocument.createElement('button');
+  edit.type = 'button'; edit.className = 'lp-button lp-button-quiet'; edit.innerHTML = icons.pencil;
+  const editText = root.ownerDocument.createElement('span');
+  editText.textContent = strings.edit; edit.append(editText);
+  completion.append(completeLine, edit); list.before(completion);
   const initialItems = items.innerHTML;
   const rows = [...items.querySelectorAll('li')];
   const boxes = [...fallback.querySelectorAll('input')];
   if (boxes.length !== content.criteria.length || rows.length !== content.criteria.length) throw new Error('Invalid live-feedback criteria markup');
   const session = sessions.get(root.ownerDocument) ?? { checks: 0, stop: new Set() };
   sessions.set(root.ownerDocument, session);
-  let destroyed = false, ready = false, seq = 0, lastChecked = '', count = 0;
+  let destroyed = false, ready = false, complete = false, seq = 0, lastChecked = '', count = 0;
   /** @type {ReturnType<typeof setTimeout> | undefined} */
   let timer;
   /** @type {AbortController | undefined} */
@@ -44,13 +56,16 @@ export function enhance(root, { content, strings, state, ask }) {
   if (saved) { answer.value = saved.answer; for (const box of boxes) box.checked = saved.ticked.includes(box.value); }
   const save = () => state?.write({ answer: answer.value, ticked: boxes.filter(box => box.checked).map(box => box.value) });
   const cancel = () => { clearTimeout(timer); timer = undefined; seq++; pending?.abort(); pending = undefined; checking.hidden = true; };
+  const unlock = () => { complete = false; answer.readOnly = false; completion.hidden = true; };
   const useFallback = () => {
-    cancel(); ready = false;
+    cancel(); unlock(); ready = false;
     list.hidden = true; fallback.hidden = false; fallbackText.textContent = strings.fallback;
     paused.hidden = true; notice.hidden = true;
     answer.removeAttribute('aria-describedby');
   };
   const useLimit = () => {
+    // Keep a completed plan readable; Edit opens self-checks if the allowance is spent.
+    if (complete) return;
     useFallback(); paused.hidden = false; fallbackText.textContent = strings.selfCheck;
   };
   const stopAtLimit = () => { for (const stop of session.stop) stop(); };
@@ -82,7 +97,7 @@ export function enhance(root, { content, strings, state, ask }) {
     }
   };
   const run = async () => {
-    if (!ready || !ask || destroyed || pending) return;
+    if (!ready || !ask || destroyed || pending || complete) return;
     clearTimeout(timer); timer = undefined;
     const raw = answer.value, draft = raw.trim();
     if (draft.length < MIN_CHARS || draft === lastChecked) return;
@@ -96,10 +111,13 @@ export function enhance(root, { content, strings, state, ask }) {
       const outcome = feedback(content, answers, raw, previous);
       previous = outcome.items;
       updateItems(outcome.items);
-      if (outcome.count !== count) {
-        count = outcome.count;
-        status.textContent = strings.summary.replaceAll('{count}', String(count)).replaceAll('{total}', String(outcome.total));
+      complete = outcome.count === outcome.total;
+      answer.readOnly = complete; completion.hidden = !complete;
+      if (outcome.count !== count || complete) {
+        const summary = strings.summary.replaceAll('{count}', String(outcome.count)).replaceAll('{total}', String(outcome.total));
+        status.textContent = complete ? `${strings.complete} ${summary}` : summary;
       }
+      count = outcome.count;
     } catch {
       if (!destroyed && my === seq) {
         if (session.checks >= AUTO_CHECK_LIMIT) stopAtLimit();
@@ -113,11 +131,15 @@ export function enhance(root, { content, strings, state, ask }) {
     }
   };
   const schedule = () => {
-    if (!ready) return;
+    if (!ready || complete) return;
     if (session.checks >= AUTO_CHECK_LIMIT) { stopAtLimit(); return; }
     if (answer.value.trim().length >= MIN_CHARS && answer.value.trim() !== lastChecked) timer = setTimeout(() => { void run(); }, PAUSE_MS);
   };
-  const onInput = () => { cancel(); save(); schedule(); };
+  const onInput = () => { if (complete) return; cancel(); save(); schedule(); };
+  const onEdit = () => {
+    unlock(); answer.focus(); answer.setSelectionRange(answer.value.length, answer.value.length);
+    if (session.checks >= AUTO_CHECK_LIMIT) useLimit();
+  };
   if (ask) {
     Promise.resolve().then(() => ask.config()).then(config => {
       if (destroyed) return;
@@ -130,10 +152,12 @@ export function enhance(root, { content, strings, state, ask }) {
     }).catch(() => { if (!destroyed) useFallback(); });
   } else useFallback();
   answer.addEventListener('input', onInput); fallback.addEventListener('change', save);
+  edit.addEventListener('click', onEdit);
   const instance = { destroy() {
     if (destroyed) return;
     destroyed = true; cancel(); session.stop.delete(useLimit);
     answer.removeEventListener('input', onInput); fallback.removeEventListener('change', save);
+    edit.removeEventListener('click', onEdit); completion.remove();
     useFallback(); fallbackText.textContent = strings.selfCheck; status.textContent = '';
     items.innerHTML = initialItems; notice.replaceChildren();
     challengeSlot.replaceChildren(); challengeSlot.hidden = true; instances.delete(root);
