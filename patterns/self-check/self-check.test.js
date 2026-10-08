@@ -37,9 +37,9 @@ test('feedback counts unique known ticks and returns labels and missed hints in 
   const result = feedback(content, ['reason', 'reason', 'no_blame']);
   assert.equal(result.count, 2);
   assert.equal(result.total, 6);
-  assert.deepEqual(result.items[1], { id: 'reason', included: true, label: 'Reason for the delay', hint: null });
-  assert.deepEqual(result.items[5], { id: 'no_blame', included: true, label: 'No blame', hint: null });
-  assert.deepEqual(result.items[0], { id: 'work_deadline', included: false, label: 'Client report and Friday deadline', hint: 'Name the client report and its Friday deadline.' });
+  assert.deepEqual(result.items[1], { id: 'reason', included: true, label: 'Sales data arrived late', hint: null });
+  assert.deepEqual(result.items[5], { id: 'no_blame', included: true, label: 'Describe the delay without blame', hint: null });
+  assert.deepEqual(result.items[0], { id: 'work_deadline', included: false, label: 'Client report due Friday', hint: 'Say the client report is due Friday.' });
   assert.equal(feedback(content, content.parts.map(part => part.id)).count, 6);
   assert.throws(() => feedback(content, ['unknown']), /Unknown part: unknown/);
 });
@@ -107,8 +107,8 @@ test('render without context keeps the escaped task and labelled answer without 
 test('shared English and French instructions refer to answers with stable keys', () => {
   const keys = ['to', 'subject', 'answer', 'check', 'empty', 'tick', 'meter', 'show', 'resultAll', 'resultOne', 'resultMany', 'mine', 'model', 'legend', 'included', 'notIncluded', 'whole', 'restart', 'cleared', 'checkOwn', 'summary'];
   const expected = {
-    en: { answer: 'Your answer', empty: 'Write your answer first.', tick: 'Select each part you can point to in your answer.', resultMany: 'Compare the marked parts with your answer.', mine: 'Your answer', whole: 'Across the whole answer', checkOwn: 'Check your answer for these parts.' },
-    fr: { answer: 'Votre réponse', empty: "Écrivez d'abord votre réponse.", tick: 'Sélectionnez chaque élément que vous trouvez dans votre réponse.', resultMany: 'Comparez les éléments marqués avec votre réponse.', mine: 'Votre réponse', whole: "Dans l'ensemble de la réponse", checkOwn: 'Vérifiez si votre réponse contient ces éléments.' }
+    en: { answer: 'Your answer', empty: 'Write your answer first.', tick: 'Tick each part your answer includes.', resultMany: 'Use the hints to add missing parts.', mine: 'Your answer', whole: 'Whole answer', checkOwn: 'Check for these parts.' },
+    fr: { answer: 'Votre réponse', empty: "Écrivez d'abord votre réponse.", tick: 'Cochez chaque élément présent dans votre réponse.', resultMany: 'Ajoutez les éléments manquants à l\'aide des conseils.', mine: 'Votre réponse', whole: "Toute la réponse", checkOwn: 'Vérifiez ces éléments dans votre réponse.' }
   };
   for (const lang of ['en', 'fr']) {
     assert.deepEqual(Object.keys(strings[lang]), keys);
