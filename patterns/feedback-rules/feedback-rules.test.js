@@ -12,7 +12,7 @@ const model = '@cf/cloudflare/clef';
 test('rendered bilingual labels identify the decision model', () => {
   for (const [lang, expected] of [
     ['en', ['Decision model', 'decision model agrees', 'The decision model agreed on']],
-    ['fr', ['Modèle de décision', 'modèle de décision en accord', 'Le modèle de décision est en accord']]
+    ['fr', ['Modèle décisionnel', 'modèle décisionnel en accord', 'Le modèle décisionnel est en accord']]
   ]) {
     const example = structuredClone(content);
     example.savedRun.answers[lang][content.fixtures[0].id].work_deadline = { noul: 0 };
