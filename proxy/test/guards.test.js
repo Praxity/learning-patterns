@@ -99,6 +99,7 @@ test("missing guard configuration and invalid limits cannot start a model call",
 	const configurations = [
 		["TURNSTILE_SECRET_KEY", ""], ["COOKIE_SIGNING_KEY", ""], ["IP_SALT", ""],
 		["COST_GUARD", null], ["IP_DAILY_LIMIT", "invalid"], ["IP_DAILY_LIMIT", "0"],
+		["IP_DAILY_LIMIT", "1.3333333333333333"], ["IP_DAILY_LIMIT", String(Number.MAX_SAFE_INTEGER)],
 		["DAILY_BUDGET_USD", "invalid"], ["DAILY_BUDGET_USD", "-1"], ["JEV_API_KEY", ""],
 	];
 	for (const [key, value] of configurations) {
@@ -349,11 +350,9 @@ test('IPv4-mapped IPv6 uses its embedded IPv4 for clearance and both caps', asyn
   assert.equal((await s.ask({ ip: '::fffe:198.51.100.7', answer: 'ordinary IPv6' })).status, 200);
 });
 
-test("cache entries expire after 30 days; concurrent identical calls pay once", async (t) => {
+test("cache entries expire after 30 days", async (t) => {
 	const s = setup(t);
-	const responses = await Promise.all([s.ask(), s.ask()]);
-	assert.equal(responses[0].status, 200);
-	assert.equal(responses[1].status, 200);
+	assert.equal((await s.ask()).status, 200);
 	assert.equal(s.calls.model, 1);
 	s.advance(30 * 86_400_000 - 1);
 	assert.equal((await (await s.ask()).json()).costUsd, 0);
@@ -361,6 +360,78 @@ test("cache entries expire after 30 days; concurrent identical calls pay once", 
 	assert.equal((await (await s.ask()).json()).costUsd, 0.000042);
 	assert.equal(s.calls.model, 2);
 });
+
+test('concurrent identical calls share one charge while the first model call is stalled', async (t) => {
+  const s = setup(t);
+  s.env.MODEL_PROVIDER = 'clef';
+  let release, started;
+  const entered = new Promise(resolve => { started = resolve; });
+  const stalled = new Promise(resolve => { release = resolve; });
+  s.env.AI = { run: async (_model, { questions }) => {
+    s.calls.model++;
+    if (s.calls.model === 1) { started(); await stalled; }
+    return { answers: Object.fromEntries(Object.keys(questions).map(key => [key, { noul: 0.9 }])), usage: { input_tokens: 1000 } };
+  } };
+  const first = s.ask();
+  await entered;
+  const second = s.ask({ ip: '192.0.2.2' });
+  let timer;
+  try {
+    const early = await Promise.race([second, new Promise(resolve => { timer = setTimeout(() => resolve(null), 100); })]);
+    assert.equal(early, null, 'the identical follower must wait for the first model call');
+    assert.equal(s.calls.model, 1);
+  } finally {
+    clearTimeout(timer);
+    release();
+    const responses = await Promise.all([first, second]);
+    assert.deepEqual(responses.map(response => response.status), [200, 200]);
+  }
+  assert.equal(s.calls.model, 1);
+  assert.deepEqual(s.db.prepare('SELECT calls FROM ip_calls').all().map(row => row.calls), [1, 1]);
+  assert.equal(s.db.prepare('SELECT nano_usd FROM spend').get().nano_usd, 240000);
+});
+
+for (const provider of ['clef', 'jev']) {
+  test(`${provider} journal responses always make independent live calls, including identical in-flight text`, async (t) => {
+    const s = setup(t);
+    s.env.MODEL_PROVIDER = provider;
+    let release, started;
+    const entered = new Promise(resolve => { started = resolve; });
+    const stalled = new Promise(resolve => { release = resolve; });
+    const model = async questions => {
+      s.calls.model++;
+      if (s.calls.model === 1) { started(); await stalled; }
+      return { answers: Object.fromEntries(Object.keys(questions).map(key => [key, { noul: 0.9 }])), usage: { input_tokens: 1000 } };
+    };
+    if (provider === 'clef') s.env.AI = { run: async (_model, { questions }) => model(questions) };
+    else {
+      const normalFetch = globalThis.fetch;
+      t.mock.method(globalThis, 'fetch', async (url, options) => String(url).includes('siteverify') ? normalFetch(url, options) : Response.json(await model(JSON.parse(options.body).questions)));
+    }
+    const request = { block: '13-journal', answer: 'private journal text' };
+    const first = s.ask(request);
+    await entered;
+    const second = s.ask({ ...request, ip: '203.0.113.1' });
+    let timer;
+    const cost = provider === 'clef' ? 0.00024 : 0.000042;
+    try {
+      const response = await Promise.race([second, new Promise(resolve => { timer = setTimeout(() => resolve(null), 500); })]);
+      assert.ok(response, 'journal calls must not wait for another learner sending the same text');
+      assert.equal(response.status, 200);
+      assert.equal((await response.json()).costUsd, cost);
+      assert.equal(s.calls.model, 2);
+    } finally {
+      clearTimeout(timer);
+      release();
+      assert.equal((await first).status, 200);
+      await second;
+    }
+    assert.equal((await (await s.ask({ ...request, ip: '198.51.100.1' })).json()).costUsd, cost);
+    assert.equal(s.calls.model, 3);
+    assert.equal(s.db.prepare('SELECT count(*) AS n FROM results').get().n, 0);
+    assert.equal(s.db.prepare('SELECT nano_usd FROM spend').get().nano_usd, Math.round(cost * 1e9) * 3);
+  });
+}
 
 test("IP counters retain yesterday and delete rows two UTC days old", async (t) => {
 	const s = setup(t);
@@ -466,7 +537,7 @@ for (const provider of ['clef', 'jev']) {
       assert.equal(response.status, 200, block);
       const result = await response.json();
       assert.deepEqual(Object.keys(result.answers), Object.keys(entry.clefQuestions));
-      assert.equal((await (await s.ask({ block, fields })).json()).costUsd, 0);
+      assert.equal((await (await s.ask({ block, fields })).json()).costUsd, block === '13-journal' ? (provider === 'clef' ? 0.00024 : 0.000042) : 0);
       invalid = true;
       const badFields = block === '03-branch' ? { node: 'opening', reply: submitted + ' invalid' } : { answer: submitted + ' invalid' };
       assert.equal((await s.ask({ block, fields: badFields })).status, 502, block);
@@ -474,7 +545,7 @@ for (const provider of ['clef', 'jev']) {
     }
     const rows = ['results', 'ip_calls', 'spend'].map(table => s.db.prepare(`SELECT * FROM ${table}`).all());
     assert.ok(!JSON.stringify([s.writes, rows, s.calls.alarmAt, logs]).includes(submitted));
-    assert.equal(rows[0].length, 5);
+    assert.equal(rows[0].length, 4);
     for (const row of rows[0]) {
       assert.match(row.key, /^[a-f0-9]{64}$/);
       const cached = JSON.parse(row.value);

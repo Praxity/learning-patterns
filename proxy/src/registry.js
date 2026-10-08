@@ -17,6 +17,7 @@ export const blocks = Object.fromEntries([
   { ...d03, outcome: (answers, model) => ({ branch: readBranch(answers.branch, undefined, model) }) },
   { ...d06, outcome: (answers, model) => misconceptionFeedback(answers.misconception, model) },
   { ...d07, outcome: explainFeedback },
-  { ...d13, outcome: journalFeedback },
+  // Journal text is personal. Cache hits or shared calls would reveal another learner's submission through cost and timing.
+  { ...d13, outcome: journalFeedback, cache: false },
   { ...d16, outcome: labelAnswers },
 ].map(block => [block.id, { ...block, maxInputTokens: 8192 }]));

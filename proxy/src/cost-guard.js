@@ -29,10 +29,11 @@ export class CostGuard {
 		await this.ready;
 		const body = await request.json();
 		if (typeof this.env.CACHE_KEY_SECRET !== "string" || this.env.CACHE_KEY_SECRET.length < 32) return json({ error: "Live checks are misconfigured." }, 503);
-		const key = await hmac(this.env.CACHE_KEY_SECRET, JSON.stringify([body.model, body.state, body.questions]));
+		const key = body.cache === false ? undefined : await hmac(this.env.CACHE_KEY_SECRET, JSON.stringify([body.model, body.state, body.questions]));
 		// Identical in-flight requests share a charge; unrelated keys run independently.
-		if (this.pending.has(key)) return (await this.pending.get(key)).clone();
+		if (key && this.pending.has(key)) return (await this.pending.get(key)).clone();
 		const call = this.ask(body, key).catch(() => json({ error: "Live checks are unavailable. Please try again later." }, 502));
+		if (!key) return call;
 		this.pending.set(key, call);
 		try { return (await call).clone(); }
 		finally { this.pending.delete(key); }
@@ -42,10 +43,10 @@ export class CostGuard {
 		const now = Date.now();
 		const day = Math.floor(now / DAY);
 		this.cleanup(now);
-		const saved = this.sql.exec("SELECT value FROM results WHERE key = ? AND expires > ?", key, now).toArray()[0];
+		const saved = key && this.sql.exec("SELECT value FROM results WHERE key = ? AND expires > ?", key, now).toArray()[0];
 		if (saved) return json({ ...JSON.parse(saved.value), questions, costUsd: 0 });
 		const limit = Number(this.env.IP_DAILY_LIMIT ?? DEFAULT_IP_DAILY_LIMIT);
-		if (!Number.isSafeInteger(limit * 3) || limit < 1) return json({ error: "Invalid daily IP limit." }, 503);
+		if (!Number.isSafeInteger(limit) || !Number.isSafeInteger(limit * 3) || limit < 1) return json({ error: "Invalid daily IP limit." }, 503);
 		const budget = Math.floor(Number(this.env.DAILY_BUDGET_USD ?? DEFAULT_DAILY_BUDGET_USD) * 1e9);
 		if (!Number.isSafeInteger(budget) || budget < 0) return json({ error: "Invalid daily budget." }, 503);
 		const reservation = costNanoUsd(maxInputTokens, model);
@@ -83,7 +84,7 @@ export class CostGuard {
 		const result = { answers: readAnswers(data.answers, questions), ms: Date.now() - started, tokens, costUsd: actual / 1e9, model, mock: false };
 		this.ctx.storage.transactionSync(() => {
 			this.sql.exec("UPDATE spend SET nano_usd = nano_usd + ? WHERE day = ?", actual - reservation, day);
-			this.sql.exec("INSERT OR REPLACE INTO results(key, value, expires) VALUES (?, ?, ?)", key, JSON.stringify(result), Date.now() + CACHE_TTL);
+			if (key) this.sql.exec("INSERT OR REPLACE INTO results(key, value, expires) VALUES (?, ?, ?)", key, JSON.stringify(result), Date.now() + CACHE_TTL);
 		});
 		return json({ ...result, questions });
 	}

@@ -17,6 +17,14 @@ test('the registry exposes exactly the five accepted blocks', () => {
   }
 });
 
+test('journal cache policy belongs to the registry and reaches the guard request', () => {
+  for (const id of ids) {
+    const fields = blocks[id].sample ?? { answer: 'A learner response' };
+    assert.equal(buildRequest({ block: id, fields }).cache, id !== '13-journal');
+  }
+  assert.equal(blocks['13-journal'].cache, false);
+});
+
 test('unregistered and inherited names refuse requests without throwing', () => {
   for (const block of ['01-rubric', '02-live', '05-horsemen', '09-self-assess', '14-ask', '15-sincerity', '17-parity', 'constructor', 'toString', '__proto__', undefined, null, {}, []]) {
     assert.match(buildRequest({ block, fields: { answer: 'hello' } }).error, /Unknown block/);

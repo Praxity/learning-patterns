@@ -103,7 +103,7 @@ export function buildRequest(body, provider = 'clef') {
 	for (const key of Object.keys(demo.fields)) if (!Object.hasOwn(input, key)) return { error: `Missing field: ${key}` };
 	try {
 		const { state, questions } = demo.build(input);
-		return { state, questions: provider === 'clef' ? demo.clefQuestions ?? questions : questions, maxInputTokens: demo.maxInputTokens };
+		return { state, questions: provider === 'clef' ? demo.clefQuestions ?? questions : questions, maxInputTokens: demo.maxInputTokens, cache: demo.cache !== false };
 	} catch (error) {
 		return { error: error instanceof Error ? error.message : "Bad input" };
 	}
