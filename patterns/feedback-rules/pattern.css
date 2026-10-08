@@ -1,5 +1,6 @@
 .lp-feedback-rules { max-inline-size: none; }
-.lp-feedback-rules-scroll { overflow-x: auto; margin-top: 1rem; }
+/* Keep absolutely positioned screen-reader text inside the table's scroll region. */
+.lp-feedback-rules-scroll { position: relative; overflow-x: auto; margin-top: 1rem; }
 .lp-feedback-rules-scroll:focus { outline: 2px solid var(--lp-focus); outline-offset: 2px; }
 .lp-feedback-rules table { width: 100%; min-width: 64rem; border-collapse: collapse; font-size: var(--lp-type-small); }
 .lp-feedback-rules th, .lp-feedback-rules td { padding: .75rem; border-bottom: 1px solid var(--lp-rule); text-align: start; vertical-align: top; }

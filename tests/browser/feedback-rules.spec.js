@@ -196,6 +196,9 @@ for (const lang of ['en', 'fr']) {
     await open(page, lang, 'disagree'); await page.locator('[data-lp-run]').click(); await finish(page);
     await page.addStyleTag({ content: '* { line-height: 1.5 !important; letter-spacing: .12em !important; word-spacing: .16em !important; } p { margin-bottom: 2em !important; }' });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.locator('[data-lp-row="perfect"] summary').click();
+    await expect(page.locator('#example-perfect-comparison')).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     const region = page.getByRole('region', { name: strings[lang].samples }); await region.focus();
     await expect(region).toBeFocused();
     expect(await region.evaluate(el => el.scrollWidth > el.clientWidth)).toBe(true);
@@ -280,7 +283,11 @@ for (const lang of ['en', 'fr']) for (const width of [1280, 390]) test(`screensh
   test.skip(!process.env.LP_SHOTS_DIR || browserName !== 'chromium', 'Optional Chromium evidence capture.');
   const folder = process.env.LP_SHOTS_DIR; await mkdir(folder, { recursive: true });
   await page.setViewportSize({ width, height: 960 });
-  const shot = async state => { await page.evaluate(() => document.fonts.ready); await page.screenshot({ path: join(folder, `${lang}-${width}-${state}.png`), fullPage: true }); };
+  const shot = async state => {
+    await page.evaluate(() => document.fonts.ready);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.screenshot({ path: join(folder, `${lang}-${width}-${state}.png`), fullPage: true });
+  };
   await open(page, lang); await shot('before');
   await open(page, lang, 'offline'); await shot('saved');
   await open(page, lang, 'disagree'); await page.locator('[data-lp-run]').click(); await finish(page);
