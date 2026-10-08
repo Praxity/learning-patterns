@@ -15,7 +15,7 @@ export async function startSession(page, info) {
         hasFocus: document.hasFocus(), lang: document.documentElement.lang,
         active: { tag: el.tagName, id: el.id, text: el.innerText ?? '', name: el.getAttribute('aria-label'), value: el.value, checked: el.checked, pressed: el.getAttribute('aria-pressed'), selected: el.getAttribute('aria-selected') },
         statuses: [...document.querySelectorAll('[role="status"]')].map(el => el.textContent),
-        mutations: window.voStatusChanges ?? []
+        mutations: window.voStatusChanges ?? [], keys: (window.voKeys ?? []).slice(-20)
       };
     });
   }
@@ -33,11 +33,11 @@ export async function startSession(page, info) {
     if (error) throw error;
     return row;
   }
-  const key = (key, label = key, capture = true) => step(label, c => voiceOver.press(key, { capture: c }), capture);
+  const key = (key, label = key, capture = true) => step(label, c => voiceOver.press(key, { capture: c, application: 'Playwright' }), capture);
   const next = (label, capture = 'initial') => step(label, c => voiceOver.next({ capture: c }), capture);
   const previous = label => step(label, c => voiceOver.previous({ capture: c }), 'initial');
 
-  async function enter() {
+  async function enter(label = 'Arrival heading', capture = true) {
     await macOSActivate('Playwright');
     await voiceOver.press('Control', { capture: false });
     await page.bringToFront();
@@ -59,7 +59,7 @@ export async function startSession(page, info) {
       await voiceOver.perform({ keyCode: MacOSKeyCodes.Control }, { capture: false });
       await pause(100);
       await voiceOver.perform(voiceOverKeyCodeCommands.moveToBeginningOfText, { capture: false });
-      await next('Arrival heading', true);
+      await next(label, capture);
     } finally {
       await page.evaluate(() => document.querySelector('#__guidepup_marker__')?.remove());
     }
@@ -67,21 +67,30 @@ export async function startSession(page, info) {
   async function observe() {
     await page.evaluate(() => {
       window.voStatusChanges = [];
+      window.voKeys = [];
+      document.addEventListener('keydown', event => window.voKeys.push({ key: event.key, code: event.code, ctrl: event.ctrlKey, alt: event.altKey, shift: event.shiftKey, meta: event.metaKey, trusted: event.isTrusted }), true);
       for (const el of document.querySelectorAll('[role="status"]')) new MutationObserver(() => window.voStatusChanges.push({ at: new Date().toISOString(), text: el.textContent })).observe(el, { childList: true, characterData: true, subtree: true });
     });
   }
   async function seek(selector, label) {
     const target = page.locator(selector).first();
     if (!await target.isVisible()) throw new Error(`Journey target not visible: ${selector}`);
-    for (let i = 0; i < 35; i++) {
+    for (let i = 0; i < 4; i++) {
       if (await target.evaluate(el => el === document.activeElement)) return;
       const backwards = await target.evaluate(el => document.activeElement !== document.body && Boolean(el.compareDocumentPosition(document.activeElement) & Node.DOCUMENT_POSITION_FOLLOWING));
       await key(backwards ? 'Shift+Tab' : 'Tab', `${label}: ${backwards ? 'Shift+Tab' : 'Tab'} ${i + 1}`, 'initial');
     }
+    if (await target.evaluate(el => el === document.activeElement)) return;
+    // WebKit's default Tab policy skips some buttons. VO navigation reaches them.
+    await enter(`${label}: VO beginning`, 'initial');
+    for (let i = 0; i < 100; i++) {
+      await next(`${label}: VO+Right ${i + 1}`);
+      if (await target.evaluate(el => el === document.activeElement)) return;
+    }
     throw new Error(`Keyboard could not reach ${selector}`);
   }
   const activate = async (selector, label, press = 'Enter') => { await seek(selector, label); return key(press, label); };
-  const type = (text, label) => step(label, c => voiceOver.perform({ characters: text }, { capture: c }));
+  const type = (text, label) => step(label, () => voiceOver.type(text, { capture: 'initial', application: 'Playwright' }));
   async function snapshot(label) {
     await writeFile(info.outputPath(`${label}.html`), await page.content());
     await writeFile(info.outputPath(`${label}-aria.txt`), await page.locator('body').ariaSnapshot());
@@ -89,7 +98,7 @@ export async function startSession(page, info) {
   }
   // Explicit rereads are separate steps; they are not spontaneous duplicate announcements.
   async function read(label, limit = 70) {
-    await enter();
+    await enter(`${label}: beginning`, 'initial');
     for (let i = 0; i < limit; i++) {
       const row = await next(`${label}: VO+Right ${i + 1}`);
       if (row.cursor.some(text => /end of web content|bottom of web content/i.test(text)) || row.speech.some(text => /end of web content|bottom of web content/i.test(text))) break;
