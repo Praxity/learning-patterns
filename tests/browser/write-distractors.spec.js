@@ -359,7 +359,7 @@ for (const lang of ['en', 'fr']) {
         if (fixture.targets[index] === 'other') await row.locator('input').fill(fixture.alias ? `  ${content.misconceptions[0].label.toUpperCase()}  ` : fixture.customs[index]);
       }
       await page.locator('[data-lp-compare]').click();
-      const message = lang === 'en' ? `Your labels match ${fixture.author} of the author's ${fixture.total} ${fixture.total === 1 ? 'mistaken idea' : 'mistaken ideas'}. You added ${fixture.own}.`
+      const message = lang === 'en' ? `Your labels match ${fixture.author} of the author's ${fixture.total} ${fixture.total === 1 ? 'mistaken idea' : 'mistaken ideas'}. You added ${fixture.own} of your own.`
         : `${fixture.total === 1 ? 'Idée fausse' : 'Idées fausses'} en commun avec l'auteur : ${fixture.author} sur ${fixture.total}. Autres idées fausses : ${fixture.own}.`;
       await expect(page.locator('[data-lp-summary]')).toHaveText(message);
       expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([message]);
