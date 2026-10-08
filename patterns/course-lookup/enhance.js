@@ -161,7 +161,7 @@ export function enhance(root, { content, strings, state, ask }) {
     Promise.resolve().then(() => ask.config()).then(config => {
       if (destroyed) return;
       if (config.provider !== 'perplexity' && config.provider !== 'mock') { useFallback(); return; }
-      notice.innerHTML = renderDataNotice(config, root.lang, `${notice.id}-text`); notice.hidden = false;
+      notice.innerHTML = renderDataNotice(config, root.lang, `${notice.id}-text`, 'question'); notice.hidden = false;
       input.setAttribute('aria-describedby', `${notice.id}-text`);
       controls.hidden = false; fallback.hidden = true; ready = true; updateCap();
     }).catch(() => { if (!destroyed) useFallback(); });

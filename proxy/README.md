@@ -101,6 +101,10 @@ Place this text next to the answer box:
 
 > Your answer is sent to a decision model; it is not stored and not used for training.
 
+Where the learner asks a question rather than answering one, as in Instant course lookup, `/config` also publishes this wording:
+
+> Your question is sent to a decision model; it is not stored and not used for training.
+
 [Perplexity's API FAQ](https://docs.perplexity.ai/docs/resources/faq) says, "We do not retain any query data sent through the API and do not train on any of your data." Self-hosters using another provider must confirm that provider's retention and training terms before using this notice. Before sending learner text in a client course, arrange consent wording and a data agreement with the chosen provider.
 
 The proxy sends the answer and authored context to the provider. Except for `13-journal`, it keeps an HMAC-SHA-256 key of the decision model, state and questions, validated decision model answers and response metadata for 30 days. Journal results are never cached or shared between in-flight requests. The cache uses `CACHE_KEY_SECRET`, separate from the IP salt. It stores salted IP and network hashes and daily call and spend counters. It stores neither submitted text nor raw provider responses, and writes no application logs. Extra provider fields are discarded; text in a numeric answer or an unknown choice fails validation before caching. Hosting and decision model providers have their own data policies.
