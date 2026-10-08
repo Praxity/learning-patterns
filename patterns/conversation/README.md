@@ -25,7 +25,7 @@ If a typed reply is unclear or unrelated, Michel does not answer. A quiet line e
 
 ## Evidence
 
-Evidence coming.
+In a randomized study of 120 healthcare professionals, practising branching conversations with feedback improved three of four motivational interviewing measures more than further study of the material ([Reger et al., 2020](https://doi.org/10.1001/jamanetworkopen.2020.17348)). This is adjacent evidence for rehearsing a difficult conversation, seeing a consequence and reading an authored debrief. The content adapts the Gottman Institute's examples of repair attempts and the four horsemen from couple relationships to a workplace exchange ([Wilde, 2012](https://www.gottman.com/blog/manage-conflict-repair-and-de-escalate/); [Gottman Institute, 2013](https://www.gottman.com/blog/the-four-horsemen-the-antidotes/)). The model's choices were checked against agent-written answers, not learners. This two-round conversation and its effects on real workplace conversations have not been tested with learners.
 
 ## Accessibility
 
