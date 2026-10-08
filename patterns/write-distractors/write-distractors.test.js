@@ -33,8 +33,8 @@ function matches(value, rule, root = value) {
 }
 
 test('example preserves the demo question, labels and author options with topic IDs', () => {
-  assert.equal(content.question, 'Is taking a real break during the workday a waste of time?');
-  assert.equal(content.rightAnswer, 'No. Short breaks restore attention and reduce mistakes.');
+  assert.equal(content.question, 'Are breaks during the workday a waste of time?');
+  assert.equal(content.rightAnswer, 'No. Short breaks help you regain focus and make fewer mistakes.');
   assert.equal(content.count, 2);
   assert.deepEqual(content.misconceptions.map(item => item.id), ['busy', 'push-through', 'phone', 'exhausted']);
   assert.deepEqual(content.authorOptions.map(item => targetOf(content, item)), content.misconceptions.map(item => item.label));
@@ -95,11 +95,11 @@ test('clean options normalize spaces and omit irrelevant custom text by emptying
 
 test('coverage identifies targeted, missed, extra and matching targets without repeats', () => {
   const value = coverage(content, [option('A'), option('B', 'other', 'Breaks disrupt focus')]);
-  assert.deepEqual(value.targeted, ['Pushing through is always more productive', 'Breaks disrupt focus']);
+  assert.deepEqual(value.targeted, ['Working without breaks always gets more done', 'Breaks disrupt focus']);
   assert.deepEqual(value.missed, [content.misconceptions[0].label, content.misconceptions[2].label, content.misconceptions[3].label]);
   assert.deepEqual(value.extra, ['Breaks disrupt focus']);
   assert.deepEqual(value.matches, [true, false]);
-  assert.deepEqual(coverage(content, [option('A', 'other', ' PUSHING through is always more productive '), option('B')]).matches, [true, true]);
+  assert.deepEqual(coverage(content, [option('A', 'other', ' WORKING without breaks always gets more done '), option('B')]).matches, [true, true]);
   assert.deepEqual(coverage(content, [option('A', 'other', ' New tag '), option('B', 'other', 'new TAG')]).extra, ['New tag']);
   const partial = { ...content, authorOptions: [content.authorOptions[0]] };
   assert.deepEqual(coverage(partial, [option('A'), option('B', 'phone')]).extra, [content.misconceptions[1].label, content.misconceptions[2].label]);
@@ -127,8 +127,8 @@ test('coverage counts unique normalized author targets rather than the whole tax
     authorTargeted: 0, authorTotal: 1, ownExtra: 2, untargeted: [content.misconceptions[0].label]
   });
   assert.deepEqual(coverage(partial, [option('A'), option('B', 'phone')]).missed, [content.misconceptions[0].label]);
-  const aliases = { ...partial, misconceptions: [...content.misconceptions, { id: 'alias', label: "  BREAKS are for people who aren't busy  " }], authorOptions: [...partial.authorOptions, { text: 'Alias answer', misconception: 'alias' }] };
-  assert.deepEqual(coverageMessage(aliases, [option('A', 'alias'), option('B', 'other', "BREAKS are for people who aren't BUSY")]), {
+  const aliases = { ...partial, misconceptions: [...content.misconceptions, { id: 'alias', label: "  BUSY people don't need breaks  " }], authorOptions: [...partial.authorOptions, { text: 'Alias answer', misconception: 'alias' }] };
+  assert.deepEqual(coverageMessage(aliases, [option('A', 'alias'), option('B', 'other', "BUSY people don't need BREAKS")]), {
     authorTargeted: 1, authorTotal: 1, ownExtra: 0, untargeted: []
   });
 });
@@ -192,9 +192,9 @@ test('English and French keys and placeholders match', () => {
 test('render uses the shared frame, text roles, sectioned fields and quiet Start over', () => {
   const output = render(content, strings.en, { id: 'design', lang: 'en' });
   assert.match(output, /class="lp lp-write-distractors"/);
-  assert.match(output, /<h2 class="lp-scene-title">Is taking a real break/);
+  assert.match(output, /<h2 class="lp-scene-title">Are breaks during the workday/);
   assert.match(output, /<p class="lp-run-in lp-met">Right answer<\/p>/);
-  assert.match(output, /data-lp-write-heading[^>]*>Write two wrong options and the misconception behind each\.<\/h3>/);
+  assert.match(output, /data-lp-write-heading[^>]*>Write two wrong options\. Name the mistaken idea behind each\.<\/h3>/);
   assert.equal((output.match(/class="lp-write-distractors-builder lp-section"/g) || []).length, 2);
   assert.equal((output.match(/<legend class="lp-run-in"[^>]*>Wrong option/g) || []).length, 2);
   assert.equal((output.match(/class="lp-input"/g) || []).length, 6);
@@ -221,8 +221,8 @@ test('render merges repeated instructions and names builders by their answer key
 
 test('render writes counts two to five in words in both languages, then digits', () => {
   for (const [lang, authored, headings] of [
-    ['en', content, ['Write one wrong option and the misconception behind it.', ...['two', 'three', 'four', 'five', '6', '12'].map(n => `Write ${n} wrong options and the misconception behind each.`)]],
-    ['fr', fr, ["Rédigez une mauvaise réponse et l'idée fausse derrière celle-ci.", ...['deux', 'trois', 'quatre', 'cinq', '6', '12'].map(n => `Rédigez ${n} mauvaises réponses et l'idée fausse derrière chacune.`)]]
+    ['en', content, ['Write one wrong option. Name the mistaken idea behind it.', ...['two', 'three', 'four', 'five', '6', '12'].map(n => `Write ${n} wrong options. Name the mistaken idea behind each.`)]],
+    ['fr', fr, ["Rédigez une mauvaise réponse. Nommez l'idée fausse derrière celle-ci.", ...['deux', 'trois', 'quatre', 'cinq', '6', '12'].map(n => `Rédigez ${n} mauvaises réponses. Nommez l'idée fausse derrière chacune.`)]]
   ]) {
     for (const [index, count] of [1, 2, 3, 4, 5, 6, 12].entries()) {
       const output = render({ ...authored, count }, strings[lang], { id: 'count', lang });
