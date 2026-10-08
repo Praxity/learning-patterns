@@ -1,6 +1,6 @@
 {
   "task": "A new manager asks you what stonewalling is and how to take a time-out instead. Explain it to them in two sentences.",
-  "model": "Stonewalling means going quiet or withdrawing without saying why, leaving the other person feeling ignored. For a time-out, say you need a pause, agree when to resume the conversation, then return.",
+  "model": "Stonewalling means going quiet or pulling away without saying why, so the other person feels ignored. In a time-out you tell them you need a pause, agree when you'll come back, and then come back.",
   "ideas": [
     {
       "id": "stonewalling",
@@ -17,17 +17,17 @@
       "body": "Tell the other person you need a pause. For example, \"I need ten minutes to think about this.\" You can step away to calm down. Leaving without saying why is stonewalling.",
       "label": "You tell the other person you need a pause.",
       "met": "You said to tell the other person you need a pause.",
-      "missed": "Say to tell the other person you need a pause.",
+      "missed": "Add how a time-out starts.",
       "unsure": "It's unclear whether you said to announce the pause."
     },
     {
       "id": "return",
       "heading": "Coming back",
-      "body": "Agree when you'll resume the conversation, then return. This keeps the other person from waiting without knowing when you'll be back.",
-      "label": "You agree when to resume the conversation, then return.",
-      "met": "You said to agree when to resume the conversation, then return.",
-      "missed": "Say to agree when to resume the conversation, then return.",
-      "unsure": "It's unclear whether you said to return to the conversation."
+      "body": "A time-out ends when you come back. Agree when you'll return to the conversation, then do it. That way the other person isn't left waiting.",
+      "label": "You agree when to come back, and then come back.",
+      "met": "You said to agree when to come back, and then come back.",
+      "missed": "Add how a time-out ends.",
+      "unsure": "It's unclear whether you said to come back."
     }
   ]
 }
