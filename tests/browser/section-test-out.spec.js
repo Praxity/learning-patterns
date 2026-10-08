@@ -19,7 +19,10 @@ async function review(page) { await page.locator('[data-lp-review] > summary').c
 async function observe(page) {
   await page.evaluate(() => {
     window.lpAnnouncements = [];
-    new MutationObserver(records => records.forEach(record => window.lpAnnouncements.push(record.target.textContent)))
+    new MutationObserver(records => records.forEach(record => {
+      // Clearing stale feedback produces no speech.
+      if (record.target.textContent) window.lpAnnouncements.push(record.target.textContent);
+    }))
       .observe(document.querySelector('[role="status"]'), { childList: true, characterData: true, subtree: true });
   });
 }
@@ -46,7 +49,10 @@ test('repeating a course plan announces each result once and leaves progress to 
   for (let attempt = 0; attempt < 2; attempt++) {
     await pick(page); await page.locator('[data-lp-check]').click();
     await expect(page.locator('[data-lp-outline-heading]')).toBeFocused();
-    if (attempt === 0) await page.locator('[data-lp-restart]').click();
+    if (attempt === 0) {
+      await page.locator('[data-lp-restart]').click();
+      await expect(page.getByRole('status')).toHaveText('');
+    }
   }
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You can skip 2 of 3 sections.', 'You can skip 2 of 3 sections.']);
 });

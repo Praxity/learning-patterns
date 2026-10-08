@@ -111,6 +111,7 @@ export function enhance(root, { content, strings, state }) {
     heading.focus();
     // Question progress is read by heading focus. Results add a distinct summary.
     if (shown) status.textContent = result.textContent ?? '';
+    else if (status.textContent) status.replaceChildren();
   }
   /** @param {import('./logic.js').PlanRow[]} rows */
   function showOutline(rows) {
