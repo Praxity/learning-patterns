@@ -25,7 +25,7 @@ Use it when a short answer can reveal a specific wrong belief. The example asks 
 
 ## Evidence
 
-Evidence coming.
+Refutation texts produced an average learning benefit of 0.41 standard deviations across 44 comparisons involving 3,869 participants ([Schroeder and Kucera, 2022](https://doi.org/10.1007/s10648-021-09656-z)). This supports the choice to name a mistaken idea and explain the correction. A separate review found larger average effects for explanatory computer feedback than for right-or-wrong feedback ([Van der Kleij et al., 2015](https://doi.org/10.3102/0034654314564881)). Here the model only chooses which authored explanation to show. The model's choices were checked against agent-written answers, not learners. Accurate identification of learners' misconceptions and learning from this brief feedback have not been tested with learners.
 
 ## Accessibility
 
