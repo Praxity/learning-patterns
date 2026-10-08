@@ -125,7 +125,8 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
 .lp-choice:has(input:focus-visible) { outline: 2px solid var(--lp-focus); outline-offset: 2px; }
 /* Single choice: the radio sits under a letter key. */
 .lp-choice:has(> input[type="radio"])::before {
-  content: counter(lp-key, upper-alpha);
+  /* Empty CSS alt text keeps the visual key out of screen-reader browse text. */
+  content: counter(lp-key, upper-alpha) / "";
   display: grid;
   flex: none;
   place-items: center;
@@ -140,6 +141,11 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
 }
 .lp-choice:has(> input[type="radio"]:checked)::before { color: var(--lp-on-accent); background: var(--lp-accent); border-color: var(--lp-accent); }
 .lp-choice > input[type="radio"] { position: absolute; inset-inline-start: 14px; inline-size: 26px; block-size: 26px; margin: 0; opacity: 0; cursor: pointer; }
+/* Engines without CSS alt text show the native radio instead of a spoken letter. */
+@supports not (content: counter(lp-key, upper-alpha) / "") {
+  .lp-choice:has(> input[type="radio"])::before { display: none; }
+  .lp-choice > input[type="radio"] { position: static; opacity: 1; }
+}
 /* Multiple choice: a square that fills. */
 .lp-choice > input[type="checkbox"] { appearance: none; position: relative; flex: none; inline-size: 22px; block-size: 22px; margin: 0; border: 1.5px solid var(--lp-line); border-radius: 6px; background: var(--lp-paper); cursor: pointer; }
 .lp-choice > input[type="checkbox"]::after { content: ""; position: absolute; inset-inline-start: 6.5px; inset-block-start: 2.5px; inline-size: 5px; block-size: 10px; border: solid var(--lp-on-accent); border-width: 0 2px 2px 0; transform: rotate(45deg); opacity: 0; }

@@ -66,6 +66,9 @@ export function enhance(root, { content, strings, state }) {
   for (const { side, tab, page } of panels) {
     tab.setAttribute('role', 'tab');
     page.setAttribute('role', 'tabpanel'); page.setAttribute('aria-labelledby', tab.id); page.tabIndex = 0;
+    // Focus first, then select: NVDA should receive one focused-tab change, not a
+    // selected-tab event followed by the same tab's focus event.
+    listen(tab, 'focus', () => select(side));
     listen(tab, 'click', () => select(side));
     listen(tab, 'keydown', event => {
       const key = /** @type {KeyboardEvent} */ (event).key;
@@ -75,16 +78,17 @@ export function enhance(root, { content, strings, state }) {
       else if (key === 'End') target = panels[1];
       else return;
       event.preventDefault();
-      if (target) { select(target.side); target.tab.focus(); }
+      target?.tab.focus();
     });
   }
   listen(input, 'change', () => {
     if (!isDate(input.value)) {
-      input.setAttribute('aria-invalid', 'true'); error.hidden = false; print.disabled = true;
+      input.setAttribute('aria-invalid', 'true'); error.hidden = false;
+      input.setAttribute('aria-describedby', error.id); print.disabled = true;
       if (status.textContent !== strings.dateError) status.textContent = strings.dateError;
       return;
     }
-    input.removeAttribute('aria-invalid'); error.hidden = true; print.disabled = false;
+    input.removeAttribute('aria-invalid'); input.removeAttribute('aria-describedby'); error.hidden = true; print.disabled = false;
     // Native date controls may emit more than one change for the same value.
     if (current.date === input.value) {
       if (status.textContent === strings.dateError) status.textContent = '';
@@ -108,7 +112,7 @@ export function enhance(root, { content, strings, state }) {
       for (const remove of removals) remove();
       controls.hidden = true; printControls.hidden = true;
       tablist.removeAttribute('role'); input.value = input.defaultValue;
-      input.removeAttribute('aria-invalid'); error.hidden = true; print.disabled = false;
+      input.removeAttribute('aria-invalid'); input.removeAttribute('aria-describedby'); error.hidden = true; print.disabled = false;
       for (const { tab, page, label } of panels) {
         tab.removeAttribute('role'); tab.removeAttribute('aria-selected'); tab.removeAttribute('tabindex');
         page.hidden = false; page.removeAttribute('role'); page.removeAttribute('tabindex');

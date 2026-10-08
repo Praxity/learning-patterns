@@ -4,6 +4,18 @@ import { readFile } from 'node:fs/promises';
 
 const english = JSON.parse(await readFile(new URL('../../patterns/self-check/examples/en.json', import.meta.url)));
 const french = JSON.parse(await readFile(new URL('../../patterns/self-check/examples/fr.json', import.meta.url)));
+test('checkbox label wrappers are presentational and keep native naming and activation', async ({ page }) => {
+  await open(page);
+  await page.locator('textarea').fill('A message about the report.');
+  await page.locator('[data-lp-check]').click();
+  const box = page.getByRole('checkbox').first();
+  const row = box.locator('..');
+  await expect(row).toHaveAttribute('role', 'presentation');
+  await expect(box).toHaveAccessibleName('Client report and Friday deadline');
+  expect(await row.ariaSnapshot()).toBe('- checkbox "Client report and Friday deadline"\n- text: Client report and Friday deadline');
+  await row.locator('span').first().click(); await expect(box).toBeChecked();
+  await box.focus(); await page.keyboard.press('Space'); await expect(box).not.toBeChecked();
+});
 
 test('shared scene spans the card and centres its tile on the task', async ({ page }) => {
   await open(page);

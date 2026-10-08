@@ -18,7 +18,7 @@ export function render(content, strings, { id, lang, today = new Date() }) {
   <div class="lp-retrieval-sheet-controls" data-lp-controls hidden>
     <div class="lp-retrieval-sheet-date-field">
       <label class="lp-label" for="${html(`${id}-date`)}">${html(strings.dateLabel)}</label>
-      <input class="lp-input" type="date" id="${html(`${id}-date`)}" data-lp-date value="${date}" min="0001-01-01" max="9999-12-31" required aria-describedby="${error}">
+      <input class="lp-input" type="date" id="${html(`${id}-date`)}" data-lp-date value="${date}" min="0001-01-01" max="9999-12-31" required>
       <p class="lp-error-text" id="${error}" data-lp-date-error hidden>${icons['alert-circle']}<span>${html(strings.dateError)}</span></p>
     </div>
     <div class="lp-retrieval-sheet-tabs" data-lp-tabs aria-label="${html(strings.sides)}">

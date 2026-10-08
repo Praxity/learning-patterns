@@ -17,7 +17,7 @@ export function renderQuestionPreview(content, strings, options, { author = fals
       ${[{ text: content.rightAnswer }, ...options].map((item, index) => {
         const mark = index === 0 ? strings.correctAnswer : matches[index - 1] ? strings.match : '';
         return `<li class="lp-choice lp-write-distractors-preview-row"${mark ? ' data-lp-mark="correct"' : ''}>
-          <span class="lp-choice-key" data-lp-preview-key>${html(optionKey(index))}</span>
+          <span class="lp-choice-key" aria-hidden="true" data-lp-preview-key>${html(optionKey(index))}</span>
           <div class="lp-write-distractors-option-content">
             <span data-lp-option-text>${html(item.text)}</span>
             ${'misconception' in item ? `<p class="lp-small">${html(strings.targets.replaceAll('{target}', targetOf(content, item)))}</p>` : ''}

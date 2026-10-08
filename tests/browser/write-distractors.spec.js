@@ -87,6 +87,8 @@ test('Compare collapses builders to key, text and tag summaries; Start over rest
   await page.locator('[data-lp-compare]').click();
   const builders = page.locator('.lp-write-distractors-builder');
   await expect(builders.locator('fieldset:visible')).toHaveCount(0);
+  for (const key of await page.locator('.lp-choice-key').all()) await expect(key).toHaveAttribute('aria-hidden', 'true');
+  expect(await builders.first().ariaSnapshot()).not.toMatch(/(?:text:|generic:) B(?:\n|$)/);
   await expect(page.locator('[data-lp-compare]')).toBeFocused();
   await expect(builders.locator('textarea:visible, select:visible, input:visible')).toHaveCount(0);
   await expect(builders.nth(0)).toContainText('B');
