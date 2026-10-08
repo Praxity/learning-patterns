@@ -1,0 +1,55 @@
+name: VoiceOver evidence
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/voiceover.yml'
+      - 'playwright.voiceover.config.js'
+      - 'tests/voiceover/**'
+permissions:
+  contents: read
+concurrency:
+  group: voiceover-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  voiceover:
+    runs-on: macos-26
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22.23.3'
+          cache: npm
+      # Matches Guidepup's macOS 26 WebKit CI setup.
+      - run: npx -y --min-release-age=0 --ignore-scripts=false @guidepup/setup@0.29.1 setup --ci --macos-record
+      - run: npm ci --no-audit --no-fund --no-progress
+      - run: npx playwright install webkit
+      - run: npx -y --min-release-age=0 --ignore-scripts=false @guidepup/setup@0.29.1 install
+      - name: Record environment
+        run: |
+          mkdir -p test-results/voiceover-environment
+          {
+            sw_vers
+            echo "Runner image: $ImageOS $ImageVersion"
+            node --version
+            npm --version
+            npx playwright --version
+            npm ls @guidepup/guidepup
+            /usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' /System/Library/CoreServices/VoiceOver.app/Contents/Info.plist
+            /usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' /System/Library/CoreServices/VoiceOver.app/Contents/Info.plist
+          } > test-results/voiceover-environment/versions.txt
+          say -v '?' > test-results/voiceover-environment/voices.txt
+      - run: npm run demo
+      - name: Positive control, required before journeys
+        run: npm run test:voiceover -- --grep 'positive control'
+        env:
+          VO_PHASE: control
+      - name: Record the nine patterns in English and French
+        run: npm run test:voiceover -- --grep-invert 'positive control'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: voiceover-${{ github.run_id }}-${{ github.run_attempt }}
+          path: test-results/
+          retention-days: 14
