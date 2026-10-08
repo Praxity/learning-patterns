@@ -27,7 +27,7 @@ export function render(content, strings, { id, lang }) {
   </div>
   <div class="lp-section lp-formats-lesson">
   <p class="lp-small" data-lp-place hidden></p>
-  ${content.points.map((point, index) => `<section class="lp-formats-point" data-lp-point="${html(point.id)}" aria-labelledby="${html(`${id}-heading-${index}`)}">
+  ${content.points.map((point, index) => `<section class="lp-formats-point" data-lp-point="${html(point.id)}">
     <article class="lp-stack lp-formats-article" data-lp-view="text">
       <h4 class="lp-stem" id="${html(`${id}-heading-${index}`)}">${html(point.title)}</h4>
       <p>${html(point.sentences.join(' '))}</p>
