@@ -18,21 +18,16 @@ function convertAnswers(data, questions) {
 		const answer = data.answers[key];
 		valid(answer?.type === question.type);
 		if (question.type === 'noul') { probability(answer.noul); return [key, { noul: answer.noul }]; }
-		valid(question.type === 'choice' || question.type === 'score');
+		valid(question.type === 'choice');
 		probability(answer.confidence);
-		const keys = question.type === 'choice' ? Object.keys(question.criteria) : question.criteria.map((_, index) => String(index));
+		const keys = Object.keys(question.criteria);
 		valid(answer.probabilities && typeof answer.probabilities === 'object' && !Array.isArray(answer.probabilities));
 		valid(Object.keys(answer.probabilities).length === keys.length && keys.every(option => Object.hasOwn(answer.probabilities, option)));
 		for (const value of Object.values(answer.probabilities)) probability(value);
 		valid(Math.abs(Object.values(answer.probabilities).reduce((sum, value) => sum + value, 0) - 1) < 0.001);
 		const probabilities = Object.fromEntries(keys.map(option => [option, answer.probabilities[option]]));
-		if (question.type === 'choice') {
-			valid(keys.includes(answer.choice) && probabilities[answer.choice] >= Math.max(...Object.values(probabilities)) - 1e-12);
-			return [key, { choice: answer.choice, confidence: answer.confidence, probabilities }];
-		}
-		valid(Number.isFinite(answer.score) && answer.score >= 0 && answer.score <= keys.length - 1);
-		valid(answer.legend && Object.keys(answer.legend).length === keys.length && keys.every(option => answer.legend[option] === question.criteria[Number(option)]));
-		return [key, { score: answer.score, confidence: answer.confidence, legend: Object.fromEntries(keys.map(option => [option, question.criteria[Number(option)]])), probabilities }];
+		valid(keys.includes(answer.choice) && probabilities[answer.choice] >= Math.max(...Object.values(probabilities)) - 1e-12);
+		return [key, { choice: answer.choice, confidence: answer.confidence, probabilities }];
 	}));
 }
 
