@@ -13,7 +13,7 @@
         "pause": "D’accord. Cet après-midi, alors."
       },
       "move": "Vous avez reconnu les conséquences",
-      "debrief": "Reconnaître votre part dans le changement vous aide à convenir de la suite avec Michel."
+      "debrief": "Reconnaître votre responsabilité vous aide à convenir de la suite avec Michel."
     },
     "defend": {
       "line": "J’entends vos raisons, mais j’ai quand même dû refaire mon travail. Que ferez-vous autrement ?",
@@ -25,7 +25,7 @@
         "pause": "D’accord. Dix minutes."
       },
       "move": "Vous avez défendu le changement",
-      "debrief": "Reporter la faute sur quelqu’un d’autre ne règle pas le travail supplémentaire de Michel."
+      "debrief": "Rejeter la faute sur quelqu'un d'autre ne règle pas le travail supplémentaire de Michel."
     },
     "attack": {
       "line": "J’essaie de parler du plan. Peut-on en discuter sans s’attaquer l’un à l’autre ?",
@@ -37,7 +37,7 @@
         "pause": "Oui. À quinze heures."
       },
       "move": "Vous avez attaqué Michel",
-      "debrief": "Une attaque personnelle éloigne la discussion du plan et rend l’entente plus difficile."
+      "debrief": "Attaquer Michel rend l'entente sur le plan plus difficile."
     },
     "withdraw": {
       "line": "Il faut encore régler le plan. Acceptez-vous de revenir à cette conversation ?",
@@ -49,7 +49,7 @@
         "pause": "D’accord. Après le dîner, alors."
       },
       "move": "Vous avez fermé la conversation",
-      "debrief": "Mettre fin à la discussion sans prévoir de retour laisse le problème en suspens."
+      "debrief": "Quitter la discussion sans convenir d'un retour laisse le problème en suspens."
     },
     "pause": {
       "line": "D’accord. Prenons dix minutes, puis revenons pour nous entendre sur le plan.",
@@ -61,7 +61,7 @@
         "pause": "Demain à neuf heures, alors. Je compte sur vous."
       },
       "move": "Vous avez demandé une pause",
-      "debrief": "Préciser quand vous reviendrez vous donne le temps de réfléchir tout en gardant la discussion ouverte."
+      "debrief": "Convenir du moment où revenir vous donne le temps de réfléchir sans mettre fin à la discussion."
     }
   },
   "examples": {
@@ -111,10 +111,10 @@
   "stageNotes": {
     "attack:attack": "Michel quitte la réunion.",
     "defend:attack": "Michel quitte la réunion.",
-    "withdraw:withdraw": "Michel se tourne vers son écran. Il ne dit plus rien pendant la réunion.",
+    "withdraw:withdraw": "Michel se tourne vers son écran et ne dit plus rien pendant la réunion.",
     "defend:withdraw": "Michel ne dit plus rien pendant le reste de la réunion."
   },
   "pauseNote": "Dix minutes plus tard, vous retrouvez Michel.",
-  "unsure": "On ne sait pas trop comment Michel prendrait cette réponse. Reformulez-la ou choisissez une réponse.",
+  "unsure": "On ne sait pas comment Michel prendrait cette réponse. Reformulez-la ou choisissez une réponse.",
   "offScript": "Michel attend une réponse au sujet du plan."
 }
