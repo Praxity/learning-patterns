@@ -1,3 +1,4 @@
+import { REPLY_LIMIT } from '../../logic/03-contract.js';
 export const MICHEL_REPLIES = Object.freeze({
 	opening: "That's not what we agreed. You always change the plan at the last minute.",
 	acknowledge: "I need to know what changed and how we will avoid another last-minute change.",
@@ -31,7 +32,7 @@ export const clefQuestions = {
 export default {
 	id: "03-branch",
 	clefQuestions,
-	fields: { reply: 1200, node: 40 },
+	fields: { reply: REPLY_LIMIT, node: 40 },
 	sample,
 	build: ({ reply, node }) => {
 		if (!Object.hasOwn(MICHEL_REPLIES, node)) throw new Error("Unknown dialogue node");

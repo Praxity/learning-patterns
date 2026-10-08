@@ -3,20 +3,8 @@
 // author's branches, and Michel answers with the authored line for that branch. Every node also
 // offers the same branches as clickable replies, so the scenario works without typing or network.
 
-// A Choice below this confidence, or an off_script choice, doesn't count. Set from the training
-// replies only: clear ones scored 0.98 or more, the ambiguous "Okay, whatever you say" picked
-// withdraw at 0.89, and a prompt injection 0.55. Holdout replies weren't used to set it.
-export const BRANCH_SURE = 0.9;
-// With the tuned wording, both Clef models put every clear train reply above 0.70
-// and the injected attack below 0.56. Keep Jev's original gate. Check labels were not used.
-export const CLEF_BRANCH_SURE = 0.7;
-// Three-group 27B calibration. 0.60 accepts clear hedges and keeps the known
-// injected attack at 0.5538 below the gate. Lower fits added gaming credit.
-export const CLEF_27B_BRANCH_SURE = 0.6;
-export const ROUNDS = 2;
-export const BRANCHES = ["acknowledge", "defend", "attack", "withdraw", "pause"];
-// The sixth clickable reply. It stands for the server's off_script branch and never takes a round.
-export const OFF_SCRIPT = "off_script";
+import { BRANCH_SURE, CLEF_BRANCH_SURE, CLEF_27B_BRANCH_SURE, BRANCHES, OFF_SCRIPT, ROUNDS, confidenceGate } from './03-contract.js';
+export { BRANCH_SURE, CLEF_BRANCH_SURE, CLEF_27B_BRANCH_SURE, BRANCHES, OFF_SCRIPT, ROUNDS };
 
 const SETUP = "Last week you and Michel agreed the order of work on a client proposal. Yesterday the client asked for pricing first, so you changed the order without asking him. Michel had already done the part he'd planned first. At this morning's meeting, he turns to you.";
 export const UNSURE = "It's not clear how Michel would take that. Say it another way, or choose a reply.";
@@ -153,7 +141,7 @@ const DID = { acknowledge: "took up his concern", defend: "defended yourself", a
 
 // The branch the model selects, or null when it is off-script or below its gate.
 export function readBranch(answer, sure = BRANCH_SURE, model) {
-	const threshold = model === "@cf/cloudflare/clef" ? CLEF_27B_BRANCH_SURE : model === "@cf/cloudflare/clef-flash" ? CLEF_BRANCH_SURE : sure;
+	const threshold = model === "@cf/cloudflare/clef" || model === "@cf/cloudflare/clef-flash" ? confidenceGate(model) : sure;
 	if (!answer || !BRANCHES.includes(answer.choice) || !(answer.confidence >= threshold)) return null;
 	return answer.choice;
 }
