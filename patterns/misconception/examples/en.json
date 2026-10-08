@@ -3,7 +3,7 @@
   "keyIdea": "Your answer has the key idea: rereading feels familiar but doesn't show what you recall.",
   "model": "Not on its own. Rereading feels familiar but doesn't show what you can recall. Close your notes and test yourself, spaced out over several days.",
   "unsureKeyIdea": "You may have the key idea. Compare with the model answer.",
-  "unsureMisconception": "You may mean that {idea}. If so: {why}",
+  "unsureMisconception": "You may mean that {idea}. {why}",
   "noMatch": "Your answer doesn't match the key idea or a common misconception. Compare with the model answer.",
   "misconceptions": [
     { "id": "rereading", "label": "Rereading builds memory", "idea": "rereading builds memory", "why": "Familiarity can feel like knowing, so test your recall over several days instead." },

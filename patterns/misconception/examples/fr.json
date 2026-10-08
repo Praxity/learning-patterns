@@ -3,7 +3,7 @@
   "keyIdea": "Votre réponse contient l'idée clé : relire rend les notes familières, mais ne montre pas ce que vous pouvez rappeler de mémoire.",
   "model": "Pas à elle seule. La relecture rend les notes familières, mais ne montre pas ce que vous pouvez rappeler de mémoire. Fermez vos notes et testez-vous à plusieurs reprises, sur plusieurs jours.",
   "unsureKeyIdea": "Vous avez peut-être l'idée clé. Comparez votre réponse avec le modèle de réponse.",
-  "unsureMisconception": "Vous voulez peut-être dire que {idea}. Si c'est le cas : {why}",
+  "unsureMisconception": "Vous voulez peut-être dire que {idea}. {why}",
   "noMatch": "Votre réponse ne correspond ni à l'idée clé ni à une idée fausse courante. Comparez-la avec le modèle de réponse.",
   "misconceptions": [
     { "id": "rereading", "label": "Relire renforce la mémoire", "idea": "relire renforce la mémoire", "why": "La familiarité peut donner l'impression de savoir, alors testez ce que vous retenez sur plusieurs jours." },
