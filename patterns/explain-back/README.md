@@ -25,7 +25,7 @@ Use it after a short reading with a few clear ideas to explain. The example cove
 
 ## Evidence
 
-Evidence coming.
+Prompts to explain connections in learning material produced an average benefit of 0.55 standard deviations across 69 effect sizes ([Bisra et al., 2018](https://doi.org/10.1007/s10648-018-9434-x)). Explaining an idea to a new manager also draws on research about learning by teaching ([Fiorella and Mayer, 2016](https://doi.org/10.1007/s10648-015-9348-9)). These are adjacent reasons to ask for an explanation in the learner's own words. Explanatory feedback research informs the authored hints; links to the passage give learners a place to check a missing idea ([Van der Kleij et al., 2015](https://doi.org/10.3102/0034654314564881)). The reading stays visible during the task. The model's choices were checked against agent-written answers, not learners. This two-sentence task, its identification of missing ideas and the benefit of its passage links have not been tested with learners.
 
 ## Accessibility
 
