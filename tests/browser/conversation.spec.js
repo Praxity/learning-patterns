@@ -57,6 +57,24 @@ for (const lang of ['en', 'fr']) {
     await axe(page);
   });
 
+  test(`avatars centre on the name and on the first line of a reply (${lang})`, async ({ page }) => {
+    await open(page, lang);
+    for (const width of [1280, 390]) {
+      await page.setViewportSize({ width, height: 900 });
+      // Compare each avatar's middle with the middle of the first rendered line, not with the text box.
+      const middles = await page.evaluate(() => {
+        const line = el => { const range = document.createRange(); range.selectNodeContents(el); const { top, height } = range.getClientRects()[0]; return top + height / 2; };
+        const middle = el => { const { top, height } = el.getBoundingClientRect(); return top + height / 2; };
+        const michel = document.querySelector('[data-lp-michel]');
+        return {
+          name: [middle(document.querySelector('.lp-scene .lp-conversation-avatar')), line(document.querySelector('.lp-scene-title'))],
+          reply: [middle(michel.parentElement.querySelector('.lp-conversation-avatar')), line(michel)]
+        };
+      });
+      for (const [avatar, text] of Object.values(middles)) expect(Math.abs(avatar - text)).toBeLessThan(1);
+    }
+  });
+
   for (const branch of BRANCHES) {
     test(`typed ${branch} at both rounds, authored debrief and one announcement (${lang})`, async ({ page }) => {
       await open(page, lang, branch); await observe(page); await submit(page);
