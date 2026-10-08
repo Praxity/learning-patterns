@@ -107,3 +107,9 @@ test('server markup labels the journal with its title, escapes content, dates it
     assert.deepEqual(Object.keys(strings.en), Object.keys(strings.fr));
   }
 });
+
+test('Save is the main action; the suggestion is secondary', () => {
+  const markup = render(content, strings.en, { id: 'one', lang: 'en', date: new Date(2026, 9, 8) });
+  assert.match(markup, /<button class="lp-button" type="button" data-lp-save>/);
+  assert.match(markup, /<button class="lp-button lp-button-secondary" type="button" data-lp-suggest>/);
+});
