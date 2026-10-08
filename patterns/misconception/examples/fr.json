@@ -1,14 +1,14 @@
 {
   "question": "Relire vos notes est-il une bonne façon de vous préparer à un examen?",
-  "keyIdea": "Votre réponse contient l'idée clé : relire rend les notes familières, mais ne montre pas ce que vous pouvez rappeler de mémoire.",
-  "model": "Pas à elle seule. La relecture rend les notes familières, mais ne montre pas ce que vous pouvez rappeler de mémoire. Fermez vos notes et testez-vous à plusieurs reprises, sur plusieurs jours.",
+  "keyIdea": "Vous avez expliqué que des notes familières ne montrent pas ce que vous retenez.",
+  "model": "Pas à elle seule. Des notes familières ne montrent pas ce que vous retenez. Fermez vos notes et testez-vous sur plusieurs jours.",
   "unsureKeyIdea": "Vous avez peut-être l'idée clé. Comparez votre réponse avec le modèle de réponse.",
   "unsureMisconception": "Vous voulez peut-être dire que {idea}. {why}",
-  "noMatch": "Votre réponse ne correspond ni à l'idée clé ni à une idée fausse courante. Comparez-la avec le modèle de réponse.",
+  "noMatch": "Aucune idée clé ni idée fausse de la liste trouvée. Comparez avec le modèle de réponse.",
   "misconceptions": [
-    { "id": "rereading", "label": "Relire renforce la mémoire", "idea": "relire renforce la mémoire", "why": "La familiarité peut donner l'impression de savoir, alors testez ce que vous retenez sur plusieurs jours." },
-    { "id": "highlighting", "label": "Surligner, c'est étudier", "idea": "surligner suffit pour étudier", "why": "Surligner ne montre pas ce que vous retenez, alors fermez vos notes et testez-vous." },
-    { "id": "cramming", "label": "Tout étudier la veille fonctionne aussi bien", "idea": "tout étudier la veille fonctionne aussi bien qu'une pratique espacée", "why": "Ce que vous apprenez en une seule séance s'oublie plus vite, alors répartissez vos autotests sur plusieurs jours." },
-    { "id": "watching", "label": "Certaines personnes apprennent seulement en regardant", "idea": "certaines personnes peuvent apprendre seulement en regardant", "why": "Une préférence n'est pas un « style d'apprentissage » fixe, alors exercez-vous à rappeler de mémoire ce que vous avez regardé." }
+    { "id": "rereading", "label": "Relire renforce la mémoire", "idea": "relire renforce la mémoire", "why": "Des notes familières peuvent sembler apprises. Testez ce que vous retenez sur plusieurs jours." },
+    { "id": "highlighting", "label": "Surligner, c'est étudier", "idea": "surligner suffit pour étudier", "why": "Surligner ne vérifie pas ce que vous retenez. Fermez vos notes et testez-vous." },
+    { "id": "cramming", "label": "Tout étudier la veille fonctionne aussi bien", "idea": "tout étudier la veille fonctionne aussi bien qu'une pratique espacée", "why": "Ce que vous apprenez en une seule séance s'oublie plus vite. Répartissez vos autotests sur plusieurs jours." },
+    { "id": "watching", "label": "Certaines personnes apprennent seulement en regardant", "idea": "certaines personnes peuvent apprendre seulement en regardant", "why": "Une préférence n'est pas un « style d'apprentissage » fixe. Exercez-vous à rappeler de mémoire ce que vous avez regardé." }
   ]
 }
