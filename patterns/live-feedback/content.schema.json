@@ -59,11 +59,8 @@
       "additionalProperties": false,
       "required": [
         "id",
-        "label",
-        "short",
-        "met",
-        "missed",
-        "unsure"
+        "done",
+        "todo"
       ],
       "properties": {
         "id": {
@@ -75,23 +72,11 @@
             "commitments"
           ]
         },
-        "label": {
+        "done": {
           "type": "string",
           "minLength": 1
         },
-        "short": {
-          "type": "string",
-          "minLength": 1
-        },
-        "met": {
-          "type": "string",
-          "minLength": 1
-        },
-        "missed": {
-          "type": "string",
-          "minLength": 1
-        },
-        "unsure": {
+        "todo": {
           "type": "string",
           "minLength": 1
         }

@@ -3,35 +3,23 @@
   "criteria": [
     {
       "id": "three_actions",
-      "label": "At least three different actions.",
-      "short": "three different actions",
-      "met": "You list three or more different actions.",
-      "missed": "List three different actions.",
-      "unsure": "It's unclear whether these are three different actions. Put each on its own line."
+      "done": "Three different actions",
+      "todo": "Add another action"
     },
     {
       "id": "observable",
-      "label": "A colleague could see or hear each action.",
-      "short": "actions a colleague could see or hear",
-      "met": "A colleague could see or hear these actions.",
-      "missed": "Say what you will do, such as \"I will say no when my week is full\", rather than how you want to feel.",
-      "unsure": "It's unclear what a colleague would see or hear. Say what you'll say or do."
+      "done": "Actions others can see",
+      "todo": "Make each action something others could see you do"
     },
     {
       "id": "when",
-      "label": "At least one action names a time or situation.",
-      "short": "when you'll act",
-      "met": "You name a time or situation.",
-      "missed": "Add a time or situation, such as \"at Monday’s team meeting\".",
-      "unsure": "It's unclear when you'll act. Name a day, meeting or situation."
+      "done": "A time or place to act",
+      "todo": "Say when you'll do it"
     },
     {
       "id": "commitments",
-      "label": "You commit to taking these actions yourself.",
-      "short": "your own actions",
-      "met": "These are your own actions.",
-      "missed": "Write what you will do. \"My manager should listen more\" isn't your action.",
-      "unsure": "It's unclear who will act. Start each action with \"I will\"."
+      "done": "Your own actions",
+      "todo": "Keep to what you'll do yourself"
     }
   ]
 }

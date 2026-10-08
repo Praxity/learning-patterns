@@ -3,35 +3,23 @@
   "criteria": [
     {
       "id": "three_actions",
-      "label": "Au moins trois actions différentes.",
-      "short": "trois actions différentes",
-      "met": "Vous nommez au moins trois actions différentes.",
-      "missed": "Nommez trois actions différentes.",
-      "unsure": "On ne sait pas s'il s'agit de trois actions différentes. Mettez chacune sur une ligne."
+      "done": "Trois actions différentes",
+      "todo": "Ajoutez une autre action"
     },
     {
       "id": "observable",
-      "label": "Un collègue pourrait voir ou entendre chaque action.",
-      "short": "des actions qu'un collègue pourrait voir ou entendre",
-      "met": "Un collègue pourrait voir ou entendre ces actions.",
-      "missed": "Dites ce que vous allez faire, comme « Je vais refuser quand ma semaine est pleine », plutôt que comment vous voulez vous sentir.",
-      "unsure": "On ne sait pas ce qu'un collègue verrait ou entendrait. Dites ce que vous allez dire ou faire."
+      "done": "Des actions visibles",
+      "todo": "Décrivez des actions qu'on pourrait vous voir faire"
     },
     {
       "id": "when",
-      "label": "Au moins une action précise un moment ou une situation.",
-      "short": "le moment où vous allez agir",
-      "met": "Vous précisez un moment ou une situation.",
-      "missed": "Précisez un moment ou une situation, comme « à la réunion d'équipe de lundi ».",
-      "unsure": "On ne sait pas quand vous allez agir. Nommez une journée, une réunion ou une situation."
+      "done": "Un moment ou un lieu pour agir",
+      "todo": "Dites quand vous allez agir"
     },
     {
       "id": "commitments",
-      "label": "Vous vous engagez à faire ces actions vous-même.",
-      "short": "vos propres actions",
-      "met": "Ce sont vos propres actions.",
-      "missed": "Écrivez ce que vous allez faire. « Mon gestionnaire devrait écouter davantage » n'est pas votre action.",
-      "unsure": "On ne sait pas qui va agir. Commencez chaque action par « Je vais »."
+      "done": "Vos propres actions",
+      "todo": "Tenez-vous à ce que vous ferez vous-même"
     }
   ]
 }
