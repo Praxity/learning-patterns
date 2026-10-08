@@ -5,8 +5,7 @@
   "required": [
     "task",
     "parts",
-    "model",
-    "context"
+    "model"
   ],
   "additionalProperties": false,
   "properties": {
@@ -52,7 +51,7 @@
             ],
             "minLength": 1,
             "x-occursOnceIn": "model",
-            "description": "An exact substring occurring once in model, or null for a whole-message part. validateContent checks the substring constraint."
+            "description": "An exact substring occurring once in model, or null for a whole-answer part. validateContent checks the substring constraint."
           }
         }
       }

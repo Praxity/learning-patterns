@@ -5,42 +5,42 @@
     "subject": "Client report",
     "placeholder": "Hi Sam,\n\nType your message here…"
   },
-  "task": "Your client report is due Friday. The sales data arrived three days late, so you need until Tuesday. Write the message to your manager.",
+  "task": "Your client report is due Friday. The sales data arrived three days late. You need until Tuesday to finish. Write to your manager to ask for more time.",
   "parts": [
     {
       "id": "work_deadline",
-      "label": "Client report and Friday deadline",
-      "missed": "Name the client report and its Friday deadline.",
+      "label": "Client report due Friday",
+      "missed": "Say the client report is due Friday.",
       "evidence": "the client report is due Friday"
     },
     {
       "id": "reason",
-      "label": "Reason for the delay",
+      "label": "Sales data arrived late",
       "missed": "Say the sales data arrived late.",
       "evidence": "The sales data arrived three days late"
     },
     {
       "id": "new_date",
-      "label": "New deadline of Tuesday",
+      "label": "Ask for Tuesday",
       "missed": "Ask to finish by Tuesday.",
       "evidence": "I need until Tuesday to finish it"
     },
     {
       "id": "impact",
-      "label": "Offer to limit the impact",
+      "label": "Offer finished sections by Friday",
       "missed": "Offer a draft or finished sections by Friday.",
       "evidence": "I can send the finished sections by Friday"
     },
     {
       "id": "agreement",
-      "label": "Manager's agreement or input",
+      "label": "Check that Tuesday works",
       "missed": "Ask whether Tuesday works for your manager.",
       "evidence": "Would Tuesday work for you?"
     },
     {
       "id": "no_blame",
-      "label": "No blame",
-      "missed": "Say what happened, not whose fault it is.",
+      "label": "Describe the delay without blame",
+      "missed": "Describe the delay without blaming anyone.",
       "evidence": null
     }
   ],

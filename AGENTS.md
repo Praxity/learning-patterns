@@ -22,7 +22,7 @@ Each `patterns/<name>/` contains pure `logic.js`, server `render.js`, DOM `enhan
 - Choices are full-width `lp-choice` rows; selection is a 2px accent border (padding 1px smaller so the row keeps its size) with a soft accent tint; no shadow rings, since shadows belong to cards and floating layers only. After submit, mark rows with `data-lp-mark="correct|wrong"` and a `lp-choice-mark` line with an icon and a word.
 - Buttons: `lp-button` (one primary action), `lp-button-secondary`, `lp-button-quiet` (with an icon, for Start over and Try again). Status uses `lp-met`, `lp-missed` and `lp-neutral` with an icon and a word, never colour alone.
 - A thick single-side border (an accent stripe) only ever sits on a straight edge. If the element has rounded corners, use an even 1px border or none. Most stripes are decoration; leave them out.
-- Body text uses `text-wrap: pretty`; headings, stems and titles use `text-wrap: balance` (set in `lib/base.css`).
+- Body text and question stems use `text-wrap: pretty`; short headings and titles use `text-wrap: balance` (set in `lib/base.css`).
 - No emoji or celebration.
 - Keep English and French together with identical string keys. Authors write every learner-facing message. A model may only pick which one.
 
