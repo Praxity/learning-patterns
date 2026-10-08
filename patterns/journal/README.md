@@ -29,7 +29,7 @@ Without the model, the action becomes "Show the questions" and opens all four qu
 
 ## Evidence
 
-Evidence coming.
+A review of 29 studies in health professions identified guidance and a supportive setting as conditions for reflection ([Mann et al., 2009](https://doi.org/10.1007/s10459-007-9090-2)). A question about what to try and when draws on research about plans linking a future situation to an action ([Gollwitzer and Sheeran, 2025](https://doi.org/10.1146/annurev-psych-021524-110536)). Making the question optional follows guidance on autonomy-supportive teaching ([Reeve and Halusic, 2009](https://doi.org/10.1177/1477878509104319)). A review of 75 studies of mental-health prediction from social media identified problems with how labels were defined and validated ([Chancellor and De Choudhury, 2020](https://doi.org/10.1038/s41746-020-0233-7)). The support line is a precaution, and hosts should make help available whether or not the model flags anything. The model's choices were checked against agent-written answers, not learners. Benefits for workplace reflection, the one-question limit and detection of distress have not been tested with learners.
 
 ## Accessibility
 
