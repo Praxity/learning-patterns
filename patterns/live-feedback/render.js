@@ -11,7 +11,6 @@ export function render(content, strings, { id, lang }) {
   <h2 class="lp-stem" id="${html(`${id}-prompt`)}">${html(content.prompt)}</h2>
   <textarea class="lp-input" id="${html(`${id}-answer`)}" aria-labelledby="${html(`${id}-prompt`)}" rows="5" maxlength="${ANSWER_LIMIT}" placeholder="${html(strings.placeholder)}"></textarea>
   <div data-lp-notice id="${html(`${id}-notice`)}" hidden></div>
-  <p class="lp-small" data-lp-hint hidden>${html(strings.hint)}</p>
   <p class="lp-error-text" id="${html(`${id}-error`)}" data-lp-error hidden>${icons['alert-circle']}<span>${html(strings.empty)}</span></p>
   <div class="lp-section" data-lp-list aria-live="off" hidden>
     <p class="lp-run-in" data-lp-summary>${html(strings.checklist)}</p>

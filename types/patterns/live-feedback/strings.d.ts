@@ -11,7 +11,6 @@ export namespace strings {
         let missed: string;
         let unsure: string;
         let checklist: string;
-        let hint: string;
         let paused: string;
         let selfCheck: string;
         let fallback: string;
@@ -39,8 +38,6 @@ export namespace strings {
         export { unsure_1 as unsure };
         let checklist_1: string;
         export { checklist_1 as checklist };
-        let hint_1: string;
-        export { hint_1 as hint };
         let paused_1: string;
         export { paused_1 as paused };
         let selfCheck_1: string;

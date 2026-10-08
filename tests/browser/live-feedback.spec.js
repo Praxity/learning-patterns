@@ -127,6 +127,7 @@ for (const lang of ['en', 'fr']) {
   test(`silent automatic results and one keyboard button summary (${lang})`, async ({ page }) => {
     await open(page, { lang });
     await expect(page.locator('h2')).toHaveText(examples[lang].prompt);
+    await expect(page.locator('[data-lp-hint]')).toHaveCount(0);
     await expect(page.locator('[data-lp-notice]')).toBeVisible();
     await expect(page.locator('[data-lp-challenge]')).toBeHidden();
     await auto(page);
@@ -139,6 +140,7 @@ for (const lang of ['en', 'fr']) {
     await expect(page.locator('[role="status"]')).toHaveText(`${summary} ${missing} ${unsure}`);
     expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([`${summary} ${missing} ${unsure}`]);
     await expect(page.locator('[data-lp-check]')).toBeFocused();
+    await expect(page.locator('[data-lp-hint]')).toHaveCount(0);
     await axe(page);
   });
 
@@ -270,6 +272,7 @@ test('no JavaScript keeps prompt, textarea and four native self-checks in both l
     await expect(page.locator('h2')).toHaveText(examples[lang].prompt);
     await expect(page.getByRole('textbox')).toBeVisible();
     await expect(page.getByRole('checkbox')).toHaveCount(4);
+    await expect(page.locator('[data-lp-hint]')).toHaveCount(0);
     await expect(page.locator('[data-lp-check]')).toBeHidden();
     await page.getByRole('checkbox').first().check();
     await expect(page.getByRole('checkbox').first()).toBeChecked();

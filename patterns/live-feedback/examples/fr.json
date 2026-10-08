@@ -6,32 +6,32 @@
       "label": "Au moins trois actions différentes.",
       "short": "trois actions différentes",
       "met": "Vous nommez au moins trois actions différentes.",
-      "missed": "Nommez au moins trois actions différentes. Une action reformulée trois fois compte pour une seule.",
-      "unsure": "Je ne peux pas déterminer s'il s'agit de trois actions différentes. Mettez chacune sur une ligne."
+      "missed": "Nommez trois actions différentes.",
+      "unsure": "On ne sait pas s'il s'agit de trois actions différentes. Mettez chacune sur une ligne."
     },
     {
       "id": "observable",
-      "label": "Chaque action est quelque chose qu'un collègue pourrait vous voir faire.",
-      "short": "des actions qu'un collègue pourrait observer",
-      "met": "Un collègue pourrait vous voir faire ces actions.",
-      "missed": "Décrivez chaque action pour qu'un collègue puisse l'observer. « Je vais refuser les tâches supplémentaires quand ma semaine est pleine » est observable. « Je vais avoir plus confiance en moi » ne l'est pas.",
-      "unsure": "Je ne peux pas déterminer si un collègue pourrait observer chaque action. Dites ce que vous allez dire ou faire."
+      "label": "Un collègue pourrait voir ou entendre chaque action.",
+      "short": "des actions qu'un collègue pourrait voir ou entendre",
+      "met": "Un collègue pourrait voir ou entendre ces actions.",
+      "missed": "Dites ce que vous allez faire, comme « Je vais refuser quand ma semaine est pleine », plutôt que comment vous voulez vous sentir.",
+      "unsure": "On ne sait pas ce qu'un collègue verrait ou entendrait. Dites ce que vous allez dire ou faire."
     },
     {
       "id": "when",
       "label": "Au moins une action précise un moment ou une situation.",
       "short": "le moment où vous allez agir",
       "met": "Vous précisez un moment ou une situation.",
-      "missed": "Ajoutez un moment ou une situation, comme « à la réunion d'équipe de lundi ».",
-      "unsure": "Je ne peux pas déterminer si vous précisez quand agir. Nommez une journée, une réunion ou une situation."
+      "missed": "Précisez un moment ou une situation, comme « à la réunion d'équipe de lundi ».",
+      "unsure": "On ne sait pas quand vous allez agir. Nommez une journée, une réunion ou une situation."
     },
     {
       "id": "commitments",
-      "label": "Les actions sont les vôtres, pas celles des autres.",
+      "label": "Vous vous engagez à faire ces actions vous-même.",
       "short": "vos propres actions",
       "met": "Ce sont vos propres actions.",
       "missed": "Écrivez ce que vous allez faire. « Mon gestionnaire devrait écouter davantage » n'est pas votre action.",
-      "unsure": "Je ne peux pas déterminer si toutes ces actions sont les vôtres. Commencez chacune par « Je vais »."
+      "unsure": "On ne sait pas qui va agir. Commencez chaque action par « Je vais »."
     }
   ]
 }

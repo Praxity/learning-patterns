@@ -6,32 +6,32 @@
       "label": "At least three different actions.",
       "short": "three different actions",
       "met": "You list three or more different actions.",
-      "missed": "List at least three different actions. One action said three ways counts as one.",
-      "unsure": "I can't tell whether these are three different actions. Put each on its own line."
+      "missed": "List three different actions.",
+      "unsure": "It's unclear whether these are three different actions. Put each on its own line."
     },
     {
       "id": "observable",
-      "label": "Each action is something a colleague could see you do.",
-      "short": "actions a colleague could see",
-      "met": "A colleague could see you do these.",
-      "missed": "Make each action something a colleague could see. \"I'll say no to extra tasks when my week is full\" is visible. \"I'll feel more confident\" isn't.",
-      "unsure": "I can't tell whether a colleague could see each action. Say what you'll say or do."
+      "label": "A colleague could see or hear each action.",
+      "short": "actions a colleague could see or hear",
+      "met": "A colleague could see or hear these actions.",
+      "missed": "Say what you will do, such as \"I will say no when my week is full\", rather than how you want to feel.",
+      "unsure": "It's unclear what a colleague would see or hear. Say what you'll say or do."
     },
     {
       "id": "when",
       "label": "At least one action names a time or situation.",
       "short": "when you'll act",
       "met": "You name a time or situation.",
-      "missed": "Add a time or situation, like \"at Monday's team meeting\".",
-      "unsure": "I can't tell whether you say when. Name a day, a meeting or a situation."
+      "missed": "Add a time or situation, such as \"at Monday’s team meeting\".",
+      "unsure": "It's unclear when you'll act. Name a day, meeting or situation."
     },
     {
       "id": "commitments",
-      "label": "The actions are yours, not other people's.",
+      "label": "You commit to taking these actions yourself.",
       "short": "your own actions",
       "met": "These are your own actions.",
       "missed": "Write what you will do. \"My manager should listen more\" isn't your action.",
-      "unsure": "I can't tell whether these are all your own actions. Start each one with \"I will\"."
+      "unsure": "It's unclear who will act. Start each action with \"I will\"."
     }
   ]
 }

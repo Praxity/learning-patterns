@@ -25,7 +25,7 @@ export function enhance(root, { content, strings, state, ask }) {
   const answer = /** @type {HTMLTextAreaElement} */ (required('textarea'));
   const check = /** @type {HTMLButtonElement} */ (required('[data-lp-check]'));
   const notice = required('[data-lp-notice]'), error = required('[data-lp-error]');
-  const hint = required('[data-lp-hint]'), list = required('[data-lp-list]');
+  const list = required('[data-lp-list]');
   const summary = required('[data-lp-summary]'), items = required('[data-lp-items]');
   const fallback = required('[data-lp-fallback]'), fallbackText = required('[data-lp-fallback-text]');
   const checking = required('[data-lp-checking]'), paused = required('[data-lp-paused]');
@@ -49,7 +49,7 @@ export function enhance(root, { content, strings, state, ask }) {
   const useFallback = () => {
     cancel(); ready = false; check.hidden = true; check.disabled = false;
     list.hidden = true; fallback.hidden = false; fallbackText.textContent = strings.fallback;
-    hint.hidden = true; paused.hidden = true; notice.hidden = true; error.hidden = true;
+    paused.hidden = true; notice.hidden = true; error.hidden = true;
     answer.removeAttribute('aria-invalid'); answer.removeAttribute('aria-describedby');
   };
   const updatePaused = () => { paused.hidden = session.checks < AUTO_CHECK_LIMIT; };
@@ -120,7 +120,7 @@ export function enhance(root, { content, strings, state, ask }) {
       if (config.provider !== 'perplexity' && config.provider !== 'mock') { useFallback(); return; }
       notice.innerHTML = renderDataNotice(config, root.lang, `${notice.id}-text`);
       notice.hidden = false; answer.setAttribute('aria-describedby', `${notice.id}-text`);
-      check.disabled = false; fallback.hidden = true; list.hidden = false; hint.hidden = false;
+      check.disabled = false; fallback.hidden = true; list.hidden = false;
       ready = true; schedule();
     }).catch(() => { if (!destroyed) useFallback(); });
   } else useFallback();

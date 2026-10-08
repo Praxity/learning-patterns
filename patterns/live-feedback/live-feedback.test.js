@@ -57,3 +57,11 @@ test('bilingual native markup escapes content and prefixes every id', async () =
     for (const [, id] of markup.matchAll(/\sid="([^"]+)"/g)) assert.ok(id.startsWith('one-'));
   }
 });
+
+test('neither language exposes a timing hint in its strings or rendered page', async () => {
+  for (const lang of ['en', 'fr']) {
+    const example = JSON.parse(await readFile(new URL(`./examples/${lang}.json`, import.meta.url)));
+    assert.equal(Object.hasOwn(strings[lang], 'hint'), false);
+    assert.doesNotMatch(render(example, strings[lang], { id: 'one', lang }), /data-lp-hint/);
+  }
+});
