@@ -1,7 +1,7 @@
 ---
 title: Check your own answer
 title_fr: Vérifiez votre réponse
-summary: Compose a message, check its parts, then compare it beside an annotated model with hints for parts to add.
+summary: Write an answer, check its parts, then compare it beside an annotated model with hints for parts to add.
 section: question
 ai: no
 offline: yes
@@ -17,11 +17,11 @@ Use it when learners can judge their own answers against a short list of clear p
 
 ## How it works
 
-1. You read the task, recipient and subject, then write your message and select "Check my answer".
-2. You tick the parts your message includes and see how many you have checked.
-3. You select "Show feedback" and compare your message with the model. The numbered marks match the parts you checked.
+1. You read the task, write your answer and select "Check my answer". Email tasks can also show a recipient and subject.
+2. You tick the parts your answer includes and see how many you have checked.
+3. You select "Show feedback" and compare your answer with the model. The numbered marks match the parts you checked.
 4. You read "Included" or "To add" for each part, with a hint for each part to add.
-5. You can edit your message and ticks, then submit again, or select "Start over" to clear them.
+5. You can edit your answer and ticks, then submit again, or select "Start over" to clear them.
 
 ## Evidence
 
@@ -43,18 +43,19 @@ All content fields are plain text. HTML characters are escaped.
 | Field | Meaning |
 | --- | --- |
 | `task` | The writing task. |
-| `context.to` | The message recipient. |
-| `context.initials` | Decorative recipient initials. |
-| `context.subject` | The message subject. |
-| `context.placeholder` | Optional text shown in the empty message field. It may include line breaks and is never saved as an answer. |
+| `context` | Optional email context. Omit it for a general answer without recipient or subject fields. |
+| `context.to` | The email recipient. Required when context is present. |
+| `context.initials` | Decorative recipient initials. Required when context is present. |
+| `context.subject` | The email subject. Required when context is present. |
+| `context.placeholder` | Optional text shown in the empty answer field. It may include line breaks and is never saved as an answer. |
 | `parts` | At least one part, in display order. |
 | `parts[].id` | A unique identity using letters, digits, underscores or hyphens. |
 | `parts[].label` | The checkbox label and the part's name in feedback. |
 | `parts[].missed` | The hint when the learner leaves this part unticked. |
-| `parts[].evidence` | Exact text that occurs once in the model, or `null` for a whole-message part. |
+| `parts[].evidence` | Exact text that occurs once in the model, or `null` for a whole-answer part. |
 | `model` | The model answer. |
 
-Required strings must be nonempty. The optional placeholder must be a string when present; an empty string is allowed. `validateContent` rejects unknown fields and duplicate part identities. The schema's `x-uniqueBy` and `x-occursOnceIn` annotations describe identity uniqueness and evidence matching. Ordinary JSON Schema tools need these cross-field checks from `validateContent`.
+Required strings must be nonempty. When present, context must include `to`, `initials` and `subject`; `null`, `{}` and incomplete context are invalid. The optional placeholder must be a string when present; an empty string is allowed. `validateContent` rejects unknown fields and duplicate part identities. The schema's `x-uniqueBy` and `x-occursOnceIn` annotations describe identity uniqueness and evidence matching. Ordinary JSON Schema tools need these cross-field checks from `validateContent`.
 
 ## Logic
 
@@ -64,10 +65,10 @@ Required strings must be nonempty. The optional placeholder must be a string whe
 | --- | --- |
 | `validateContent(content)` | Nothing. Throws an `Error` naming the first bad field. |
 | `feedback(content, ticked)` | `{ count, total, items }`. Each item is `{ id, included, label, hint }`; `hint` is `null` for an included part and the authored `missed` text otherwise. |
-| `annotate(model, parts, includedIds)` | `{ text, partIndex, included }[]` in model order. Unmarked text has `partIndex: null` and `included: false`. Part indexes refer to author order. Pass validated content and an array of included ids. If evidence overlaps, the first span in model order owns the text. Whole-message parts have no mark. |
+| `annotate(model, parts, includedIds)` | `{ text, partIndex, included }[]` in model order. Unmarked text has `partIndex: null` and `included: false`. Part indexes refer to author order. Pass validated content and an array of included ids. If evidence overlaps, the first span in model order owns the text. Whole-answer parts have no mark. |
 | `validateState(content, value)` | A clean `{ answer, ticked, shown }`, or `null` when `value` isn't valid saved state. |
 
-Without JavaScript, open "Check your message for these parts." to read every part's hint and the model answer.
+Without JavaScript, open "Check your answer for these parts." to read every part's hint and the model answer.
 
 Pass optional `state: { read, write }` to store `{ answer, ticked, shown }` in your host. Invalid saved values are ignored. A nonempty saved draft opens the checklist. A shown result is rebuilt from the saved ticks without an announcement. Editing preserves the visible result until the next submission. Call `instance.destroy()` to remove listeners and restore the native fallback.
 
@@ -81,7 +82,6 @@ import { enhance } from './patterns/self-check/enhance.js';
 import { strings } from './patterns/self-check/strings.js';
 const content = {
   task: 'Explain why you need another day.',
-  context: { to: 'Sam', initials: 'S', subject: 'Report', placeholder: 'Hi Sam,\n\nType your message here…' },
   parts: [{ id: 'reason', label: 'Reason', missed: 'Explain the delay.', evidence: 'The data arrived late.' }],
   model: 'The data arrived late. Could I have until Tuesday?'
 };
@@ -89,11 +89,13 @@ document.querySelector('main').innerHTML = render(content, strings.en, { id: 'pr
 const instance = enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en });
 ```
 
+For an email task, add `context: { to: 'Sam', initials: 'S', subject: 'Report' }`. Add `context.placeholder` if you want an authored prompt in the empty field. The English and French example files show email tasks.
+
 ## Adapt it with your agent
 
 Copy this prompt and fill in your topic and audience.
 
-> Rewrite the self-check example content for my topic: [topic]. My learners are [audience]. Ask them to write an answer they could use in their work. Keep the pattern contract and plain-text content shape `{ task, context: { to, initials, subject }, parts: [{ id, label, missed, evidence }], model }`. Keep unique part ids. Evidence must occur exactly once in the model, or be null for a part that spans the whole message. Write clear labels that name each part in the checklist and feedback. Write specific hints for unticked parts. Keep English and Québec French together and address French learners with vous. A model may only choose authored messages. Keep the render, enhancement, state, accessibility and CSS token contracts. Update the examples and tests. Show me both languages for review.
+> Rewrite the self-check example content for my topic: [topic]. My learners are [audience]. Ask them to write an answer they could use in their work. Keep the pattern contract and plain-text content shape `{ task, parts: [{ id, label, missed, evidence }], model }`. For an email task, add `context: { to, initials, subject }` with an optional `placeholder`. Keep unique part ids. Evidence must occur exactly once in the model, or be null for a part that spans the whole answer. Write clear labels that name each part in the checklist and feedback. Write specific hints for unticked parts. Keep English and Québec French together and address French learners with vous. A model may only choose authored messages. Keep the render, enhancement, state, accessibility and CSS token contracts. Update the examples and tests. Show me both languages for review.
 
 ## Licence
 

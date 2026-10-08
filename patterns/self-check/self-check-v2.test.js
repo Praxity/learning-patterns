@@ -14,7 +14,7 @@ const content = {
   ]
 };
 
-test('context and evidence are required and invalid authored values name the field', () => {
+test('supplied context and evidence are validated and invalid authored values name the field', () => {
   assert.doesNotThrow(() => logic.validateContent(content));
   for (const value of [undefined, null, [], 'Sam', { ...content.context, extra: 'x' }]) {
     assert.throws(() => logic.validateContent({ ...content, context: value }), /context/);
@@ -50,14 +50,14 @@ test('annotate returns plain segments in model order with original part indexes'
   ]);
 });
 
-test('composer renders escaped context, a labelled message, and accessible checklist meter', () => {
+test('composer renders escaped context, a labelled answer, and accessible checklist meter', () => {
   const value = { ...content, context: { to: '<Sam>', initials: '&', subject: '"Report"' } };
   const markup = render(value, strings.en, { id: 'message', lang: 'en' });
   assert.ok(markup.includes('&lt;Sam&gt;'));
   assert.ok(markup.includes('&quot;Report&quot;'));
-  assert.ok(markup.includes('Your message'));
+  assert.ok(markup.includes('Your answer'));
   assert.ok(markup.includes('data-lp-meter'));
-  assert.ok(markup.includes('Select each part you can point to in your message.'));
+  assert.ok(markup.includes('Select each part you can point to in your answer.'));
   assert.equal((markup.match(/role="status"/g) || []).length, 1);
 });
 
@@ -77,16 +77,16 @@ test('optional authored placeholder is escaped and never becomes the learner ans
 
 test('scene has only the task and checklist instruction is one fieldset legend', () => {
   const markup = render(content, strings.en, { id: 'message', lang: 'en' });
-  assert.doesNotMatch(markup, /lp-scene-label|Your task|Read your message again/);
-  assert.equal((markup.match(/Select each part you can point to in your message\./g) || []).length, 1);
-  assert.match(markup, /<legend[^>]*>[\s\S]*?Select each part you can point to in your message\.[\s\S]*?<\/legend>/);
-  assert.match(markup, /<summary>Check your message for these parts\.<\/summary>/);
-  assert.doesNotMatch(markup, /Did your message include these parts/);
+  assert.doesNotMatch(markup, /lp-scene-label|Your task|Read your answer again/);
+  assert.equal((markup.match(/Select each part you can point to in your answer\./g) || []).length, 1);
+  assert.match(markup, /<legend[^>]*>[\s\S]*?Select each part you can point to in your answer\.[\s\S]*?<\/legend>/);
+  assert.match(markup, /<summary>Check your answer for these parts\.<\/summary>/);
+  assert.doesNotMatch(markup, /Did your answer include these parts/);
 });
 
 test('result guidance adds a next step without repeating the count summary', () => {
   assert.equal(strings.en.resultAll, 'Compare your wording with the model.');
-  assert.equal(strings.en.resultMany, 'Compare the marked parts with your message.');
+  assert.equal(strings.en.resultMany, 'Compare the marked parts with your answer.');
   assert.equal(strings.fr.resultAll, 'Comparez votre formulation avec le modèle.');
-  assert.equal(strings.fr.resultMany, 'Comparez les éléments marqués avec votre message.');
+  assert.equal(strings.fr.resultMany, 'Comparez les éléments marqués avec votre réponse.');
 });
