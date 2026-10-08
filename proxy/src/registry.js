@@ -11,12 +11,12 @@ import { labelAnswers } from '../logic/16-fixture-data.js';
 
 // Only blocks accepted on the demo model can receive live checks.
 // Evaluation and browser callers use the same decision owners and gates.
+// Bounded authored context and fields fit within 8,192 input tokens per block.
+// Failed calls retain this charge; re-evaluate each bound when its wording or fields grow.
 export const blocks = Object.fromEntries([
   { ...d03, outcome: (answers, model) => ({ branch: readBranch(answers.branch, undefined, model) }) },
   { ...d06, outcome: (answers, model) => misconceptionFeedback(answers.misconception, model) },
   { ...d07, outcome: explainFeedback },
   { ...d13, outcome: journalFeedback },
   { ...d16, outcome: labelAnswers },
-// Bounded authored context and fields fit within 8,192 input tokens per block.
-// Failed calls retain this charge; re-evaluate each bound when its wording or fields grow.
 ].map(block => [block.id, { ...block, maxInputTokens: 8192 }]));

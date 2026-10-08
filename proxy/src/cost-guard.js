@@ -56,8 +56,8 @@ export class CostGuard {
 		if (model === DEFAULT_MODEL ? !this.env.AI : !this.env.JEV_API_KEY) return json({ error: "The model provider is not configured." }, 503);
 		// No await from the cache/limit checks through this transaction: check-and-reserve
 		// is atomic on the single-threaded object. Persist the bound before external I/O.
-		// A timeout or object restart
-		// keeps it charged, since the provider may have billed a request we never heard back from.
+		// A timeout or object restart keeps it charged, since the provider may have
+		// billed a request we never heard back from.
 		this.ctx.storage.transactionSync(() => {
 			this.sql.exec("INSERT INTO ip_calls(day, ip_hash, calls) VALUES (?, ?, 1) ON CONFLICT(day, ip_hash) DO UPDATE SET calls = calls + 1", day, ipHash);
 			this.sql.exec("INSERT INTO spend(day, nano_usd) VALUES (?, ?) ON CONFLICT(day) DO UPDATE SET nano_usd = nano_usd + excluded.nano_usd", day, reservation);
