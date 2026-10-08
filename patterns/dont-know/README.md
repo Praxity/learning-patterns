@@ -1,6 +1,6 @@
 ---
 title: "I don't know" as an answer
-title_fr: « Je ne sais pas » comme réponse
+title_fr: « Je ne sais pas » comme réponse
 summary: Take a short quiz with an I don't know option, then see your score, explanations and links to questions to review.
 section: question
 ai: no

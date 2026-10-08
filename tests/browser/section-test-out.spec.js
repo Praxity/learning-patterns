@@ -43,7 +43,7 @@ async function authored(page, content) {
 
 for (const [lang, headings] of [
   ['en', ['Question 1 of 3: Writing an agenda', 'Question 2 of 3: Running the discussion', 'Question 3 of 3: Decisions and follow-up']],
-  ['fr', ['Question 1 sur 3 : Préparer un ordre du jour', 'Question 2 sur 3 : Animer la discussion', 'Question 3 sur 3 : Les décisions et le suivi']]
+  ['fr', ['Question 1 sur 3 : Préparer un ordre du jour', 'Question 2 sur 3 : Animer la discussion', 'Question 3 sur 3 : Les décisions et le suivi']]
 ]) {
   test(`owner request: counters carry section titles (${lang})`, async ({ page }) => {
     await open(page, `/test-out/${lang}.html`);
@@ -76,7 +76,7 @@ for (const [lang, headings] of [
     await page.locator('[data-lp-check]').click();
     await expect(page.locator('.lp-test-out-outline-list > li')).toHaveCount(3);
     await expect(page.locator('[data-lp-section-status]')).toHaveText(lang === 'en' ? ['Skip', 'Skip', 'Skip'] : ['Passer', 'Passer', 'Passer']);
-    await expect(page.locator('[data-lp-result]')).toHaveText(lang === 'en' ? 'You can skip 3 of 3 sections.' : 'Vous pouvez passer 3 sections sur 3.');
+    await expect(page.locator('[data-lp-result]')).toHaveText(lang === 'en' ? 'You can skip 3 of 3 sections.' : 'Sections que vous pouvez passer : 3 sur 3.');
   });
 }
 
@@ -138,7 +138,7 @@ test('keyboard validates only this panel, Back keeps picks, changes announce onc
 
 for (const [lang, content, correct, wrong, answer, summary, statuses] of [
   ['en', english, 'Correct', 'Not quite', 'Correct answer', 'You can skip 2 of 3 sections.', ['Take it', 'Skip', 'Skip']],
-  ['fr', french, 'Correct', 'Pas tout à fait', 'Bonne réponse', 'Vous pouvez passer 2 sections sur 3.', ['À suivre', 'Passer', 'Passer']]
+  ['fr', french, 'Correct', 'Pas tout à fait', 'Bonne réponse', 'Sections que vous pouvez passer : 2 sur 3.', ['À suivre', 'Passer', 'Passer']]
 ]) {
   test(`in-place marks, explanations and credited outline (${lang})`, async ({ page }) => {
     await open(page, `/test-out/${lang}.html`); await observe(page); await pick(page); await page.locator('[data-lp-check]').click();
@@ -163,7 +163,7 @@ for (const [lang, content, correct, wrong, answer, summary, statuses] of [
       await expect(qs.nth(n).locator(`label:has(input[value="${content.questions[n].correct}"]) .lp-choice-mark`)).toHaveText(answer);
       await expect(qs.nth(n).locator('[data-lp-explanation]')).toHaveText(content.questions[n].explanation);
     }
-    expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(content.sections.map((section, i) => lang === 'en' ? `Question ${i + 1} of 3: ${section.title}` : `Question ${i + 1} sur 3 : ${section.title}`).concat(summary));
+    expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(content.sections.map((section, i) => lang === 'en' ? `Question ${i + 1} of 3: ${section.title}` : `Question ${i + 1} sur 3 : ${section.title}`).concat(summary));
     expect(await page.evaluate(() => window.lpSaved)).toEqual({ picks: Object.fromEntries(content.questions.map((q, i) => [q.id, mixed[i]])), shown: true, step: 4 });
   });
 
@@ -231,7 +231,7 @@ test('French summary uses singular for one skippable section', async ({ page }) 
   await open(page, '/test-out/fr.html');
   await pick(page, ['outcomes', 'wait', 'next-meeting']);
   await page.locator('[data-lp-check]').click();
-  await expect(page.locator('[data-lp-result]')).toHaveText('Vous pouvez passer 1 section sur 3.');
+  await expect(page.locator('[data-lp-result]')).toHaveText('Sections que vous pouvez passer : 1 sur 3.');
 });
 
 test('reduced motion applies and new scene colours meet contrast', async ({ page }) => {

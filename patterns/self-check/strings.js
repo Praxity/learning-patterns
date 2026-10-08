@@ -32,7 +32,7 @@ export const strings = {
     "meter": "{count} sur {total}",
     "show": "Afficher la rétroaction",
     "resultAll": "Comparez votre formulation avec le modèle.",
-    "resultOne": "Un élément à ajouter : {label}.",
+    "resultOne": "Un élément à ajouter : {label}.",
     "resultMany": "Comparez les éléments marqués avec votre message.",
     "mine": "Votre message",
     "model": "Réponse modèle",
@@ -43,7 +43,7 @@ export const strings = {
     "restart": "Recommencer",
     "cleared": "Réponse effacée.",
     "checkOwn": "Vérifiez si votre message contient ces éléments.",
-    "summary": "Vous avez inclus {count} des {total} éléments."
+    "summary": "Éléments inclus : {count} sur {total}."
   }
 };
 /** @typedef {typeof strings.en} Strings */

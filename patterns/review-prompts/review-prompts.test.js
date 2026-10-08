@@ -38,7 +38,7 @@ test('reading minutes count authored text at 200 words per minute, rounded up wi
 test('render includes an escaped article header, localized reading time, silent progress and a decorative calendar icon', () => {
   for (const [lang, title, minutes, progress] of [
     ['en', 'Stonewalling & time-outs', '1 min read', '0 of 1 checked'],
-    ['fr', "L'évitement et le temps mort", '1 min de lecture', '0 sur 1 vérifiés']
+    ['fr', "L'évitement et le temps mort", '1 min de lecture', 'Questions vérifiées : 0 sur 1']
   ]) {
     const value = { ...content, title, parts: [{ ...content.parts[0], paragraphs: ['A short reading.'] }] };
     const markup = render(value, strings[lang], { id: 'article', lang });

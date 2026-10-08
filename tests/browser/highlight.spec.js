@@ -217,7 +217,7 @@ test('graded marks keep yellow non-targets, tint found targets and leave missed 
 
 for (const [lang, content, correct, wrong, missed, summary] of [
   ['en', englishKey, 'Key idea', 'Not a key idea', 'Missed', 'You found 1 of 4 key ideas.'],
-  ['fr', frenchKey, 'Idée clé', "Ce n'est pas une idée clé", 'Manqué', 'Vous avez trouvé 1 des 4 idées clés.']
+  ['fr', frenchKey, 'Idée clé', "Ce n'est pas une idée clé", 'Manqué', 'Idées clés trouvées : 1 sur 4.']
 ]) {
   test(`key mode has inline success, neutral authored notes and dashed missed targets (${lang})`, async ({ page }) => {
     await open(page); await mount(page, content, lang);
@@ -265,7 +265,7 @@ test('French language and evidence feedback use French words and authored notes'
   await chunk(page, 'ignored').click(); await chunk(page, 'overwhelmed').click(); await page.locator('[data-lp-check]').click();
   await expect(feedback(page, 'ignored')).toHaveText('Ce passage répond à la question');
   await expect(feedback(page, 'overwhelmed')).toHaveText(french.paragraphs.flat().find(c => c.id === 'overwhelmed').note);
-  await expect(page.locator('[data-lp-summary]')).toHaveText('Passages qui répondent à la question : 1 sur 1.');
+  await expect(page.locator('[data-lp-summary]')).toHaveText('Passages qui répondent à la question : 1 sur 1.');
 });
 
 for (const shown of [false, true]) {

@@ -26,7 +26,7 @@ export const strings = {
     answers: 'Réponses',
     backInstruction: 'Comparez avec vos réponses. Revoyez les questions que vous avez manquées.',
     print: 'Imprimer la feuille',
-    printHint: "Deux pages : les questions, puis les réponses. Pour une feuille recto verso, imprimez des deux côtés en retournant sur le bord long.",
+    printHint: "Deux pages : les questions, puis les réponses. Pour une feuille recto verso, imprimez des deux côtés en retournant sur le bord long.",
     printing: "La boîte de dialogue d'impression est ouverte."
   }
 };

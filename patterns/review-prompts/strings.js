@@ -10,14 +10,14 @@ export const strings = {
     nextReview: 'Next review {date}'
   },
   fr: {
-    readingTime: '{n} min de lecture',
-    progress: '{count} sur {total} vérifiés',
+    readingTime: '{n} min de lecture',
+    progress: 'Questions vérifiées : {count} sur {total}',
     commit: "J'ai ma réponse",
     answer: 'Réponse',
     show: 'Afficher la réponse',
-    remembered: "Je m'en suis souvenu",
+    remembered: "Je m'en souvenais",
     forgot: "J'ai oublié",
-    nextReview: 'Prochaine révision : {date}'
+    nextReview: 'Prochaine révision : {date}'
   }
 };
 /** @typedef {typeof strings.en} Strings */

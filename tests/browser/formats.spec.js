@@ -258,7 +258,7 @@ test('French announcements and feedback use authored French strings', async ({ p
   await open(page, '/formats/fr.html'); await observe(page);
   await button(page, 'quiz').click(); await question(page).getByRole('radio').nth(1).check(); await question(page).getByRole('button').click();
   await expect(question(page).locator('[data-lp-mark-word]:visible')).toHaveText('Bonne réponse');
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Format affiché : Quiz, section 1.', 'Bonne réponse. Il annonce sa pause et revient à la discussion.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Format affiché : Quiz, section 1.', 'Bonne réponse. Il annonce sa pause et revient à la discussion.']);
 });
 
 test('valid saved place restores without announcing or replacing server elements', async ({ page }) => {

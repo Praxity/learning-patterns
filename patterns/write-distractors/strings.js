@@ -33,14 +33,14 @@ export const strings = {
     option: 'Mauvaise réponse {key}', misconception: 'Quelle idée fausse cible-t-elle?',
     chooseOne: 'Choisissez une idée fausse', other: 'Autre idée fausse', custom: 'Décrivez l\'idée fausse',
     compare: 'Comparer avec les réponses de l\'auteur',
-    targets: 'Cible : {target}', match: "Même idée fausse que l'auteur",
+    targets: 'Cible : {target}', match: "Même idée fausse que l'auteur",
     empty: 'Rédigez la mauvaise réponse {n}.', longText: 'Limitez la réponse {n} à {max} caractères.',
     right: 'La réponse {n} est la bonne réponse. Rédigez-en une mauvaise.', duplicate: 'La réponse {n} doit être différente de vos réponses précédentes.',
     choose: 'Choisissez ce que la réponse {n} cible.', describe: 'Décrivez l\'idée fausse pour la réponse {n}.',
     longCustom: 'Limitez l\'idée fausse de la réponse {n} à {max} caractères.',
     errorsOne: '1 champ demande votre attention.', errorsMany: '{count} champs demandent votre attention.',
-    coverageOne: 'Vous avez ciblé {authorTargeted} sur {authorTotal} idée fausse de l\'auteur, et {ownExtra} des vôtres.',
-    coverageMany: 'Vous avez ciblé {authorTargeted} sur {authorTotal} idées fausses de l\'auteur, et {ownExtra} des vôtres.',
+    coverageOne: 'Idées fausses de l\'auteur ciblées : {authorTargeted} sur {authorTotal}. Autres idées fausses ciblées : {ownExtra}.',
+    coverageMany: 'Idées fausses de l\'auteur ciblées : {authorTargeted} sur {authorTotal}. Autres idées fausses ciblées : {ownExtra}.',
     clear: 'Recommencer', cleared: 'Réponses effacées.'
   }
 };

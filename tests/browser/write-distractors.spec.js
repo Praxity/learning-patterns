@@ -318,15 +318,15 @@ for (const lang of ['en', 'fr']) {
     expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
     await page.locator('[data-lp-compare]').click();
     const message = lang === 'en' ? "You targeted 1 of the author's 4 misconceptions, and 1 of your own."
-      : "Vous avez ciblé 1 sur 4 idées fausses de l'auteur, et 1 des vôtres.";
+      : "Idées fausses de l'auteur ciblées : 1 sur 4. Autres idées fausses ciblées : 1.";
     await expect(page.locator('[data-lp-summary]')).toHaveText(message);
     await expect(page.locator('[role="status"]')).toHaveText(message);
     expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([message]);
     expect(await page.locator('[data-lp-summary]').evaluate(el => getComputedStyle(el).fontWeight)).toBe('600');
     await expect(page.locator('[data-lp-result]')).not.toContainText(lang === 'en' ? 'Compared' : 'comparées');
     await expect(page.locator('[data-lp-result] [data-lp-preview] h3')).toHaveText(lang === 'en' ? ['Your question', "The author's question"] : ['Votre question', "La question de l'auteur"]);
-    await expect(page.locator('[data-lp-result] [data-lp-preview="author"] .lp-small')).toHaveText(content.misconceptions.map(item => `${lang === 'en' ? 'Targets:' : 'Cible :'} ${item.label}`));
-    await expect(page.locator('[data-lp-result] [data-lp-preview="yours"] .lp-small')).toHaveText([`${lang === 'en' ? 'Targets:' : 'Cible :'} ${content.misconceptions[1].label}`, `${lang === 'en' ? 'Targets:' : 'Cible :'} Breaks disrupt focus`]);
+    await expect(page.locator('[data-lp-result] [data-lp-preview="author"] .lp-small')).toHaveText(content.misconceptions.map(item => `${lang === 'en' ? 'Targets:' : 'Cible :'} ${item.label}`));
+    await expect(page.locator('[data-lp-result] [data-lp-preview="yours"] .lp-small')).toHaveText([`${lang === 'en' ? 'Targets:' : 'Cible :'} ${content.misconceptions[1].label}`, `${lang === 'en' ? 'Targets:' : 'Cible :'} Breaks disrupt focus`]);
     await expect(page.locator('[data-lp-result] [data-lp-untargeted], [data-lp-result] [data-lp-yours]')).toHaveCount(0);
   });
 
@@ -358,7 +358,7 @@ for (const lang of ['en', 'fr']) {
       }
       await page.locator('[data-lp-compare]').click();
       const message = lang === 'en' ? `You targeted ${fixture.author} of the author's ${fixture.total} ${fixture.total === 1 ? 'misconception' : 'misconceptions'}, and ${fixture.own} of your own.`
-        : `Vous avez ciblé ${fixture.author} sur ${fixture.total} ${fixture.total === 1 ? 'idée fausse' : 'idées fausses'} de l'auteur, et ${fixture.own} des vôtres.`;
+        : `Idées fausses de l'auteur ciblées : ${fixture.author} sur ${fixture.total}. Autres idées fausses ciblées : ${fixture.own}.`;
       await expect(page.locator('[data-lp-summary]')).toHaveText(message);
       expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([message]);
       const rows = page.locator('[data-lp-result] [data-lp-preview="yours"] li').filter({ has: page.locator('.lp-small') });
@@ -439,12 +439,12 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     const yours = page.locator('[data-lp-preview="yours"] li');
     await expect(yours.nth(1)).toContainText(lang === 'en' ? 'Same misconception as the author' : "Même idée fausse que l'auteur");
     await expect(yours.nth(2)).not.toHaveAttribute('data-lp-mark');
-    await expect(yours.nth(2).locator('.lp-small')).toHaveText(lang === 'en' ? 'Targets: Breaks disrupt focus' : 'Cible : Breaks disrupt focus');
+    await expect(yours.nth(2).locator('.lp-small')).toHaveText(lang === 'en' ? 'Targets: Breaks disrupt focus' : 'Cible : Breaks disrupt focus');
     await expect(page.locator('[data-lp-clear]')).toHaveAccessibleName(lang === 'en' ? 'Start over' : 'Recommencer');
     await expect(yours.locator('[aria-hidden="true"]')).toHaveCount(2);
     await expect(page.locator('[data-lp-summary]')).toHaveText(lang === 'en'
       ? "You targeted 1 of the author's 4 misconceptions, and 1 of your own."
-      : "Vous avez ciblé 1 sur 4 idées fausses de l'auteur, et 1 des vôtres.");
+      : "Idées fausses de l'auteur ciblées : 1 sur 4. Autres idées fausses ciblées : 1.");
   });
 
   test(`native no-JavaScript baseline (${lang})`, async ({ browser }) => {
