@@ -443,7 +443,8 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     await expect(yours.nth(2)).not.toHaveAttribute('data-lp-mark');
     await expect(yours.nth(2).locator('.lp-small')).toHaveText(lang === 'en' ? 'Targets: Breaks disrupt focus' : 'Cible : Breaks disrupt focus');
     await expect(page.locator('[data-lp-clear]')).toHaveAccessibleName(lang === 'en' ? 'Start over' : 'Recommencer');
-    await expect(yours.locator('[aria-hidden="true"]')).toHaveCount(2);
+    await expect(yours.locator('svg[aria-hidden="true"]')).toHaveCount(2);
+    await expect(yours.locator('.lp-choice-key[aria-hidden="true"]')).toHaveCount(3);
     await expect(page.locator('[data-lp-summary]')).toHaveText(lang === 'en'
       ? "You targeted 1 of the author's 4 misconceptions, and 1 of your own."
       : "Idées fausses de l'auteur ciblées : 1 sur 4. Autres idées fausses ciblées : 1.");
