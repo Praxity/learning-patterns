@@ -96,7 +96,7 @@ The shared client calls `ask('13-journal', { answer }, { challengeSlot, signal }
 
 ## Adapt it with your agent
 
-> Rewrite the optional questions for my audience: [audience]. Keep the assertiveness reflection, the four criterion identities and their order. Use calm, optional questions, no scores and no decision model-written text. Replace the support line with these real support details: [details]. Translate both languages together, using Québec French and vous.
+> Rewrite the optional questions for my audience: [audience]. Keep the assertiveness reflection, the four criterion identities and their order. Use calm, optional questions, no scores and no text written by a decision model. Replace the support line with these real support details: [details]. Translate both languages together, using Québec French and vous.
 
 ## Licence
 
