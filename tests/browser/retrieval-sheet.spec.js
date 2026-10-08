@@ -126,8 +126,34 @@ test('empty and out-of-range date edits show local errors and keep the last vali
   await expect(date).not.toHaveAttribute('aria-describedby');
   await expect(root(page).locator('[data-lp-date-error]')).toBeHidden();
   await expect(root(page).getByRole('button', { name: 'Print the sheet' })).toBeEnabled();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Choose a valid date.', 'Test yourself on October 20, 2026.']);
+  expect(await page.evaluate(() => window.lpAnnouncements.filter(Boolean))).toEqual(['Test yourself on October 20, 2026.']);
 });
+
+for (const [lang, message] of [['en', 'Choose a valid date.'], ['fr', 'Choisissez une date valide.']]) {
+  for (const focused of [true, false]) test(`invalid date has one announcement source per invalid transition (${lang}, focused=${focused})`, async ({ page }) => {
+    await open(page, `/retrieval-sheet/${lang}.html`); await observe(page);
+    const date = root(page).locator('[data-lp-date]');
+    if (focused) await date.focus();
+    else await root(page).getByRole('tab').first().focus();
+    await date.evaluate(el => {
+      window.lpDateDescriptions = [];
+      new MutationObserver(records => window.lpDateDescriptions.push(...records.map(record => record.target.getAttribute('aria-describedby')).filter(Boolean)))
+        .observe(el, { attributes: true, attributeFilter: ['aria-describedby'] });
+      el.value = ''; el.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+    await expect(date).toHaveAttribute('aria-invalid', 'true');
+    for (let edit = 0; edit < 3; edit++) await date.dispatchEvent('change');
+    expect(await page.evaluate(() => window.lpDateDescriptions.length)).toBe(1);
+    expect(await page.evaluate(message => window.lpAnnouncements.filter(text => text === message).length, message)).toBe(focused ? 0 : 1);
+    await expect(root(page).locator('[data-lp-date-error]')).toHaveText(message);
+    // Recover to the last valid date, then enter the invalid state again.
+    await date.evaluate(el => { el.value = '2026-10-13'; el.dispatchEvent(new Event('change', { bubbles: true })); });
+    await expect(date).not.toHaveAttribute('aria-describedby');
+    await date.evaluate(el => { el.value = ''; el.dispatchEvent(new Event('change', { bubbles: true })); });
+    expect(await page.evaluate(() => window.lpDateDescriptions.length)).toBe(2);
+    expect(await page.evaluate(message => window.lpAnnouncements.filter(text => text === message).length, message)).toBe(focused ? 0 : 2);
+  });
+}
 
 test('restores an exact saved date and side without an announcement', async ({ page }) => {
   await page.addInitScript(() => { window.lpSeed = { date: '2025-01-02', side: 'back' }; });

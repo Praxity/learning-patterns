@@ -81,9 +81,12 @@ export function enhance(root, { content, strings, state }) {
   }
   listen(input, 'change', () => {
     if (!isDate(input.value)) {
+      // Native date segments can emit several changes while the field stays invalid.
+      if (!error.hidden) return;
       input.setAttribute('aria-invalid', 'true'); error.hidden = false;
       input.setAttribute('aria-describedby', error.id); print.disabled = true;
-      if (status.textContent !== strings.dateError) status.textContent = strings.dateError;
+      // The focused field's new description supplies the error; a live update repeats it.
+      status.textContent = root.ownerDocument.activeElement === input ? '' : strings.dateError;
       return;
     }
     input.removeAttribute('aria-invalid'); input.removeAttribute('aria-describedby'); error.hidden = true; print.disabled = false;
