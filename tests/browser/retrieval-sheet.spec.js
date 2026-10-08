@@ -233,6 +233,30 @@ for (const [lang, labels, another, status] of [
   expect(await page.evaluate(() => window.lpAnnouncements.filter(Boolean))).toEqual([status]);
 });
 
+test('typing a year digit by digit changes nothing until it has four digits, then speaks once', async ({ page }) => {
+  await open(page); await observe(page);
+  await root(page).getByRole('radio', { name: /^Another date/ }).check();
+  const date = root(page).locator('[data-lp-date]');
+  await date.focus();
+  await page.evaluate(() => { window.lpAnnouncements = []; });
+  // Chrome reports each partial year as a valid date value while the year is typed.
+  for (const value of ['0002-11-09', '0020-11-09', '0202-11-09']) {
+    await date.evaluate((el, value) => { el.value = value; el.dispatchEvent(new Event('change', { bubbles: true })); }, value);
+    await expect(root(page).locator('time').first()).toHaveAttribute('datetime', '2026-10-13');
+    await expect(root(page).getByRole('button', { name: 'Print the sheet' })).toBeEnabled();
+    await expect(date).not.toHaveAttribute('aria-invalid');
+  }
+  await date.evaluate(el => { el.value = '2027-11-09'; el.dispatchEvent(new Event('change', { bubbles: true })); });
+  await expect(root(page).locator('time')).toHaveText(['November 9, 2027', 'November 9, 2027']);
+  expect(await page.evaluate(() => window.lpAnnouncements.filter(Boolean))).toEqual(['Test yourself on November 9, 2027.']);
+  // Leaving the field with a partial year shows the error once.
+  await date.evaluate(el => { el.value = '0202-11-09'; el.dispatchEvent(new Event('change', { bubbles: true })); });
+  await root(page).getByRole('tab').first().focus();
+  await expect(date).toHaveAttribute('aria-invalid', 'true');
+  await expect(root(page).getByRole('button', { name: 'Print the sheet' })).toBeDisabled();
+  expect(await page.evaluate(() => window.lpAnnouncements.filter(Boolean))).toEqual(['Test yourself on November 9, 2027.', 'Choose a valid date.']);
+});
+
 test('restores an exact saved date and side without an announcement', async ({ page }) => {
   await page.addInitScript(() => { window.lpSeed = { date: '2025-01-02', side: 'back' }; });
   await open(page);

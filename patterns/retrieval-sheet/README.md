@@ -41,7 +41,7 @@ Follows the shared baseline in the root README.
 - Front and Back tabs share one tab stop. Left and Right arrows change sides; Home selects Front and End selects Back. Selection updates the tabs and panel before moving focus.
 - A fieldset names the five spacing choices. Each radio's name includes its date, after a comma. Native radios support Tab and arrow keys, with a visible selected row and keyboard focus.
 - "Another date" reveals a field labelled "Date" and announces the date in it. Date changes and printing announce once and keep focus.
-- A newly invalid date announces its error once through the status region. The field gets the error as its description when focus leaves it, so it isn't read twice. Repeated invalid edits stay silent. A valid date, even the same one as before, announces once.
+- A newly invalid date announces its error once through the status region. The field gets the error as its description when focus leaves it, so it isn't read twice. Repeated invalid edits stay silent. A valid date, even the same one as before, announces once. A year typed digit by digit changes nothing until it has four digits.
 - Tab selection identifies the active side without another status announcement.
 - NVDA speaks a newly selected tab twice after Arrow, Home or End changes sides in Chrome and Firefox. The W3C ARIA Authoring Practices example also does this. Tabs still activate on focus; requiring Enter or Space would add a step for everyone.
 - Printed questions leave space for handwritten answers. Check printer margins and double-sided settings by hand.
@@ -73,6 +73,7 @@ English and Québec French strings share `instruction`, `dateLabel`, `dateError`
 | `dateAfterDays(today, days)` | `YYYY-MM-DD`, counting whole days from the local date of `today` with UTC arithmetic. Leaves `today` unchanged. Invalid dates, non-integer offsets and unsupported years throw. |
 | `defaultDate(today)` | Seven local calendar days ahead as `YYYY-MM-DD`. Leaves `today` unchanged. Invalid dates and unsupported years throw. |
 | `isDate(value)` | Whether the value is a real `YYYY-MM-DD` civil date in years 0001 to 9999. |
+| `isPartialYear(value)` | Whether a date field value has a year under 1000, which a browser can report while the year is still being typed. |
 | `formatDate(date, lang)` | Readable date using `en-CA` or `fr-CA`. UTC formatting preserves the civil day across time zones. Invalid dates throw. |
 | `formatShortDate(date, lang)` | Short weekday and date using `en-CA` or `fr-CA`, such as "Thu, Oct 15" or "jeu. 15 oct.". UTC formatting preserves the civil day. Invalid dates throw. |
 | `validateState(value)` | Copied `{ date, side }`, or `null` for invalid state. |

@@ -1,4 +1,4 @@
-import { dateAfterDays, defaultDate, formatDate, formatShortDate, isDate, presetDays, validateContent, validateState } from './logic.js';
+import { dateAfterDays, defaultDate, formatDate, formatShortDate, isDate, presetDays, validateContent, validateState, isPartialYear } from './logic.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
 const instances = new WeakMap();
@@ -127,9 +127,9 @@ export function enhance(root, { content, strings, state }) {
       if (target) { select(target.side); target.tab.focus(); }
     });
   }
-  listen(input, 'change', () => {
+  function checkInput() {
     if (customField.hidden) return;
-    if (!isDate(input.value)) {
+    if (!isDate(input.value) || isPartialYear(input.value)) {
       setChoiceDate(custom, '');
       // Native date segments can emit several changes while the field stays invalid.
       if (!error.hidden) return;
@@ -145,8 +145,13 @@ export function enhance(root, { content, strings, state }) {
     setChoiceDate(custom, formatShortDate(input.value, root.lang));
     // Native date controls may emit more than one change for the same value; leaving the error always speaks the date.
     changeDate(input.value, recovered);
+  }
+  // While a year is being typed, nothing changes; leaving the field with a partial year shows the error.
+  listen(input, 'change', () => { if (!(isPartialYear(input.value) && root.ownerDocument.activeElement === input)) checkInput(); });
+  listen(input, 'blur', () => {
+    if (isPartialYear(input.value)) checkInput();
+    if (!error.hidden) input.setAttribute('aria-describedby', error.id);
   });
-  listen(input, 'blur', () => { if (!error.hidden) input.setAttribute('aria-describedby', error.id); });
   listen(print, 'click', () => {
     root.setAttribute('data-lp-printing', '');
     status.textContent = strings.printing;
