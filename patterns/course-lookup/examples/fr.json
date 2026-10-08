@@ -1,6 +1,7 @@
 {
   "kind": "faq",
-  "prompt": "Une question sur S’affirmer au travail?",
+  "prompt": "Posez une question sur le cours {course}",
+  "course": "S’affirmer au travail",
   "entries": [
     {
       "id": "deadline",

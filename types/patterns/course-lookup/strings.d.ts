@@ -1,7 +1,6 @@
 export namespace strings {
     namespace en {
         let placeholder: string;
-        let hint: string;
         let checking: string;
         let noMatch: string;
         let add: string;
@@ -26,8 +25,6 @@ export namespace strings {
     namespace fr {
         let placeholder_1: string;
         export { placeholder_1 as placeholder };
-        let hint_1: string;
-        export { hint_1 as hint };
         let checking_1: string;
         export { checking_1 as checking };
         let noMatch_1: string;

@@ -24,6 +24,7 @@ export type Seed = {
 export type Content = {
     kind: "faq" | "sections";
     prompt: string;
+    course?: string;
     entries: Entry[];
     seeds: Seed[];
 };

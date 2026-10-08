@@ -6,3 +6,6 @@
 .lp-course-lookup-bank .lp-button-quiet { margin-block-start: 10px; }
 .lp-course-lookup a { color: var(--lp-accent-ink); text-underline-offset: .15em; }
 .lp-course-lookup [data-lp-result] > article > * + * { margin-block-start: 8px; }
+.lp-course-lookup-q { display: flex; align-items: flex-start; gap: 8px; }
+.lp-course-lookup-q > .lp-icon { flex: none; margin-block-start: .15em; color: var(--lp-ink-2); }
+.lp-course-lookup-faq summary .lp-course-lookup-q { display: inline-flex; }

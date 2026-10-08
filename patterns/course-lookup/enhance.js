@@ -54,7 +54,7 @@ export function enhance(root, { content, strings, state, ask }) {
   try { questions = validateState(storage.read())?.questions ?? []; }
   catch { message(strings.storageError); }
   const updateBank = () => {
-    bankList.innerHTML = content.seeds.map(seed => `<li><p class="lp-run-in">${html(seed.question)}</p><p class="lp-small">${html(strings[seed.author])}</p><p>${html(seed.answer)}</p></li>`).join('') + questions.map((question, index) => `<li><p class="lp-run-in">${html(question)}</p><p class="lp-small">${html(strings.waiting)}</p><button type="button" class="lp-button lp-button-quiet" data-lp-remove="${index}" aria-label="${html(`${strings.remove}: ${question}`)}">${icons.x}${html(strings.remove)}</button></li>`).join('');
+    bankList.innerHTML = content.seeds.map(seed => `<li><p class="lp-run-in lp-course-lookup-q">${icons['help-circle']}<span>${html(seed.question)}</span></p><p class="lp-small">${html(strings[seed.author])}</p><p>${html(seed.answer)}</p></li>`).join('') + questions.map((question, index) => `<li><p class="lp-run-in lp-course-lookup-q">${icons['help-circle']}<span>${html(question)}</span></p><p class="lp-small">${html(strings.waiting)}</p><button type="button" class="lp-button lp-button-quiet" data-lp-remove="${index}" aria-label="${html(`${strings.remove}: ${question}`)}">${icons.x}${html(strings.remove)}</button></li>`).join('');
     bank.hidden = false;
   };
   updateBank();
@@ -88,7 +88,7 @@ export function enhance(root, { content, strings, state, ask }) {
       const answers = await ask(content.kind === 'faq' ? '20-faq' : '21-sections', { question }, { challengeSlot, signal: controller.signal });
       if (destroyed || my !== seq) return;
       const entries = lookup(content, answers);
-      result.innerHTML = entries.length ? entries.map(entry => `<article><h3 class="lp-run-in">${content.kind === 'faq' ? html(entry.title) : `<a href="#${html(input.id.replace(/-question$/, `-section-${entry.id}`))}">${html(entry.title)}</a>`}</h3><p>${html(content.kind === 'faq' ? entry.answer ?? '' : entry.summary ?? '')}</p></article>`).join('') : `<p class="lp-run-in">${html(strings.noMatch)}</p>`;
+      result.innerHTML = entries.length ? entries.map(entry => `<article><h3 class="lp-run-in${content.kind === 'faq' ? ' lp-course-lookup-q' : ''}">${content.kind === 'faq' ? `${icons['help-circle']}<span>${html(entry.title)}</span>` : `<a href="#${html(input.id.replace(/-question$/, `-section-${entry.id}`))}">${html(entry.title)}</a>`}</h3><p>${html(content.kind === 'faq' ? entry.answer ?? '' : entry.summary ?? '')}</p></article>`).join('') : `<p class="lp-run-in">${html(strings.noMatch)}</p>`;
       result.hidden = false;
       unmatched = entries.length ? '' : question;
       add.hidden = !unmatched || questions.includes(unmatched);
@@ -162,7 +162,7 @@ export function enhance(root, { content, strings, state, ask }) {
       if (destroyed) return;
       if (config.provider !== 'perplexity' && config.provider !== 'mock') { useFallback(); return; }
       notice.innerHTML = renderDataNotice(config, root.lang, `${notice.id}-text`); notice.hidden = false;
-      input.setAttribute('aria-describedby', `${input.id.replace(/-question$/, '-hint')} ${notice.id}-text`);
+      input.setAttribute('aria-describedby', `${notice.id}-text`);
       controls.hidden = false; fallback.hidden = true; ready = true; updateCap();
     }).catch(() => { if (!destroyed) useFallback(); });
   } else useFallback();

@@ -66,5 +66,9 @@ test('bilingual no-JS markup contains full FAQ, outline links and one empty stat
     }
     const escaped = render({ ...faq, prompt: '<script>x</script>' }, strings[lang], { id: 'one', lang });
     assert.match(escaped, /&lt;script&gt;x&lt;\/script&gt;/);
+    // The course name is the only markup in the prompt, and it is escaped too.
+    const course = render({ ...faq, course: '<b>x</b>' }, strings[lang], { id: 'one', lang });
+    assert.match(course, /<em>&lt;b&gt;x&lt;\/b&gt;<\/em>/);
+    assert.throws(() => render({ ...faq, course: undefined }, strings[lang], { id: 'one', lang }), /Invalid prompt/);
   }
 });

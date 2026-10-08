@@ -101,7 +101,7 @@ test('Looking appears only after 300 ms; edits abort requests and stale response
 for (const lang of ['en','fr']) test(`one announcement per changed match, two matches and silent no-match (${lang})`, async ({ page }) => {
   await open(page, { lang }); await auto(page);
   const root = faq(page);
-  const firstTitle = await root.locator('[data-lp-result] h3').textContent();
+  const firstTitle = await root.locator('[data-lp-result] h3 > span').textContent();
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([strings[lang].found.replace('{title}',firstTitle)]);
   await auto(page, 'Another phrasing of the same question');
   expect(await page.evaluate(() => window.lpAnnouncements.length)).toBe(1);

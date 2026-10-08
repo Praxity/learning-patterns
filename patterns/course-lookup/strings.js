@@ -1,7 +1,6 @@
 export const strings = {
   en: {
-    placeholder: 'Ask about the course…',
-    hint: 'Press Enter to look now.',
+    placeholder: 'Enter your question here…',
     checking: 'Looking…',
     noMatch: 'No answer yet',
     add: 'Add to the question bank',
@@ -24,8 +23,7 @@ export const strings = {
     sectionFound: 'Section found: {title}'
   },
   fr: {
-    placeholder: 'Posez une question sur le cours…',
-    hint: 'Appuyez sur Entrée pour chercher tout de suite.',
+    placeholder: 'Entrez votre question ici…',
     checking: 'Recherche…',
     noMatch: 'Pas encore de réponse',
     add: 'Ajouter à la banque de questions',

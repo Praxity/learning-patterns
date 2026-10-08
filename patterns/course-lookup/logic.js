@@ -6,7 +6,7 @@ export const BANK_LIMIT = 100;
 
 /** @typedef {{ id: string, title: string, answer?: string, summary?: string }} Entry */
 /** @typedef {{ id: string, question: string, author: 'instructor' | 'learner', answer: string }} Seed */
-/** @typedef {{ kind: 'faq' | 'sections', prompt: string, entries: Entry[], seeds: Seed[] }} Content */
+/** @typedef {{ kind: 'faq' | 'sections', prompt: string, course?: string, entries: Entry[], seeds: Seed[] }} Content */
 /** @typedef {{ questions: string[] }} LearnerState */
 /** @param {unknown} value @returns {value is Record<string, unknown>} */
 function object(value) { return value !== null && typeof value === 'object' && !Array.isArray(value); }
@@ -20,9 +20,12 @@ function text(value) { return typeof value === 'string' && value.trim().length >
 /** @param {unknown} content @returns {asserts content is Content} */
 export function validateContent(content) {
   if (!object(content)) throw new Error('Invalid content');
-  fields(content, ['kind', 'prompt', 'entries', 'seeds'], 'content');
+  fields(content, ['kind', 'prompt', 'course', 'entries', 'seeds'], 'content');
   if (content.kind !== 'faq' && content.kind !== 'sections') throw new Error('Invalid kind');
   if (!text(content.prompt)) throw new Error('Invalid prompt');
+  // {course} in the prompt renders the course name in italics, so a prompt that uses it needs the name.
+  if (content.course !== undefined && !text(content.course)) throw new Error('Invalid course');
+  if (content.prompt.includes('{course}') && content.course === undefined) throw new Error('Invalid prompt');
   const ids = content.kind === 'faq' ? FAQ_IDS : SECTION_IDS;
   const body = content.kind === 'faq' ? 'answer' : 'summary';
   if (!Array.isArray(content.entries) || content.entries.length !== ids.length) throw new Error('Invalid entries');

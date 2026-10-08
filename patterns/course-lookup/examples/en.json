@@ -1,6 +1,7 @@
 {
   "kind": "faq",
-  "prompt": "Ask about Assertive at work",
+  "prompt": "Ask a question about the course {course}",
+  "course": "Assertive at work",
   "entries": [
     {
       "id": "deadline",
