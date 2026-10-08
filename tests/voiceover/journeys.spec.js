@@ -1,4 +1,5 @@
 import { test } from '@playwright/test';
+import assert from 'node:assert/strict';
 import { readFile, writeFile } from 'node:fs/promises';
 import { startSession } from './session.js';
 
@@ -34,9 +35,11 @@ async function journey(s, page, pattern, lang, content) {
     if (inspect) for (let i = 1; i < await inputs.count(); i++) await s.key('ArrowDown', `${label}: option ${i + 1}`);
     const active = await inputs.evaluateAll(elements => elements.indexOf(document.activeElement));
     if (active < 0) throw new Error(`${label}: radio focus lost`);
-    const distance = (index - active + await inputs.count()) % await inputs.count();
-    for (let i = 0; i < distance; i++) await s.key('ArrowDown', `${label}: choose answer ${i + 1}`);
+    // Native WebKit radio groups stop at their ends rather than wrapping.
+    const distance = index - active;
+    for (let i = 0; i < Math.abs(distance); i++) await s.key(distance < 0 ? 'ArrowUp' : 'ArrowDown', `${label}: choose answer ${i + 1}`);
     await s.key('Space', `${label}: confirm`);
+    assert.equal(await inputs.nth(index).isChecked(), true, `${label}: intended radio answer not selected`);
   }
   if (pattern === 'dont-know') {
     await s.activate('[data-lp-check]', 'Incomplete submit'); await s.snapshot('incomplete');
@@ -105,7 +108,10 @@ async function journey(s, page, pattern, lang, content) {
     await s.key('Backspace', 'Clear date'); await s.key('Tab', 'Leave blank date');
     await s.snapshot('incomplete');
     await s.seek('[data-lp-date]', 'Invalid date error');
-    await s.type('10152026', 'Recover date with keyboard'); await s.key('Tab', 'Leave recovered date');
+    // Clear date removed only the active year segment; month/day remain 10/15.
+    await s.type('2026', 'Recover date year with keyboard');
+    assert.equal(await page.locator('[data-lp-date]').inputValue(), '2026-10-15', 'Intended date not recovered');
+    await s.key('Tab', 'Leave recovered date');
   } else if (pattern === 'test-out') {
     await s.activate('[data-lp-start]', 'Start check');
     await s.activate('[data-lp-next]:visible', 'Missing first answer Next'); await s.snapshot('incomplete');
