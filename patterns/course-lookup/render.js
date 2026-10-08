@@ -24,7 +24,7 @@ export function render(content, strings, { id, lang }) {
   <p class="lp-small" data-lp-fallback-message hidden>${html(strings.fallback)}</p>
   <div class="lp-section lp-stack" data-lp-fallback>
     <h3 class="lp-run-in">${html(content.kind === 'faq' ? strings.faqList : strings.sectionList)}</h3>
-    ${content.kind === 'faq' ? content.entries.map(entry => `<details class="lp-course-lookup-faq"><summary><span class="lp-course-lookup-q">${icons['help-circle']}<span>${html(entry.title)}</span></span></summary><p>${html(entry.answer ?? '')}</p></details>`).join('\n') : `<ul class="lp-course-lookup-outline">${content.entries.map(entry => `<li id="${target(entry)}"><a href="#${target(entry)}">${html(entry.title)}</a><p>${html(entry.summary ?? '')}</p></li>`).join('\n')}</ul>`}
+    ${content.kind === 'faq' ? content.entries.map(entry => `<details class="lp-details lp-course-lookup-faq"><summary><span class="lp-course-lookup-q">${icons['help-circle']}<span>${html(entry.title)}</span></span></summary><p>${html(entry.answer ?? '')}</p></details>`).join('\n') : `<ul class="lp-course-lookup-outline">${content.entries.map(entry => `<li id="${target(entry)}"><a href="#${target(entry)}">${html(entry.title)}</a><p>${html(entry.summary ?? '')}</p></li>`).join('\n')}</ul>`}
   </div>
   <div class="lp-section lp-stack" data-lp-bank hidden>
     <h3 class="lp-run-in">${html(strings.bank)}</h3>
