@@ -33,16 +33,18 @@ async function open(page, { lang = 'en', mode = 'ok', two = false } = {}) {
   await page.clock.pauseAt(new Date());
 }
 const calls = page => page.evaluate(() => window.lpTestCalls.length);
+// Advance past the adaptive ceiling for checks whose exact timing is not under test.
+const settle = page => page.clock.runFor(900);
 const auto = async (page, text = draft, root = page) => {
   await root.getByRole('textbox').fill(text);
-  await page.clock.runFor(700);
+  await settle(page);
 };
 async function axe(page) {
   await page.clock.resume();
   expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze()).violations).toEqual([]);
 }
 
-test('700 ms debounce resets on typing; short and unchanged trimmed text skip', async ({ page }) => {
+test('default pause resets on input; short and unchanged trimmed text skip', async ({ page }) => {
   await open(page);
   await auto(page, 'x'.repeat(19));
   expect(await calls(page)).toBe(0);
@@ -58,6 +60,43 @@ test('700 ms debounce resets on typing; short and unchanged trimmed text skip', 
   expect(await calls(page)).toBe(1);
   expect(await page.evaluate(() => window.lpTestCalls[0].fields)).toEqual({ answer: draft });
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['2 of 4 done']);
+});
+
+for (const [gap, wait] of [[200, 500], [50, 400], [500, 900]]) {
+  test(`key gaps of ${gap} ms use a ${wait} ms pause`, async ({ page }) => {
+    await open(page);
+    const answer = page.getByRole('textbox');
+    await answer.fill('x'.repeat(19));
+    for (const key of ['a', 'b', 'c', 'd']) {
+      await answer.press(key);
+      if (key !== 'd') await page.clock.runFor(gap);
+    }
+    await page.clock.runFor(wait - 1);
+    expect(await calls(page)).toBe(0);
+    await page.clock.runFor(1);
+    expect(await calls(page)).toBe(1);
+    await auto(page, 'x'.repeat(19));
+    expect(await calls(page)).toBe(1);
+  });
+}
+
+test('question marks and Enter keep the pause for plans', async ({ page }) => {
+  await open(page);
+  const answer = page.getByRole('textbox');
+  await answer.fill('x'.repeat(18) + '?');
+  await settle(page);
+  expect(await calls(page)).toBe(0);
+  await answer.fill('x'.repeat(19) + '?');
+  await page.clock.runFor(699);
+  expect(await calls(page)).toBe(0);
+  await page.clock.runFor(1);
+  expect(await calls(page)).toBe(1);
+  await answer.fill(draft);
+  await answer.press('Enter');
+  await page.clock.runFor(699);
+  expect(await calls(page)).toBe(1);
+  await page.clock.runFor(1);
+  expect(await calls(page)).toBe(2);
 });
 
 const order = page => page.locator('[data-lp-items] > li').evaluateAll(items => items.map(item => item.dataset.lpCriterion));
@@ -139,7 +178,7 @@ test('destroy removes completion controls and restores an editable textarea', as
   expect(await calls(page)).toBe(1);
   await page.evaluate(() => { window.lpEnhance(); });
   await expect(page.locator('[data-lp-list]')).toBeVisible();
-  await page.clock.runFor(700);
+  await settle(page);
   await expect(page.getByRole('textbox')).toHaveAttribute('readonly', '');
   await expect(page.locator('[data-lp-complete]')).toHaveCount(1);
 });
@@ -301,7 +340,7 @@ for (const lang of ['en', 'fr']) {
     await expect(page.locator('[data-lp-list]')).toHaveAttribute('aria-live', 'off');
     await page.getByRole('textbox').fill('I will write another plan at our meeting.');
     expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([summary]);
-    await page.clock.runFor(700);
+    await settle(page);
     expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([summary]);
     await page.evaluate(() => { window.lpValues = [0, 1, 1, 0]; });
     await auto(page, 'I will change which items are done.');
@@ -403,7 +442,7 @@ test('idempotent enhancement; destroy restores server DOM and ignores pending wo
   await expect(page.getByRole('textbox')).toHaveValue(draft);
   await page.getByRole('textbox').fill('After destroy');
   expect(await page.evaluate(() => window.lpSaved.answer)).toBe(draft);
-  await page.clock.runFor(700);
+  await settle(page);
   expect(await calls(page)).toBe(1);
 });
 

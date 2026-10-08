@@ -3,8 +3,12 @@
  * Nielsen's 1 s flow limit informs the ceiling, not a guarantee of response time.
  * https://www.nngroup.com/articles/response-times-3-important-limits/
  * Three gaps start adaptation; the last nine keep a long thinking pause from dominating.
+ * @param {{ minChars?: number, questionMark?: boolean }} [options]
  */
-export function typingPause(): {
+export function typingPause({ minChars, questionMark }?: {
+    minChars?: number;
+    questionMark?: boolean;
+}): {
     /** @param {number} time Monotonic keydown time in milliseconds. */
     key(time: number): void;
     wait: () => number;

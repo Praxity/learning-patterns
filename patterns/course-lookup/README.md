@@ -86,7 +86,7 @@ The proxy owns both catalogues and the Choice questions. The browser sends only 
 | `validateState(value)` | A clean `{ questions: string[] }`, or `null`. |
 | `QUESTION_LIMIT`, `AUTO_CHECK_LIMIT`, `BANK_LIMIT` | 500 characters, 30 automatic checks, 100 added questions. |
 
-`proxy/logic/20-faq.js` and `21-sections.js` own the catalogue IDs and match gates, shared by browser and proxy. `lib/typing-pause.js` exports `typingPause()`, with `key(time)`, `wait()` and `delay(text, checked, enter = false)`. Delay returns milliseconds or `null` when no check is due. Other patterns do not yet use it.
+`proxy/logic/20-faq.js` and `21-sections.js` own the catalogue IDs and match gates, shared by browser and proxy. `lib/typing-pause.js` exports `typingPause({ minChars = 10, questionMark = true } = {})`, with `key(time)`, `wait()` and `delay(text, checked, enter = false)`. Delay returns milliseconds or `null` when no check is due. [Feedback while you type](../live-feedback/README.md) shares this module, with a 20-character minimum and no question-mark shortcut.
 
 `enhance(root, { content, strings, ask, state })` returns `{ destroy() }`. Repeated calls return the same instance. Optional `state: { read, write }` replaces browser storage. Use a separate state adapter for each instance. Invalid saved values are ignored. `destroy()` cancels work, removes listeners and restores server markup. The page allowance survives re-enhancement.
 

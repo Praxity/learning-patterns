@@ -1,4 +1,5 @@
-import { feedback, validateContent, validateState, MIN_CHARS, PAUSE_MS, AUTO_CHECK_LIMIT } from './logic.js';
+import { feedback, validateContent, validateState, MIN_CHARS, AUTO_CHECK_LIMIT } from './logic.js';
+import { typingPause } from '../../lib/typing-pause.js';
 import { icons } from '../../lib/icons.js';
 import { renderDataNotice } from '../../lib/data-notice.js';
 
@@ -45,6 +46,7 @@ export function enhance(root, { content, strings, state, ask }) {
   if (boxes.length !== content.criteria.length || rows.length !== content.criteria.length) throw new Error('Invalid live-feedback criteria markup');
   const session = sessions.get(root.ownerDocument) ?? { checks: 0, stop: new Set() };
   sessions.set(root.ownerDocument, session);
+  const timing = typingPause({ minChars: MIN_CHARS, questionMark: false });
   let destroyed = false, ready = false, complete = false, seq = 0, lastChecked = '', count = 0;
   /** @type {ReturnType<typeof setTimeout> | undefined} */
   let timer;
@@ -100,7 +102,7 @@ export function enhance(root, { content, strings, state, ask }) {
     if (!ready || !ask || destroyed || pending || complete) return;
     clearTimeout(timer); timer = undefined;
     const raw = answer.value, draft = raw.trim();
-    if (draft.length < MIN_CHARS || draft === lastChecked) return;
+    if (timing.delay(raw, lastChecked) === null) return;
     if (session.checks >= AUTO_CHECK_LIMIT) { stopAtLimit(); return; }
     const my = seq, controller = new AbortController();
     pending = controller; lastChecked = draft; session.checks++;
@@ -133,9 +135,15 @@ export function enhance(root, { content, strings, state, ask }) {
   const schedule = () => {
     if (!ready || complete) return;
     if (session.checks >= AUTO_CHECK_LIMIT) { stopAtLimit(); return; }
-    if (answer.value.trim().length >= MIN_CHARS && answer.value.trim() !== lastChecked) timer = setTimeout(() => { void run(); }, PAUSE_MS);
+    const delay = timing.delay(answer.value, lastChecked);
+    if (delay !== null) timer = setTimeout(() => { void run(); }, delay);
   };
   const onInput = () => { if (complete) return; cancel(); save(); schedule(); };
+  /** @param {KeyboardEvent} event */
+  const onKey = event => {
+    if (complete || event.isComposing || event.ctrlKey || event.metaKey || event.altKey) return;
+    if (event.key.length === 1 || event.key === 'Backspace' || event.key === 'Delete') timing.key(performance.now());
+  };
   const onEdit = () => {
     unlock(); answer.focus(); answer.setSelectionRange(answer.value.length, answer.value.length);
     if (session.checks >= AUTO_CHECK_LIMIT) useLimit();
@@ -152,11 +160,13 @@ export function enhance(root, { content, strings, state, ask }) {
     }).catch(() => { if (!destroyed) useFallback(); });
   } else useFallback();
   answer.addEventListener('input', onInput); fallback.addEventListener('change', save);
+  answer.addEventListener('keydown', onKey);
   edit.addEventListener('click', onEdit);
   const instance = { destroy() {
     if (destroyed) return;
     destroyed = true; cancel(); session.stop.delete(useLimit);
     answer.removeEventListener('input', onInput); fallback.removeEventListener('change', save);
+    answer.removeEventListener('keydown', onKey);
     edit.removeEventListener('click', onEdit); completion.remove();
     useFallback(); fallbackText.textContent = strings.selfCheck; status.textContent = '';
     items.innerHTML = initialItems; notice.replaceChildren();
