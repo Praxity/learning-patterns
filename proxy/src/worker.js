@@ -28,6 +28,7 @@ export default {
 			if (!success) return json({ error: "Too many requests. Wait a minute and try again." }, 429);
 		}
 		const ipHash = env.JEV_MOCK === "1" ? undefined : await sha256(JSON.stringify([env.IP_SALT, ip]));
+		const networkHash = env.JEV_MOCK === "1" ? undefined : await sha256(JSON.stringify([env.IP_SALT, ipKey(request.headers.get("cf-connecting-ip") ?? "local", 48)]));
 		const verified = await clearance(request, env, ipHash);
 		if (verified.error) return json({ error: verified.error, reason: verified.reason }, verified.status);
 		const reply = (value, status = 200) => {
@@ -50,7 +51,7 @@ export default {
 		if (!env.COST_GUARD) return reply({ error: "Live checks are not configured yet." }, 503);
 		try {
 			const response = await env.COST_GUARD.get(env.COST_GUARD.idFromName("public-demos")).fetch(new Request("https://guard/ask", {
-				method: "POST", body: JSON.stringify({ ...result, model, ipHash }),
+				method: "POST", body: JSON.stringify({ ...result, model, ipHash, networkHash }),
 			}));
 			const outgoing = new Response(response.body, response);
 			if (verified.cookie) outgoing.headers.set("set-cookie", verified.cookie);
@@ -59,13 +60,17 @@ export default {
 	},
 };
 
-function ipKey(ip) {
-	if (!ip.includes(":")) return ip;
+function ipKey(ip, bits = 64) {
+	if (!ip.includes(":")) return bits === 48 ? `${ip.split('.').slice(0, 3).join('.')}.0/24` : ip;
 	// URL canonicalises compressed, uppercase and embedded-IPv4 IPv6 spellings.
 	const canonical = new URL(`http://[${ip}]/`).hostname.slice(1, -1);
 	const [left, right = []] = canonical.split("::").map(part => part ? part.split(":") : []);
 	const groups = canonical.includes("::") ? [...left, ...Array(8 - left.length - right.length).fill("0"), ...right] : left;
-	return `${groups.slice(0, 4).map(part => part.padStart(4, "0")).join(":")}::/64`;
+	if (groups.slice(0, 5).every(part => parseInt(part, 16) === 0) && parseInt(groups[5], 16) === 0xffff) {
+		const bytes = groups.slice(6).flatMap(part => [parseInt(part, 16) >> 8, parseInt(part, 16) & 255]);
+		return ipKey(bytes.join('.'), bits);
+	}
+	return `${groups.slice(0, bits / 16).map(part => part.padStart(4, "0")).join(":")}::/${bits}`;
 }
 
 // Exported for tests. The client names a block and sends plain text fields; the questions

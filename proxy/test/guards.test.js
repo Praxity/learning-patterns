@@ -260,16 +260,92 @@ test("a same-size state or question edit in the same second misses; restoration 
 	assert.equal(s.calls.model, 3);
 });
 
-test("the default 101st live call is refused, another IP works, and midnight UTC resets", async (t) => {
+test("the default 21st live call is refused, another IP works, and midnight UTC resets", async (t) => {
 	const s = setup(t);
-	for (let i = 0; i < 100; i++) assert.equal((await s.ask({ answer: `call ${i}` })).status, 200);
-	const blocked = await s.ask({ answer: "101st" });
+	for (let i = 0; i < 20; i++) assert.equal((await s.ask({ answer: `call ${i}` })).status, 200);
+	const blocked = await s.ask({ answer: "21st" });
 	assert.equal(blocked.status, 429);
 	assert.equal((await blocked.json()).reason, "ip_daily");
 	assert.equal((await s.ask({ answer: "different IP", ip: "192.0.2.2" })).status, 200);
 	s.advance(12 * 3_600_000);
 	assert.equal((await s.ask({ answer: "new day" })).status, 200);
-	assert.equal(s.calls.model, 102);
+	assert.equal(s.calls.model, 22);
+});
+
+for (const [family, ips, other] of [
+  ['IPv4 /24', ['192.0.2.1', '192.0.2.2', '192.0.2.255', '192.0.2.3'], '192.0.3.1'],
+  ['IPv6 /48', ['2001:db8:1:1::1', '2001:0DB8:0001:0002::1', '2001:db8:1:ffff::1', '2001:db8:1:3::1'], '2001:db8:2:1::1'],
+]) {
+  test(`${family} shares a three-times daily cap without charging refused calls`, async (t) => {
+    const s = setup(t);
+    s.env.IP_DAILY_LIMIT = '2';
+    for (const [index, ip] of ips.slice(0, 3).entries()) {
+      for (let call = 0; call < 2; call++) assert.equal((await s.ask({ ip, answer: `${index}-${call}` })).status, 200);
+    }
+    const before = s.db.prepare('SELECT * FROM ip_calls ORDER BY ip_hash').all();
+    const spend = s.db.prepare('SELECT * FROM spend').all();
+    const blocked = await s.ask({ ip: ips[3], answer: 'over network cap' });
+    assert.equal(blocked.status, 429);
+    assert.equal((await blocked.json()).reason, 'ip_daily');
+    assert.deepEqual(s.db.prepare('SELECT * FROM ip_calls ORDER BY ip_hash').all(), before);
+    assert.deepEqual(s.db.prepare('SELECT * FROM spend').all(), spend);
+    assert.deepEqual(before.map(row => row.calls).sort(), [2, 2, 2, 6]);
+    assert.equal(s.calls.model, 6);
+    assert.equal((await s.ask({ ip: other, answer: 'another network' })).status, 200);
+    s.advance(12 * 3_600_000);
+    assert.equal((await s.ask({ ip: ips[3], answer: 'network reset' })).status, 200);
+  });
+}
+
+for (const cap of ['IP', 'network']) {
+  test(`concurrent fresh calls atomically reserve both counters at the ${cap} cap`, async (t) => {
+    const s = setup(t);
+    s.env.IP_DAILY_LIMIT = '1';
+    if (cap === 'network') {
+      await s.ask({ ip: '192.0.2.10', answer: 'prime one' });
+      await s.ask({ ip: '192.0.2.11', answer: 'prime two' });
+    }
+    const responses = await Promise.all([1, 2, 3].map(i => s.ask({ ip: cap === 'IP' ? '192.0.2.1' : `192.0.2.${i}`, answer: `concurrent ${i}` })));
+    assert.deepEqual(responses.map(response => response.status).sort(), [200, 429, 429]);
+    const expected = cap === 'IP' ? 1 : 3;
+    assert.equal(s.calls.model, expected);
+    assert.deepEqual(s.db.prepare('SELECT calls FROM ip_calls ORDER BY calls').all().map(row => row.calls), cap === 'IP' ? [1, 1] : [1, 1, 1, 3]);
+    assert.equal(s.db.prepare('SELECT nano_usd FROM spend').get().nano_usd, expected * 42000);
+  });
+}
+
+test('a failed counter write rolls back both daily counters and the budget reservation', async (t) => {
+  const s = setup(t);
+  await s.ask();
+  s.db.exec('DELETE FROM results; DELETE FROM ip_calls; DELETE FROM spend');
+  s.db.exec(`CREATE TRIGGER reject_second_counter BEFORE INSERT ON ip_calls
+    WHEN (SELECT count(*) FROM ip_calls) = 1 BEGIN SELECT RAISE(ABORT, 'storage failure'); END`);
+  assert.equal((await s.ask({ answer: 'storage failure' })).status, 502);
+  assert.equal(s.calls.model, 1);
+  assert.equal(s.db.prepare('SELECT count(*) AS n FROM ip_calls').get().n, 0);
+  assert.equal(s.db.prepare('SELECT count(*) AS n FROM spend').get().n, 0);
+  s.db.exec('DROP TRIGGER reject_second_counter');
+  assert.equal((await s.ask({ answer: 'retry storage' })).status, 200);
+  assert.equal(s.db.prepare('SELECT count(*) AS n FROM ip_calls').get().n, 2);
+});
+
+test('IPv4-mapped IPv6 uses its embedded IPv4 for clearance and both caps', async (t) => {
+  const s = setup(t);
+  s.env.IP_DAILY_LIMIT = '1';
+  const keys = [];
+  s.env.LIMITER = { limit: async ({ key }) => { keys.push(key); return { success: true }; } };
+  const first = await s.ask({ ip: '::ffff:198.51.100.7' });
+  const cookie = first.headers.get('set-cookie').split(';')[0];
+  for (const ip of ['198.51.100.7', '::FFFF:c633:6407', '0:0:0:0:0:ffff:c633:6407']) {
+    assert.equal((await s.ask({ ip, cookie, token: null })).status, 200);
+    assert.equal((await s.ask({ ip, cookie, token: null, answer: 'over IP cap' })).status, 429);
+  }
+  assert.deepEqual([...new Set(keys)], ['198.51.100.7']);
+  assert.equal((await s.ask({ ip: '::ffff:203.0.113.9', cookie, token: null })).status, 403);
+  assert.equal((await s.ask({ ip: '::ffff:203.0.113.9', answer: 'unrelated mapped IP' })).status, 200);
+  for (const ip of ['::ffff:198.51.100.8', '198.51.100.255']) assert.equal((await s.ask({ ip, answer: ip })).status, 200);
+  assert.equal((await s.ask({ ip: '::ffff:198.51.100.9', answer: 'over mapped network cap' })).status, 429);
+  assert.equal((await s.ask({ ip: '::fffe:198.51.100.7', answer: 'ordinary IPv6' })).status, 200);
 });
 
 test("cache entries expire after 30 days; concurrent identical calls pay once", async (t) => {
@@ -489,7 +565,7 @@ test('IPv6 rotations and alternate spellings share clearance and both limits wit
     assert.equal((await s.ask({ ip: `2001:db8:1:2::${i}`, cookie, token: null, answer: `rotation ${i}` })).status, 429);
   }
   assert.equal(new Set(keys).size, 1);
-  assert.equal(s.db.prepare('SELECT count(*) AS n FROM ip_calls').get().n, 1);
+  assert.equal(s.db.prepare('SELECT count(*) AS n FROM ip_calls').get().n, 2);
   assert.equal(s.calls.verify, 1);
   assert.equal((await s.ask({ ip: '2001:db8:1:3::1', cookie, token: null })).status, 403);
 });
@@ -504,7 +580,7 @@ test('clearance refuses another IPv4 address and its MAC covers the IP hash', as
   const parts = cookie.split('.');
   parts[1] = otherCookie.split('.')[1];
   assert.equal((await s.ask({ ip: '192.0.2.2', cookie: parts.join('.'), token: null })).status, 403);
-  assert.equal(s.db.prepare('SELECT count(*) AS n FROM ip_calls').get().n, 2);
+  assert.equal(s.db.prepare('SELECT count(*) AS n FROM ip_calls').get().n, 3);
 });
 
 test('the burst limiter rejects junk tokens before siteverify', async (t) => {

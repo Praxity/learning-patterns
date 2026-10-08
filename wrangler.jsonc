@@ -10,7 +10,7 @@
   "vars": {
     "MODEL_PROVIDER": "clef",
     "TURNSTILE_SITE_KEY": "",
-    "IP_DAILY_LIMIT": "100",
+    "IP_DAILY_LIMIT": "20",
     "DAILY_BUDGET_USD": "1.00"
   },
   "durable_objects": { "bindings": [{ "name": "COST_GUARD", "class_name": "CostGuard" }] },

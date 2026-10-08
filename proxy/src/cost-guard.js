@@ -38,30 +38,33 @@ export class CostGuard {
 		finally { this.pending.delete(key); }
 	}
 
-	async ask({ model, state, questions, ipHash, maxInputTokens }, key) {
+	async ask({ model, state, questions, ipHash, networkHash, maxInputTokens }, key) {
 		const now = Date.now();
 		const day = Math.floor(now / DAY);
 		this.cleanup(now);
 		const saved = this.sql.exec("SELECT value FROM results WHERE key = ? AND expires > ?", key, now).toArray()[0];
 		if (saved) return json({ ...JSON.parse(saved.value), questions, costUsd: 0 });
 		const limit = Number(this.env.IP_DAILY_LIMIT ?? DEFAULT_IP_DAILY_LIMIT);
-		if (!Number.isSafeInteger(limit) || limit < 1) return json({ error: "Invalid daily IP limit." }, 503);
-		const calls = this.sql.exec("SELECT calls FROM ip_calls WHERE day = ? AND ip_hash = ?", day, ipHash).toArray()[0]?.calls ?? 0;
-		if (calls >= limit) return json({ error: CAP_MESSAGES.ip_daily, reason: "ip_daily" }, 429);
+		if (!Number.isSafeInteger(limit * 3) || limit < 1) return json({ error: "Invalid daily IP limit." }, 503);
 		const budget = Math.floor(Number(this.env.DAILY_BUDGET_USD ?? DEFAULT_DAILY_BUDGET_USD) * 1e9);
 		if (!Number.isSafeInteger(budget) || budget < 0) return json({ error: "Invalid daily budget." }, 503);
-		const spent = this.sql.exec("SELECT nano_usd FROM spend WHERE day = ?", day).toArray()[0]?.nano_usd ?? 0;
 		const reservation = costNanoUsd(maxInputTokens, model);
-		if (spent >= budget || reservation > budget - spent) return json({ error: CAP_MESSAGES.budget, reason: "budget" }, 429);
-		if (model === DEFAULT_MODEL ? !this.env.AI : !this.env.JEV_API_KEY) return json({ error: "The model provider is not configured." }, 503);
-		// No await from the cache/limit checks through this transaction: check-and-reserve
-		// is atomic on the single-threaded object. Persist the bound before external I/O.
+		// Check and reserve both daily counters and spend in one transaction.
+		// Persist the bound before external I/O.
 		// A timeout or object restart keeps it charged, since the provider may have
 		// billed a request we never heard back from.
-		this.ctx.storage.transactionSync(() => {
-			this.sql.exec("INSERT INTO ip_calls(day, ip_hash, calls) VALUES (?, ?, 1) ON CONFLICT(day, ip_hash) DO UPDATE SET calls = calls + 1", day, ipHash);
+		const refused = this.ctx.storage.transactionSync(() => {
+			for (const [hash, cap] of [[ipHash, limit], [networkHash, limit * 3]]) {
+				const calls = this.sql.exec("SELECT calls FROM ip_calls WHERE day = ? AND ip_hash = ?", day, hash).toArray()[0]?.calls ?? 0;
+				if (calls >= cap) return json({ error: CAP_MESSAGES.ip_daily, reason: "ip_daily" }, 429);
+			}
+			const spent = this.sql.exec("SELECT nano_usd FROM spend WHERE day = ?", day).toArray()[0]?.nano_usd ?? 0;
+			if (spent >= budget || reservation > budget - spent) return json({ error: CAP_MESSAGES.budget, reason: "budget" }, 429);
+			if (model === DEFAULT_MODEL ? !this.env.AI : !this.env.JEV_API_KEY) return json({ error: "The model provider is not configured." }, 503);
+			for (const hash of [ipHash, networkHash]) this.sql.exec("INSERT INTO ip_calls(day, ip_hash, calls) VALUES (?, ?, 1) ON CONFLICT(day, ip_hash) DO UPDATE SET calls = calls + 1", day, hash);
 			this.sql.exec("INSERT INTO spend(day, nano_usd) VALUES (?, ?) ON CONFLICT(day) DO UPDATE SET nano_usd = nano_usd + excluded.nano_usd", day, reservation);
 		});
+		if (refused) return refused;
 		const started = Date.now();
 		let data;
 		if (model === DEFAULT_MODEL) data = await clef(this.env.AI, model, state, questions);
