@@ -1,0 +1,424 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Test your feedback rules content",
+  "type": "object",
+  "required": [
+    "task",
+    "note",
+    "polarityNote",
+    "criteria",
+    "fixtures",
+    "savedRun"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "task": {
+      "$ref": "#/$defs/text"
+    },
+    "note": {
+      "$ref": "#/$defs/text"
+    },
+    "polarityNote": {
+      "$ref": "#/$defs/text"
+    },
+    "criteria": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "prefixItems": [
+        {
+          "type": "object",
+          "required": [
+            "id",
+            "label",
+            "polarity"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "const": "work_deadline"
+            },
+            "label": {
+              "$ref": "#/$defs/text"
+            },
+            "polarity": {
+              "const": "positive"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "id",
+            "label",
+            "polarity"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "const": "reason"
+            },
+            "label": {
+              "$ref": "#/$defs/text"
+            },
+            "polarity": {
+              "const": "positive"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "id",
+            "label",
+            "polarity"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "const": "new_date"
+            },
+            "label": {
+              "$ref": "#/$defs/text"
+            },
+            "polarity": {
+              "const": "positive"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "id",
+            "label",
+            "polarity"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "const": "impact"
+            },
+            "label": {
+              "$ref": "#/$defs/text"
+            },
+            "polarity": {
+              "const": "positive"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "id",
+            "label",
+            "polarity"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "const": "agreement"
+            },
+            "label": {
+              "$ref": "#/$defs/text"
+            },
+            "polarity": {
+              "const": "positive"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "id",
+            "label",
+            "polarity"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "const": "blame"
+            },
+            "label": {
+              "$ref": "#/$defs/text"
+            },
+            "polarity": {
+              "const": "negative"
+            }
+          }
+        }
+      ],
+      "items": false
+    },
+    "fixtures": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "answer",
+          "expected"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          },
+          "name": {
+            "$ref": "#/$defs/bilingual"
+          },
+          "answer": {
+            "type": "object",
+            "required": [
+              "en",
+              "fr"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "en": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S",
+                "maxLength": 800
+              },
+              "fr": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S",
+                "maxLength": 800
+              }
+            }
+          },
+          "expected": {
+            "type": "object",
+            "required": [
+              "work_deadline",
+              "reason",
+              "new_date",
+              "impact",
+              "agreement",
+              "blame"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "work_deadline": {
+                "enum": [
+                  "met",
+                  "missed"
+                ]
+              },
+              "reason": {
+                "enum": [
+                  "met",
+                  "missed"
+                ]
+              },
+              "new_date": {
+                "enum": [
+                  "met",
+                  "missed"
+                ]
+              },
+              "impact": {
+                "enum": [
+                  "met",
+                  "missed"
+                ]
+              },
+              "agreement": {
+                "enum": [
+                  "met",
+                  "missed"
+                ]
+              },
+              "blame": {
+                "enum": [
+                  "met",
+                  "missed"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "savedRun": {
+      "type": "object",
+      "required": [
+        "date",
+        "model",
+        "modelName",
+        "answers"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "date": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "model": {
+          "$ref": "#/$defs/text"
+        },
+        "modelName": {
+          "$ref": "#/$defs/text"
+        },
+        "answers": {
+          "type": "object",
+          "required": [
+            "en",
+            "fr"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "en": {
+              "$ref": "#/$defs/results"
+            },
+            "fr": {
+              "$ref": "#/$defs/results"
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "bilingual": {
+      "type": "object",
+      "required": [
+        "en",
+        "fr"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "en": {
+          "$ref": "#/$defs/text"
+        },
+        "fr": {
+          "$ref": "#/$defs/text"
+        }
+      }
+    },
+    "answers": {
+      "type": "object",
+      "required": [
+        "work_deadline",
+        "reason",
+        "new_date",
+        "impact",
+        "agreement",
+        "blame"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "work_deadline": {
+          "type": "object",
+          "required": [
+            "noul"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "noul": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        },
+        "reason": {
+          "type": "object",
+          "required": [
+            "noul"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "noul": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        },
+        "new_date": {
+          "type": "object",
+          "required": [
+            "noul"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "noul": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        },
+        "impact": {
+          "type": "object",
+          "required": [
+            "noul"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "noul": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        },
+        "agreement": {
+          "type": "object",
+          "required": [
+            "noul"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "noul": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        },
+        "blame": {
+          "type": "object",
+          "required": [
+            "noul"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "noul": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        }
+      }
+    },
+    "results": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[a-zA-Z0-9_-]+$"
+      },
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/answers"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      }
+    }
+  }
+}

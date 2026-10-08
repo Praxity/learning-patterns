@@ -1,0 +1,758 @@
+{
+  "task": "Your client report is due Friday. The sales data arrived three days late, so you need until Tuesday. Write the message to your manager.",
+  "note": "These are samples for the rubric in Check your own answer. Clef 27B scored 8 of 11 answers in a separate acceptance test, below its acceptance bar. All labels in this small saved run agree; that does not establish reliability.",
+  "polarityNote": "Met means the column's statement is present. In \"Blames someone\", met means a mistake. Agreement compares labels, not answer quality.",
+  "criteria": [
+    {
+      "id": "work_deadline",
+      "label": "Client report and Friday deadline",
+      "polarity": "positive"
+    },
+    {
+      "id": "reason",
+      "label": "Reason for the delay",
+      "polarity": "positive"
+    },
+    {
+      "id": "new_date",
+      "label": "New deadline of Tuesday",
+      "polarity": "positive"
+    },
+    {
+      "id": "impact",
+      "label": "Offer to limit the impact",
+      "polarity": "positive"
+    },
+    {
+      "id": "agreement",
+      "label": "Manager's agreement or input",
+      "polarity": "positive"
+    },
+    {
+      "id": "blame",
+      "label": "Blames someone",
+      "polarity": "negative"
+    }
+  ],
+  "fixtures": [
+    {
+      "id": "perfect",
+      "name": {
+        "en": "Complete message",
+        "fr": "Message complet"
+      },
+      "answer": {
+        "en": "Hi Sam, the client report is due Friday. The sales data arrived three days late, so I need until Tuesday to finish it. I can send the finished sections by Friday. Would Tuesday work for you?",
+        "fr": "Bonjour Sam, le rapport client est attendu vendredi. Les données de vente sont arrivées avec trois jours de retard. Il me faudrait jusqu’à mardi pour le terminer. Je peux envoyer les sections terminées vendredi. Est-ce que mardi te convient?"
+      },
+      "expected": {
+        "work_deadline": "met",
+        "reason": "met",
+        "new_date": "met",
+        "impact": "met",
+        "agreement": "met",
+        "blame": "missed"
+      }
+    },
+    {
+      "id": "no_work_deadline",
+      "name": {
+        "en": "Work and original deadline missing",
+        "fr": "Travail et date initiale absents"
+      },
+      "answer": {
+        "en": "The sales data arrived three days late. Could I have until Tuesday to finish? I can send a draft by Friday. Does that work for you?",
+        "fr": "Les données de vente sont arrivées avec trois jours de retard. Est-ce que je peux avoir jusqu’à mardi pour finir? Je peux envoyer une version préliminaire vendredi. Est-ce que ça te convient?"
+      },
+      "expected": {
+        "work_deadline": "missed",
+        "reason": "met",
+        "new_date": "met",
+        "impact": "met",
+        "agreement": "met",
+        "blame": "missed"
+      }
+    },
+    {
+      "id": "no_reason",
+      "name": {
+        "en": "Reason missing",
+        "fr": "Raison absente"
+      },
+      "answer": {
+        "en": "The client report is due Friday. Could I finish it by Tuesday instead? I can send the finished sections by Friday. Would that work for you?",
+        "fr": "Le rapport client est attendu vendredi. Est-ce que je peux le terminer mardi plutôt? Je peux envoyer les sections terminées vendredi. Est-ce que ça te convient?"
+      },
+      "expected": {
+        "work_deadline": "met",
+        "reason": "missed",
+        "new_date": "met",
+        "impact": "met",
+        "agreement": "met",
+        "blame": "missed"
+      }
+    },
+    {
+      "id": "no_new_date",
+      "name": {
+        "en": "New date missing",
+        "fr": "Nouvelle date absente"
+      },
+      "answer": {
+        "en": "The client report is due Friday. The sales data arrived three days late. I need more time and can send a draft by Friday. What do you suggest?",
+        "fr": "Le rapport client est attendu vendredi. Les données de vente sont arrivées avec trois jours de retard. J’ai besoin de plus de temps et je peux envoyer une version préliminaire vendredi. Qu’est-ce que tu proposes?"
+      },
+      "expected": {
+        "work_deadline": "met",
+        "reason": "met",
+        "new_date": "missed",
+        "impact": "met",
+        "agreement": "met",
+        "blame": "missed"
+      }
+    },
+    {
+      "id": "no_impact",
+      "name": {
+        "en": "Offer missing",
+        "fr": "Offre absente"
+      },
+      "answer": {
+        "en": "The client report is due Friday. The sales data arrived three days late. Could I have until Tuesday to finish it?",
+        "fr": "Le rapport client est attendu vendredi. Les données de vente sont arrivées avec trois jours de retard. Est-ce que je peux avoir jusqu’à mardi pour le terminer?"
+      },
+      "expected": {
+        "work_deadline": "met",
+        "reason": "met",
+        "new_date": "met",
+        "impact": "missed",
+        "agreement": "met",
+        "blame": "missed"
+      }
+    },
+    {
+      "id": "no_agreement",
+      "name": {
+        "en": "Agreement missing",
+        "fr": "Accord absent"
+      },
+      "answer": {
+        "en": "The client report is due Friday. The sales data arrived three days late. I will finish it Tuesday and send the finished sections by Friday.",
+        "fr": "Le rapport client est attendu vendredi. Les données de vente sont arrivées avec trois jours de retard. Je vais le terminer mardi et envoyer les sections terminées vendredi."
+      },
+      "expected": {
+        "work_deadline": "met",
+        "reason": "met",
+        "new_date": "met",
+        "impact": "met",
+        "agreement": "missed",
+        "blame": "missed"
+      }
+    },
+    {
+      "id": "several_missing",
+      "name": {
+        "en": "Several parts missing",
+        "fr": "Plusieurs éléments absents"
+      },
+      "answer": {
+        "en": "The data arrived late. I need more time.",
+        "fr": "Les données sont arrivées en retard. J’ai besoin de plus de temps."
+      },
+      "expected": {
+        "work_deadline": "missed",
+        "reason": "met",
+        "new_date": "missed",
+        "impact": "missed",
+        "agreement": "missed",
+        "blame": "missed"
+      }
+    },
+    {
+      "id": "vague_date",
+      "name": {
+        "en": "Vague new date",
+        "fr": "Nouvelle date vague"
+      },
+      "answer": {
+        "en": "The client report is due Friday. The sales data arrived three days late. Could I finish it sometime next week? I can send a draft by Friday.",
+        "fr": "Le rapport client est attendu vendredi. Les données de vente sont arrivées avec trois jours de retard. Est-ce que je peux le terminer au courant de la semaine prochaine? Je peux envoyer une version préliminaire vendredi."
+      },
+      "expected": {
+        "work_deadline": "met",
+        "reason": "met",
+        "new_date": "missed",
+        "impact": "met",
+        "agreement": "met",
+        "blame": "missed"
+      }
+    },
+    {
+      "id": "blame_mistake",
+      "name": {
+        "en": "Blames sales",
+        "fr": "Blâme les ventes"
+      },
+      "answer": {
+        "en": "The client report is due Friday. The sales data arrived three days late because sales never sends anything on time. Could I finish it Tuesday? I can send a draft by Friday.",
+        "fr": "Le rapport client est attendu vendredi. Les données de vente sont arrivées avec trois jours de retard parce que l’équipe des ventes n’envoie jamais rien à temps. Est-ce que je peux le terminer mardi? Je peux envoyer une version préliminaire vendredi."
+      },
+      "expected": {
+        "work_deadline": "met",
+        "reason": "met",
+        "new_date": "met",
+        "impact": "met",
+        "agreement": "met",
+        "blame": "met"
+      }
+    },
+    {
+      "id": "french",
+      "name": {
+        "en": "Another complete message",
+        "fr": "Autre message complet"
+      },
+      "answer": {
+        "en": "Hi Sam, could we move the client report deadline from Friday to Tuesday? The sales data arrived three days late. I can send a draft Friday. Let me know if another plan would work better.",
+        "fr": "Bonjour Sam, est-ce qu’on peut reporter la date de remise du rapport client de vendredi à mardi? Les données de vente sont arrivées avec trois jours de retard. Je peux envoyer une version préliminaire vendredi. Dis-moi si une autre solution te conviendrait mieux."
+      },
+      "expected": {
+        "work_deadline": "met",
+        "reason": "met",
+        "new_date": "met",
+        "impact": "met",
+        "agreement": "met",
+        "blame": "missed"
+      }
+    },
+    {
+      "id": "short",
+      "name": {
+        "en": "Very short request",
+        "fr": "Demande très courte"
+      },
+      "answer": {
+        "en": "Could I have until Tuesday?",
+        "fr": "Est-ce que je peux avoir jusqu’à mardi?"
+      },
+      "expected": {
+        "work_deadline": "missed",
+        "reason": "missed",
+        "new_date": "met",
+        "impact": "missed",
+        "agreement": "met",
+        "blame": "missed"
+      }
+    },
+    {
+      "id": "off_topic",
+      "name": {
+        "en": "Off-topic answer",
+        "fr": "Réponse hors sujet"
+      },
+      "answer": {
+        "en": "I made vegetable soup for lunch and saved the leftovers for tomorrow.",
+        "fr": "J’ai fait une soupe aux légumes pour dîner et gardé les restes pour demain."
+      },
+      "expected": {
+        "work_deadline": "missed",
+        "reason": "missed",
+        "new_date": "missed",
+        "impact": "missed",
+        "agreement": "missed",
+        "blame": "missed"
+      }
+    }
+  ],
+  "savedRun": {
+    "date": "2026-10-07",
+    "model": "@cf/cloudflare/clef",
+    "modelName": "Clef 27B",
+    "answers": {
+      "en": {
+        "perfect": {
+          "work_deadline": {
+            "noul": 0.9238
+          },
+          "reason": {
+            "noul": 0.9557
+          },
+          "new_date": {
+            "noul": 0.937
+          },
+          "impact": {
+            "noul": 0.8379
+          },
+          "agreement": {
+            "noul": 0.9271
+          },
+          "blame": {
+            "noul": 0.0201
+          }
+        },
+        "no_work_deadline": {
+          "work_deadline": {
+            "noul": 0.05
+          },
+          "reason": {
+            "noul": 0.9607
+          },
+          "new_date": {
+            "noul": 0.9111
+          },
+          "impact": {
+            "noul": 0.7824
+          },
+          "agreement": {
+            "noul": 0.9392
+          },
+          "blame": {
+            "noul": 0.0178
+          }
+        },
+        "no_reason": {
+          "work_deadline": {
+            "noul": 0.8888
+          },
+          "reason": {
+            "noul": 0.0371
+          },
+          "new_date": {
+            "noul": 0.8286
+          },
+          "impact": {
+            "noul": 0.8152
+          },
+          "agreement": {
+            "noul": 0.9185
+          },
+          "blame": {
+            "noul": 0.0213
+          }
+        },
+        "no_new_date": {
+          "work_deadline": {
+            "noul": 0.9086
+          },
+          "reason": {
+            "noul": 0.9546
+          },
+          "new_date": {
+            "noul": 0.0156
+          },
+          "impact": {
+            "noul": 0.799
+          },
+          "agreement": {
+            "noul": 0.9275
+          },
+          "blame": {
+            "noul": 0.0189
+          }
+        },
+        "no_impact": {
+          "work_deadline": {
+            "noul": 0.9254
+          },
+          "reason": {
+            "noul": 0.9486
+          },
+          "new_date": {
+            "noul": 0.9322
+          },
+          "impact": {
+            "noul": 0.0273
+          },
+          "agreement": {
+            "noul": 0.9295
+          },
+          "blame": {
+            "noul": 0.0192
+          }
+        },
+        "no_agreement": {
+          "work_deadline": {
+            "noul": 0.866
+          },
+          "reason": {
+            "noul": 0.9368
+          },
+          "new_date": {
+            "noul": 0.9027
+          },
+          "impact": {
+            "noul": 0.8244
+          },
+          "agreement": {
+            "noul": 0.0539
+          },
+          "blame": {
+            "noul": 0.0212
+          }
+        },
+        "several_missing": {
+          "work_deadline": {
+            "noul": 0.0306
+          },
+          "reason": {
+            "noul": 0.9305
+          },
+          "new_date": {
+            "noul": 0.0288
+          },
+          "impact": {
+            "noul": 0.0286
+          },
+          "agreement": {
+            "noul": 0.1829
+          },
+          "blame": {
+            "noul": 0.0262
+          }
+        },
+        "vague_date": {
+          "work_deadline": {
+            "noul": 0.9085
+          },
+          "reason": {
+            "noul": 0.9421
+          },
+          "new_date": {
+            "noul": 0.0253
+          },
+          "impact": {
+            "noul": 0.7912
+          },
+          "agreement": {
+            "noul": 0.8704
+          },
+          "blame": {
+            "noul": 0.0207
+          }
+        },
+        "blame_mistake": {
+          "work_deadline": {
+            "noul": 0.91
+          },
+          "reason": {
+            "noul": 0.9475
+          },
+          "new_date": {
+            "noul": 0.8041
+          },
+          "impact": {
+            "noul": 0.7599
+          },
+          "agreement": {
+            "noul": 0.9265
+          },
+          "blame": {
+            "noul": 0.8662
+          }
+        },
+        "french": {
+          "work_deadline": {
+            "noul": 0.8652
+          },
+          "reason": {
+            "noul": 0.9442
+          },
+          "new_date": {
+            "noul": 0.9256
+          },
+          "impact": {
+            "noul": 0.7927
+          },
+          "agreement": {
+            "noul": 0.8792
+          },
+          "blame": {
+            "noul": 0.0205
+          }
+        },
+        "short": {
+          "work_deadline": {
+            "noul": 0.039
+          },
+          "reason": {
+            "noul": 0.0401
+          },
+          "new_date": {
+            "noul": 0.9216
+          },
+          "impact": {
+            "noul": 0.0345
+          },
+          "agreement": {
+            "noul": 0.9139
+          },
+          "blame": {
+            "noul": 0.0331
+          }
+        },
+        "off_topic": {
+          "work_deadline": {
+            "noul": 0.0244
+          },
+          "reason": {
+            "noul": 0.0263
+          },
+          "new_date": {
+            "noul": 0.0206
+          },
+          "impact": {
+            "noul": 0.0792
+          },
+          "agreement": {
+            "noul": 0.2643
+          },
+          "blame": {
+            "noul": 0.0773
+          }
+        }
+      },
+      "fr": {
+        "perfect": {
+          "work_deadline": {
+            "noul": 0.8852
+          },
+          "reason": {
+            "noul": 0.9574
+          },
+          "new_date": {
+            "noul": 0.9434
+          },
+          "impact": {
+            "noul": 0.8605
+          },
+          "agreement": {
+            "noul": 0.9238
+          },
+          "blame": {
+            "noul": 0.0172
+          }
+        },
+        "no_work_deadline": {
+          "work_deadline": {
+            "noul": 0.104
+          },
+          "reason": {
+            "noul": 0.9557
+          },
+          "new_date": {
+            "noul": 0.928
+          },
+          "impact": {
+            "noul": 0.7979
+          },
+          "agreement": {
+            "noul": 0.9292
+          },
+          "blame": {
+            "noul": 0.014
+          }
+        },
+        "no_reason": {
+          "work_deadline": {
+            "noul": 0.8456
+          },
+          "reason": {
+            "noul": 0.0289
+          },
+          "new_date": {
+            "noul": 0.8539
+          },
+          "impact": {
+            "noul": 0.8439
+          },
+          "agreement": {
+            "noul": 0.9058
+          },
+          "blame": {
+            "noul": 0.0178
+          }
+        },
+        "no_new_date": {
+          "work_deadline": {
+            "noul": 0.8691
+          },
+          "reason": {
+            "noul": 0.9584
+          },
+          "new_date": {
+            "noul": 0.0175
+          },
+          "impact": {
+            "noul": 0.8029
+          },
+          "agreement": {
+            "noul": 0.8746
+          },
+          "blame": {
+            "noul": 0.0154
+          }
+        },
+        "no_impact": {
+          "work_deadline": {
+            "noul": 0.8767
+          },
+          "reason": {
+            "noul": 0.9583
+          },
+          "new_date": {
+            "noul": 0.9336
+          },
+          "impact": {
+            "noul": 0.0271
+          },
+          "agreement": {
+            "noul": 0.9145
+          },
+          "blame": {
+            "noul": 0.0144
+          }
+        },
+        "no_agreement": {
+          "work_deadline": {
+            "noul": 0.7852
+          },
+          "reason": {
+            "noul": 0.949
+          },
+          "new_date": {
+            "noul": 0.8479
+          },
+          "impact": {
+            "noul": 0.8295
+          },
+          "agreement": {
+            "noul": 0.0758
+          },
+          "blame": {
+            "noul": 0.0176
+          }
+        },
+        "several_missing": {
+          "work_deadline": {
+            "noul": 0.0385
+          },
+          "reason": {
+            "noul": 0.9112
+          },
+          "new_date": {
+            "noul": 0.0427
+          },
+          "impact": {
+            "noul": 0.0386
+          },
+          "agreement": {
+            "noul": 0.1906
+          },
+          "blame": {
+            "noul": 0.0257
+          }
+        },
+        "vague_date": {
+          "work_deadline": {
+            "noul": 0.8054
+          },
+          "reason": {
+            "noul": 0.9543
+          },
+          "new_date": {
+            "noul": 0.0378
+          },
+          "impact": {
+            "noul": 0.8265
+          },
+          "agreement": {
+            "noul": 0.8601
+          },
+          "blame": {
+            "noul": 0.0173
+          }
+        },
+        "blame_mistake": {
+          "work_deadline": {
+            "noul": 0.8643
+          },
+          "reason": {
+            "noul": 0.9563
+          },
+          "new_date": {
+            "noul": 0.7862
+          },
+          "impact": {
+            "noul": 0.8155
+          },
+          "agreement": {
+            "noul": 0.8783
+          },
+          "blame": {
+            "noul": 0.86
+          }
+        },
+        "french": {
+          "work_deadline": {
+            "noul": 0.8835
+          },
+          "reason": {
+            "noul": 0.9372
+          },
+          "new_date": {
+            "noul": 0.9327
+          },
+          "impact": {
+            "noul": 0.7772
+          },
+          "agreement": {
+            "noul": 0.8372
+          },
+          "blame": {
+            "noul": 0.0157
+          }
+        },
+        "short": {
+          "work_deadline": {
+            "noul": 0.0586
+          },
+          "reason": {
+            "noul": 0.033
+          },
+          "new_date": {
+            "noul": 0.9203
+          },
+          "impact": {
+            "noul": 0.0349
+          },
+          "agreement": {
+            "noul": 0.8872
+          },
+          "blame": {
+            "noul": 0.0347
+          }
+        },
+        "off_topic": {
+          "work_deadline": {
+            "noul": 0.0332
+          },
+          "reason": {
+            "noul": 0.0264
+          },
+          "new_date": {
+            "noul": 0.0246
+          },
+          "impact": {
+            "noul": 0.0783
+          },
+          "agreement": {
+            "noul": 0.1821
+          },
+          "blame": {
+            "noul": 0.0597
+          }
+        }
+      }
+    }
+  }
+}

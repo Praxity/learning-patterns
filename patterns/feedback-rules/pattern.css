@@ -1,0 +1,19 @@
+.lp-feedback-rules { max-inline-size: none; }
+.lp-feedback-rules-scroll { overflow-x: auto; margin-top: 1rem; }
+.lp-feedback-rules-scroll:focus { outline: 2px solid var(--lp-focus); outline-offset: 2px; }
+.lp-feedback-rules table { width: 100%; min-width: 64rem; border-collapse: collapse; font-size: var(--lp-type-small); }
+.lp-feedback-rules th, .lp-feedback-rules td { padding: .75rem; border-bottom: 1px solid var(--lp-rule); text-align: start; vertical-align: top; }
+.lp-feedback-rules thead th { font-weight: 600; }
+.lp-feedback-rules tbody th { width: 17rem; font-weight: 400; }
+.lp-feedback-rules tbody td { min-width: 7.5rem; }
+.lp-feedback-rules-outcome, .lp-feedback-rules-review { display: flex; align-items: center; gap: .3rem; margin-top: .4rem; }
+.lp-feedback-rules-review { font-size: var(--lp-type-small); font-weight: 400; }
+.lp-feedback-rules dl { font-size: var(--lp-type-small); }
+.lp-feedback-rules dt { font-weight: 600; }
+.lp-feedback-rules dd { margin: 0 0 .6rem; }
+.lp-feedback-rules select { width: auto; margin-top: .3rem; display: block; }
+.lp-feedback-rules .lp-actions { align-items: end; }
+@media (forced-colors: active) {
+  .lp-feedback-rules th, .lp-feedback-rules td { border-color: CanvasText; }
+  .lp-feedback-rules-scroll:focus { outline-color: Highlight; }
+}
