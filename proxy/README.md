@@ -93,9 +93,9 @@ For local UI work, `JEV_MOCK=1` returns fake answers and bypasses clearance and 
 
 Place this text next to the answer box:
 
-> To choose the feedback, your answer is sent to {provider}. We don't store your text. Don't include names or personal details.
+> Your answer is sent to a decision model; it is not stored and not used for training.
 
-Use `Perplexity (US)` for Perplexity, `Cloudflare Workers AI` for Clef and `TypeSafe (US)` for Jev. Before sending learner text in a client course, arrange consent wording and a data agreement with the chosen provider. [Perplexity's published no-retention promise](https://docs.perplexity.ai/docs/resources/privacy-security) names Chat Completions and has not been confirmed for the Decisions endpoint. Confirm Decisions retention terms before sending learner text in a client course.
+[Perplexity's API FAQ](https://docs.perplexity.ai/docs/resources/faq) says, "We do not retain any query data sent through the API and do not train on any of your data." Self-hosters using another provider must confirm that provider's retention and training terms before using this notice. Before sending learner text in a client course, arrange consent wording and a data agreement with the chosen provider.
 
 The proxy sends the answer and authored context to the provider. Except for `13-journal`, it keeps an HMAC-SHA-256 key of the model, state and questions, validated model answers and response metadata for 30 days. Journal results are never cached or shared between in-flight requests. The cache uses `CACHE_KEY_SECRET`, separate from the IP salt. It stores salted IP and network hashes and daily call and spend counters. It stores neither submitted text nor raw provider responses, and writes no application logs. Extra provider fields are discarded; text in a numeric answer or an unknown choice fails validation before caching. Hosting and model providers have their own data policies.
 
@@ -103,7 +103,7 @@ The proxy sends the answer and authored context to the provider. Except for `13-
 
 Use real Turnstile credentials, with the widget's hostname list limited to your page host. Leave `JEV_MOCK` unset, use `MODEL_PROVIDER=perplexity` and configure `PERPLEXITY_API_KEY`. Keep the three signing and hashing secrets independent. Avoid request-body logging in Workers Logs, Logpush or an AI Gateway.
 
-After deploying, confirm `/api/patterns/config` reports `mock: false`, `provider: "perplexity"`, `providerName: "Perplexity (US)"` and a non-empty `siteKey`. A POST without a token or cookie must return 403. Take the notice's provider name from the configuration.
+After deploying, confirm `/api/patterns/config` reports `mock: false`, `provider: "perplexity"`, `providerName: "Perplexity (US)"` and a non-empty `siteKey`. A POST without a token or cookie must return 403. Use the configured `dataNotice` for the page language.
 
 Make one maximum-length live call for each block with non-ASCII text, such as 1,500 CJK characters for `13-journal`. Confirm the response's `tokens`, from the provider's `usage.input_tokens`, is a positive integer below that block's reservation in the table above. Missing usage returns 502 and keeps the reservation. Valid usage above the bound returns 502 and records the greater of reported cost and the reservation; revise that block's reservation before offering live checks.
 

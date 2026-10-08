@@ -1,5 +1,5 @@
 {
-  "task": "Expliquez-le à une nouvelle gestionnaire en deux phrases.",
+  "task": "Une nouvelle gestionnaire vous demande ce qu'est l'évitement et comment prendre une pause à la place. Expliquez-le-lui en deux phrases.",
   "model": "L'évitement consiste à se taire ou à se retirer sans dire pourquoi, ce qui donne à l'autre personne l'impression d'être ignorée. Pour prendre une pause, vous lui dites que vous en avez besoin, vous convenez du moment où vous reprendrez la conversation, puis vous revenez.",
   "ideas": [
     {
