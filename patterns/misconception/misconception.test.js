@@ -9,8 +9,14 @@ import { strings } from './strings.js';
 const content = JSON.parse(await readFile(new URL('./examples/en.json', import.meta.url)));
 const answers = (choice, confidence) => ({ misconception: { choice, confidence } });
 
+test('default feedback uses the Jev gate used by Perplexity', () => {
+  assert.equal(feedback(content, answers('correct', 0.5)).kind, 'unsure-key');
+  assert.equal(feedback(content, answers('correct', 0.9)).kind, 'correct');
+  assert.equal(feedback(content, answers('rereading', 0.5)).kind, 'unsure-misconception');
+});
+
 test('Choice outcomes use the proxy gate at and below every model boundary', () => {
-  for (const model of ['@cf/cloudflare/clef', '@cf/cloudflare/clef-flash', 'jev']) {
+  for (const model of ['pplx-decider-v1.1-27b', '@cf/cloudflare/clef', '@cf/cloudflare/clef-flash', 'jev']) {
     const gate = confidenceGate(model);
     assert.deepEqual(feedback(content, answers('correct', gate), model), { kind: 'correct', heading: '', text: content.keyIdea });
     assert.equal(feedback(content, answers('correct', gate - .0001), model).text, content.unsureKeyIdea);
