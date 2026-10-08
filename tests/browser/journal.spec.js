@@ -112,8 +112,8 @@ for (const lang of ['en', 'fr']) {
         await expect(page.locator('[data-lp-result] .lp-icon')).toHaveAttribute('aria-hidden', 'true');
         await expect(page.locator('[data-lp-result]')).toHaveClass(/lp-met/);
         await expect(page.locator('[data-lp-result]')).toHaveText(lang === 'fr'
-          ? "Vous avez décrit une situation, votre réaction et quoi essayer ensuite, en précisant quand."
-          : "You described a situation, your response and what you'll try next, including when.");
+          ? "Très bien. Vous avez nommé un moment, ce que vous avez fait et une prochaine étape en précisant quand vous l'essaierez."
+          : "Great. You've named a moment, what you did, and a next step with a when.");
       }
       await expect(page.locator('[data-lp-questions]')).toBeHidden();
       await expect(page.locator('[data-lp-support]')).toBeHidden();
