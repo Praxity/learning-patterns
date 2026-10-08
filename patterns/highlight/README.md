@@ -38,6 +38,7 @@ Follows the shared baseline in the root README.
 - At the limit, selecting another chunk shows and announces a message below the passage. Removing a mark clears it.
 - Found targets have green highlights and solid underlines; missed targets have dashed underlines and no highlight. Other selections stay yellow, with readable notes in neutral pills. Icons and words identify outcomes, including in forced colours.
 - Check announces the target count. If Check has focus when it hides, focus moves to Start over. Reset focuses the first chunk silently.
+- Known screen reader behaviour: when NVDA reads line by line and a chunk wraps onto the next line, it says "toggle button, not pressed" again at the start of that line. NVDA does the same for any link that wraps. The chunks stay inline so the passage reads as paragraphs.
 
 ## Content fields
 

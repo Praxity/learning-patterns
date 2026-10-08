@@ -2,7 +2,7 @@ export const strings = {
   en: {
     keyInstruction: 'Highlight the key ideas.',
     evidenceInstruction: 'Highlight the text that answers this question. {question}',
-    controls: 'Click or tap text to mark or unmark it. Use Tab or Shift+Tab to move between pieces, and Space or Enter to mark or unmark. Arrow keys, Home and End also work when your screen reader passes them to the page.',
+    controls: 'Click or tap a passage to mark or unmark it. Use Tab or Shift+Tab to move between passages, and Space or Enter to mark or unmark. Arrow keys, Home and End also work when your screen reader passes them to the page.',
     count: '{n} of {max} marked',
     limitOne: 'You can mark one passage. Unmark it to choose another.',
     limitMany: 'You can mark up to {n} passages. Unmark one to choose another.',

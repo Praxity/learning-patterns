@@ -121,7 +121,7 @@ test('passage buttons support Tab through every chunk, arrow shortcuts and silen
   await expect(chunks.first()).toBeFocused();
   const instructions = await chunks.first().getAttribute('aria-describedby');
   await expect(page.locator('[data-lp-passage]')).toHaveAttribute('aria-describedby', instructions);
-  await expect(page.locator(`[id="${instructions}"]`)).toContainText('Click or tap text to mark or unmark it.');
+  await expect(page.locator(`[id="${instructions}"]`)).toContainText('Click or tap a passage to mark or unmark it.');
   const outline = await chunks.first().evaluate(el => {
     const css = getComputedStyle(el); return [css.outlineWidth, css.outlineStyle, css.outlineOffset];
   });
