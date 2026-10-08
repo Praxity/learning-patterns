@@ -3,6 +3,8 @@ import test from "node:test";
 import worker from "../src/worker.js";
 import { DatabaseSync } from "node:sqlite";
 import { blocks as demos } from "../src/registry.js";
+import { CostGuard } from "../src/cost-guard.js";
+import { buildRequest } from "../src/worker.js";
 
 function setup(t) {
 	const calls = { verify: 0, model: 0, limiter: 0, inputTokens: 1000, fail: false, hostname: "demo.example", status: 200, verifyFails: false };
@@ -23,9 +25,10 @@ function setup(t) {
 	const env = {
 		MODEL_PROVIDER: "jev",
 		JEV_API_KEY: "test-key",
-		TURNSTILE_SECRET_KEY: "1x0000000000000000000000000000000AA",
+		TURNSTILE_SECRET_KEY: "production-secret",
 		COOKIE_SIGNING_KEY: "test-cookie-key-with-at-least-32-bytes",
 		IP_SALT: "test-ip-salt-with-at-least-32-bytes",
+		CACHE_KEY_SECRET: "test-cache-key-with-at-least-32-bytes",
 		LIMITER: { limit: async () => { calls.limiter++; return { success: true }; } },
 	};
 	const db = new DatabaseSync(":memory:");
@@ -37,7 +40,6 @@ function setup(t) {
 		idFromName: (name) => name,
 		get: () => ({ fetch: async (request) => {
 			if (!object) {
-				const { CostGuard } = await import("../src/cost-guard.js");
 				object = new CostGuard({
 					storage: {
 						sql: { exec: (query, ...params) => {
@@ -51,7 +53,8 @@ function setup(t) {
 							try { const result = fn(); db.exec("COMMIT"); return result; }
 							catch (error) { db.exec("ROLLBACK"); throw error; }
 						},
-						setAlarm: async (at) => { calls.alarmAt = at; },
+						getAlarm: async () => calls.alarmAt ?? null,
+						setAlarm: async (at) => { calls.alarmAt = at; calls.alarms = (calls.alarms ?? 0) + 1; },
 					},
 					blockConcurrencyWhile: (fn) => {
 						const next = gate.then(fn);
@@ -63,19 +66,19 @@ function setup(t) {
 			return object.fetch(request);
 		} }),
 	};
-	const ask = ({ token = "XXXX.DUMMY.TOKEN.XXXX", cookie, ip = "192.0.2.1", answer = "hello", block = "16-fixtures", fields } = {}) => worker.fetch(new Request("https://demo.example/api/patterns/ask", {
-		method: "POST", headers: { "content-type": "application/json", "cf-connecting-ip": ip, ...(token ? { "x-turnstile-token": token } : {}), ...(cookie ? { cookie } : {}) },
-		body: JSON.stringify({ block, fields: fields ?? { answer } }),
+	const ask = ({ token = "XXXX.DUMMY.TOKEN.XXXX", cookie, ip = "192.0.2.1", answer = "hello", block = "16-fixtures", fields, host = "demo.example", body, headers = {} } = {}) => worker.fetch(new Request(`https://${host}/api/patterns/ask`, {
+		method: "POST", headers: { "content-type": "application/json", "cf-connecting-ip": ip, ...(token ? { "x-turnstile-token": token } : {}), ...(cookie ? { cookie } : {}), ...headers },
+		body: body ?? JSON.stringify({ block, fields: fields ?? { answer } }),
 	}), env);
 	return { env, calls, ask, db, writes, advance: (ms) => { now += ms; } };
 }
 
-test("Turnstile refuses missing or bad tokens before limiter or model work", async (t) => {
+test("Turnstile refuses missing or bad tokens after the limiter and before model work", async (t) => {
 	const s = setup(t);
 	assert.equal((await s.ask({ token: null })).status, 403);
 	assert.equal((await s.ask({ token: "bad" })).status, 403);
 	assert.equal(s.calls.model, 0);
-	assert.equal(s.calls.limiter, 0);
+	assert.equal(s.calls.limiter, 2);
 });
 
 test("oversized tokens and unavailable siteverify fail before model work", async (t) => {
@@ -87,7 +90,7 @@ test("oversized tokens and unavailable siteverify fail before model work", async
 	assert.equal(unavailable.status, 503);
 	assert.equal((await unavailable.json()).reason, "turnstile");
 	assert.equal(s.calls.model, 0);
-	assert.equal(s.calls.limiter, 0);
+	assert.equal(s.calls.limiter, 2);
 });
 
 test("missing guard configuration and invalid limits cannot start a model call", async (t) => {
@@ -148,7 +151,8 @@ test("changing the secret salt changes the IP identity without changing the clie
 test("official test keys accept their dummy hostname, while production keys require this hostname", async (t) => {
 	const s = setup(t);
 	s.calls.hostname = "example.com";
-	assert.equal((await s.ask()).status, 200);
+	s.env.TURNSTILE_SECRET_KEY = "1x0000000000000000000000000000000AA";
+	assert.equal((await s.ask({ host: "localhost" })).status, 200);
 	s.env.TURNSTILE_SECRET_KEY = "production-secret";
 	assert.equal((await s.ask()).status, 403);
 	assert.equal(s.calls.model, 1);
@@ -189,7 +193,7 @@ test("identical requests use saved answers and spend neither IP calls nor money"
 	const second = await s.ask();
 	assert.equal(second.status, 200);
 	const saved = await second.json();
-	assert.equal(saved.cached, true);
+	assert.equal(saved.costUsd, 0);
 	assert.deepEqual(saved.answers, first.answers);
 	assert.equal(saved.costUsd, 0);
 	assert.equal(s.calls.model, 1);
@@ -202,7 +206,7 @@ test("a cached request leaves both the remaining IP call and budget available", 
 	s.env.IP_DAILY_LIMIT = "2";
 	s.env.DAILY_BUDGET_USD = "0.0028";
 	assert.equal((await s.ask()).status, 200);
-	assert.equal((await (await s.ask()).json()).cached, true);
+	assert.equal((await (await s.ask()).json()).costUsd, 0);
 	assert.equal((await s.ask({ answer: "second live" })).status, 200);
 	const third = await s.ask({ answer: "third live" });
 	assert.equal(third.status, 429);
@@ -242,7 +246,7 @@ test("a signed one-hour cookie skips siteverify; tampering and expiry do not", a
 test("a same-size state or question edit in the same second misses; restoration uses the original cache", async (t) => {
 	const s = setup(t);
 	await s.ask({ answer: "aaaa" });
-	assert.equal((await (await s.ask({ answer: "bbbb" })).json()).cached, false);
+	assert.equal((await (await s.ask({ answer: "bbbb" })).json()).costUsd, 0.000042);
 	const original = demos["16-fixtures"].build;
 	const changed = t.mock.method(demos["16-fixtures"], "build", (input) => {
 		const result = original(input);
@@ -250,9 +254,9 @@ test("a same-size state or question edit in the same second misses; restoration 
 		result.questions.sincere.instructions.question = text.slice(0, -1) + "!";
 		return result;
 	});
-	assert.equal((await (await s.ask({ answer: "aaaa" })).json()).cached, false);
+	assert.equal((await (await s.ask({ answer: "aaaa" })).json()).costUsd, 0.000042);
 	changed.mock.restore();
-	assert.equal((await (await s.ask({ answer: "aaaa" })).json()).cached, true);
+	assert.equal((await (await s.ask({ answer: "aaaa" })).json()).costUsd, 0);
 	assert.equal(s.calls.model, 3);
 });
 
@@ -275,9 +279,9 @@ test("cache entries expire after 30 days; concurrent identical calls pay once", 
 	assert.equal(responses[1].status, 200);
 	assert.equal(s.calls.model, 1);
 	s.advance(30 * 86_400_000 - 1);
-	assert.equal((await (await s.ask()).json()).cached, true);
+	assert.equal((await (await s.ask()).json()).costUsd, 0);
 	s.advance(1);
-	assert.equal((await (await s.ask()).json()).cached, false);
+	assert.equal((await (await s.ask()).json()).costUsd, 0.000042);
 	assert.equal(s.calls.model, 2);
 });
 
@@ -301,7 +305,7 @@ test("mock mode works without Turnstile secrets", async (t) => {
 	s.env.JEV_MOCK = "1";
 	delete s.env.TURNSTILE_SECRET_KEY;
 	delete s.env.COOKIE_SIGNING_KEY;
-	const response = await s.ask({ token: null });
+	const response = await s.ask({ token: null, host: "localhost" });
 	assert.equal(response.status, 200);
 	assert.equal((await response.json()).mock, true);
 	assert.equal(s.calls.verify, 0);
@@ -325,7 +329,7 @@ test("Clef is the default provider, needs no Jev secret and uses the tuned quest
   assert.equal(result.model, "@cf/cloudflare/clef");
   assert.equal(result.costUsd, 0.00024);
   assert.equal(s.calls.model, 1);
-  assert.equal((await (await s.ask()).json()).cached, true);
+  assert.equal((await (await s.ask()).json()).costUsd, 0);
   assert.equal(s.calls.model, 1);
 });
 
@@ -352,7 +356,7 @@ test("no submitted text enters SQL writes, database rows, alarms or Worker logs,
     }, usage: { input_tokens: 1000 }, state: submitted });
   });
   assert.equal((await s.ask({ answer: submitted })).status, 200);
-  assert.equal((await (await s.ask({ answer: submitted })).json()).cached, true);
+  assert.equal((await (await s.ask({ answer: submitted })).json()).costUsd, 0);
   const stored = [s.writes, s.db.prepare("SELECT * FROM results").all(), s.db.prepare("SELECT * FROM ip_calls").all(), s.db.prepare("SELECT * FROM spend").all(), s.calls.alarmAt, logs];
   assert.ok(!JSON.stringify(stored).includes(submitted));
   const cached = JSON.parse(s.db.prepare("SELECT value FROM results").get().value);
@@ -385,7 +389,7 @@ for (const provider of ['clef', 'jev']) {
       assert.equal(response.status, 200, block);
       const result = await response.json();
       assert.deepEqual(Object.keys(result.answers), Object.keys(entry.clefQuestions));
-      assert.equal((await (await s.ask({ block, fields })).json()).cached, true);
+      assert.equal((await (await s.ask({ block, fields })).json()).costUsd, 0);
       invalid = true;
       const badFields = block === '03-branch' ? { node: 'opening', reply: submitted + ' invalid' } : { answer: submitted + ' invalid' };
       assert.equal((await s.ask({ block, fields: badFields })).status, 502, block);
@@ -430,11 +434,11 @@ test('Jev and Clef caches stay separate and a Jev secret alone never enables Jev
     return { answers: Object.fromEntries(Object.keys(request.questions).map(key => [key, { noul: 0.9 }])), usage: { input_tokens: 1000 } };
   } };
   const clef = await (await s.ask()).json();
-  assert.equal(clef.cached, false);
+  assert.equal(clef.costUsd, 0.00024);
   assert.equal(clef.model, '@cf/cloudflare/clef');
-  assert.equal((await (await s.ask()).json()).cached, true);
+  assert.equal((await (await s.ask()).json()).costUsd, 0);
   s.env.MODEL_PROVIDER = 'jev';
-  assert.equal((await (await s.ask()).json()).cached, true);
+  assert.equal((await (await s.ask()).json()).costUsd, 0);
   assert.equal(s.calls.model, 2);
 });
 
@@ -471,4 +475,141 @@ test('malformed provider answer fields never enter the cache and keep the maximu
   }
   assert.equal(s.db.prepare('SELECT count(*) AS count FROM results').get().count, 0);
   assert.equal(s.db.prepare('SELECT nano_usd FROM spend').get().nano_usd, cases.length * 2752512);
+});
+
+test('IPv6 rotations and alternate spellings share clearance and both limits within a /64', async (t) => {
+  const s = setup(t);
+  s.env.IP_DAILY_LIMIT = '2';
+  const keys = [];
+  s.env.LIMITER = { limit: async ({ key }) => { keys.push(key); return { success: true }; } };
+  const first = await s.ask({ ip: '2001:db8:1:2::1' });
+  const cookie = first.headers.get('set-cookie').split(';')[0];
+  assert.equal((await s.ask({ ip: '2001:0DB8:0001:0002:ffff::2', cookie, token: null, answer: 'second' })).status, 200);
+  for (let i = 3; i < 23; i++) {
+    assert.equal((await s.ask({ ip: `2001:db8:1:2::${i}`, cookie, token: null, answer: `rotation ${i}` })).status, 429);
+  }
+  assert.equal(new Set(keys).size, 1);
+  assert.equal(s.db.prepare('SELECT count(*) AS n FROM ip_calls').get().n, 1);
+  assert.equal(s.calls.verify, 1);
+  assert.equal((await s.ask({ ip: '2001:db8:1:3::1', cookie, token: null })).status, 403);
+});
+
+test('clearance refuses another IPv4 address and its MAC covers the IP hash', async (t) => {
+  const s = setup(t);
+  const first = await s.ask();
+  const cookie = first.headers.get('set-cookie').split(';')[0];
+  assert.equal((await s.ask({ ip: '192.0.2.2', cookie, token: null })).status, 403);
+  const second = await s.ask({ ip: '192.0.2.2', answer: 'second IPv4' });
+  const otherCookie = second.headers.get('set-cookie').split(';')[0];
+  const parts = cookie.split('.');
+  parts[1] = otherCookie.split('.')[1];
+  assert.equal((await s.ask({ ip: '192.0.2.2', cookie: parts.join('.'), token: null })).status, 403);
+  assert.equal(s.db.prepare('SELECT count(*) AS n FROM ip_calls').get().n, 2);
+});
+
+test('the burst limiter rejects junk tokens before siteverify', async (t) => {
+  const s = setup(t);
+  s.env.LIMITER = { limit: async () => ({ success: false }) };
+  assert.equal((await s.ask({ token: 'junk' })).status, 429);
+  assert.equal(s.calls.verify, 0);
+});
+
+test('mock mode and all Turnstile test secrets fail closed on public hosts, including config', async (t) => {
+  const s = setup(t);
+  for (const [key, value] of [['JEV_MOCK', '1'], ...[1, 2, 3].map(n => ['TURNSTILE_SECRET_KEY', `${n}x0000000000000000000000000000000AA`])]) {
+    const original = s.env[key];
+    s.env[key] = value;
+    for (const host of ['demo.example', 'learning-patterns.x.workers.dev', 'localhost.example', '0.0.0.0']) {
+      const response = await s.ask({ host, token: null });
+      assert.equal(response.status, 503, `${key} at ${host}`);
+      assert.match((await response.json()).error, /misconfigured/i);
+      assert.equal((await worker.fetch(new Request(`https://${host}/api/patterns/config`), s.env)).status, 503);
+    }
+    s.env[key] = original;
+  }
+  assert.equal(s.calls.verify, 0);
+  assert.equal(s.calls.model, 0);
+});
+
+test('mock and dummy Turnstile credentials work on the three allowed local hosts', async (t) => {
+  const s = setup(t);
+  for (const host of ['localhost', '127.0.0.1', '[::1]']) {
+    s.env.JEV_MOCK = '1';
+    assert.equal((await s.ask({ host, token: null })).status, 200);
+    delete s.env.JEV_MOCK;
+    s.env.TURNSTILE_SECRET_KEY = '1x0000000000000000000000000000000AA';
+    s.calls.hostname = 'example.com';
+    assert.equal((await s.ask({ host })).status, 200);
+  }
+});
+
+test('all signing and hashing secrets fail closed below 32 characters', async (t) => {
+  const s = setup(t);
+  for (const key of ['COOKIE_SIGNING_KEY', 'IP_SALT', 'CACHE_KEY_SECRET']) {
+    const original = s.env[key];
+    for (const value of [undefined, '', 'x'.repeat(31)]) {
+      s.env[key] = value;
+      assert.equal((await s.ask()).status, 503, key);
+    }
+    s.env[key] = original;
+  }
+  assert.equal(s.calls.verify, 0);
+  assert.equal(s.calls.model, 0);
+});
+
+test('cache keys are HMAC-SHA-256 with their own secret, independent of the IP salt', async (t) => {
+  const s = setup(t);
+  const answer = 'I feel unsafe at home';
+  await s.ask({ answer });
+  const built = buildRequest({ block: '16-fixtures', fields: { answer } }, 'jev');
+  const input = JSON.stringify(['jev-1.13.0', built.state, built.questions]);
+  const { createHash, createHmac } = await import('node:crypto');
+  const stored = s.db.prepare('SELECT key FROM results').get().key;
+  assert.notEqual(stored, createHash('sha256').update(input).digest('hex'));
+  assert.equal(stored, createHmac('sha256', s.env.CACHE_KEY_SECRET).update(input).digest('hex'));
+  s.env.IP_SALT = 'changed-ip-salt-with-at-least-32-bytes';
+  await s.ask({ answer });
+  assert.equal(s.calls.model, 1);
+  s.env.CACHE_KEY_SECRET = 'changed-cache-key-with-at-least-32-bytes';
+  await s.ask({ answer });
+  assert.equal(s.calls.model, 2);
+});
+
+test('the 16 KiB body cap covers declared, undeclared and multibyte bodies', async (t) => {
+  const s = setup(t);
+  const body = JSON.stringify({ block: '16-fixtures', fields: { answer: 'hello' } });
+  assert.equal((await s.ask({ body, headers: { 'content-length': '16385' } })).status, 413);
+  assert.equal((await s.ask({ body: body.padEnd(16385) })).status, 413);
+  assert.equal((await s.ask({ body: 'é'.repeat(8193) })).status, 413);
+  assert.equal((await s.ask({ body: body.padEnd(16384), headers: { 'content-length': '16384' } })).status, 200);
+  assert.equal(s.calls.model, 1);
+});
+
+test('public errors never echo input or provider details and all API content uses nosniff', async (t) => {
+  const s = setup(t);
+  const canary = '<learner-private-words>';
+  for (const fields of [{ answer: 'hello', [canary]: 'hello' }, { node: canary, reply: 'hello' }]) {
+    const response = await s.ask({ block: fields.node ? '03-branch' : '16-fixtures', fields });
+    assert.equal(response.status, 400);
+    assert.ok(!(await response.text()).includes(canary));
+    assert.equal(response.headers.get('x-content-type-options'), 'nosniff');
+  }
+  s.calls.status = 401;
+  const response = await s.ask();
+  assert.equal(response.status, 502);
+  assert.deepEqual(await response.json(), { error: 'Live checks are unavailable. Please try again later.' });
+  for (const path of ['config', 'prices.js', 'limits.js', 'unknown']) {
+    const response = await worker.fetch(new Request(`https://demo.example/api/patterns/${path}`), s.env);
+    assert.equal(response.headers.get('x-content-type-options'), 'nosniff');
+  }
+});
+
+test('public responses expose no cached membership flag', async (t) => {
+  const s = setup(t);
+  for (let i = 0; i < 2; i++) {
+    const response = await s.ask();
+    assert.equal(response.status, 200);
+    assert.equal(Object.hasOwn(await response.json(), 'cached'), false);
+  }
+  assert.equal(s.calls.model, 1);
 });

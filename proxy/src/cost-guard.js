@@ -1,4 +1,4 @@
-import { sha256 } from "./hash.js";
+import { hmac } from "./hash.js";
 import { json } from "./http.js";
 import { costNanoUsd, MAX_INPUT_TOKENS, DEFAULT_MODEL } from "./prices.js";
 import { clef } from "./clef.js";
@@ -21,7 +21,8 @@ export class CostGuard {
 
 	async fetch(request) {
 		const body = await request.json();
-		const key = await sha256(JSON.stringify([body.model, body.state, body.questions]));
+		if (typeof this.env.CACHE_KEY_SECRET !== "string" || this.env.CACHE_KEY_SECRET.length < 32) return json({ error: "Live checks are misconfigured." }, 503);
+		const key = await hmac(this.env.CACHE_KEY_SECRET, JSON.stringify([body.model, body.state, body.questions]));
 		return this.ctx.blockConcurrencyWhile(async () => {
 			try { return await this.ask(body, key); }
 			catch { return json({ error: "Live checks are unavailable. Please try again later." }, 502); }
@@ -34,7 +35,7 @@ export class CostGuard {
 		this.cleanup(now);
 		await this.ctx.storage.setAlarm((day + 1) * DAY);
 		const saved = this.sql.exec("SELECT value FROM results WHERE key = ? AND expires > ?", key, now).toArray()[0];
-		if (saved) return json({ ...JSON.parse(saved.value), questions, cached: true, costUsd: 0 });
+		if (saved) return json({ ...JSON.parse(saved.value), questions, costUsd: 0 });
 		const limit = Number(this.env.IP_DAILY_LIMIT ?? DEFAULT_IP_DAILY_LIMIT);
 		if (!Number.isSafeInteger(limit) || limit < 1) return json({ error: "Invalid daily IP limit." }, 503);
 		const calls = this.sql.exec("SELECT calls FROM ip_calls WHERE day = ? AND ip_hash = ?", day, ipHash).toArray()[0]?.calls ?? 0;
@@ -59,14 +60,14 @@ export class CostGuard {
 				method: "POST", headers: { authorization: `Bearer ${this.env.JEV_API_KEY}`, "content-type": "application/json" },
 				body: JSON.stringify({ state, model, questions }), signal: AbortSignal.timeout(15_000),
 			});
-			if (!response.ok) return json({ error: `Jev returned HTTP ${response.status}` }, 502);
+			if (!response.ok) throw new Error("Invalid model response");
 			const responseData = await response.json();
 			data = { answers: responseData.answers, tokens: responseData.usage?.input_tokens };
 		}
 		const tokens = data.tokens;
 		const actual = costNanoUsd(tokens, model);
 		if (tokens > MAX_INPUT_TOKENS) throw new Error("Invalid model response");
-		const result = { answers: readAnswers(data.answers, questions), ms: Date.now() - started, tokens, costUsd: actual / 1e9, model, mock: false, cached: false };
+		const result = { answers: readAnswers(data.answers, questions), ms: Date.now() - started, tokens, costUsd: actual / 1e9, model, mock: false };
 		this.ctx.storage.transactionSync(() => {
 			this.sql.exec("UPDATE spend SET nano_usd = nano_usd + ? WHERE day = ?", actual - reservation, day);
 			this.sql.exec("INSERT OR REPLACE INTO results(key, value, expires) VALUES (?, ?, ?)", key, JSON.stringify(result), Date.now() + CACHE_TTL);

@@ -34,7 +34,7 @@ export default {
 	fields: { reply: 1200, node: 40 },
 	sample,
 	build: ({ reply, node }) => {
-		if (!Object.hasOwn(MICHEL_REPLIES, node)) throw new Error(`Unknown dialogue node: ${String(node)}`);
+		if (!Object.hasOwn(MICHEL_REPLIES, node)) throw new Error("Unknown dialogue node");
 		return {
 			state: { node, michel: MICHEL_REPLIES[node], reply },
 			questions: {
