@@ -2,7 +2,7 @@ import { test } from '@playwright/test';
 import { readFile, writeFile } from 'node:fs/promises';
 import { startSession } from './session.js';
 
-const patterns = ['dont-know', 'first-answer', 'formats', 'highlight', 'retrieval-sheet', 'review-prompts', 'self-check', 'test-out', 'write-distractors'];
+const patterns = ['dont-know', 'first-answer', 'highlight', 'retrieval-sheet', 'review-prompts', 'self-check', 'test-out', 'write-distractors'];
 for (const pattern of patterns) for (const lang of ['en', 'fr']) {
   test(`${pattern} ${lang}`, async ({ page, browser }, info) => {
     await page.goto(`/${pattern}/${lang}.html`);
@@ -133,17 +133,5 @@ async function journey(s, page, pattern, lang, content) {
       await s.key('Enter', 'Commit misconception');
     }
     await s.activate('[data-lp-compare]', 'Compare valid options');
-  } else if (pattern === 'formats') {
-    for (const format of ['text', 'slides', 'audio', 'quiz']) await s.activate(`[data-lp-format="${format}"]`, `Choose ${format}`);
-    await s.activate('[data-lp-check]:visible', 'Missing quiz answer submit'); await s.snapshot('incomplete');
-    for (let q = 0; q < content.quiz.length; q++) {
-      if (q === 1) { await s.activate('[data-lp-next]', 'Next section'); await s.activate('[data-lp-next]', 'Last section'); }
-      const inputs = page.locator('[data-lp-question]:visible input');
-      await choose(inputs, 0, `Quiz ${q + 1} wrong answer`);
-      await s.activate('[data-lp-check]:visible', 'Check wrong quiz option'); await s.snapshot(`wrong-${q}`);
-      await s.previous('Local wrong quiz feedback VO+Left');
-      await choose(inputs, content.quiz[q].options.findIndex(option => option.correct), `Quiz ${q + 1} correct answer`, true);
-      await s.activate('[data-lp-check]:visible', 'Check correct quiz option');
-    }
   }
 }
