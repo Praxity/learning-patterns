@@ -40,8 +40,8 @@ test('shared scene spans the card and centres its tile on the task', async ({ pa
 });
 
 for (const [lang, placeholder, instruction] of [
-  ['en', 'Hi Sam,\n\nType your message here…', 'Select each part you can point to in your message.'],
-  ['fr', 'Bonjour Sam,\n\nÉcrivez votre message ici…', 'Sélectionnez chaque élément que vous trouvez dans votre message.']
+  ['en', 'Hi Sam,\n\nType your message here…', 'Select each part you can point to in your answer.'],
+  ['fr', 'Bonjour Sam,\n\nÉcrivez votre message ici…', 'Sélectionnez chaque élément que vous trouvez dans votre réponse.']
 ]) {
   test(`composer labels size to content and recipient stays on one line (${lang})`, async ({ page }) => {
     await open(page, `/self-check/${lang}.html`);
@@ -65,7 +65,7 @@ for (const [lang, placeholder, instruction] of [
 
   test(`placeholder is authored, empty, labelled and has 4.5:1 contrast (${lang})`, async ({ page }) => {
     await open(page, `/self-check/${lang}.html`);
-    await expect(page.getByRole('textbox')).toHaveAccessibleName(lang === 'fr' ? 'Votre message' : 'Your message');
+    await expect(page.getByRole('textbox')).toHaveAccessibleName(lang === 'fr' ? 'Votre réponse' : 'Your answer');
     await expect(page.getByRole('textbox')).toHaveAttribute('placeholder', placeholder);
     await expect(page.getByRole('textbox')).toHaveValue('');
     const contrast = await page.getByRole('textbox').evaluate(el => {
@@ -85,7 +85,7 @@ for (const [lang, placeholder, instruction] of [
 }
 
 for (const forcedColors of ['none', 'active']) {
-  test(`message focus outlines the whole composer (${forcedColors})`, async ({ page, browserName }) => {
+  test(`answer focus outlines the whole composer (${forcedColors})`, async ({ page, browserName }) => {
     test.skip(forcedColors === 'active' && browserName !== 'chromium', 'Forced colours emulation checked in Chromium.');
     await page.emulateMedia({ forcedColors });
     await open(page);
@@ -139,6 +139,50 @@ async function open(page, path = '/self-check/en.html') {
   await page.waitForFunction(() => window.lpReady);
 }
 
+for (const [lang, answerLabel, empty, check, show, whole, summary, restart] of [
+  ['en', 'Your answer', 'Write your answer first.', 'Check my answer', 'Show feedback', 'Across the whole answer', 'You included 1 of 2 parts.', 'Start over'],
+  ['fr', 'Votre réponse', "Écrivez d'abord votre réponse.", 'Vérifier ma réponse', 'Afficher la rétroaction', "Dans l'ensemble de la réponse", 'Éléments inclus : 1 sur 2.', 'Recommencer']
+]) test(`general answer without email context supports the complete journey (${lang})`, async ({ page }) => {
+  await open(page, `/self-check/${lang}.html`);
+  const content = lang === 'en'
+    ? { task: 'Explain why the report needs another day.', model: 'The data arrived late.', parts: [{ id: 'reason', label: 'Reason', missed: 'Explain the delay.', evidence: 'The data arrived late.' }, { id: 'tone', label: 'Tone', missed: 'Avoid blame.', evidence: null }] }
+    : { task: 'Expliquez pourquoi le rapport exige une journée de plus.', model: 'Les données sont arrivées en retard.', parts: [{ id: 'reason', label: 'Raison', missed: 'Expliquez le retard.', evidence: 'Les données sont arrivées en retard.' }, { id: 'tone', label: 'Ton', missed: 'Évitez le blâme.', evidence: null }] };
+  await page.evaluate(async ({ content, lang }) => {
+    const { render } = await import('/patterns/self-check/render.js');
+    const { enhance } = await import('/patterns/self-check/enhance.js');
+    const { strings } = await import('/patterns/self-check/strings.js');
+    window.lpInstances[0].destroy();
+    document.querySelector('main').innerHTML = render(content, strings[lang], { id: 'general', lang });
+    enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings[lang] });
+  }, { content, lang });
+  await expect(page.locator('.lp-scene-title')).toHaveText(content.task);
+  await expect(page.locator('.lp-self-check-meta-list, .lp-self-check-recipient, .lp-self-check-avatar, .lp-scene-icon')).toHaveCount(0);
+  const answer = page.getByRole('textbox', { name: answerLabel, exact: true });
+  await expect(answer).not.toHaveAttribute('placeholder');
+  const scan = async () => {
+    await page.waitForFunction(() => [...document.getAnimations()].every(animation => animation.playState !== 'running' && !animation.pending));
+    expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()).violations).toEqual([]);
+  };
+  await scan();
+  await page.getByRole('button', { name: check, exact: true }).click();
+  await expect(answer).toBeFocused();
+  await expect(page.locator('[data-lp-error]')).toHaveText(empty);
+  await answer.fill(content.model);
+  await page.getByRole('button', { name: check, exact: true }).click();
+  await expect(page.getByRole('checkbox').first()).toBeFocused();
+  await page.keyboard.press('Space');
+  await scan();
+  await page.getByRole('button', { name: show, exact: true }).click();
+  await expect(page.locator('.lp-self-check-pane').first().locator('figcaption')).toHaveText(answerLabel);
+  await expect(page.locator('.lp-self-check-pane').first().locator('p')).toHaveText(content.model);
+  await expect(page.locator('.lp-self-check-legend')).toContainText(whole);
+  await expect(page.getByRole('status')).toHaveText(summary);
+  await scan();
+  await page.getByRole('button', { name: restart, exact: true }).click();
+  await expect(answer).toHaveValue('');
+  await expect(answer).toBeFocused();
+});
+
 async function ticks(page) {
   await page.getByRole('textbox').fill('My draft');
   await page.getByRole('button', { name: 'Check my answer', exact: true }).click();
@@ -155,7 +199,7 @@ async function observeStatus(page) {
 
 test('message scene, live meter and annotated comparison use authored content', async ({ page }) => {
   await open(page); await observeStatus(page);
-  await expect(page.getByRole('textbox')).toHaveAccessibleName('Your message');
+  await expect(page.getByRole('textbox')).toHaveAccessibleName('Your answer');
   await expect(page.locator('.lp-self-check-composer')).toContainText('Sam, your manager');
   await expect(page.locator('.lp-self-check-composer')).toContainText('Client report');
   await ticks(page);
@@ -168,7 +212,7 @@ test('message scene, live meter and annotated comparison use authored content', 
   await expect(page.locator('.lp-self-check-pane').first()).toContainText('My draft');
   await expect(page.locator('.lp-self-check-pane-model mark')).toHaveCount(5);
   await expect(page.locator('mark[data-lp-included="true"]')).toContainText('The sales data arrived three days late');
-  await expect(page.locator('.lp-self-check-legend')).toContainText('Across the whole message');
+  await expect(page.locator('.lp-self-check-legend')).toContainText('Across the whole answer');
   await expect(page.locator('[data-lp-result]')).toHaveClass(/lp-reveal/);
   await page.setViewportSize({ width: 1280, height: 900 });
   const wide = await page.locator('.lp-self-check-pane').evaluateAll(panes => panes.map(p => p.getBoundingClientRect().top));
@@ -229,7 +273,7 @@ test('keyboard-only journey, error association, focus and one mutation per annou
   await page.keyboard.press('Enter');
   await expect(answer).toBeFocused(); await expect(answer).toHaveAttribute('aria-invalid', 'true');
   const errorId = await answer.getAttribute('aria-describedby');
-  await expect(page.locator(`[id="${errorId}"]`)).toHaveText('Write your message first.');
+  await expect(page.locator(`[id="${errorId}"]`)).toHaveText('Write your answer first.');
   await page.keyboard.type('A message to my manager.');
   await expect(answer).not.toHaveAttribute('aria-invalid', 'true');
   await expect(page.locator('[data-lp-error]')).toBeHidden();
