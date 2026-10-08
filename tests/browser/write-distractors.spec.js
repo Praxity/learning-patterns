@@ -319,7 +319,7 @@ for (const lang of ['en', 'fr']) {
     await open(page, lang); await observe(page); await fill(page, true);
     expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
     await page.locator('[data-lp-compare]').click();
-    const message = lang === 'en' ? "Your labels match 1 of the author's 4 mistaken ideas. You added 1."
+    const message = lang === 'en' ? "Your labels match 1 of the author's 4 mistaken ideas. You added 1 of your own."
       : "Idées fausses en commun avec l'auteur : 1 sur 4. Autres idées fausses : 1.";
     await expect(page.locator('[data-lp-summary]')).toHaveText(message);
     await expect(page.locator('[role="status"]')).toHaveText(message);
@@ -394,7 +394,7 @@ test('keyboard-only error, custom tag, comparison, repeated announcement and cle
   await expect(page.locator('[data-lp-compare]')).toBeFocused();
   const coverage = await page.locator('[data-lp-coverage]').innerText();
   await expect(page.locator('[role="status"]')).toHaveText(coverage);
-  await expect(page.locator('[data-lp-coverage]')).toHaveText("Your labels match 1 of the author's 4 mistaken ideas. You added 1.");
+  await expect(page.locator('[data-lp-coverage]')).toHaveText("Your labels match 1 of the author's 4 mistaken ideas. You added 1 of your own.");
   await page.keyboard.press('Enter');
   await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-clear]')).toBeFocused();
   await page.keyboard.press('Enter'); await expect(page.locator('[data-lp-answer]')).toBeFocused();
@@ -446,7 +446,7 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     await expect(yours.locator('svg[aria-hidden="true"]')).toHaveCount(2);
     await expect(yours.locator('.lp-choice-key[aria-hidden="true"]')).toHaveCount(3);
     await expect(page.locator('[data-lp-summary]')).toHaveText(lang === 'en'
-      ? "Your labels match 1 of the author's 4 mistaken ideas. You added 1."
+      ? "Your labels match 1 of the author's 4 mistaken ideas. You added 1 of your own."
       : "Idées fausses en commun avec l'auteur : 1 sur 4. Autres idées fausses : 1.");
   });
 

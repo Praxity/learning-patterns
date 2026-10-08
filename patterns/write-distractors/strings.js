@@ -17,8 +17,8 @@ export const strings = {
     choose: 'Choose the mistaken idea behind option {n}.', describe: 'Describe the mistaken idea for option {n}.',
     longCustom: 'Keep the mistaken idea for option {n} to {max} characters or fewer.',
     errorsOne: '1 field needs attention.', errorsMany: '{count} fields need attention.',
-    coverageOne: "Your labels match {authorTargeted} of the author's {authorTotal} mistaken idea. You added {ownExtra}.",
-    coverageMany: "Your labels match {authorTargeted} of the author's {authorTotal} mistaken ideas. You added {ownExtra}.",
+    coverageOne: "Your labels match {authorTargeted} of the author's {authorTotal} mistaken idea. You added {ownExtra} of your own.",
+    coverageMany: "Your labels match {authorTargeted} of the author's {authorTotal} mistaken ideas. You added {ownExtra} of your own.",
     clear: 'Start over', cleared: 'Answer and options cleared.'
   },
   fr: {
