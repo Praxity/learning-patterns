@@ -11,6 +11,11 @@ import { strings } from './strings.js';
 const content = JSON.parse(await readFile(new URL('./examples/en.json', import.meta.url)));
 const answers = (choice, confidence) => ({ branch: { choice, confidence } });
 
+test('default conversation feedback uses Jev gates for Perplexity', () => {
+  assert.equal(feedback(answers('acknowledge', 0.6)), 'unsure');
+  assert.equal(feedback(answers('acknowledge', 0.9)), 'acknowledge');
+});
+
 test('first reply records the learner move and shows Michel’s authored line', () => {
   const content = { branches: { acknowledge: { line: 'Let’s agree the plan.' } }, stageNotes: {} };
   const initial = start();
@@ -51,7 +56,7 @@ test('unsure and off-script preserve each round and do not add learner bubbles',
 });
 
 test('model choices use proxy-owned inclusive gates; off-script always keeps the turn', () => {
-  for (const model of ['jev', '@cf/cloudflare/clef', '@cf/cloudflare/clef-flash']) {
+  for (const model of ['pplx-decider-v1.1-27b', 'jev', '@cf/cloudflare/clef', '@cf/cloudflare/clef-flash']) {
     const gate = confidenceGate(model);
     for (const branch of BRANCHES) {
       assert.equal(feedback(answers(branch, gate), model), branch);

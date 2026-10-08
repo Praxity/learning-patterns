@@ -58,7 +58,7 @@ The pure module imports identities, answer length and the model-specific confide
 | Export | Returns |
 | --- | --- |
 | `validateContent(content)` | Nothing; throws an `Error` naming the bad field. |
-| `feedback(content, answers, model?)` | `{ kind, heading, text }`. Kinds are `correct`, `misconception`, `unsure-key`, `unsure-misconception`, `none`. The default model is Clef 27B. Invalid labels or probabilities throw. |
+| `feedback(content, answers, model?)` | `{ kind, heading, text }`. Kinds are `correct`, `misconception`, `unsure-key`, `unsure-misconception`, `none`. Without a model, uses Jev's confidence gate, also used by the default Perplexity provider. Invalid labels or probabilities throw. |
 | `validateState(value)` | A clean `{ answer, ticked }` draft, or `null`. |
 | `ANSWER_LIMIT` | The proxy-owned answer limit. |
 

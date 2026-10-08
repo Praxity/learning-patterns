@@ -50,7 +50,7 @@ export function validateContent(content) {
 }
 
 /** @param {unknown} answers @param {string} [model] @returns {Branch | 'unsure' | 'off_script'} */
-export function feedback(answers, model = '@cf/cloudflare/clef') {
+export function feedback(answers, model = '') {
   if (!object(answers) || !object(answers.branch)) throw new Error('Invalid answers.branch');
   const { choice, confidence } = answers.branch;
   if (typeof choice !== 'string' || ![...BRANCHES, 'off_script'].includes(choice)) throw new Error('Invalid answers.branch.choice');

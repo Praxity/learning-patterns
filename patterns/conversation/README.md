@@ -64,7 +64,7 @@ The schema and validator reject unknown fields, missing branch identities and bl
 | --- | --- |
 | `validateContent(content)` | Nothing; throws an `Error` naming the bad field. |
 | `start()` | `{ node: 'opening', round: 0, history: [], end: false }`. Also resets the conversation. |
-| `feedback(answers, model?)` | A branch, `'unsure'` or `'off_script'`, from `{ branch: { choice, confidence } }`. Invalid answers throw. |
+| `feedback(answers, model?)` | A branch, `'unsure'` or `'off_script'`, from `{ branch: { choice, confidence } }`. Without a model, uses Jev's confidence gate, also used by the default Perplexity provider. Invalid answers throw. |
 | `turn(content, state, branch, reply)` | `{ state, line, note }`. History stores `{ branch, reply }`; `end` becomes true after two moves. Unsure/off-script keep the state and return guidance as `note`. Further turns after the end throw. |
 | `validateState(value)` | Clean `{ conversation, draft }`, or `null` if the history, node, round, end flag or draft is invalid. |
 | `BRANCHES`, `REPLY_LIMIT` | The proxy-owned branch identities and maximum reply length. |

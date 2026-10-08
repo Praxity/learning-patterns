@@ -55,7 +55,7 @@ for (const lang of ['en', 'fr']) {
 
   const cases = [
     ['key idea', 'correct', 1, 'keyIdea'],
-    ['unsure key idea', 'correct', confidenceGate('@cf/cloudflare/clef') - .0001, 'unsureKeyIdea'],
+    ['unsure key idea', 'correct', confidenceGate('pplx-decider-v1.1-27b') - .0001, 'unsureKeyIdea'],
     ['no match', 'none', 1, 'noMatch'],
     ['low-confidence no match', 'none', 0, 'noMatch'],
     ...examples[lang].misconceptions.flatMap(item => [[item.id, item.id, 1, 'known'], [`unsure ${item.id}`, item.id, 0, 'unsure']])

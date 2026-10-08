@@ -228,17 +228,18 @@ test('failed configuration and invalid answers open the complete fallback', asyn
 });
 
 test('configured model chooses its own gate and public data notice', async ({ page }) => {
-  for (const model of ['jev', '@cf/cloudflare/clef-flash', '@cf/cloudflare/clef']) {
+  for (const model of ['pplx-decider-v1.1-27b', 'jev', '@cf/cloudflare/clef-flash', '@cf/cloudflare/clef']) {
     await open(page);
     await page.evaluate(async ({ content, model, gate }) => {
       window.lpInstances[0].destroy();
       const { enhance } = await import('/patterns/conversation/enhance.js');
       const { strings } = await import('/patterns/conversation/strings.js');
       const { noticeConfig } = await import('/lib/data-notice.js');
-      const ask = Object.assign(async () => ({ branch: { choice: 'pause', confidence: gate } }), { config: async () => ({ provider: model === 'jev' ? 'jev' : 'clef', model, siteKey: '', ...noticeConfig(model === 'jev' ? 'jev' : 'clef') }) });
+      const provider = model === 'pplx-decider-v1.1-27b' ? 'perplexity' : model === 'jev' ? 'jev' : 'clef';
+      const ask = Object.assign(async () => ({ branch: { choice: 'pause', confidence: gate } }), { config: async () => ({ provider, model, siteKey: '', ...noticeConfig(provider) }) });
       window.lpInstances[0] = enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en, ask });
     }, { content: examples.en, model, gate: confidenceGate(model) });
-    await expect(page.locator('[data-lp-notice]')).toContainText(model === 'jev' ? 'TypeSafe (US)' : 'Cloudflare Workers AI');
+    await expect(page.locator('[data-lp-notice]')).toContainText(model === 'pplx-decider-v1.1-27b' ? 'Perplexity (US)' : model === 'jev' ? 'TypeSafe (US)' : 'Cloudflare Workers AI');
     await submit(page);
     await expect(page.locator('[data-lp-michel]').last()).toHaveText(examples.en.branches.pause.line);
   }
