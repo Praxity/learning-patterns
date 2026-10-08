@@ -1,5 +1,8 @@
-.lp-retrieval-sheet-controls { display: flex; flex-wrap: wrap; gap: 20px; align-items: end; }
-.lp-retrieval-sheet-date-field { flex: 1 1 14rem; min-inline-size: 0; max-inline-size: 20rem; }
+.lp-retrieval-sheet-controls { display: grid; gap: 16px; }
+.lp-retrieval-sheet-spacing { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.lp-retrieval-sheet-choice-date { display: block; margin-block-start: 4px; }
+.lp-retrieval-sheet-date-field { min-inline-size: 0; }
+.lp-retrieval-sheet-date-field .lp-input { inline-size: 12rem; max-inline-size: 100%; }
 .lp-retrieval-sheet-date-field .lp-error-text { margin-block-start: 8px; }
 .lp-retrieval-sheet-tabs { display: flex; flex-wrap: wrap; gap: 4px; }
 .lp-retrieval-sheet-tab {
@@ -35,6 +38,7 @@
 .lp-retrieval-sheet-space { block-size: 48px; border-block-end: 1px solid var(--lp-line); }
 
 @media (max-width: 30rem) {
+  .lp-retrieval-sheet-spacing { grid-template-columns: minmax(0, 1fr); }
   .lp-retrieval-sheet-page { padding: 20px 16px; }
 }
 @media (forced-colors: active) {

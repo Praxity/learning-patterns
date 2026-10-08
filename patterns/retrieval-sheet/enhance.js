@@ -1,4 +1,4 @@
-import { defaultDate, formatDate, isDate, validateContent, validateState } from './logic.js';
+import { dateAfterDays, defaultDate, formatDate, formatShortDate, isDate, presetDays, validateContent, validateState } from './logic.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
 const instances = new WeakMap();
@@ -17,7 +17,14 @@ export function enhance(root, { content, strings, state }) {
     return /** @type {T} */ (element);
   }
   const controls = /** @type {HTMLElement} */ (required('[data-lp-controls]'));
-  const tablist = required('[data-lp-tabs]');
+  const tablist = /** @type {HTMLElement} */ (required('[data-lp-tabs]'));
+  const customField = /** @type {HTMLElement} */ (required('[data-lp-custom-date]'));
+  const spacing = required('[data-lp-spacing]');
+  const choices = [...presetDays, 'custom'].map(days => ({
+    days,
+    radio: /** @type {HTMLInputElement} */ (required(`[data-lp-spacing] input[value="${days}"]`)),
+    label: required(`[data-lp-spacing] label:has(input[value="${days}"]) [data-lp-choice-date]`)
+  }));
   const input = /** @type {HTMLInputElement} */ (required('[data-lp-date]'));
   const error = /** @type {HTMLElement} */ (required('[data-lp-date-error]'));
   const printControls = /** @type {HTMLElement} */ (required('[data-lp-print-controls]'));
@@ -35,7 +42,9 @@ export function enhance(root, { content, strings, state }) {
   const view = root.ownerDocument.defaultView;
   if (!view) throw new Error('Invalid retrieval-sheet markup: document window');
   // Validate all required markup and read host state before changing the server sheet.
-  let current = validateState(state?.read()) ?? { date: defaultDate(new Date()), side: 'front' };
+  const today = new Date();
+  let current = validateState(state?.read()) ?? { date: defaultDate(today), side: 'front' };
+  const dates = presetDays.map(days => dateAfterDays(today, days));
   const originalTimes = times.map(time => ({ text: time.textContent, date: time.getAttribute('datetime') }));
   let destroyed = false;
   /** @type {(() => void)[]} */
@@ -48,6 +57,19 @@ export function enhance(root, { content, strings, state }) {
   function showDate() {
     const label = formatDate(current.date, root.lang);
     for (const time of times) { time.setAttribute('datetime', current.date); time.textContent = label; }
+  }
+  function clearError() {
+    input.removeAttribute('aria-invalid'); input.removeAttribute('aria-describedby'); error.hidden = true; print.disabled = false;
+  }
+  /** @param {string} date */
+  function changeDate(date) {
+    if (current.date === date) {
+      if (status.textContent === strings.dateError) status.textContent = '';
+      return;
+    }
+    current = { ...current, date }; showDate();
+    status.textContent = strings.dateChanged.replaceAll('{date}', formatDate(current.date, root.lang));
+    state?.write({ ...current });
   }
   function showSide() {
     for (const { side, tab, page } of panels) {
@@ -62,6 +84,27 @@ export function enhance(root, { content, strings, state }) {
     current = { ...current, side }; showSide(); state?.write({ ...current });
   }
   input.value = current.date; showDate(); showSide();
+  const selected = dates.indexOf(current.date);
+  choices.forEach(({ radio, label }, index) => {
+    radio.checked = index === (selected === -1 ? presetDays.length : selected);
+    label.textContent = index < dates.length ? formatShortDate(dates[index], root.lang) : selected === -1 ? formatShortDate(current.date, root.lang) : '';
+  });
+  customField.hidden = selected !== -1;
+  const customLabel = choices[presetDays.length].label;
+  listen(spacing, 'change', () => {
+    const selected = choices.find(choice => choice.radio.checked);
+    if (!selected) return;
+    customField.hidden = selected.days !== 'custom';
+    clearError();
+    input.value = current.date;
+    if (selected.days === 'custom') {
+      customLabel.textContent = formatShortDate(current.date, root.lang);
+      changeDate(current.date);
+      return;
+    }
+    const date = dateAfterDays(today, Number(selected.days));
+    input.value = date; changeDate(date);
+  });
   tablist.setAttribute('role', 'tablist');
   for (const { side, tab, page } of panels) {
     tab.setAttribute('role', 'tab');
@@ -80,7 +123,9 @@ export function enhance(root, { content, strings, state }) {
     });
   }
   listen(input, 'change', () => {
+    if (customField.hidden) return;
     if (!isDate(input.value)) {
+      customLabel.textContent = '';
       // Native date segments can emit several changes while the field stays invalid.
       if (!error.hidden) return;
       input.setAttribute('aria-invalid', 'true'); error.hidden = false;
@@ -89,15 +134,10 @@ export function enhance(root, { content, strings, state }) {
       status.textContent = root.ownerDocument.activeElement === input ? '' : strings.dateError;
       return;
     }
-    input.removeAttribute('aria-invalid'); input.removeAttribute('aria-describedby'); error.hidden = true; print.disabled = false;
+    clearError();
+    customLabel.textContent = formatShortDate(input.value, root.lang);
     // Native date controls may emit more than one change for the same value.
-    if (current.date === input.value) {
-      if (status.textContent === strings.dateError) status.textContent = '';
-      return;
-    }
-    current = { ...current, date: input.value }; showDate();
-    status.textContent = strings.dateChanged.replaceAll('{date}', formatDate(current.date, root.lang));
-    state?.write({ ...current });
+    changeDate(input.value);
   });
   listen(print, 'click', () => {
     root.setAttribute('data-lp-printing', '');
@@ -105,13 +145,14 @@ export function enhance(root, { content, strings, state }) {
     view.print();
   });
   listen(view, 'afterprint', () => root.removeAttribute('data-lp-printing'));
-  controls.hidden = false; printControls.hidden = false;
+  controls.hidden = false; tablist.hidden = false; printControls.hidden = false;
   const instance = {
     destroy() {
       if (destroyed) return;
       destroyed = true;
       for (const remove of removals) remove();
-      controls.hidden = true; printControls.hidden = true;
+      controls.hidden = true; tablist.hidden = true; customField.hidden = true; printControls.hidden = true;
+      for (const { radio } of choices) radio.checked = radio.defaultChecked;
       tablist.removeAttribute('role'); input.value = input.defaultValue;
       input.removeAttribute('aria-invalid'); input.removeAttribute('aria-describedby'); error.hidden = true; print.disabled = false;
       for (const { tab, page, label } of panels) {
