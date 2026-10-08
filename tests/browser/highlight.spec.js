@@ -61,12 +61,59 @@ async function mount(page, content, lang = 'en') {
   }, { content, lang });
 }
 
-test('native passage buttons support Tab through every chunk, arrow shortcuts and silent toggles', async ({ page }) => {
+test('chunks flow like the source paragraphs across inline boundaries', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 1000 }); await open(page);
+  await page.evaluate(() => document.fonts.ready);
+  const paragraphs = page.locator('[data-lp-passage] > p');
+  await expect(paragraphs).toHaveCount(english.paragraphs.length);
+  for (const [i, paragraph] of english.paragraphs.entries()) {
+    await expect(paragraphs.nth(i)).toHaveText(paragraph.map(chunk => chunk.text).join(' '));
+  }
+  const lines = await page.locator('[data-lp-passage]').evaluate(passage => {
+    const rects = id => {
+      const range = document.createRange(); range.selectNodeContents(passage.querySelector(`[data-lp-chunk="${id}"]`));
+      return [...range.getClientRects()].map(rect => ({ top: rect.top, right: rect.right, left: rect.left }));
+    };
+    return { first: rects('signals').at(-1), next: rects('horsemen')[0] };
+  });
+  expect(lines.next.top).toBeCloseTo(lines.first.top, 1);
+  expect(lines.next.left).toBeGreaterThan(lines.first.right);
+  // Removing enhancement exposes the source layout without changing text or paragraph styles.
+  const layout = () => paragraphs.evaluateAll(elements => elements.map(paragraph => {
+    const bounds = paragraph.getBoundingClientRect();
+    return { height: bounds.height, chunks: [...paragraph.querySelectorAll('[data-lp-chunk]')].map(chunk => {
+      const range = document.createRange(); range.selectNodeContents(chunk);
+      // Vertical page shifts can change Firefox's fractional coordinates by less than 0.01px.
+      return [...range.getClientRects()].map(rect => [rect.left - bounds.left, rect.top - bounds.top, rect.width, rect.height].map(value => Math.round(value * 100) / 100));
+    }) };
+  }));
+  const enhanced = await layout();
+  await page.evaluate(() => window.lpInstances[0].destroy());
+  expect(enhanced).toEqual(await layout());
+});
+
+test('question stems wrap as prose while headings stay balanced', async ({ page }) => {
+  await open(page);
+  if (await page.evaluate(() => CSS.supports('text-wrap', 'pretty'))) {
+    await expect(page.locator('.lp-stem')).toHaveCSS('text-wrap', 'pretty');
+  }
+  if (await page.evaluate(() => CSS.supports('text-wrap', 'balance'))) {
+    await expect(page.locator('h2')).toHaveCSS('text-wrap', 'balance');
+  }
+});
+
+test('passage buttons support Tab through every chunk, arrow shortcuts and silent toggles', async ({ page }) => {
   await open(page); await observeStatus(page);
   const chunks = page.locator('[data-lp-chunk]');
-  await expect(page.locator('button[type="button"][data-lp-chunk]')).toHaveCount(english.paragraphs.flat().length);
-  for (const target of await chunks.all()) {
+  for (const [i, target] of (await chunks.all()).entries()) {
     await page.keyboard.press('Tab'); await expect(target).toBeFocused();
+    const named = page.getByRole('button', { name: english.paragraphs.flat()[i].text, exact: true });
+    await expect(named).toHaveAttribute('aria-pressed', 'false');
+    const scroll = await page.evaluate(() => scrollY);
+    await page.keyboard.press('Space'); await expect(named).toHaveAttribute('aria-pressed', 'true');
+    await page.waitForTimeout(100);
+    expect(await page.evaluate(() => scrollY)).toBe(scroll);
+    await page.keyboard.press('Enter'); await expect(named).toHaveAttribute('aria-pressed', 'false');
   }
   await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-check]')).toBeFocused();
   await page.keyboard.press('Shift+Tab'); await expect(chunks.last()).toBeFocused();
@@ -319,7 +366,7 @@ test('two instances have unique IDs and independent marks and status', async ({ 
   await expect(roots.nth(1).locator('[data-lp-count]')).toHaveText('0 of 1 marked');
   await expect(roots.nth(1).locator('[role="status"]')).toHaveText('');
   await expect(roots.nth(1).locator('[data-lp-chunk][aria-disabled]')).toHaveCount(0);
-  for (const root of await roots.all()) await expect(root.locator('button[data-lp-chunk]')).toHaveCount(english.paragraphs.flat().length);
+  for (const root of await roots.all()) await expect(root.locator('[data-lp-chunk]').and(root.getByRole('button'))).toHaveCount(english.paragraphs.flat().length);
 });
 
 test('missing and reordered or mismatched passage markup throws before partial enhancement', async ({ page }) => {
