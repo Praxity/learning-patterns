@@ -20,7 +20,7 @@ With Node 22, run `npm ci` and `npm run demo`, then `node scripts/serve-demo.mjs
 | --- | --- |
 | [Check your own answer](patterns/self-check/README.md) | Write an answer, tick the parts it includes, then see a hint for each part you missed and a model answer. |
 | [Explain it back](patterns/explain-back/README.md) | Explain a short lesson, check its three key ideas, then reread the parts to add. |
-| [Feedback while you type](patterns/live-feedback/README.md) | Write an action plan and see four checklist items update when you pause. |
+| [Feedback while you type](patterns/live-feedback/README.md) | Write a classifiable response and see a checklist update when you pause. |
 | [Spot the misconception](patterns/misconception/README.md) | Answer a study question, compare an authored refutation or key idea with a model answer. |
 | [Talk it through](patterns/conversation/README.md) | Reply to an upset colleague, see how the conversation changes, then reflect on your two moves. |
 | ["I don't know" as an answer](patterns/dont-know/README.md) | Multiple choice where "I don't know" scores zero and a wrong answer costs a point, so guesses don't hide gaps. |

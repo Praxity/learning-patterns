@@ -21,7 +21,7 @@
     "demo": "node scripts/build-demo.mjs",
     "demo:live": "node scripts/build-demo.mjs --live-ask",
     "test:browser": "playwright test --workers=2",
-    "preview:deploy": "npm run demo:live && npx wrangler@4 deploy",
+    "preview:deploy": "node scripts/check-deploy-account.mjs && npm run demo:live && npx wrangler@4 deploy",
     "icons": "node scripts/build-icons.mjs",
     "test:proxy": "node --test proxy/test/*.test.js"
   },
