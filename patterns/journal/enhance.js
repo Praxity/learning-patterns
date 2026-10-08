@@ -1,5 +1,7 @@
 import { feedback, validateAnswer, validateContent, validateState, savedEntry, ANSWER_LIMIT } from './logic.js';
 import { renderDataNotice } from '../../lib/data-notice.js';
+import { escapeHtml as html } from '../../lib/html.js';
+import { icons } from '../../lib/icons.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
 const instances = new WeakMap();
@@ -48,12 +50,12 @@ export function enhance(root, { content, strings, state, ask }) {
     } catch { readFailed = true; storageMessage(strings.unreadable); }
   }
   const useFallback = () => {
-    // Without the model the questions show at once; a button that only opened them would repeat the disclosure.
+    // Without the decision model the questions show at once; a button that only opened them would repeat the disclosure.
     automatic = false; suggest.hidden = true;
     notice.hidden = true; suggest.removeAttribute('aria-describedby');
     support.hidden = false; offline.hidden = false; showQuestions();
   };
-  function showQuestions() { result.hidden = true; result.textContent = ''; questions.hidden = false; questions.open = true; }
+  function showQuestions() { result.hidden = true; result.textContent = ''; result.classList.remove('lp-met'); questions.hidden = false; questions.open = true; }
   actions.hidden = false; noScript.hidden = true; questions.hidden = true; questions.open = false; support.hidden = true;
   if (ask) {
     suggest.disabled = true;
@@ -93,7 +95,7 @@ export function enhance(root, { content, strings, state, ask }) {
     const answer = readEntry();
     if (!answer.ok) return;
     const submittedRevision = revision;
-    result.hidden = true; result.textContent = '';
+    result.hidden = true; result.textContent = ''; result.classList.remove('lp-met');
     // An aria-disabled guard retains the triggering button's keyboard focus in WebKit.
     suggest.setAttribute('aria-disabled', 'true'); suggest.textContent = strings.reading;
     const edited = () => revision !== submittedRevision || entry.value !== answer.text;
@@ -103,7 +105,9 @@ export function enhance(root, { content, strings, state, ask }) {
       if (destroyed) return;
       if (edited()) { discard(); return; }
       const outcome = feedback(content, answers);
-      result.textContent = outcome.text; result.hidden = false; status.textContent = outcome.text;
+      result.classList.toggle('lp-met', outcome.kind === 'complete');
+      result.innerHTML = `${outcome.kind === 'complete' ? icons.check : ''}<span>${html(outcome.text)}</span>`;
+      result.hidden = false; status.textContent = outcome.text;
     } catch {
       if (!destroyed) {
         useFallback();

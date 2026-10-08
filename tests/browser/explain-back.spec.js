@@ -5,7 +5,44 @@ import { join } from 'node:path';
 
 const examples = Object.fromEntries(await Promise.all(['en', 'fr'].map(async lang => [lang, JSON.parse(await readFile(new URL(`../../patterns/explain-back/examples/${lang}.json`, import.meta.url)))])));
 
-async function open(page, lang = 'en', values = [1, 1, 0], mode = 'ok') {
+test('reading and explaining steps keep the draft and feedback, with heading focus', async ({ page }) => {
+  await open(page, 'en', [1, 1, 0], 'ok', true);
+  await expect(page.locator('.lp-explain-back-lesson')).toBeVisible();
+  await expect(page.locator('.lp-box')).toBeHidden();
+  await page.getByRole('button', { name: "I'm ready to explain it" }).click();
+  await expect(page.locator('.lp-explain-back-lesson')).toBeHidden();
+  await expect(page.locator('#example-task')).toBeFocused();
+  await submit(page);
+  const feedback = await page.locator('[data-lp-result]').textContent();
+  await page.getByRole('button', { name: 'Read the text again' }).click();
+  await expect(page.locator('#example-lesson-stonewalling')).toBeFocused();
+  await expect(page.locator('.lp-box')).toBeHidden();
+  await page.getByRole('button', { name: "I'm ready to explain it" }).click();
+  await expect(page.locator('#example-task')).toBeFocused();
+  await expect(page.getByRole('textbox')).toHaveValue('My explanation');
+  await expect(page.locator('[data-lp-result]')).toHaveText(feedback);
+  await expect(page.getByRole('button', { name: 'Read the text again' })).toBeVisible();
+});
+
+test('destroy restores the original server DOM after step switching and feedback', async ({ page }) => {
+  await open(page, 'en', [1, 1, 0], 'ok', true);
+  const original = await page.evaluate(async content => {
+    const { render } = await import('/patterns/explain-back/render.js');
+    const { strings } = await import('/patterns/explain-back/strings.js');
+    const container = document.createElement('div');
+    container.innerHTML = render(content, strings.en, { id: 'example', lang: 'en' });
+    return container.firstElementChild.innerHTML;
+  }, examples.en);
+  await page.getByRole('button', { name: "I'm ready to explain it" }).click();
+  await submit(page);
+  await page.getByRole('button', { name: 'Read the text again' }).click();
+  await page.evaluate(() => window.lpInstances[0].destroy());
+  expect(await page.locator('[data-lp-pattern]').innerHTML()).toBe(original);
+  await expect(page.locator('.lp-explain-back-lesson')).toBeVisible();
+  await expect(page.locator('.lp-box')).toBeVisible();
+});
+
+async function open(page, lang = 'en', values = [1, 1, 0], mode = 'ok', reading = false) {
   await page.addInitScript(({ values, mode }) => {
     const answers = Object.fromEntries(['stonewalling', 'pause', 'return'].map((id, index) => [id, { noul: values[index] }]));
     window.lpTestCalls = [];
@@ -20,6 +57,8 @@ async function open(page, lang = 'en', values = [1, 1, 0], mode = 'ok') {
   await page.goto(`/explain-back/${lang}.html`);
   await page.waitForFunction(() => window.lpReady);
   if (mode !== 'missing') await expect(page.locator('[data-lp-check]')).toBeEnabled();
+  const ready = page.getByRole('button', { name: lang === 'fr' ? "Passer \u00e0 l'explication" : "I'm ready to explain it" });
+  if (!reading && await ready.isVisible()) await ready.click();
 }
 async function submit(page) {
   await page.getByRole('textbox').fill('My explanation');
@@ -37,10 +76,15 @@ async function observe(page) {
 }
 
 for (const lang of ['en', 'fr']) {
-  test(`initial lesson, input and configured notice (${lang})`, async ({ page }) => {
+  test(`reading step, explanation heading focus and configured notice (${lang})`, async ({ page }) => {
     const requests = [];
     page.on('request', request => requests.push(request.url()));
-    await open(page, lang);
+    await open(page, lang, [1, 1, 0], 'ok', true);
+    await expect(page.locator('.lp-box')).toBeHidden();
+    const ready = page.getByRole('button', { name: lang === 'fr' ? "Passer \u00e0 l'explication" : "I'm ready to explain it" });
+    await ready.focus(); await page.keyboard.press('Enter');
+    await expect(page.locator('#example-task')).toBeFocused();
+    await expect(page.locator('.lp-explain-back-lesson')).toBeHidden();
     await expect(page.locator('[data-lp-pattern]')).toHaveAttribute('lang', lang);
     await expect(page.locator('.lp-explain-back-lesson h2')).toHaveText(examples[lang].ideas.map(idea => idea.heading));
     await expect(page.locator('.lp-box > h2')).toHaveText(examples[lang].task);
@@ -110,6 +154,8 @@ test('keyboard journey validates empty text, submits and rereads without result 
   await expect(page.locator('[data-lp-result]')).toBeVisible();
   await expect(page.locator('[data-lp-check]')).toBeFocused();
   await page.keyboard.press('Tab');
+  await expect(page.getByRole('button', { name: 'Read the text again' })).toBeFocused();
+  await page.keyboard.press('Tab');
   await expect(page.locator('[data-lp-reread]')).toBeFocused(); await page.keyboard.press('Enter');
   await expect(page.locator('#example-lesson-return')).toBeFocused();
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Write an explanation first.', '2 of 3 key ideas']);
@@ -157,6 +203,7 @@ test('failed configuration selects the fallback without sending an answer', asyn
     const ask = Object.assign(async () => { throw new Error('Must not send'); }, { config: async () => { throw new Error('No configuration'); } });
     enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en, ask });
   }, examples.en);
+  await page.getByRole('button', { name: "I'm ready to explain it" }).click();
   await expect(page.locator('[data-lp-fallback]')).toBeVisible();
   await expect(page.locator('[data-lp-check]')).toBeHidden();
   await expect(page.locator('[role="status"]')).toBeEmpty();
@@ -184,7 +231,8 @@ test('shared client renders the configured provider notice and completes inline 
     enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en, ask });
   }, examples.en);
   await expect(page.locator('[data-lp-check]')).toBeEnabled();
-  await expect(page.locator('[data-lp-notice]')).toContainText('TypeSafe (US)');
+  await page.getByRole('button', { name: "I'm ready to explain it" }).click();
+  await expect(page.locator('[data-lp-notice]')).toHaveText('Your answer is sent to a decision model; it is not stored and not used for training.');
   await expect(page.locator('[data-lp-challenge]')).toBeHidden();
   await submit(page);
   await expect(page.locator('[data-lp-challenge]')).toBeVisible();
@@ -198,6 +246,7 @@ test('shared client renders the configured provider notice and completes inline 
 test('saved drafts and native ticks restore', async ({ page }) => {
   await page.addInitScript(() => { window.lpSeed = { answer: 'Saved draft', ticked: ['pause'] }; });
   await open(page, 'en', [1, 1, 1], 'missing');
+  await expect(page.locator('.lp-explain-back-lesson')).toBeHidden();
   await expect(page.getByRole('textbox')).toHaveValue('Saved draft');
   await expect(page.getByRole('checkbox').nth(1)).toBeChecked();
   await page.getByRole('checkbox').nth(2).check();
@@ -270,7 +319,10 @@ test('two instances keep independent state and unique prefixed IDs', async ({ pa
   const ids = await page.locator('[id]').evaluateAll(elements => elements.map(el => el.id));
   expect(new Set(ids).size).toBe(ids.length);
   const roots = page.locator('[data-lp-pattern]');
+  await roots.first().getByRole('button', { name: "I'm ready to explain it" }).click();
   await roots.first().getByRole('textbox').fill('One explanation'); await roots.first().locator('[data-lp-check]').click();
+  await expect(roots.nth(1).locator('.lp-explain-back-lesson')).toBeVisible();
+  await roots.nth(1).getByRole('button', { name: "I'm ready to explain it" }).click();
   await expect(roots.nth(1).getByRole('textbox')).toHaveValue('');
   await expect(roots.nth(1).locator('[data-lp-result]')).toBeHidden();
 });
@@ -280,7 +332,10 @@ test('without JavaScript the lesson, answer, checklist and model work in both la
   const page = await context.newPage();
   for (const lang of ['en', 'fr']) {
     await page.goto(`${baseURL}/explain-back/${lang}.html`);
+    await expect(page.locator('.lp-explain-back-lesson')).toBeVisible();
+    await expect(page.locator('.lp-box')).toBeVisible();
     await expect(page.getByRole('textbox')).toBeVisible();
+    await expect(page.getByRole('button')).toHaveCount(0);
     await expect(page.locator('[data-lp-check]')).toBeHidden();
     await page.getByRole('checkbox').first().check();
     await expect(page.getByRole('checkbox').first()).toBeChecked();

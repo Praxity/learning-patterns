@@ -107,6 +107,14 @@ for (const lang of ['en', 'fr']) {
     test(`${kind} shows one authored line and announces once (${lang})`, async ({ page }) => {
       await open(page, lang, values); await observe(page); await submit(page);
       await expect(page.locator('[data-lp-result]')).toHaveText(examples[lang][field]);
+      await expect(page.locator('[data-lp-result] .lp-icon')).toHaveCount(kind === 'complete' ? 1 : 0);
+      if (kind === 'complete') {
+        await expect(page.locator('[data-lp-result] .lp-icon')).toHaveAttribute('aria-hidden', 'true');
+        await expect(page.locator('[data-lp-result]')).toHaveClass(/lp-met/);
+        await expect(page.locator('[data-lp-result]')).toHaveText(lang === 'fr'
+          ? "Très bien. Vous avez nommé un moment, ce que vous avez fait et une prochaine étape en précisant quand vous l'essaierez."
+          : "Great. You've named a moment, what you did, and a next step with a when.");
+      }
       await expect(page.locator('[data-lp-questions]')).toBeHidden();
       await expect(page.locator('[data-lp-support]')).toBeHidden();
       expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([examples[lang][field]]);
@@ -142,7 +150,9 @@ for (const lang of ['en', 'fr']) {
       await expect(page.locator('[data-lp-support]')).toHaveText(examples[lang].supportNote);
       await expect(page.locator('[data-lp-support]')).toBeVisible();
       await expect(page.locator('[data-lp-notice]')).toBeHidden();
-      await expect(page.locator('[data-lp-offline]')).toHaveText(strings[lang].fallback);
+      await expect(page.locator('[data-lp-offline]')).toHaveText(lang === 'fr'
+        ? 'Sans le modèle de décision, vous pouvez utiliser les questions pour réfléchir à votre entrée.'
+        : 'Without the decision model, you can use the questions to reflect on your entry.');
       await expect(page.locator('[data-lp-result]')).toBeHidden();
       // Without ask the questions are simply shown; a failed request announces the fallback once.
       expect(await page.evaluate(() => window.lpAnnouncements)).toHaveLength(mode === 'missing' ? 0 : 1);
@@ -263,6 +273,14 @@ test('failed configuration opens authored fallback; host support text replaces t
   await expect(page.locator('[data-lp-result]')).toHaveText('Contact the course support team.');
 });
 
+test('authored suggestion text stays plain text when feedback includes markup characters', async ({ page }) => {
+  const text = '<img src=x onerror="window.lpInjected=true"> & Contact support.';
+  await open(page); await remount(page, { support: text }); await submit(page);
+  await expect(page.locator('[data-lp-result]')).toHaveText(text);
+  await expect(page.locator('[data-lp-result] img')).toHaveCount(0);
+  expect(await page.evaluate(() => window.lpInjected)).toBeUndefined();
+});
+
 test('typing after a result leaves feedback and saved entry unchanged until the next action', async ({ page }) => {
   await open(page); await submit(page); await observe(page);
   await page.getByRole('textbox').fill('Another reflection');
@@ -304,7 +322,7 @@ test('configured data notice and shared client clearance belong only to suggesti
     window.lpInstances[0] = enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en, state, ask });
   }, examples.en);
   await expect(page.locator('[data-lp-suggest]')).toBeEnabled();
-  await expect(page.locator('[data-lp-notice]')).toContainText('Cloudflare Workers AI');
+  await expect(page.locator('[data-lp-notice]')).toHaveText('Your answer is sent to a decision model; it is not stored and not used for training.');
   await expect(page.locator('[data-lp-challenge]')).toBeHidden();
   await page.getByRole('textbox').fill('My reflection'); await page.locator('[data-lp-save]').click();
   expect(await page.evaluate(() => window.lpNetworkCalls)).toEqual(['/api/patterns/config']);

@@ -8,7 +8,7 @@ import { liveFeedback } from '../logic/02-live.js';
 import { readBranch } from '../logic/03-branch.js';
 import { misconceptionFeedback } from '../logic/06-misconceptions.js';
 import { explainFeedback } from '../logic/07-explain-back.js';
-import { journalFeedback } from '../logic/13-journal.js';
+import { journalDecision } from '../logic/13-journal.js';
 import { labelAnswers } from '../logic/16-fixture-data.js';
 
 // Only evaluated blocks can receive live checks.
@@ -24,6 +24,6 @@ export const blocks = Object.fromEntries([
   { ...d06, perplexityMaxInputTokens: 16384, outcome: (answers, model) => misconceptionFeedback(answers.misconception, model) },
   { ...d07, perplexityMaxInputTokens: 40960, outcome: explainFeedback },
   // Journal text is personal. Cache hits or shared calls would reveal another learner's submission through cost and timing.
-  { ...d13, perplexityMaxInputTokens: 57344, outcome: journalFeedback, cache: false },
+  { ...d13, perplexityMaxInputTokens: 57344, outcome: journalDecision, cache: false },
   { ...d16, perplexityMaxInputTokens: 49152, outcome: labelAnswers },
 ].map(block => [block.id, { ...block, maxInputTokens: 8192 }]));

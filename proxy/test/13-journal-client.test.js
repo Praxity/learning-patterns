@@ -1,38 +1,28 @@
-import assert from "node:assert/strict";
-import test from "node:test";
-import { journalFeedback } from "../logic/13-journal.js";
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { journalDecision } from '../logic/13-journal.js';
 
 const answers = (situation, action, next_step, when, distress = 0) => ({
-	situation: { noul: situation }, action: { noul: action }, next_step: { noul: next_step }, when: { noul: when }, distress: { noul: distress },
+  situation: { noul: situation }, action: { noul: action }, next_step: { noul: next_step }, when: { noul: when }, distress: { noul: distress }
 });
 
-test("at most one nudge, in the fixed order", () => {
-	assert.equal(journalFeedback(answers(0.1, 0.1, 0.1, 0.1)).key, "situation");
-	assert.equal(journalFeedback(answers(0.9, 0.2, 0.1, 0.1)).key, "action");
-	assert.equal(journalFeedback(answers(0.9, 0.9, 0.5, 0.1)).key, "next_step");
-	const f = journalFeedback(answers(0.9, 0.9, 0.9, 0.1));
-	assert.equal(f.key, "when");
-	assert.equal(f.text, "Want to add when you'll try it?");
-	for (const input of [answers(0, 0, 0, 0), answers(1, 0, 0, 0), answers(1, 1, 0, 0), answers(1, 1, 1, 0)]) {
-		assert.equal((journalFeedback(input).text.match(/\?/g) ?? []).length, 1);
-	}
+test('at most one nudge, in the fixed order', () => {
+  for (const [input, key] of [
+    [answers(.1, .1, .1, .1), 'situation'],
+    [answers(.9, .2, .1, .1), 'action'],
+    [answers(.9, .9, .5, .1), 'next_step'],
+    [answers(.9, .9, .9, .1), 'when']
+  ]) assert.deepEqual(journalDecision(input), { kind: 'nudge', key });
 });
 
-test("all present gets the quiet specific line", () => {
-	const f = journalFeedback(answers(0.9, 0.9, 0.9, 0.9));
-	assert.equal(f.kind, "complete");
-	assert.equal(f.text, "You've got a situation, what you did and a next step with a when.");
+test('all present returns a decision without authored text', () => {
+  assert.deepEqual(journalDecision(answers(.9, .9, .9, .9)), { kind: 'complete' });
 });
 
-test("distress at 0.5 or more replaces any nudge with the support line", () => {
-	const f = journalFeedback(answers(0.1, 0.1, 0.1, 0.1, 0.5));
-	assert.equal(f.kind, "support");
-	assert.match(f.text, /someone you trust/);
-	assert.match(f.text, /workplace support/);
-	assert.match(f.text, /local support service/);
-	assert.equal(journalFeedback(answers(0.1, 0.1, 0.1, 0.1, 0.49)).kind, "nudge");
-});
-
-test("no feedback line is a score", () => {
-	for (const a of [answers(0, 0, 0, 0), answers(1, 1, 1, 1), answers(1, 1, 1, 1, 1)]) assert.doesNotMatch(journalFeedback(a).text, /\d/);
+test('distress at 0.5 or more replaces a nudge or completion', () => {
+  for (const values of [[.1, .1, .1, .1], [.9, .9, .9, .9]]) {
+    assert.deepEqual(journalDecision(answers(...values, .5)), { kind: 'support' });
+    assert.deepEqual(journalDecision(answers(...values, 1)), { kind: 'support' });
+    assert.notEqual(journalDecision(answers(...values, .4999)).kind, 'support');
+  }
 });

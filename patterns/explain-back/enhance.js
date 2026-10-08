@@ -31,10 +31,30 @@ export function enhance(root, { content, strings, state, ask }) {
   const boxes = [...fallback.querySelectorAll('input')];
   const headings = content.ideas.map(idea => required(`#${CSS.escape(answer.id.replace(/-answer$/, `-lesson-${idea.id}`))}`));
   if (boxes.length !== content.ideas.length) throw new Error('Invalid explain-back ideas markup');
+  const lesson = /** @type {HTMLElement} */ (required('.lp-explain-back-lesson'));
+  const explaining = /** @type {HTMLElement} */ (required('.lp-box'));
+  const taskHeading = /** @type {HTMLElement} */ (required(`#${CSS.escape(answer.getAttribute('aria-labelledby') ?? '')}`));
+  const originalAttributes = [answer, check, error, notice, challengeSlot, result, fallback, model, status, lesson, explaining, taskHeading]
+    .map(element => ({ element, attributes: [...element.attributes].map(attribute => [attribute.name, attribute.value]) }));
+  const originalContents = [check, notice, challengeSlot, result, status].map(element => ({ element, markup: element.innerHTML }));
+  const ready = root.ownerDocument.createElement('button');
+  ready.type = 'button'; ready.className = 'lp-button'; ready.textContent = strings.ready;
+  const readAgain = root.ownerDocument.createElement('button');
+  readAgain.type = 'button'; readAgain.className = 'lp-button lp-button-secondary'; readAgain.textContent = strings.readAgain;
+  lesson.append(ready); required('.lp-actions').append(readAgain);
+  taskHeading.setAttribute('tabindex', '-1');
+  /** @param {boolean} explain @param {HTMLElement | null} heading */
+  const showStep = (explain, heading = null) => {
+    lesson.hidden = explain; explaining.hidden = !explain;
+    heading?.focus();
+  };
+  const onReady = () => showStep(true, taskHeading);
+  const onReadAgain = () => showStep(false, /** @type {HTMLElement} */ (headings[0]));
   const lifetime = new AbortController();
   let destroyed = false;
   const saved = state ? validateState(state.read()) : null;
   if (saved) { answer.value = saved.answer; for (const box of boxes) box.checked = saved.ticked.includes(box.value); }
+  showStep(Boolean(answer.value || saved?.ticked.length));
   const save = () => state?.write({ answer: answer.value, ticked: boxes.filter(box => box.checked).map(box => box.value) });
   const useFallback = () => {
     check.hidden = true; result.hidden = true; result.replaceChildren(); fallback.hidden = false;
@@ -94,17 +114,24 @@ export function enhance(root, { content, strings, state, ask }) {
     if (!link) return;
     event.preventDefault();
     const heading = /** @type {HTMLElement} */ (headings[Number(link.getAttribute('data-lp-reread'))]);
-    heading.focus();
+    showStep(false, heading);
   };
   answer.addEventListener('input', onInput); check.addEventListener('click', onCheck);
   fallback.addEventListener('change', save); result.addEventListener('click', onReread);
+  ready.addEventListener('click', onReady); readAgain.addEventListener('click', onReadAgain);
   const instance = { destroy() {
     if (destroyed) return;
     destroyed = true; lifetime.abort();
     answer.removeEventListener('input', onInput); check.removeEventListener('click', onCheck);
     fallback.removeEventListener('change', save); result.removeEventListener('click', onReread);
-    useFallback(); error.hidden = true; answer.removeAttribute('aria-invalid'); status.textContent = '';
-    check.disabled = false; check.removeAttribute('aria-disabled'); check.textContent = strings.check; instances.delete(root);
+    ready.removeEventListener('click', onReady); readAgain.removeEventListener('click', onReadAgain);
+    ready.remove(); readAgain.remove();
+    for (const { element, attributes } of originalAttributes) {
+      for (const attribute of [...element.attributes]) element.removeAttribute(attribute.name);
+      for (const [name, value] of attributes) element.setAttribute(name, value);
+    }
+    for (const { element, markup } of originalContents) element.innerHTML = markup;
+    instances.delete(root);
   } };
   instances.set(root, instance);
   return instance;

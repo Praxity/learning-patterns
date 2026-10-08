@@ -147,11 +147,11 @@ for (const lang of ['en', 'fr']) {
       strings[lang].met, strings[lang].met, strings[lang].met, strings[lang].met, strings[lang].met, strings[lang].missed
     ]);
     await expect(cells.locator('.lp-visually-hidden')).toHaveText([
-      `${strings[lang].met}, ${lang === 'en' ? 'model agrees' : 'modèle en accord'}`,
-      `${strings[lang].met}, ${lang === 'en' ? 'model disagrees' : 'modèle en désaccord'}`,
-      `${strings[lang].met}, ${lang === 'en' ? 'model not sure' : 'modèle incertain'}`,
-      ...Array(2).fill(`${strings[lang].met}, ${lang === 'en' ? 'model agrees' : 'modèle en accord'}`),
-      `${strings[lang].missed}, ${lang === 'en' ? 'model agrees' : 'modèle en accord'}`
+      `${strings[lang].met}, ${lang === 'en' ? 'decision model agrees' : 'modèle de décision en accord'}`,
+      `${strings[lang].met}, ${lang === 'en' ? 'decision model disagrees' : 'modèle de décision en désaccord'}`,
+      `${strings[lang].met}, ${lang === 'en' ? 'decision model not sure' : 'modèle de décision incertain'}`,
+      ...Array(2).fill(`${strings[lang].met}, ${lang === 'en' ? 'decision model agrees' : 'modèle de décision en accord'}`),
+      `${strings[lang].missed}, ${lang === 'en' ? 'decision model agrees' : 'modèle de décision en accord'}`
     ]);
     expect(await cells.evaluateAll(els => els.every(el => el.querySelector('svg[aria-hidden="true"]')))).toBe(true);
     const icons = await cells.locator('svg').evaluateAll(els => els.slice(0, 3).map(el => el.innerHTML));
@@ -171,7 +171,7 @@ for (const lang of ['en', 'fr']) {
     const panel = page.locator('[data-lp-row="perfect"]').locator('xpath=following-sibling::tr[1]');
     await expect(panel.locator('.lp-quote')).toHaveAttribute('lang', lang === 'en' ? 'fr' : 'en');
     await expect(panel.locator('dl')).toHaveCount(0);
-    await expect(panel).toContainText(lang === 'en' ? 'The model agreed on every label.' : 'Le modèle est en accord avec toutes les étiquettes.');
+    await expect(panel).toContainText(lang === 'en' ? 'The decision model agreed on every label.' : 'Le modèle de décision est en accord avec toutes les étiquettes.');
     await axe(page);
   });
 
@@ -222,7 +222,7 @@ for (const lang of ['en', 'fr']) {
     await expect(panel).toBeVisible();
     await expect(panel.locator('td')).toHaveAttribute('colspan', '7');
     await expect(panel.locator('.lp-quote')).toHaveText(examples[lang].fixtures[0].answer[lang]);
-    await expect(row.locator('td .lp-visually-hidden').first()).toHaveText(lang === 'en' ? 'met, model agrees' : 'présent, modèle en accord');
+    await expect(row.locator('td .lp-visually-hidden').first()).toHaveText(lang === 'en' ? 'met, decision model agrees' : 'présent, modèle de décision en accord');
     await row.locator('summary').click(); await expect(panel).toBeHidden();
     await context.close();
   });
@@ -239,7 +239,7 @@ test('configured data notice, configuration failure and incomplete saved recordi
       ask: Object.assign(async () => { throw new Error('Offline'); }, { config: async () => { if (broken) throw new Error('Config'); return { provider: 'perplexity', siteKey: '', model: 'pplx-decider-v1.1-27b', ...noticeConfig('perplexity') }; } }) });
   });
   await page.evaluate(content => { window.lpInstances[0] = window.lpRemount(content, false); }, examples.en);
-  await expect(page.locator('[data-lp-notice]')).toContainText('Perplexity (US)');
+  await expect(page.locator('[data-lp-notice]')).toHaveText('Your answer is sent to a decision model; it is not stored and not used for training.');
   await expect(page.locator('[data-lp-run]')).toHaveAttribute('aria-describedby', 'example-notice-text');
   await page.evaluate(async content => {
     (await window.lpInstances[0]).destroy();
@@ -273,7 +273,7 @@ test('forced colours preserve outcome words and visible focus', async ({ page, b
   test.skip(browserName !== 'chromium', 'Chromium implements forced colour emulation.');
   await page.emulateMedia({ forcedColors: 'active' }); await open(page, 'en', 'disagree');
   await page.locator('[data-lp-run]').click(); await finish(page);
-  await expect(page.locator('[data-lp-outcome="disagree"] .lp-visually-hidden')).toHaveText('met, model disagrees');
+  await expect(page.locator('[data-lp-outcome="disagree"] .lp-visually-hidden')).toHaveText('met, decision model disagrees');
   expect(await visibleText(page.locator('[data-lp-outcome="disagree"]'))).toEqual(['met']);
   await expect(page.locator('[data-lp-outcome="disagree"] svg')).toBeVisible();
   const region = page.getByRole('region'); await region.focus();
