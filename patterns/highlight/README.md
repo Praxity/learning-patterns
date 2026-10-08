@@ -1,7 +1,7 @@
 ---
 title: Highlight the passage
 title_fr: Surlignez le passage
-summary: Mark key ideas or evidence for a question, then compare your marks with the author's targets in the passage.
+summary: Mark key ideas or text that answers a question, then compare with the author's choices.
 section: reading
 ai: no
 offline: yes
@@ -9,74 +9,78 @@ learners: not tried
 ---
 # Highlight the passage
 
-You mark key ideas or answers in a passage, then compare your marks with the author's choices beside the text.
+Mark key ideas or text that answers a question. Then compare your marks with the author's choices in the passage.
 
 ## When to use it
 
-Use it to compare the ideas a learner notices with the author's selection, or to find text that answers a question. Keep passages short and split them at meaningful boundaries. Do not use it when learners need to select individual words, since they choose whole chunks. Searching visible text does not test recall.
+Use it to find key ideas or evidence for a question. Keep passages short and split them into meaningful pieces. Learners select whole pieces, so use another pattern for selecting individual words. Searching visible text does not test recall.
 
 ## How it works
 
-1. You read the passage and any question above it.
-2. You mark the key ideas or the text that answers the question. The count shows your marks and the limit. Select a marked piece again to remove its mark.
-3. You select "Check" and read the feedback beside your marks and any targets you missed.
-4. You read how many targets you found, then select "Start over" if you want to try again.
+1. Read the passage and the question, if there is one.
+2. Mark key ideas or text that answers the question. The counter shows your marks and the limit. Select marked text again to unmark it.
+3. Select "Check". Read feedback beside your marks and any text you missed.
+4. Read how many you found. Select "Start over" to try again.
 
 ## Evidence
 
-Highlighting alone is a weak study strategy. A major review rated it low utility ([Dunlosky et al., 2013](https://doi.org/10.1177/1529100612453266)). A meta-analysis of 36 articles found that marking text yourself improved memory but not comprehension, while text already highlighted by an instructor improved both ([Ponce, Mayer and Méndez, 2022](https://doi.org/10.1007/s10648-021-09654-1)). Students often mark too much or the wrong things, and short training in what to mark helps ([Miyatsu, Nguyen and McDaniel, 2018](https://doi.org/10.1177/1745691617710510); [Leutner, Leopold and den Elzen-Rump, 2007](https://doi.org/10.1027/0044-3409.215.3.174)). This pattern gives marking a purpose, a question or a set of key ideas, then shows the author's choices beside the learner's. Comparing their own answers with a correct standard made students' judgments of their learning more accurate in several experiments ([Lipko et al., 2009](https://doi.org/10.1037/a0017599); [Rawson, O'Neil and Dunlosky, 2011](https://doi.org/10.1037/a0024749)). Finding evidence in visible text practises reading, not recall, and this combination has not been tested.
+Highlighting alone is a weak study strategy. A major review rated it low utility ([Dunlosky et al., 2013](https://doi.org/10.1177/1529100612453266)). A meta-analysis of 36 articles found that marking text yourself improved memory but not comprehension. Text highlighted by an instructor improved both ([Ponce, Mayer and Méndez, 2022](https://doi.org/10.1007/s10648-021-09654-1)). Students often mark too much or choose the wrong text. Short training helps them choose what to mark ([Miyatsu, Nguyen and McDaniel, 2018](https://doi.org/10.1177/1745691617710510); [Leutner, Leopold and den Elzen-Rump, 2007](https://doi.org/10.1027/0044-3409.215.3.174)).
+
+This pattern asks learners to find key ideas or answer a question, then compare with the author's choices. Comparing answers with a correct standard helped students judge their learning more accurately in several experiments ([Lipko et al., 2009](https://doi.org/10.1037/a0017599); [Rawson, O'Neil and Dunlosky, 2011](https://doi.org/10.1037/a0024749)). Finding evidence in visible text practises reading, not recall. This combination has not been tested.
 
 ## Accessibility
 
-Meets the shared baseline in the root README.
+Follows the shared baseline in the root README.
 
-- Each chunk is an inline span with a button role and its own tab stop, so the text flows as paragraphs. Tab and Shift+Tab move between chunks in passage order; Space or Enter toggles a mark, including in screen-reader browse mode.
-- Arrow keys are extra shortcuts when the screen reader passes them to the page. Left or Up and Right or Down move between chunks and wrap at the ends; Home and End jump to the first and last. Each chunk exposes its pressed state and has linked keyboard instructions.
-- Checked chunks remain readable and navigable. Feedback beside each chunk explains correct marks, missed targets and other selections.
-- At the limit, trying another chunk shows a message below the passage and announces it once. Removing a mark clears it.
-- Found targets have green highlights and solid underlines. Missed targets have dashed underlines and no highlight. Other selections keep their yellow highlights, with readable notes in neutral pills. Icons and words identify each outcome, including in forced colours.
-- Checking announces the target count. If Check has focus when it hides, focus moves to Start over. Reset focuses the first chunk without an announcement.
+- Each chunk is an inline span with a button role and its own tab stop. Tab and Shift+Tab follow passage order. Space or Enter toggles a mark, including in screen-reader browse mode.
+- Arrow shortcuts work when the screen reader passes them to the page. Left or Up moves back; Right or Down moves forward. They wrap at the ends. Home and End jump to the first and last chunks. Each chunk exposes its pressed state and links to keyboard instructions.
+- Checked chunks stay readable and navigable, with feedback beside correct marks, missed targets and other selections.
+- At the limit, selecting another chunk shows and announces a message below the passage. Removing a mark clears it.
+- Found targets have green highlights and solid underlines; missed targets have dashed underlines and no highlight. Other selections stay yellow, with readable notes in neutral pills. Icons and words identify outcomes, including in forced colours.
+- Check announces the target count. If Check has focus when it hides, focus moves to Start over. Reset focuses the first chunk silently.
 
 ## Content fields
 
-All learner-facing content is authored plain text. HTML characters are escaped.
+Authors write plain text. Rendering escapes HTML characters.
 
 | Field | Meaning |
 | --- | --- |
-| `mode` | `key` or `evidence`. Both use `key: true` as the target. |
-| `title` | The article title. |
-| `question` | Required in evidence mode. Optional in key mode; shown above the passage when present. |
-| `maxMarks` | Optional positive integer. Defaults to the target count in evidence mode, or the key count plus one in key mode. |
-| `paragraphs` | A nonempty array of paragraphs; each paragraph is a nonempty array of chunks. |
-| `paragraphs[][].id` | Unique across all paragraphs; letters, digits, underscores and hyphens only. |
-| `paragraphs[][].text` | The chunk's text, with no leading or trailing whitespace. Adjacent chunks are joined by one space. |
+| `mode` | `key` or `evidence`. Both use `key: true` for targets. |
+| `title` | Article title. |
+| `question` | Required in evidence mode; optional in key mode. Appears above the passage. |
+| `maxMarks` | Optional positive integer. Defaults to the target count in evidence mode, or that count plus one in key mode. |
+| `paragraphs` | Nonempty array of paragraphs, each a nonempty array of chunks. |
+| `paragraphs[][].id` | Unique across the passage. Letters, digits, underscores and hyphens only. |
+| `paragraphs[][].text` | Text without leading or trailing whitespace. One space joins adjacent chunks. |
 | `paragraphs[][].key` | Optional boolean. `true` marks a target. At least one target is required. |
-| `paragraphs[][].note` | Optional explanation for a selected non-target. In key mode it follows "Not a key idea"; in evidence mode it replaces the default wrong-selection message. Notes also appear in the native answer. |
+| `paragraphs[][].note` | Optional explanation for a selected non-target. Follows "Not a key idea" in key mode; replaces default wrong-selection feedback in evidence mode. Also appears in the native answer. |
 
-Text fields must contain non-whitespace text. Unknown fields and duplicate identities are rejected. The schema describes the shape, conditional question requirement and at least one target; its `x-uniqueChunkIds` annotation needs the global identity check in `validateContent`.
+Text fields must contain non-whitespace text. Unknown fields and duplicate ids are rejected. The schema describes the shape, question requirement and required target. Its `x-uniqueChunkIds` annotation needs the global id check in `validateContent`.
 
-`examples/en.json` and `fr.json` are evidence examples. `en-key.json` and `fr-key.json` mark key ideas in the same passage. The demo uses evidence mode.
+`examples/en.json` and `fr.json` use evidence mode, as does the demo. `en-key.json` and `fr-key.json` use key mode with the same passage.
 
 ## Logic
 
-`logic.js`, `strings.js` and `content.schema.json` have no DOM dependencies. Praxity Studio can build another interface using them.
+`logic.js`, `strings.js` and `content.schema.json` have no DOM dependencies. Praxity Studio can use them with its own interface.
 
 | Function | Returns |
 | --- | --- |
-| `validateContent(content)` | Nothing; throws an `Error` naming the first bad field. |
-| `markLimit(content)` | Maximum marked chunks from the override or mode default. Pass validated content. |
-| `check(content, markedIds)` | `{ found, total, marked, wrong, items }`. Counts are unique selected targets, all targets, unique selected chunks, and selected non-targets. `items` follows paragraph and chunk order; each item is `{ id, text, marked, outcome, note }`, with `outcome` one of `correct`, `missed`, `wrong`, `unmarked`, and `note` the authored string or `null`. Duplicate marks count once; unknown IDs, invalid mark arrays or selections over the limit throw. |
-| `validateState(content, value)` | An independent `{ marked: string[], shown: boolean }` or `null`. Unknown IDs, duplicate marks, excess marks, extra fields and invalid shapes are ignored. Pass validated content. |
+| `validateContent(content)` | Nothing. Throws an `Error` naming the first bad field. |
+| `markLimit(content)` | Maximum marked chunks, using `maxMarks` or the mode default. Requires validated content. |
+| `check(content, markedIds)` | `{ found, total, marked, wrong, items }`. Counts selected targets, all targets, selected chunks and selected non-targets. Duplicate marks count once. Items follow passage order and contain `{ id, text, marked, outcome, note }`. `outcome` is `correct`, `missed`, `wrong` or `unmarked`; `note` is authored text or `null`. Unknown ids, invalid arrays and selections over the limit throw. |
+| `validateState(content, value)` | Copied `{ marked: string[], shown: boolean }` or `null`. Rejects unknown ids, duplicate or excess marks, extra fields and invalid shapes. Requires validated content. |
 
-Without JavaScript, the article is plain text. Native "Answer" details lists the target passages and every authored note.
+Without JavaScript, the passage is plain text. Native "Answer" details lists targets and all authored notes.
 
-After checking, marks are locked until reset. Mark counts update silently.
+Check locks marks until reset. Mark counts update silently. Use a unique id prefix per instance.
 
-Use a different id prefix per instance. Optional `state: { read(), write(value) }` stores `{ marked, shown }`. Valid saved results rebuild without an announcement; invalid saved values are ignored. State adapter errors propagate to the host. Enhancement adds button roles, tab stops and pressed states to the existing chunk spans, preserving the paragraphs and feedback nodes. Repeated enhancement returns the same instance. `instance.destroy()` removes listeners and interaction attributes and restores the plain passage and native answer; the same root can be enhanced again.
+Optional `state: { read(), write(value) }` stores `{ marked, shown }`. Valid results restore silently; invalid values are ignored. Adapter errors propagate to the host.
+
+Enhancement adds button roles, tab stops and pressed states to the existing spans. It preserves paragraphs and feedback nodes. Repeated enhancement returns the same instance. `instance.destroy()` removes listeners and interaction attributes and restores the plain passage and native answer. The root can then be enhanced again.
 
 ## Use it
 
-Copy `patterns/highlight/` and `lib/`, preserving their relative paths. Link `lib/base.css` before `patterns/highlight/pattern.css`. Render on the server, then enhance the resulting root in the browser:
+Copy `patterns/highlight/` and `lib/`, keeping their relative paths. Link `lib/base.css`, then `patterns/highlight/pattern.css`. Render on the server, then enhance in the browser.
 
 ```js
 import { render } from './patterns/highlight/render.js';
@@ -98,7 +102,7 @@ const instance = enhance(document.querySelector('[data-lp-pattern="highlight"]')
 
 ## Adapt it with your agent
 
-> Adapt the highlight examples to [topic] for [audience]. Keep `{ mode, title, question?, maxMarks?, paragraphs: [[{ id, text, key?, note? }]] }`. Choose key ideas or evidence for a focused question. Split the passage at meaningful boundaries, keep ids unique and include at least one target. Write notes that explain selected non-targets. Keep English and Québec French together, using vous in French. Preserve the plain passage and native answer, keyboard navigation, local feedback, state, escaping and CSS token contracts. Make no claim that highlighting or searching visible text tests recall. Update examples and tests. Show both languages for review.
+> Adapt the highlight examples to [topic] for [audience]. Keep `{ mode, title, question?, maxMarks?, paragraphs: [[{ id, text, key?, note? }]] }`. Choose key ideas or evidence for one focused question. Split the passage into meaningful pieces. Keep ids unique and at least one target. Explain selected non-targets in notes. Write English and Québec French together, using vous. Preserve the plain passage, native answer, keyboard controls, local feedback, state, escaping and CSS tokens. Do not claim that searching visible text tests recall. Update examples and tests. Show both languages for review.
 
 ## Licence
 

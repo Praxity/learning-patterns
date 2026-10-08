@@ -1,7 +1,7 @@
 {
   "mode": "evidence",
-  "title": "Qu'est-ce que l'évitement?",
-  "question": "Pourquoi l'autre personne se sent-elle ignorée ou rejetée?",
+  "title": "Qu'est-ce que l'évitement ?",
+  "question": "Pourquoi partir sans un mot donne-t-il à l'autre personne le sentiment d'être rejetée ?",
   "paragraphs": [
     [
       {
@@ -39,12 +39,12 @@
       {
         "id": "actions",
         "text": "Vous vous taisez, changez de sujet ou quittez la pièce.",
-        "note": "Ce passage décrit ce que vous faites, plutôt que la raison pour laquelle l'autre personne se sent rejetée."
+        "note": "Ce passage décrit vos gestes. La question demande pourquoi l'autre personne se sent rejetée."
       },
       {
         "id": "overwhelmed",
         "text": "Cela arrive souvent quand la situation vous dépasse.",
-        "note": "Ce passage explique ce que vous ressentez. La question porte sur l'autre personne."
+        "note": "Ce passage explique vos sentiments. La question porte sur l'autre personne."
       },
       {
         "id": "unseen",
