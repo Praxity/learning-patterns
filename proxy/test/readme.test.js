@@ -21,6 +21,7 @@ test('the root asset Worker serves the proxy on the same origin with every bindi
   assert.deepEqual(config.assets.run_worker_first, ['/api/patterns/*']);
   assert.equal(config.ai.binding, 'AI');
   assert.equal(config.vars.IP_DAILY_LIMIT, '20');
+  assert.equal(config.vars.MODEL_PROVIDER, 'perplexity');
   assert.deepEqual(config.durable_objects.bindings, [{ name: 'COST_GUARD', class_name: 'CostGuard' }]);
   assert.ok(config.migrations.some(migration => migration.new_sqlite_classes.includes('CostGuard')));
   assert.ok(config.ratelimits.some(binding => binding.name === 'LIMITER' && binding.simple.limit === 120 && binding.simple.period === 60));

@@ -1,7 +1,10 @@
-// Input-only list prices. Jev: docs.typesafe.ai/models; Clef: Cloudflare model pages.
-export const DEFAULT_MODEL = "@cf/cloudflare/clef";
+// Input-only list prices. Perplexity: docs.perplexity.ai/docs/decisions/quickstart
+// (output free); Jev: docs.typesafe.ai/models; Clef: Cloudflare model pages.
+export const DEFAULT_MODEL = "pplx-decider-v1.1-27b";
+export const CLEF_MODEL = "@cf/cloudflare/clef";
 export const JEV_MODEL = "jev-1.13.0";
 export const PRICES = Object.freeze({
+	"pplx-decider-v1.1-27b": 0.02,
 	"jev-1.13.0": 0.042,
 	"@cf/cloudflare/clef-flash": 0.09,
 	"@cf/cloudflare/clef": 0.24,
