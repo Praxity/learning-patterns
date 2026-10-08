@@ -121,7 +121,7 @@ test('render escapes every authored value and prefixes all ids and references', 
 test('render stages select the two placements; only both has the course skip', () => {
   const both = render(content, strings.en, { id: 'p', lang: 'en' });
   assert.ok(both.includes('data-lp-stage="both"')); assert.ok(both.includes('data-lp-skip'));
-  assert.ok(both.includes('In a course, the lessons happen here.'));
+  assert.ok(both.includes('Take the course, then answer again.'));
   const first = render(content, strings.en, { id: 'p', lang: 'en', stage: 'first' });
   const end = render(content, strings.en, { id: 'p', lang: 'en', stage: 'end' });
   assert.ok(first.includes('data-lp-first-step')); assert.equal(first.includes('data-lp-end-step'), false);
