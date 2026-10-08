@@ -9,7 +9,7 @@ import { readMeta } from './pattern-meta.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const output = join(root, 'demo-dist');
-const AI_PATTERNS = ['explain-back', 'misconception', 'conversation'];
+const AI_PATTERNS = ['explain-back', 'misconception', 'conversation', 'journal'];
 const COPIED = ['logic.js', 'render.js', 'enhance.js', 'strings.js', 'pattern.css'];
 
 await rm(output, { recursive: true, force: true });
@@ -21,6 +21,7 @@ await copyInto('lib/ask.js');
 await copyInto('proxy/logic/07-explain-back.js');
 await copyInto('proxy/logic/06-misconceptions.js');
 await copyInto('proxy/logic/03-contract.js');
+await copyInto('proxy/logic/13-journal.js');
 await copyInto('proxy/logic/shared.js');
 // The demo pages load the course fonts the base styles name. They are dev dependencies (OFL), not part of a pattern.
 const FONTS = ['source-sans-3-latin-400-normal', 'source-sans-3-latin-600-normal', 'source-serif-4-latin-400-normal', 'source-serif-4-latin-600-normal'];
@@ -81,13 +82,17 @@ const state = { read: () => saved, write: value => { saved = value; window.lpSav
 ${AI_PATTERNS.includes(name) ? `const mockConfig = {
   model: '@cf/cloudflare/clef',
   siteKey: '', provider: 'mock', providerName: 'Offline example',
-  dataNotice: { en: "This demo uses fixed feedback. Your answer stays in this page and isn't sent or stored.", fr: "Cette démo utilise une rétroaction fixe. Votre réponse reste dans cette page et n'est ni envoyée ni conservée." }
+  dataNotice: ${name === 'journal' ? `{ en: "This demo uses fixed suggestions. Get a suggestion sends no text. Save keeps your entry in this browser.", fr: "Cette démo utilise des suggestions fixes. Obtenir une suggestion n’envoie aucun texte. Enregistrer garde votre entrée dans ce navigateur." }` : `{ en: "This demo uses fixed feedback. Your answer stays in this page and isn't sent or stored.", fr: "Cette démo utilise une rétroaction fixe. Votre réponse reste dans cette page et n'est ni envoyée ni conservée." }`}
 };
-const fakeAsk = async () => (${name === 'conversation' ? "{ branch: { choice: 'acknowledge', confidence: 1 } }" : name === 'misconception' ? "{ misconception: { choice: 'rereading', confidence: 1 } }" : '{ stonewalling: { noul: 1 }, pause: { noul: 1 }, return: { noul: 0 } }'});
+const fakeAsk = async () => (${name === 'journal' ? '{ situation: { noul: 1 }, action: { noul: 1 }, next_step: { noul: 0 }, when: { noul: 0 }, distress: { noul: 0 } }' : name === 'conversation' ? "{ branch: { choice: 'acknowledge', confidence: 1 } }" : name === 'misconception' ? "{ misconception: { choice: 'rereading', confidence: 1 } }" : '{ stonewalling: { noul: 1 }, pause: { noul: 1 }, return: { noul: 0 } }'});
 const injectedAsk = window.lpAsk === null ? undefined : Object.assign(window.lpAsk ?? fakeAsk, { config: async () => mockConfig });` : ''}
 const roots = document.querySelectorAll('[data-lp-pattern]');
-window.lpInstances = [...roots].map(root => enhance(root, { content, strings: strings.${lang}, state${AI_PATTERNS.includes(name) ? ', ask: injectedAsk' : ''} }));
-window.lpEnhance = () => enhance(roots[0], { content, strings: strings.${lang}, state${AI_PATTERNS.includes(name) ? ', ask: injectedAsk' : ''} });
+${name === 'journal' ? `const states = [...roots].map(root => window.lpState ?? {
+  read: () => window.lpSeed ?? JSON.parse(localStorage.getItem('lp:journal:${lang}:' + root.querySelector('textarea').id) ?? 'null'),
+  write: value => { localStorage.setItem('lp:journal:${lang}:' + root.querySelector('textarea').id, JSON.stringify(value)); window.lpSaved = value; }
+});` : ''}
+window.lpInstances = [...roots].map((root, index) => enhance(root, { content, strings: strings.${lang}, state${name === 'journal' ? ': states[index]' : ''}${AI_PATTERNS.includes(name) ? ', ask: injectedAsk' : ''} }));
+window.lpEnhance = () => enhance(roots[0], { content, strings: strings.${lang}, state${name === 'journal' ? ': states[0]' : ''}${AI_PATTERNS.includes(name) ? ', ask: injectedAsk' : ''} });
 window.lpReady = true;
 </script></body></html>`;
 }
@@ -95,13 +100,14 @@ window.lpReady = true;
 function index(list) {
   const items = list.map(({ name, meta, preview }) => `<h2>${escapeHtml(meta.title.en)}</h2>
 <p>${escapeHtml(meta.summary)}</p>
-${preview ? name === 'conversation' ? `<div class="lp lp-preview lp-conversation" aria-label="Talk it through preview"><header class="lp-scene"><span class="lp-conversation-avatar" aria-hidden="true">${escapeHtml(preview.person.initial)}</span><div><p class="lp-scene-title">${escapeHtml(preview.person.name)}</p></div></header><p>${escapeHtml(preview.setup)}</p><p class="lp-conversation-bubble">${escapeHtml(preview.opening)}</p></div>` : name === 'misconception' ? `<div class="lp lp-preview" aria-label="Spot the misconception preview"><p class="lp-stem" id="misconception-preview-question">${escapeHtml(preview.question)}</p><textarea class="lp-input" rows="3" aria-labelledby="misconception-preview-question" placeholder="Type your answer here…" readonly></textarea><p class="lp-run-in lp-misconception-heading">${escapeHtml(preview.misconceptions[0].label)}</p><p>${escapeHtml(preview.misconceptions[0].why)}</p></div>` : `<div class="lp lp-box lp-preview" aria-label="Explain it back preview"><p class="lp-stem">${escapeHtml(preview.task)}</p><ol class="lp-choices" style="list-style:none">${preview.ideas.map((idea, index) => `<li class="lp-choice"><span class="lp-choice-key" aria-hidden="true">${index + 1}</span><span>${escapeHtml(idea.label)}</span></li>`).join('')}</ol></div>` : ''}
+${preview ? name === 'journal' ? `<div class="lp lp-preview lp-journal" aria-label="Journal with one nudge preview"><p class="lp-stem" id="journal-preview-prompt">${escapeHtml(preview.prompt)}</p><textarea class="lp-input lp-journal-page" rows="5" aria-labelledby="journal-preview-prompt" placeholder="This week, I…" readonly></textarea><p class="lp-journal-result">${escapeHtml(preview.questions[2].text)}</p></div>` : name === 'conversation' ? `<div class="lp lp-preview lp-conversation" aria-label="Talk it through preview"><header class="lp-scene"><span class="lp-conversation-avatar" aria-hidden="true">${escapeHtml(preview.person.initial)}</span><div><p class="lp-scene-title">${escapeHtml(preview.person.name)}</p></div></header><p>${escapeHtml(preview.setup)}</p><p class="lp-conversation-bubble">${escapeHtml(preview.opening)}</p></div>` : name === 'misconception' ? `<div class="lp lp-preview" aria-label="Spot the misconception preview"><p class="lp-stem" id="misconception-preview-question">${escapeHtml(preview.question)}</p><textarea class="lp-input" rows="3" aria-labelledby="misconception-preview-question" placeholder="Type your answer here…" readonly></textarea><p class="lp-run-in lp-misconception-heading">${escapeHtml(preview.misconceptions[0].label)}</p><p>${escapeHtml(preview.misconceptions[0].why)}</p></div>` : `<div class="lp lp-box lp-preview" aria-label="Explain it back preview"><p class="lp-stem">${escapeHtml(preview.task)}</p><ol class="lp-choices" style="list-style:none">${preview.ideas.map((idea, index) => `<li class="lp-choice"><span class="lp-choice-key" aria-hidden="true">${index + 1}</span><span>${escapeHtml(idea.label)}</span></li>`).join('')}</ol></div>` : ''}
 <ul><li><a href="./${name}/en">English demo</a></li><li><a href="./${name}/fr" hreflang="fr" lang="fr">${escapeHtml(meta.title.fr)}</a></li><li><a href="./${name}.md">Markdown for agents</a></li></ul>`).join('\n');
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow"><title>Learning patterns preview</title>
 <link rel="stylesheet" href="./lib/base.css">
 <link rel="stylesheet" href="./patterns/misconception/pattern.css">
 <link rel="stylesheet" href="./patterns/conversation/pattern.css">
+<link rel="stylesheet" href="./patterns/journal/pattern.css">
 <style>body{margin:0;padding:1rem;color:#202124;font:1rem/1.5 system-ui,sans-serif}main{max-width:40rem;margin:auto}h1{font-size:1.5rem}h2{font-size:1.2rem;margin-top:2rem}</style></head>
 <body><main><h1>Learning patterns preview</h1>
 <p>Unlisted preview. None of these patterns has been tried with learners yet.</p>

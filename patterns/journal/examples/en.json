@@ -1,0 +1,13 @@
+{
+  "prompt": "What did you notice this week when you tried to stay assertive?",
+  "questions": [
+    { "id": "situation", "text": "Want to add a specific moment, like where you were and what was said?" },
+    { "id": "action", "text": "Want to add what you said or did in that moment?" },
+    { "id": "next_step", "text": "Want to add one thing you'll try next time?" },
+    { "id": "when", "text": "Want to add when you'll try it?" }
+  ],
+  "complete": "You've got a moment, what you did, and a next step with a when.",
+  "support": "That sounds hard. If it's weighing on you, talk to someone you trust, your workplace's employee assistance programme, or a local support service.",
+  "saved": "Saved in this browser",
+  "changed": "Entry changed. No suggestion shown. Select Get a suggestion again."
+}

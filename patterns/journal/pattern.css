@@ -1,0 +1,21 @@
+/* A dated journal page and one quiet suggestion. */
+.lp-journal-date { display: flex; gap: 6px; align-items: baseline; }
+.lp-journal-date > .lp-icon { align-self: flex-start; margin-block-start: .15em; }
+.lp-journal .lp-journal-page { padding: 16px 18px; min-block-size: 16rem; line-height: 1.65; }
+.lp-journal .lp-journal-page[aria-invalid="true"] { padding: 15px 17px; }
+.lp-journal-page::placeholder { color: var(--lp-ink-2); opacity: 1; }
+.lp-journal-actions { align-items: flex-start; gap: 16px 24px; }
+.lp-journal-action { min-inline-size: 0; }
+.lp-journal-action > * + * { margin-block-start: 8px; }
+.lp-journal-suggest { flex: 1; }
+.lp-journal-result { padding: 18px; border-radius: var(--lp-radius-control); background: var(--lp-paper-2); }
+.lp-journal-questions { padding-inline-start: 24px; }
+.lp-journal-questions > * + * { margin-block-start: 12px; }
+.lp-journal [data-lp-questions] > summary::before { transition: none; }
+@container (max-width: 30rem) {
+  .lp-journal-action { flex: 1 1 100%; }
+  .lp-journal-action > .lp-button { inline-size: 100%; justify-content: center; }
+}
+@media (forced-colors: active) {
+  .lp-journal-result { border: 1px solid CanvasText; }
+}

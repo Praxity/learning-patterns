@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Journal with one nudge content",
+  "type": "object",
+  "required": ["prompt", "questions", "complete", "support", "saved", "changed"],
+  "additionalProperties": false,
+  "properties": {
+    "prompt": { "$ref": "#/$defs/text" },
+    "complete": { "$ref": "#/$defs/text" },
+    "support": { "$ref": "#/$defs/text" },
+    "saved": { "$ref": "#/$defs/text" },
+    "changed": { "$ref": "#/$defs/text" },
+    "questions": {
+      "type": "array", "minItems": 4, "maxItems": 4,
+      "prefixItems": [
+        { "$ref": "#/$defs/question", "properties": { "id": { "const": "situation" } } },
+        { "$ref": "#/$defs/question", "properties": { "id": { "const": "action" } } },
+        { "$ref": "#/$defs/question", "properties": { "id": { "const": "next_step" } } },
+        { "$ref": "#/$defs/question", "properties": { "id": { "const": "when" } } }
+      ],
+      "items": false
+    }
+  },
+  "$defs": {
+    "text": { "type": "string", "minLength": 1, "pattern": "\\S" },
+    "question": {
+      "type": "object", "additionalProperties": false, "required": ["id", "text"],
+      "properties": {
+        "id": { "enum": ["situation", "action", "next_step", "when"] },
+        "text": { "$ref": "#/$defs/text" }
+      }
+    }
+  }
+}

@@ -23,6 +23,7 @@ Copy its folder under `patterns/` and the shared `lib/` folder. Keep their relat
 | [Printable retrieval sheet](patterns/retrieval-sheet/README.md) | Print questions on the front and answers on the back to test yourself on a chosen date, with no connection needed. |
 | [Highlight the passage](patterns/highlight/README.md) | Mark the parts of a passage that answer a question, or its key ideas, then compare with the author's choices in place. |
 | [Your first answer comes back](patterns/first-answer/README.md) | Save an answer at the start of a course and compare it with a new one at the end. |
+| [Journal with one nudge](patterns/journal/README.md) | Reflect on your week, save your entry and get one optional question or an authored support line. |
 | [Test out of sections](patterns/test-out/README.md) | A short placement check marks which sections of a course you can skip; passing an advanced section credits the sections it builds on. |
 | [Write the wrong options](patterns/write-distractors/README.md) | Answer a question, write wrong options and the misconception behind each, then compare with the author's. |
 | [Switch formats](patterns/formats/README.md) | The same section as text, slides, an audio script or a quiz. Switching keeps your place. |

@@ -1,0 +1,13 @@
+{
+  "prompt": "Qu’avez-vous remarqué cette semaine quand vous avez essayé de vous affirmer?",
+  "questions": [
+    { "id": "situation", "text": "Voulez-vous ajouter un moment précis, par exemple où vous étiez et ce qui a été dit?" },
+    { "id": "action", "text": "Voulez-vous ajouter ce que vous avez dit ou fait à ce moment-là?" },
+    { "id": "next_step", "text": "Voulez-vous ajouter une chose que vous essaierez la prochaine fois?" },
+    { "id": "when", "text": "Voulez-vous ajouter quand vous l’essaierez?" }
+  ],
+  "complete": "Vous avez décrit un moment, ce que vous avez fait et une prochaine étape avec un moment pour l’essayer.",
+  "support": "Ça semble difficile. Si ça vous pèse, parlez à une personne de confiance, au programme d’aide aux employés de votre milieu de travail ou à un service de soutien local.",
+  "saved": "Enregistrée dans ce navigateur",
+  "changed": "L’entrée a changé. Aucune suggestion n’est affichée. Sélectionnez de nouveau Obtenir une suggestion."
+}
