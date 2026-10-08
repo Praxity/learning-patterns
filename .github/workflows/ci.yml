@@ -19,10 +19,14 @@ jobs:
       - run: npm run types:check
       - run: npm run budget
       - run: npx playwright install --with-deps
+      # The print tests read the PDF with pdfinfo and pdftotext; the runner image lacks them.
+      - run: sudo apt-get install -y --no-install-recommends poppler-utils
       - run: npm run demo
       - run: npm run test:browser
       - uses: actions/upload-artifact@v4
         if: failure()
+        # The account's artifact storage can be full; a failed upload must not hide the test result.
+        continue-on-error: true
         with:
           name: playwright-report
           path: playwright-report/
