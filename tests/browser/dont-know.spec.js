@@ -89,7 +89,7 @@ test('shared v2 styles give one card, sans stems, keyed full-width choices and a
     const input = row.querySelector('input');
     return [getComputedStyle(row, '::before').content, getComputedStyle(input).opacity];
   }));
-  expect(keys).toEqual(Array.from({ length: 4 }, () => ['counter(lp-key, upper-alpha)', '0']));
+  expect(keys).toEqual(Array.from({ length: 4 }, () => ['counter(lp-key, upper-alpha) / ""', '0']));
   const sizes = await root.evaluate(el => [...el.querySelectorAll('.lp-choice')].map(row => [row.getBoundingClientRect().width, row.parentElement.getBoundingClientRect().width]));
   expect(sizes.every(([row, question]) => Math.abs(row - question) < 1)).toBe(true);
 });
@@ -109,7 +109,7 @@ test('keyboard journey associates each unanswered error, focuses first missing r
     const fieldset = questions.nth(n);
     const id = await fieldset.getAttribute('aria-describedby');
     await expect(page.locator(`[id="${id}"]`)).toHaveText('Choose an answer');
-    await expect(fieldset.locator('input').first()).toHaveAttribute('aria-describedby', id);
+    for (const radio of await fieldset.locator('input').all()) await expect(radio).not.toHaveAttribute('aria-describedby');
     await expect(fieldset.locator('[data-lp-question-error] svg[aria-hidden="true"]')).toHaveCount(1);
   }
   await expect(page.locator('[data-lp-error] svg[aria-hidden="true"]')).toHaveCount(1);
@@ -129,7 +129,27 @@ test('keyboard journey associates each unanswered error, focuses first missing r
   await page.keyboard.press('Enter'); await expect(questions.first().locator('input').first()).toBeFocused();
   await expect(page.locator('input:checked')).toHaveCount(0);
   await expect(page.locator('[data-lp-result]')).toBeHidden(); await expect(page.locator('[data-lp-restart]')).toBeHidden();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Score 1 out of 4.', 'Cleared.']);
+  // Focusing the score supplies the result speech; the status must not repeat it.
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Cleared.']);
+});
+
+test('choice names and browse text omit decorative letter keys', async ({ page }) => {
+  await open(page);
+  const rows = page.locator('fieldset').first().locator('label');
+  for (const [index, option] of english.questions[0].options.entries()) {
+    const row = rows.nth(index);
+    expect(await row.evaluate(el => getComputedStyle(el, '::before').content)).toBe('counter(lp-key, upper-alpha) / ""');
+    await expect(row.getByRole('radio')).toHaveAccessibleName(option.text);
+    expect(await row.ariaSnapshot()).toBe(`- radio "${option.text}"\n- text: ${option.text}`);
+  }
+});
+
+test('score focus supplies one result announcement without a duplicate status update', async ({ page }) => {
+  await open(page); await observe(page); await pick(page);
+  await page.locator('[data-lp-check]').click();
+  await expect(page.locator('[data-lp-score]')).toBeFocused();
+  await expect(page.locator('[data-lp-score]')).toHaveText('Score 1 out of 4.');
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
 });
 
 for (const [lang, content, correct, wrong, answer, unknown, counts] of [
@@ -171,7 +191,7 @@ for (const [lang, content, correct, wrong, answer, unknown, counts] of [
       await links.nth(index - 1).click();
       await expect(questions.nth(index)).toBeFocused();
     }
-    expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([lang === 'en' ? 'Score 1 out of 4.' : 'Score de 1 sur 4.']);
+    expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
   });
 
   test(`no JavaScript provides native radios and every correct option and explanation (${lang})`, async ({ browser }) => {
@@ -314,7 +334,8 @@ test('decorative score rings stay bounded for zero, negative and exceeded author
     await page.locator('[data-lp-check]').click();
     await expect(page.locator('[data-lp-score]')).toHaveText(expected);
     await expect(page.locator('.lp-dont-know-ring-fill')).toHaveAttribute('stroke-dashoffset', offset);
-    await expect(page.locator('[role="status"]')).toHaveText(expected);
+    await expect(page.locator('[data-lp-score]')).toBeFocused();
+    await expect(page.locator('[role="status"]')).toHaveText('');
   }
 });
 
@@ -328,7 +349,7 @@ test('answers lock on submit; Start over clears marks, explanations and host sta
   await expect(page.locator('[data-lp-score]').first()).toBeFocused();
   await page.locator('[data-lp-check]').evaluate(button => button.click());
   await expect(page.locator('.lp-choice-mark')).toHaveCount(6);
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Score 1 out of 4.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
   await page.locator('[data-lp-restart]').click();
   await expect(page.locator('input:disabled, input:checked, [data-lp-mark], .lp-choice-mark')).toHaveCount(0);
   await expect(page.locator('[data-lp-explanation]:visible')).toHaveCount(0);
@@ -339,7 +360,7 @@ test('answers lock on submit; Start over clears marks, explanations and host sta
   await expect(page.locator('input').first()).toBeFocused();
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ picks: {}, shown: false });
   await pick(page); await page.locator('[data-lp-check]').click();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Score 1 out of 4.', 'Cleared.', 'Score 1 out of 4.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Cleared.']);
 });
 
 for (const shown of [false, true]) {
@@ -382,7 +403,7 @@ test('two instances have unique ids and independent radio names, errors and resu
 test('enhance twice returns one instance; destroy removes listeners and safely restores fallback', async ({ page }) => {
   await open(page); expect(await page.evaluate(() => window.lpEnhance() === window.lpInstances[0])).toBe(true);
   await observe(page); await pick(page); await page.locator('[data-lp-check]').click();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Score 1 out of 4.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
   await page.evaluate(() => window.lpInstances[0].destroy());
   await expect(page.locator('[data-lp-flow]')).toBeHidden(); await expect(page.locator('[data-lp-fallback]')).toBeVisible();
   const before = await page.evaluate(() => window.lpSaved);

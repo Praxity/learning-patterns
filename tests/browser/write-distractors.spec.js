@@ -87,6 +87,8 @@ test('Compare collapses builders to key, text and tag summaries; Start over rest
   await page.locator('[data-lp-compare]').click();
   const builders = page.locator('.lp-write-distractors-builder');
   await expect(builders.locator('fieldset:visible')).toHaveCount(0);
+  for (const key of await page.locator('.lp-choice-key').all()) await expect(key).toHaveAttribute('aria-hidden', 'true');
+  expect(await builders.first().ariaSnapshot()).not.toMatch(/(?:text:|generic:) B(?:\n|$)/);
   await expect(page.locator('[data-lp-compare]')).toBeFocused();
   await expect(builders.locator('textarea:visible, select:visible, input:visible')).toHaveCount(0);
   await expect(builders.nth(0)).toContainText('B');
@@ -441,7 +443,8 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     await expect(yours.nth(2)).not.toHaveAttribute('data-lp-mark');
     await expect(yours.nth(2).locator('.lp-small')).toHaveText(lang === 'en' ? 'Targets: Breaks disrupt focus' : 'Cible : Breaks disrupt focus');
     await expect(page.locator('[data-lp-clear]')).toHaveAccessibleName(lang === 'en' ? 'Start over' : 'Recommencer');
-    await expect(yours.locator('[aria-hidden="true"]')).toHaveCount(2);
+    await expect(yours.locator('svg[aria-hidden="true"]')).toHaveCount(2);
+    await expect(yours.locator('.lp-choice-key[aria-hidden="true"]')).toHaveCount(3);
     await expect(page.locator('[data-lp-summary]')).toHaveText(lang === 'en'
       ? "You targeted 1 of the author's 4 misconceptions, and 1 of your own."
       : "Idées fausses de l'auteur ciblées : 1 sur 4. Autres idées fausses ciblées : 1.");

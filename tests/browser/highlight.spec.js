@@ -61,11 +61,17 @@ async function mount(page, content, lang = 'en') {
   }, { content, lang });
 }
 
-test('keyboard passage has one tab stop, complete roving navigation, silent toggles and a focus ring', async ({ page }) => {
+test('native passage buttons support Tab through every chunk, arrow shortcuts and silent toggles', async ({ page }) => {
   await open(page); await observeStatus(page);
   const chunks = page.locator('[data-lp-chunk]');
-  await expect(page.locator('[data-lp-chunk][tabindex="0"]')).toHaveCount(1);
-  await page.keyboard.press('Tab'); await expect(chunks.first()).toBeFocused();
+  await expect(page.locator('button[type="button"][data-lp-chunk]')).toHaveCount(english.paragraphs.flat().length);
+  for (const target of await chunks.all()) {
+    await page.keyboard.press('Tab'); await expect(target).toBeFocused();
+  }
+  await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-check]')).toBeFocused();
+  await page.keyboard.press('Shift+Tab'); await expect(chunks.last()).toBeFocused();
+  await page.keyboard.press('Home');
+  await expect(chunks.first()).toBeFocused();
   const instructions = await chunks.first().getAttribute('aria-describedby');
   await expect(page.locator('[data-lp-passage]')).toHaveAttribute('aria-describedby', instructions);
   await expect(page.locator(`[id="${instructions}"]`)).toContainText('Click or tap');
@@ -75,14 +81,14 @@ test('keyboard passage has one tab stop, complete roving navigation, silent togg
   expect(outline).toEqual(['2px', 'solid', '2px']);
   for (const [key, index] of [['ArrowRight', 1], ['ArrowDown', 2], ['ArrowLeft', 1], ['ArrowUp', 0], ['ArrowLeft', english.paragraphs.flat().length - 1], ['Home', 0], ['End', english.paragraphs.flat().length - 1], ['ArrowRight', 0]]) {
     await page.keyboard.press(key); await expect(chunks.nth(index)).toBeFocused();
-    await expect(page.locator('[data-lp-chunk][tabindex="0"]')).toHaveCount(1);
+    await expect(page.locator('[data-lp-chunk][tabindex="-1"]')).toHaveCount(0);
   }
   await page.keyboard.press('Space'); await expect(chunks.first()).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('[data-lp-count]')).toHaveText('1 of 1 marked');
   await page.keyboard.press('Enter'); await expect(chunks.first()).toHaveAttribute('aria-pressed', 'false');
   await page.keyboard.press('a'); await expect(chunks.first()).toHaveAttribute('aria-pressed', 'false');
   await expect(page.locator('[data-lp-count]')).toHaveText('0 of 1 marked');
-  await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-check]')).toBeFocused();
+  await page.keyboard.press('Tab'); await expect(chunks.nth(1)).toBeFocused();
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
 });
 
@@ -305,7 +311,7 @@ test('destroy restores fallback and removes listeners; re-enhance survives repea
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Passages that answer the question: 0 of 1.']);
 });
 
-test('two instances have unique IDs and independent roving marks and status', async ({ page }) => {
+test('two instances have unique IDs and independent marks and status', async ({ page }) => {
   await open(page, '/highlight/two.html');
   const ids = await page.locator('[id]').evaluateAll(elements => elements.map(el => el.id)); expect(new Set(ids).size).toBe(ids.length);
   const roots = page.locator('[data-lp-pattern]');
@@ -313,7 +319,7 @@ test('two instances have unique IDs and independent roving marks and status', as
   await expect(roots.nth(1).locator('[data-lp-count]')).toHaveText('0 of 1 marked');
   await expect(roots.nth(1).locator('[role="status"]')).toHaveText('');
   await expect(roots.nth(1).locator('[data-lp-chunk][aria-disabled]')).toHaveCount(0);
-  for (const root of await roots.all()) await expect(root.locator('[data-lp-chunk][tabindex="0"]')).toHaveCount(1);
+  for (const root of await roots.all()) await expect(root.locator('button[data-lp-chunk]')).toHaveCount(english.paragraphs.flat().length);
 });
 
 test('missing and reordered or mismatched passage markup throws before partial enhancement', async ({ page }) => {
