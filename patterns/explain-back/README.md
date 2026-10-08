@@ -17,24 +17,24 @@ Use it after a short reading with a few clear ideas to explain. The example cove
 
 ## How it works
 
-1. You read the three lesson sections and explain them to a new manager in two sentences.
-2. You select "Check my explanation". A short verification appears if needed.
+1. Read the three lesson sections, then select "I'm ready to explain it".
+2. On the next page, explain stonewalling and how to take a time-out instead to a new manager in two sentences. Select "Check my explanation". A short verification appears if needed.
 3. You see how many key ideas were found. Each idea says "Found", "To add" or "Not sure", with an authored explanation.
-4. You follow a rereading link to the matching lesson heading, revise your explanation and check again.
+4. Select "Read the text again" or follow a feedback link to return to the lesson. Your draft and result stay available when you select "I'm ready to explain it" again. Revise your explanation and check again.
 5. When all three ideas are found, a model explanation opens. If the automatic check is unavailable, you check the three ideas yourself and compare with the model explanation.
 
 ## Evidence
 
-Prompts to explain connections in learning material produced an average benefit of 0.55 standard deviations across 69 effect sizes ([Bisra et al., 2018](https://doi.org/10.1007/s10648-018-9434-x)). Explaining an idea to a new manager also draws on research about learning by teaching ([Fiorella and Mayer, 2016](https://doi.org/10.1007/s10648-015-9348-9)). These are adjacent reasons to ask for an explanation in the learner's own words. Explanatory feedback research informs the authored hints; links to the passage give learners a place to check a missing idea ([Van der Kleij et al., 2015](https://doi.org/10.3102/0034654314564881)). The reading stays visible during the task. The model's choices were checked against agent-written answers, not learners. This two-sentence task, its identification of missing ideas and the benefit of its passage links have not been tested with learners.
+Prompts to explain connections in learning material produced an average benefit of 0.55 standard deviations across 69 effect sizes ([Bisra et al., 2018](https://doi.org/10.1007/s10648-018-9434-x)). Explaining an idea to a new manager also draws on research about learning by teaching ([Fiorella and Mayer, 2016](https://doi.org/10.1007/s10648-015-9348-9)). These are adjacent reasons to ask for an explanation in the learner's own words. Explanatory feedback research informs the authored hints; links to the passage give learners a place to check a missing idea ([Van der Kleij et al., 2015](https://doi.org/10.3102/0034654314564881)). The enhanced version separates the reading and explanation into two steps, with a return control available throughout the explanation. The model's choices were checked against agent-written answers, not learners. This two-sentence task, its identification of missing ideas and the benefit of its passage links have not been tested with learners.
 
 ## Accessibility
 
 Meets the shared baseline in the root README.
 
 - Results appear on submit and announce one summary without moving focus.
-- Rereading links move keyboard focus to the lesson heading.
+- Switching steps moves keyboard focus to the new step's heading. Feedback links open the reading step and focus the matching lesson heading. "Read the text again" stays available after a check.
 - Each row has an icon and a word as well as colour. "To add" is orange; "Not sure" is neutral.
-- Without JavaScript or an automatic check, the answer box, native checklist and model explanation remain available.
+- Without JavaScript, the lesson, answer box, native checklist and model explanation render together. Only enhancement adds the step controls. Without an automatic check, the explanation step offers the native checklist and model explanation.
 - English and Québec French have the same fields and controls.
 
 ## Content fields
@@ -64,7 +64,7 @@ Required strings are nonempty. Unknown fields and wrong idea identities are reje
 | `validateState(value)` | A clean `{ answer, ticked }` draft, or `null` for invalid saved values. |
 | `ANSWER_LIMIT` | The proxy-owned maximum answer length. |
 
-Pass optional `state: { read, write }` to retain a draft and self-check ticks. Automated judgments are not saved. Editing while a check is pending discards its result. Repeated enhancement returns the same instance; `destroy()` removes listeners, cancels pending checks and restores the native fallback.
+Pass optional `state: { read, write }` to retain a draft and self-check ticks. A restored draft or ticks opens the explanation step. Automated judgments are not saved, but switching steps keeps the current result. Editing while a check is pending discards its result. Repeated enhancement returns the same instance; `destroy()` removes listeners, cancels pending checks and restores the original server DOM, including the native fallback and both visible parts.
 
 ## Use it
 
