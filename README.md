@@ -10,6 +10,10 @@ Pattern pages will live at [praxity.io/en/patterns/](https://praxity.io/en/patte
 
 Copy its folder under `patterns/` and the shared `lib/` folder. Keep their relative paths. Include the pattern's CSS, call `render` on the server, then call `enhance` in the browser. See the pattern's README for the content shape and example.
 
+## Run the demos
+
+With Node 22, run `npm ci` and `npm run demo`, then `node scripts/serve-demo.mjs` and open http://127.0.0.1:4173. Every pattern has an English page, a French page and a page with two copies of the pattern. To put the same pages online, set your own `name` in `wrangler.jsonc`, sign in with `npx wrangler login`, then run `npm run preview:deploy`. It deploys to your Cloudflare account.
+
 ## Patterns
 
 | Pattern | What it does |
