@@ -165,11 +165,13 @@ test('evidence check puts authored and default feedback in place, locks marks, a
   await expect(page.locator('[data-lp-chunk][aria-pressed="true"]')).toHaveCount(0);
   await expect(page.locator('[data-lp-check]')).toBeVisible();
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ marked: [], shown: false });
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You found 0 of 1 passages that answer the question.']);
+  // Reset empties the status, so the old count isn't read again.
+  await expect(page.getByRole('status')).toHaveText('');
+  expect(await page.evaluate(() => window.lpAnnouncements.filter(Boolean))).toEqual(['You found 0 of 1 passages that answer the question.']);
   await chunk(page, 'ignored').click(); await page.locator('[data-lp-check]').click();
   await expect(feedback(page, 'ignored')).toHaveText('Answers the question');
   await expect(chunk(page, 'ignored')).toHaveAttribute('data-lp-outcome', 'correct');
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You found 0 of 1 passages that answer the question.', 'You found 1 of 1 passages that answer the question.']);
+  expect(await page.evaluate(() => window.lpAnnouncements.filter(Boolean))).toEqual(['You found 0 of 1 passages that answer the question.', 'You found 1 of 1 passages that answer the question.']);
 });
 
 test('pointer toggles preserve server passage nodes, count marks and use a warm clone highlighter', async ({ page }) => {

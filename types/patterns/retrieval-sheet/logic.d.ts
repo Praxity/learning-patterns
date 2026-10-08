@@ -6,6 +6,11 @@ export function validateContent(content: unknown): asserts content is Content;
  * @param {unknown} value @returns {value is string}
  */
 export function isDate(value: unknown): value is string;
+/** Whether a date field value is a year still being typed. Chrome reports each partial year as a
+ * valid date while the learner types it digit by digit (0002, 0020, 0202), so those aren't dates yet.
+ * @param {unknown} value @returns {boolean}
+ */
+export function isPartialYear(value: unknown): boolean;
 /** Seven local calendar days ahead, without changing the source date.
  * @param {Date} today @returns {string} YYYY-MM-DD.
  */

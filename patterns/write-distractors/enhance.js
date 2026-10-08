@@ -66,9 +66,10 @@ export function enhance(root, { content, strings, state }) {
   }
   const options = () => fields.map(field => ({ text: field.inputs.text.value, misconception: field.inputs.misconception.value, custom: field.inputs.custom.value }));
   const save = () => state?.write({ answer: answer.value, hadIt, options: options(), shown });
+  // The error is linked only while it shows, so the field isn't described by a hidden message.
   function clearAnswerError() {
     answerError.hidden = true;
-    answer.removeAttribute('aria-invalid');
+    answer.removeAttribute('aria-invalid'); answer.removeAttribute('aria-describedby');
   }
   function showAnswer() {
     checkedAnswer = true;
@@ -143,7 +144,7 @@ export function enhance(root, { content, strings, state }) {
     if (checkedAnswer) return;
     if (!answer.value.trim()) {
       answerError.hidden = false;
-      answer.setAttribute('aria-invalid', 'true');
+      answer.setAttribute('aria-invalid', 'true'); answer.setAttribute('aria-describedby', answerError.id);
       answer.focus();
       status.textContent = strings.errorsOne;
       return;
@@ -179,7 +180,8 @@ export function enhance(root, { content, strings, state }) {
       for (const error of checked.errors) {
         const field = fields[error.option];
         const message = strings[error.code]
-          .replaceAll('{n}', String(error.option + 1))
+          // Name the option by its visible letter (B, C…), not its position.
+          .replaceAll('{n}', optionKey(error.option + 1))
           .replaceAll('{max}', String(error.field === 'text' ? MAX_OPTION : MAX_CUSTOM));
         field.errors[error.field].innerHTML = `${icons['alert-circle']}<span>${html(message)}</span>`;
         field.errors[error.field].hidden = false;

@@ -97,7 +97,7 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
 .lp-input:hover { border-color: var(--lp-ink-2); }
 .lp-input[readonly] { color: var(--lp-ink); background: var(--lp-paper-2); border-color: var(--lp-line-mid); }
 .lp-input[aria-invalid="true"] { border: 2px solid var(--lp-error-ink); padding: 10px 13px; }
-.lp-error-text { display: flex; gap: 6px; align-items: flex-start; color: var(--lp-error-ink); font-size: var(--lp-type-small); font-weight: 600; }
+.lp-error-text { display: flex; gap: 8px; align-items: flex-start; color: var(--lp-error-ink); font-size: var(--lp-type-small); font-weight: 600; }
 
 /* Choice rows, after Tally: a light row, a letter key for single choice, a square for
    multiple choice. The native input stays in the row for keyboards and screen readers. */
@@ -214,7 +214,7 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
   line-height: 1.2;
   text-align: start;
   cursor: pointer;
-  transition: background .15s, transform .1s;
+  transition: background .15s, transform .15s;
 }
 .lp-button:hover { background: var(--lp-accent-ink); }
 .lp-button:active { transform: scale(.96); }
@@ -223,13 +223,18 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
 .lp-button-secondary[aria-pressed="true"] { padding: 9px 17px; border: 2px solid var(--lp-accent); color: var(--lp-accent-ink); background: var(--lp-accent-soft); box-shadow: none; }
 .lp-button-quiet { padding-inline: 10px; color: var(--lp-ink-2); background: transparent; border-color: transparent; box-shadow: none; }
 .lp-button-quiet:hover { color: var(--lp-ink); background: var(--lp-paper-2); }
+/* When nothing visible comes before it, the quiet button hangs its 10px padding into the margin, so its
+   icon lines up with the text column. Beside another button it keeps its place. */
+.lp-button-quiet:not(:not([hidden]) ~ .lp-button-quiet) { margin-inline-start: -10px; }
 .lp-button:disabled, .lp-button[aria-disabled="true"] { color: var(--lp-ink-2); background: var(--lp-paper-2); border-color: var(--lp-rule); box-shadow: none; cursor: default; }
 
 /* Status: icon, word and colour; never colour alone. */
 .lp-icon { flex: none; inline-size: 1.15em; block-size: 1.15em; }
+/* A box one line tall centres the glyph on the first line of its text, at any size or weight, so rows
+   align icons with align-items: start and no per-icon margins. Older browsers keep the 1.15em box. */
+.lp-icon { block-size: 1lh; }
 .lp-outcomes { display: grid; gap: 6px; padding: 0; list-style: none; }
 .lp-outcome { display: grid; grid-template-columns: auto 1fr; column-gap: 10px; align-items: start; padding: 8px 10px; border-radius: 8px; }
-.lp-outcome > .lp-icon { margin-block-start: .2em; }
 .lp-outcome > :not(.lp-icon) { grid-column: 2; }
 .lp-outcome-word { font-weight: 600; }
 .lp-outcome-detail { color: var(--lp-ink-2); }
@@ -238,10 +243,12 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
 .lp-neutral { color: var(--lp-ink-2); }
 
 /* Native disclosure */
-.lp-details > summary { display: flex; gap: 8px; align-items: center; min-block-size: 44px; font-weight: 600; cursor: pointer; list-style: none; }
+.lp-details > summary { display: flex; gap: 8px; align-items: flex-start; min-block-size: 44px; padding-block: max(0px, calc((44px - 1lh) / 2)); font-weight: 600; cursor: pointer; list-style: none; }
 .lp-details > summary::-webkit-details-marker { display: none; }
-.lp-details > summary::before { content: ""; inline-size: .45em; block-size: .45em; border-block-end: 2px solid; border-inline-end: 2px solid; transform: rotate(-45deg); transition: transform .15s var(--lp-ease); }
-.lp-details[open] > summary::before { transform: rotate(45deg); }
+/* The chevron is a rotated corner. Open, its point hangs below the box centre, so it moves up to sit
+   on the centre of the first text line. */
+.lp-details > summary::before { content: ""; flex: none; inline-size: .45em; block-size: .45em; margin-block: calc((1lh - .45em) / 2); border-block-end: 2px solid; border-inline-end: 2px solid; transform: rotate(-45deg); transition: transform .15s var(--lp-ease); }
+.lp-details[open] > summary::before { transform: translate(0, -.16em) rotate(45deg); }
 .lp-details > :not(summary) { margin-block-start: 12px; }
 /* Disclosures open at once: a rise after the panel has opened reads as a twitch (owner, 2026-10-07). */
 
@@ -249,6 +256,7 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
 .lp :is(a, button, textarea, select, summary, input:not([type="radio"], [type="checkbox"])):focus,
 .lp [tabindex="-1"]:focus-visible { outline: 2px solid var(--lp-focus); outline-offset: 2px; }
 .lp-input:focus { border-color: var(--lp-accent); }
+.lp-input[aria-invalid="true"]:focus { border-color: var(--lp-error-ink); }
 
 .lp-visually-hidden {
   position: absolute !important;
@@ -261,9 +269,8 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
   white-space: nowrap;
 }
 
-/* Feedback appears with a short rise; nothing loops and nothing celebrates. */
-.lp-reveal { animation: lp-rise .3s var(--lp-ease); }
-@keyframes lp-rise { from { opacity: 0; transform: translateY(6px); } }
+/* Revealed answers and feedback open at once, with no rise (AGENTS.md, Motion). The class stays as a hook. */
+.lp-reveal { animation: none; }
 
 @container (max-width: 30rem) {
   .lp-actions > .lp-button:not(.lp-button-quiet) { flex: 1 1 100%; justify-content: center; }
