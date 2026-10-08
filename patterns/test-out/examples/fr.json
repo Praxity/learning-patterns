@@ -1,5 +1,5 @@
 {
-  "title": "Les réunions : une mise à jour",
+  "title": "Rappel sur les réunions",
   "allowTestOut": true,
   "sections": [
     { "id": 1, "title": "Préparer un ordre du jour", "requires": [] },
@@ -23,7 +23,7 @@
         { "id": "wait", "text": "La laisser parler jusqu'à la fin de la réunion" },
         { "id": "delegate", "text": "Demander à la personne qui prend les notes de décider pour tout le monde" }
       ],
-      "correct": "invite", "explanation": "La personne qui anime la réunion laisse de la place aux autres."
+      "correct": "invite", "explanation": "La personne qui anime la réunion donne aux autres l'occasion de participer."
     },
     {
       "id": "follow-up", "section": 4, "text": "Que devriez-vous confirmer avant la fin de la réunion?",

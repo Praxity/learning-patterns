@@ -27,7 +27,7 @@ export const strings = {
     empty: "Écrivez d'abord une réponse.", tooLong: 'Limitez votre réponse à {max} caractères.',
     unreadable: "Vos réponses enregistrées n'ont pas pu être lues. Recommencez pour les remplacer.",
     writeFailed: "Vos réponses n'ont pas pu être enregistrées. Rien n'a changé. Réessayez.",
-    summary: 'Vous avez coché {count} des {total} critères pour votre réponse maintenant.'
+    summary: 'Critères cochés pour votre réponse actuelle : {count} sur {total}.'
   }
 };
 /** @typedef {typeof strings.en} Strings */

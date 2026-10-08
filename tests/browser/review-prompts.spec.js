@@ -74,8 +74,8 @@ test('article metadata uses authored text in French and progress restores withou
   await open(page, '/review-prompts/fr.html');
   const root = page.locator('[data-lp-pattern]');
   await expect(root.getByRole('heading', { level: 2 })).toHaveText("L'évitement");
-  await expect(root.locator('header > .lp-small').first()).toHaveText('1 min de lecture');
-  await expect(root.locator('[data-lp-progress]')).toHaveText('1 sur 1 vérifiés');
+  await expect(root.locator('header > .lp-small').first()).toHaveText('1 min de lecture');
+  await expect(root.locator('[data-lp-progress]')).toHaveText('Questions vérifiées : 1 sur 1');
   await expect(root.getByRole('status')).toHaveText('');
 });
 
@@ -297,9 +297,9 @@ test('French root, answer and date use French strings and fr-CA formatting', asy
   await expect(part(page).getByRole('region', { name: 'Réponse' })).toBeFocused();
   await expect(part(page).locator('[data-lp-answer]')).toHaveText(french.parts[0].answer);
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
-  await part(page).getByRole('button', { name: "Je m'en suis souvenu" }).click();
-  await expect(part(page).locator('[data-lp-review]')).toHaveText('Prochaine révision : vendredi 9 octobre 2026');
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Prochaine révision : vendredi 9 octobre 2026']);
+  await part(page).getByRole('button', { name: "Je m'en souvenais" }).click();
+  await expect(part(page).locator('[data-lp-review]')).toHaveText('Prochaine révision : vendredi 9 octobre 2026');
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Prochaine révision : vendredi 9 octobre 2026']);
 });
 
 test('valid saved dates restore exactly, open rated parts, and do not announce', async ({ page }) => {

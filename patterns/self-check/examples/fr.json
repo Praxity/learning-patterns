@@ -5,12 +5,12 @@
     "subject": "Rapport client",
     "placeholder": "Bonjour Sam,\n\nÉcrivez votre message ici…"
   },
-  "task": "Votre rapport client est attendu vendredi. Les données de vente sont arrivées avec trois jours de retard. Il vous faut jusqu’à mardi. Écrivez le message à votre gestionnaire.",
+  "task": "Votre rapport client est attendu vendredi. Les données de vente sont arrivées avec trois jours de retard. Il vous faut donc jusqu'à mardi pour le terminer. Écrivez le message à votre gestionnaire.",
   "parts": [
     {
       "id": "work_deadline",
-      "label": "Rapport client et date de remise du vendredi",
-      "missed": "Nommez le rapport client et sa date de remise du vendredi.",
+      "label": "Rapport client à remettre vendredi",
+      "missed": "Nommez le rapport client et précisez qu'il est à remettre vendredi.",
       "evidence": "le rapport client est attendu vendredi"
     },
     {
@@ -21,7 +21,7 @@
     },
     {
       "id": "new_date",
-      "label": "Nouvelle date de remise du mardi",
+      "label": "Nouvelle date de remise : mardi",
       "missed": "Demandez de terminer le rapport d'ici mardi.",
       "evidence": "Il me faut donc jusqu'à mardi pour le terminer"
     },

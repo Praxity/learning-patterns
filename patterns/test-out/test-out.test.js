@@ -151,13 +151,13 @@ test('advanced answer explanations describe answers only', () => {
   assert.doesNotMatch(fr, /Réussir cette section|crédit/);
   assert.ok(en.includes('The facilitator makes room for other people to contribute.'));
   assert.ok(en.includes('Confirm decisions, action owners and deadlines.'));
-  assert.ok(fr.includes('La personne qui anime la réunion laisse de la place aux autres.'));
+  assert.ok(fr.includes('La personne qui anime la réunion donne aux autres l&#39;occasion de participer.'));
   assert.ok(fr.includes('Confirmez les décisions, les responsables des actions et les échéances.'));
 });
 
 test('server counters carry section titles in both languages', () => {
   assert.match(render(content, strings.en, { id: 'en', lang: 'en' }), /data-lp-panel-heading>Question 1 of 3: Writing an agenda<\/h3>/);
-  assert.match(render(french, strings.fr, { id: 'fr', lang: 'fr' }), /data-lp-panel-heading>Question 1 sur 3 : Préparer un ordre du jour<\/h3>/);
+  assert.match(render(french, strings.fr, { id: 'fr', lang: 'fr' }), /data-lp-panel-heading>Question 1 sur 3 : Préparer un ordre du jour<\/h3>/);
 });
 
 test('server questions have no progress bar', () => {
