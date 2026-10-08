@@ -25,6 +25,11 @@ Copy its folder under `patterns/` and the shared `lib/` folder. Keep their relat
 | [Write the wrong options](patterns/write-distractors/README.md) | Answer a question, write wrong options and the misconception behind each, then compare with the author's. |
 | [Switch formats](patterns/formats/README.md) | The same section as text, slides, an audio script or a quiz. Switching keeps your place. |
 
+## Run the demos
+
+Run `npm ci`, then `npm run demo` to build offline demos with fixed AI feedback, and `node scripts/serve-demo.mjs` to serve them at `http://127.0.0.1:4173`.
+For live AI demos, configure the proxy as [proxy/README.md](proxy/README.md) describes, build with `npm run demo:live`, and deploy with `npm run preview:deploy`.
+
 ## Look and theme tokens
 
 `lib/base.css` gives every pattern the same look: one card per activity, quiet sections inside it, keyed choice rows, and status shown by an icon and a word as well as colour. Link it before a pattern's own CSS. To restyle, override these custom properties on `.lp` or any ancestor.
