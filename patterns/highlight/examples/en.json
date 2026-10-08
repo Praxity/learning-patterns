@@ -6,11 +6,11 @@
     [
       {
         "id": "observation",
-        "text": "Psychologist John Gottman and his colleagues watched couples talk for 15 minutes."
+        "text": "Psychologist John Gottman and his colleagues recorded couples talking and followed them for 14 years."
       },
       {
         "id": "prediction",
-        "text": "They predicted which couples would divorce with 93% accuracy."
+        "text": "How the couples talked, together with how satisfied they were, predicted divorce with 93% accuracy."
       },
       {
         "id": "signals",

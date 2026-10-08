@@ -5,11 +5,11 @@
     [
       {
         "id": "observation",
-        "text": "Le psychologue John Gottman et ses collègues ont observé des couples discuter pendant 15 minutes."
+        "text": "Le psychologue John Gottman et ses collègues ont filmé des couples en conversation et les ont suivis pendant 14 ans."
       },
       {
         "id": "prediction",
-        "text": "Ils ont prédit lesquels allaient divorcer avec une précision de 93 %."
+        "text": "Leur façon de se parler, jointe à leur degré de satisfaction, a prédit les divorces avec une précision de 93 %."
       },
       {
         "id": "signals",
