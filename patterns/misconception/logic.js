@@ -34,7 +34,7 @@ export function validateContent(content) {
  * @param {Content} content @param {unknown} answers @param {string} [model]
  * @returns {{ kind: Kind, heading: string, text: string }}
  */
-export function feedback(content, answers, model = '@cf/cloudflare/clef') {
+export function feedback(content, answers, model = '') {
   validateContent(content);
   if (!object(answers) || !object(answers.misconception)) throw new Error('Invalid answers.misconception');
   const { choice, confidence } = answers.misconception;

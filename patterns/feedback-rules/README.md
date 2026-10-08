@@ -60,11 +60,11 @@ Unknown fields, duplicate fixture ids, invalid probabilities and answers beyond 
 
 ### Saved-run provenance
 
-The example contains 144 recorded predicate values, 72 per sample language. None are invented and no cells lack a recording. They come from the final calibration data for wording `f03390a`, dated 2026-10-07, model `@cf/cloudflare/clef`, displayed as Clef 27B.
+The example contains 144 recorded predicate values, 72 per sample language. None are invented and no cells lack a recording. They come from the final calibration data for wording `f03390a`, dated 2026-10-07, model `@cf/cloudflare/clef`, displayed as Clef 27B. Live checks default to Perplexity `pplx-decider-v1.1-27b` with Jev's original questions and gates. This saved Clef run does not establish results for that configuration.
 
-English rubric calibration records are rows `16-012` through `16-021` and `16-023`, plus parity row `17-056` for the translated complete-message fixture. French parity records are rows `17-039`, `17-041`, `17-043`, `17-045`, `17-047`, `17-049`, `17-051`, `17-053`, `17-055`, `17-059`, `17-fixture-off_topic-french`, plus rubric row `16-022`. All are from the final work-deadline calibration calls. Each selected answer text and each of the six questions matches the shipped rubric exactly. The sincere predicate is not counted.
+English rubric calibration records are rows `16-012` through `16-021` and `16-023`, plus parity row `17-056` for the translated complete-message fixture. French parity records are rows `17-039`, `17-041`, `17-043`, `17-045`, `17-047`, `17-049`, `17-051`, `17-053`, `17-055`, `17-059`, `17-fixture-off_topic-french`, plus rubric row `16-022`. All are from the final work-deadline calibration calls. Each selected answer text and each of the six questions matches the optional Clef rubric wording. The sincere predicate is not counted.
 
-The static demo's fake `ask` returns these recorded values for the requested answer. It sends no text to a provider. Tests inject separate, clearly synthetic disagreements and uncertain values to check the interface.
+The static demo's fake `ask` returns these recorded values for the requested answer and identifies their recorded Clef model so it uses the matching gates. It sends no text to a provider. Tests inject separate, clearly synthetic disagreements and uncertain values to check the interface.
 
 ## Logic
 

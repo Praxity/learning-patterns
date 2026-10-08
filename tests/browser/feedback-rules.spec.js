@@ -52,6 +52,7 @@ async function visibleText(locator) {
 for (const lang of ['en', 'fr']) {
   test(`run every sample once, real saved values, one summary, focus and axe (${lang})`, async ({ page }) => {
     await open(page, lang); await observe(page);
+    await expect(page.locator('[data-lp-run-info]')).toContainText(examples[lang].savedRun.modelName);
     await expect(page.locator('[data-lp-summary]')).toContainText('72');
     await expect(page.locator('[data-lp-outcome="notRun"]')).toHaveCount(72);
     await expect(page.locator('[role="status"]')).toBeEmpty();
@@ -235,10 +236,10 @@ test('configured data notice, configuration failure and incomplete saved recordi
     const { strings } = await import('/patterns/feedback-rules/strings.js');
     const { noticeConfig } = await import('/lib/data-notice.js');
     window.lpRemount = async (content, broken) => enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en,
-      ask: Object.assign(async () => { throw new Error('Offline'); }, { config: async () => { if (broken) throw new Error('Config'); return { provider: 'clef', siteKey: '', model: '@cf/cloudflare/clef', ...noticeConfig('clef') }; } }) });
+      ask: Object.assign(async () => { throw new Error('Offline'); }, { config: async () => { if (broken) throw new Error('Config'); return { provider: 'perplexity', siteKey: '', model: 'pplx-decider-v1.1-27b', ...noticeConfig('perplexity') }; } }) });
   });
   await page.evaluate(content => { window.lpInstances[0] = window.lpRemount(content, false); }, examples.en);
-  await expect(page.locator('[data-lp-notice]')).toContainText('Cloudflare Workers AI');
+  await expect(page.locator('[data-lp-notice]')).toContainText('Perplexity (US)');
   await expect(page.locator('[data-lp-run]')).toHaveAttribute('aria-describedby', 'example-notice-text');
   await page.evaluate(async content => {
     (await window.lpInstances[0]).destroy();

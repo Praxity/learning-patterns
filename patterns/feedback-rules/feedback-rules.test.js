@@ -4,11 +4,18 @@ import { readFile } from 'node:fs/promises';
 import { summarize, runSamples, validateContent } from './logic.js';
 import { render, renderRow } from './render.js';
 import { strings } from './strings.js';
+import { DEFAULT_MODEL } from '../../proxy/src/prices.js';
 
 const content = JSON.parse(await readFile(new URL('./examples/en.json', import.meta.url)));
 const model = '@cf/cloudflare/clef';
 const answers = values => Object.fromEntries(content.criteria.map((c, i) => [c.id, { noul: values[i] }]));
 const first = content.fixtures[0];
+
+test('live default uses Jev rubric gates while recorded Clef results retain their own gates', () => {
+  const results = { [first.id]: answers([0.625, 1, 1, 1, 0.6, 0]) };
+  assert.deepEqual(summarize(content, results, DEFAULT_MODEL).rows[0].cells.map(cell => cell.model), ['unsure', 'met', 'met', 'met', 'unsure', 'missed']);
+  assert.deepEqual(summarize(content, results, content.savedRun.model).rows[0].cells.map(cell => cell.model), ['met', 'met', 'met', 'met', 'met', 'missed']);
+});
 
 test('summary counts each cell, preserves blame polarity and keeps failures separate', () => {
   const result = summarize(content, { [first.id]: answers([1, 0, .5, 1, 1, 1]), [content.fixtures[1].id]: null }, model);

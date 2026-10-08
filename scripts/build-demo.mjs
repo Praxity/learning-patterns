@@ -9,6 +9,7 @@ import { readMeta } from './pattern-meta.mjs';
 import { summarize as summarizeRules } from '../patterns/feedback-rules/logic.js';
 import { summaryText as rulesSummary } from '../patterns/feedback-rules/render.js';
 import { strings as rulesStrings } from '../patterns/feedback-rules/strings.js';
+import { DEFAULT_MODEL } from '../proxy/src/prices.js';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const output = join(root, 'demo-dist');
@@ -84,7 +85,7 @@ const content = ${JSON.stringify(content).replaceAll('<', '\\u003c')};
 let saved = window.lpSeed;
 const state = { read: () => saved, write: value => { saved = value; window.lpSaved = value; } };
 ${AI_PATTERNS.includes(name) ? `const mockConfig = {
-  model: '@cf/cloudflare/clef',
+  model: ${JSON.stringify(name === 'feedback-rules' ? content.savedRun.model : DEFAULT_MODEL)},
   siteKey: '', provider: 'mock', providerName: 'Offline example',
   dataNotice: ${name === 'journal' ? `{ en: "This demo uses fixed suggestions. Get a suggestion sends no text. Save keeps your entry in this browser.", fr: "Cette démo utilise des suggestions fixes. Obtenir une suggestion n’envoie aucun texte. Enregistrer garde votre entrée dans ce navigateur." }` : `{ en: "This demo uses fixed feedback. Your answer stays in this page and isn't sent or stored.", fr: "Cette démo utilise une rétroaction fixe. Votre réponse reste dans cette page et n'est ni envoyée ni conservée." }`}
 };
