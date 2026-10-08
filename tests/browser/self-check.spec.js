@@ -297,8 +297,9 @@ test('Start over is a quiet text button with an icon, the same target size and f
   for (const name of ['check', 'show', 'restart']) {
     const button = page.locator(`[data-lp-${name}]`);
     if (name !== 'restart') {
-      const primary = await button.evaluate(el => { const css = getComputedStyle(el); return { background: css.backgroundColor, color: css.color }; });
-      expect(primary).toEqual({ background: 'rgb(44, 85, 201)', color: 'rgb(255, 255, 255)' });
+      // Wait for the hover transition to finish before checking its exact final colour.
+      await expect(button).toHaveCSS('background-color', 'rgb(44, 85, 201)');
+      await expect(button).toHaveCSS('color', 'rgb(255, 255, 255)');
     }
     await button.focus();
     const outline = await button.evaluate(el => { const css = getComputedStyle(el); return [css.outlineWidth, css.outlineStyle, css.outlineOffset, css.outlineColor]; });
