@@ -11,18 +11,19 @@ export function render(content, strings, { id, lang }) {
   validateContent(content);
   const answerId = html(`${id}-answer`);
   const errorId = html(`${id}-error`);
+  const context = content.context;
   return `<section class="lp lp-self-check" data-lp-pattern="self-check" lang="${html(lang)}">
   <header class="lp-scene">
-    <span class="lp-scene-icon">${icons.mail}</span>
+    ${context ? `<span class="lp-scene-icon">${icons.mail}</span>` : ''}
     <div><p class="lp-scene-title">${html(content.task)}</p></div>
   </header>
   <div class="lp-self-check-composer">
-    <div class="lp-self-check-meta-list">
-    <p class="lp-self-check-meta"><span class="lp-self-check-meta-key">${html(strings.to)}</span><span class="lp-self-check-recipient"><span class="lp-self-check-avatar" aria-hidden="true">${html(content.context.initials)}</span>${html(content.context.to)}</span></p>
-    <p class="lp-self-check-meta"><span class="lp-self-check-meta-key">${html(strings.subject)}</span><span>${html(content.context.subject)}</span></p>
-    </div>
+    ${context ? `<div class="lp-self-check-meta-list">
+    <p class="lp-self-check-meta"><span class="lp-self-check-meta-key">${html(strings.to)}</span><span class="lp-self-check-recipient"><span class="lp-self-check-avatar" aria-hidden="true">${html(context.initials)}</span>${html(context.to)}</span></p>
+    <p class="lp-self-check-meta"><span class="lp-self-check-meta-key">${html(strings.subject)}</span><span>${html(context.subject)}</span></p>
+    </div>` : ''}
     <label class="lp-label lp-self-check-composer-label" for="${answerId}">${html(strings.answer)}</label>
-    <textarea class="lp-input lp-self-check-composer-body" id="${answerId}" rows="5"${content.context.placeholder === undefined ? '' : ` placeholder="${html(content.context.placeholder)}"`}></textarea>
+    <textarea class="lp-input lp-self-check-composer-body" id="${answerId}" rows="5"${context?.placeholder === undefined ? '' : ` placeholder="${html(context.placeholder)}"`}></textarea>
     <div class="lp-self-check-composer-foot">
       <p class="lp-error-text" id="${errorId}" data-lp-error hidden>${icons['alert-circle']}<span>${html(strings.empty)}</span></p>
       <button class="lp-button" type="button" data-lp-check hidden>${html(strings.check)}</button>

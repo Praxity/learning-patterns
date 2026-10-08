@@ -1,5 +1,5 @@
 /** @typedef {{ id: string, label: string, missed: string, evidence: string | null }} Part */
-/** @typedef {{ task: string, context: { to: string, initials: string, subject: string, placeholder?: string }, parts: Part[], model: string }} Content */
+/** @typedef {{ task: string, context?: { to: string, initials: string, subject: string, placeholder?: string }, parts: Part[], model: string }} Content */
 /** @typedef {{ text: string, partIndex: number | null, included: boolean }} Segment */
 /** @typedef {{ answer: string, ticked: string[], shown: boolean }} LearnerState */
 
@@ -25,12 +25,14 @@ export function validateContent(content) {
   for (const field of ['task', 'model']) {
     if (typeof content[field] !== 'string' || content[field].length === 0) throw new Error(`Invalid ${field}`);
   }
-  if (!object(content.context)) throw new Error('Invalid context');
-  fields(content.context, ['to', 'initials', 'subject', 'placeholder'], 'context');
-  for (const field of ['to', 'initials', 'subject']) {
-    if (typeof content.context[field] !== 'string' || content.context[field].length === 0) throw new Error(`Invalid context.${field}`);
+  if (Object.hasOwn(content, 'context')) {
+    if (!object(content.context)) throw new Error('Invalid context');
+    fields(content.context, ['to', 'initials', 'subject', 'placeholder'], 'context');
+    for (const field of ['to', 'initials', 'subject']) {
+      if (typeof content.context[field] !== 'string' || content.context[field].length === 0) throw new Error(`Invalid context.${field}`);
+    }
+    if (Object.hasOwn(content.context, 'placeholder') && typeof content.context.placeholder !== 'string') throw new Error('Invalid context.placeholder');
   }
-  if (Object.hasOwn(content.context, 'placeholder') && typeof content.context.placeholder !== 'string') throw new Error('Invalid context.placeholder');
   if (!Array.isArray(content.parts) || content.parts.length === 0) throw new Error('Invalid parts');
   const known = new Set();
   content.parts.forEach((part, index) => {
@@ -51,7 +53,7 @@ export function validateContent(content) {
   });
 }
 
-/** Segment validated model text in reading order. Whole-message parts stay in the legend.
+/** Segment validated model text in reading order. Whole-answer parts stay in the legend.
  * When evidence overlaps, the first span in model order owns that text.
  * @param {string} model @param {Part[]} parts @param {string[]} includedIds
  * @returns {Segment[]}

@@ -40,7 +40,7 @@ const scan = async page => expect((await new AxeBuilder({ page }).withTags(['wca
 
 for (const [lang, title, label, number] of [
   ['en', 'Money basics', 'Quick check', 'Question 1 of 4'],
-  ['fr', "Notions de base en finances personnelles", 'Vérification rapide', 'Question 1 sur 4']
+  ['fr', "Les bases des finances personnelles", 'Vérification rapide', 'Question 1 sur 4']
 ]) {
   test(`quiz card has a scene, numbered questions, explanation panels and a score ring (${lang})`, async ({ page }) => {
     await open(page, `/dont-know/${lang}.html`);
@@ -104,7 +104,7 @@ test('keyboard journey associates each unanswered error, focuses first missing r
   for (let n = 0; n < 4; n++) await page.keyboard.press('Tab');
   await expect(check).toBeFocused(); await page.keyboard.press('Enter');
   await expect(questions.nth(1).locator('input').first()).toBeFocused();
-  await expect(page.locator('[data-lp-error]')).toHaveText("3 questions unanswered. Choose an option, or I don't know.");
+  await expect(page.locator('[data-lp-error]')).toHaveText("3 questions need answers. Choose an answer or \"I don't know\".");
   for (let n = 1; n < 4; n++) {
     const fieldset = questions.nth(n);
     const id = await fieldset.getAttribute('aria-describedby');
@@ -130,7 +130,7 @@ test('keyboard journey associates each unanswered error, focuses first missing r
   await expect(page.locator('input:checked')).toHaveCount(0);
   await expect(page.locator('[data-lp-result]')).toBeHidden(); await expect(page.locator('[data-lp-restart]')).toBeHidden();
   // Focusing the score supplies the result speech; the status must not repeat it.
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Cleared.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Answers cleared.']);
 });
 
 test('choice names and browse text omit decorative letter keys', async ({ page }) => {
@@ -153,7 +153,7 @@ test('score focus supplies one result announcement without a duplicate status up
 });
 
 for (const [lang, content, correct, wrong, answer, unknown, counts] of [
-  ['en', english, 'Correct', 'Not quite', 'Correct answer', "You chose I don't know", '2 right, 1 wrong, 1 "I don\'t know"'],
+  ['en', english, 'Correct', 'Not quite', 'Correct answer', "You chose \"I don't know\"", '2 right, 1 wrong, 1 "I don\'t know"'],
   ['fr', french, 'Correct', 'Pas tout à fait', 'Bonne réponse', 'Vous avez choisi « Je ne sais pas »', '2 bonnes réponses, 1 mauvaise réponse, 1 « Je ne sais pas »']
 ]) {
   test(`results mark choices in place, explain only gaps and link back to questions (${lang})`, async ({ page }) => {
@@ -360,7 +360,7 @@ test('answers lock on submit; Start over clears marks, explanations and host sta
   await expect(page.locator('input').first()).toBeFocused();
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ picks: {}, shown: false });
   await pick(page); await page.locator('[data-lp-check]').click();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Cleared.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Answers cleared.']);
 });
 
 for (const shown of [false, true]) {
@@ -465,7 +465,7 @@ test('quiet reset and forced colours preserve focus rings and button distinction
 });
 
 test('one unanswered question uses the singular message in English and French', async ({ page }) => {
-  for (const [lang, text] of [['en', "1 question unanswered. Choose an option, or I don't know."], ['fr', '1 question sans réponse. Choisissez une option ou « Je ne sais pas ».']]) {
+  for (const [lang, text] of [['en', "1 question needs an answer. Choose an answer or \"I don't know\"."], ['fr', 'Répondez à la question restante ou choisissez « Je ne sais pas ».']]) {
     await open(page, `/dont-know/${lang}.html`);
     await pick(page, mixed.slice(0, 3));
     await page.locator('[data-lp-check]').click();

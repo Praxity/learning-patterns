@@ -5,44 +5,44 @@
     "subject": "Rapport client",
     "placeholder": "Bonjour Sam,\n\nÉcrivez votre message ici…"
   },
-  "task": "Votre rapport client est attendu vendredi. Les données de vente sont arrivées avec trois jours de retard. Il vous faut donc jusqu'à mardi pour le terminer. Écrivez le message à votre gestionnaire.",
+  "task": "Votre rapport client est attendu vendredi. Les données de vente sont arrivées avec trois jours de retard. Il vous faut jusqu'à mardi pour le terminer. Écrivez à votre gestionnaire pour demander plus de temps.",
   "parts": [
     {
       "id": "work_deadline",
       "label": "Rapport client à remettre vendredi",
-      "missed": "Nommez le rapport client et précisez qu'il est à remettre vendredi.",
+      "missed": "Dites que le rapport client est à remettre vendredi.",
       "evidence": "le rapport client est attendu vendredi"
     },
     {
       "id": "reason",
-      "label": "Raison du retard",
+      "label": "Données de vente arrivées en retard",
       "missed": "Dites que les données de vente sont arrivées en retard.",
       "evidence": "Les données de vente sont arrivées avec trois jours de retard"
     },
     {
       "id": "new_date",
-      "label": "Nouvelle date de remise : mardi",
+      "label": "Demander un délai jusqu'à mardi",
       "missed": "Demandez de terminer le rapport d'ici mardi.",
       "evidence": "Il me faut donc jusqu'à mardi pour le terminer"
     },
     {
       "id": "impact",
-      "label": "Offre pour limiter les conséquences",
+      "label": "Offrir les sections terminées d'ici vendredi",
       "missed": "Offrez une version préliminaire ou les sections terminées d'ici vendredi.",
       "evidence": "Je peux vous envoyer les sections terminées d'ici vendredi"
     },
     {
       "id": "agreement",
-      "label": "Accord ou avis du gestionnaire",
+      "label": "Vérifier si mardi convient",
       "missed": "Demandez si mardi convient à votre gestionnaire.",
-      "evidence": "Est-ce que mardi vous conviendrait?"
+      "evidence": "Est-ce que mardi vous conviendrait ?"
     },
     {
       "id": "no_blame",
-      "label": "Aucun blâme",
-      "missed": "Dites ce qui s'est passé, sans chercher de coupable.",
+      "label": "Décrire le retard sans blâmer personne",
+      "missed": "Décrivez le retard sans blâmer personne.",
       "evidence": null
     }
   ],
-  "model": "Bonjour Sam, le rapport client est attendu vendredi. Les données de vente sont arrivées avec trois jours de retard. Il me faut donc jusqu'à mardi pour le terminer. Je peux vous envoyer les sections terminées d'ici vendredi. Est-ce que mardi vous conviendrait?"
+  "model": "Bonjour Sam, le rapport client est attendu vendredi. Les données de vente sont arrivées avec trois jours de retard. Il me faut donc jusqu'à mardi pour le terminer. Je peux vous envoyer les sections terminées d'ici vendredi. Est-ce que mardi vous conviendrait ?"
 }

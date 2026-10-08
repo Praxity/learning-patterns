@@ -1,8 +1,8 @@
 {
   "prompt": "What would you say to a colleague who keeps interrupting you?",
   "checks": [
-    { "id": "specific", "label": "More specific" },
-    { "id": "behaviour", "label": "Describes the behaviour, not the person" },
-    { "id": "view", "label": "Asks for their view" }
+    { "id": "specific", "label": "Gives more detail about the interruptions" },
+    { "id": "behaviour", "label": "Describes the interruptions without judging the person" },
+    { "id": "view", "label": "Asks how they see the situation" }
   ]
 }

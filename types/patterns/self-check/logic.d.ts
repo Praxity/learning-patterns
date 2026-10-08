@@ -3,7 +3,7 @@
  * @returns {asserts content is Content}
  */
 export function validateContent(content: unknown): asserts content is Content;
-/** Segment validated model text in reading order. Whole-message parts stay in the legend.
+/** Segment validated model text in reading order. Whole-answer parts stay in the legend.
  * When evidence overlaps, the first span in model order owns that text.
  * @param {string} model @param {Part[]} parts @param {string[]} includedIds
  * @returns {Segment[]}
@@ -32,7 +32,7 @@ export type Part = {
 };
 export type Content = {
     task: string;
-    context: {
+    context?: {
         to: string;
         initials: string;
         subject: string;

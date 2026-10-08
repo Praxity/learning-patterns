@@ -52,9 +52,9 @@
 .lp [hidden] { display: none !important; }
 .lp :where(p, ul, ol, fieldset, details, figure, h2, h3, h4) { margin: 0; }
 .lp :where(p) { white-space: pre-line; }
-/* Body text avoids a lone last word; headings balance their lines. */
-.lp :where(p, li, dd, figcaption, label, legend) { text-wrap: pretty; }
-.lp :where(h2, h3, h4), .lp-stem, .lp-scene-title, .lp-run-in { text-wrap: balance; }
+/* Body text and question stems avoid a lone last word; short headings and titles balance. */
+.lp :where(p, li, dd, figcaption, label, legend), .lp-stem { text-wrap: pretty; }
+.lp :where(h2, h3, h4), .lp-scene-title, .lp-run-in { text-wrap: balance; }
 .lp > * + *, .lp-stack > * + * { margin-block-start: 16px; }
 
 /* Text roles */

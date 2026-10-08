@@ -1,16 +1,16 @@
 {
   "mode": "evidence",
-  "title": "Qu'est-ce que l'évitement?",
-  "question": "Pourquoi l'autre personne se sent-elle ignorée ou rejetée?",
+  "title": "Qu'est-ce que l'évitement ?",
+  "question": "Pourquoi partir sans un mot donne-t-il à l'autre personne le sentiment d'être rejetée ?",
   "paragraphs": [
     [
       {
         "id": "observation",
-        "text": "Le psychologue John Gottman et ses collègues ont observé des couples discuter pendant 15 minutes."
+        "text": "Le psychologue John Gottman et ses collègues ont filmé des couples en conversation et les ont suivis pendant 14 ans."
       },
       {
         "id": "prediction",
-        "text": "À partir de cette seule observation, ils pouvaient prédire avec une précision de 93 % quels couples allaient divorcer."
+        "text": "Leur façon de se parler, jointe à leur degré de satisfaction, a prédit les divorces avec une précision de 93 %."
       },
       {
         "id": "signals",
@@ -18,7 +18,7 @@
       },
       {
         "id": "horsemen",
-        "text": "Ils les ont appelés les quatre cavaliers : la critique, la défensive, le mépris et l'évitement."
+        "text": "Les quatre cavaliers sont la critique, la défensive, le mépris et l'évitement."
       }
     ],
     [
@@ -28,23 +28,23 @@
       },
       {
         "id": "harm",
-        "text": "Quand le blâme, le mépris et l'évitement prennent le dessus, la confiance diminue et le travail en souffre."
+        "text": "Le blâme, le mépris et l'évitement minent la confiance et perturbent le travail."
       }
     ],
     [
       {
         "id": "withdraw",
-        "text": "L'évitement consiste à vous retirer de la conversation."
+        "text": "L'évitement signifie se retirer d'une conversation."
       },
       {
         "id": "actions",
         "text": "Vous vous taisez, changez de sujet ou quittez la pièce.",
-        "note": "Ce passage décrit ce que vous faites, plutôt que la raison pour laquelle l'autre personne se sent rejetée."
+        "note": "Ce passage décrit vos gestes. La question demande pourquoi l'autre personne se sent rejetée."
       },
       {
         "id": "overwhelmed",
         "text": "Cela arrive souvent quand la situation vous dépasse.",
-        "note": "Ce passage explique ce que vous ressentez. La question porte sur l'autre personne."
+        "note": "Ce passage explique vos sentiments. La question porte sur l'autre personne."
       },
       {
         "id": "unseen",
@@ -52,7 +52,7 @@
       },
       {
         "id": "ignored",
-        "text": "Elle vous voit partir sans un mot et se sent ignorée ou rejetée.",
+        "text": "Elle vous voit vous retirer sans un mot et se sent ignorée ou rejetée.",
         "key": true
       }
     ]
