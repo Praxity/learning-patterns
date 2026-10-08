@@ -36,7 +36,7 @@ This pattern shows the right answer but does not explain why each misconception 
 
 Follows the shared baseline in the root README.
 
-- Each wrong option has a fieldset. Its legend names the option's letter and labels its answer field. Other fields have visible labels. Errors link to their fields.
+- Each wrong option has a fieldset. Its legend names the option's letter and labels its answer field. Error messages name options by that letter. Other fields have visible labels. Errors link to their fields.
 - Checking announces the right answer and keeps focus on Check my answer. Choosing Yes or Not quite focuses the next heading.
 - An invalid comparison focuses the first error and announces how many fields need fixing. A valid comparison keeps focus on the submit button and announces the matching-label count.
 - After comparison, each wrong option shows a summary you can read but cannot edit. It includes the full misconception label. Start over focuses Your answer.

@@ -11,7 +11,8 @@
 .lp-highlight-chunk[data-lp-outcome="wrong"] { text-decoration: none; }
 .lp-highlight-chunk[aria-disabled="true"] { cursor: default; }
 .lp-highlight-feedback { margin-inline-start: 5px; font-size: var(--lp-type-small); font-weight: 600; line-height: 1.45; }
-.lp-highlight-feedback > .lp-icon { display: inline-block; vertical-align: -.2em; margin-inline-end: 3px; }
+/* An inline icon keeps a glyph-sized box; the shared one-line box is for icons in flex and grid rows. */
+.lp-highlight-feedback > .lp-icon { display: inline-block; block-size: 1.15em; vertical-align: -.2em; margin-inline-end: 3px; }
 .lp-highlight-feedback[data-lp-outcome="correct"] { color: var(--lp-success-ink); }
 .lp-highlight-feedback[data-lp-outcome="missed"] { color: var(--lp-warning-ink); }
 .lp-highlight-feedback[data-lp-outcome="wrong"] { display: inline-block; max-inline-size: 100%; margin-inline-start: 0; padding: 3px 10px; border-radius: 12px; color: var(--lp-ink); background: var(--lp-paper-2); font-size: var(--lp-type-body); font-weight: 400; text-wrap: pretty; }

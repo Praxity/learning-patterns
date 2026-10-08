@@ -123,6 +123,7 @@ export function enhance(root, { content, strings, state }) {
       feedback[i].removeAttribute('data-lp-outcome');
     }
     summary.replaceChildren(); summary.hidden = true;
+    status.replaceChildren();
     submit.hidden = false;
   }
 

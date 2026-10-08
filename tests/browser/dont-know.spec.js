@@ -360,7 +360,9 @@ test('answers lock on submit; Start over clears marks, explanations and host sta
   await expect(page.locator('input').first()).toBeFocused();
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ picks: {}, shown: false });
   await pick(page); await page.locator('[data-lp-check]').click();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Answers cleared.']);
+  // The new result replaces "Answers cleared.", so reading to the end doesn't hear it after the score.
+  await expect(page.getByRole('status')).toHaveText('');
+  expect(await page.evaluate(() => window.lpAnnouncements.filter(Boolean))).toEqual(['Answers cleared.']);
 });
 
 for (const shown of [false, true]) {

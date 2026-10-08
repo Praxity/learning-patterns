@@ -179,7 +179,8 @@ export function enhance(root, { content, strings, state }) {
       clearErrors();
       const { fieldset, radios, message } = question;
       if (!radios.some(radio => radio.checked)) {
-        message.hidden = false; fieldset.setAttribute('aria-describedby', message.id);
+        // Each radio carries the message; describing the fieldset too made VoiceOver read it twice.
+        message.hidden = false;
         for (const radio of radios) { radio.setAttribute('aria-describedby', message.id); radio.setAttribute('aria-invalid', 'true'); }
         announce(strings.choose); save(); return;
       }
