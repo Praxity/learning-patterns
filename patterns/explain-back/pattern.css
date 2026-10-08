@@ -5,6 +5,15 @@
 .lp-explain-back [data-lp-mark="missing"] > .lp-choice-key { color: var(--lp-on-accent); background: var(--lp-warning-ink); border-color: var(--lp-warning-ink); }
 .lp-explain-back-to-add { color: var(--lp-warning-ink); }
 .lp-explain-back [data-lp-challenge] { min-inline-size: 0; }
+/* The alert icon fills the first line's box, so it centres on that line even when the message wraps. */
+.lp-explain-back .lp-error-text > .lp-icon { block-size: 1lh; }
+/* The chevron's point sits off its box centre (.16em), so the drawn mark looks shifted. Move it onto the text. */
+.lp-explain-back .lp-details > summary::before { transform: translate(-.16em, 0) rotate(-45deg); }
+.lp-explain-back .lp-details[open] > summary::before { transform: translate(0, -.16em) rotate(45deg); }
+/* An empty check focuses the field. Keep its error border; the shared focus rule would swap in the accent. */
+.lp-explain-back .lp-input[aria-invalid="true"]:focus { border-color: var(--lp-error-ink); }
+/* Feedback links are touch targets, at least 24 px tall. */
+.lp-explain-back [data-lp-reread] { display: inline-flex; align-items: center; min-block-size: 24px; }
 @media (forced-colors: active) {
   .lp-explain-back [data-lp-mark="missing"] { border: 3px double CanvasText; }
   .lp-explain-back [data-lp-mark="missing"] > .lp-choice-key { color: CanvasText; background: Canvas; border-color: CanvasText; }
