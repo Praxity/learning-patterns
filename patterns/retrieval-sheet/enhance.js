@@ -1,4 +1,4 @@
-import { dateAfterDays, defaultDate, formatDate, formatShortDate, isDate, presetDays, validateContent, validateState } from './logic.js';
+import { dateAfterDays, defaultDate, formatDate, formatShortDate, isDate, presetDays, validateContent, validateState, isPartialYear } from './logic.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
 const instances = new WeakMap();
@@ -23,8 +23,11 @@ export function enhance(root, { content, strings, state }) {
   const choices = [...presetDays, 'custom'].map(days => ({
     days,
     radio: /** @type {HTMLInputElement} */ (required(`[data-lp-spacing] input[value="${days}"]`)),
-    label: required(`[data-lp-spacing] label:has(input[value="${days}"]) [data-lp-choice-date]`)
+    box: /** @type {HTMLElement} */ (required(`[data-lp-spacing] label:has(input[value="${days}"]) [data-lp-choice-date]`)),
+    text: required(`[data-lp-spacing] label:has(input[value="${days}"]) [data-lp-choice-date-text]`)
   }));
+  /** @param {{ box: HTMLElement, text: Element }} choice @param {string} value */
+  function setChoiceDate({ box, text }, value) { text.textContent = value; box.hidden = value === ''; }
   const input = /** @type {HTMLInputElement} */ (required('[data-lp-date]'));
   const error = /** @type {HTMLElement} */ (required('[data-lp-date-error]'));
   const printControls = /** @type {HTMLElement} */ (required('[data-lp-print-controls]'));
@@ -61,14 +64,16 @@ export function enhance(root, { content, strings, state }) {
   function clearError() {
     input.removeAttribute('aria-invalid'); input.removeAttribute('aria-describedby'); error.hidden = true; print.disabled = false;
   }
-  /** @param {string} date */
-  function changeDate(date) {
+  /** Announce a date change; `announce` also speaks an unchanged date, for leaving the error state or opening the Date field. @param {string} date @param {boolean} [announce] */
+  function changeDate(date, announce = false) {
+    const message = strings.dateChanged.replaceAll('{date}', formatDate(date, root.lang));
     if (current.date === date) {
-      if (status.textContent === strings.dateError) status.textContent = '';
+      if (announce) status.textContent = message;
+      else if (status.textContent === strings.dateError) status.textContent = '';
       return;
     }
     current = { ...current, date }; showDate();
-    status.textContent = strings.dateChanged.replaceAll('{date}', formatDate(current.date, root.lang));
+    status.textContent = message;
     state?.write({ ...current });
   }
   function showSide() {
@@ -85,12 +90,12 @@ export function enhance(root, { content, strings, state }) {
   }
   input.value = current.date; showDate(); showSide();
   const selected = dates.indexOf(current.date);
-  choices.forEach(({ radio, label }, index) => {
-    radio.checked = index === (selected === -1 ? presetDays.length : selected);
-    label.textContent = index < dates.length ? formatShortDate(dates[index], root.lang) : selected === -1 ? formatShortDate(current.date, root.lang) : '';
+  choices.forEach((choice, index) => {
+    choice.radio.checked = index === (selected === -1 ? presetDays.length : selected);
+    setChoiceDate(choice, index < dates.length ? formatShortDate(dates[index], root.lang) : selected === -1 ? formatShortDate(current.date, root.lang) : '');
   });
   customField.hidden = selected !== -1;
-  const customLabel = choices[presetDays.length].label;
+  const custom = choices[presetDays.length];
   listen(spacing, 'change', () => {
     const selected = choices.find(choice => choice.radio.checked);
     if (!selected) return;
@@ -98,8 +103,8 @@ export function enhance(root, { content, strings, state }) {
     clearError();
     input.value = current.date;
     if (selected.days === 'custom') {
-      customLabel.textContent = formatShortDate(current.date, root.lang);
-      changeDate(current.date);
+      setChoiceDate(custom, formatShortDate(current.date, root.lang));
+      changeDate(current.date, true);
       return;
     }
     const date = dateAfterDays(today, Number(selected.days));
@@ -122,22 +127,30 @@ export function enhance(root, { content, strings, state }) {
       if (target) { select(target.side); target.tab.focus(); }
     });
   }
-  listen(input, 'change', () => {
+  function checkInput() {
     if (customField.hidden) return;
-    if (!isDate(input.value)) {
-      customLabel.textContent = '';
+    if (!isDate(input.value) || isPartialYear(input.value)) {
+      setChoiceDate(custom, '');
       // Native date segments can emit several changes while the field stays invalid.
       if (!error.hidden) return;
-      input.setAttribute('aria-invalid', 'true'); error.hidden = false;
-      input.setAttribute('aria-describedby', error.id); print.disabled = true;
-      // The focused field's new description supplies the error; a live update repeats it.
-      status.textContent = root.ownerDocument.activeElement === input ? '' : strings.dateError;
+      input.setAttribute('aria-invalid', 'true'); error.hidden = false; print.disabled = true;
+      // The status region speaks the error once in every browser. Firefox with NVDA ignores a new description on the
+      // focused field and Chrome speaks it as well, so the description is added only once focus leaves.
+      if (root.ownerDocument.activeElement !== input) input.setAttribute('aria-describedby', error.id);
+      status.textContent = strings.dateError;
       return;
     }
+    const recovered = !error.hidden;
     clearError();
-    customLabel.textContent = formatShortDate(input.value, root.lang);
-    // Native date controls may emit more than one change for the same value.
-    changeDate(input.value);
+    setChoiceDate(custom, formatShortDate(input.value, root.lang));
+    // Native date controls may emit more than one change for the same value; leaving the error always speaks the date.
+    changeDate(input.value, recovered);
+  }
+  // While a year is being typed, nothing changes; leaving the field with a partial year shows the error.
+  listen(input, 'change', () => { if (!(isPartialYear(input.value) && root.ownerDocument.activeElement === input)) checkInput(); });
+  listen(input, 'blur', () => {
+    if (isPartialYear(input.value)) checkInput();
+    if (!error.hidden) input.setAttribute('aria-describedby', error.id);
   });
   listen(print, 'click', () => {
     root.setAttribute('data-lp-printing', '');
