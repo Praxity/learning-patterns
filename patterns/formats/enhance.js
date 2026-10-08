@@ -39,7 +39,8 @@ export function enhance(root, { content, strings, state }) {
     markup(section.getAttribute('data-lp-point') === content.points[i]?.id, 'section identity');
     const views = [...section.querySelectorAll('[data-lp-view]')];
     markup(views.length === FORMATS.length && views.every((view, j) => view.getAttribute('data-lp-view') === FORMATS[j]), 'views');
-    return { section: /** @type {HTMLElement} */ (section), views: /** @type {HTMLElement[]} */ (views) };
+    const headings = views.map(view => /** @type {HTMLElement} */ (required(view, 'h4')));
+    return { section: /** @type {HTMLElement} */ (section), views: /** @type {HTMLElement[]} */ (views), headings };
   });
   const questionElements = [...root.querySelectorAll('[data-lp-question]')];
   markup(questionElements.length === content.quiz.length, 'question count');
@@ -148,7 +149,12 @@ export function enhance(root, { content, strings, state }) {
       if (navigation.hidden) return;
       const section = movePlace(current.section, action, content.points.length);
       if (section === current.section) return;
+      const hadFocus = root.ownerDocument.activeElement === button;
       current = { ...current, section }; changed();
+      if (hadFocus && button.hidden) {
+        const heading = blocks[current.section].headings[FORMATS.indexOf(current.format)];
+        heading.tabIndex = -1; heading.focus();
+      }
     });
   }
   questions.forEach((question, q) => {
@@ -183,7 +189,11 @@ export function enhance(root, { content, strings, state }) {
       destroyed = true; stopFade(); removals.forEach(remove => remove());
       switcher.hidden = true; navigation.hidden = true; place.hidden = true; summary.hidden = false; quizSummary.hidden = true;
       buttons.forEach((button, i) => button.setAttribute('aria-pressed', String(i === 0)));
-      blocks.forEach(block => { block.section.hidden = false; block.views.forEach((view, i) => { view.hidden = i !== 0; }); });
+      blocks.forEach(block => {
+        block.section.hidden = false;
+        block.views.forEach((view, i) => { view.hidden = i !== 0; });
+        block.headings.forEach(heading => heading.removeAttribute('tabindex'));
+      });
       questions.forEach(question => { clearFeedback(question); question.rows.forEach(({ input }) => { input.checked = false; }); });
       status.replaceChildren(); instances.delete(root);
     }

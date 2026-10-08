@@ -33,7 +33,7 @@ Instruction that helps novices can hinder learners who already know the material
 Meets the shared baseline in the root README.
 
 - Each question has a fieldset, legend and labelled options. Missing-answer errors are linked to the question and options.
-- Panel changes focus the heading and announce progress. Validation errors keep focus on the action button.
+- Panel changes focus the heading, which announces progress without a duplicate status update. Validation errors keep focus on the action button.
 - Results announce the skip summary. Section statuses and answer marks use visible words beside their icons.
 - Review answers opens through a native disclosure. Reset focuses the outline heading; restoration stays silent.
 

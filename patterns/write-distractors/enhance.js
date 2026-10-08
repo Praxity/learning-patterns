@@ -116,7 +116,7 @@ export function enhance(root, { content, strings, state }) {
     /** @param {import('./logic.js').AuthorOption | import('./logic.js').LearnerOption} item */
     const targetLine = item => html(strings.targets.replaceAll('{target}', targetOf(content, item)));
     fields.forEach((field, index) => {
-      field.summary.innerHTML = `<span class="lp-choice-key">${html(optionKey(index + 1))}</span><span data-lp-option-text>${html(values[index].text)}</span><p class="lp-small">${targetLine(values[index])}</p>`;
+      field.summary.innerHTML = `<span class="lp-choice-key" aria-hidden="true">${html(optionKey(index + 1))}</span><span data-lp-option-text>${html(values[index].text)}</span><p class="lp-small">${targetLine(values[index])}</p>`;
       field.editor.hidden = true; field.summary.hidden = false;
     });
     result.innerHTML = `<p class="lp-run-in" data-lp-summary data-lp-coverage>${html(message)}</p>

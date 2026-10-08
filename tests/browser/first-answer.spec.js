@@ -139,6 +139,8 @@ test('comparison locks the current answer and refuses another Compare activation
   await saveFirst(page); await page.locator('[data-lp-skip]').click(); await compare(page);
   await expect(page.locator('[data-lp-now-input]')).toHaveAttribute('readonly', '');
   await expect(page.locator('[data-lp-compare]')).toBeHidden();
+  await expect(page.locator('[data-lp-result] h4')).toBeFocused();
+  expect(await page.evaluate(() => document.activeElement === document.body)).toBe(false);
   await expect(page.locator('[data-lp-panel-now]')).toHaveCount(0);
   await expect(page.locator('[data-lp-panel-first-date]')).toContainText('Saved ');
   const before = await page.evaluate(() => window.lpSaved);
@@ -228,6 +230,8 @@ test('keyboard journey links blank errors and announces successful submissions o
   await page.keyboard.type('Can I finish my thought?'); await page.keyboard.press('Tab'); await page.keyboard.press('Enter');
   await expect(page.locator('[data-lp-compare]')).toBeHidden();
   await expect(page.locator('[data-lp-panel-first]')).toHaveText('Stop interrupting me.');
+  await expect(page.locator('[data-lp-result] h4')).toBeFocused();
+  expect(await page.evaluate(() => document.activeElement === document.body)).toBe(false);
   await expect(page.locator('[data-lp-now-input]')).toHaveValue('Can I finish my thought?');
   await page.keyboard.press('Tab'); await expect(page.getByRole('checkbox').first()).toBeFocused(); await page.keyboard.press('Space');
   await expect(page.locator('[data-lp-summary]')).toHaveText('You ticked 1 of 3 checks for your answer now.');

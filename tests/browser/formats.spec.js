@@ -17,6 +17,17 @@ const scan = async page => {
   await expect(page.locator('.lp-formats-exiting')).toHaveCount(0);
   expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()).violations).toEqual([]);
 };
+test('navigation that hides its action focuses the newly shown section', async ({ page }) => {
+  await open(page);
+  await page.locator('[data-lp-next]').click();
+  await page.locator('[data-lp-next]').focus(); await page.keyboard.press('Enter');
+  await expect(point(page).locator('[data-lp-view="text"] h4')).toBeFocused();
+  expect(await page.evaluate(() => document.activeElement === document.body)).toBe(false);
+  await page.locator('[data-lp-previous]').click();
+  await page.locator('[data-lp-previous]').focus(); await page.keyboard.press('Enter');
+  await expect(point(page).locator('[data-lp-view="text"] h4')).toBeFocused();
+  expect(await page.evaluate(() => document.activeElement === document.body)).toBe(false);
+});
 async function observe(page) {
   await page.evaluate(() => {
     window.lpObserver?.disconnect(); window.lpAnnouncements = [];

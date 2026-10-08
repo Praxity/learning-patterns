@@ -2,7 +2,7 @@ export const strings = {
   en: {
     keyInstruction: 'Highlight the key ideas.',
     evidenceInstruction: 'Highlight the passage that answers: {question}',
-    controls: 'Click or tap a chunk to mark it. With a keyboard, use the arrow keys to move, Home or End to jump, and Space or Enter to mark or unmark.',
+    controls: 'Click or tap a chunk to mark it. With a keyboard, use Tab or Shift+Tab to move between chunks, and Space or Enter to mark or unmark. Arrow keys, Home and End are extra shortcuts when your screen reader passes them to the page.',
     count: '{n} of {max} marked',
     limitOne: 'You can mark one passage. Unmark it first.',
     limitMany: 'You can mark up to {n} passages. Unmark one first.',
@@ -20,7 +20,7 @@ export const strings = {
   fr: {
     keyInstruction: 'Surlignez les idées clés.',
     evidenceInstruction: 'Surlignez le passage qui répond à cette question : {question}',
-    controls: 'Cliquez ou touchez un passage pour le marquer. Au clavier, utilisez les flèches pour vous déplacer, Début ou Fin pour aller aux extrémités, et Espace ou Entrée pour marquer ou enlever la marque.',
+    controls: 'Cliquez ou touchez un passage pour le marquer. Au clavier, utilisez Tab ou Maj+Tab pour passer d’un passage à l’autre, et Espace ou Entrée pour marquer ou enlever la marque. Les flèches, Début et Fin sont des raccourcis supplémentaires lorsque votre lecteur d’écran les transmet à la page.',
     count: 'Passages marqués : {n} sur {max}',
     limitOne: "Vous pouvez marquer un seul passage. Enlevez d'abord sa marque.",
     limitMany: "Vous pouvez marquer jusqu'à {n} passages. Enlevez d'abord une marque.",
