@@ -43,12 +43,22 @@ export function isDate(value) {
 /** Seven local calendar days ahead, without changing the source date.
  * @param {Date} today @returns {string} YYYY-MM-DD.
  */
-export function defaultDate(today) {
-  if (!(today instanceof Date) || Number.isNaN(today.getTime())) throw new TypeError('defaultDate needs a valid Date');
+export function defaultDate(today) { return dateAfterDays(today, 7); }
+
+/** Spacing choices in civil days. */
+export const presetDays = [2, 7, 14, 30];
+
+/** Count civil days from today's local date using UTC arithmetic, without changing today.
+ * @param {Date} today @param {number} days @returns {string} YYYY-MM-DD.
+ */
+export function dateAfterDays(today, days) {
+  if (!(today instanceof Date) || Number.isNaN(today.getTime())) throw new TypeError('dateAfterDays needs a valid Date');
+  if (!Number.isSafeInteger(days)) throw new TypeError('days must be a safe integer');
   if (today.getFullYear() < 1 || today.getFullYear() > 9999) throw new RangeError('Unsupported date range');
-  const next = new Date(today.getTime());
-  next.setDate(next.getDate() + 7);
-  const value = `${String(next.getFullYear()).padStart(4, '0')}-${String(next.getMonth() + 1).padStart(2, '0')}-${String(next.getDate()).padStart(2, '0')}`;
+  const next = new Date(0);
+  next.setUTCFullYear(today.getFullYear(), today.getMonth(), today.getDate() + days);
+  if (Number.isNaN(next.getTime())) throw new RangeError('Unsupported date range');
+  const value = next.toISOString().slice(0, 10);
   if (!isDate(value)) throw new RangeError('Unsupported date range');
   return value;
 }
@@ -60,6 +70,16 @@ export function formatDate(date, lang) {
   if (!isDate(date)) throw new Error('Invalid date');
   return new Intl.DateTimeFormat(lang.toLowerCase().startsWith('fr') ? 'fr-CA' : 'en-CA', {
     day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC'
+  }).format(new Date(`${date}T00:00:00Z`));
+}
+
+/** Short weekday and date, preserving the civil day across time zones.
+ * @param {string} date @param {string} lang @returns {string}
+ */
+export function formatShortDate(date, lang) {
+  if (!isDate(date)) throw new Error('Invalid date');
+  return new Intl.DateTimeFormat(lang.toLowerCase().startsWith('fr') ? 'fr-CA' : 'en-CA', {
+    weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC'
   }).format(new Date(`${date}T00:00:00Z`));
 }
 

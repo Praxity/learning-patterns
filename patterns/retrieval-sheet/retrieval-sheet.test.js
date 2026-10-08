@@ -11,6 +11,38 @@ const french = JSON.parse(await readFile(new URL('./examples/fr.json', import.me
 const schema = JSON.parse(await readFile(new URL('./content.schema.json', import.meta.url)));
 const options = { id: 'sheet', lang: 'en', today: new Date(2026, 9, 6, 23, 45) };
 
+test('spacing presets use civil days across month and year boundaries', () => {
+  assert.deepEqual(logic.presetDays, [2, 7, 14, 30]);
+  for (const [today, dates] of [
+    [new Date(2026, 9, 30, 23, 45), ['2026-11-01', '2026-11-06', '2026-11-13', '2026-11-29']],
+    [new Date(2026, 11, 29, 23, 45), ['2026-12-31', '2027-01-05', '2027-01-12', '2027-01-28']]
+  ]) {
+    const before = today.getTime();
+    assert.deepEqual(logic.presetDays.map(days => logic.dateAfterDays(today, days)), dates);
+    assert.equal(logic.defaultDate(today), dates[1]);
+    assert.equal(today.getTime(), before);
+  }
+});
+
+test('spacing dates and short labels preserve civil days in non-UTC zones', () => {
+  const code = `import { dateAfterDays, formatShortDate } from ${JSON.stringify(new URL('./logic.js', import.meta.url).href)};
+    console.log(JSON.stringify([dateAfterDays(new Date(2026,9,30,23,45),2),dateAfterDays(new Date(2026,11,29,23,45),30),formatShortDate('2026-10-15','en'),formatShortDate('2026-10-15','fr')]));`;
+  for (const zone of ['America/Toronto', 'Pacific/Honolulu']) {
+    const result = execFileSync(process.execPath, ['--input-type=module', '-e', code], { env: { ...process.env, TZ: zone }, encoding: 'utf8' });
+    assert.deepEqual(JSON.parse(result), ['2026-11-01', '2027-01-28', 'Thu, Oct 15', 'jeu. 15 oct.']);
+  }
+});
+
+test('server spacing choices have named radios and stay hidden without JavaScript', () => {
+  const markup = render(content, strings.en, options);
+  assert.match(markup, /<fieldset[^>]*data-lp-spacing/);
+  assert.ok(markup.includes('When will you test yourself?'));
+  assert.equal((markup.match(/type="radio"/g) || []).length, 5);
+  assert.match(markup, /value="7" checked/);
+  assert.match(markup, /data-lp-custom-date hidden/);
+  assert.ok(markup.indexOf('data-lp-tabs') > markup.indexOf('</fieldset>'));
+});
+
 // The schema keywords used by this pattern, including the identity annotation.
 function matches(value, rule) {
   if (rule.type === 'object') {
@@ -79,6 +111,7 @@ test('date guards reject impossible dates, invalid source dates and overflow', (
   for (const value of [null, undefined, 3, '', '2026-1-01', '2026-02-29', '2026-04-31', '2026-13-01', '2026-01-00', '0000-01-01', '10000-01-01']) {
     assert.equal(logic.isDate(value), false);
     assert.throws(() => logic.formatDate(value, 'en'), /date/);
+    assert.throws(() => logic.formatShortDate(value, 'en'), /date/);
   }
   for (const value of ['0001-01-01', '2028-02-29', '9999-12-31']) assert.equal(logic.isDate(value), true);
   for (const value of [null, '2026-10-06', new Date(NaN)]) assert.throws(() => logic.defaultDate(value), /Date/);
@@ -87,6 +120,12 @@ test('date guards reject impossible dates, invalid source dates and overflow', (
     assert.throws(() => logic.defaultDate(date), /date range/);
   }
   assert.throws(() => logic.defaultDate(new Date(9999, 11, 30)), /date range/);
+  for (const days of [NaN, Infinity, 1.5, '7', Number.MAX_SAFE_INTEGER + 1]) {
+    assert.throws(() => logic.dateAfterDays(new Date(2026, 9, 6), days), /safe integer/);
+  }
+  for (const days of [-1, 30]) {
+    assert.throws(() => logic.dateAfterDays(days < 0 ? new Date('0001-01-01T12:00:00') : new Date(9999, 11, 20), days), /date range/);
+  }
 });
 
 test('state copies a valid date and side and ignores malformed saved values', () => {
