@@ -199,3 +199,8 @@ test('owner audit: one recall instruction survives printing', () => {
     assert.ok(markup.indexOf(strings[lang].instruction) < markup.indexOf('data-lp-side="back"'));
   }
 });
+
+test('a year with fewer than four digits is still being typed, not a date', () => {
+  for (const value of ['0002-11-09', '0020-11-09', '0202-11-09', '0999-12-31']) assert.equal(logic.isPartialYear(value), true, value);
+  for (const value of ['1000-01-01', '2027-11-09', '', 'nope', '2026-02-30', null]) assert.equal(logic.isPartialYear(value), false, String(value));
+});
