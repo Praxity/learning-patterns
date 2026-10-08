@@ -27,8 +27,6 @@
 .lp-self-check .lp-choices { grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 10px; }
 .lp-self-check .lp-choice { min-block-size: 56px; }
 .lp-self-check-step-actions { justify-content: flex-end; }
-/* The quiet button's 10px inset would push its icon off the card's text column. */
-.lp-self-check .lp-button-quiet { margin-inline-start: -10px; }
 .lp-self-check-result-head { display: flex; gap: 16px; align-items: flex-start; }
 .lp-self-check-result-head .lp-self-check-ring-fill { stroke: var(--lp-success-ink); }
 .lp-self-check-result-head .lp-small { margin-block-start: 2px; }

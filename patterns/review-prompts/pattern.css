@@ -9,8 +9,6 @@
 .lp-review-prompts-part > .lp-box { margin-block-start: 24px; }
 .lp-review-prompts-part + .lp-review-prompts-part { margin-block-start: 48px; }
 .lp-review-prompts-review { display: inline-flex; gap: 8px; align-items: flex-start; max-inline-size: 100%; padding: 6px 10px; border-radius: 16px; background: var(--lp-paper-2); }
-/* The chip text is one .lp-small line; a 1lh icon box is that line, so the icon centres on it. */
-.lp-review-prompts-review > .lp-icon { block-size: 1lh; }
 .lp-review-prompts-review > span { min-inline-size: 0; }
 
 @media (max-width: 30rem) {

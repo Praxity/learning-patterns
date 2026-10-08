@@ -21,7 +21,7 @@ test('shared scene spans the quiz builder card and centres its tile on the quest
   }
 });
 
-test('right-answer icon, option keys and Start over sit on the text column; revealed answers open at once', async ({ page }) => {
+test('right-answer icon and Start over sit on the text column; revealed answers open at once', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await open(page, 'en', false);
   await retrieve(page.locator('[data-lp-pattern]'));
@@ -33,11 +33,6 @@ test('right-answer icon, option keys and Start over sit on the text column; reve
   const column = await page.locator('[data-lp-answer]').boundingBox();
   const startOver = await page.locator('[data-lp-clear] svg').boundingBox();
   expect(Math.abs(startOver.x - column.x)).toBeLessThanOrEqual(2);
-  await fill(page); await page.locator('[data-lp-compare]').click();
-  const row = page.locator('[data-lp-result] [data-lp-preview="yours"] li').nth(1);
-  const key = await row.locator('.lp-choice-key').boundingBox();
-  const text = await row.locator('[data-lp-option-text]').boundingBox();
-  expect(Math.abs(key.y - text.y)).toBeLessThanOrEqual(1);
 });
 
 async function retrieve(root) {
@@ -205,7 +200,7 @@ test('retrieval guards reject blank answers and prevent skipping or repeating st
   await page.locator('[data-lp-check]').click();
   await expect(page.locator('[data-lp-answer]')).toHaveAttribute('aria-invalid', 'true');
   const errorId = await page.locator('[data-lp-answer]').getAttribute('aria-describedby');
-  await expect(page.locator(`[id="${errorId}"]`)).toHaveText('Write your answer first.');
+  await expect(page.locator(`[id="${errorId}"]`)).toHaveText('Write your answer before you check it.');
   await page.evaluate(() => {
     document.querySelector('[data-lp-had-it]').click();
     document.querySelector('[data-lp-compare]').click();

@@ -22,8 +22,6 @@
 .lp-dont-know .lp-choice-mark > span { min-inline-size: 0; }
 .lp-dont-know .lp-choice > span:not(.lp-choice-mark) { min-inline-size: 0; flex: 1; white-space: pre-line; }
 .lp-dont-know .lp-stem { white-space: pre-line; }
-/* The quiet button's 10px inset would push its icon off the card's text column. */
-.lp-dont-know .lp-button-quiet { margin-inline-start: -10px; }
 
 @media (forced-colors: active) {
   /* Underlining keeps the quiet reset distinct when system colours replace button fills. */
