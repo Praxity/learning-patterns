@@ -1,14 +1,14 @@
 {
   "question": "Is rereading your notes a good way to prepare for a test?",
-  "keyIdea": "Your answer has the key idea: rereading feels familiar but doesn't show what you recall.",
-  "model": "Not on its own. Rereading feels familiar but doesn't show what you can recall. Close your notes and test yourself, spaced out over several days.",
+  "keyIdea": "You identified that familiar notes don't show what you can recall.",
+  "model": "Not on its own. Familiar notes don't show what you can recall. Close your notes and test yourself over several days.",
   "unsureKeyIdea": "You may have the key idea. Compare with the model answer.",
   "unsureMisconception": "You may mean that {idea}. {why}",
-  "noMatch": "Your answer doesn't match the key idea or a common misconception. Compare with the model answer.",
+  "noMatch": "No key idea or listed misconception found. Compare with the model answer.",
   "misconceptions": [
-    { "id": "rereading", "label": "Rereading builds memory", "idea": "rereading builds memory", "why": "Familiarity can feel like knowing, so test your recall over several days instead." },
-    { "id": "highlighting", "label": "Highlighting is studying", "idea": "highlighting counts as studying", "why": "Marking words doesn't show what you recall, so close your notes and test yourself." },
-    { "id": "cramming", "label": "Cramming the night before works as well", "idea": "cramming works as well as spaced practice", "why": "Cramming fades faster, so spread your self-tests over several days." },
-    { "id": "watching", "label": "Some people only learn by watching", "idea": "some people can learn only by watching", "why": "A preference isn't a fixed learning style, so practise recalling what you watched." }
+    { "id": "rereading", "label": "Rereading builds memory", "idea": "rereading builds memory", "why": "Familiar notes can feel learned. Test what you recall over several days." },
+    { "id": "highlighting", "label": "Highlighting is studying", "idea": "highlighting counts as studying", "why": "Marking words doesn't test recall. Close your notes and test yourself." },
+    { "id": "cramming", "label": "Cramming the night before works as well", "idea": "cramming works as well as spaced practice", "why": "Crammed material fades faster. Spread your self-tests over several days." },
+    { "id": "watching", "label": "Some people only learn by watching", "idea": "some people can learn only by watching", "why": "A preference isn't a fixed learning style. Practise recalling what you watched." }
   ]
 }
