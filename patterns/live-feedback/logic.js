@@ -1,7 +1,6 @@
 import { ANSWER_LIMIT, CRITERION_KEYS, liveFeedback } from '../../proxy/logic/02-live.js';
 export { ANSWER_LIMIT };
 export const MIN_CHARS = 20;
-export const PAUSE_MS = 700;
 export const AUTO_CHECK_LIMIT = 40;
 
 /** @typedef {{ id: string, done: string, todo: string }} Criterion */

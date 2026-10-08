@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFile } from 'node:fs/promises';
-import { feedback, validateContent, validateState, ANSWER_LIMIT, AUTO_CHECK_LIMIT } from './logic.js';
+import { feedback, validateContent, validateState, ANSWER_LIMIT, MIN_CHARS, AUTO_CHECK_LIMIT } from './logic.js';
 import { liveFeedback, CRITERION_KEYS } from '../../proxy/logic/02-live.js';
 import { render } from './render.js';
 import { strings } from './strings.js';
@@ -19,8 +19,9 @@ test('the original gates choose only authored feedback, shared with the proxy', 
   }
 });
 
-test('criteria contain only done and todo wording; automatic checks stop at 40', () => {
+test('criteria use done and todo wording; checks need 20 characters and stop at 40', () => {
   for (const item of content.criteria) assert.deepEqual(Object.keys(item), ['id', 'done', 'todo']);
+  assert.equal(MIN_CHARS, 20);
   assert.equal(AUTO_CHECK_LIMIT, 40);
 });
 

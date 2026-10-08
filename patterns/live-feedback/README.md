@@ -17,10 +17,12 @@ Use it for short action plans, outline-like writing assignments, and generally t
 
 ## How it works
 
-1. Write at least 20 characters, excluding spaces at the start and end. After a 0.7 second pause, the proxy checks changed text with Perplexity Decider v1.1.
+1. Write at least 20 characters, excluding spaces at the start and end. A typing pause checks changed text with Perplexity Decider v1.1.
 2. Read the checklist. Done items move to the top; the other items give hints for revision. Each group keeps criterion order.
 3. Revise your plan. A short count is announced only when the number of done items changes.
 4. When all four items are done, "Well done!" appears and the box becomes read-only. Automatic checks stop. Choose "Edit my plan" to unlock it and resume checks on your next input.
+
+The wait is 2.5 times the median of the last nine inter-key gaps, between 400 and 900 ms. It defaults to 700 ms until three gaps are available. Question marks and Enter keep this wait for plans.
 
 All four items start with open dotted circles. Uncertain decisions keep the hint and circle. Done items have green checkmarks. They stay done while the last sentence is unfinished. A final period, exclamation mark, question mark or newline allows them to change.
 
@@ -30,7 +32,9 @@ All instances share 40 automatic checks per page session. At the limit, a calm m
 
 ## Evidence
 
-Research on feedback supports specific, timely information for revision. The right timing depends on the task ([Shute, 2008](https://doi.org/10.3102/0034654307313795)). Linking an action to a time or situation draws on research about implementation intentions ([Gollwitzer, 1999](https://doi.org/10.1037/0003-066X.54.7.493)). These sources inform the checklist. They do not support the specific 0.7 second delay or 40-check allowance. This pattern and its feedback timing have not been tested with learners.
+Research on feedback supports specific, timely information for revision. The right timing depends on the task ([Shute, 2008](https://doi.org/10.3102/0034654307313795)). Linking an action to a time or situation draws on research about implementation intentions ([Gollwitzer, 1999](https://doi.org/10.1037/0003-066X.54.7.493)). These sources inform the checklist. They do not support the specific wait or 40-check allowance. This pattern and its feedback timing have not been tested with learners.
+
+[Dhakal et al., CHI 2018](https://doi.org/10.1145/3173574.3174220) measured a mean inter-key interval of 239 ms, and over 480 ms for slow typists, in a transcription task. [Nielsen, 1993](https://www.nngroup.com/articles/response-times-3-important-limits/) identifies about one second as the limit for uninterrupted flow. These inform the adaptive wait. They do not establish the multiplier, sample window or cap. Network time adds to the wait.
 
 Perplexity Decider v1.1 scored 11/12 on authored test answers using the original Jev question wording and confidence gates. This small test does not establish accuracy on learner answers or improved learning. The shared decision function keeps the original inclusive gates: found at 0.65 or above, missing at 0.35 or below, uncertain between them.
 
@@ -68,7 +72,9 @@ All fields are escaped plain text. Unknown fields, empty strings and incorrect c
 | `feedback(content, answers, draft = '', previous = [])` | `{ count, total, items }`; each item is `{ id, mark, text }`, with mark `done` or `todo`, ordered done first. Invalid decision answers throw. |
 | `validateState(value)` | A clean `{ answer, ticked }`, or `null` for invalid saved values. |
 | `ANSWER_LIMIT` | Proxy-owned 1,200-character cap. |
-| `MIN_CHARS`, `PAUSE_MS`, `AUTO_CHECK_LIMIT` | 20 trimmed characters, 700 milliseconds, 40 automatic checks. |
+| `MIN_CHARS`, `AUTO_CHECK_LIMIT` | 20 trimmed characters, 40 automatic checks. |
+
+`lib/typing-pause.js` owns the adaptive wait. Live feedback uses `typingPause({ minChars: MIN_CHARS, questionMark: false })`, with `key(time)`, `wait()` and `delay(text, checked, enter = false)`. Delay returns milliseconds or `null` when no check is due. Live feedback does not request an immediate check on Enter.
 
 Pass `state: { read, write }` to save drafts and checklist ticks. Check results are not saved. Repeated enhancement returns the same instance. `destroy()` removes listeners and completion controls, cancels checks, unlocks the box and restores the native checklist, keeping the draft and ticks. Re-enhancement keeps the remaining automatic allowance.
 

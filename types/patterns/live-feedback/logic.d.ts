@@ -16,7 +16,6 @@ export function feedback(content: Content, answers: unknown, draft?: string, pre
 export function validateState(value: unknown): LearnerState | null;
 export { ANSWER_LIMIT };
 export const MIN_CHARS: 20;
-export const PAUSE_MS: 700;
 export const AUTO_CHECK_LIMIT: 40;
 export type Criterion = {
     id: string;

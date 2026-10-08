@@ -23,6 +23,7 @@ await copyInto('lib/icons.js');
 await copyInto('lib/base.css');
 await copyInto('lib/data-notice.js');
 await copyInto('lib/ask.js');
+await copyInto('lib/typing-pause.js');
 await copyInto('proxy/logic/02-live.js');
 await copyInto('proxy/logic/07-explain-back.js');
 await copyInto('proxy/logic/06-misconceptions.js');
