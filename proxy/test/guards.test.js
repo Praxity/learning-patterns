@@ -537,7 +537,84 @@ test('a Jev secret or Clef binding cannot enable default Perplexity without its 
   assert.equal(s.db.prepare('SELECT count(*) AS count FROM ip_calls').get().count, 0);
 });
 
-for (const [status, outgoing] of [[429, 429], [504, 502], [401, 502], [500, 502]]) {
+test('Perplexity HTTP 429 refunds the budget and both daily call allowances', async t => {
+  const s = setup(t);
+  s.env.MODEL_PROVIDER = 'perplexity';
+  s.env.PERPLEXITY_API_KEY = 'test-key';
+  s.env.IP_DAILY_LIMIT = '1';
+  s.env.DAILY_BUDGET_USD = '0.000983041';
+  s.calls.status = 429;
+  for (let i = 0; i < 3; i++) assert.equal((await s.ask()).status, 429);
+  s.calls.status = 200;
+  const normalFetch = globalThis.fetch;
+  t.mock.method(globalThis, 'fetch', async (url, options) => {
+    if (String(url).includes('siteverify')) return normalFetch(url, options);
+    s.calls.model++;
+    return Response.json({ model: 'pplx-decider-v1.1-27b', answers: Object.fromEntries(Object.keys(JSON.parse(options.body).questions).map(key => [key, { type: 'noul', noul: 0.9 }])), usage: { input_tokens: 0 } });
+  });
+  assert.equal((await s.ask()).status, 200);
+  const ipLimited = await s.ask({ answer: 'second call' });
+  assert.equal(ipLimited.status, 429);
+  assert.equal((await ipLimited.json()).reason, 'ip_daily');
+  for (const ip of ['192.0.2.2', '192.0.2.3']) assert.equal((await s.ask({ ip, answer: ip })).status, 200);
+  const networkLimited = await s.ask({ ip: '192.0.2.4', answer: 'fourth IP' });
+  assert.equal(networkLimited.status, 429);
+  assert.equal((await networkLimited.json()).reason, 'ip_daily');
+  assert.equal(s.calls.model, 6);
+});
+
+test('a failed 429 refund rolls back spend and both daily call counters', async t => {
+  const s = setup(t);
+  s.env.MODEL_PROVIDER = 'perplexity';
+  s.env.PERPLEXITY_API_KEY = 'test-key';
+  s.env.IP_DAILY_LIMIT = '1';
+  s.env.DAILY_BUDGET_USD = '0.000983041';
+  s.calls.status = 429;
+  assert.equal((await s.ask()).status, 429);
+  s.db.exec(`CREATE TRIGGER reject_refund BEFORE UPDATE ON ip_calls
+    WHEN NEW.calls < OLD.calls BEGIN SELECT RAISE(ABORT, 'storage failure'); END`);
+  assert.equal((await s.ask()).status, 502);
+  const budgetLimited = await s.ask({ ip: '203.0.113.1' });
+  assert.equal(budgetLimited.status, 429);
+  assert.equal((await budgetLimited.json()).reason, 'budget');
+  s.env.DAILY_BUDGET_USD = '1';
+  const ipLimited = await s.ask();
+  assert.equal(ipLimited.status, 429);
+  assert.equal((await ipLimited.json()).reason, 'ip_daily');
+  s.db.exec('DROP TRIGGER reject_refund');
+  s.calls.status = 500;
+  for (const ip of ['192.0.2.2', '192.0.2.3']) assert.equal((await s.ask({ ip, answer: ip })).status, 502);
+  const networkLimited = await s.ask({ ip: '192.0.2.4' });
+  assert.equal(networkLimited.status, 429);
+  assert.equal((await networkLimited.json()).reason, 'ip_daily');
+  assert.equal(s.calls.model, 4);
+});
+
+for (const [provider, tokens, budget] of [
+  ['perplexity', 57344, '0.001966081'], ['clef', 16384, '0.003932161'], ['jev', 16384, '0.000688129'],
+]) {
+  test(`${provider} overrun records reported cost before refusing the response`, async t => {
+    const s = setup(t);
+    s.env.MODEL_PROVIDER = provider;
+    s.env.PERPLEXITY_API_KEY = 'test-key';
+    s.env.DAILY_BUDGET_USD = budget;
+    const data = questions => ({ model: 'pplx-decider-v1.1-27b', answers: Object.fromEntries(Object.keys(questions).map(key => [key, { type: 'noul', noul: 0.9 }])), usage: { input_tokens: tokens } });
+    s.env.AI = { run: async (_model, { questions }) => { s.calls.model++; return data(questions); } };
+    const normalFetch = globalThis.fetch;
+    t.mock.method(globalThis, 'fetch', async (url, options) => {
+      if (String(url).includes('siteverify')) return normalFetch(url, options);
+      s.calls.model++;
+      return Response.json(data(JSON.parse(options.body).questions));
+    });
+    assert.equal((await s.ask()).status, 502);
+    const retry = await s.ask();
+    assert.equal(retry.status, 429);
+    assert.equal((await retry.json()).reason, 'budget');
+    assert.equal(s.calls.model, 1);
+  });
+}
+
+for (const [status, outgoing] of [[504, 502], [401, 502], [500, 502]]) {
   test(`Perplexity HTTP ${status} follows the refusal path and retains its reservation`, async t => {
     const s = setup(t);
     s.env.MODEL_PROVIDER = 'perplexity';
