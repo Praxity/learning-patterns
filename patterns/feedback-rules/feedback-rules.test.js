@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { summarize, runSamples, validateContent } from './logic.js';
-import { render } from './render.js';
+import { render, renderRow } from './render.js';
 import { strings } from './strings.js';
 
 const content = JSON.parse(await readFile(new URL('./examples/en.json', import.meta.url)));
@@ -75,6 +75,8 @@ test('abort stops new work and propagates cancellation', async () => {
 });
 
 test('bilingual examples, saved runs, strict validation and escaped no-JS table', async () => {
+  const sample = summarize(content, {}, model).rows[0];
+  assert.ok(renderRow(content, strings.en, sample, 'fr').includes('<span lang="fr">Message complet</span>'));
   for (const lang of ['en', 'fr']) {
     const example = JSON.parse(await readFile(new URL(`./examples/${lang}.json`, import.meta.url)));
     validateContent(example);

@@ -51,7 +51,7 @@ export function render(content, strings, { id, lang }) {
 export function renderRow(content, strings, row, language) {
   const fixture = /** @type {import('./logic.js').Fixture} */ (content.fixtures.find(f => f.id === row.id));
   return `<tr data-lp-row="${html(row.id)}"><th scope="row"><details class="lp-details"${row.review ? ' data-lp-review' : ''}>
-    <summary>${html(fixture.name[language])}${row.review ? `<span class="lp-feedback-rules-review">${icons['alert-circle']}${html(strings.review)}</span>` : ''}</summary>
+    <summary><span lang="${language}">${html(fixture.name[language])}</span>${row.review ? `<span class="lp-feedback-rules-review">${icons['alert-circle']}${html(strings.review)}</span>` : ''}</summary>
     <p class="lp-quote" lang="${language}">${html(fixture.answer[language])}</p>
     <dl>${row.cells.map(cell => `<dt>${html(/** @type {{ label: string }} */ (content.criteria.find(c => c.id === cell.id)).label)}</dt><dd>${html(strings.author)}: ${html(strings[cell.author])}. ${html(strings.model)}: ${html(cell.model ? strings[cell.model] : strings.notRun)}.</dd>`).join('')}</dl>
   </details>${row.failed ? `<p class="lp-small">${html(strings.failed)}</p>` : ''}</th>

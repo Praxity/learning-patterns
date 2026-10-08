@@ -124,6 +124,7 @@ for (const lang of ['en', 'fr']) {
     expect(await page.evaluate(() => window.lpEnhance() === window.lpInstances[0])).toBe(true);
     const selected = lang === 'en' ? 'fr' : 'en';
     await page.locator('[data-lp-language]').selectOption(selected);
+    await expect(page.locator('[data-lp-row="perfect"] summary span[lang]')).toHaveAttribute('lang', selected);
     await page.locator('[data-lp-run]').click(); await finish(page);
     const calls = await page.evaluate(() => window.lpCalls);
     expect(calls.map(c => c.fields.answer)).toEqual(examples[lang].fixtures.map(f => f.answer[selected]));
