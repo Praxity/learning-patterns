@@ -12,7 +12,7 @@ Copy its folder under `patterns/` and the shared `lib/` folder. Keep their relat
 
 ## Run the demos
 
-With Node 22, run `npm ci` and `npm run demo`, then `node scripts/serve-demo.mjs` and open http://127.0.0.1:4173. Every pattern has an English page, a French page and a page with two copies of the pattern. To put the same pages online, set your own `name` in `wrangler.jsonc`, sign in with `npx wrangler login`, then run `npm run preview:deploy`. It deploys to your Cloudflare account.
+With Node 22, run `npm ci` and `npm run demo`, then `node scripts/serve-demo.mjs` and open http://127.0.0.1:4173. Every pattern has an English page, a French page and a page with two copies of the pattern. AI patterns use fixed feedback in this build. To put the pages online with live AI feedback, set up the proxy as [proxy/README.md](proxy/README.md) describes and set your own `name` in `wrangler.jsonc`. Then sign in with `npx wrangler login` and run `npm run preview:deploy`, which builds with `npm run demo:live` and deploys to your Cloudflare account.
 
 ## Patterns
 
@@ -28,11 +28,6 @@ With Node 22, run `npm ci` and `npm run demo`, then `node scripts/serve-demo.mjs
 | [Test out of sections](patterns/test-out/README.md) | A short placement check marks which sections of a course you can skip; passing an advanced section credits the sections it builds on. |
 | [Write the wrong options](patterns/write-distractors/README.md) | Answer a question, write wrong options and the misconception behind each, then compare with the author's. |
 | [Switch formats](patterns/formats/README.md) | The same section as text, slides, an audio script or a quiz. Switching keeps your place. |
-
-## Run the demos
-
-Run `npm ci`, then `npm run demo` to build offline demos with fixed AI feedback, and `node scripts/serve-demo.mjs` to serve them at `http://127.0.0.1:4173`.
-For live AI demos, configure the proxy as [proxy/README.md](proxy/README.md) describes, build with `npm run demo:live`, and deploy with `npm run preview:deploy`.
 
 ## Look and theme tokens
 
