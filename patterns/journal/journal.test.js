@@ -14,7 +14,7 @@ const content = {
     { id: 'next_step', text: "Want to name one thing you'll try next time?" },
     { id: 'when', text: "Want to say when you'll try it?" }
   ],
-  complete: "You described a situation, your response and what you'll try next, including when.",
+  complete: "Great. You've named a moment, what you did, and a next step with a when.",
   support: "If this is weighing on you, talk to someone you trust, your workplace's employee assistance programme or a local support service.",
   supportNote: "If something is weighing on you, talk to someone you trust, your workplace's employee assistance programme, or a local support service.",
   saved: 'Saved in this browser',
@@ -30,8 +30,8 @@ test('the proxy returns a complete decision and journal content owns its wording
 
 test('complete feedback uses authored bilingual content', async () => {
   for (const [lang, text] of [
-    ['en', "You described a situation, your response and what you'll try next, including when."],
-    ['fr', "Vous avez décrit une situation, votre réaction et quoi essayer ensuite, en précisant quand."]
+    ['en', "Great. You've named a moment, what you did, and a next step with a when."],
+    ['fr', "Très bien. Vous avez nommé un moment, ce que vous avez fait et une prochaine étape en précisant quand vous l'essaierez."]
   ]) {
     const example = JSON.parse(await readFile(new URL(`./examples/${lang}.json`, import.meta.url)));
     assert.deepEqual(feedback(example, answers()), { kind: 'complete', text });
