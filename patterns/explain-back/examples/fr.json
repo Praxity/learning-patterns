@@ -1,6 +1,6 @@
 {
   "task": "Une nouvelle gestionnaire vous demande ce qu'est l'évitement et comment prendre une pause à la place. Expliquez-le-lui en deux phrases.",
-  "model": "L'évitement consiste à se taire ou à se retirer sans dire pourquoi, ce qui donne à l'autre personne l'impression d'être ignorée. Pour prendre une pause, dites que vous en avez besoin, convenez du moment où reprendre la conversation, puis revenez.",
+  "model": "L'évitement consiste à se taire ou à se retirer sans dire pourquoi, ce qui donne à l'autre personne l'impression d'être ignorée. Pour prendre une pause, vous lui dites que vous en avez besoin, vous convenez du moment où vous reprendrez la conversation, puis vous revenez.",
   "ideas": [
     {
       "id": "stonewalling",
@@ -17,16 +17,16 @@
       "body": "Dites à l'autre personne que vous avez besoin d'une pause. Par exemple : « J'ai besoin de dix minutes pour y réfléchir. » Vous pouvez vous éloigner pour vous calmer. Partir sans dire pourquoi, c'est de l'évitement.",
       "label": "Vous dites à l'autre personne que vous avez besoin d'une pause.",
       "met": "Vous avez dit d'annoncer à l'autre personne que vous avez besoin d'une pause.",
-      "missed": "Dites qu'il faut annoncer à l'autre personne que vous avez besoin d'une pause.",
+      "missed": "Ajoutez comment une pause commence.",
       "unsure": "On ne sait pas si vous avez dit d'annoncer la pause."
     },
     {
       "id": "return",
       "heading": "Revenir à la conversation",
-      "body": "Convenez du moment où vous reprendrez la conversation, puis revenez. L'autre personne sait ainsi quand vous attendre.",
-      "label": "Vous convenez du moment où reprendre la conversation, puis vous revenez.",
-      "met": "Vous avez dit de convenir du moment où reprendre la conversation, puis de revenir.",
-      "missed": "Dites qu'il faut convenir du moment où reprendre la conversation, puis revenir.",
+      "body": "Une pause se termine quand vous revenez. Convenez du moment où vous reprendrez la conversation, puis faites-le. Ainsi, l'autre personne ne reste pas à attendre.",
+      "label": "Vous convenez du moment où vous reviendrez, puis vous revenez.",
+      "met": "Vous avez dit de convenir du moment où vous reviendrez, puis de revenir.",
+      "missed": "Ajoutez comment une pause se termine.",
       "unsure": "On ne sait pas si vous avez dit de revenir à la conversation."
     }
   ]
