@@ -14,7 +14,7 @@ import { labelAnswers } from '../logic/16-fixture-data.js';
 // Clef/Jev reserve 8,192 tokens. Perplexity bills shared state per question.
 // Its bounds cover the UTF-8 bytes of each separate question request at field
 // caps, including six-byte JSON escapes, plus 1,024 framing tokens per question.
-// Failed calls retain this charge; re-evaluate each bound when its wording or fields grow.
+// Uncertain billing retains this charge; re-evaluate each bound when its wording or fields grow.
 export const blocks = Object.fromEntries([
   { ...d03, perplexityMaxInputTokens: 16384, outcome: (answers, model) => ({ branch: readBranch(answers.branch, undefined, model) }) },
   { ...d06, perplexityMaxInputTokens: 16384, outcome: (answers, model) => misconceptionFeedback(answers.misconception, model) },
