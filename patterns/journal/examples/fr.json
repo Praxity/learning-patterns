@@ -6,7 +6,7 @@
     { "id": "next_step", "text": "Voulez-vous nommer une chose à essayer la prochaine fois ?" },
     { "id": "when", "text": "Voulez-vous préciser quand vous l'essaierez ?" }
   ],
-  "complete": "Vous avez décrit une situation, votre réaction et quoi essayer ensuite, en précisant quand.",
+  "complete": "Très bien. Vous avez nommé un moment, ce que vous avez fait et une prochaine étape en précisant quand vous l'essaierez.",
   "support": "Si ça vous pèse, parlez à une personne de confiance, au programme d'aide aux employés de votre milieu de travail ou à un service de soutien local.",
   "supportNote": "Si quelque chose vous pèse, parlez à une personne de confiance, au programme d’aide aux employés de votre milieu de travail ou à un service de soutien local.",
   "saved": "Enregistrée dans ce navigateur",
