@@ -72,20 +72,34 @@ export class CostGuard {
 		if (refused) return refused;
 		const started = Date.now();
 		let data;
-		if (model === DEFAULT_MODEL) data = await perplexity(this.env.PERPLEXITY_API_KEY, state, questions);
-		else if (model === CLEF_MODEL) data = await clef(this.env.AI, model, state, questions);
-		else {
-			const response = await fetch(ENDPOINT, {
-				method: "POST", headers: { authorization: `Bearer ${this.env.JEV_API_KEY}`, "content-type": "application/json" },
-				body: JSON.stringify({ state, model, questions }), signal: AbortSignal.timeout(15_000),
+		try {
+			if (model === DEFAULT_MODEL) data = await perplexity(this.env.PERPLEXITY_API_KEY, state, questions);
+			else if (model === CLEF_MODEL) data = await clef(this.env.AI, model, state, questions);
+			else {
+				const response = await fetch(ENDPOINT, {
+					method: "POST", headers: { authorization: `Bearer ${this.env.JEV_API_KEY}`, "content-type": "application/json" },
+					body: JSON.stringify({ state, model, questions }), signal: AbortSignal.timeout(15_000),
+				});
+				if (!response.ok) throw new Error("Invalid model response");
+				const responseData = await response.json();
+				data = { answers: responseData.answers, tokens: responseData.usage?.input_tokens };
+			}
+		} catch (error) {
+			// A provider 429 refuses the request before inference, so nothing was billed.
+			if (error.status === 429) this.ctx.storage.transactionSync(() => {
+				this.sql.exec("UPDATE spend SET nano_usd = nano_usd - ? WHERE day = ?", reservation, day);
+				for (const hash of [ipHash, networkHash]) this.sql.exec("UPDATE ip_calls SET calls = calls - 1 WHERE day = ? AND ip_hash = ?", day, hash);
 			});
-			if (!response.ok) throw new Error("Invalid model response");
-			const responseData = await response.json();
-			data = { answers: responseData.answers, tokens: responseData.usage?.input_tokens };
+			throw error;
 		}
 		const tokens = data.tokens;
 		const actual = costNanoUsd(tokens, model);
-		if (tokens > maxInputTokens) throw new Error("Invalid model response");
+		if (tokens > maxInputTokens) {
+			this.ctx.storage.transactionSync(() => {
+				this.sql.exec("UPDATE spend SET nano_usd = nano_usd + ? WHERE day = ?", Math.max(actual, reservation) - reservation, day);
+			});
+			throw new Error("Invalid model response");
+		}
 		const result = { answers: readAnswers(data.answers, questions), ms: Date.now() - started, tokens, costUsd: actual / 1e9, model, mock: false };
 		this.ctx.storage.transactionSync(() => {
 			this.sql.exec("UPDATE spend SET nano_usd = nano_usd + ? WHERE day = ?", actual - reservation, day);
