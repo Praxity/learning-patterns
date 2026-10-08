@@ -41,7 +41,11 @@ export function enhance(root, { content, strings, state, ask }) {
   ready.type = 'button'; ready.className = 'lp-button'; ready.textContent = strings.ready;
   const readAgain = root.ownerDocument.createElement('button');
   readAgain.type = 'button'; readAgain.className = 'lp-button lp-button-secondary'; readAgain.textContent = strings.readAgain;
-  lesson.append(ready); required('.lp-actions').append(readAgain);
+  // Both primary buttons sit in .lp-actions rows, so each goes full width on narrow screens.
+  const checkRow = required('.lp-actions');
+  const readyRow = root.ownerDocument.createElement('div');
+  readyRow.className = 'lp-actions'; readyRow.append(ready);
+  lesson.append(readyRow); checkRow.append(readAgain);
   taskHeading.setAttribute('tabindex', '-1');
   /** @param {boolean} explain @param {HTMLElement | null} heading */
   const showStep = (explain, heading = null) => {
@@ -125,7 +129,7 @@ export function enhance(root, { content, strings, state, ask }) {
     answer.removeEventListener('input', onInput); check.removeEventListener('click', onCheck);
     fallback.removeEventListener('change', save); result.removeEventListener('click', onReread);
     ready.removeEventListener('click', onReady); readAgain.removeEventListener('click', onReadAgain);
-    ready.remove(); readAgain.remove();
+    readyRow.remove(); readAgain.remove();
     for (const { element, attributes } of originalAttributes) {
       for (const attribute of [...element.attributes]) element.removeAttribute(attribute.name);
       for (const [name, value] of attributes) element.setAttribute(name, value);

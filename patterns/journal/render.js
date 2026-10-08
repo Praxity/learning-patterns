@@ -17,12 +17,12 @@ export function render(content, strings, { id, lang, date = new Date() }) {
     <div class="lp-actions lp-journal-actions" data-lp-actions hidden>
       <div class="lp-journal-action">
         <button class="lp-button lp-button-secondary" type="button" data-lp-save>${html(strings.save)}</button>
-        <p class="lp-small" data-lp-saved hidden></p>
       </div>
       <div class="lp-journal-action lp-journal-suggest">
         <button class="lp-button" type="button" data-lp-suggest>${html(strings.suggest)}</button>
         <div data-lp-notice id="${html(`${id}-notice`)}" hidden></div>
       </div>
+      <p class="lp-small" data-lp-saved hidden></p>
     </div>
     <div data-lp-challenge hidden></div>
     <p class="lp-small" data-lp-changed hidden></p>
