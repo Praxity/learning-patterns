@@ -1,9 +1,9 @@
 .lp-highlight-passage { padding-block: 20px; border-block: 1px solid var(--lp-rule); font-size: 1.1875rem; line-height: 1.9; }
 .lp-highlight-passage > p + p { margin-block-start: 18px; }
 .lp-highlight-chunk { padding-block: 2px; border-radius: 3px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
-.lp-highlight-chunk[role="button"] { cursor: pointer; }
-.lp-highlight-chunk[role="button"]:not([aria-disabled="true"]):hover { text-decoration: underline; text-underline-offset: 4px; }
-.lp-highlight-chunk[role="button"]:focus { outline: 2px solid var(--lp-focus); outline-offset: 2px; }
+button.lp-highlight-chunk { appearance: none; display: inline; max-inline-size: 100%; padding-inline: 0; border: 0; color: inherit; background: transparent; font: inherit; text-align: start; cursor: pointer; }
+button.lp-highlight-chunk:not([aria-disabled="true"]):hover { text-decoration: underline; text-underline-offset: 4px; }
+button.lp-highlight-chunk:focus { outline: 2px solid var(--lp-focus); outline-offset: 2px; }
 /* The paper highlighter is local to this reading activity; shared tokens supply result inks. */
 .lp-highlight-chunk[aria-pressed="true"] { background: #ffe49a; }
 .lp-highlight-chunk[data-lp-outcome="correct"] { background: var(--lp-success-soft); text-decoration: underline solid var(--lp-success-ink) 2px; text-underline-offset: 4px; }
@@ -24,5 +24,5 @@
   .lp-highlight-chunk[data-lp-outcome="correct"] { text-decoration: underline solid CanvasText 2px; }
   .lp-highlight-chunk[data-lp-outcome="missed"] { text-decoration: underline dashed CanvasText 2px; }
   .lp-highlight-chunk[data-lp-outcome="wrong"] { text-decoration: none; }
-  .lp-highlight-chunk[role="button"]:focus { outline-color: Highlight; }
+  button.lp-highlight-chunk:focus { outline-color: Highlight; }
 }

@@ -44,12 +44,19 @@ for (const width of [1280, 390]) {
 
 test('keyboard journey uses automatic tabs with arrows, Home and End and keeps announcements quiet', async ({ page }) => {
   await open(page); await observe(page);
+  await page.evaluate(() => {
+    window.lpTabFocus = [];
+    document.querySelector('[data-lp-tabs]').addEventListener('focus', event => {
+      window.lpTabFocus.push({ name: event.target.textContent, selected: event.target.getAttribute('aria-selected') });
+    }, true);
+  });
   const front = root(page).getByRole('tab', { name: 'Front', exact: true });
   const back = root(page).getByRole('tab', { name: 'Back', exact: true });
   await expect(root(page).getByLabel('Test myself on')).toHaveValue('2026-10-13');
   await expect(front).toHaveAttribute('aria-selected', 'true'); await expect(back).toHaveAttribute('tabindex', '-1');
   await front.focus(); await page.keyboard.press('ArrowRight');
   await expect(back).toBeFocused(); await expect(back).toHaveAttribute('aria-selected', 'true');
+  expect(await page.evaluate(() => window.lpTabFocus)).toEqual([{ name: 'Front', selected: 'true' }, { name: 'Back', selected: 'false' }]);
   await expect(side(page, 'back')).toBeVisible(); await expect(side(page, 'front')).toBeHidden();
   await page.keyboard.press('Tab'); await expect(side(page, 'back')).toBeFocused();
   await back.focus(); await page.keyboard.press('ArrowRight'); await expect(front).toBeFocused();
@@ -65,6 +72,7 @@ test('keyboard journey uses automatic tabs with arrows, Home and End and keeps a
 test('date changes update both printed headers, copy state and announce once without moving focus', async ({ page }) => {
   await open(page); await observe(page);
   const date = root(page).getByLabel('Test myself on');
+  await expect(date).not.toHaveAttribute('aria-describedby');
   await date.fill('2028-02-29'); await date.dispatchEvent('change');
   await expect(date).toBeFocused();
   await expect(root(page).locator('time')).toHaveText(['February 29, 2028', 'February 29, 2028']);
@@ -81,6 +89,8 @@ test('empty and out-of-range date edits show local errors and keep the last vali
   const date = root(page).getByLabel('Test myself on');
   await date.fill(''); await date.dispatchEvent('change');
   await expect(date).toHaveAttribute('aria-invalid', 'true');
+  const errorId = await date.getAttribute('aria-describedby');
+  await expect(page.locator(`[id="${errorId}"]`)).toBeVisible();
   await expect(root(page).locator('[data-lp-date-error]')).toHaveText('Choose a valid date.');
   await expect(root(page).getByRole('button', { name: 'Print the sheet' })).toBeDisabled();
   await expect(root(page).locator('time').first()).toHaveAttribute('datetime', '2026-10-13');
@@ -90,6 +100,7 @@ test('empty and out-of-range date edits show local errors and keep the last vali
   expect(await page.evaluate(() => window.lpSaved)).toBeUndefined();
   await date.fill('2026-10-20'); await date.dispatchEvent('change');
   await expect(date).not.toHaveAttribute('aria-invalid');
+  await expect(date).not.toHaveAttribute('aria-describedby');
   await expect(root(page).locator('[data-lp-date-error]')).toBeHidden();
   await expect(root(page).getByRole('button', { name: 'Print the sheet' })).toBeEnabled();
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Choose a valid date.', 'Test yourself on October 20, 2026.']);

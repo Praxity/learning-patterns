@@ -32,6 +32,7 @@ Matching instruction to a learner's supposed learning style is not supported by 
 Meets the shared baseline in the root README.
 
 - All four format buttons stay in the tab order and expose the chosen format as pressed. Unavailable navigation buttons leave the tab order.
+- When Previous or Next hides at a lesson boundary, focus moves to the newly shown section heading.
 - The disabled Play button explains that no recording is available. It does not start audio.
 - Quiz feedback appears beside the chosen option on submit. An empty submission shows a question error and keeps focus on Check answer.
 - Format changes keep focus on the chosen control and announce the format and section. During a cross-fade, the outgoing view is inert and hidden from assistive technology.
