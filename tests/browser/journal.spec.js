@@ -112,8 +112,8 @@ for (const lang of ['en', 'fr']) {
         await expect(page.locator('[data-lp-result] .lp-icon')).toHaveAttribute('aria-hidden', 'true');
         await expect(page.locator('[data-lp-result]')).toHaveClass(/lp-met/);
         await expect(page.locator('[data-lp-result]')).toHaveText(lang === 'fr'
-          ? "Très bien. Vous avez nommé un moment, ce que vous avez fait et une prochaine étape en précisant quand vous l'essaierez."
-          : "Great. You've named a moment, what you did, and a next step with a when.");
+          ? "Vous avez décrit une situation, votre réaction et quoi essayer ensuite, en précisant quand."
+          : "You described a situation, your response and what you'll try next, including when.");
       }
       await expect(page.locator('[data-lp-questions]')).toBeHidden();
       await expect(page.locator('[data-lp-support]')).toBeHidden();
@@ -151,8 +151,8 @@ for (const lang of ['en', 'fr']) {
       await expect(page.locator('[data-lp-support]')).toBeVisible();
       await expect(page.locator('[data-lp-notice]')).toBeHidden();
       await expect(page.locator('[data-lp-offline]')).toHaveText(lang === 'fr'
-        ? 'Sans le modèle de décision, vous pouvez utiliser les questions pour réfléchir à votre entrée.'
-        : 'Without the decision model, you can use the questions to reflect on your entry.');
+        ? 'Utilisez les questions pour réfléchir à votre entrée.'
+        : 'Use the questions to reflect on your entry.');
       await expect(page.locator('[data-lp-result]')).toBeHidden();
       // Without ask the questions are simply shown; a failed request announces the fallback once.
       expect(await page.evaluate(() => window.lpAnnouncements)).toHaveLength(mode === 'missing' ? 0 : 1);
