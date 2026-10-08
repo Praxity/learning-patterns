@@ -1,8 +1,8 @@
 {
-  "title": "Notions de base en finances personnelles",
+  "title": "Les bases des finances personnelles",
   "questions": [
     {
-      "id": "q1", "text": "À quoi sert un fonds d'urgence?",
+      "id": "q1", "text": "À quoi sert un fonds d'urgence ?",
       "options": [
         { "id": "unexpected-expenses", "text": "Couvrir les dépenses imprévues" },
         { "id": "planned-holidays", "text": "Payer des vacances prévues" },
@@ -12,29 +12,29 @@
       "explanation": "Un fonds d'urgence couvre les dépenses imprévues, comme une réparation urgente."
     },
     {
-      "id": "q2", "text": "Que se passe-t-il généralement si vous payez seulement le minimum de votre carte de crédit chaque mois?",
+      "id": "q2", "text": "Que se passe-t-il généralement si vous payez seulement le minimum de votre carte de crédit chaque mois ?",
       "options": [
         { "id": "no-interest", "text": "Vous évitez tous les frais d'intérêt" },
-        { "id": "longer-more-interest", "text": "Le remboursement prend plus de temps et coûte plus cher en intérêts" },
+        { "id": "longer-more-interest", "text": "Vous mettez plus de temps à rembourser et payez plus d'intérêts" },
         { "id": "balance-disappears", "text": "Le solde restant disparaît" }
       ],
       "correct": "longer-more-interest",
-      "explanation": "Payer seulement le minimum prend généralement plus de temps et coûte plus cher en intérêts que payer davantage."
+      "explanation": "Payer seulement le minimum signifie généralement un remboursement plus long et plus d'intérêts."
     },
     {
-      "id": "q3", "text": "Comment les intérêts composés font-ils croître votre épargne au fil du temps?",
+      "id": "q3", "text": "Comment les intérêts composés font-ils croître votre épargne ?",
       "options": [
-        { "id": "interest-on-interest", "text": "Vous gagnez des intérêts sur votre épargne et sur les intérêts déjà accumulés" },
+        { "id": "interest-on-interest", "text": "Vous gagnez des intérêts sur votre épargne et sur les intérêts déjà ajoutés" },
         { "id": "initial-savings-only", "text": "Vous gagnez des intérêts seulement sur le montant épargné au départ" },
         { "id": "fixed-growth", "text": "Votre épargne augmente toujours du même montant" }
       ],
       "correct": "interest-on-interest",
-      "explanation": "Les intérêts composés produisent des intérêts sur votre épargne et sur les intérêts déjà ajoutés."
+      "explanation": "Vous gagnez des intérêts sur votre épargne et sur les intérêts déjà ajoutés."
     },
     {
-      "id": "q4", "text": "Qu'est-ce qu'un budget vous aide à faire?",
+      "id": "q4", "text": "Qu'est-ce qu'un budget vous aide à faire ?",
       "options": [
-        { "id": "plan-spending-saving", "text": "Planifier l'utilisation de votre revenu pour vos dépenses et votre épargne" },
+        { "id": "plan-spending-saving", "text": "Planifier vos dépenses et votre épargne selon votre revenu" },
         { "id": "guarantee-income", "text": "Garantir que votre revenu augmentera" },
         { "id": "avoid-surprises", "text": "Éviter toutes les dépenses imprévues" }
       ],
