@@ -8,7 +8,7 @@
   "preview_urls": false,
   "ai": { "binding": "AI" },
   "vars": {
-    "MODEL_PROVIDER": "clef",
+    "MODEL_PROVIDER": "perplexity",
     "TURNSTILE_SITE_KEY": "",
     "IP_DAILY_LIMIT": "20",
     "DAILY_BUDGET_USD": "1.00"

@@ -2,7 +2,7 @@ import { blocks } from "./registry.js";
 import { clearance, developmentMisconfigured } from "./turnstile.js";
 import { sha256 } from "./hash.js";
 import { json } from "./http.js";
-import { DEFAULT_MODEL, JEV_MODEL, browserPrices } from "./prices.js";
+import { DEFAULT_MODEL, CLEF_MODEL, JEV_MODEL, browserPrices } from "./prices.js";
 import { CAP_MESSAGES } from "./limits.js";
 export { CostGuard } from "./cost-guard.js";
 
@@ -16,10 +16,10 @@ export default {
 		if (url.pathname === "/api/patterns/prices.js") return new Response(browserPrices(), { headers: { "content-type": "text/javascript; charset=utf-8", "x-content-type-options": "nosniff" } });
 		if (url.pathname === "/api/patterns/limits.js") return new Response(`export const CAP_MESSAGES = Object.freeze(${JSON.stringify(CAP_MESSAGES)});`, { headers: { "content-type": "text/javascript; charset=utf-8", "x-content-type-options": "nosniff" } });
 		if (developmentMisconfigured(url.hostname, env)) return json({ error: "Live checks are misconfigured." }, 503);
-		const provider = env.MODEL_PROVIDER ?? "clef";
-		if (provider !== "clef" && provider !== "jev") return json({ error: "Invalid model provider." }, 503);
-		const model = provider === "clef" ? DEFAULT_MODEL : JEV_MODEL;
-		if (url.pathname === "/api/patterns/config") return json({ mock: env.JEV_MOCK === "1", siteKey: env.TURNSTILE_SITE_KEY ?? "", provider, model });
+		const provider = env.MODEL_PROVIDER ?? "perplexity";
+		if (!['perplexity', 'clef', 'jev'].includes(provider)) return json({ error: "Invalid model provider." }, 503);
+		const model = provider === "perplexity" ? DEFAULT_MODEL : provider === "clef" ? CLEF_MODEL : JEV_MODEL;
+		if (url.pathname === "/api/patterns/config") return json({ mock: env.JEV_MOCK === "1", siteKey: env.TURNSTILE_SITE_KEY ?? "", provider, model, providerName: provider === 'perplexity' ? 'Perplexity (US)' : provider === 'clef' ? 'Cloudflare Workers AI' : 'TypeSafe (US)' });
 		if (url.pathname !== "/api/patterns/ask") return json({ error: "Not found" }, 404);
 		if (request.method !== "POST") return json({ error: "POST only" }, 405);
 		if (env.JEV_MOCK !== "1" && ["COOKIE_SIGNING_KEY", "IP_SALT", "CACHE_KEY_SECRET"].some(key => typeof env[key] !== "string" || env[key].length < 32)) return json({ error: "Live checks are misconfigured." }, 503);
@@ -88,7 +88,7 @@ function ipKey(ip, bits = 64) {
 
 // Exported for tests. The client names a block and sends plain text fields; the questions
 // always come from the server, so the key can't be used for arbitrary prompts.
-export function buildRequest(body, provider = 'clef') {
+export function buildRequest(body, provider = 'perplexity') {
 	if (typeof body !== "object" || body === null || Array.isArray(body)) return { error: "Body must be an object" };
 	if (typeof body.block !== "string" || !Object.hasOwn(blocks, body.block)) return { error: "Unknown block" };
 	if (Object.keys(body).some(key => key !== "block" && key !== "fields")) return { error: "Unexpected request field" };
@@ -103,7 +103,7 @@ export function buildRequest(body, provider = 'clef') {
 	for (const key of Object.keys(demo.fields)) if (!Object.hasOwn(input, key)) return { error: `Missing field: ${key}` };
 	try {
 		const { state, questions } = demo.build(input);
-		return { state, questions: provider === 'clef' ? demo.clefQuestions ?? questions : questions, maxInputTokens: demo.maxInputTokens, cache: demo.cache !== false };
+		return { state, questions: provider === 'clef' ? demo.clefQuestions ?? questions : questions, maxInputTokens: provider === 'perplexity' ? demo.perplexityMaxInputTokens : demo.maxInputTokens, cache: demo.cache !== false };
 	} catch (error) {
 		return { error: error instanceof Error ? error.message : "Bad input" };
 	}
