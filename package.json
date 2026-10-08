@@ -15,7 +15,8 @@
     "demo": "node scripts/build-demo.mjs",
     "test:browser": "playwright test --workers=2",
     "preview:deploy": "npm run demo && npx wrangler@4 deploy",
-    "icons": "node scripts/build-icons.mjs"
+    "icons": "node scripts/build-icons.mjs",
+    "test:proxy": "node --test proxy/test/*.test.js"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",

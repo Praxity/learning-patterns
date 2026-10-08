@@ -1,0 +1,20 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "learning-patterns-proxy",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-09-01",
+  "workers_dev": true,
+  "preview_urls": false,
+  "ai": { "binding": "AI" },
+  "vars": {
+    "MODEL_PROVIDER": "clef",
+    "TURNSTILE_SITE_KEY": "",
+    "IP_DAILY_LIMIT": "100",
+    "DAILY_BUDGET_USD": "1.00"
+  },
+  "durable_objects": { "bindings": [{ "name": "COST_GUARD", "class_name": "CostGuard" }] },
+  "migrations": [{ "tag": "v1-cost-guard", "new_sqlite_classes": ["CostGuard"] }],
+  "ratelimits": [
+    { "name": "LIMITER", "namespace_id": "4101", "simple": { "limit": 120, "period": 60 } }
+  ]
+}
