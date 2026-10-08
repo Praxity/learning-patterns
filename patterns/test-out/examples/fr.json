@@ -8,31 +8,31 @@
   ],
   "questions": [
     {
-      "id": "agenda", "section": 1, "text": "Que devrait indiquer un ordre du jour avant une réunion?",
+      "id": "agenda", "section": 1, "text": "Que devraient apprendre les participants en lisant l'ordre du jour avant une réunion ?",
       "options": [
         { "id": "attendees", "text": "Seulement les personnes qui participeront" },
-        { "id": "outcomes", "text": "Les sujets, les résultats visés et le temps prévu pour chaque point" },
-        { "id": "everything", "text": "Tout ce que la personne qui organise la réunion sait sur le sujet" }
+        { "id": "outcomes", "text": "Les sujets, les objectifs et le temps prévu pour chaque point" },
+        { "id": "everything", "text": "Tout ce que la personne qui organise la réunion sait sur chaque sujet" }
       ],
-      "correct": "outcomes", "explanation": "L'ordre du jour présente les sujets, les résultats visés et le temps prévu pour chaque point afin de permettre aux gens de se préparer."
+      "correct": "outcomes", "explanation": "Les gens peuvent se préparer quand ils connaissent les sujets, les objectifs et le temps prévu pour chaque point."
     },
     {
-      "id": "discussion", "section": 3, "text": "Une personne domine la discussion. Que devrait faire la personne qui anime la réunion?",
+      "id": "discussion", "section": 3, "text": "Une personne parle beaucoup plus que les autres. Que devriez-vous faire si vous animez la réunion ?",
       "options": [
-        { "id": "invite", "text": "Faire une pause et inviter les autres à contribuer" },
+        { "id": "invite", "text": "Faire une pause et inviter les autres à parler" },
         { "id": "wait", "text": "La laisser parler jusqu'à la fin de la réunion" },
         { "id": "delegate", "text": "Demander à la personne qui prend les notes de décider pour tout le monde" }
       ],
-      "correct": "invite", "explanation": "La personne qui anime la réunion donne aux autres l'occasion de participer."
+      "correct": "invite", "explanation": "Invitez les autres à parler pour que tout le monde puisse contribuer."
     },
     {
-      "id": "follow-up", "section": 4, "text": "Que devriez-vous confirmer avant la fin de la réunion?",
+      "id": "follow-up", "section": 4, "text": "Que devriez-vous confirmer avant la fin de la réunion ?",
       "options": [
         { "id": "equal-time", "text": "Que chaque personne a parlé aussi longtemps que les autres" },
-        { "id": "actions", "text": "Les décisions, les personnes qui agiront et les échéances" },
+        { "id": "actions", "text": "Les décisions, qui fera chaque tâche et pour quand" },
         { "id": "next-meeting", "text": "Qu'une autre réunion est déjà prévue" }
       ],
-      "correct": "actions", "explanation": "Confirmez les décisions, les responsables des actions et les échéances."
+      "correct": "actions", "explanation": "Confirmez les décisions, qui fera chaque tâche et pour quand."
     }
   ]
 }
