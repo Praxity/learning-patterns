@@ -1,0 +1,336 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind",
+    "prompt",
+    "entries",
+    "seeds"
+  ],
+  "properties": {
+    "kind": {
+      "enum": [
+        "faq",
+        "sections"
+      ]
+    },
+    "prompt": {
+      "type": "string",
+      "minLength": 1
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "answer": {
+            "type": "string",
+            "minLength": 1
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "seeds": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "question",
+          "author",
+          "answer"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "question": {
+            "type": "string",
+            "minLength": 1
+          },
+          "author": {
+            "enum": [
+              "instructor",
+              "learner"
+            ]
+          },
+          "answer": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "faq"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "entries": {
+            "minItems": 8,
+            "maxItems": 8,
+            "prefixItems": [
+              {
+                "required": [
+                  "answer"
+                ],
+                "properties": {
+                  "id": {
+                    "const": "deadline"
+                  }
+                },
+                "not": {
+                  "required": [
+                    "summary"
+                  ]
+                }
+              },
+              {
+                "required": [
+                  "answer"
+                ],
+                "properties": {
+                  "id": {
+                    "const": "certificate"
+                  }
+                },
+                "not": {
+                  "required": [
+                    "summary"
+                  ]
+                }
+              },
+              {
+                "required": [
+                  "answer"
+                ],
+                "properties": {
+                  "id": {
+                    "const": "time"
+                  }
+                },
+                "not": {
+                  "required": [
+                    "summary"
+                  ]
+                }
+              },
+              {
+                "required": [
+                  "answer"
+                ],
+                "properties": {
+                  "id": {
+                    "const": "help"
+                  }
+                },
+                "not": {
+                  "required": [
+                    "summary"
+                  ]
+                }
+              },
+              {
+                "required": [
+                  "answer"
+                ],
+                "properties": {
+                  "id": {
+                    "const": "assertive"
+                  }
+                },
+                "not": {
+                  "required": [
+                    "summary"
+                  ]
+                }
+              },
+              {
+                "required": [
+                  "answer"
+                ],
+                "properties": {
+                  "id": {
+                    "const": "interruptions"
+                  }
+                },
+                "not": {
+                  "required": [
+                    "summary"
+                  ]
+                }
+              },
+              {
+                "required": [
+                  "answer"
+                ],
+                "properties": {
+                  "id": {
+                    "const": "no"
+                  }
+                },
+                "not": {
+                  "required": [
+                    "summary"
+                  ]
+                }
+              },
+              {
+                "required": [
+                  "answer"
+                ],
+                "properties": {
+                  "id": {
+                    "const": "timeout"
+                  }
+                },
+                "not": {
+                  "required": [
+                    "summary"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "sections"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "entries": {
+            "minItems": 6,
+            "maxItems": 6,
+            "prefixItems": [
+              {
+                "required": [
+                  "summary"
+                ],
+                "properties": {
+                  "id": {
+                    "const": "basics"
+                  }
+                },
+                "not": {
+                  "required": [
+                    "answer"
+                  ]
+                }
+              },
+              {
+                "required": [
+                  "summary"
+                ],
+                "properties": {
+                  "id": {
+                    "const": "needs"
+                  }
+                },
+                "not": {
+                  "required": [
+                    "answer"
+                  ]
+                }
+              },
+              {
+                "required": [
+                  "summary"
+                ],
+                "properties": {
+                  "id": {
+                    "const": "speaking"
+                  }
+                },
+                "not": {
+                  "required": [
+                    "answer"
+                  ]
+                }
+              },
+              {
+                "required": [
+                  "summary"
+                ],
+                "properties": {
+                  "id": {
+                    "const": "boundaries"
+                  }
+                },
+                "not": {
+                  "required": [
+                    "answer"
+                  ]
+                }
+              },
+              {
+                "required": [
+                  "summary"
+                ],
+                "properties": {
+                  "id": {
+                    "const": "conflict"
+                  }
+                },
+                "not": {
+                  "required": [
+                    "answer"
+                  ]
+                }
+              },
+              {
+                "required": [
+                  "summary"
+                ],
+                "properties": {
+                  "id": {
+                    "const": "practice"
+                  }
+                },
+                "not": {
+                  "required": [
+                    "answer"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

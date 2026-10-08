@@ -29,6 +29,7 @@ With Node 22, run `npm ci` and `npm run demo`, then `node scripts/serve-demo.mjs
 | [Highlight the passage](patterns/highlight/README.md) | Mark the parts of a passage that answer a question, or its key ideas, then compare with the author's choices in place. |
 | [Your first answer comes back](patterns/first-answer/README.md) | Save an answer at the start of a course and compare it with a new one at the end. |
 | [Journal with one nudge](patterns/journal/README.md) | Reflect on your week, save your entry and get one optional question or an authored support line. |
+| [Instant course lookup](patterns/course-lookup/README.md) | Ask a question to find an authored answer or course section. Save unanswered questions in your browser. |
 | [Test out of sections](patterns/test-out/README.md) | A short placement check marks which sections of a course you can skip; passing an advanced section credits the sections it builds on. |
 | [Write the wrong options](patterns/write-distractors/README.md) | Answer a question, write wrong options and the misconception behind each, then compare with the author's. |
 | [Test your feedback rules](patterns/feedback-rules/README.md) | Compare the decision model's labels with your labels on sample answers before using a rubric with learners. |

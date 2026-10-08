@@ -48,6 +48,8 @@ On a custom domain, keep Cloudflare's Pseudo IPv4 setting off or on "Add header"
 | `07-explain-back` | `answer`: 1,500 |
 | `13-journal` | `answer`: 1,500 |
 | `16-fixtures` | `answer`: 800 |
+| `20-faq` | `question`: 500 |
+| `21-sections` | `question`: 500 |
 
 Other blocks, missing fields, extra fields and caller-authored questions are refused. The [registry](src/registry.js) owns the allowed blocks. Their server modules own the question wording and authored context. Adapting these questions to another topic requires changing server code and checking the decision model's answers on that topic.
 
@@ -65,6 +67,8 @@ One named SQLite Durable Object coordinates all live calls. Before contacting a 
 | `07-explain-back` | 40,960 |
 | `13-journal` | 57,344 |
 | `16-fixtures` | 49,152 |
+| `20-faq` | 8,192 |
+| `21-sections` | 8,192 |
 
 The Decisions endpoint's input limit is 262,144 tokens. These byte-based bounds are conservative, including JSON escape expansion at the field caps; recheck them against billed usage before offering live checks.
 

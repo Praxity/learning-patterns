@@ -8,7 +8,7 @@ export function createAsk({ endpoint, fetch }?: {
     fetch?: typeof globalThis.fetch;
 }): Ask;
 /** @typedef {'offline' | 'refused' | 'busy' | 'budget' | 'invalid'} ErrorType */
-/** @typedef {{ noul: number } | { choice: string, confidence: number }} Answer */
+/** @typedef {{ noul: number } | { choice: string, confidence: number, probabilities?: Record<string, number> }} Answer */
 /** @typedef {Record<string, Answer>} Answers */
 /** @typedef {import('./data-notice.js').NoticeConfig & { siteKey: string, provider: string, model?: string }} Config */
 /** @typedef {{ challengeSlot?: HTMLElement, signal?: AbortSignal }} AskOptions */
@@ -25,6 +25,7 @@ export type Answer = {
 } | {
     choice: string;
     confidence: number;
+    probabilities?: Record<string, number>;
 };
 export type Answers = Record<string, Answer>;
 export type Config = import("./data-notice.js").NoticeConfig & {

@@ -1,0 +1,8 @@
+.lp-course-lookup-faq summary { cursor: pointer; font-weight: 600; }
+.lp-course-lookup-faq[open] > p { margin-block-start: 8px; }
+.lp-course-lookup-outline, .lp-course-lookup-bank { padding: 0; list-style: none; }
+.lp-course-lookup-outline > li + li, .lp-course-lookup-bank > li + li { margin-block-start: 20px; }
+.lp-course-lookup-bank li > * + * { margin-block-start: 6px; }
+.lp-course-lookup-bank .lp-button-quiet { margin-block-start: 10px; }
+.lp-course-lookup a { color: var(--lp-accent-ink); text-underline-offset: .15em; }
+.lp-course-lookup [data-lp-result] > article > * + * { margin-block-start: 8px; }

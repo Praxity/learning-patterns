@@ -1,0 +1,66 @@
+{
+  "kind": "faq",
+  "prompt": "Une question sur S’affirmer au travail?",
+  "entries": [
+    {
+      "id": "deadline",
+      "title": "Quelle est la date limite?",
+      "answer": "Terminez le cours S’affirmer au travail dans les huit semaines suivant votre inscription."
+    },
+    {
+      "id": "certificate",
+      "title": "Vais-je recevoir une attestation?",
+      "answer": "Terminez les six sections et le plan d’action final pour télécharger votre attestation."
+    },
+    {
+      "id": "time",
+      "title": "Combien de temps faut-il prévoir?",
+      "answer": "Prévoyez trois heures en tout, puis dix minutes par semaine pour vous exercer au travail."
+    },
+    {
+      "id": "help",
+      "title": "Où puis-je trouver de l’aide?",
+      "answer": "Posez votre question dans le forum du cours. La personne responsable répond dans les deux jours ouvrables."
+    },
+    {
+      "id": "assertive",
+      "title": "Que veut dire s’affirmer?",
+      "answer": "Exprimez clairement vos besoins en respectant l’autre personne. L’agressivité consiste à imposer sa volonté par des menaces ou des insultes."
+    },
+    {
+      "id": "interruptions",
+      "title": "Que faire si on me coupe la parole?",
+      "answer": "Dites : « J’aimerais terminer mon idée. » Faites une pause, puis poursuivez quand vous avez la parole."
+    },
+    {
+      "id": "no",
+      "title": "Comment refuser du travail de plus?",
+      "answer": "Nommez votre limite et proposez une solution réaliste : « Je ne peux pas m’en occuper aujourd’hui. Je peux vous aider jeudi. »"
+    },
+    {
+      "id": "timeout",
+      "title": "À quoi sert une pause dans une discussion?",
+      "answer": "Convenez d’une courte pause quand le ton monte. Dites quand vous reviendrez, puis reprenez la discussion à ce moment."
+    }
+  ],
+  "seeds": [
+    {
+      "id": "partner",
+      "question": "Puis-je m’exercer avec quelqu’un?",
+      "author": "instructor",
+      "answer": "Oui. Faites une demande à tour de rôle. Dites ensuite si la demande était claire."
+    },
+    {
+      "id": "private",
+      "question": "Dois-je raconter un vrai conflit?",
+      "author": "instructor",
+      "answer": "Non. Vous pouvez inventer une situation. Évitez de nommer d’autres personnes dans vos messages."
+    },
+    {
+      "id": "nerves",
+      "question": "Comment vous exercer quand vous êtes nerveux?",
+      "author": "learner",
+      "answer": "J’ai fait ma première demande à une collègue en qui j’ai confiance. La suivante était plus facile."
+    }
+  ]
+}

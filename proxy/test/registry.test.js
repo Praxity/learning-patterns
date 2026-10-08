@@ -6,9 +6,9 @@ import { MICHEL_REPLIES } from '../src/demos/03-branch.js';
 import { perplexityRequest } from '../src/perplexity.js';
 import { PERPLEXITY_MAX_INPUT_TOKENS } from '../src/limits.js';
 
-const ids = ['02-live', '03-branch', '06-misconceptions', '07-explain-back', '13-journal', '16-fixtures'];
+const ids = ['02-live', '03-branch', '06-misconceptions', '07-explain-back', '13-journal', '16-fixtures', '20-faq', '21-sections'];
 
-test('the registry exposes exactly the six accepted blocks', () => {
+test('the registry exposes exactly the accepted blocks', () => {
   assert.deepEqual(Object.keys(blocks), ids);
   for (const id of ids) {
     const block = blocks[id];

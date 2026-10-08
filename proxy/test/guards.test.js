@@ -669,14 +669,14 @@ for (const provider of ['perplexity', 'clef', 'jev']) {
       return Response.json(data(JSON.parse(options.body).questions));
     });
     for (const [block, entry] of Object.entries(demos)) {
-      const fields = block === '03-branch' ? { node: 'opening', reply: submitted } : { answer: submitted };
+      const fields = Object.fromEntries(Object.keys(entry.fields).map(key => [key, key === 'node' ? 'opening' : submitted]));
       const response = await s.ask({ block, fields });
       assert.equal(response.status, 200, block);
       const result = await response.json();
       assert.deepEqual(Object.keys(result.answers), Object.keys(entry.clefQuestions ?? entry.build(fields).questions));
       assert.equal((await (await s.ask({ block, fields })).json()).costUsd, block === '13-journal' ? (provider === 'perplexity' ? 0.00002 : provider === 'clef' ? 0.00024 : 0.000042) : 0);
       invalid = true;
-      const badFields = block === '03-branch' ? { node: 'opening', reply: submitted + ' invalid' } : { answer: submitted + ' invalid' };
+      const badFields = Object.fromEntries(Object.keys(entry.fields).map(key => [key, key === 'node' ? 'opening' : submitted + ' invalid']));
       assert.equal((await s.ask({ block, fields: badFields })).status, 502, block);
       invalid = false;
     }
@@ -1018,7 +1018,7 @@ test('each registered block retains only its 8192 token reservation on failed ca
   const s = setup(t);
   s.calls.fail = true;
   for (const [block, entry] of Object.entries(demos)) {
-    const fields = block === '03-branch' ? { node: 'opening', reply: 'failure' } : { answer: 'failure' };
+    const fields = Object.fromEntries(Object.keys(entry.fields).map(key => [key, key === 'node' ? 'opening' : 'failure']));
     assert.equal((await s.ask({ block, fields })).status, 502);
     assert.equal(entry.maxInputTokens, 8192, block);
   }
@@ -1054,6 +1054,38 @@ test('02-live Perplexity calls use fixed questions, retain failed reservations a
   assert.equal(blocked.status, 429);
   assert.equal((await blocked.json()).reason, 'budget');
   assert.equal(calls, 1);
+});
+
+for (const block of ['20-faq', '21-sections']) test(`${block} preserves Choice probabilities and charges bounded failed Perplexity calls`, async t => {
+  const s = setup(t);
+  s.env.MODEL_PROVIDER = 'perplexity'; s.env.PERPLEXITY_API_KEY = 'test-key';
+  const normalFetch = globalThis.fetch;
+  let calls = 0, fail = false;
+  t.mock.method(globalThis, 'fetch', async (url, options) => {
+    if (String(url).includes('siteverify')) return normalFetch(url, options);
+    calls++;
+    const request = JSON.parse(options.body), keys = Object.keys(request.questions.lookup.criteria);
+    assert.deepEqual(Object.keys(request.questions), ['lookup']);
+    assert.equal(request.questions.lookup.type, 'choice');
+    const probabilities = Object.fromEntries(keys.map((id, index) => [id, index === 0 ? .5 : index === 1 ? .4 : id === 'none' ? .1 : 0]));
+    return Response.json({ model: request.model, answers: { lookup: { type: 'choice', choice: keys[0], confidence: .5, probabilities } }, usage: fail ? {} : { input_tokens: 1000 } });
+  });
+  assert.equal((await s.ask({ block, fields: { question: 'x'.repeat(501) } })).status, 400);
+  assert.equal(calls, 0);
+  const success = await s.ask({ block, fields: { question: 'A question about the course.' } });
+  assert.equal(success.status, 200);
+  const data = await success.json();
+  assert.equal(data.answers.lookup.probabilities[data.answers.lookup.choice], .5);
+  assert.equal(Object.keys(data.answers.lookup.probabilities).length, Object.keys(demos[block].build(demos[block].sample).questions.lookup.criteria).length);
+  fail = true;
+  assert.equal((await s.ask({ block, fields: { question: 'A different question with uncertain billing.' } })).status, 502);
+  assert.equal(s.db.prepare('SELECT nano_usd FROM spend').get().nano_usd, 183840);
+  assert.equal(s.db.prepare('SELECT count(*) AS n FROM results').get().n, 1);
+  s.env.DAILY_BUDGET_USD = '0.00018384';
+  const blocked = await s.ask({ block, fields: { question: 'Another question over budget.' } });
+  assert.equal(blocked.status, 429);
+  assert.equal((await blocked.json()).reason, 'budget');
+  assert.equal(calls, 2);
 });
 
 test('daily cleanup uses the expiry index and only schedules an alarm once per object', async (t) => {
