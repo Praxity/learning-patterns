@@ -2,10 +2,10 @@
   "title": "Les quatre cavaliers",
   "questions": [
     { "id": "four", "question": "Nommez les quatre cavaliers.", "answer": "La critique, la défensive, le mépris et l'évitement." },
-    { "id": "eyes", "question": "Un collègue lève les yeux au ciel pendant qu'une autre personne présente une idée. De quel cavalier s'agit-il?", "answer": "Le mépris. C'est le plus grave des quatre." },
-    { "id": "criticism", "question": "Que faites-vous au lieu de critiquer?", "answer": "Exprimez votre préoccupation avec douceur, en parlant au « je ». Parlez d'un comportement précis, plutôt que de la personne." },
-    { "id": "defensiveness", "question": "Que faites-vous au lieu de vous mettre sur la défensive?", "answer": "Écoutez attentivement, acceptez votre part de responsabilité et présentez vos excuses." },
-    { "id": "contempt", "question": "Que faites-vous au lieu de montrer du mépris?", "answer": "Reconnaissez les qualités de l'autre personne et exprimez vos besoins. Un mot d'appréciation peut suffire." },
-    { "id": "pause", "question": "Quelle est la différence entre une pause et l'évitement?", "answer": "L'évitement consiste à se retirer sans un mot, ce qui donne à l'autre personne le sentiment d'être ignorée. Lors d'une pause, vous dites que vous avez besoin de quelques minutes pour réfléchir, puis vous revenez à la conversation." }
+    { "id": "eyes", "question": "Un collègue lève les yeux au ciel devant une idée. De quel cavalier s'agit-il ?", "answer": "Le mépris. C'est le plus grave des quatre." },
+    { "id": "criticism", "question": "Comment exprimer une préoccupation sans critiquer la personne ?", "answer": "Exprimez votre préoccupation avec douceur. Parlez au « je » pour expliquer comment un comportement précis vous affecte. Évitez de juger la personne." },
+    { "id": "defensiveness", "question": "Comment répondre sans vous mettre sur la défensive ?", "answer": "Écoutez, acceptez votre part de responsabilité et présentez vos excuses." },
+    { "id": "contempt", "question": "Comment répondre sans montrer du mépris ?", "answer": "Dites ce que vous appréciez chez la personne et ce dont vous avez besoin. Un mot d'appréciation peut suffire." },
+    { "id": "pause", "question": "Quelle est la différence entre une pause et l'évitement ?", "answer": "Avec l'évitement, vous partez sans un mot et l'autre personne se sent ignorée. Pour une pause, dites que vous avez besoin de quelques minutes pour réfléchir. Revenez ensuite à la conversation." }
   ]
 }

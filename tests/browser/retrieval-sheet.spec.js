@@ -340,7 +340,7 @@ for (const format of ['A4', 'Letter']) {
       expect(pages).toHaveLength(2);
       const content = lang === 'fr' ? french : english;
       for (const row of content.questions) {
-        expect(pages[0].replace(/\s+/g, ' ')).toContain(row.question);
+        expect(pages[0].replace(/\s+/g, ' ')).toContain(row.question.replace(/\u00a0/g, ' '));
         expect(pages[1].replace(/\s+/g, ' ')).toContain(row.answer.replace(/\u00a0/g, ' '));
       }
       expect(text).not.toContain(lang === 'fr' ? 'À emporter' : 'Take it with you');

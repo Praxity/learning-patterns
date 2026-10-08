@@ -29,24 +29,14 @@ export function enhance(root, { content, strings, state }) {
   const submit = required('[data-lp-check]');
   const restart = required('[data-lp-restart]');
   const status = required('[role="status"]');
-  const plainChunks = [...passage.querySelectorAll('span[data-lp-chunk]')];
+  const chunks = [...passage.querySelectorAll('span[data-lp-chunk]')].map(element => /** @type {HTMLElement} */ (element));
   const authored = content.paragraphs.flat();
   const feedback = [...passage.querySelectorAll('span[data-lp-feedback]')].map(element => /** @type {HTMLElement} */ (element));
-  if (!instructions.id || plainChunks.length !== authored.length || feedback.length !== authored.length || plainChunks.some((chunk, i) => chunk.getAttribute('data-lp-chunk') !== authored[i]?.id || chunk.textContent !== authored[i]?.text || chunk.nextElementSibling !== feedback[i] || !feedback[i]?.id)) {
+  if (!instructions.id || chunks.length !== authored.length || feedback.length !== authored.length || chunks.some((chunk, i) => chunk.getAttribute('data-lp-chunk') !== authored[i]?.id || chunk.textContent !== authored[i]?.text || chunk.nextElementSibling !== feedback[i] || !feedback[i]?.id)) {
     throw new Error('Invalid highlight passage markup');
   }
   // Read host state before changing the DOM; adapter errors propagate to the host.
   const saved = validateState(content, state?.read());
-  // Native buttons let browse-mode users reach every chunk with Tab and activate with Space.
-  // Keep the original spans so destroy restores the server's plain passage.
-  const chunks = plainChunks.map(chunk => {
-    const button = root.ownerDocument.createElement('button');
-    button.type = 'button'; button.className = chunk.className;
-    button.setAttribute('data-lp-chunk', chunk.getAttribute('data-lp-chunk') ?? '');
-    button.textContent = chunk.textContent;
-    chunk.replaceWith(button);
-    return button;
-  });
   const marked = new Set(saved?.marked ?? []);
   let shown = false;
   let destroyed = false;
@@ -137,14 +127,18 @@ export function enhance(root, { content, strings, state }) {
   }
 
   chunks.forEach((chunk, i) => {
+    // Inline spans preserve prose flow; every chunk needs a Tab stop in browse mode.
+    chunk.setAttribute('role', 'button');
     chunk.tabIndex = 0;
     chunk.setAttribute('aria-describedby', instructions.id);
     chunk.addEventListener('click', () => toggle(i), { signal: controller.signal });
     chunk.addEventListener('keydown', event => {
       const key = /** @type {KeyboardEvent} */ (event).key;
-      if (!['ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowDown', 'Home', 'End'].includes(key)) return;
+      if (!['ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowDown', 'Home', 'End', ' ', 'Enter'].includes(key)) return;
       event.preventDefault();
-      move(key === 'Home' ? 0 : key === 'End' ? chunks.length - 1 : i + (key === 'ArrowLeft' || key === 'ArrowUp' ? -1 : 1));
+      // A held key repeats keydown; toggle once per press, as a native button does.
+      if (key === ' ' || key === 'Enter') { if (!event.repeat) toggle(i); }
+      else move(key === 'Home' ? 0 : key === 'End' ? chunks.length - 1 : i + (key === 'ArrowLeft' || key === 'ArrowUp' ? -1 : 1));
     }, { signal: controller.signal });
   });
   submit.addEventListener('click', () => { if (!shown) { show(true); save(); } }, { signal: controller.signal });
@@ -161,7 +155,9 @@ export function enhance(root, { content, strings, state }) {
       if (destroyed) return;
       destroyed = true; controller.abort();
       clearResult();
-      chunks.forEach((chunk, i) => chunk.replaceWith(plainChunks[i]));
+      for (const chunk of chunks) {
+        for (const attribute of ['role', 'tabindex', 'aria-pressed', 'aria-describedby']) chunk.removeAttribute(attribute);
+      }
       flow.hidden = true; instructions.hidden = true; fallback.hidden = false;
       passage.removeAttribute('aria-describedby');
       status.replaceChildren();
