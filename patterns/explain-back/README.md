@@ -25,7 +25,7 @@ Use it after a short reading with a few clear ideas to explain. The example cove
 
 ## Evidence
 
-Prompts to explain connections in learning material produced an average benefit of 0.55 standard deviations across 69 effect sizes ([Bisra et al., 2018](https://doi.org/10.1007/s10648-018-9434-x)). Explaining an idea to a new manager also draws on research about learning by teaching ([Fiorella and Mayer, 2016](https://doi.org/10.1007/s10648-015-9348-9)). These are adjacent reasons to ask for an explanation in the learner's own words. Explanatory feedback research informs the authored hints; links to the passage give learners a place to check a missing idea ([Van der Kleij et al., 2015](https://doi.org/10.3102/0034654314564881)). The enhanced version separates the reading and explanation into two steps, with a return control available throughout the explanation. The model's choices were checked against agent-written answers, not learners. This two-sentence task, its identification of missing ideas and the benefit of its passage links have not been tested with learners.
+Prompts to explain connections in learning material produced an average benefit of 0.55 standard deviations across 69 effect sizes ([Bisra et al., 2018](https://doi.org/10.1007/s10648-018-9434-x)). Explaining an idea to a new manager also draws on research about learning by teaching ([Fiorella and Mayer, 2016](https://doi.org/10.1007/s10648-015-9348-9)). These are adjacent reasons to ask for an explanation in the learner's own words. Explanatory feedback research informs the authored hints; links to the passage give learners a place to check a missing idea ([Van der Kleij et al., 2015](https://doi.org/10.3102/0034654314564881)). The enhanced version separates the reading and explanation into two steps, with a return control available throughout the explanation. The decision model's choices were checked against agent-written answers, not learners. This two-sentence task, its identification of missing ideas and the benefit of its passage links have not been tested with learners.
 
 ## Accessibility
 
@@ -60,7 +60,7 @@ Required strings are nonempty. Unknown fields and wrong idea identities are reje
 | Function | Returns |
 | --- | --- |
 | `validateContent(content)` | Nothing; throws an `Error` naming the bad field. |
-| `feedback(content, answers)` | `{ count, total, allFound, items }`. Items are `{ id, mark, text, heading }`, with `mark: 'met'`, `'missed'` or `'unsure'`. Invalid model answers throw. |
+| `feedback(content, answers)` | `{ count, total, allFound, items }`. Items are `{ id, mark, text, heading }`, with `mark: 'met'`, `'missed'` or `'unsure'`. Invalid decision model answers throw. |
 | `validateState(value)` | A clean `{ answer, ticked }` draft, or `null` for invalid saved values. |
 | `ANSWER_LIMIT` | The proxy-owned maximum answer length. |
 
@@ -86,7 +86,7 @@ The shared client is `ask(block, fields, { challengeSlot, signal? })`, returning
 
 ## Adapt it with your agent
 
-> Rewrite the Explain it back example for my audience: [audience]. Keep the three ideas about unexplained withdrawal, announcing a pause, and agreeing when to return and following through. Keep `{ task, model, ideas: [{ id, heading, body, label, met, missed, unsure }] }` and the fixed idea order. Write specific feedback for each idea, including a useful unsure line. Keep English and Québec French together and address French learners with vous. Models only choose authored lines. Keep the no-model self-check, lesson focus links, proxy-owned gates, data notice and on-demand verification. To change the topic, update the server's question set and evaluate it against authored sample labels before enabling it.
+> Rewrite the Explain it back example for my audience: [audience]. Keep the three ideas about unexplained withdrawal, announcing a pause, and agreeing when to return and following through. Keep `{ task, model, ideas: [{ id, heading, body, label, met, missed, unsure }] }` and the fixed idea order. Write specific feedback for each idea, including a useful unsure line. Keep English and Québec French together and address French learners with vous. Decision models only choose authored lines. Keep the self-check without a decision model, lesson focus links, proxy-owned gates, data notice and on-demand verification. To change the topic, update the server's question set and evaluate it against authored sample labels before enabling it.
 
 ## Licence
 
