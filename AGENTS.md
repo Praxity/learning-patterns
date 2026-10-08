@@ -47,4 +47,6 @@ Motion explains a change; it never decorates. From the motion-timing, motion-per
 
 Use Node 22 and npm. When another worktree may be running browser tests, set `LP_PORT` to a free port. Run `npm test`, `npm run typecheck`, `npm run types:check`, `npm run budget`, `npm run demo` and `npm run test:browser`. After changing JSDoc types, run `npm run types` and commit `types/`.
 
-This repo will be public: no machine paths, no client material, no private links.
+`npm run preview:deploy` is for people hosting their own copy, under their own Worker name. Never run it against the Praxity Cloudflare account: Praxity's live demos are deployed separately.
+
+This repo is public: no machine paths, no client material, no private links.
