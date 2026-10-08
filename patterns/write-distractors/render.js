@@ -73,7 +73,7 @@ export function render(content, strings, { id, lang }) {
   <div class="lp-stack">
     <div>
       <label class="lp-label" for="${html(id)}-answer">${html(strings.answer)}</label>
-      <textarea class="lp-input lp-write-distractors-answer" id="${html(id)}-answer" data-lp-answer rows="3" aria-describedby="${html(id)}-answer-error"></textarea>
+      <textarea class="lp-input lp-write-distractors-answer" id="${html(id)}-answer" data-lp-answer rows="3"></textarea>
       <p class="lp-error-text" id="${html(id)}-answer-error" data-lp-answer-error hidden>${icons['alert-circle']}<span>${html(strings.emptyAnswer)}</span></p>
     </div>
     <div class="lp-actions"><button class="lp-button" type="button" data-lp-check hidden>${html(strings.check)}</button></div>

@@ -125,6 +125,8 @@ export function enhance(root, { content, strings, state }) {
       </div>
       ${review.length ? `<div class="lp-dont-know-review" data-lp-review><h3 class="lp-run-in">${html(strings.review)}</h3>
         <ul>${review.map(({ q, fieldset }) => `<li><a href="#${html(fieldset.id)}" tabindex="0">${icons['arrow-right']}<span>${html(q.text)}</span></a></li>`).join('')}</ul></div>` : ''}`;
+    // A result replaces any earlier status, such as "Cleared." after Start over.
+    status.replaceChildren();
     result.hidden = false; restart.hidden = false; check.hidden = true; shown = true;
     if (announce) {
       // Focus already reads the score; repeating it in status would speak it twice.
