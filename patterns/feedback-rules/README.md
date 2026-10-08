@@ -35,7 +35,7 @@ Without the model, after failed configuration or when every sample fails, the da
 
 ## Evidence
 
-Evidence coming.
+Comparing model labels with author labels draws on automated-scoring research that treats agreement with human raters as one part of validation ([Williamson et al., 2012](https://doi.org/10.1111/j.1745-3992.2011.00223.x)). Testing guidelines recommend independent validation answers and comparison with at least two human raters ([International Test Commission and Association of Test Publishers, 2022](https://www.testpublishers.org/assets/Guidelines%20for%20Technology-Based%20Assessment%20v2022.11.08.pdf)). A simple agreement percentage also leaves chance agreement unaccounted for ([Hallgren, 2012](https://www.tqmp.org/RegularArticles/vol08-1/p023/p023.pdf)). The table helps authors inspect disagreements and revise their rules. The model's choices were checked against agent-written answers, not learners. Its held-out check covered 11 eligible answers. Agreement on representative learner answers and the tool's effects on authors' feedback decisions have not been tested.
 
 ## Accessibility
 
