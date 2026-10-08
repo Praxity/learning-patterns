@@ -392,17 +392,18 @@ test('concurrent identical calls share one charge while the first model call is 
   assert.equal(s.db.prepare('SELECT nano_usd FROM spend').get().nano_usd, 240000);
 });
 
-for (const provider of ['clef', 'jev']) {
+for (const provider of ['perplexity', 'clef', 'jev']) {
   test(`${provider} journal responses always make independent live calls, including identical in-flight text`, async (t) => {
     const s = setup(t);
     s.env.MODEL_PROVIDER = provider;
+    s.env.PERPLEXITY_API_KEY = 'test-key';
     let release, started;
     const entered = new Promise(resolve => { started = resolve; });
     const stalled = new Promise(resolve => { release = resolve; });
     const model = async questions => {
       s.calls.model++;
       if (s.calls.model === 1) { started(); await stalled; }
-      return { answers: Object.fromEntries(Object.keys(questions).map(key => [key, { noul: 0.9 }])), usage: { input_tokens: 1000 } };
+      return { model: 'pplx-decider-v1.1-27b', answers: Object.fromEntries(Object.keys(questions).map(key => [key, { type: 'noul', noul: 0.9 }])), usage: { input_tokens: 1000 } };
     };
     if (provider === 'clef') s.env.AI = { run: async (_model, { questions }) => model(questions) };
     else {
@@ -414,7 +415,7 @@ for (const provider of ['clef', 'jev']) {
     await entered;
     const second = s.ask({ ...request, ip: '203.0.113.1' });
     let timer;
-    const cost = provider === 'clef' ? 0.00024 : 0.000042;
+    const cost = provider === 'perplexity' ? 0.00002 : provider === 'clef' ? 0.00024 : 0.000042;
     try {
       const response = await Promise.race([second, new Promise(resolve => { timer = setTimeout(() => resolve(null), 500); })]);
       assert.ok(response, 'journal calls must not wait for another learner sending the same text');
@@ -461,9 +462,9 @@ test("mock mode works without Turnstile secrets", async (t) => {
 	assert.equal(s.calls.model, 0);
 });
 
-test("Clef is the default provider, needs no Jev secret and uses the tuned question set", async (t) => {
+test("Clef remains selectable, needs no Jev secret and uses the tuned question set", async (t) => {
   const s = setup(t);
-  delete s.env.MODEL_PROVIDER;
+  s.env.MODEL_PROVIDER = 'clef';
   delete s.env.JEV_API_KEY;
   s.env.AI = { run: async (model, request) => {
     s.calls.model++;
@@ -491,6 +492,63 @@ test("Jev requires explicit provider selection and its own secret; unsupported p
   assert.equal(s.calls.model, 0);
 });
 
+test('Perplexity is the default, keeps Jev questions and settles only reported input tokens', async t => {
+  const s = setup(t);
+  delete s.env.MODEL_PROVIDER;
+  s.env.PERPLEXITY_API_KEY = 'test-perplexity-key';
+  const config = await (await worker.fetch(new Request('https://demo.example/api/patterns/config'), s.env)).json();
+  assert.equal(config.provider, 'perplexity');
+  assert.equal(config.providerName, 'Perplexity (US)');
+  assert.equal(config.model, 'pplx-decider-v1.1-27b');
+  s.env.AI = { run: () => assert.fail('must not select Clef') };
+  const normalFetch = globalThis.fetch;
+  t.mock.method(globalThis, 'fetch', async (url, options) => {
+    if (String(url).includes('siteverify')) return normalFetch(url, options);
+    s.calls.model++;
+    assert.equal(url, 'https://api.perplexity.ai/v1/decisions');
+    assert.equal(options.headers.authorization, 'Bearer test-perplexity-key');
+    const body = JSON.parse(options.body);
+    const original = demos['16-fixtures'].build({ answer: 'hello' }).questions;
+    for (const [key, question] of Object.entries(body.questions)) assert.deepEqual(JSON.parse(question.instructions), original[key].instructions);
+    return Response.json({ model: config.model, answers: Object.fromEntries(Object.keys(body.questions).map(key => [key, { type: 'noul', noul: 0.625 }])), usage: { input_tokens: 1500, output_tokens: 99999 } });
+  });
+  const response = await s.ask();
+  assert.equal(response.status, 200);
+  const result = await response.json();
+  assert.equal(result.model, config.model);
+  assert.equal(result.tokens, 1500);
+  assert.equal(result.costUsd, 0.00003);
+  assert.equal(s.db.prepare('SELECT nano_usd FROM spend').get().nano_usd, 30000);
+  assert.equal(demos['16-fixtures'].outcome(result.answers, result.model).work_deadline, 'unsure');
+  assert.equal((await (await s.ask()).json()).costUsd, 0);
+  assert.equal(s.calls.model, 1);
+});
+
+test('a Jev secret or Clef binding cannot enable default Perplexity without its secret', async t => {
+  const s = setup(t);
+  delete s.env.MODEL_PROVIDER;
+  s.env.AI = { run: () => assert.fail('must not select Clef') };
+  for (const key of [undefined, '', '  ']) {
+    s.env.PERPLEXITY_API_KEY = key;
+    assert.equal((await s.ask()).status, 503);
+  }
+  assert.equal(s.calls.model, 0);
+  assert.equal(s.db.prepare('SELECT count(*) AS count FROM spend').get().count, 0);
+  assert.equal(s.db.prepare('SELECT count(*) AS count FROM ip_calls').get().count, 0);
+});
+
+for (const [status, outgoing] of [[429, 429], [504, 502], [401, 502], [500, 502]]) {
+  test(`Perplexity HTTP ${status} follows the refusal path and retains its reservation`, async t => {
+    const s = setup(t);
+    s.env.MODEL_PROVIDER = 'perplexity';
+    s.env.PERPLEXITY_API_KEY = 'test-key';
+    s.calls.status = status;
+    assert.equal((await s.ask()).status, outgoing);
+    assert.equal(s.db.prepare('SELECT nano_usd FROM spend').get().nano_usd, demos['16-fixtures'].perplexityMaxInputTokens * 20);
+    assert.equal(s.db.prepare('SELECT count(*) AS count FROM results').get().count, 0);
+  });
+}
+
 test("no submitted text enters SQL writes, database rows, alarms or Worker logs, even when echoed by Jev", async (t) => {
   const s = setup(t);
   const submitted = "private-canary-7e943: learner text must never be stored";
@@ -514,18 +572,19 @@ test("no submitted text enters SQL writes, database rows, alarms or Worker logs,
   assert.deepEqual(Object.keys(cached.answers), Object.keys(demos["16-fixtures"].clefQuestions));
 });
 
-for (const provider of ['clef', 'jev']) {
+for (const provider of ['perplexity', 'clef', 'jev']) {
   test(`${provider} stores no text for any registered block, including echoed provider extras and failures`, async (t) => {
     const s = setup(t);
     s.env.MODEL_PROVIDER = provider;
+    s.env.PERPLEXITY_API_KEY = 'test-key';
     const submitted = 'private-canary-bc711: do not persist these learner words';
     const logs = [];
     for (const method of ['log', 'info', 'debug', 'warn', 'error']) t.mock.method(console, method, (...args) => logs.push(args));
     let invalid = false;
     const data = questions => ({ answers: Object.fromEntries(Object.entries(questions).map(([key, q]) => [key,
-      q.type === 'choice' ? { type: 'choice', choice: invalid ? submitted : Object.keys(q.criteria)[0], confidence: 0.9, probabilities: { [Object.keys(q.criteria)[0]]: 0.9 }, explanation: submitted }
+      q.type === 'choice' ? { type: 'choice', choice: invalid ? submitted : Object.keys(q.criteria)[0], confidence: 0.9, probabilities: Object.fromEntries(Object.keys(q.criteria).map((option, index) => [option, index === 0 ? 1 : 0])), explanation: submitted }
         : { type: 'noul', noul: invalid ? submitted : 0.9, explanation: submitted },
-    ])), usage: { input_tokens: 1000 }, state: submitted, explanation: submitted });
+    ])), model: 'pplx-decider-v1.1-27b', usage: { input_tokens: 1000 }, state: submitted, explanation: submitted });
     s.env.AI = { run: async (_model, request) => data(request.questions) };
     const normalFetch = globalThis.fetch;
     t.mock.method(globalThis, 'fetch', async (url, options) => {
@@ -538,7 +597,7 @@ for (const provider of ['clef', 'jev']) {
       assert.equal(response.status, 200, block);
       const result = await response.json();
       assert.deepEqual(Object.keys(result.answers), Object.keys(entry.clefQuestions));
-      assert.equal((await (await s.ask({ block, fields })).json()).costUsd, block === '13-journal' ? (provider === 'clef' ? 0.00024 : 0.000042) : 0);
+      assert.equal((await (await s.ask({ block, fields })).json()).costUsd, block === '13-journal' ? (provider === 'perplexity' ? 0.00002 : provider === 'clef' ? 0.00024 : 0.000042) : 0);
       invalid = true;
       const badFields = block === '03-branch' ? { node: 'opening', reply: submitted + ' invalid' } : { answer: submitted + ' invalid' };
       assert.equal((await s.ask({ block, fields: badFields })).status, 502, block);
@@ -574,10 +633,10 @@ test('Clef missing binding fails before charging; missing usage or provider erro
   }
 });
 
-test('Jev and Clef caches stay separate and a Jev secret alone never enables Jev', async (t) => {
+test('Jev and Clef caches stay separate when explicitly selected', async (t) => {
   const s = setup(t);
   assert.equal((await s.ask()).status, 200);
-  delete s.env.MODEL_PROVIDER;
+  s.env.MODEL_PROVIDER = 'clef';
   s.env.AI = { run: async (_model, request) => {
     s.calls.model++;
     return { answers: Object.fromEntries(Object.keys(request.questions).map(key => [key, { noul: 0.9 }])), usage: { input_tokens: 1000 } };
