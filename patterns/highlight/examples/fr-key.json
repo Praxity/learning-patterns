@@ -9,11 +9,15 @@
       },
       {
         "id": "prediction",
-        "text": "À partir de cette seule observation, ils pouvaient prédire avec une précision de 93 % quels couples allaient divorcer."
+        "text": "À partir de cette seule observation, ils pouvaient prédire avec une précision de 93 % quels couples allaient divorcer."
+      },
+      {
+        "id": "signals",
+        "text": "Ils ont nommé quatre comportements qui annoncent une rupture."
       },
       {
         "id": "horsemen",
-        "text": "Ils ont nommé quatre comportements qui annoncent une rupture : la critique, la défensive, le mépris et l'évitement.",
+        "text": "Ils les ont appelés les quatre cavaliers : la critique, la défensive, le mépris et l'évitement.",
         "key": true
       }
     ],
@@ -40,7 +44,7 @@
       },
       {
         "id": "overwhelmed",
-        "text": "Cela arrive souvent quand vous vous sentez dépassé.",
+        "text": "Cela arrive souvent quand la situation vous dépasse.",
         "note": "Ce passage explique quand l'évitement survient. Les idées clés décrivent le comportement et son effet sur l'autre personne."
       },
       {

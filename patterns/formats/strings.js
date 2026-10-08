@@ -13,11 +13,11 @@ export const strings = {
   fr: {
     formats: 'Format de la leçon',
     text: 'Texte', slides: 'Diapos', audio: 'Script audio', quiz: 'Quiz',
-    place: 'Section {n} sur {total}', showing: 'Format affiché : {format}, section {n}.',
+    place: 'Section {n} sur {total}', showing: 'Format affiché : {format}, section {n}.',
     previous: 'Précédent', next: 'Suivant',
-    play: 'Lire', playUnavailable: 'Lecture indisponible : exemple sans enregistrement audio', sample: 'Exemple, sans audio',
+    play: 'Lire', playUnavailable: 'Lecture indisponible : exemple sans enregistrement audio', sample: 'Exemple, sans audio',
     noQuestion: "Cette section n'a pas de question de quiz. Relisez le plan, puis choisissez Suivant.",
-    check: 'Vérifier la réponse', choose: "Choisissez d'abord une réponse.", correct: 'Bonne réponse', wrong: 'À revoir',
-    quizSummary: '{count} questions sur {total} vérifiées.', summary: 'À retenir'
+    check: 'Vérifier la réponse', choose: "Choisissez d'abord une réponse.", correct: 'Bonne réponse', wrong: 'Pas tout à fait',
+    quizSummary: 'Questions vérifiées : {count} sur {total}.', summary: 'À retenir'
   }
 };

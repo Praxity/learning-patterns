@@ -286,7 +286,7 @@ test('2000 characters accepted; programmatically overlong text refused without w
   expect((await page.evaluate(() => window.lpSaved)).first.text.length).toBe(2000);
 });
 
-for (const [lang, savedNote, summary] of [['en', 'It stays as you wrote it.', 'You ticked 1 of 3 checks for your answer now.'], ['fr', "Elle reste telle que vous l'avez écrite.", 'Vous avez coché 1 des 3 critères pour votre réponse maintenant.']]) {
+for (const [lang, savedNote, summary] of [['en', 'It stays as you wrote it.', 'You ticked 1 of 3 checks for your answer now.'], ['fr', "Elle reste telle que vous l'avez écrite.", 'Critères cochés pour votre réponse actuelle : 1 sur 3.']]) {
   test(`restore valid state silently with localized dates (${lang})`, async ({ page }) => {
     await page.addInitScript(value => { window.lpSeed = value; }, seed);
     await open(page, `/first-answer/${lang}.html`);

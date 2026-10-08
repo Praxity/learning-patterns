@@ -30,7 +30,7 @@ function matches(value, rule) {
 
 test('four money questions retain their text, answers and descriptive option identities', () => {
   assert.equal(content.title, 'Money basics');
-  assert.equal(french.title, "Les bases de l'argent");
+  assert.equal(french.title, "Notions de base en finances personnelles");
   assert.deepEqual(content.questions.map(q => q.text), [
     'What is an emergency fund for?',
     "What usually happens if you pay only your credit card's minimum each month?",
@@ -131,10 +131,10 @@ test('render explains authored scoring in words, including sign, zero, singular 
     ['en', { right: 2, wrong: -0.5, unknown: 0.25 }, 'A right answer scores 2 points. A wrong answer costs 0.5 points. &quot;I don&#39;t know&quot; scores 0.25 points.'],
     ['en', { right: -2, wrong: 1, unknown: -1 }, 'A right answer costs 2 points. A wrong answer scores a point. &quot;I don&#39;t know&quot; costs a point.'],
     ['en', { right: 0, wrong: -0, unknown: 1 }, 'A right answer scores no points. A wrong answer costs nothing. &quot;I don&#39;t know&quot; scores a point.'],
-    ['fr', { right: 1, wrong: -1, unknown: 0 }, 'Une bonne réponse rapporte un point. Une mauvaise réponse coûte un point. « Je ne sais pas » ne coûte rien.'],
-    ['fr', { right: 2.5, wrong: -2, unknown: 0.25 }, 'Une bonne réponse rapporte 2,5 points. Une mauvaise réponse coûte 2 points. « Je ne sais pas » rapporte 0,25 point.'],
-    ['fr', { right: -1, wrong: 0, unknown: 2 }, 'Une bonne réponse coûte un point. Une mauvaise réponse ne coûte rien. « Je ne sais pas » rapporte 2 points.'],
-    ['fr', { right: 0, wrong: 1, unknown: -0.5 }, 'Une bonne réponse ne rapporte aucun point. Une mauvaise réponse rapporte un point. « Je ne sais pas » coûte 0,5 point.']
+    ['fr', { right: 1, wrong: -1, unknown: 0 }, 'Une bonne réponse rapporte un point. Une mauvaise réponse coûte un point. « Je ne sais pas » ne coûte rien.'],
+    ['fr', { right: 2.5, wrong: -2, unknown: 0.25 }, 'Une bonne réponse rapporte 2,5 points. Une mauvaise réponse coûte 2 points. « Je ne sais pas » rapporte 0,25 point.'],
+    ['fr', { right: -1, wrong: 0, unknown: 2 }, 'Une bonne réponse coûte un point. Une mauvaise réponse ne coûte rien. « Je ne sais pas » rapporte 2 points.'],
+    ['fr', { right: 0, wrong: 1, unknown: -0.5 }, 'Une bonne réponse ne rapporte aucun point. Une mauvaise réponse rapporte un point. « Je ne sais pas » coûte 0,5 point.']
   ];
   for (const [lang, points, expected] of cases) {
     assert.ok(render({ ...content, points }, strings[lang], { id: 'scoring', lang }).includes(expected), expected);
@@ -161,7 +161,7 @@ test('English and French keys and template placeholders match', () => {
 test('quiz scene renders escaped authored titles, bilingual question numbers and explanation panels', () => {
   for (const [lang, source, title, label, number] of [
     ['en', content, 'Money basics', 'Quick check', 'Question 1 of 4'],
-    ['fr', french, "Les bases de l'argent", 'Vérification rapide', 'Question 1 sur 4']
+    ['fr', french, "Notions de base en finances personnelles", 'Vérification rapide', 'Question 1 sur 4']
   ]) {
     const output = render({ ...source, title }, strings[lang], { id: 'quiz', lang });
     assert.match(output, /<header class="lp-scene">/);

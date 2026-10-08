@@ -19,9 +19,9 @@ export const strings = {
   },
   fr: {
     keyInstruction: 'Surlignez les idées clés.',
-    evidenceInstruction: 'Surlignez le passage qui répond à cette question : {question}',
+    evidenceInstruction: 'Surlignez le passage qui répond à cette question : {question}',
     controls: 'Cliquez ou touchez un passage pour le marquer. Au clavier, utilisez les flèches pour vous déplacer, Début ou Fin pour aller aux extrémités, et Espace ou Entrée pour marquer ou enlever la marque.',
-    count: 'Passages marqués : {n} sur {max}',
+    count: 'Passages marqués : {n} sur {max}',
     limitOne: "Vous pouvez marquer un seul passage. Enlevez d'abord sa marque.",
     limitMany: "Vous pouvez marquer jusqu'à {n} passages. Enlevez d'abord une marque.",
     check: 'Vérifier',
@@ -32,8 +32,8 @@ export const strings = {
     missed: 'Manqué',
     wrongKey: 'Ce n\'est pas une idée clé',
     wrongEvidence: 'Ce passage ne répond pas à la question.',
-    keySummary: 'Vous avez trouvé {n} des {total} idées clés.',
-    evidenceSummary: 'Passages qui répondent à la question : {n} sur {total}.'
+    keySummary: 'Idées clés trouvées : {n} sur {total}.',
+    evidenceSummary: 'Passages qui répondent à la question : {n} sur {total}.'
   }
 };
 /** @typedef {typeof strings.en} Strings */

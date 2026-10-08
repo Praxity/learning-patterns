@@ -40,7 +40,7 @@ const scan = async page => expect((await new AxeBuilder({ page }).withTags(['wca
 
 for (const [lang, title, label, number] of [
   ['en', 'Money basics', 'Quick check', 'Question 1 of 4'],
-  ['fr', "Les bases de l'argent", 'Vérification rapide', 'Question 1 sur 4']
+  ['fr', "Notions de base en finances personnelles", 'Vérification rapide', 'Question 1 sur 4']
 ]) {
   test(`quiz card has a scene, numbered questions, explanation panels and a score ring (${lang})`, async ({ page }) => {
     await open(page, `/dont-know/${lang}.html`);
@@ -134,7 +134,7 @@ test('keyboard journey associates each unanswered error, focuses first missing r
 
 for (const [lang, content, correct, wrong, answer, unknown, counts] of [
   ['en', english, 'Correct', 'Not quite', 'Correct answer', "You chose I don't know", '2 right, 1 wrong, 1 "I don\'t know"'],
-  ['fr', french, 'Correct', 'Pas tout à fait', 'Bonne réponse', 'Vous avez choisi « Je ne sais pas »', '2 bonnes réponses, 1 mauvaise réponse, 1 « Je ne sais pas »']
+  ['fr', french, 'Correct', 'Pas tout à fait', 'Bonne réponse', 'Vous avez choisi « Je ne sais pas »', '2 bonnes réponses, 1 mauvaise réponse, 1 « Je ne sais pas »']
 ]) {
   test(`results mark choices in place, explain only gaps and link back to questions (${lang})`, async ({ page }) => {
     await open(page, `/dont-know/${lang}.html`); await observe(page);
@@ -444,7 +444,7 @@ test('quiet reset and forced colours preserve focus rings and button distinction
 });
 
 test('one unanswered question uses the singular message in English and French', async ({ page }) => {
-  for (const [lang, text] of [['en', "1 question unanswered. Choose an option, or I don't know."], ['fr', '1 question sans réponse. Choisissez une option ou « Je ne sais pas ».']]) {
+  for (const [lang, text] of [['en', "1 question unanswered. Choose an option, or I don't know."], ['fr', '1 question sans réponse. Choisissez une option ou « Je ne sais pas ».']]) {
     await open(page, `/dont-know/${lang}.html`);
     await pick(page, mixed.slice(0, 3));
     await page.locator('[data-lp-check]').click();

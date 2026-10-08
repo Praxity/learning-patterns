@@ -372,7 +372,7 @@ test('French root has French language and translated feedback', async ({ page })
   await open(page, '/self-check/fr.html'); await expect(page.locator('[data-lp-pattern]')).toHaveAttribute('lang', 'fr');
   await page.getByRole('textbox').fill('Mon message'); await page.locator('[data-lp-check]').click();
   await page.getByRole('checkbox').first().check(); await page.locator('[data-lp-show]').click();
-  await expect(page.locator('[data-lp-result]')).toContainText('Vous avez inclus 1 des 6 éléments.');
+  await expect(page.locator('[data-lp-result]')).toContainText('Éléments inclus : 1 sur 6.');
   const model = await page.locator('.lp-self-check-pane-model p').evaluate(el => {
     const copy = el.cloneNode(true); copy.querySelectorAll('[aria-hidden="true"]').forEach(number => number.remove()); return copy.textContent;
   });
