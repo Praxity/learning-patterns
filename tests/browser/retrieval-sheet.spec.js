@@ -56,7 +56,7 @@ test('keyboard journey uses automatic tabs with arrows, Home and End and keeps a
   await expect(front).toHaveAttribute('aria-selected', 'true'); await expect(back).toHaveAttribute('tabindex', '-1');
   await front.focus(); await page.keyboard.press('ArrowRight');
   await expect(back).toBeFocused(); await expect(back).toHaveAttribute('aria-selected', 'true');
-  expect(await page.evaluate(() => window.lpTabFocus)).toEqual([{ name: 'Front', selected: 'true' }, { name: 'Back', selected: 'false' }]);
+  expect(await page.evaluate(() => window.lpTabFocus)).toEqual([{ name: 'Front', selected: 'true' }, { name: 'Back', selected: 'true' }]);
   await expect(side(page, 'back')).toBeVisible(); await expect(side(page, 'front')).toBeHidden();
   await page.keyboard.press('Tab'); await expect(side(page, 'back')).toBeFocused();
   await back.focus(); await page.keyboard.press('ArrowRight'); await expect(front).toBeFocused();
@@ -67,6 +67,29 @@ test('keyboard journey uses automatic tabs with arrows, Home and End and keeps a
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ date: '2026-10-13', side: 'back' });
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
   expect(await back.evaluate(el => getComputedStyle(el).outlineStyle)).toBe('solid');
+});
+
+test('tab selection and panel switch finish before focus with no later selection mutations', async ({ page }) => {
+  await open(page);
+  await root(page).getByRole('tab', { name: 'Front', exact: true }).focus();
+  await page.evaluate(() => {
+    window.lpTabFocus = []; window.lpTabMutations = [];
+    window.lpTabObserver = new MutationObserver(records => window.lpTabMutations.push(...records.map(record => record.attributeName)));
+    window.lpTabObserver.observe(document.querySelector('[data-lp-tabs]'), { attributes: true, subtree: true, attributeFilter: ['aria-selected', 'tabindex'] });
+    document.querySelector('[data-lp-tabs]').addEventListener('focus', event => {
+      // Discard selection changes that finished before this focus event.
+      window.lpTabObserver.takeRecords();
+      const tab = event.target;
+      const panel = document.getElementById(tab.getAttribute('aria-controls'));
+      window.lpTabFocus.push({ name: tab.textContent, selected: tab.getAttribute('aria-selected'), tabindex: tab.getAttribute('tabindex'), hidden: panel.hidden });
+    }, true);
+  });
+  for (const [key, name] of [['ArrowRight', 'Back'], ['ArrowRight', 'Front'], ['ArrowLeft', 'Back'], ['Home', 'Front'], ['End', 'Back']]) {
+    await page.keyboard.press(key);
+    await expect(root(page).getByRole('tab', { name, exact: true })).toBeFocused();
+  }
+  expect(await page.evaluate(() => window.lpTabFocus)).toEqual(['Back', 'Front', 'Back', 'Front', 'Back'].map(name => ({ name, selected: 'true', tabindex: '0', hidden: false })));
+  expect(await page.evaluate(() => window.lpTabMutations)).toEqual([]);
 });
 
 test('date changes update both printed headers, copy state and announce once without moving focus', async ({ page }) => {

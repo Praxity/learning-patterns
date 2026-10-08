@@ -66,9 +66,6 @@ export function enhance(root, { content, strings, state }) {
   for (const { side, tab, page } of panels) {
     tab.setAttribute('role', 'tab');
     page.setAttribute('role', 'tabpanel'); page.setAttribute('aria-labelledby', tab.id); page.tabIndex = 0;
-    // Focus first, then select: NVDA should receive one focused-tab change, not a
-    // selected-tab event followed by the same tab's focus event.
-    listen(tab, 'focus', () => select(side));
     listen(tab, 'click', () => select(side));
     listen(tab, 'keydown', event => {
       const key = /** @type {KeyboardEvent} */ (event).key;
@@ -78,7 +75,8 @@ export function enhance(root, { content, strings, state }) {
       else if (key === 'End') target = panels[1];
       else return;
       event.preventDefault();
-      target?.tab.focus();
+      // The destination must already be selected when assistive technology sees focus.
+      if (target) { select(target.side); target.tab.focus(); }
     });
   }
   listen(input, 'change', () => {
