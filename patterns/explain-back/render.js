@@ -10,10 +10,9 @@ export function render(content, strings, { id, lang }) {
   return `<section class="lp lp-unboxed lp-explain-back" data-lp-pattern="explain-back" lang="${html(lang)}">
   <div class="lp-stack lp-explain-back-lesson">${content.ideas.map(idea => `<h2 class="lp-stem" id="${html(`${id}-lesson-${idea.id}`)}" tabindex="-1">${html(idea.heading)}</h2><p>${html(idea.body)}</p>`).join('\n')}</div>
   <div class="lp-box">
-    <h2 class="lp-stem">${html(content.task)}</h2>
+    <h2 class="lp-stem" id="${html(`${id}-task`)}">${html(content.task)}</h2>
     <div class="lp-explain-back-composer">
-      <label class="lp-label" for="${html(`${id}-answer`)}">${html(strings.answer)}</label>
-      <textarea class="lp-input" id="${html(`${id}-answer`)}" rows="4" maxlength="${ANSWER_LIMIT}" placeholder="${html(strings.placeholder)}"></textarea>
+      <textarea class="lp-input" id="${html(`${id}-answer`)}" aria-labelledby="${html(`${id}-task`)}" rows="4" maxlength="${ANSWER_LIMIT}" placeholder="${html(strings.placeholder)}"></textarea>
     </div>
     <div data-lp-notice id="${html(`${id}-notice`)}" hidden></div>
     <p class="lp-error-text" id="${html(`${id}-error`)}" data-lp-error hidden>${icons['alert-circle']}<span>${html(strings.empty)}</span></p>
@@ -21,9 +20,8 @@ export function render(content, strings, { id, lang }) {
     <div data-lp-challenge hidden></div>
     <div class="lp-section" data-lp-result hidden></div>
     <div class="lp-section" data-lp-fallback>
-      <p class="lp-small">${html(strings.fallback)}</p>
       <fieldset class="lp-choices">
-        <legend class="lp-run-in">${html(strings.selfCheck)}</legend>
+        <legend class="lp-run-in">${html(strings.fallback)}</legend>
         ${content.ideas.map(idea => `<label class="lp-choice" for="${html(`${id}-tick-${idea.id}`)}"><input type="checkbox" id="${html(`${id}-tick-${idea.id}`)}" value="${html(idea.id)}"><span>${html(idea.label)}</span></label>`).join('\n')}
       </fieldset>
     </div>

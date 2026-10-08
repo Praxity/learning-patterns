@@ -1,6 +1,5 @@
 export namespace strings {
     namespace en {
-        let answer: string;
         let placeholder: string;
         let check: string;
         let empty: string;
@@ -12,11 +11,8 @@ export namespace strings {
         let reread: string;
         let model: string;
         let fallback: string;
-        let selfCheck: string;
     }
     namespace fr {
-        let answer_1: string;
-        export { answer_1 as answer };
         let placeholder_1: string;
         export { placeholder_1 as placeholder };
         let check_1: string;
@@ -39,8 +35,6 @@ export namespace strings {
         export { model_1 as model };
         let fallback_1: string;
         export { fallback_1 as fallback };
-        let selfCheck_1: string;
-        export { selfCheck_1 as selfCheck };
     }
 }
 export type Strings = typeof strings.en;
