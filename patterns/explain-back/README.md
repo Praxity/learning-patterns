@@ -60,7 +60,7 @@ Required strings are nonempty. Unknown fields and wrong idea identities are reje
 | Function | Returns |
 | --- | --- |
 | `validateContent(content)` | Nothing; throws an `Error` naming the bad field. |
-| `feedback(content, answers)` | `{ count, total, allFound, items }`. Items are `{ id, mark, text, heading }`, with `mark: 'met'`, `'missed'` or `'unsure'`. Invalid model answers throw. |
+| `feedback(content, answers)` | `{ count, total, allFound, items }`. Items are `{ id, mark, text, heading }`, with `mark: 'met'`, `'missed'` or `'unsure'`. Invalid decision model answers throw. |
 | `validateState(value)` | A clean `{ answer, ticked }` draft, or `null` for invalid saved values. |
 | `ANSWER_LIMIT` | The proxy-owned maximum answer length. |
 
