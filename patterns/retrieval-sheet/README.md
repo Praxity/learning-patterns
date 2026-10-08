@@ -21,7 +21,7 @@ Choosing a date sends no reminder. Arrange one through your course host if neede
 
 ## How it works
 
-1. Choose a "Test myself on" date. The default is seven days from today.
+1. Choose when to test yourself: in 2 days, 1 week, 2 weeks or 1 month. Each choice shows its date. The default is 1 week. Choose "Another date" to enter your own date.
 2. Select "Front" to preview questions or "Back" to preview answers.
 3. Select "Print the sheet". Questions print first, then answers.
 4. On your chosen date, write answers from memory. Check the back and revisit what you missed.
@@ -39,7 +39,8 @@ Use remains uncertain. Students tend to study when deadlines push them ([Hartwig
 Follows the shared baseline in the root README.
 
 - Front and Back tabs share one tab stop. Left and Right arrows change sides; Home selects Front and End selects Back. Selection updates the tabs and panel before moving focus.
-- The date input has a visible label and links to its error only while invalid. Date changes and printing announce once and keep focus.
+- A fieldset names the five spacing choices. Native radios support Tab and arrow keys, with a visible selected row and keyboard focus.
+- "Another date" reveals a field labelled "Date". It links to its error only while invalid. Date changes and printing announce once and keep focus.
 - A newly invalid date gets an error through the focused field's description, or the status region when focus is elsewhere. Repeated invalid edits keep the same description.
 - Tab selection identifies the active side without another status announcement.
 - NVDA speaks a newly selected tab twice after Arrow, Home or End changes sides in Chrome and Firefox. The W3C ARIA Authoring Practices example also does this. Tabs still activate on focus; requiring Enter or Space would add a step for everyone.
@@ -59,7 +60,7 @@ Authors write plain text. Rendering escapes HTML characters.
 
 `validateContent` rejects empty strings, unknown fields, invalid ids and duplicates. Whitespace is allowed. The schema's `x-uniqueBy` annotation needs the validator's uniqueness check.
 
-English and Québec French strings share `instruction`, `dateLabel`, `dateError`, `dateChanged`, `sides`, `front`, `back`, `questions`, `answers`, `backInstruction`, `print`, `printHint` and `printing`. Only `dateChanged` uses `{date}`. Authors write every learner-facing message.
+English and Québec French strings share `instruction`, `dateLabel`, `dateError`, `dateChanged`, `sides`, `front`, `back`, `questions`, `answers`, `backInstruction`, `print`, `printHint` and `printing`. The spacing choices use `spacingLegend`, `in2Days`, `in1Week`, `in2Weeks`, `in1Month` and `anotherDate`. The custom field uses `customDateLabel`; `dateLabel` stays on the printed sheet. Only `dateChanged` uses `{date}`. Authors write every learner-facing message.
 
 ## Logic
 
@@ -68,12 +69,15 @@ English and Québec French strings share `instruction`, `dateLabel`, `dateError`
 | Export | Returns |
 | --- | --- |
 | `validateContent(content)` | Nothing. Throws an `Error` naming the first bad field. |
+| `presetDays` | The spacing offsets `[2, 7, 14, 30]` in civil days. |
+| `dateAfterDays(today, days)` | `YYYY-MM-DD`, counting whole days from the local date of `today` with UTC arithmetic. Leaves `today` unchanged. Invalid dates, non-integer offsets and unsupported years throw. |
 | `defaultDate(today)` | Seven local calendar days ahead as `YYYY-MM-DD`. Leaves `today` unchanged. Invalid dates and unsupported years throw. |
 | `isDate(value)` | Whether the value is a real `YYYY-MM-DD` civil date in years 0001 to 9999. |
 | `formatDate(date, lang)` | Readable date using `en-CA` or `fr-CA`. UTC formatting preserves the civil day across time zones. Invalid dates throw. |
+| `formatShortDate(date, lang)` | Short weekday and date using `en-CA` or `fr-CA`, such as "Thu, Oct 15" or "jeu. 15 oct.". UTC formatting preserves the civil day. Invalid dates throw. |
 | `validateState(value)` | Copied `{ date, side }`, or `null` for invalid state. |
 
-Seven days is a demo default, not an established optimum for every topic or learner. Scheduling handles month boundaries, leap years and daylight-saving changes.
+The spacing choices offer several gaps because the best gap grows with how long you need to remember, as the evidence above describes. Seven days is a demo default, not an established optimum for every topic or learner. Scheduling handles month boundaries, leap years and daylight-saving changes.
 
 The preview has A4 proportions, a paper edge and a soft shadow. It grows for narrow screens or enlarged text. The scene shows a file-text icon and module title. The recall instruction appears once on the front, including in print. Colours and fonts use shared `--lp-*` tokens.
 
@@ -83,9 +87,9 @@ The examples print as two black-on-white pages on A4 or Letter, without controls
 
 `render` accepts optional `today: Date` for a reproducible build date. Enhancement uses the learner's local day, so a static build date does not determine the interactive default.
 
-Optional `state: { read, write }` stores `{ date, side }`. `date` is a valid `YYYY-MM-DD` civil date; `side` is `front` or `back`. Invalid state is ignored as a whole. Valid dates restore exactly and silently, including past dates. Each change writes a fresh copy; host mutation cannot change the live sheet. Host errors propagate.
+Optional `state: { read, write }` stores `{ date, side }`. `date` is a valid `YYYY-MM-DD` civil date; `side` is `front` or `back`. Invalid state is ignored as a whole. Valid dates restore exactly and silently, including past dates. A date matching a spacing choice from today selects that row. Other dates select "Another date" and fill its field. Each change writes a fresh copy; host mutation cannot change the live sheet. Host errors propagate.
 
-Invalid or empty dates show a local error and disable Print. The sheet and state keep the last valid date until a valid edit. Past dates are allowed.
+Invalid or empty edits in "Another date" show a local error and disable Print. Choosing a preset clears the error and enables Print. The sheet and state keep the last valid date until a valid edit. Past dates are allowed.
 
 Repeated enhancement preserves server elements and returns the same instance. `destroy()` removes listeners, hides controls and restores server dates and both visible sides. Repeated destruction is safe; the root can then be enhanced again.
 
@@ -116,7 +120,7 @@ const instance = enhance(document.querySelector('[data-lp-pattern="retrieval-she
 
 ## Adapt it with your agent
 
-> Write a retrieval sheet for [topic] and [audience]. Keep `{ title, questions: [{ id, question, answer }] }` with stable, unique ids. Write focused questions and short answers. Preserve the native date picker, Front and Back tabs, writing space, no-JavaScript view and two-sided printing. Write English and Québec French together, using vous. Authors write every message. Preserve render, enhancement, state, CSS tokens and accessibility. Update examples and tests. Check A4 and Letter print previews. Show both languages for review.
+> Write a retrieval sheet for [topic] and [audience]. Keep `{ title, questions: [{ id, question, answer }] }` with stable, unique ids. Write focused questions and short answers. Preserve the spacing radio group, the "Another date" field, Front and Back tabs above the preview, writing space, no-JavaScript view and two-sided printing. Write English and Québec French together, using vous. Authors write every message. Preserve render, enhancement, state, CSS tokens and accessibility. Update examples and tests. Check A4 and Letter print previews. Show both languages for review.
 
 ## Licence
 
