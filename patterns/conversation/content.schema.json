@@ -1,0 +1,253 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Talk it through",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "setup",
+    "person",
+    "subject",
+    "opening",
+    "branches",
+    "examples",
+    "stageNotes",
+    "pauseNote",
+    "unsure",
+    "offScript"
+  ],
+  "properties": {
+    "setup": {
+      "$ref": "#/$defs/text"
+    },
+    "person": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "role",
+        "initial"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "role": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "initial": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      }
+    },
+    "subject": {
+      "$ref": "#/$defs/text"
+    },
+    "opening": {
+      "$ref": "#/$defs/text"
+    },
+    "branches": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "acknowledge",
+        "defend",
+        "attack",
+        "withdraw",
+        "pause"
+      ],
+      "properties": {
+        "acknowledge": {
+          "$ref": "#/$defs/branch"
+        },
+        "defend": {
+          "$ref": "#/$defs/branch"
+        },
+        "attack": {
+          "$ref": "#/$defs/branch"
+        },
+        "withdraw": {
+          "$ref": "#/$defs/branch"
+        },
+        "pause": {
+          "$ref": "#/$defs/branch"
+        }
+      }
+    },
+    "examples": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "opening",
+        "acknowledge",
+        "defend",
+        "attack",
+        "withdraw",
+        "pause"
+      ],
+      "properties": {
+        "opening": {
+          "$ref": "#/$defs/exampleReplies"
+        },
+        "acknowledge": {
+          "$ref": "#/$defs/exampleReplies"
+        },
+        "defend": {
+          "$ref": "#/$defs/exampleReplies"
+        },
+        "attack": {
+          "$ref": "#/$defs/exampleReplies"
+        },
+        "withdraw": {
+          "$ref": "#/$defs/exampleReplies"
+        },
+        "pause": {
+          "$ref": "#/$defs/exampleReplies"
+        }
+      }
+    },
+    "stageNotes": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^(acknowledge|defend|attack|withdraw|pause):(acknowledge|defend|attack|withdraw|pause)$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      }
+    },
+    "pauseNote": {
+      "$ref": "#/$defs/text"
+    },
+    "unsure": {
+      "$ref": "#/$defs/text"
+    },
+    "offScript": {
+      "$ref": "#/$defs/text"
+    }
+  },
+  "$defs": {
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "replies": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "acknowledge",
+        "defend",
+        "attack",
+        "withdraw",
+        "pause"
+      ],
+      "properties": {
+        "acknowledge": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "defend": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "attack": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "withdraw": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "pause": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      }
+    },
+    "exampleReplies": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "acknowledge",
+        "defend",
+        "attack",
+        "withdraw",
+        "pause"
+      ],
+      "properties": {
+        "acknowledge": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "maxLength": 1200
+        },
+        "defend": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "maxLength": 1200
+        },
+        "attack": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "maxLength": 1200
+        },
+        "withdraw": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "maxLength": 1200
+        },
+        "pause": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "maxLength": 1200
+        }
+      }
+    },
+    "branch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "line",
+        "endings",
+        "move",
+        "debrief"
+      ],
+      "properties": {
+        "line": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "endings": {
+          "$ref": "#/$defs/replies"
+        },
+        "move": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "debrief": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      }
+    }
+  }
+}

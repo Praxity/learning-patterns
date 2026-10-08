@@ -4,7 +4,7 @@ export function explainFeedback(answers: Record<string, {
 }>): {
     items: {
         key: string;
-        state: "met" | "missed" | "unsure";
+        state: "unsure" | "met" | "missed";
         text: string;
         link: {
             href: string;

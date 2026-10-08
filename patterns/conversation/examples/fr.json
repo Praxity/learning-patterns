@@ -1,0 +1,121 @@
+{
+  "setup": "Vous avez changé l’ordre de travail convenu sans consulter Michel. À la réunion de ce matin, il se tourne vers vous.",
+  "person": { "name": "Michel", "role": "Votre collègue", "initial": "M" },
+  "subject": "L’ordre de travail",
+  "opening": "Ce n’est pas ce qu’on avait convenu. Vous changez toujours le plan à la dernière minute.",
+  "branches": {
+    "acknowledge": {
+      "line": "J’ai besoin de savoir ce qui a changé et comment on va éviter un autre changement de dernière minute.",
+      "endings": {
+        "acknowledge": "D’accord. Si vous me consultez avant, je peux accepter les changements. Mettons ça par écrit.",
+        "defend": "Alors rien ne changera, et je vais continuer à refaire mon travail.",
+        "attack": "Ma question était raisonnable. Je vais en parler au responsable de l’équipe.",
+        "withdraw": "Alors on laisse tomber. Ça va recommencer le mois prochain.",
+        "pause": "D’accord. Cet après-midi, alors."
+      },
+      "move": "Vous avez reconnu les conséquences",
+      "debrief": "Reconnaître votre part dans le changement vous aide à convenir de la suite avec Michel."
+    },
+    "defend": {
+      "line": "J’entends vos raisons, mais j’ai quand même dû refaire mon travail. Que ferez-vous autrement ?",
+      "endings": {
+        "acknowledge": "Merci. C’est ce que j’avais besoin d’entendre. Regardons le nouvel ordre ensemble.",
+        "defend": "Alors ça va continuer, et je vais encore en payer le prix.",
+        "attack": "Quelques heures de mon travail. J’en ai fini avec cette conversation.",
+        "withdraw": "D’accord. Prochain point.",
+        "pause": "D’accord. Dix minutes."
+      },
+      "move": "Vous avez défendu le changement",
+      "debrief": "Reporter la faute sur quelqu’un d’autre ne règle pas le travail supplémentaire de Michel."
+    },
+    "attack": {
+      "line": "J’essaie de parler du plan. Peut-on en discuter sans s’attaquer l’un à l’autre ?",
+      "endings": {
+        "acknowledge": "Merci. Convenons alors de la façon de gérer les changements à l’avenir.",
+        "defend": "Pour moi, ça ne ressemblait pas à des faits. Laissons ça pour l’instant.",
+        "attack": "Je ne continue pas. Venez me parler quand vous pourrez le faire avec respect.",
+        "withdraw": "Alors je vais en parler au responsable de l’équipe.",
+        "pause": "Oui. À quinze heures."
+      },
+      "move": "Vous avez attaqué Michel",
+      "debrief": "Une attaque personnelle éloigne la discussion du plan et rend l’entente plus difficile."
+    },
+    "withdraw": {
+      "line": "Il faut encore régler le plan. Acceptez-vous de revenir à cette conversation ?",
+      "endings": {
+        "acknowledge": "Merci. Commençons par ce qu’il reste de ma partie.",
+        "defend": "J’ai refait des heures de travail. Je ne vais pas laisser tomber.",
+        "attack": "J’ai posé une simple question. Je vais en parler au responsable de l’équipe.",
+        "withdraw": "Bon.",
+        "pause": "D’accord. Après le dîner, alors."
+      },
+      "move": "Vous avez fermé la conversation",
+      "debrief": "Mettre fin à la discussion sans prévoir de retour laisse le problème en suspens."
+    },
+    "pause": {
+      "line": "D’accord. Prenons dix minutes, puis revenons pour nous entendre sur le plan.",
+      "endings": {
+        "acknowledge": "Merci. C’est ce que j’avais besoin d’entendre. Corrigeons le nouvel ordre ensemble.",
+        "defend": "Alors la pause n’a rien changé.",
+        "attack": "Alors la pause n’a servi à rien.",
+        "withdraw": "Vous aviez dit qu’on y reviendrait. Laisser tomber, c’est justement le problème.",
+        "pause": "Demain à neuf heures, alors. Je compte sur vous."
+      },
+      "move": "Vous avez demandé une pause",
+      "debrief": "Préciser quand vous reviendrez vous donne le temps de réfléchir tout en gardant la discussion ouverte."
+    }
+  },
+  "examples": {
+    "opening": {
+      "acknowledge": "Vous avez raison, j’ai changé l’ordre tard et sans vous consulter. Je comprends que ce soit frustrant.",
+      "defend": "Ce n’est pas juste. C’est le client qui a changé d’idée, pas moi. Je n’avais pas le choix.",
+      "attack": "Ça recommence. Si vous lisiez vos courriels, vous l’auriez su.",
+      "withdraw": "D’accord. Laissez tomber. Passons au prochain point.",
+      "pause": "Je veux bien vous répondre. Peut-on prendre dix minutes, puis y revenir ?"
+    },
+    "acknowledge": {
+      "acknowledge": "Le client voulait les prix en premier. La prochaine fois, je vous consulterai avant de changer l’ordre, même si c’est urgent.",
+      "defend": "Franchement, le client change toujours d’idée. Je ne peux rien promettre.",
+      "attack": "Vous devriez peut-être prévoir les changements au lieu de vous en plaindre.",
+      "withdraw": "Je ne sais pas. Continuons simplement l’ordre du jour.",
+      "pause": "Je vais regarder comment on se transmet les changements. Je reviens cet après-midi avec une proposition."
+    },
+    "defend": {
+      "acknowledge": "Vous avez raison, vous avez refait du travail à cause de moi. La prochaine fois, je vous informerai le jour même de la demande du client, avant de changer quoi que ce soit.",
+      "defend": "Rien. Ce n’était pas ma décision, alors je ne vois pas ce que je pourrais faire autrement.",
+      "attack": "Vous en faites toute une histoire pour quelques heures de travail.",
+      "withdraw": "Peut-on éviter ça maintenant ? Prochain point.",
+      "pause": "Je suis sur la défensive. Donnez-moi dix minutes, puis voyons ce que je ferai autrement."
+    },
+    "attack": {
+      "acknowledge": "Oui. Excusez-moi, c’était injuste. J’ai changé le plan sans vous consulter, et vous avez dû refaire votre partie.",
+      "defend": "Je ne vous attaquais pas. J’énonçais seulement les faits.",
+      "attack": "Voyons donc. Même un stagiaire saurait gérer un changement d’ordre.",
+      "withdraw": "Laissez tomber. Je ne veux plus en discuter.",
+      "pause": "Vous avez raison. J’ai besoin de quelques minutes pour me calmer. Peut-on reprendre à quinze heures ?"
+    },
+    "withdraw": {
+      "acknowledge": "Oui. J’ai changé le plan tard, et vous avez dû refaire du travail. Réglons ça maintenant.",
+      "defend": "Il n’y a rien à régler. C’est le client qui a décidé, pas moi.",
+      "attack": "Pourquoi faites-vous toujours un drame de tout ?",
+      "withdraw": "Non. J’ai dit tout ce que j’avais à dire.",
+      "pause": "Oui. Donnez-moi jusqu’après le dîner, puis je viendrai à votre bureau."
+    },
+    "pause": {
+      "acknowledge": "Merci d’avoir attendu. Vous avez raison, j’ai changé le plan tard. À l’avenir, je vous consulterai d’abord.",
+      "defend": "J’y ai réfléchi, et le client m’a vraiment forcé la main. Il n’y a rien à régler.",
+      "attack": "J’y ai réfléchi, et je trouve que vous réagissez trop fort à chaque changement.",
+      "withdraw": "Finalement, laissons tomber. Ça n’en vaut pas la peine.",
+      "pause": "J’ai besoin d’un peu plus de temps. Peut-on finir ça demain à neuf heures ?"
+    }
+  },
+  "stageNotes": {
+    "attack:attack": "Michel quitte la réunion.",
+    "defend:attack": "Michel quitte la réunion.",
+    "withdraw:withdraw": "Michel se tourne vers son écran. Il ne dit plus rien pendant la réunion.",
+    "defend:withdraw": "Michel ne dit plus rien pendant le reste de la réunion."
+  },
+  "pauseNote": "Dix minutes plus tard, vous retrouvez Michel.",
+  "unsure": "On ne sait pas trop comment Michel prendrait cette réponse. Reformulez-la ou choisissez une réponse.",
+  "offScript": "Michel attend une réponse au sujet du plan."
+}

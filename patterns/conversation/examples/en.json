@@ -1,0 +1,125 @@
+{
+  "setup": "You changed the agreed order of work without asking Michel. At this morning's meeting he turns to you.",
+  "person": {
+    "name": "Michel",
+    "role": "Your colleague",
+    "initial": "M"
+  },
+  "subject": "The order of work",
+  "opening": "That's not what we agreed. You always change the plan at the last minute.",
+  "branches": {
+    "acknowledge": {
+      "line": "I need to know what changed and how we will avoid another last-minute change.",
+      "endings": {
+        "acknowledge": "OK. If you check with me first, I can live with changes. Let's write that down.",
+        "defend": "Then nothing will change, and I'll keep redoing my work.",
+        "attack": "I asked a fair question. I'll take this to the team lead.",
+        "withdraw": "So we're leaving it. Then it'll happen again next month.",
+        "pause": "Fine. This afternoon, then."
+      },
+      "move": "You acknowledged the impact",
+      "debrief": "Naming your part in the change helps you and Michel agree what to do next."
+    },
+    "defend": {
+      "line": "I hear your reasons, but I still had to redo my work. What will you do differently?",
+      "endings": {
+        "acknowledge": "Thank you. That's what I needed. Let's look at the new order together.",
+        "defend": "Then this will keep happening, and I'll keep paying for it.",
+        "attack": "A few hours of my work. I'm done with this conversation.",
+        "withdraw": "Fine. Next item.",
+        "pause": "OK. Ten minutes."
+      },
+      "move": "You defended the change",
+      "debrief": "Shifting the blame leaves Michel's extra work unresolved."
+    },
+    "attack": {
+      "line": "I'm trying to talk about the plan. Can we discuss that without attacking each other?",
+      "endings": {
+        "acknowledge": "Thank you. Then let's agree how changes work from now on.",
+        "defend": "It didn't sound like facts to me. Let's leave it for now.",
+        "attack": "I'm not doing this. Talk to me when you can be civil.",
+        "withdraw": "Then I'll raise it with the team lead.",
+        "pause": "Yes. Three o'clock."
+      },
+      "move": "You attacked Michel",
+      "debrief": "A personal attack moves the talk away from the plan and makes agreement harder."
+    },
+    "withdraw": {
+      "line": "We still need to resolve the plan. Are you willing to come back to this conversation?",
+      "endings": {
+        "acknowledge": "Thank you. Let's start with what's left of my part.",
+        "defend": "I redid hours of work. I'm not letting this go.",
+        "attack": "I asked a simple question. I'll take this to the team lead.",
+        "withdraw": "Right.",
+        "pause": "OK. After lunch, then."
+      },
+      "move": "You closed the conversation",
+      "debrief": "Ending the discussion without a return leaves the problem unresolved."
+    },
+    "pause": {
+      "line": "All right. Let's take ten minutes and come back to agree on the plan.",
+      "endings": {
+        "acknowledge": "Thanks. That's what I needed to hear. Let's fix the new order together.",
+        "defend": "So the break changed nothing.",
+        "attack": "Then the break was pointless.",
+        "withdraw": "You said we'd come back to this. Leaving it is exactly the problem.",
+        "pause": "Tomorrow at nine, then. I'll hold you to it."
+      },
+      "move": "You asked for a pause",
+      "debrief": "Naming when you will return gives you time to think while keeping the discussion open."
+    }
+  },
+  "examples": {
+    "opening": {
+      "acknowledge": "You're right, I changed it late and didn't check with you first. I can see why that's frustrating.",
+      "defend": "That's not fair. The client changed their mind, not me. I had no choice.",
+      "attack": "Here we go again. Maybe if you read your emails you'd have known.",
+      "withdraw": "OK. Never mind. Let's move on to the next item.",
+      "pause": "I want to answer this properly. Can we take ten minutes and come back to it?"
+    },
+    "acknowledge": {
+      "acknowledge": "The client asked for pricing first. Next time I'll check with you before I change the order, even when it's urgent.",
+      "defend": "Honestly, the client changes things all the time. I can't promise anything.",
+      "attack": "Maybe you should plan for changes instead of complaining about them.",
+      "withdraw": "I don't know. Let's just get on with the agenda.",
+      "pause": "Let me look at how we hand over changes. I'll come back to you this afternoon with a proposal."
+    },
+    "defend": {
+      "acknowledge": "You're right, you redid work because of me. Next time I'll tell you the same day the client asks, before anything moves.",
+      "defend": "Nothing. It wasn't my decision, so I don't see what I could do differently.",
+      "attack": "You're making a big deal out of a few hours of work.",
+      "withdraw": "Can we not do this now? Next item.",
+      "pause": "I'm getting defensive. Give me ten minutes, then let's work out what I'll do differently."
+    },
+    "attack": {
+      "acknowledge": "Yes. Sorry, that was unfair. I changed the plan without asking you, and you had to redo your part.",
+      "defend": "I wasn't attacking you. I was only stating facts.",
+      "attack": "Oh please. Even an intern would cope with a change of order.",
+      "withdraw": "Forget it. I'm not discussing this.",
+      "pause": "You're right. I need a few minutes to calm down. Can we pick this up at three?"
+    },
+    "withdraw": {
+      "acknowledge": "Yes. I changed the plan late and you had to redo work. Let's sort it out now.",
+      "defend": "There's nothing to resolve. The client decided, not me.",
+      "attack": "Why do you always make such a drama of everything?",
+      "withdraw": "No. I've said all I'm going to say.",
+      "pause": "Yes. Give me until after lunch and I'll come to your desk."
+    },
+    "pause": {
+      "acknowledge": "Thanks for waiting. You're right, I changed the plan late. From now on I'll check with you first.",
+      "defend": "I've thought about it, and the client really forced my hand. There's nothing to fix.",
+      "attack": "I've thought about it, and I think you overreact to every change.",
+      "withdraw": "Actually, let's leave it. It's not worth it.",
+      "pause": "I need a bit longer. Can we finish this tomorrow at nine?"
+    }
+  },
+  "stageNotes": {
+    "attack:attack": "Michel leaves the meeting.",
+    "defend:attack": "Michel leaves the meeting.",
+    "withdraw:withdraw": "Michel turns to his screen. He says nothing more in the meeting.",
+    "defend:withdraw": "Michel says nothing for the rest of the meeting."
+  },
+  "pauseNote": "Ten minutes later, you're back with Michel.",
+  "unsure": "It's not clear how Michel would take that. Say it another way, or choose a reply.",
+  "offScript": "Michel is waiting for an answer about the plan."
+}
