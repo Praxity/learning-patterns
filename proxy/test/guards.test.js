@@ -113,8 +113,8 @@ test("missing guard configuration and invalid limits cannot start a model call",
 
 test("unknown or invalid billed usage keeps the reservation and never caches answers", async (t) => {
 	const s = setup(t);
-	s.env.DAILY_BUDGET_USD = "0.002752512";
-	for (const tokens of [undefined, null, -1, 0.5, 65537]) {
+	s.env.DAILY_BUDGET_USD = "0.000344064";
+	for (const tokens of [undefined, null, -1, 0.5, 8193]) {
 		s.calls.inputTokens = tokens;
 		assert.equal((await s.ask({ answer: `bad usage ${tokens}` })).status, 502);
 		const retry = await s.ask({ answer: `bad usage ${tokens}` });
@@ -127,7 +127,7 @@ test("unknown or invalid billed usage keeps the reservation and never caches ans
 
 test("upstream HTTP failure keeps its charge; the existing minute limiter still refuses work", async (t) => {
 	const s = setup(t);
-	s.env.DAILY_BUDGET_USD = "0.002752512";
+	s.env.DAILY_BUDGET_USD = "0.000344064";
 	s.calls.status = 500;
 	assert.equal((await s.ask()).status, 502);
 	assert.equal((await s.ask({ answer: "retry" })).status, 429);
@@ -160,8 +160,8 @@ test("official test keys accept their dummy hostname, while production keys requ
 
 test("calls starting at the daily budget are refused, including after uncertain billing", async (t) => {
 	const s = setup(t);
-	s.env.DAILY_BUDGET_USD = "0.002752512";
-	s.calls.inputTokens = 65536;
+	s.env.DAILY_BUDGET_USD = "0.000344064";
+	s.calls.inputTokens = 8192;
 	assert.equal((await s.ask()).status, 200);
 	const blocked = await s.ask({ answer: "other", ip: "192.0.2.2" });
 	assert.equal(blocked.status, 429);
@@ -179,7 +179,7 @@ test("calls starting at the daily budget are refused, including after uncertain 
 
 test("actual billed input tokens settle the reservation at the list price", async (t) => {
 	const s = setup(t);
-	s.env.DAILY_BUDGET_USD = "0.0028";
+	s.env.DAILY_BUDGET_USD = "0.00039";
 	assert.equal((await (await s.ask()).json()).costUsd, 0.000042);
 	assert.equal((await s.ask({ answer: "second" })).status, 200);
 	assert.equal((await s.ask({ answer: "third" })).status, 429);
@@ -204,7 +204,7 @@ test("identical requests use saved answers and spend neither IP calls nor money"
 test("a cached request leaves both the remaining IP call and budget available", async (t) => {
 	const s = setup(t);
 	s.env.IP_DAILY_LIMIT = "2";
-	s.env.DAILY_BUDGET_USD = "0.0028";
+	s.env.DAILY_BUDGET_USD = "0.00039";
 	assert.equal((await s.ask()).status, 200);
 	assert.equal((await (await s.ask()).json()).costUsd, 0);
 	assert.equal((await s.ask({ answer: "second live" })).status, 200);
@@ -216,8 +216,8 @@ test("a cached request leaves both the remaining IP call and budget available", 
 
 test("concurrent fresh calls from different IPs cannot overspend the global budget", async (t) => {
 	const s = setup(t);
-	s.env.DAILY_BUDGET_USD = "0.002752512";
-	s.calls.inputTokens = 65536;
+	s.env.DAILY_BUDGET_USD = "0.000344064";
+	s.calls.inputTokens = 8192;
 	const responses = await Promise.all([s.ask({ answer: "one" }), s.ask({ answer: "two", ip: "192.0.2.2" })]);
 	assert.deepEqual(responses.map((response) => response.status).sort(), [200, 429]);
 	const blocked = responses.find((response) => response.status === 429);
@@ -410,10 +410,10 @@ for (const provider of ['clef', 'jev']) {
 test('Clef missing binding fails before charging; missing usage or provider errors retain the reservation', async (t) => {
   const s = setup(t);
   s.env.MODEL_PROVIDER = 'clef';
-  s.env.DAILY_BUDGET_USD = '0.015728641';
+  s.env.DAILY_BUDGET_USD = '0.001966081';
   assert.equal((await s.ask()).status, 503);
   assert.equal(s.db.prepare('SELECT count(*) AS count FROM spend').get().count, 0);
-  for (const invalid of [undefined, null, -1, 0.5, 65537, 'provider-error']) {
+  for (const invalid of [undefined, null, -1, 0.5, 8193, 'provider-error']) {
     s.env.AI = { run: async () => {
       if (invalid === 'provider-error') throw new Error('private error from provider');
       return { answers: { sincere: { noul: 0.9 } }, usage: { input_tokens: invalid } };
@@ -474,7 +474,7 @@ test('malformed provider answer fields never enter the cache and keep the maximu
     assert.equal((await s.ask({ block, fields })).status, 502);
   }
   assert.equal(s.db.prepare('SELECT count(*) AS count FROM results').get().count, 0);
-  assert.equal(s.db.prepare('SELECT nano_usd FROM spend').get().nano_usd, cases.length * 2752512);
+  assert.equal(s.db.prepare('SELECT nano_usd FROM spend').get().nano_usd, cases.length * 344064);
 });
 
 test('IPv6 rotations and alternate spellings share clearance and both limits within a /64', async (t) => {
@@ -612,4 +612,88 @@ test('public responses expose no cached membership flag', async (t) => {
     assert.equal(Object.hasOwn(await response.json(), 'cached'), false);
   }
   assert.equal(s.calls.model, 1);
+});
+
+test('a cache hit and another live request finish while a model call remains in flight', async (t) => {
+  const s = setup(t);
+  s.env.MODEL_PROVIDER = 'clef';
+  let release, started;
+  const entered = new Promise(resolve => { started = resolve; });
+  const stalled = new Promise(resolve => { release = resolve; });
+  const data = questions => ({ answers: Object.fromEntries(Object.keys(questions).map(key => [key, { noul: 0.9 }])), usage: { input_tokens: 1000 } });
+  s.env.AI = { run: async (_model, { state, questions }) => {
+    s.calls.model++;
+    if (state.answer === 'stall') { started(); await stalled; }
+    return data(questions);
+  } };
+  await s.ask({ answer: 'warm' });
+  const slow = s.ask({ answer: 'stall', ip: '192.0.2.2' });
+  await entered;
+  let timer;
+  try {
+    const responses = await Promise.race([
+      Promise.all([s.ask({ answer: 'warm' }), s.ask({ answer: 'independent', ip: '192.0.2.3' })]),
+      new Promise(resolve => { timer = setTimeout(() => resolve(null), 500); }),
+    ]);
+    assert.ok(responses, 'cache hits and independent live calls must not wait for the stalled model');
+    assert.deepEqual(responses.map(response => response.status), [200, 200]);
+    assert.equal(s.calls.model, 3);
+  } finally {
+    clearTimeout(timer);
+    release();
+    await slow;
+  }
+});
+
+test('Clef has a 15 second deadline and late success keeps the failed reservation charged', async (t) => {
+  const s = setup(t);
+  s.env.MODEL_PROVIDER = 'clef';
+  s.env.DAILY_BUDGET_USD = '1';
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  let release, started, response;
+  const entered = new Promise(resolve => { started = resolve; });
+  const stalled = new Promise(resolve => { release = resolve; });
+  s.env.AI = { run: () => { started(); return stalled; } };
+  const pending = s.ask().then(value => { response = value; });
+  await entered;
+  try {
+    t.mock.timers.tick(14999);
+    await new Promise(setImmediate);
+    assert.equal(response, undefined);
+    t.mock.timers.tick(1);
+    await new Promise(setImmediate);
+    assert.equal(response?.status, 502);
+  } finally {
+    release({ answers: Object.fromEntries(Object.keys(demos['16-fixtures'].clefQuestions).map(key => [key, { noul: 0.9 }])), usage: { input_tokens: 1000 } });
+    await pending;
+  }
+  assert.equal(s.db.prepare('SELECT nano_usd FROM spend').get().nano_usd, 1966080);
+  assert.equal(s.db.prepare('SELECT count(*) AS n FROM results').get().n, 0);
+  s.env.DAILY_BUDGET_USD = '0.00196608';
+  assert.equal((await s.ask({ answer: 'after timeout' })).status, 429);
+});
+
+test('each registered block retains only its 8192 token reservation on failed calls', async (t) => {
+  const s = setup(t);
+  s.calls.fail = true;
+  for (const [block, entry] of Object.entries(demos)) {
+    const fields = block === '03-branch' ? { node: 'opening', reply: 'failure' } : { answer: 'failure' };
+    assert.equal((await s.ask({ block, fields })).status, 502);
+    assert.equal(entry.maxInputTokens, 8192, block);
+  }
+  assert.equal(s.db.prepare('SELECT nano_usd FROM spend').get().nano_usd, 5 * 344064);
+  s.calls.fail = false;
+  s.calls.inputTokens = 8193;
+  assert.equal((await s.ask({ answer: 'over bound' })).status, 502);
+  assert.equal(s.db.prepare('SELECT count(*) AS n FROM results').get().n, 0);
+});
+
+test('daily cleanup uses the expiry index and only schedules an alarm once per object', async (t) => {
+  const s = setup(t);
+  await s.ask();
+  await s.ask();
+  await s.ask({ answer: 'another' });
+  assert.equal(s.calls.alarms, 1);
+  const plan = s.db.prepare('EXPLAIN QUERY PLAN DELETE FROM results WHERE expires <= ?').all(Date.now());
+  assert.ok(plan.some(row => /USING INDEX results_expires/.test(row.detail)), JSON.stringify(plan));
 });

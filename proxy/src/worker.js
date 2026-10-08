@@ -63,7 +63,7 @@ function ipKey(ip) {
 	if (!ip.includes(":")) return ip;
 	// URL canonicalises compressed, uppercase and embedded-IPv4 IPv6 spellings.
 	const canonical = new URL(`http://[${ip}]/`).hostname.slice(1, -1);
-	const [left, right = ""] = canonical.split("::").map(part => part ? part.split(":") : []);
+	const [left, right = []] = canonical.split("::").map(part => part ? part.split(":") : []);
 	const groups = canonical.includes("::") ? [...left, ...Array(8 - left.length - right.length).fill("0"), ...right] : left;
 	return `${groups.slice(0, 4).map(part => part.padStart(4, "0")).join(":")}::/64`;
 }
@@ -85,7 +85,7 @@ export function buildRequest(body, provider = 'clef') {
 	for (const key of Object.keys(demo.fields)) if (!Object.hasOwn(input, key)) return { error: `Missing field: ${key}` };
 	try {
 		const { state, questions } = demo.build(input);
-		return { state, questions: provider === 'clef' ? demo.clefQuestions ?? questions : questions };
+		return { state, questions: provider === 'clef' ? demo.clefQuestions ?? questions : questions, maxInputTokens: demo.maxInputTokens };
 	} catch (error) {
 		return { error: error instanceof Error ? error.message : "Bad input" };
 	}

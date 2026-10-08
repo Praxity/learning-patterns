@@ -17,4 +17,6 @@ export const blocks = Object.fromEntries([
   { ...d07, outcome: explainFeedback },
   { ...d13, outcome: journalFeedback },
   { ...d16, outcome: labelAnswers },
-].map(block => [block.id, block]));
+// Bounded authored context and fields fit within 8,192 input tokens per block.
+// Failed calls retain this charge; re-evaluate each bound when its wording or fields grow.
+].map(block => [block.id, { ...block, maxInputTokens: 8192 }]));

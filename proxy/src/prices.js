@@ -7,10 +7,6 @@ export const PRICES = Object.freeze({
 	"@cf/cloudflare/clef": 0.24,
 });
 
-// All three pinned models have at most 64K total input tokens. Reserving 65,536
-// covers both interpretations of 64K. Recheck this bound when adding a model.
-export const MAX_INPUT_TOKENS = 65_536;
-
 // Keep the calculation inside a self-contained function so its browser exports
 // survive bundler renaming and minification. Only table data crosses that boundary.
 function pricing(prices, defaultModel) {
