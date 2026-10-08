@@ -7,6 +7,7 @@ export const CONFIDENT = 0.65;
 // three-group Choice calibration. Jev keeps its original gate.
 export const CLEF_CONFIDENT = 0.5;
 export const INBOX_KEY = "jev-demos:06-inbox";
+export const ANSWER_LIMIT = 1500;
 
 // Authored refutations. Each names the wrong idea, says why it's wrong and gives the right idea.
 export const CATALOGUE = {
@@ -39,18 +40,27 @@ const MAYBE_NO_MATCH = "I couldn't match your answer to the expected answer or a
 const LOGGED = "Your answer went to the designer's inbox below.";
 const MODEL = "Not on its own. Rereading feels familiar but doesn't show what you can recall. Close your notes and test yourself, spaced out over several days.";
 
-const OPTIONS = ["correct", ...Object.keys(CATALOGUE), "none"];
+export const MISCONCEPTION_KEYS = Object.keys(CATALOGUE);
+const OPTIONS = ["correct", ...MISCONCEPTION_KEYS, "none"];
+
+/** The configured model determines which evaluated Choice gate applies.
+ * @param {string} model @returns {number}
+ */
+export function confidenceGate(model) {
+	return model === "@cf/cloudflare/clef" ? CLEF_CHOICE_CONFIDENT : model === "@cf/cloudflare/clef-flash" ? CLEF_CONFIDENT : CONFIDENT;
+}
 
 // Turns Jev's Choice answer into authored feedback. Pure, so tests can call it.
+/** @param {{ choice: string, confidence: number }} answer @param {string} model */
 export function misconceptionFeedback({ choice, confidence }, model) {
 	if (!OPTIONS.includes(choice)) throw new Error(`Unexpected label "${choice}"`);
-	const threshold = model === "@cf/cloudflare/clef" ? CLEF_CHOICE_CONFIDENT : model === "@cf/cloudflare/clef-flash" ? CLEF_CONFIDENT : CONFIDENT;
+	const threshold = confidenceGate(model);
 	const sure = confidence >= threshold;
 	const log = choice === "none" || !sure;
 	const logged = log ? " Sent to the designer." : "";
 	if (choice === "correct") return { kind: "correct", sure, log, text: sure ? KEY_IDEA : MAYBE_KEY_IDEA, status: (sure ? "Key idea found." : "Not sure.") + logged };
 	if (choice === "none") return { kind: "none", sure, log, text: sure ? NO_MATCH : MAYBE_NO_MATCH, status: (sure ? "No match." : "Not sure.") + logged };
-	const { idea, why } = CATALOGUE[choice];
+	const { idea, why } = CATALOGUE[/** @type {keyof typeof CATALOGUE} */ (choice)];
 	const text = sure
 		? `Your answer assumes ${idea}. ${why}`
 		: `I'm not sure, but you may mean ${idea}. ${why}`;

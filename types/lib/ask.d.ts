@@ -10,7 +10,7 @@ export function createAsk({ endpoint, fetch }?: {
 /** @typedef {'offline' | 'refused' | 'busy' | 'budget' | 'invalid'} ErrorType */
 /** @typedef {{ noul: number } | { choice: string, confidence: number }} Answer */
 /** @typedef {Record<string, Answer>} Answers */
-/** @typedef {import('./data-notice.js').NoticeConfig & { siteKey: string, provider: string }} Config */
+/** @typedef {import('./data-notice.js').NoticeConfig & { siteKey: string, provider: string, model?: string }} Config */
 /** @typedef {{ challengeSlot?: HTMLElement, signal?: AbortSignal }} AskOptions */
 /** @typedef {((block: string, fields: Record<string, string>, options?: AskOptions) => Promise<Answers>) & { config(): Promise<Config> }} Ask */
 /** @typedef {{ render(slot: HTMLElement, options: Record<string, unknown>): string, remove(id: string): void }} Turnstile */
@@ -30,6 +30,7 @@ export type Answers = Record<string, Answer>;
 export type Config = import("./data-notice.js").NoticeConfig & {
     siteKey: string;
     provider: string;
+    model?: string;
 };
 export type AskOptions = {
     challengeSlot?: HTMLElement;

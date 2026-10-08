@@ -1,3 +1,4 @@
+import { ANSWER_LIMIT } from '../../logic/06-misconceptions.js';
 export const TASK = "Is rereading your notes a good way to prepare for a test?";
 
 export const clefQuestions = {
@@ -21,7 +22,7 @@ export const clefQuestions = {
 export default {
 	id: "06-misconceptions",
 	clefQuestions,
-	fields: { answer: 1500 },
+	fields: { answer: ANSWER_LIMIT },
 	sample: { answer: "Not on its own. Rereading makes the notes feel familiar without showing what I can recall. I should test myself without my notes and space those self-tests over several days." },
 	build: ({ answer }) => ({
 		state: { task: TASK, answer },
