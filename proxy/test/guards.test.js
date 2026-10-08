@@ -19,6 +19,7 @@ function setup(t) {
 			return Response.json({ success: body.response === "XXXX.DUMMY.TOKEN.XXXX", hostname: calls.hostname });
 		}
 		calls.model++;
+		calls.modelBody = options.body;
 		if (calls.fail) throw new Error("provider timed out after billing");
 		return Response.json({ answers: Object.fromEntries(Object.keys(JSON.parse(options.body).questions).map(key => [key, { noul: 0.9 }])), usage: { input_tokens: calls.inputTokens } }, { status: calls.status });
 	});
@@ -764,6 +765,8 @@ test('streamed JSON decodes UTF-8 characters split across chunks at the exact bo
   } });
   assert.equal((await s.ask({ body })).status, 200);
   assert.equal(s.calls.model, 1);
+  // A character split across chunks must reach the model intact, not as two U+FFFD.
+  assert.ok(s.calls.modelBody.includes('é漢'), 'learner text corrupted before the model call');
 });
 
 test('paths outside the API preserve the asset response before checking proxy configuration', async (t) => {
