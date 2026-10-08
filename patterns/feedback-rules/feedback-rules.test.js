@@ -8,6 +8,18 @@ import { DEFAULT_MODEL } from '../../proxy/src/prices.js';
 
 const content = JSON.parse(await readFile(new URL('./examples/en.json', import.meta.url)));
 const model = '@cf/cloudflare/clef';
+
+test('rendered bilingual labels identify the decision model', () => {
+  for (const [lang, expected] of [
+    ['en', ['Decision model', 'decision model agrees', 'The decision model agreed on']],
+    ['fr', ['Modèle de décision', 'modèle de décision en accord', 'Le modèle de décision est en accord']]
+  ]) {
+    const example = structuredClone(content);
+    example.savedRun.answers[lang][content.fixtures[0].id].work_deadline = { noul: 0 };
+    const markup = render(example, strings[lang], { id: 'rules', lang });
+    for (const text of expected) assert.ok(markup.includes(text), text);
+  }
+});
 const answers = values => Object.fromEntries(content.criteria.map((c, i) => [c.id, { noul: values[i] }]));
 const first = content.fixtures[0];
 
