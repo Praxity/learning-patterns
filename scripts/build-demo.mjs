@@ -11,6 +11,7 @@ import { DEFAULT_MODEL } from '../proxy/src/prices.js';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const output = join(root, 'demo-dist');
 const AI_PATTERNS = ['explain-back', 'misconception', 'conversation'];
+const liveAsk = process.argv.includes('--live-ask');
 const COPIED = ['logic.js', 'render.js', 'enhance.js', 'strings.js', 'pattern.css'];
 
 await rm(output, { recursive: true, force: true });
@@ -79,7 +80,8 @@ import { strings } from '../patterns/${name}/strings.js';
 const content = ${JSON.stringify(content).replaceAll('<', '\\u003c')};
 let saved = window.lpSeed;
 const state = { read: () => saved, write: value => { saved = value; window.lpSaved = value; } };
-${AI_PATTERNS.includes(name) ? `const mockConfig = {
+${AI_PATTERNS.includes(name) ? liveAsk ? `import { createAsk } from '../lib/ask.js';
+const injectedAsk = createAsk();` : `const mockConfig = {
   model: ${JSON.stringify(DEFAULT_MODEL)},
   siteKey: '', provider: 'mock', providerName: 'Offline example',
   dataNotice: { en: "This demo uses fixed feedback. Your answer stays in this page and isn't sent or stored.", fr: "Cette démo utilise une rétroaction fixe. Votre réponse reste dans cette page et n'est ni envoyée ni conservée." }
