@@ -8,6 +8,8 @@ The positive control must capture the heading, button name and role, and one liv
 
 Navigation uses Guidepup's initial capture; result actions use full capture. Initial capture can miss later phrases in a long utterance. Guidepup polls VoiceOver's last phrase and combines changed phrases; consecutive identical announcements may not appear separately. Interpret announcement counts with those limits. Installed voices and portable preferences are recorded, but phrase text cannot prove French pronunciation.
 
+Before native keys or text entry, System Events brings the Playwright process to the foreground and checks its name. Keys then go directly to the foreground application. This avoids repeated application activation through AppleScript, which timed out during native text entry on the hosted runner. Highlight uses the current inline span buttons through Tab and Space.
+
 Run on a dedicated macOS desktop configured for Guidepup:
 
 ```sh

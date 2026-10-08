@@ -1,8 +1,11 @@
 // Web-content entry follows Guidepup's MIT Playwright fixture at d5c9d805.
-import { voiceOver, macOSActivate, MacOSKeyCodes, voiceOverKeyCodeCommands } from '@guidepup/guidepup';
+import { voiceOver, MacOSKeyCodes, voiceOverKeyCodeCommands } from '@guidepup/guidepup';
 import { appendFile, writeFile } from 'node:fs/promises';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
+const run = promisify(execFile);
 export async function startSession(page, info) {
   const rows = [];
   await voiceOver.start({ capture: true, retries: 3 });
@@ -33,12 +36,20 @@ export async function startSession(page, info) {
     if (error) throw error;
     return row;
   }
-  const key = (key, label = key, capture = true) => step(label, c => voiceOver.press(key, { capture: c, application: 'Playwright' }), capture);
+  async function focusBrowser() {
+    // Repeated AppleScript application activation stalled WebKit during typing.
+    const { stdout } = await run('/usr/bin/osascript', ['-e', 'with timeout of 5 seconds\ntell application "System Events"\nset frontmost of process "Playwright" to true\nreturn name of first application process whose frontmost is true\nend tell\nend timeout'], { timeout: 6000 });
+    if (stdout.trim() !== 'Playwright') throw new Error(`Native keyboard target is ${stdout.trim()}`);
+  }
+  const key = (key, label = key, capture = true) => step(label, async c => {
+    await focusBrowser();
+    await voiceOver.press(key, { capture: c });
+  }, capture);
   const next = (label, capture = 'initial') => step(label, c => voiceOver.next({ capture: c }), capture);
   const previous = label => step(label, c => voiceOver.previous({ capture: c }), 'initial');
 
   async function enter(label = 'Arrival heading', capture = true) {
-    await macOSActivate('Playwright');
+    await focusBrowser();
     await voiceOver.press('Control', { capture: false });
     await page.bringToFront();
     await page.evaluate(() => {
@@ -90,7 +101,10 @@ export async function startSession(page, info) {
     throw new Error(`Keyboard could not reach ${selector}`);
   }
   const activate = async (selector, label, press = 'Enter') => { await seek(selector, label); return key(press, label); };
-  const type = (text, label) => step(label, () => voiceOver.type(text, { capture: 'initial', application: 'Playwright' }));
+  const type = (text, label) => step(label, async () => {
+    await focusBrowser();
+    await voiceOver.type(text, { capture: 'initial' });
+  });
   async function snapshot(label) {
     await writeFile(info.outputPath(`${label}.html`), await page.content());
     await writeFile(info.outputPath(`${label}-aria.txt`), await page.locator('body').ariaSnapshot());
