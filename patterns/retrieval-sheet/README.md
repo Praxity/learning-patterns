@@ -37,6 +37,7 @@ Meets the shared baseline in the root README.
 - The date input has a visible label and references its error only while invalid. Date changes and print actions announce once and keep focus.
 - On entering an invalid date state, the focused field's description supplies the error. When focus is elsewhere, the status region announces it. Repeated invalid edits keep the same description.
 - Tab selection conveys the active side without a second status announcement.
+- Known screen reader behaviour: NVDA speaks the newly selected tab twice when an arrow key, Home or End changes sides, in Chrome and Firefox. It does the same with the W3C ARIA Authoring Practices example of tabs that activate on focus, so the repeat comes from NVDA. The tabs keep activating on focus, because requiring Enter or Space would add a step for everyone.
 - Printed questions leave space for handwritten answers. Check your printer's margins and double-sided settings by hand.
 
 ## Content fields
