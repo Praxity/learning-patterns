@@ -202,7 +202,7 @@ test('configured Perplexity notice comes from the shared ask client; refused cal
     enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en, ask });
   }, examples.en);
   await expect(page.locator('[data-lp-check]')).toBeEnabled();
-  await expect(page.locator('[data-lp-notice]')).toContainText('Perplexity (US)');
+  await expect(page.locator('[data-lp-notice]')).toHaveText('Your answer is sent to a decision model; it is not stored and not used for training.');
   await auto(page);
   await expect(page.locator('[data-lp-fallback]')).toBeVisible();
   expect(await page.evaluate(() => window.lpNetwork.map(call => call.url))).toEqual(['/api/patterns/config', '/api/patterns/ask']);
