@@ -38,7 +38,7 @@ One or two multiple-choice answers give little evidence; a guess can be right. C
 
 Follows the shared baseline in the root README.
 
-- Each question has a fieldset, legend and labelled options. Missing-answer errors link to the question and options.
+- Each question has a fieldset, legend and labelled options. Missing-answer errors link to each option, so screen readers read them once.
 - Panel changes focus the heading to announce progress once. Validation errors keep focus on the action button.
 - Results announce the skip summary. Section statuses and answer marks use words and icons.
 - Review answers uses a native disclosure. Reset focuses the outline heading. Saved state restores silently.
