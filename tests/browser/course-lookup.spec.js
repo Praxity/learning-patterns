@@ -13,17 +13,39 @@ for (const lang of ['en', 'fr']) test(`Add focuses the new question; Remove focu
   await open(page, { lang }); await scores(page, { none: 1 });
   const root = faq(page), bank = root.locator('[data-lp-bank-list]');
   const first = 'Can I practise with my team', second = 'Can I practise with a colleague';
-  await auto(page, first); await root.locator('[data-lp-add]').click();
+  await auto(page, first); await root.locator('[data-lp-add]').click(); await page.clock.runFor(50);
   await expect(bank.locator('li').last().locator('.lp-course-lookup-q')).toBeFocused();
   await expect(root.locator('[data-lp-add]')).toBeHidden();
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([strings[lang].noMatch, strings[lang].added]);
-  await auto(page, second); await root.locator('[data-lp-add]').click();
+  await auto(page, second); await root.locator('[data-lp-add]').click(); await page.clock.runFor(50);
   await expect(bank.locator('li').last().locator('.lp-course-lookup-q')).toBeFocused();
   await bank.getByRole('button').first().click();
   await expect(bank.getByRole('button').first()).toBeFocused();
   await bank.getByRole('button').first().click();
   await expect(root.getByRole('textbox')).toBeFocused();
   await expect(bank.locator('li')).toHaveCount(3);
+});
+
+// VoiceOver keeps its cursor on a control that hides before focus moves. Add focuses the new question
+// after layout, while Add is still visible, and only then hides Add.
+for (const lang of ['en', 'fr']) test(`Add focuses the new question after layout, before hiding Add (${lang})`, async ({ page }) => {
+  await open(page, { lang }); await scores(page, { none: 1 });
+  const root = faq(page), add = root.locator('[data-lp-add]');
+  await page.evaluate(() => {
+    window.lpAddFocus = [];
+    document.addEventListener('click', () => {
+      window.lpLayoutReady = false;
+      requestAnimationFrame(() => requestAnimationFrame(() => { window.lpLayoutReady = true; }));
+    }, true);
+    document.addEventListener('focusin', event => {
+      if (!event.target.matches('.lp-course-lookup-q')) return;
+      window.lpAddFocus.push({ layoutReady: window.lpLayoutReady, addVisible: document.querySelector('[data-lp-kind="faq"] [data-lp-add]').getClientRects().length > 0 });
+    });
+  });
+  await auto(page, 'Can I practise with my team'); await add.click(); await page.clock.runFor(50);
+  await expect(root.locator('[data-lp-bank-list] li').last().locator('.lp-course-lookup-q')).toBeFocused();
+  await expect(add).toBeHidden();
+  expect(await page.evaluate(() => window.lpAddFocus)).toEqual([{ layoutReady: true, addVisible: true }]);
 });
 
 test('lookup failure moves focused controls to the visible fallback', async ({ page }) => {
@@ -219,7 +241,7 @@ test('browser bank adds, deduplicates, removes and persists separately from the 
   await expect(bank.locator('li').filter({hasText:'Instructor'})).toHaveCount(2);
   await expect(bank.locator('li').filter({hasText:'Another learner'})).toHaveCount(1);
   const question = 'Can I practise with my team';
-  await auto(page, question); await root.locator('[data-lp-add]').click();
+  await auto(page, question); await root.locator('[data-lp-add]').click(); await page.clock.runFor(50);
   await expect(bank.locator('li')).toHaveCount(4);
   await expect(bank).toContainText('Waiting for an answer');
   await expect(root.locator('[data-lp-add]')).toBeHidden();
@@ -238,7 +260,7 @@ for (const lang of ['en', 'fr']) test(`question banks survive reload and clear w
   const question = 'Can I practise with my team';
   for (const root of [faq(page), sections(page)]) {
     await auto(page, question, root);
-    await root.locator('[data-lp-add]').click();
+    await root.locator('[data-lp-add]').click(); await page.clock.runFor(50);
     await expect(root.locator('[data-lp-bank-list] li')).toHaveCount(4);
   }
   await page.reload(); await page.waitForFunction(() => window.lpReady);
@@ -342,7 +364,7 @@ test('visual evidence at wide and narrow widths', async ({browser,baseURL},testI
     await faq(page).screenshot({path:join(folder,`lookup-faq-two-${width}.png`)});
     await scores(page,{none:1}); await auto(page,'Can I practise with my team');
     await faq(page).screenshot({path:join(folder,`lookup-no-match-${width}.png`)});
-    await faq(page).locator('[data-lp-add]').click();
+    await faq(page).locator('[data-lp-add]').click(); await page.clock.runFor(50);
     await faq(page).locator('[data-lp-bank]').screenshot({path:join(folder,`lookup-bank-${width}.png`)});
     await scores(page,{boundaries:.9,none:.1}); await auto(page,'How do I refuse extra work',sections(page));
     await sections(page).screenshot({path:join(folder,`lookup-section-match-${width}.png`)});
