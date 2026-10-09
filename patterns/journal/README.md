@@ -38,6 +38,7 @@ Meets the shared baseline in the root README.
 - The prompt labels the large writing area. Today’s date uses the page language.
 - Each submitted result or save message uses one status region. Suggestions keep focus on the action; typing does not announce or request feedback.
 - Native questions open immediately. Support text and questions remain available without the decision model or JavaScript.
+- A failed suggestion opens the questions. If the suggestion button has focus, focus moves to the questions' disclosure before the button hides.
 - Blocked storage reports that the entry was not saved and keeps the text available to copy.
 - English and Québec French share the same fields. French uses vous.
 

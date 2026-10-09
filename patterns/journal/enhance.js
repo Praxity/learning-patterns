@@ -2,6 +2,7 @@ import { feedback, validateAnswer, validateContent, validateState, savedEntry, A
 import { renderDataNotice } from '../../lib/data-notice.js';
 import { escapeHtml as html } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
+import { focusAfterLayout } from '../../lib/focus-after-layout.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
 const instances = new WeakMap();
@@ -51,9 +52,12 @@ export function enhance(root, { content, strings, state, ask }) {
   }
   const useFallback = () => {
     // Without the decision model the questions show at once; a button that only opened them would repeat the disclosure.
-    automatic = false; suggest.hidden = true;
+    automatic = false;
     notice.hidden = true; suggest.removeAttribute('aria-describedby');
     support.hidden = false; offline.hidden = false; showQuestions();
+    if (root.ownerDocument.activeElement === suggest) {
+      focusAfterLayout(required('[data-lp-questions] summary'), () => { suggest.hidden = true; }, lifetime.signal);
+    } else suggest.hidden = true;
   };
   function showQuestions() { result.hidden = true; result.textContent = ''; result.classList.remove('lp-met'); questions.hidden = false; questions.open = true; }
   actions.hidden = false; noScript.hidden = true; questions.hidden = true; questions.open = false; support.hidden = true;
