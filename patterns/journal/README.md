@@ -33,6 +33,8 @@ A review of 29 studies in health professions identified guidance and a supportiv
 
 ## Accessibility
 
+Daily proxy caps show and announce the reason and midnight UTC reset once, keep focus in place and leave the fallback usable.
+
 Meets the shared baseline in the root README.
 
 - The prompt labels the large writing area. Today’s date uses the page language.

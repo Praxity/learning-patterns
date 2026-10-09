@@ -1,7 +1,7 @@
 import { feedback, validateContent, validateState } from './logic.js';
 import { escapeHtml as html } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
-import { renderDataNotice } from '../../lib/data-notice.js';
+import { renderDataNotice, showCapNotice } from '../../lib/data-notice.js';
 import { focusAfterLayout } from '../../lib/focus-after-layout.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
@@ -60,13 +60,13 @@ export function enhance(root, { content, strings, state, ask }) {
   };
   const onReady = () => showStep(true, taskHeading);
   const onReadAgain = () => showStep(false, /** @type {HTMLElement} */ (headings[0]));
-  let destroyed = false;
+  let destroyed = false, capped = false;
   const saved = state ? validateState(state.read()) : null;
   if (saved) { answer.value = saved.answer; for (const box of boxes) box.checked = saved.ticked.includes(box.value); }
   showStep(Boolean(answer.value || saved?.ticked.length));
   const save = () => state?.write({ answer: answer.value, ticked: boxes.filter(box => box.checked).map(box => box.value) });
   const useFallback = () => {
-    check.hidden = true; result.hidden = true; result.replaceChildren(); fallback.hidden = false;
+    check.hidden = !capped; result.hidden = true; result.replaceChildren(); fallback.hidden = false;
     model.hidden = false; model.open = true; notice.hidden = true;
     answer.removeAttribute('aria-describedby');
   };
@@ -111,10 +111,14 @@ export function enhance(root, { content, strings, state, ask }) {
       }).join('')}</ol>`;
       result.hidden = false; model.hidden = !outcome.allFound; model.open = outcome.allFound;
       status.textContent = summary;
-    } catch {
-      if (!destroyed) { useFallback(); status.textContent = strings.fallback; }
+    } catch (error) {
+      if (!destroyed) {
+        capped = showCapNotice(error, root, fallback, status);
+        useFallback();
+        if (!capped) status.textContent = strings.fallback;
+      }
     } finally {
-      if (!destroyed) { check.removeAttribute('aria-disabled'); check.textContent = strings.check; }
+      if (!destroyed) { if (!capped) check.removeAttribute('aria-disabled'); check.textContent = strings.check; }
     }
   };
   /** @param {MouseEvent} event */
@@ -135,6 +139,7 @@ export function enhance(root, { content, strings, state, ask }) {
     fallback.removeEventListener('change', save); result.removeEventListener('click', onReread);
     ready.removeEventListener('click', onReady); readAgain.removeEventListener('click', onReadAgain);
     readyRow.remove(); readAgain.remove();
+    root.querySelector('[data-lp-cap]')?.remove();
     for (const { element, attributes } of originalAttributes) {
       for (const attribute of [...element.attributes]) element.removeAttribute(attribute.name);
       for (const [name, value] of attributes) element.setAttribute(name, value);

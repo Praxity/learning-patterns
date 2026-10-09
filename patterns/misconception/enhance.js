@@ -1,7 +1,7 @@
 import { feedback, validateContent, validateState } from './logic.js';
 import { escapeHtml as html } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
-import { renderDataNotice } from '../../lib/data-notice.js';
+import { renderDataNotice, showCapNotice } from '../../lib/data-notice.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
 const instances = new WeakMap();
@@ -83,8 +83,12 @@ export function enhance(root, { content, strings, state, ask }) {
         : `<p class="lp-misconception-feedback ${found ? 'lp-met' : 'lp-neutral'}">${found ? icons.check : icons['question-mark']}<span>${html(outcome.text)}</span></p>`;
       result.hidden = false; fallback.hidden = true; model.hidden = false; model.open = true;
       status.textContent = known ? `${word}: ${outcome.heading}. ${outcome.text}` : `${word}. ${outcome.text}`;
-    } catch {
-      if (!destroyed) { showFallback(); status.textContent = strings.fallback; }
+    } catch (error) {
+      if (!destroyed) {
+        const capped = showCapNotice(error, root, fallback, status);
+        showFallback();
+        if (!capped) status.textContent = strings.fallback;
+      }
     } finally {
       if (!destroyed) { check.removeAttribute('aria-disabled'); check.textContent = strings.check; }
     }
@@ -96,6 +100,7 @@ export function enhance(root, { content, strings, state, ask }) {
     destroyed = true; lifetime.abort();
     answer.removeEventListener('input', onInput); check.removeEventListener('click', onCheck);
     fallback.removeEventListener('change', save);
+    root.querySelector('[data-lp-cap]')?.remove();
     showFallback(); check.hidden = true; check.disabled = false;
     error.hidden = true; answer.removeAttribute('aria-invalid'); status.textContent = '';
     check.removeAttribute('aria-disabled'); check.textContent = strings.check; instances.delete(root);

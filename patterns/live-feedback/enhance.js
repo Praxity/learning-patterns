@@ -1,7 +1,7 @@
 import { feedback, validateContent, validateState, MIN_CHARS, AUTO_CHECK_LIMIT } from './logic.js';
 import { typingPause } from '../../lib/typing-pause.js';
 import { icons } from '../../lib/icons.js';
-import { renderDataNotice } from '../../lib/data-notice.js';
+import { renderDataNotice, showCapNotice } from '../../lib/data-notice.js';
 import { focusAfterLayout } from '../../lib/focus-after-layout.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
@@ -125,10 +125,13 @@ export function enhance(root, { content, strings, state, ask }) {
         status.textContent = complete ? `${strings.complete} ${summary}` : summary;
       }
       count = outcome.count;
-    } catch {
-      if (!destroyed && my === seq) {
-        if (session.checks >= AUTO_CHECK_LIMIT) stopAtLimit();
-        else useFallback();
+    } catch (error) {
+      if (!destroyed) {
+        if (showCapNotice(error, root, fallback, status)) useFallback();
+        else if (my === seq) {
+          if (session.checks >= AUTO_CHECK_LIMIT) stopAtLimit();
+          else useFallback();
+        }
       }
     } finally {
       if (!destroyed && my === seq) {
@@ -176,6 +179,7 @@ export function enhance(root, { content, strings, state, ask }) {
     answer.removeEventListener('input', onInput); fallback.removeEventListener('change', save);
     answer.removeEventListener('keydown', onKey);
     edit.removeEventListener('click', onEdit); completion.remove();
+    root.querySelector('[data-lp-cap]')?.remove();
     useFallback(); fallbackText.textContent = strings.selfCheck; status.textContent = '';
     items.innerHTML = initialItems; notice.replaceChildren();
     challengeSlot.replaceChildren(); challengeSlot.hidden = true; instances.delete(root);

@@ -1,3 +1,4 @@
+import { CAP_MESSAGES } from '../../lib/data-notice.js';
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { join } from 'node:path';
@@ -99,6 +100,9 @@ async function open(page, { mode = 'ok', lang = 'en', two = false } = {}) {
     else window.lpAsk = async (block, fields, options) => {
       const call = { block, fields, signal: options.signal, slot: !!options.challengeSlot };
       window.lpCalls.push(call);
+      if (mode === 'ip_daily' || mode === 'budget') {
+        throw Object.assign(new Error('Daily cap'), { type: 'budget', reason: mode });
+      }
       if (mode === 'throws') throw new Error('Offline');
       if (mode === 'invalid') return {};
       if (mode === 'pending') return new Promise((resolve, reject) => { call.resolve = scores => resolve(window.lpLookupAnswer(block, scores)); call.reject = reject; });
@@ -325,4 +329,60 @@ test('visual evidence at wide and narrow widths', async ({browser,baseURL},testI
     await page.screenshot({path:join(folder,`lookup-fallback-${width}.png`),fullPage:true});
     await context.close();
   }
+});
+
+for (const lang of ['en', 'fr']) for (const reason of ['ip_daily', 'budget']) for (const kind of ['faq', 'sections']) test(`daily cap shows and announces once, keeps focus and a usable fallback (${lang}, ${reason}, ${kind})`, async ({ page }) => {
+  await open(page, { lang, mode: reason });
+  const root = page.locator(`[data-lp-kind="${kind}"]`).first();
+  const input = root.getByRole('textbox');
+  await input.fill('A complete draft for a live check');
+  await input.focus();
+  await page.evaluate(() => {
+    window.lpCapFocusMoves = 0;
+    document.addEventListener('focusin', () => { window.lpCapFocusMoves++; });
+  });
+  await page.clock.runFor(900);
+  const message = CAP_MESSAGES[reason][lang];
+  await expect(root.locator('[data-lp-cap]')).toHaveText(message);
+  await expect(root.locator('[data-lp-cap]')).toBeVisible();
+  await expect(input).toBeFocused();
+  expect(await page.evaluate(() => window.lpCapFocusMoves)).toBe(0);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([message]);
+  await expect(root.locator('[data-lp-fallback]')).toBeVisible();
+  expect(await root.evaluate(root => {
+    const notice = root.querySelector('[data-lp-cap]');
+    const fallback = root.querySelector('[data-lp-fallback]');
+    return Boolean(notice.compareDocumentPosition(fallback) & Node.DOCUMENT_POSITION_FOLLOWING);
+  })).toBe(true);
+  await input.fill('Another changed draft that must not retry?');
+  await input.press('Enter');
+  await page.clock.runFor(2000);
+  expect(await calls(page)).toBe(1);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([message]);
+  if (kind === 'faq') {
+    await root.locator('[data-lp-fallback] summary').first().click();
+    await expect(root.locator('[data-lp-fallback] details').first()).toHaveAttribute('open');
+  } else {
+    await root.locator('[data-lp-fallback] a').first().click();
+    await expect(root.locator('[data-lp-fallback]')).toBeVisible();
+  }
+});
+
+for (const lang of ['en', 'fr']) for (const reason of ['ip_daily', 'budget']) test(`daily cap on an edited draft cancels later checks (${lang}, ${reason})`, async ({ page }) => {
+  await open(page, { lang, mode: 'pending' });
+  const root = faq(page);
+  const input = root.getByRole('textbox');
+  await auto(page, 'A complete draft for a live check');
+  await input.fill('An edited draft waiting for another check');
+  await page.evaluate(reason => {
+    window.lpCalls[0].reject(Object.assign(new Error('Daily cap'), { type: 'budget', reason }));
+  }, reason);
+  await expect(root.locator('[data-lp-cap]')).toHaveText(CAP_MESSAGES[reason][lang]);
+  await expect(input).toBeFocused();
+  await input.press('Enter');
+  await page.clock.runFor(2000);
+  expect(await calls(page)).toBe(1);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([CAP_MESSAGES[reason][lang]]);
+  const cap = root.locator('[data-lp-cap]');
+  await expect(cap).toBeVisible();
 });

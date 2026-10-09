@@ -1,5 +1,5 @@
 import { feedback, validateAnswer, validateContent, validateState, savedEntry, ANSWER_LIMIT } from './logic.js';
-import { renderDataNotice } from '../../lib/data-notice.js';
+import { renderDataNotice, showCapNotice } from '../../lib/data-notice.js';
 import { escapeHtml as html } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
 import { focusAfterLayout } from '../../lib/focus-after-layout.js';
@@ -40,7 +40,7 @@ export function enhance(root, { content, strings, state, ask }) {
   date.setAttribute('datetime', `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`);
   date.textContent = new Intl.DateTimeFormat(root.lang === 'fr' ? 'fr-CA' : 'en-CA', { dateStyle: 'long' }).format(now);
   const lifetime = new AbortController();
-  let destroyed = false, automatic = Boolean(ask), readFailed = false, revision = 0;
+  let destroyed = false, automatic = Boolean(ask), capped = false, readFailed = false, revision = 0;
   /** @param {string} message */
   function storageMessage(message) { savedMessage.textContent = message; savedMessage.hidden = !message; }
   entry.value = '';
@@ -55,7 +55,8 @@ export function enhance(root, { content, strings, state, ask }) {
     automatic = false;
     notice.hidden = true; suggest.removeAttribute('aria-describedby');
     support.hidden = false; offline.hidden = false; showQuestions();
-    if (root.ownerDocument.activeElement === suggest) {
+    if (capped) suggest.setAttribute('aria-disabled', 'true');
+    else if (root.ownerDocument.activeElement === suggest) {
       focusAfterLayout(required('[data-lp-questions] summary'), () => { suggest.hidden = true; }, lifetime.signal);
     } else suggest.hidden = true;
   };
@@ -112,14 +113,16 @@ export function enhance(root, { content, strings, state, ask }) {
       result.classList.toggle('lp-met', outcome.kind === 'complete');
       result.innerHTML = `${outcome.kind === 'complete' ? icons.check : ''}<span>${html(outcome.text)}</span>`;
       result.hidden = false; status.textContent = outcome.text;
-    } catch {
+    } catch (error) {
       if (!destroyed) {
+        capped = showCapNotice(error, root, offline, status);
         useFallback();
+        if (capped) return;
         if (edited()) discard();
         else { showQuestions(); status.textContent = strings.fallback; }
       }
     } finally {
-      if (!destroyed) { suggest.removeAttribute('aria-disabled'); suggest.textContent = strings.suggest; }
+      if (!destroyed) { if (!capped) suggest.removeAttribute('aria-disabled'); suggest.textContent = strings.suggest; }
     }
   };
   entry.addEventListener('input', onInput); save.addEventListener('click', onSave); suggest.addEventListener('click', onSuggest);
@@ -127,6 +130,7 @@ export function enhance(root, { content, strings, state, ask }) {
     if (destroyed) return;
     destroyed = true; lifetime.abort();
     entry.removeEventListener('input', onInput); save.removeEventListener('click', onSave); suggest.removeEventListener('click', onSuggest);
+    root.querySelector('[data-lp-cap]')?.remove();
     actions.hidden = true; noScript.hidden = false; notice.hidden = true; offline.hidden = true;
     showQuestions(); support.hidden = false; changed.hidden = true; clearError(); status.textContent = '';
     suggest.hidden = false; suggest.disabled = false; suggest.removeAttribute('aria-disabled'); suggest.removeAttribute('aria-describedby'); suggest.textContent = strings.suggest;

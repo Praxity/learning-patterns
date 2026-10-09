@@ -60,10 +60,10 @@ export class CostGuard {
 		const refused = this.ctx.storage.transactionSync(() => {
 			for (const [hash, cap] of [[ipHash, limit], [networkHash, limit * 3]]) {
 				const calls = this.sql.exec("SELECT calls FROM ip_calls WHERE day = ? AND ip_hash = ?", day, hash).toArray()[0]?.calls ?? 0;
-				if (calls >= cap) return json({ error: CAP_MESSAGES.ip_daily, reason: "ip_daily" }, 429);
+				if (calls >= cap) return json({ error: CAP_MESSAGES.ip_daily.en, reason: "ip_daily" }, 429);
 			}
 			const spent = this.sql.exec("SELECT nano_usd FROM spend WHERE day = ?", day).toArray()[0]?.nano_usd ?? 0;
-			if (spent >= budget || reservation > budget - spent) return json({ error: CAP_MESSAGES.budget, reason: "budget" }, 429);
+			if (spent >= budget || reservation > budget - spent) return json({ error: CAP_MESSAGES.budget.en, reason: "budget" }, 429);
 			const configured = model === DEFAULT_MODEL ? typeof this.env.PERPLEXITY_API_KEY === 'string' && this.env.PERPLEXITY_API_KEY.trim() : model === CLEF_MODEL ? this.env.AI : this.env.JEV_API_KEY;
 			if (!configured) return json({ error: "The model provider is not configured." }, 503);
 			for (const hash of [ipHash, networkHash]) this.sql.exec("INSERT INTO ip_calls(day, ip_hash, calls) VALUES (?, ?, 1) ON CONFLICT(day, ip_hash) DO UPDATE SET calls = calls + 1", day, hash);

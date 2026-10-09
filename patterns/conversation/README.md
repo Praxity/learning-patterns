@@ -29,6 +29,8 @@ In a randomized study of 120 healthcare professionals, practising branching conv
 
 ## Accessibility
 
+Daily proxy caps show and announce the reason and midnight UTC reset once, keep focus in place and leave the fallback usable.
+
 Meets the shared baseline in the root README.
 
 - Each completed turn moves focus to Michel’s new line, including the final line. Focus announces it once; the status region stays empty. Tab reaches the reply box, or "Start over" at the end.
