@@ -5,8 +5,9 @@
 .lp-journal .lp-journal-page[aria-invalid="true"] { padding: 15px 17px; }
 .lp-journal-page::placeholder { color: var(--lp-ink-2); opacity: 1; }
 .lp-journal-actions { align-items: flex-start; gap: 16px 24px; }
-/* The save message takes its own line under both actions. Under Save it widened that column and pushed the suggestion sideways. */
-.lp-journal-actions > [data-lp-saved] { flex: 1 1 100%; }
+/* The save message takes its own line under both actions. Under Save it widened that column and pushed the suggestion sideways.
+   A host cap such as p { max-width: 65ch } shrinks the 100% basis and pulls the message back beside the buttons, so lift it. */
+.lp-journal-actions > [data-lp-saved] { flex: 1 1 100%; max-inline-size: none; }
 .lp-journal-action { min-inline-size: 0; }
 .lp-journal-action > * + * { margin-block-start: 8px; }
 .lp-journal-suggest { flex: 1; }

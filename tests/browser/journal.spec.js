@@ -459,3 +459,12 @@ for (const lang of ['en', 'fr']) for (const reason of ['ip_daily', 'budget']) te
   await expect(root.locator('[data-lp-saved]')).toBeVisible();
   await expect(root.locator('[data-lp-questions]')).toHaveAttribute('open');
 });
+
+test('the save message takes its own line under the actions, even when the host caps paragraph width', async ({ page }) => {
+  await open(page, 'en');
+  await page.addStyleTag({ content: 'p { max-width: 65ch; }' });
+  await page.getByRole('textbox').fill('My reflection'); await page.locator('[data-lp-save]').click();
+  await expect(page.locator('[data-lp-saved]')).toHaveText(examples.en.saved);
+  const [saved, suggest] = await Promise.all(['[data-lp-saved]', '.lp-journal-suggest'].map(selector => page.locator(selector).boundingBox()));
+  expect(saved.y).toBeGreaterThanOrEqual(suggest.y + suggest.height);
+});
