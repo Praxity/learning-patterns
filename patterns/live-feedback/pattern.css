@@ -1,9 +1,8 @@
 .lp-live-feedback-results { display: grid; gap: 12px; margin-block-start: 16px; padding: 0; list-style: none; }
 .lp-live-feedback-completion { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
-/* Icons sit in a box one line tall (1lh), so the icon centres on the first line of text
-   and stays there when the text wraps, is restyled or is zoomed. No fixed nudges. */
 .lp-live-feedback-complete { display: flex; align-items: flex-start; gap: 12px; }
-.lp-live-feedback-complete .lp-icon { inline-size: 22px; block-size: 1lh; }
+/* Only the width differs from base.css's one-line icon box. */
+.lp-live-feedback-complete .lp-icon { inline-size: 22px; }
 .lp-live-feedback-item { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 12px; transition: transform 200ms var(--lp-ease); }
 .lp-live-feedback-bullet { display: grid; place-items: center; inline-size: 22px; block-size: 1lh; color: var(--lp-success-ink); }
 .lp-live-feedback-bullet .lp-icon { display: block; inline-size: 22px; block-size: 22px; }
