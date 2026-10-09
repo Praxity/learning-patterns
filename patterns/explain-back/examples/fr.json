@@ -7,7 +7,7 @@
       "heading": "L'évitement",
       "body": "L'évitement consiste à se taire, à se retirer ou à changer de sujet sans dire pourquoi. L'autre personne se sent ignorée ou rejetée. Le problème reste sans solution.",
       "label": "L'évitement consiste à se retirer sans dire pourquoi.",
-      "met": "Vous avez expliqué que l'évitement consiste à se retirer sans dire pourquoi.",
+      "met": "Vous avez expliqué que l'évitement consiste à se taire ou à se retirer.",
       "missed": "Décrivez l'évitement : se taire, se retirer ou changer de sujet sans dire pourquoi.",
       "unsure": "Votre explication de l'évitement est incertaine. Décrivez ce que la personne fait."
     },
@@ -27,7 +27,7 @@
       "label": "Vous convenez du moment où vous reviendrez, puis vous revenez.",
       "met": "Vous avez dit de convenir du moment où vous reviendrez, puis de revenir.",
       "missed": "Ajoutez comment une pause se termine.",
-      "unsure": "On ne sait pas si vous avez dit de revenir à la conversation."
+      "unsure": "Vous avez dit de revenir. Précisez aussi quand : convenez d'un moment pour que l'autre personne ne reste pas à attendre."
     }
   ]
 }
