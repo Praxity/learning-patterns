@@ -1,0 +1,25 @@
+{
+  "prompt": "Which three actions will you take, starting now, to be more assertive at work?",
+  "criteria": [
+    {
+      "id": "three_actions",
+      "done": "Three different actions",
+      "todo": "Add another action"
+    },
+    {
+      "id": "observable",
+      "done": "Actions others can see",
+      "todo": "Make each action something others could see you do"
+    },
+    {
+      "id": "when",
+      "done": "A time or place to act",
+      "todo": "Say when you'll do it"
+    },
+    {
+      "id": "commitments",
+      "done": "Your own actions",
+      "todo": "Keep to what you'll do yourself"
+    }
+  ]
+}

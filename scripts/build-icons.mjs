@@ -2,7 +2,7 @@
 // runtime dependency, build step or CDN. Run after changing the list: npm run icons
 import { readFileSync, writeFileSync } from 'node:fs';
 
-const names = ['check', 'x', 'question-mark', 'circle-dashed', 'refresh', 'arrow-back-up', 'alert-circle', 'mail', 'list-check', 'calendar', 'pencil', 'notebook', 'book', 'brain', 'history', 'target', 'circle-plus', 'circle-check', 'circle-x', 'info-circle', 'arrow-right', 'player-skip-forward', 'list-details', 'file-text'];
+const names = ['check', 'x', 'question-mark', 'circle-dashed', 'refresh', 'arrow-back-up', 'alert-circle', 'mail', 'list-check', 'calendar', 'pencil', 'notebook', 'book', 'brain', 'history', 'target', 'circle-plus', 'circle-check', 'circle-x', 'info-circle', 'arrow-right', 'player-skip-forward', 'list-details', 'file-text', 'help-circle'];
 const dir = new URL('../node_modules/@tabler/icons/icons/outline/', import.meta.url);
 const icons = Object.fromEntries(names.map(name => {
   const svg = readFileSync(new URL(`${name}.svg`, dir), 'utf8')

@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Feedback while you type content",
+  "type": "object",
+  "required": [
+    "prompt",
+    "criteria"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "prompt": {
+      "type": "string",
+      "minLength": 1
+    },
+    "criteria": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/criterion",
+          "properties": {
+            "id": {
+              "const": "three_actions"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/criterion",
+          "properties": {
+            "id": {
+              "const": "observable"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/criterion",
+          "properties": {
+            "id": {
+              "const": "when"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/criterion",
+          "properties": {
+            "id": {
+              "const": "commitments"
+            }
+          }
+        }
+      ],
+      "items": false
+    }
+  },
+  "$defs": {
+    "criterion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "done",
+        "todo"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "enum": [
+            "three_actions",
+            "observable",
+            "when",
+            "commitments"
+          ]
+        },
+        "done": {
+          "type": "string",
+          "minLength": 1
+        },
+        "todo": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

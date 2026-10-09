@@ -1,0 +1,15 @@
+.lp-explain-back-lesson h2:not(:first-child) { margin-block-start: 28px; }
+.lp-explain-back-composer .lp-input::placeholder { color: var(--lp-ink-2); opacity: 1; }
+.lp-explain-back-results { margin-block-start: 16px; list-style: none; }
+.lp-explain-back [data-lp-mark="missing"] { border: 2px solid var(--lp-warning-ink); padding: 9px 13px; background: var(--lp-warning-soft); }
+.lp-explain-back [data-lp-mark="missing"] > .lp-choice-key { color: var(--lp-on-accent); background: var(--lp-warning-ink); border-color: var(--lp-warning-ink); }
+.lp-explain-back-to-add { color: var(--lp-warning-ink); }
+.lp-explain-back [data-lp-challenge] { min-inline-size: 0; }
+/* Closed chevron only: its point sits .16em right of the box centre, so the drawn mark shifts onto the text.
+   base.css has no closed-state shift; the open state uses its shared transform. */
+/* Feedback links are touch targets, at least 24 px tall. */
+.lp-explain-back [data-lp-reread] { display: inline-flex; align-items: center; min-block-size: 24px; }
+@media (forced-colors: active) {
+  .lp-explain-back [data-lp-mark="missing"] { border: 3px double CanvasText; }
+  .lp-explain-back [data-lp-mark="missing"] > .lp-choice-key { color: CanvasText; background: Canvas; border-color: CanvasText; }
+}

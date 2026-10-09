@@ -1,0 +1,23 @@
+.lp-live-feedback-results { display: grid; gap: 12px; margin-block-start: 16px; padding: 0; list-style: none; }
+.lp-live-feedback-completion { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+.lp-live-feedback-complete { display: flex; align-items: flex-start; gap: 12px; }
+/* Only the width differs from base.css's one-line icon box. */
+.lp-live-feedback-complete .lp-icon { inline-size: 22px; }
+.lp-live-feedback-item { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 12px; transition: transform 200ms var(--lp-ease); }
+.lp-live-feedback-bullet { display: grid; place-items: center; inline-size: 22px; block-size: 1lh; color: var(--lp-success-ink); }
+.lp-live-feedback-bullet .lp-icon { display: block; inline-size: 22px; block-size: 22px; }
+.lp-live-feedback-item[data-lp-mark="todo"] .lp-live-feedback-bullet { border: 2px dotted var(--lp-ink-2); border-radius: 50%; }
+/* Each row is at least a 44px target. Its text and box sit centred in that height, so the
+   space above and below a one-line row matches. The box centres on the first line. The input
+   takes the text's font so 1lh matches the text line, not the 13px control font. */
+.lp-live-feedback-tick { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 12px; align-items: start; align-content: center; min-block-size: 44px; cursor: pointer; }
+.lp-live-feedback-tick input { font: inherit; inline-size: 22px; block-size: 22px; margin: calc((1lh - 22px) / 2) 0 0; accent-color: var(--lp-success-ink); }
+.lp-live-feedback .lp-input::placeholder { color: var(--lp-ink-2); opacity: 1; }
+.lp-live-feedback [data-lp-challenge] { min-inline-size: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .lp-live-feedback-item { transition: none; }
+}
+@media (forced-colors: active) {
+  .lp-live-feedback-bullet { color: CanvasText; }
+  .lp-live-feedback-item[data-lp-mark="todo"] .lp-live-feedback-bullet { border-color: CanvasText; }
+}

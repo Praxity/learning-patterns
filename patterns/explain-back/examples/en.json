@@ -1,0 +1,33 @@
+{
+  "task": "A new manager asks you what stonewalling is and how to take a time-out instead. Explain it to them in two sentences.",
+  "model": "Stonewalling means going quiet or pulling away without saying why, so the other person feels ignored. In a time-out you tell them you need a pause, agree when you'll come back, and then come back.",
+  "ideas": [
+    {
+      "id": "stonewalling",
+      "heading": "Stonewalling",
+      "body": "Stonewalling is going silent, withdrawing or changing the subject without saying why. The other person feels ignored or rejected. The problem stays unsolved.",
+      "label": "Stonewalling is withdrawing without saying why.",
+      "met": "You explained that stonewalling means withdrawing without saying why.",
+      "missed": "Describe stonewalling: going silent, withdrawing or changing the subject without saying why.",
+      "unsure": "It's unclear whether you explained stonewalling. Describe what the person does."
+    },
+    {
+      "id": "pause",
+      "heading": "Taking a time-out",
+      "body": "Tell the other person you need a pause. For example, \"I need ten minutes to think about this.\" You can step away to calm down. Leaving without saying why is stonewalling.",
+      "label": "You tell the other person you need a pause.",
+      "met": "You said to tell the other person you need a pause.",
+      "missed": "Add how a time-out starts.",
+      "unsure": "It's unclear whether you said to announce the pause."
+    },
+    {
+      "id": "return",
+      "heading": "Coming back",
+      "body": "A time-out ends when you come back. Agree when you'll return to the conversation, then do it. That way the other person isn't left waiting.",
+      "label": "You agree when to come back, and then come back.",
+      "met": "You said to agree when to come back, and then come back.",
+      "missed": "Add how a time-out ends.",
+      "unsure": "It's unclear whether you said to come back."
+    }
+  ]
+}

@@ -1,8 +1,21 @@
 {
   // For hosting your own copy of the demos: set "name" to your own Worker name, then run `npm run preview:deploy`.
   "name": "learning-patterns",
+  "main": "proxy/src/worker.js",
   "compatibility_date": "2026-10-01",
-  "assets": { "directory": "./demo-dist" },
+  "assets": { "directory": "./demo-dist", "binding": "ASSETS", "run_worker_first": ["/api/patterns/*"] },
   "workers_dev": true,
-  "preview_urls": false
+  "preview_urls": false,
+  "ai": { "binding": "AI" },
+  "vars": {
+    "MODEL_PROVIDER": "perplexity",
+    "TURNSTILE_SITE_KEY": "",
+    "IP_DAILY_LIMIT": "20",
+    "DAILY_BUDGET_USD": "1.00"
+  },
+  "durable_objects": { "bindings": [{ "name": "COST_GUARD", "class_name": "CostGuard" }] },
+  "migrations": [{ "tag": "v1-cost-guard", "new_sqlite_classes": ["CostGuard"] }],
+  "ratelimits": [
+    { "name": "LIMITER", "namespace_id": "4101", "simple": { "limit": 120, "period": 60 } }
+  ]
 }

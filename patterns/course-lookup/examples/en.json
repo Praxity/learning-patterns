@@ -1,0 +1,67 @@
+{
+  "kind": "faq",
+  "prompt": "Ask a question about the course {course}",
+  "course": "Assertive at work",
+  "entries": [
+    {
+      "id": "deadline",
+      "title": "When is the deadline?",
+      "answer": "Finish Assertive at work within eight weeks of enrolment."
+    },
+    {
+      "id": "certificate",
+      "title": "Will I get a certificate?",
+      "answer": "Complete all six sections and the final action plan to download a completion certificate."
+    },
+    {
+      "id": "time",
+      "title": "How much time will I need?",
+      "answer": "Allow three hours in total, plus ten minutes a week to practise at work."
+    },
+    {
+      "id": "help",
+      "title": "Where can I get help?",
+      "answer": "Post in the course forum. The instructor replies within two working days."
+    },
+    {
+      "id": "assertive",
+      "title": "What does assertive mean?",
+      "answer": "Say what you need clearly while respecting the other person. Aggression uses threats or insults to get your way."
+    },
+    {
+      "id": "interruptions",
+      "title": "What if someone talks over me?",
+      "answer": "Say: I would like to finish my point. Then pause and continue when you have the floor."
+    },
+    {
+      "id": "no",
+      "title": "How do I say no to extra work?",
+      "answer": "State your limit and offer a realistic alternative: I cannot take this on today. I can help on Thursday."
+    },
+    {
+      "id": "timeout",
+      "title": "What is a time-out?",
+      "answer": "Agree on a short break when a conversation gets heated. Say when you will return, then resume the conversation at that time."
+    }
+  ],
+  "seeds": [
+    {
+      "id": "partner",
+      "question": "Can I practise with a partner?",
+      "author": "instructor",
+      "answer": "Yes. Take turns making a request and giving feedback on how clear it was."
+    },
+    {
+      "id": "private",
+      "question": "Do I have to share a real conflict?",
+      "author": "instructor",
+      "answer": "No. Use an invented situation if you prefer. Keep other people’s names out of your posts."
+    },
+    {
+      "id": "nerves",
+      "question": "How do you practise when you feel nervous?",
+      "author": "learner",
+      "answer": "I tried my first request with a colleague I trust. That made the next one easier."
+    }
+  ]
+}

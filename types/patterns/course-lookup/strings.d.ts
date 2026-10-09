@@ -1,0 +1,70 @@
+export namespace strings {
+    namespace en {
+        let placeholder: string;
+        let checking: string;
+        let noMatch: string;
+        let add: string;
+        let bank: string;
+        let bankNotice: string;
+        let waiting: string;
+        let instructor: string;
+        let learner: string;
+        let remove: string;
+        let added: string;
+        let removed: string;
+        let saved: string;
+        let storageError: string;
+        let bankFull: string;
+        let paused: string;
+        let fallback: string;
+        let faqList: string;
+        let sectionList: string;
+        let found: string;
+        let sectionFound: string;
+    }
+    namespace fr {
+        let placeholder_1: string;
+        export { placeholder_1 as placeholder };
+        let checking_1: string;
+        export { checking_1 as checking };
+        let noMatch_1: string;
+        export { noMatch_1 as noMatch };
+        let add_1: string;
+        export { add_1 as add };
+        let bank_1: string;
+        export { bank_1 as bank };
+        let bankNotice_1: string;
+        export { bankNotice_1 as bankNotice };
+        let waiting_1: string;
+        export { waiting_1 as waiting };
+        let instructor_1: string;
+        export { instructor_1 as instructor };
+        let learner_1: string;
+        export { learner_1 as learner };
+        let remove_1: string;
+        export { remove_1 as remove };
+        let added_1: string;
+        export { added_1 as added };
+        let removed_1: string;
+        export { removed_1 as removed };
+        let saved_1: string;
+        export { saved_1 as saved };
+        let storageError_1: string;
+        export { storageError_1 as storageError };
+        let bankFull_1: string;
+        export { bankFull_1 as bankFull };
+        let paused_1: string;
+        export { paused_1 as paused };
+        let fallback_1: string;
+        export { fallback_1 as fallback };
+        let faqList_1: string;
+        export { faqList_1 as faqList };
+        let sectionList_1: string;
+        export { sectionList_1 as sectionList };
+        let found_1: string;
+        export { found_1 as found };
+        let sectionFound_1: string;
+        export { sectionFound_1 as sectionFound };
+    }
+}
+export type Strings = typeof strings.en;

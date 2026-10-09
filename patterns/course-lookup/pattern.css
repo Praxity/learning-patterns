@@ -1,0 +1,16 @@
+/* Rows keep the 44px touch target. The chevron and the mark sit on the first line of a wrapped question. */
+.lp-course-lookup-faq > summary { padding-block: 11px; line-height: 1.3; }
+.lp-course-lookup-faq + .lp-course-lookup-faq { margin-block-start: 0; }
+/* The answer starts under the question text: past the chevron (.45em), the mark and both gaps.
+   It sits closer to its own question than to the next one. */
+.lp-course-lookup-faq > p { margin-block: 4px 12px; margin-inline-start: calc(.45em + 1.25rem + 16px); }
+.lp-course-lookup-outline, .lp-course-lookup-bank { padding: 0; list-style: none; }
+.lp-course-lookup-outline > li + li, .lp-course-lookup-bank > li + li { margin-block-start: 20px; }
+.lp-course-lookup-bank li > * + * { margin-block-start: 6px; }
+/* Pull the × glyph onto the text column: remove the button's 10px padding and the icon's inset (a quarter of 1.15em). */
+.lp-course-lookup-bank .lp-button-quiet { margin-block-start: 10px; margin-inline-start: calc(1.25rem - 2px - .2875em); }
+.lp-course-lookup [data-lp-result] > article > * + * { margin-block-start: 8px; }
+.lp-course-lookup-q { display: flex; align-items: flex-start; gap: 8px; line-height: 1.3; }
+.lp-course-lookup-q > .lp-icon { inline-size: 1.25rem; color: var(--lp-ink-2); }
+/* Text under a question starts under the question text, not under the mark. */
+.lp-course-lookup-q ~ * { margin-inline-start: calc(1.25rem + 8px); }
