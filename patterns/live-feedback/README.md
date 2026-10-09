@@ -44,7 +44,7 @@ Meets the shared baseline in the root README.
 
 - The list and checking line stay silent. The polite status region announces changed counts once, or "Well done! 4 of 4 done" on completion. Focus stays in place.
 - The completed box is read-only, muted and still focusable, with AA text contrast. "Edit my plan" unlocks it and puts focus and the caret at the end of the text.
-- Checkmarks and open dotted circles show state through shape as well as colour. State never depends on colour alone.
+- Checkmarks and open dotted circles show state through shape as well as colour. Each list item also has a screen-reader prefix, "Done:" or "To add:". Native fallback checkboxes expose their checked state.
 - Reordering uses a 200 ms transform transition. Reduced motion moves items instantly.
 - Native checkboxes work without JavaScript and after a failed check.
 - English and Québec French share fields and controls. French uses vous.

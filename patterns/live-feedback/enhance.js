@@ -2,6 +2,7 @@ import { feedback, validateContent, validateState, MIN_CHARS, AUTO_CHECK_LIMIT }
 import { typingPause } from '../../lib/typing-pause.js';
 import { icons } from '../../lib/icons.js';
 import { renderDataNotice } from '../../lib/data-notice.js';
+import { focusAfterLayout } from '../../lib/focus-after-layout.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
 const instances = new WeakMap();
@@ -48,6 +49,8 @@ export function enhance(root, { content, strings, state, ask }) {
   sessions.set(root.ownerDocument, session);
   const timing = typingPause({ minChars: MIN_CHARS, questionMark: false });
   let destroyed = false, ready = false, complete = false, seq = 0, lastChecked = '', count = 0;
+  const lifetime = new AbortController();
+  let cancelFocus = () => {};
   /** @type {ReturnType<typeof setTimeout> | undefined} */
   let timer;
   /** @type {AbortController | undefined} */
@@ -80,11 +83,13 @@ export function enhance(root, { content, strings, state, ask }) {
       const row = /** @type {HTMLLIElement} */ (rows.find(row => row.dataset.lpCriterion === item.id));
       const bullet = /** @type {HTMLElement} */ (row.querySelector('.lp-live-feedback-bullet'));
       const text = /** @type {HTMLElement} */ (row.querySelector('[data-lp-item-text]'));
+      const stateWord = /** @type {HTMLElement} */ (row.querySelector('[data-lp-item-state]'));
       if (row.dataset.lpMark !== item.mark) {
         row.dataset.lpMark = item.mark;
         bullet.innerHTML = item.mark === 'done' ? icons.check : '';
       }
       text.textContent = item.text;
+      stateWord.textContent = `${item.mark === 'done' ? strings.done : strings.todo} `;
       items.append(row);
     }
     // FLIP preserves each row's old position while the DOM takes its new order.
@@ -145,8 +150,11 @@ export function enhance(root, { content, strings, state, ask }) {
     if (event.key.length === 1 || event.key === 'Backspace' || event.key === 'Delete') timing.key(performance.now());
   };
   const onEdit = () => {
-    unlock(); answer.focus(); answer.setSelectionRange(answer.value.length, answer.value.length);
-    if (session.checks >= AUTO_CHECK_LIMIT) useLimit();
+    cancelFocus(); complete = false; answer.readOnly = false;
+    cancelFocus = focusAfterLayout(answer, () => {
+      completion.hidden = true; answer.setSelectionRange(answer.value.length, answer.value.length);
+      if (session.checks >= AUTO_CHECK_LIMIT) useLimit();
+    }, lifetime.signal);
   };
   if (ask) {
     Promise.resolve().then(() => ask.config()).then(config => {
@@ -164,7 +172,7 @@ export function enhance(root, { content, strings, state, ask }) {
   edit.addEventListener('click', onEdit);
   const instance = { destroy() {
     if (destroyed) return;
-    destroyed = true; cancel(); session.stop.delete(useLimit);
+    destroyed = true; lifetime.abort(); cancelFocus(); cancel(); session.stop.delete(useLimit);
     answer.removeEventListener('input', onInput); fallback.removeEventListener('change', save);
     answer.removeEventListener('keydown', onKey);
     edit.removeEventListener('click', onEdit); completion.remove();
