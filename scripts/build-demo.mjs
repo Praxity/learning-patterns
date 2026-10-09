@@ -18,6 +18,7 @@ await copyInto('lib/icons.js');
 await copyInto('lib/base.css');
 await copyInto('lib/data-notice.js');
 await copyInto('lib/ask.js');
+await copyInto('lib/focus-after-layout.js');
 await copyInto('proxy/logic/07-explain-back.js');
 await copyInto('proxy/logic/shared.js');
 // The demo pages load the course fonts the base styles name. They are dev dependencies (OFL), not part of a pattern.

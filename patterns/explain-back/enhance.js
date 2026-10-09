@@ -2,6 +2,7 @@ import { feedback, validateContent, validateState } from './logic.js';
 import { escapeHtml as html } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
 import { renderDataNotice } from '../../lib/data-notice.js';
+import { focusAfterLayout } from '../../lib/focus-after-layout.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
 const instances = new WeakMap();
@@ -47,14 +48,18 @@ export function enhance(root, { content, strings, state, ask }) {
   readyRow.className = 'lp-actions'; readyRow.append(ready);
   lesson.append(readyRow); checkRow.append(readAgain);
   taskHeading.setAttribute('tabindex', '-1');
+  const lifetime = new AbortController();
+  let cancelFocus = () => {};
   /** @param {boolean} explain @param {HTMLElement | null} heading */
   const showStep = (explain, heading = null) => {
-    lesson.hidden = explain; explaining.hidden = !explain;
-    heading?.focus();
+    cancelFocus();
+    const next = explain ? explaining : lesson, previous = explain ? lesson : explaining;
+    next.hidden = false;
+    if (heading) cancelFocus = focusAfterLayout(heading, () => { previous.hidden = true; }, lifetime.signal);
+    else previous.hidden = true;
   };
   const onReady = () => showStep(true, taskHeading);
   const onReadAgain = () => showStep(false, /** @type {HTMLElement} */ (headings[0]));
-  const lifetime = new AbortController();
   let destroyed = false;
   const saved = state ? validateState(state.read()) : null;
   if (saved) { answer.value = saved.answer; for (const box of boxes) box.checked = saved.ticked.includes(box.value); }
@@ -125,7 +130,7 @@ export function enhance(root, { content, strings, state, ask }) {
   ready.addEventListener('click', onReady); readAgain.addEventListener('click', onReadAgain);
   const instance = { destroy() {
     if (destroyed) return;
-    destroyed = true; lifetime.abort();
+    destroyed = true; lifetime.abort(); cancelFocus();
     answer.removeEventListener('input', onInput); check.removeEventListener('click', onCheck);
     fallback.removeEventListener('change', save); result.removeEventListener('click', onReread);
     ready.removeEventListener('click', onReady); readAgain.removeEventListener('click', onReadAgain);
