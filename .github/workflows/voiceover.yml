@@ -62,7 +62,7 @@ jobs:
         run: npm run test:voiceover -- --grep 'positive control'
         env:
           VO_PHASE: control
-      - name: Record the eight patterns in English and French
+      - name: Record the pattern journeys in English and French
         run: npm run test:voiceover -- --grep-invert 'positive control'
       - uses: actions/upload-artifact@v4
         if: always()
