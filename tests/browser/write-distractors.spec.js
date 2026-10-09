@@ -32,7 +32,7 @@ test('right-answer icon and Start over sit on the text column; revealed answers 
   expect(Math.abs(centre(icon) - centre(heading))).toBeLessThanOrEqual(1);
   const column = await page.locator('[data-lp-answer]').boundingBox();
   const startOver = await page.locator('[data-lp-clear] svg').boundingBox();
-  expect(Math.abs(startOver.x - column.x)).toBeLessThanOrEqual(2);
+  expect(Math.abs(startOver.x - column.x)).toBeLessThanOrEqual(.5);
 });
 
 async function retrieve(root) {
