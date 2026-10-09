@@ -1,7 +1,7 @@
 ---
 title: Instant course lookup
 title_fr: Trouvez une réponse dans le cours
-summary: Ask a question to find an authored answer or course section. Save unanswered questions in your browser.
+summary: Ask a question to find an authored answer or course section. Save unanswered questions in your tab.
 section: course
 ai: yes
 offline: yes
@@ -31,7 +31,7 @@ Editing cancels the older request and discards stale results. Each instance has 
 
 The shared data notice explains the decision service. The offline demo uses fixed matches and sends no text. Live lookup sends the question to the decision model through the proxy. The proxy stores no question text.
 
-The question bank uses browser storage, separately for each language and instance. Three authored examples show two instructor replies and one reply from another learner. Those examples always remain. Only added learner questions are stored. The demo stores no bank entries on a server and sends no notifications. A failed save shows an error and keeps the previous bank. The bank holds up to 100 added questions.
+The question bank keeps added questions in this tab. Reloading keeps them; closing the tab clears them. Each language and instance has its own bank. Three authored examples show two instructor replies and one reply from another learner. Those examples always remain. Only added learner questions are stored. The demo stores no bank entries on a server and sends no notifications. A failed save shows an error and keeps the previous bank. The bank holds up to 100 added questions.
 
 A real course should send questions to its forum or instructor queue. Ask for consent before sending. For example, "Send this question to the course forum? Other learners and the instructor can read it." Decide who can answer and remove questions, and state how long they remain.
 
@@ -90,7 +90,7 @@ The proxy owns both catalogues and the Choice questions. The browser sends only 
 
 `proxy/logic/20-faq.js` and `21-sections.js` own the catalogue IDs and match gates, shared by browser and proxy. `lib/typing-pause.js` exports `typingPause({ minChars = 10, questionMark = true } = {})`, with `key(time)`, `wait()` and `delay(text, checked, enter = false)`. Delay returns milliseconds or `null` when no check is due. [Feedback while you type](../live-feedback/README.md) shares this module, with a 20-character minimum and no question-mark shortcut.
 
-`enhance(root, { content, strings, ask, state })` returns `{ destroy() }`. Repeated calls return the same instance. Optional `state: { read, write }` replaces browser storage. Use a separate state adapter for each instance. Invalid saved values are ignored. `destroy()` cancels work, removes listeners and restores server markup. The page allowance survives re-enhancement.
+`enhance(root, { content, strings, ask, state })` returns `{ destroy() }`. Repeated calls return the same instance. Optional `state: { read, write }` replaces session storage. Use a separate state adapter for each instance. Invalid saved values are ignored. `destroy()` cancels work, removes listeners and restores server markup. The page allowance survives re-enhancement.
 
 ## Use it
 
@@ -111,7 +111,7 @@ enhance(document.querySelector('[data-lp-pattern="course-lookup"]'), {
 });
 ```
 
-Browser storage uses the key `lp:course-lookup:<lang>:<question-field-id>`. Give each instance a stable, unique prefix so its bank survives reloads. Use a separate prefix for each course.
+The default `browserState` adapter uses sessionStorage with the key `lp:course-lookup:<lang>:<question-field-id>`. Give each instance a stable, unique prefix so its bank survives reloads. Use a separate prefix for each course.
 
 ## Adapt it with your agent
 

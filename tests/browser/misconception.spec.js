@@ -179,7 +179,7 @@ test('shared client gets model-specific gate and notice, verifies inline only on
     enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en, ask });
   }, examples.en);
   await expect(page.locator('[data-lp-check]')).toBeEnabled();
-  await expect(page.locator('[data-lp-notice]')).toHaveText('Your answer is sent to a decision model; it is not stored and not used for training.');
+  await expect(page.locator('[data-lp-notice]')).toHaveText('Your answer is sent to a decision model; the service does not store it or use it for training.');
   await expect(page.locator('[data-lp-challenge]')).toBeHidden(); await submit(page);
   await expect(page.locator('[data-lp-challenge]')).toBeVisible();
   expect(await page.evaluate(() => window.lpWidget.slot === document.querySelector('[data-lp-challenge]'))).toBe(true);

@@ -99,11 +99,11 @@ For local UI work, `JEV_MOCK=1` returns fake answers and bypasses clearance and 
 
 Place this text next to the answer box:
 
-> Your answer is sent to a decision model; it is not stored and not used for training.
+> Your answer is sent to a decision model; the service does not store it or use it for training.
 
 Where the learner asks a question rather than answering one, as in Instant course lookup, `/config` also publishes this wording:
 
-> Your question is sent to a decision model; it is not stored and not used for training.
+> Your question is sent to a decision model; the service does not store it or use it for training.
 
 [Perplexity's API FAQ](https://docs.perplexity.ai/docs/resources/faq) says, "We do not retain any query data sent through the API and do not train on any of your data." Self-hosters using another provider must confirm that provider's retention and training terms before using this notice. Before sending learner text in a client course, arrange consent wording and a data agreement with the chosen provider.
 

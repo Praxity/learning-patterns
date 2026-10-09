@@ -67,7 +67,7 @@ test('replacing a focused section link retains focus in the lookup', async ({ pa
 
 test('bank capacity and automatic-check cap keep a usable focused control', async ({ page }) => {
   await page.addInitScript(() => {
-    localStorage.setItem('lp:course-lookup:en:example-faq-question', JSON.stringify({ questions: Array.from({ length: 100 }, (_, index) => `Saved question ${index}`) }));
+    sessionStorage.setItem('lp:course-lookup:en:example-faq-question', JSON.stringify({ questions: Array.from({ length: 100 }, (_, index) => `Saved question ${index}`) }));
   });
   await open(page); await scores(page, { none: 1 });
   const root = faq(page), add = root.locator('[data-lp-add]');
@@ -230,7 +230,29 @@ test('browser bank adds, deduplicates, removes and persists separately from the 
   await expect(bank.locator('li')).toHaveCount(3);
   await page.reload(); await page.waitForFunction(() => window.lpReady);
   await expect(bank.locator('li')).toHaveCount(3);
-  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('lp:course-lookup:en:example-faq-question')))).toEqual({questions:[]});
+  expect(await page.evaluate(() => JSON.parse(sessionStorage.getItem('lp:course-lookup:en:example-faq-question')))).toEqual({questions:[]});
+});
+
+for (const lang of ['en', 'fr']) test(`question banks survive reload and clear when the tab closes (${lang})`, async ({ page, context }) => {
+  await open(page, { lang }); await scores(page, { none: 1 });
+  const question = 'Can I practise with my team';
+  for (const root of [faq(page), sections(page)]) {
+    await auto(page, question, root);
+    await root.locator('[data-lp-add]').click();
+    await expect(root.locator('[data-lp-bank-list] li')).toHaveCount(4);
+  }
+  await page.reload(); await page.waitForFunction(() => window.lpReady);
+  for (const root of [faq(page), sections(page)]) {
+    await expect(root.locator('[data-lp-bank-list] li')).toHaveCount(4);
+    await expect(root.locator('[data-lp-bank-list] li').last()).toContainText(question);
+    const key = `lp:course-lookup:${lang}:${await root.getByRole('textbox').getAttribute('id')}`;
+    expect(await page.evaluate(key => JSON.parse(sessionStorage.getItem(key)), key)).toEqual({ questions: [question] });
+    expect(await page.evaluate(key => localStorage.getItem(key), key)).toBeNull();
+  }
+  await page.close();
+  const next = await context.newPage();
+  await open(next, { lang });
+  for (const root of [faq(next), sections(next)]) await expect(root.locator('[data-lp-bank-list] li')).toHaveCount(3);
 });
 
 test('bank storage failures preserve the previous bank and report the failed change', async ({ page }) => {

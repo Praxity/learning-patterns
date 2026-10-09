@@ -9,7 +9,7 @@ learners: not tried
 ---
 # Journal entry with a nudge
 
-Reflect on practising assertiveness this week. Save your entry in your browser or ask for one optional question.
+Reflect on practising assertiveness this week. Save your entry in your tab or ask for one optional question.
 
 ## When to use it
 
@@ -20,7 +20,7 @@ The distress check was tested only on agent-written answers. It shows an authore
 ## How it works
 
 1. Write about your week under today’s date.
-2. Select "Save" to keep the entry in this browser. Saving never asks for a suggestion.
+2. Select "Save" to keep the entry in this tab. Saving never asks for a suggestion.
 3. Select "Get a suggestion" for one optional question, a completion message or a support message.
 
 Editing during a request discards the suggestion. Select "Get a suggestion" again for the revised entry.
@@ -55,7 +55,7 @@ All fields are escaped plain text.
 | `complete` | Completion message with a decorative check icon when all four details are found. |
 | `support` | Support message. Replace it with your real support details. |
 | `supportNote` | Support text always available below the questions. |
-| `saved` | Confirmation that Save kept the entry in this browser. |
+| `saved` | Confirmation that Save kept the entry in this tab. |
 | `changed` | Message when the entry changed during a pending suggestion. |
 
 The proxy checks an assertiveness reflection. To change the task, change and evaluate its criteria too. Unknown fields, blank text and incorrect question order are rejected.
@@ -89,13 +89,13 @@ import { createAsk } from './lib/ask.js';
 import { browserState } from './lib/browser-state.js';
 
 const markup = render(content, strings.en, { id: 'weekly', lang: 'en' });
-// Keeps the entry in this browser across reloads; denied storage makes Save say it couldn't keep it.
+// Keeps the entry in this tab across reloads; denied storage makes Save say it couldn't keep it.
 const state = browserState({ pattern: 'journal', lang: 'en', id: 'weekly' });
 const ask = createAsk({ endpoint: '/api/patterns', fetch: window.fetch.bind(window) });
 enhance(document.querySelector('[data-lp-pattern="journal"]'), { content, strings: strings.en, state, ask });
 ```
 
-The shared client calls `ask('13-journal', { answer }, { challengeSlot, signal })`. Its data notice appears under "Get a suggestion". Turnstile appears inline when a request needs clearance. The proxy never caches entries. Missing `ask`, failed configuration, invalid answers or failed requests open the authored questions. The demo sends no entry text and uses fixed answers. Its adapter saves locally only on Save.
+The shared client calls `ask('13-journal', { answer }, { challengeSlot, signal })`. Its data notice appears under "Get a suggestion". Turnstile appears inline when a request needs clearance. The proxy never caches entries. Missing `ask`, failed configuration, invalid answers or failed requests open the authored questions. The demo sends no entry text and uses fixed answers. Its adapter writes to sessionStorage only on Save; closing the tab clears the entry.
 
 ## Adapt it with your agent
 

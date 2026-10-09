@@ -98,7 +98,7 @@ for (const lang of ['en', 'fr']) {
     await expect(page.locator('.lp-scene-label, label')).toHaveCount(0);
     const today = await page.evaluate(() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; });
     await expect(page.locator('[data-lp-date]')).toHaveAttribute('datetime', today);
-    await expect(page.locator('[data-lp-notice]')).toContainText(lang === 'fr' ? 'Enregistrer garde votre entrée' : 'Save keeps your entry');
+    await expect(page.locator('[data-lp-notice]')).toContainText(lang === 'fr' ? 'Votre entrée reste dans cet onglet et s’efface quand vous le fermez.' : 'Your entry stays in this tab and clears when you close it.');
     expect(await page.locator('[data-lp-notice]').evaluate(el => el.previousElementSibling.matches('[data-lp-suggest]'))).toBe(true);
     await expect(page.getByRole('textbox')).not.toHaveAttribute('aria-describedby');
     await expect(page.locator('[data-lp-save]')).not.toHaveAttribute('aria-describedby');
@@ -160,7 +160,21 @@ for (const lang of ['en', 'fr']) {
     await page.reload(); await page.waitForFunction(() => window.lpReady);
     await expect(page.getByRole('textbox')).toHaveValue(text);
     await expect(page.locator('[role="status"]')).toBeEmpty();
+    const key = `lp:journal:${lang}:example-entry`;
+    expect(await page.evaluate(key => JSON.parse(sessionStorage.getItem(key)), key)).toEqual(saved);
+    expect(await page.evaluate(key => localStorage.getItem(key), key)).toBeNull();
     await axe(page);
+  });
+
+  test(`closing the journal tab clears its saved entry (${lang})`, async ({ page, context }) => {
+    await open(page, lang);
+    await page.getByRole('textbox').fill('Only in this tab');
+    await page.locator('[data-lp-save]').click();
+    await expect(page.locator('[data-lp-saved]')).toHaveText(examples[lang].saved);
+    await page.close();
+    const next = await context.newPage();
+    await open(next, lang);
+    await expect(next.getByRole('textbox')).toHaveValue('');
   });
 
   for (const mode of ['missing', 'throws', 'invalid']) {
@@ -346,7 +360,7 @@ test('configured data notice and shared client clearance belong only to suggesti
     window.lpInstances[0] = enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en, state, ask });
   }, examples.en);
   await expect(page.locator('[data-lp-suggest]')).toBeEnabled();
-  await expect(page.locator('[data-lp-notice]')).toHaveText('Your answer is sent to a decision model; it is not stored and not used for training.');
+  await expect(page.locator('[data-lp-notice]')).toHaveText('Your answer is sent to a decision model; the service does not store it or use it for training.');
   await expect(page.locator('[data-lp-challenge]')).toBeHidden();
   await page.getByRole('textbox').fill('My reflection'); await page.locator('[data-lp-save]').click();
   expect(await page.evaluate(() => window.lpNetworkCalls)).toEqual(['/api/patterns/config']);
