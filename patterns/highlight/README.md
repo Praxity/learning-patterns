@@ -1,6 +1,6 @@
 ---
 title: Highlight the key passage
-title_fr: Surlignez le passage clé
+title_fr: Mettre en évidence le passage clé
 summary: Mark key ideas or text that answers a question, then compare with the author's choices.
 section: reading
 ai: no

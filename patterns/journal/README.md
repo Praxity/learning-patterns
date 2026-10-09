@@ -1,6 +1,6 @@
 ---
 title: Journal entry with a nudge
-title_fr: Entrée de journal avec un coup de pouce
+title_fr: Entrée de journal avec un petit rappel
 summary: Reflect on your week, save your entry and ask for a question or support message.
 section: question
 ai: yes

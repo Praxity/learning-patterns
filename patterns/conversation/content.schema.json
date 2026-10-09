@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Talk through a scenario",
+  "title": "Scenario talk-through",
   "type": "object",
   "additionalProperties": false,
   "required": [

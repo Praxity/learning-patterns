@@ -1,6 +1,6 @@
 ---
 title: Pre-test to skip sections
-title_fr: Prétest pour passer des sections
+title_fr: Sautez certaines sections après un test
 summary: Answer a short check to see which refresher sections you can skip and which to take.
 section: course
 ai: no

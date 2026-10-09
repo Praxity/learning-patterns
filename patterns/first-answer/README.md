@@ -1,6 +1,6 @@
 ---
 title: Your first answer replayed
-title_fr: Revoir votre première réponse
+title_fr: Revenez sur votre première réponse
 summary: Save your first answer, answer again at the end of the course, then compare what changed.
 section: course
 ai: no

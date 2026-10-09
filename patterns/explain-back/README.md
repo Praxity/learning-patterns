@@ -1,6 +1,6 @@
 ---
 title: Explain what you learned
-title_fr: Expliquez ce que vous avez appris
+title_fr: Expliquer ce que vous avez appris
 summary: Explain a short lesson, check three key ideas and reread any you missed.
 section: reading
 ai: yes
