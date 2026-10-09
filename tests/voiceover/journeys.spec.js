@@ -1,0 +1,158 @@
+import { test } from '@playwright/test';
+import assert from 'node:assert/strict';
+import { readFile, writeFile } from 'node:fs/promises';
+import { startSession } from './session.js';
+
+const patterns = ['dont-know', 'first-answer', 'highlight', 'retrieval-sheet', 'review-prompts', 'self-check', 'test-out', 'write-distractors'];
+for (const pattern of patterns) for (const lang of ['en', 'fr']) {
+  test(`${pattern} ${lang}`, async ({ page, browser }, info) => {
+    await page.goto(`/${pattern}/${lang}.html`);
+    await page.waitForFunction(() => window.lpReady);
+    await writeFile(info.outputPath('browser-version.txt'), browser.version());
+    const content = JSON.parse(await readFile(new URL(`../../patterns/${pattern}/examples/${lang}.json`, import.meta.url), 'utf8'));
+    const s = await startSession(page, info);
+    try {
+      await s.observe(); await s.enter();
+      for (let i = 0; i < (pattern === 'retrieval-sheet' ? 14 : 8); i++) await s.next(`Arrival instructions and labels ${i + 1}`);
+      await s.snapshot('arrival');
+      await journey(s, page, pattern, lang, content);
+      await s.snapshot('result');
+      await s.read('Local feedback and closing summary');
+      await writeFile(info.outputPath('journey-result.json'), JSON.stringify({ complete: true, pattern, lang }));
+    } catch (error) {
+      // A page or navigation finding is evidence, not a CI assertion failure.
+      await writeFile(info.outputPath('journey-result.json'), JSON.stringify({ complete: false, pattern, lang, error: error.stack }));
+      await s.snapshot('blocked');
+      console.error(`${pattern} ${lang}: ${error.stack}`);
+    } finally { await s.stop(); }
+  });
+}
+
+async function journey(s, page, pattern, lang, content) {
+  async function choose(inputs, index, label, inspect = false) {
+    await s.seek(`[id="${await inputs.first().getAttribute('id')}"]`, label);
+    await s.key('Space', `${label}: select A`);
+    if (inspect) for (let i = 1; i < await inputs.count(); i++) await s.key('ArrowDown', `${label}: option ${i + 1}`);
+    const active = await inputs.evaluateAll(elements => elements.indexOf(document.activeElement));
+    if (active < 0) throw new Error(`${label}: radio focus lost`);
+    // Native WebKit radio groups stop at their ends rather than wrapping.
+    const distance = index - active;
+    for (let i = 0; i < Math.abs(distance); i++) await s.key(distance < 0 ? 'ArrowUp' : 'ArrowDown', `${label}: choose answer ${i + 1}`);
+    await s.key('Space', `${label}: confirm`);
+    assert.equal(await inputs.nth(index).isChecked(), true, `${label}: intended radio answer not selected`);
+  }
+  if (pattern === 'dont-know') {
+    await s.activate('[data-lp-check]', 'Incomplete submit'); await s.snapshot('incomplete');
+    for (let q = 0; q < content.questions.length; q++) {
+      const inputs = page.locator('fieldset').nth(q).locator('input');
+      const index = q === 1 ? 0 : q === 2 ? await inputs.count() - 1 : content.questions[q].options.findIndex(option => option.id === content.questions[q].correct);
+      await choose(inputs, index, `Question ${q + 1}`, true);
+    }
+    await s.activate('[data-lp-check]', 'Submit mixed right wrong and uncertain answers');
+    await s.snapshot('mixed'); await s.read('Mixed answer local feedback');
+    await s.activate('[data-lp-restart]', 'Start over');
+    for (let q = 0; q < content.questions.length; q++) await choose(page.locator('fieldset').nth(q).locator('input'), content.questions[q].options.findIndex(option => option.id === content.questions[q].correct), `Correct question ${q + 1}`);
+    await s.activate('[data-lp-check]', 'Submit all correct answers');
+  } else if (pattern === 'self-check') {
+    await s.activate('[data-lp-check]', 'Empty answer submit'); await s.snapshot('incomplete');
+    await s.seek('textarea', 'Answer field');
+    await s.type(lang === 'fr' ? 'Bonjour Sam, les données sont arrivées tard. Puis-je remettre le rapport demain?' : 'Hi Sam, the data arrived late. Could I submit the report tomorrow?', 'Write answer');
+    await s.activate('[data-lp-check]', 'Check answer');
+    const boxes = page.locator('input[type="checkbox"]');
+    for (let i = 0; i < await boxes.count(); i++) {
+      await s.seek(`[id="${await boxes.nth(i).getAttribute('id')}"]`, `Checklist ${i + 1}`);
+      if (i === 0) await s.key('Space', 'Include first part');
+    }
+    await s.activate('[data-lp-show]', 'Submit partial checklist'); await s.snapshot('partial');
+    await s.read('Partial checklist local hints and model');
+    for (let i = 0; i < await boxes.count(); i++) {
+      await s.seek(`[id="${await boxes.nth(i).getAttribute('id')}"]`, `Checklist ${i + 1} revisit`);
+      if (!await boxes.nth(i).isChecked()) await s.key('Space', `Include part ${i + 1}`);
+    }
+    await s.activate('[data-lp-show]', 'Submit complete checklist');
+  } else if (pattern === 'first-answer') {
+    await s.activate('[data-lp-save-first]', 'Blank first answer submit'); await s.snapshot('incomplete');
+    await s.seek('[data-lp-first-input]', 'First answer');
+    await s.type(lang === 'fr' ? "Arrêtez de m'interrompre." : 'Stop interrupting me.', 'Write first answer');
+    await s.activate('[data-lp-save-first]', 'Save first answer');
+    await s.activate('[data-lp-skip]', 'Skip to end');
+    await s.activate('[data-lp-compare]', 'Blank current answer submit');
+    await s.seek('[data-lp-now-input]', 'Current answer');
+    await s.type(lang === 'fr' ? 'Puis-je finir mon idée avant de vous écouter?' : 'Can I finish my thought, then hear your view?', 'Write current answer');
+    await s.activate('[data-lp-compare]', 'Compare answers');
+    for (const box of await page.locator('input[type="checkbox"]').all()) {
+      await s.seek(`[id="${await box.getAttribute('id')}"]`, 'Improvement checkbox'); await s.key('Space', 'Tick improvement');
+    }
+  } else if (pattern === 'highlight') {
+    await s.seek('[data-lp-chunk]', 'First passage chunk');
+    await s.key('Space', 'Mark wrong passage'); await s.key('Tab', 'Next passage at limit');
+    await s.key('Space', 'Attempt second mark at limit'); await s.snapshot('limit');
+    await s.activate('[data-lp-check]', 'Check wrong mark'); await s.snapshot('partial');
+    await s.read('Wrong mark local feedback'); await s.activate('[data-lp-restart]', 'Start over');
+    for (const chunk of content.paragraphs.flat()) {
+      await s.seek(`[data-lp-chunk="${chunk.id}"]`, `Passage ${chunk.id}`);
+      if (chunk.key) await s.key('Space', 'Mark correct evidence');
+    }
+    await s.activate('[data-lp-check]', 'Check correct mark');
+  } else if (pattern === 'review-prompts') {
+    await s.activate('[data-lp-commit]', 'Reveal recalled answer');
+    await s.activate('[data-lp-result="forgot"]', 'Rate forgot'); await s.snapshot('forgot');
+    await s.activate('[data-lp-result="remembered"]', 'Rate remembered');
+  } else if (pattern === 'retrieval-sheet') {
+    const radios = page.locator('[data-lp-spacing] input'), date = page.locator('[data-lp-date]');
+    await s.seek('[data-lp-spacing] input:checked', 'Spacing group');
+    await s.key('ArrowUp', 'Choose In 2 days');
+    for (const label of ['In 1 week', 'In 2 weeks', 'In 1 month', 'Another date']) await s.key('ArrowDown', `Choose ${label}`);
+    assert.equal(await radios.last().isChecked(), true, 'Another date not selected');
+    assert.equal(await date.isVisible(), true, 'Date field not revealed');
+    await s.key('Tab', 'Date field revealed');
+    // Shift+Tab into WebKit's date control lands on the year segment, which run 7 proved recoverable by typing.
+    const year = Number((await date.inputValue()).slice(0, 4)), rest = (await date.inputValue()).slice(4);
+    for (const [cycle, typed] of [['Different date', year + 1], ['Same date', year + 1]]) {
+      await s.seek('[data-lp-tab][aria-selected="true"]', `${cycle}: leave Date field`);
+      await s.key('Shift+Tab', `${cycle}: return to year segment`);
+      await s.key('Command+A', `${cycle}: select year`); await s.key('Backspace', `${cycle}: clear year`);
+      await s.key('Tab', `${cycle}: leave invalid date`);
+      assert.equal(await date.inputValue(), '', `${cycle}: date not cleared`);
+      await s.snapshot(`incomplete-${cycle === 'Same date' ? 'same' : 'different'}`);
+      await s.key('Shift+Tab', `${cycle}: return to invalid date`);
+      await s.type(String(typed), `${cycle}: recover year with digits`);
+      assert.equal(await date.inputValue(), `${typed}${rest}`, `${cycle}: intended date not recovered`);
+      await s.key('Tab', `${cycle}: leave recovered date`);
+    }
+    await s.seek('[data-lp-tab="front"]', 'Front tab');
+    await s.key('ArrowRight', 'Back tab'); await s.key('ArrowLeft', 'Front tab');
+    await s.key('End', 'Back tab End'); await s.key('Home', 'Front tab Home');
+    await s.key('ArrowRight', 'Back answers');
+    // Harness-owned: the native print sheet would block WebKit; the page's status write still runs.
+    await page.evaluate(() => { window.print = () => {}; });
+    await s.activate('[data-lp-print]', 'Print');
+  } else if (pattern === 'test-out') {
+    await s.activate('[data-lp-start]', 'Start check');
+    await s.activate('[data-lp-next]:visible', 'Missing first answer Next'); await s.snapshot('incomplete');
+    for (let q = 0; q < content.questions.length; q++) {
+      const index = q === 0 ? 0 : content.questions[q].options.findIndex(option => option.id === content.questions[q].correct);
+      await choose(page.locator('fieldset').nth(q).locator('input'), index, `Question ${q + 1}`, true);
+      if (q + 1 < content.questions.length) await s.activate('[data-lp-next]:visible', `Next to question ${q + 2}`);
+    }
+    await s.activate('[data-lp-check]', 'Submit placement check');
+    await s.activate('[data-lp-review] > summary', 'Open Review answers', 'Space');
+  } else if (pattern === 'write-distractors') {
+    await s.activate('[data-lp-check]', 'Blank recall submit');
+    await s.seek('[data-lp-answer]', 'Your answer'); await s.type(content.rightAnswer, 'Write recall');
+    await s.activate('[data-lp-check]', 'Check recall');
+    await s.activate('[data-lp-had-it]', 'Self-report Yes');
+    await s.activate('[data-lp-compare]', 'Incomplete wrong options submit'); await s.snapshot('incomplete');
+    for (let i = 0; i < content.count; i++) {
+      await s.seek(`[id="example-option-${i}-text"]`, `Wrong option ${i + 2}`);
+      await s.type(content.authorOptions[i].text, `Write wrong option ${i + 2}`);
+      await s.seek(`[id="example-option-${i}-misconception"]`, `Misconception ${i + 2}`);
+      await s.key('Space', 'Open misconception menu');
+      await s.key('Home', 'First misconception');
+      const index = content.misconceptions.findIndex(item => item.id === content.authorOptions[i].misconception);
+      for (let j = 0; j <= index; j++) await s.key('ArrowDown', `Misconception option ${j + 1}`);
+      await s.key('Enter', 'Commit misconception');
+    }
+    await s.activate('[data-lp-compare]', 'Compare valid options');
+  }
+}
