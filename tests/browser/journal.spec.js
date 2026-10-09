@@ -7,6 +7,26 @@ import { strings } from '../../patterns/journal/strings.js';
 const examples = Object.fromEntries(await Promise.all(['en', 'fr'].map(async lang => [lang, JSON.parse(await readFile(new URL(`../../patterns/journal/examples/${lang}.json`, import.meta.url)))])));
 const keys = ['situation', 'action', 'next_step', 'when', 'distress'];
 
+for (const lang of ['en', 'fr']) test(`failed suggestion moves focus before hiding its control (${lang})`, async ({ page }) => {
+  await open(page, lang, [1, 1, 0, 0, 0], 'throws');
+  await page.evaluate(() => {
+    window.lpFallbackFocus = [];
+    document.addEventListener('focusin', event => {
+      if (event.target.matches('[data-lp-questions] summary')) window.lpFallbackFocus.push({
+        visible: event.target.getClientRects().length > 0,
+        oldControlVisible: document.querySelector('[data-lp-suggest]').getClientRects().length > 0
+      });
+    });
+  });
+  await page.getByRole('textbox').fill('My reflection');
+  await page.locator('[data-lp-suggest]').focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('[data-lp-questions] summary')).toBeFocused();
+  await expect(page.locator('[data-lp-suggest]')).toBeHidden();
+  expect(await page.evaluate(() => window.lpFallbackFocus)).toEqual([{ visible: true, oldControlVisible: true }]);
+  await expect(page.getByRole('textbox')).toHaveValue('My reflection');
+});
+
 async function open(page, lang = 'en', values = [1, 1, 0, 0, 0], mode = 'ok') {
   await page.addInitScript(() => {
     const params = new URLSearchParams(location.search);
