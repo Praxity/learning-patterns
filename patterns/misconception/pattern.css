@@ -1,18 +1,8 @@
 /* Three-line quiz answer; the shared styles own all controls and choice marks. */
 .lp-misconception textarea.lp-input { min-block-size: 0; }
-/* An invalid answer keeps its error border while it has focus. The focus ring stays. */
-.lp-misconception textarea.lp-input[aria-invalid="true"]:focus { border-color: var(--lp-error-ink); }
 /* A grid fieldset makes WebKit size the two-part legend to its unwrapped text.
    Keep the fieldset native; the inner choice list uses the shared grid. */
 .lp-misconception fieldset.lp-choices { display: block; }
-/* Each icon is one line tall and centres in that line, so it lines up with the first line when the
-   text wraps. Centring on the whole block put a wrapped heading's icon between its two lines.
-   base.css leaves .lp-error-text icons unboxed; move this rule there once another pattern needs it. */
-.lp-misconception .lp-icon { block-size: 1lh; }
-.lp-misconception .lp-error-text { gap: 8px; }
 .lp-misconception-heading { display: flex; gap: 8px; align-items: flex-start; color: var(--lp-warning-ink); }
 .lp-misconception-feedback { display: flex; gap: 8px; align-items: flex-start; }
-/* The open chevron is a rotated outline, so its visual mass sits below its box. Lift it onto the
-   text's middle when open; the closed chevron already sits on it. */
-.lp-misconception .lp-details > summary::before { transition: transform .18s var(--lp-ease), translate .18s var(--lp-ease); }
-.lp-misconception .lp-details[open] > summary::before { translate: 0 -.16em; }
+.lp-misconception .lp-details > summary::before { transition: transform .18s var(--lp-ease); }
