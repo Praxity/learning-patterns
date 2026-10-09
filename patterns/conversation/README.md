@@ -1,13 +1,13 @@
 ---
-title: Talk it through
-title_fr: Parlons-en
+title: Scenario talk-through
+title_fr: Mise en pratique dans un scénario
 summary: Practise two replies to an upset colleague and review what happened.
 section: conversation
 ai: yes
 offline: yes
 learners: not tried
 ---
-# Talk it through
+# Scenario talk-through
 
 You changed a work plan without asking Michel. Practise answering him in two rounds.
 

@@ -1,13 +1,13 @@
 ---
-title: Your first answer comes back
-title_fr: Votre première réponse revient
+title: Your first answer replayed
+title_fr: Revenez sur votre première réponse
 summary: Save your first answer, answer again at the end of the course, then compare what changed.
 section: course
 ai: no
 offline: yes
 learners: not tried
 ---
-# Your first answer comes back
+# Your first answer replayed
 
 Save an answer at the start of a course. Answer again at the end, then compare what changed.
 

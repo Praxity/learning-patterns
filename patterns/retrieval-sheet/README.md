@@ -2,7 +2,7 @@
 title: Printable retrieval sheet
 title_fr: Feuille de rappel à imprimer
 summary: Print questions and answers on opposite sides of a sheet, then test yourself on a chosen date.
-section: course
+section: question
 ai: no
 offline: yes
 learners: not tried

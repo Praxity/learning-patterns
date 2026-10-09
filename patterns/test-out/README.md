@@ -1,13 +1,13 @@
 ---
-title: Test out of sections
-title_fr: Passez les sections que vous maîtrisez
+title: Pre-test to skip sections
+title_fr: Sautez certaines sections après un test
 summary: Answer a short check to see which refresher sections you can skip and which to take.
 section: course
 ai: no
 offline: yes
 learners: not tried
 ---
-# Test out of sections
+# Pre-test to skip sections
 
 Answer a short check to see which course sections you can skip and which to take.
 
