@@ -63,7 +63,7 @@ Every pattern follows this shared baseline. The [browser tests](tests/browser/) 
 - Every pattern has a working version without JavaScript. Its README describes which steps remain available.
 - English and French content, labels and feedback have checks in both languages.
 
-Automated checks cover only part of accessibility. Screen reader passes with VoiceOver and NVDA are not yet done.
+Automated checks cover only part of accessibility. NVDA passes in Chrome and Firefox and a VoiceOver pass in WebKit on macOS cover the eight patterns without AI. A VoiceOver pass in Safari is still to come.
 
 ## Licence
 
