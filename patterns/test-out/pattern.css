@@ -5,10 +5,17 @@
 .lp-test-out-outline-row { display: flex; gap: 16px; align-items: flex-start; }
 .lp-test-out-outline-row > .lp-run-in { flex: 1; min-inline-size: 0; }
 .lp-test-out-status { display: inline-flex; align-items: center; gap: 4px; flex: none; white-space: nowrap; font-weight: 600; }
+/* Back and Next share one row at every width. Next keeps its size; base.css would fill the card. */
 .lp-test-out-navigation { justify-content: space-between; }
-/* The shared scene and motion guards live in base.css. This entrance is specific to the stepper. */
-.lp-test-out-enter { animation: lp-test-out-slide 240ms var(--lp-ease); }
+.lp-test-out-navigation > .lp-button:not(.lp-button-quiet) { flex: none; }
+/* The review section starts 24px below the outline, as the policy note does, not 16px. */
+.lp-test-out-panel > .lp-section { margin-block-start: 24px; }
+/* The shared scene and motion guards live in base.css. This entrance is specific to the stepper.
+   A view change eases in and out (AGENTS.md motion rule), so the panel does not decelerate. */
+.lp-test-out-enter { animation: lp-test-out-slide 240ms cubic-bezier(.65, 0, .35, 1); }
 @keyframes lp-test-out-slide { from { opacity: 0; transform: translateX(var(--lp-test-out-enter-x, 16px)); } }
+/* Without JavaScript both panels show; the questions start 24px below the intro. */
+.lp-test-out-questions { margin-block-start: 24px; }
 .lp-test-out-questions > .lp-test-out-panel:first-child { margin-block-start: 0; padding-block-start: 0; border-block-start: 0; }
 .lp-test-out .lp-choice > span:not(.lp-choice-mark) { white-space: pre-line; }
 .lp-test-out .lp-choice-mark { white-space: normal; }
