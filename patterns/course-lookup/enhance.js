@@ -154,8 +154,8 @@ export function enhance(root, { content, strings, state, ask }) {
     if (!unmatched || input.value.trim() !== unmatched || questions.includes(unmatched)) return;
     if (questions.length >= BANK_LIMIT) { message(strings.bankFull); return; }
     if (persist([...questions, unmatched])) {
-      required('[data-lp-bank-list] li:last-child .lp-course-lookup-q').focus();
-      add.hidden = true; message(strings.added);
+      focusAfterLayout(required('[data-lp-bank-list] li:last-child .lp-course-lookup-q'), () => { add.hidden = true; }, lifetime.signal);
+      message(strings.added);
     }
   };
   /** @param {MouseEvent} event */
