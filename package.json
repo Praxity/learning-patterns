@@ -22,13 +22,15 @@
     "test:browser": "playwright test --workers=2",
     "preview:deploy": "node scripts/check-deploy-account.mjs && npm run demo && npx wrangler@4 deploy",
     "icons": "node scripts/build-icons.mjs",
-    "test:proxy": "node --test proxy/test/*.test.js"
+    "test:proxy": "node --test proxy/test/*.test.js",
+    "test:voiceover": "playwright test --config=playwright.voiceover.config.js"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",
     "@fontsource/source-sans-3": "^5.3.0",
     "@fontsource/source-serif-4": "^5.3.0",
-    "@playwright/test": "^1.56.0",
+    "@guidepup/guidepup": "0.35.0",
+    "@playwright/test": "1.63.0",
     "@tabler/icons": "^3.49.0",
     "typescript": "^5.9.3"
   }
