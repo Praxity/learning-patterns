@@ -30,16 +30,6 @@
       ],
       "correct": "interest-on-interest",
       "explanation": "Vous gagnez des intérêts sur votre épargne et sur les intérêts déjà ajoutés."
-    },
-    {
-      "id": "q4", "text": "Qu'est-ce qu'un budget vous aide à faire ?",
-      "options": [
-        { "id": "plan-spending-saving", "text": "Planifier vos dépenses et votre épargne selon votre revenu" },
-        { "id": "guarantee-income", "text": "Garantir que votre revenu augmentera" },
-        { "id": "avoid-surprises", "text": "Éviter toutes les dépenses imprévues" }
-      ],
-      "correct": "plan-spending-saving",
-      "explanation": "Un budget vous aide à planifier vos dépenses et votre épargne selon votre revenu."
     }
   ],
   "points": { "right": 1, "wrong": -1, "unknown": 0 }
