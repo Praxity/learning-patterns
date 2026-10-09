@@ -5,6 +5,41 @@ import { join } from 'node:path';
 
 const examples = Object.fromEntries(await Promise.all(['en', 'fr'].map(async lang => [lang, JSON.parse(await readFile(new URL(`../../patterns/explain-back/examples/${lang}.json`, import.meta.url)))])));
 
+for (const lang of ['en', 'fr']) test(`step focus follows layout and precedes hiding the old control (${lang})`, async ({ page }) => {
+  await open(page, lang, [1, 1, 0], 'ok', true);
+  await page.evaluate(() => {
+    window.lpStepFocus = [];
+    document.addEventListener('click', () => {
+      window.lpLayoutReady = false;
+      requestAnimationFrame(() => requestAnimationFrame(() => { window.lpLayoutReady = true; }));
+    }, true);
+    document.addEventListener('focusin', event => {
+      if (!event.target.matches('h2')) return;
+      window.lpStepFocus.push({
+        layoutReady: window.lpLayoutReady,
+        visible: event.target.getClientRects().length > 0,
+        oldControlVisible: [...document.querySelectorAll('.lp-actions button')].every(button => button.getClientRects().length > 0)
+      });
+    });
+  });
+  const ready = page.getByRole('button', { name: lang === 'en' ? "I'm ready to explain it" : "Passer à l'explication", exact: true });
+  const readAgain = page.getByRole('button', { name: lang === 'en' ? 'Read the text again' : 'Relire le texte', exact: true });
+  await ready.click();
+  await expect(page.locator('#example-task')).toBeFocused();
+  await expect(ready).toBeHidden();
+  await page.getByRole('textbox').fill('Preserved draft');
+  await readAgain.click();
+  await expect(page.locator('#example-lesson-stonewalling')).toBeFocused();
+  await expect(readAgain).toBeHidden();
+  expect(await page.evaluate(() => window.lpStepFocus)).toEqual([
+    { layoutReady: true, visible: true, oldControlVisible: true },
+    { layoutReady: true, visible: true, oldControlVisible: true }
+  ]);
+  await ready.click();
+  await expect(page.locator('#example-task')).toBeFocused();
+  await expect(page.getByRole('textbox')).toHaveValue('Preserved draft');
+});
+
 test('reading and explaining steps keep the draft and feedback, with heading focus', async ({ page }) => {
   await open(page, 'en', [1, 1, 0], 'ok', true);
   await expect(page.locator('.lp-explain-back-lesson')).toBeVisible();
@@ -58,7 +93,10 @@ async function open(page, lang = 'en', values = [1, 1, 0], mode = 'ok', reading 
   await page.waitForFunction(() => window.lpReady);
   if (mode !== 'missing') await expect(page.locator('[data-lp-check]')).toBeEnabled();
   const ready = page.getByRole('button', { name: lang === 'fr' ? "Passer \u00e0 l'explication" : "I'm ready to explain it" });
-  if (!reading && await ready.isVisible()) await ready.click();
+  if (!reading && await ready.isVisible()) {
+    await ready.click();
+    await expect(page.locator('#example-task')).toBeFocused();
+  }
 }
 async function submit(page) {
   await page.getByRole('textbox').fill('My explanation');

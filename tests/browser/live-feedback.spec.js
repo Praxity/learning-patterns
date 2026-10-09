@@ -6,6 +6,48 @@ import { strings } from '../../patterns/live-feedback/strings.js';
 const examples = Object.fromEntries(await Promise.all(['en', 'fr'].map(async lang => [lang, JSON.parse(await readFile(new URL(`../../patterns/live-feedback/examples/${lang}.json`, import.meta.url)))])));
 const draft = 'I will speak at the next meeting.';
 
+for (const lang of ['en', 'fr']) test(`checklist states are readable while typing stays silent (${lang})`, async ({ page }) => {
+  await open(page, { lang });
+  const prefixes = lang === 'en' ? { done: 'Done:', todo: 'To add:' } : { done: 'Fait :', todo: 'À ajouter :' };
+  const rows = page.locator('[data-lp-items] > li');
+  for (const row of await rows.all()) await expect(row).toContainText(prefixes.todo);
+  await auto(page);
+  for (const row of await rows.all()) {
+    const mark = await row.getAttribute('data-lp-mark');
+    await expect(row).toContainText(prefixes[mark]);
+    expect(await row.ariaSnapshot()).toContain(prefixes[mark]);
+  }
+  const announcements = await page.evaluate(() => window.lpAnnouncements);
+  await page.getByRole('textbox').press('x');
+  await page.clock.runFor(100);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(announcements);
+  await expect(page.locator('[data-lp-list]')).toHaveAttribute('aria-live', 'off');
+  await page.clock.runFor(900);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(announcements);
+});
+
+for (const lang of ['en', 'fr']) test(`Edit focuses the editable plan before hiding its button (${lang})`, async ({ page }) => {
+  await open(page, { lang });
+  await page.evaluate(() => { window.lpValues = [1, 1, 1, 1]; });
+  await auto(page);
+  await page.evaluate(() => {
+    window.lpEditFocus = [];
+    document.addEventListener('focusin', event => {
+      if (event.target.matches('textarea')) window.lpEditFocus.push({
+        editable: !event.target.readOnly,
+        oldControlVisible: document.querySelector('.lp-live-feedback-completion button').getClientRects().length > 0
+      });
+    });
+  });
+  const edit = page.getByRole('button', { name: strings[lang].edit, exact: true });
+  await edit.focus();
+  await page.keyboard.press('Enter');
+  await page.clock.runFor(50);
+  await expect(page.getByRole('textbox')).toBeFocused();
+  await expect(edit).toBeHidden();
+  expect(await page.evaluate(() => window.lpEditFocus)).toEqual([{ editable: true, oldControlVisible: true }]);
+});
+
 async function open(page, { lang = 'en', mode = 'ok', two = false } = {}) {
   await page.addInitScript(({ mode }) => {
     window.lpTestCalls = [];
@@ -131,6 +173,7 @@ for (const lang of ['en', 'fr']) test(`completion locks the answer, announces on
   const edit = page.getByRole('button', { name: strings[lang].edit, exact: true });
   await expect(edit).toBeFocused();
   await page.keyboard.press('Enter');
+  await page.clock.runFor(50);
   await expect(answer).toBeEditable();
   await expect(answer).not.toHaveAttribute('readonly');
   await expect(answer).toHaveCSS('background-color', 'rgb(255, 255, 255)');
@@ -153,6 +196,7 @@ for (const lang of ['en', 'fr']) test(`completion locks the answer, announces on
     complete, strings[lang].summary.replace('{count}', '3').replace('{total}', '4'), complete
   ]);
   await edit.click();
+  await page.clock.runFor(50);
   await auto(page, 'I will keep all four items in another finished plan.');
   await expect(answer).toHaveAttribute('readonly', '');
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([
@@ -185,7 +229,7 @@ test('destroy removes completion controls and restores an editable textarea', as
 
 test('starting checklist uses four plain to-add rows, without a button', async ({ page }) => {
   await open(page);
-  await expect(page.locator('[data-lp-items] > li')).toHaveText(examples.en.criteria.map(item => item.todo));
+  await expect(page.locator('[data-lp-items] > li [data-lp-item-text]')).toHaveText(examples.en.criteria.map(item => item.todo));
   await expect(page.locator('[data-lp-mark="todo"]')).toHaveCount(4);
   await expect(page.locator('.lp-live-feedback-bullet')).toHaveCount(4);
   await expect(page.getByRole('button')).toHaveCount(0);
@@ -199,7 +243,7 @@ test('starting checklist uses four plain to-add rows, without a button', async (
 test('done rows lead in criterion order; unsure uses the to-add wording and circle', async ({ page }) => {
   await open(page); await auto(page);
   expect(await order(page)).toEqual(['three_actions', 'commitments', 'observable', 'when']);
-  await expect(page.locator('[data-lp-items] > li')).toHaveText([
+  await expect(page.locator('[data-lp-items] > li [data-lp-item-text]')).toHaveText([
     examples.en.criteria[0].done, examples.en.criteria[3].done,
     examples.en.criteria[1].todo, examples.en.criteria[2].todo
   ]);
@@ -230,6 +274,7 @@ test('unfinished final sentences retain done items and order until punctuation o
   await page.evaluate(() => { window.lpValues = [1, 1, 1, 1]; });
   await auto(page, 'I will make another commitment.');
   await page.getByRole('button', { name: strings.en.edit }).click();
+  await page.clock.runFor(50);
   await page.evaluate(() => { window.lpValues = [0, 0, 0, 0]; });
   await auto(page, 'I will describe another action\n');
   await expect(page.locator('[data-lp-mark="todo"]')).toHaveCount(4);
@@ -273,6 +318,7 @@ test('completion on check 40 stays locked; Edit opens the self-check without mor
   await expect(page.locator('[data-lp-notice]')).toBeVisible();
   await expect(page.locator('[data-lp-fallback]')).toBeHidden();
   await page.getByRole('button', { name: strings.en.edit }).click();
+  await page.clock.runFor(50);
   await expect(page.getByRole('textbox')).toBeEditable();
   await expect(page.getByRole('textbox')).toBeFocused();
   await expect(page.locator('[data-lp-complete]')).toBeHidden();
@@ -290,6 +336,7 @@ test('failed checks after Edit restore the editable fallback', async ({ page }) 
   });
   await expect(page.getByRole('textbox')).toHaveAttribute('readonly', '');
   await page.getByRole('button', { name: strings.en.edit }).click();
+  await page.clock.runFor(50);
   await auto(page, 'I will revise before the next meeting.');
   await page.evaluate(() => { window.lpTestCalls[1].reject(new Error('Offline')); });
   await expect(page.locator('[data-lp-fallback]')).toBeVisible();
@@ -314,6 +361,7 @@ test('slow requests keep typing available, abort on edit and discard stale succe
   });
   await expect(page.locator('[data-lp-mark="done"]')).toHaveCount(4);
   await page.getByRole('button', { name: strings.en.edit }).click();
+  await page.clock.runFor(50);
   await auto(page, 'I will name a different workplace action.');
   await auto(page, 'I will name the latest workplace action.');
   await page.evaluate(() => { window.lpTestCalls[2].reject(new Error('Old refusal')); });
@@ -363,6 +411,9 @@ for (const lang of ['en', 'fr']) {
     await page.getByRole('checkbox').first().focus();
     await page.keyboard.press('Space');
     await expect(page.getByRole('checkbox').first()).toBeChecked();
+    await expect(page.getByRole('checkbox').nth(1)).not.toBeChecked();
+    await expect(page.getByRole('checkbox').first()).toMatchAriaSnapshot(`- checkbox "${examples[lang].criteria[0].done}" [checked]`);
+    await expect(page.getByRole('checkbox').nth(1)).toMatchAriaSnapshot(`- checkbox "${examples[lang].criteria[1].done}"`);
     expect(await page.evaluate(() => window.lpSaved.ticked)).toEqual(['three_actions']);
     await axe(page);
   });

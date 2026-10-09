@@ -4,6 +4,8 @@ export namespace strings {
         let checking: string;
         let summary: string;
         let checklist: string;
+        let done: string;
+        let todo: string;
         let complete: string;
         let edit: string;
         let paused: string;
@@ -19,6 +21,10 @@ export namespace strings {
         export { summary_1 as summary };
         let checklist_1: string;
         export { checklist_1 as checklist };
+        let done_1: string;
+        export { done_1 as done };
+        let todo_1: string;
+        export { todo_1 as todo };
         let complete_1: string;
         export { complete_1 as complete };
         let edit_1: string;

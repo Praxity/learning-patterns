@@ -2,6 +2,7 @@ import { start, turn, feedback, validateContent, validateState } from './logic.j
 import { renderMichel, renderChoices, renderDebrief } from './render.js';
 import { escapeHtml as html } from '../../lib/html.js';
 import { renderDataNotice } from '../../lib/data-notice.js';
+import { focusAfterLayout } from '../../lib/focus-after-layout.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
 const instances = new WeakMap();
@@ -42,6 +43,7 @@ export function enhance(root, { content, strings, state, ask }) {
   let request = new AbortController();
   let destroyed = false, automatic = Boolean(ask), pending = false, model = '', generation = 0;
   let conversation = start();
+  let cancelFocus = () => {};
   const save = () => state?.write({ conversation, draft: input.value });
 
   const refresh = () => {
@@ -60,7 +62,10 @@ export function enhance(root, { content, strings, state, ask }) {
     chat.insertAdjacentHTML('beforeend', `<li class="lp-conversation-turn lp-conversation-turn-you"><p class="lp-conversation-bubble" data-lp-you><span class="lp-conversation-speaker">${html(strings.you)}</span>${html(reply)}</p></li>${renderMichel(content, line, `${prefix}-line-${conversation.round}`)}${note ? `<li class="lp-conversation-note" data-lp-note><em>${html(note)}</em></li>` : ''}`);
   };
   /** Focus is the one announcement for a completed turn; never repeat it in status. */
-  const focusMichel = () => /** @type {HTMLElement} */ (chat.querySelectorAll('[data-lp-michel]')[conversation.round]).focus();
+  const focusMichel = () => {
+    cancelFocus();
+    cancelFocus = focusAfterLayout(/** @type {HTMLElement} */ (chat.querySelectorAll('[data-lp-michel]')[conversation.round]), () => {}, lifetime.signal);
+  };
   const useFallback = () => {
     automatic = false;
     notice.hidden = true; input.removeAttribute('aria-describedby');
@@ -148,7 +153,7 @@ export function enhance(root, { content, strings, state, ask }) {
   replies.addEventListener('click', onChoose); restart.addEventListener('click', onRestart);
   const instance = { destroy() {
     if (destroyed) return;
-    destroyed = true; generation++; lifetime.abort(); request.abort();
+    destroyed = true; generation++; lifetime.abort(); cancelFocus(); request.abort();
     input.removeEventListener('input', onInput); send.removeEventListener('click', onSend);
     replies.removeEventListener('click', onChoose); restart.removeEventListener('click', onRestart);
     root.innerHTML = serverMarkup; instances.delete(root);
