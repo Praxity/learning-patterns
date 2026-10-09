@@ -325,6 +325,8 @@ test('forced colours preserve bubbles and visible keyboard focus', async ({ page
   await page.emulateMedia({ forcedColors: 'active' }); await open(page); await submit(page);
   await expect(page.locator('[data-lp-michel]').last()).toHaveCSS('border-style', 'solid');
   await expect(page.locator('[data-lp-you]')).toHaveCSS('border-style', 'dashed');
+  // The turn moves focus to the new line two frames after sending. Focus the box only once that has landed.
+  await expect(page.locator('[data-lp-michel]').last()).toBeFocused();
   await page.getByRole('textbox').focus();
   await expect(page.locator('.lp-conversation-composer')).toHaveCSS('outline-style', 'solid');
   await expect(page.locator('.lp-conversation-composer')).toHaveCSS('outline-width', '2px');

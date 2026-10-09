@@ -274,6 +274,8 @@ test('shared client renders the configured provider notice and completes inline 
   }, examples.en);
   await expect(page.locator('[data-lp-check]')).toBeEnabled();
   await page.getByRole('button', { name: "I'm ready to explain it" }).click();
+  // Hiding the lesson moves the check button up the page, so wait for the step switch before clicking it.
+  await expect(page.locator('.lp-explain-back-lesson')).toBeHidden();
   await expect(page.locator('[data-lp-notice]')).toHaveText('Your answer is sent to a decision model; it is not stored and not used for training.');
   await expect(page.locator('[data-lp-challenge]')).toBeHidden();
   await submit(page);
