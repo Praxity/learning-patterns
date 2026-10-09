@@ -26,7 +26,7 @@ export function render(content, strings, { id, lang }) {
       <button class="lp-button lp-button-quiet" type="button" data-lp-restart hidden>${icons.refresh}${html(strings.restart)}</button>
     </div>
   </div>
-  <details class="lp-details lp-section" data-lp-fallback>
+  <details class="lp-details" data-lp-fallback>
     <summary>${html(strings.answer)}</summary>
     <ul class="lp-highlight-answer">${chunks.filter(chunk => chunk.key === true || chunk.note).map(chunk => `<li><p><span class="lp-run-in">${html(chunk.key === true ? (content.mode === 'key' ? strings.correctKey : strings.correctEvidence) : (content.mode === 'key' ? strings.wrongKey : strings.wrongEvidence))}</span> ${html(chunk.text)}</p>${chunk.note ? `<p class="lp-small">${html(chunk.note)}</p>` : ''}</li>`).join('')}</ul>
   </details>
