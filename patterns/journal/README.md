@@ -84,12 +84,11 @@ import { render } from './patterns/journal/render.js';
 import { enhance } from './patterns/journal/enhance.js';
 import { strings } from './patterns/journal/strings.js';
 import { createAsk } from './lib/ask.js';
+import { browserState } from './lib/browser-state.js';
 
 const markup = render(content, strings.en, { id: 'weekly', lang: 'en' });
-const state = {
-  read: () => JSON.parse(localStorage.getItem('weekly-journal') ?? 'null'),
-  write: value => localStorage.setItem('weekly-journal', JSON.stringify(value))
-};
+// Keeps the entry in this browser across reloads; denied storage makes Save say it couldn't keep it.
+const state = browserState({ pattern: 'journal', lang: 'en', id: 'weekly' });
 const ask = createAsk({ endpoint: '/api/patterns', fetch: window.fetch.bind(window) });
 enhance(document.querySelector('[data-lp-pattern="journal"]'), { content, strings: strings.en, state, ask });
 ```
