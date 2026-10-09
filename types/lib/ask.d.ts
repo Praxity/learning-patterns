@@ -15,9 +15,10 @@ export function createAsk({ endpoint, fetch }?: {
 /** @typedef {((block: string, fields: Record<string, string>, options?: AskOptions) => Promise<Answers>) & { config(): Promise<Config> }} Ask */
 /** @typedef {{ render(slot: HTMLElement, options: Record<string, unknown>): string, remove(id: string): void }} Turnstile */
 export class AskError extends Error {
-    /** @param {ErrorType} type */
-    constructor(type: ErrorType);
+    /** @param {ErrorType} type @param {import('./data-notice.js').CapReason} [reason] */
+    constructor(type: ErrorType, reason?: import("./data-notice.js").CapReason);
     type: ErrorType;
+    reason: import("./data-notice.js").CapReason | undefined;
 }
 export type ErrorType = "offline" | "refused" | "busy" | "budget" | "invalid";
 export type Answer = {

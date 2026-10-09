@@ -51,6 +51,8 @@ In 44 authored live checks, all 32 single-answer or unanswered cases matched the
 
 ## Accessibility
 
+Daily proxy caps show and announce the reason and midnight UTC reset once, keep focus in place and leave the fallback usable. Checks then stop until reload.
+
 Meets the shared baseline in the root README.
 
 - Results and the delayed progress line use `aria-live="off"`. One empty `role="status"` region announces a new result. Typing produces no announcements.

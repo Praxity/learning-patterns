@@ -1,6 +1,6 @@
 import { lookup, validateContent, validateState, AUTO_CHECK_LIMIT, BANK_LIMIT } from './logic.js';
 import { typingPause } from '../../lib/typing-pause.js';
-import { renderDataNotice } from '../../lib/data-notice.js';
+import { renderDataNotice, showCapNotice } from '../../lib/data-notice.js';
 import { escapeHtml as html } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
 import { focusAfterLayout } from '../../lib/focus-after-layout.js';
@@ -75,12 +75,14 @@ export function enhance(root, { content, strings, state, ask }) {
     if (root.ownerDocument.activeElement === add) input.focus();
     add.hidden = true;
   };
-  const useFallback = () => {
+  /** @param {boolean} [capped] */
+  const useFallback = (capped = false) => {
     const moveFocus = controls.contains(root.ownerDocument.activeElement);
     cancel(); ready = false; fallback.hidden = false;
     fallbackMessage.hidden = false; notice.hidden = true;
     input.removeAttribute('aria-describedby');
-    if (moveFocus) focusAfterLayout(required('[data-lp-fallback] summary, [data-lp-fallback] a'), () => { controls.hidden = true; }, lifetime.signal);
+    if (capped) controls.hidden = false;
+    else if (moveFocus) focusAfterLayout(required('[data-lp-fallback] summary, [data-lp-fallback] a'), () => { controls.hidden = true; }, lifetime.signal);
     else controls.hidden = true;
   };
   /** @param {boolean} [manual] */
@@ -114,8 +116,11 @@ export function enhance(root, { content, strings, state, ask }) {
         announced = signature;
         status.textContent = entries.length ? (content.kind === 'faq' ? strings.found : strings.sectionFound).replace('{title}', entries.map(entry => entry.title).join('; ')) : strings.noMatch;
       }
-    } catch {
-      if (!destroyed && my === seq) useFallback();
+    } catch (error) {
+      if (!destroyed) {
+        const capped = showCapNotice(error, root, fallback, status);
+        if (capped || my === seq) useFallback(capped);
+      }
     } finally {
       if (!destroyed && my === seq) {
         clearTimeout(slowTimer); slowTimer = undefined; checking.hidden = true; pending = undefined;

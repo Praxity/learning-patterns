@@ -29,6 +29,8 @@ Refutation texts produced an average learning benefit of 0.41 standard deviation
 
 ## Accessibility
 
+Daily proxy caps show and announce the reason and midnight UTC reset once, keep focus in place and leave the fallback usable.
+
 The question labels the three-line answer box. Submitting announces feedback once through one status region, without moving focus. Icons accompany text; colour alone conveys no meaning. Native disclosures and checkboxes support keyboards. Shared styles support reduced motion, forced colours and narrow layouts. Without JavaScript, the answer box, open model answer and checklist appear immediately. English and Québec French share the content structure.
 
 The browser tests cover all results, fallback, axe, keyboard use, 320 px reflow, text spacing and lifecycle in three engines. Human screen-reader checks remain separate.

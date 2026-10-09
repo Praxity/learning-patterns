@@ -1,7 +1,7 @@
 import { start, turn, feedback, validateContent, validateState } from './logic.js';
 import { renderMichel, renderChoices, renderDebrief } from './render.js';
 import { escapeHtml as html } from '../../lib/html.js';
-import { renderDataNotice } from '../../lib/data-notice.js';
+import { renderDataNotice, showCapNotice } from '../../lib/data-notice.js';
 import { focusAfterLayout } from '../../lib/focus-after-layout.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
@@ -41,14 +41,14 @@ export function enhance(root, { content, strings, state, ask }) {
   const prefix = input.id.replace(/-reply$/, '');
   const lifetime = new AbortController();
   let request = new AbortController();
-  let destroyed = false, automatic = Boolean(ask), pending = false, model = '', generation = 0;
+  let destroyed = false, automatic = Boolean(ask), capped = false, pending = false, model = '', generation = 0;
   let conversation = start();
   let cancelFocus = () => {};
   const save = () => state?.write({ conversation, draft: input.value });
 
   const refresh = () => {
     flow.hidden = conversation.end;
-    composer.hidden = !automatic || conversation.end;
+    composer.hidden = (!automatic && !capped) || conversation.end;
     choices.open = !automatic;
     summary.hidden = !automatic;
     offline.hidden = automatic;
@@ -127,10 +127,14 @@ export function enhance(root, { content, strings, state, ask }) {
       const answers = await ask('03-branch', { node: conversation.node, reply: draft }, { challengeSlot, signal: AbortSignal.any([lifetime.signal, request.signal]) });
       if (destroyed || mine !== generation || input.value.trim() !== draft) return;
       take(feedback(answers, model), draft);
-    } catch {
-      if (!destroyed && mine === generation) { useFallback(); status.textContent = strings.fallback; }
+    } catch (error) {
+      if (!destroyed && mine === generation) {
+        capped = showCapNotice(error, root, offline, status);
+        useFallback();
+        if (!capped) status.textContent = strings.fallback;
+      }
     } finally {
-      if (!destroyed && mine === generation) { pending = false; send.removeAttribute('aria-disabled'); send.textContent = strings.send; }
+      if (!destroyed && mine === generation) { pending = false; if (!capped) send.removeAttribute('aria-disabled'); send.textContent = strings.send; }
     }
   };
   /** @param {MouseEvent} event */
@@ -143,7 +147,7 @@ export function enhance(root, { content, strings, state, ask }) {
   const onRestart = () => {
     generation++; request.abort(); request = new AbortController();
     conversation = start(); pending = false;
-    send.removeAttribute('aria-disabled'); send.textContent = strings.send;
+    if (!capped) send.removeAttribute('aria-disabled'); send.textContent = strings.send;
     chat.innerHTML = renderMichel(content, content.opening, `${prefix}-line-0`);
     input.value = ''; error.hidden = true; input.removeAttribute('aria-invalid'); status.textContent = '';
     if (!notice.hidden) input.setAttribute('aria-describedby', `${notice.id}-text`);

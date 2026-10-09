@@ -40,6 +40,8 @@ Perplexity Decider v1.1 scored 11/12 on authored test answers using the original
 
 ## Accessibility
 
+Daily proxy caps show and announce the reason and midnight UTC reset once, keep focus in place and leave the fallback usable. Checks then stop until reload.
+
 Meets the shared baseline in the root README.
 
 - The list and checking line stay silent. The polite status region announces changed counts once, or "Well done! 4 of 4 done" on completion. Focus stays in place.

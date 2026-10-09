@@ -1,3 +1,4 @@
+import { CAP_MESSAGES } from '../../lib/data-notice.js';
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { readFile, mkdir } from 'node:fs/promises';
@@ -13,6 +14,9 @@ async function open(page, lang = 'en', choice = 'correct', confidence = 1, mode 
     if (mode === 'missing') window.lpAsk = null;
     else window.lpAsk = async (block, fields, options) => {
       window.lpTestCalls.push({ block, fields, slot: !!options.challengeSlot });
+      if (mode === 'ip_daily' || mode === 'budget') {
+        throw Object.assign(new Error('Daily cap'), { type: 'budget', reason: mode });
+      }
       if (mode === 'throws') throw new Error('Offline');
       if (mode === 'pending') await new Promise(resolve => { window.lpResolve = resolve; });
       return { misconception: { choice, confidence } };
@@ -281,4 +285,33 @@ test('capture requested English and French states', async ({ page, browserName }
     await page.evaluate(() => document.fonts.ready);
     await page.screenshot({ path: join(process.env.LP_SHOTS, `${lang}-${width}-${stage}.png`), fullPage: true });
   }
+});
+
+for (const lang of ['en', 'fr']) for (const reason of ['ip_daily', 'budget']) test(`daily cap shows and announces once, keeps focus and a usable fallback (${lang}, ${reason})`, async ({ page }) => {
+  await open(page, lang, 'correct', 1, reason); await observe(page);
+  const root = page.locator('[data-lp-pattern]').first();
+  const input = root.getByRole('textbox');
+  await input.fill('A complete draft for a live check');
+  const trigger = root.locator('[data-lp-check]');
+  await trigger.focus();
+  await page.evaluate(() => {
+    window.lpCapFocusMoves = 0;
+    document.addEventListener('focusin', () => { window.lpCapFocusMoves++; });
+  });
+  await page.keyboard.press('Enter');
+  const message = CAP_MESSAGES[reason][lang];
+  await expect(root.locator('[data-lp-cap]')).toHaveText(message);
+  await expect(root.locator('[data-lp-cap]')).toBeVisible();
+  await expect(trigger).toBeFocused();
+  expect(await page.evaluate(() => window.lpCapFocusMoves)).toBe(0);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([message]);
+  await expect(root.locator('[data-lp-fallback]')).toBeVisible();
+  expect(await root.evaluate(root => {
+    const notice = root.querySelector('[data-lp-cap]');
+    const fallback = root.querySelector('[data-lp-fallback]');
+    return Boolean(notice.compareDocumentPosition(fallback) & Node.DOCUMENT_POSITION_FOLLOWING);
+  })).toBe(true);
+  const box = root.locator('[data-lp-fallback] input').first();
+  await box.check();
+  await expect(box).toBeChecked();
 });

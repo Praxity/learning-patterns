@@ -29,6 +29,8 @@ Prompts to explain connections in learning material produced an average benefit 
 
 ## Accessibility
 
+Daily proxy caps show and announce the reason and midnight UTC reset once, keep focus in place and leave the fallback usable.
+
 Meets the shared baseline in the root README.
 
 - Results appear on submit and announce one summary without moving focus.
