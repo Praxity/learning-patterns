@@ -96,7 +96,7 @@ ${AI_PATTERNS.includes(name) ? liveAsk ? `import { createAsk } from '../lib/ask.
 const injectedAsk = createAsk();` : `const mockConfig = {
   model: ${JSON.stringify(DEFAULT_MODEL)},
   siteKey: '', provider: 'mock', providerName: 'Offline example',
-  dataNotice: ${name === 'course-lookup' ? `{ en: "This demo uses fixed matches. Lookup sends no text. Added questions stay in this browser.", fr: "Cette démo utilise des résultats fixes. La recherche n’envoie aucun texte. Les questions ajoutées restent dans ce navigateur." }` : name === 'journal' ? `{ en: "This demo uses fixed suggestions. Get a suggestion sends no text. Save keeps your entry in this browser.", fr: "Cette démo utilise des suggestions fixes. Obtenir une suggestion n’envoie aucun texte. Enregistrer garde votre entrée dans ce navigateur." }` : `{ en: "This demo uses fixed feedback. Your answer stays in this page and isn't sent or stored.", fr: "Cette démo utilise une rétroaction fixe. Votre réponse reste dans cette page et n'est ni envoyée ni conservée." }`}
+  dataNotice: ${name === 'course-lookup' ? `{ en: "This demo uses fixed matches. Lookup sends no text. Your questions stay in this tab until you close it.", fr: "Cette démo utilise des résultats fixes. La recherche n’envoie aucun texte. Vos questions restent dans cet onglet jusqu’à sa fermeture." }` : name === 'journal' ? `{ en: "This demo uses fixed suggestions. Get a suggestion sends no text. Your entry stays in this tab and clears when you close it.", fr: "Cette démo utilise des suggestions fixes. Obtenir une suggestion n’envoie aucun texte. Votre entrée reste dans cet onglet et s’efface quand vous le fermez." }` : `{ en: "This demo uses fixed feedback. Your answer stays in this page and isn't sent to a server.", fr: "Cette démo utilise une rétroaction fixe. Votre réponse reste dans cette page et n'est pas envoyée à un serveur." }`}
 };
 const fakeAsk = ${name === 'course-lookup' ? `async block => {
   const ids = block === '20-faq' ? content.entries.map(entry => entry.id) : sections.entries.map(entry => entry.id);
@@ -105,7 +105,7 @@ const fakeAsk = ${name === 'course-lookup' ? `async block => {
 const injectedAsk = window.lpAsk === null ? undefined : Object.assign(window.lpAsk ?? fakeAsk, { config: async () => mockConfig });` : ''}
 const roots = document.querySelectorAll('[data-lp-pattern]');
 ${name === 'journal' ? `import { browserState } from '../lib/browser-state.js';
-// The journal promises its entry stays in this browser, so the demo keeps it across reloads.
+// A reload keeps the entry; closing the tab clears it.
 const states = [...roots].map(root => window.lpState ?? (stored => ({
   read: () => window.lpSeed ?? stored.read(),
   write: value => { stored.write(value); window.lpSaved = value; }

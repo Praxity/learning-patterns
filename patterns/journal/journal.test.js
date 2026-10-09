@@ -17,7 +17,7 @@ const content = {
   complete: "Great. You've named a moment, what you did, and a next step with a when.",
   support: "If this is weighing on you, talk to someone you trust, your workplace's employee assistance programme or a local support service.",
   supportNote: "If something is weighing on you, talk to someone you trust, your workplace's employee assistance programme, or a local support service.",
-  saved: 'Saved in this browser',
+  saved: 'Saved in this tab',
   changed: 'Entry changed. Select Get a suggestion for the revised entry.'
 };
 const answers = (values = [1, 1, 1, 1, 0]) => Object.fromEntries(['situation', 'action', 'next_step', 'when', 'distress'].map((key, i) => [key, { noul: values[i] }]));

@@ -4,6 +4,7 @@ import { renderDataNotice, showCapNotice } from '../../lib/notice-ui.js';
 import { escapeHtml as html } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
 import { focusAfterLayout } from '../../lib/focus-after-layout.js';
+import { browserState } from '../../lib/browser-state.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
 const instances = new WeakMap();
@@ -35,12 +36,7 @@ export function enhance(root, { content, strings, state, ask }) {
   const session = sessions.get(root.ownerDocument) ?? { checks: 0, notify: new Set() };
   sessions.set(root.ownerDocument, session);
   const timing = typingPause();
-  const storageKey = `lp:course-lookup:${root.lang}:${input.id}`;
-  const storage = state ?? {
-    read: () => JSON.parse(root.ownerDocument.defaultView?.localStorage.getItem(storageKey) ?? 'null'),
-    /** @param {import('./logic.js').LearnerState} value */
-    write: value => root.ownerDocument.defaultView?.localStorage.setItem(storageKey, JSON.stringify(value))
-  };
+  const storage = state ?? browserState({ pattern: 'course-lookup', lang: root.lang, id: input.id });
   /** @type {string[]} */
   let questions = [];
   let destroyed = false, ready = false, composing = false, seq = 0, lastChecked = '', draft = '', unmatched = '', announced = '';
