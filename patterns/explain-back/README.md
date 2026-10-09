@@ -32,7 +32,7 @@ Prompts to explain connections in learning material produced an average benefit 
 Meets the shared baseline in the root README.
 
 - Results appear on submit and announce one summary without moving focus.
-- Switching steps moves keyboard focus to the new step's heading. Feedback links open the reading step and focus the matching lesson heading. "Read the text again" stays available after a check.
+- Switching steps reveals the new step, waits for browser layout, focuses its heading, then hides the previous step. Feedback links open the reading step and focus the matching lesson heading. "Read the text again" stays available after a check.
 - Each row has an icon and a word as well as colour. "To add" is orange; "Not sure" is neutral.
 - Without JavaScript, the lesson, answer box, native checklist and model answer appear together. JavaScript adds the step controls. If automatic checking is unavailable, the explanation step offers the checklist and model answer.
 - English and Québec French have the same fields and controls.
