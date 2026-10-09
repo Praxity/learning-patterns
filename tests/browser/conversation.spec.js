@@ -7,6 +7,28 @@ import { strings } from '../../patterns/conversation/strings.js';
 
 const examples = Object.fromEntries(await Promise.all(['en', 'fr'].map(async lang => [lang, JSON.parse(await readFile(new URL(`../../patterns/conversation/examples/${lang}.json`, import.meta.url)))])));
 
+test('turn focus waits for the new line to reach layout, including the ending', async ({ page }) => {
+  await open(page);
+  await page.evaluate(() => {
+    window.lpTurnFocus = [];
+    document.addEventListener('click', () => {
+      window.lpLayoutReady = false;
+      requestAnimationFrame(() => requestAnimationFrame(() => { window.lpLayoutReady = true; }));
+    }, true);
+    document.addEventListener('focusin', event => {
+      if (event.target.matches('[data-lp-michel]')) window.lpTurnFocus.push({ layoutReady: window.lpLayoutReady, visible: event.target.getClientRects().length > 0 });
+    });
+  });
+  await submit(page);
+  await expect(page.locator('[data-lp-michel]').last()).toBeFocused();
+  await submit(page);
+  await expect(page.locator('[data-lp-michel]').last()).toBeFocused();
+  await expect(page.locator('[data-lp-send]')).toBeHidden();
+  expect(await page.evaluate(() => window.lpTurnFocus)).toEqual([
+    { layoutReady: true, visible: true }, { layoutReady: true, visible: true }
+  ]);
+});
+
 async function open(page, lang = 'en', choice = 'acknowledge', confidence = 1, mode = 'ok') {
   await page.addInitScript(({ choice, confidence, mode }) => {
     window.lpTestCalls = [];
