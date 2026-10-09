@@ -32,7 +32,6 @@ With Node 22, run `npm ci` and `npm run demo`, then `node scripts/serve-demo.mjs
 | [Instant course lookup](patterns/course-lookup/README.md) | Ask a question to find an authored answer or course section. Save unanswered questions in your browser. |
 | [Test out of sections](patterns/test-out/README.md) | A short placement check marks which sections of a course you can skip; passing an advanced section credits the sections it builds on. |
 | [Write the wrong options](patterns/write-distractors/README.md) | Answer a question, write wrong options and the misconception behind each, then compare with the author's. |
-| [Test your feedback rules](patterns/feedback-rules/README.md) | Compare the decision model's labels with your labels on sample answers before using a rubric with learners. |
 
 ## Look and theme tokens
 
