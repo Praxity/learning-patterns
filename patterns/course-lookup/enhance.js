@@ -3,6 +3,7 @@ import { typingPause } from '../../lib/typing-pause.js';
 import { renderDataNotice } from '../../lib/data-notice.js';
 import { escapeHtml as html } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
+import { focusAfterLayout } from '../../lib/focus-after-layout.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
 const instances = new WeakMap();
@@ -43,6 +44,7 @@ export function enhance(root, { content, strings, state, ask }) {
   /** @type {string[]} */
   let questions = [];
   let destroyed = false, ready = false, composing = false, seq = 0, lastChecked = '', draft = '', unmatched = '', announced = '';
+  const lifetime = new AbortController();
   /** @type {ReturnType<typeof setTimeout> | undefined} */
   let timer;
   /** @type {ReturnType<typeof setTimeout> | undefined} */
@@ -54,7 +56,7 @@ export function enhance(root, { content, strings, state, ask }) {
   try { questions = validateState(storage.read())?.questions ?? []; }
   catch { message(strings.storageError); }
   const updateBank = () => {
-    bankList.innerHTML = content.seeds.map(seed => `<li><p class="lp-run-in lp-course-lookup-q">${icons['help-circle']}<span>${html(seed.question)}</span></p><p class="lp-small">${html(strings[seed.author])}</p><p>${html(seed.answer)}</p></li>`).join('') + questions.map((question, index) => `<li><p class="lp-run-in lp-course-lookup-q">${icons['help-circle']}<span>${html(question)}</span></p><p class="lp-small">${html(strings.waiting)}</p><button type="button" class="lp-button lp-button-quiet" data-lp-remove="${index}" aria-label="${html(`${strings.remove}: ${question}`)}">${icons.x}${html(strings.remove)}</button></li>`).join('');
+    bankList.innerHTML = content.seeds.map(seed => `<li><p class="lp-run-in lp-course-lookup-q">${icons['help-circle']}<span>${html(seed.question)}</span></p><p class="lp-small">${html(strings[seed.author])}</p><p>${html(seed.answer)}</p></li>`).join('') + questions.map((question, index) => `<li><p class="lp-run-in lp-course-lookup-q" tabindex="-1">${icons['help-circle']}<span>${html(question)}</span></p><p class="lp-small">${html(strings.waiting)}</p><button type="button" class="lp-button lp-button-quiet" data-lp-remove="${index}" aria-label="${html(`${strings.remove}: ${question}`)}">${icons.x}${html(strings.remove)}</button></li>`).join('');
     bank.hidden = false;
   };
   updateBank();
@@ -69,9 +71,17 @@ export function enhance(root, { content, strings, state, ask }) {
     if (!paused.hidden) { clearTimeout(timer); timer = undefined; }
   };
   session.notify.add(updateCap);
+  const hideAdd = () => {
+    if (root.ownerDocument.activeElement === add) input.focus();
+    add.hidden = true;
+  };
   const useFallback = () => {
-    cancel(); ready = false; controls.hidden = true; fallback.hidden = false;
+    const moveFocus = controls.contains(root.ownerDocument.activeElement);
+    cancel(); ready = false; fallback.hidden = false;
     fallbackMessage.hidden = false; notice.hidden = true;
+    input.removeAttribute('aria-describedby');
+    if (moveFocus) focusAfterLayout(required('[data-lp-fallback] summary, [data-lp-fallback] a'), () => { controls.hidden = true; }, lifetime.signal);
+    else controls.hidden = true;
   };
   /** @param {boolean} [manual] */
   const run = async (manual = false) => {
@@ -88,10 +98,16 @@ export function enhance(root, { content, strings, state, ask }) {
       const answers = await ask(content.kind === 'faq' ? '20-faq' : '21-sections', { question }, { challengeSlot, signal: controller.signal });
       if (destroyed || my !== seq) return;
       const entries = lookup(content, answers);
+      const resultFocused = result.contains(root.ownerDocument.activeElement);
       result.innerHTML = entries.length ? entries.map(entry => `<article><h3 class="lp-run-in${content.kind === 'faq' ? ' lp-course-lookup-q' : ''}">${content.kind === 'faq' ? `${icons['help-circle']}<span>${html(entry.title)}</span>` : `<a href="#${html(input.id.replace(/-question$/, `-section-${entry.id}`))}">${html(entry.title)}</a>`}</h3><p>${html(content.kind === 'faq' ? entry.answer ?? '' : entry.summary ?? '')}</p></article>`).join('') : `<p class="lp-run-in">${html(strings.noMatch)}</p>`;
       result.hidden = false;
+      if (resultFocused) {
+        const focus = /** @type {HTMLElement} */ (result.querySelector('a') ?? input);
+        focus.focus();
+      }
       unmatched = entries.length ? '' : question;
-      add.hidden = !unmatched || questions.includes(unmatched);
+      if (!unmatched || questions.includes(unmatched)) hideAdd();
+      else add.hidden = false;
       if (unmatched && questions.includes(unmatched)) { bankMessage.textContent = strings.saved; bankMessage.hidden = false; }
       const signature = entries.map(entry => entry.id).join(',') || 'none';
       if (signature !== announced) {
@@ -116,7 +132,7 @@ export function enhance(root, { content, strings, state, ask }) {
     if (composing) return;
     const next = input.value.trim();
     if (input.isConnected && next !== draft) {
-      draft = next; cancel(); add.hidden = true; unmatched = ''; bankMessage.hidden = true;
+      draft = next; cancel(); hideAdd(); unmatched = ''; bankMessage.hidden = true;
       schedule();
     }
   };
@@ -136,7 +152,10 @@ export function enhance(root, { content, strings, state, ask }) {
   const onAdd = () => {
     if (!unmatched || input.value.trim() !== unmatched || questions.includes(unmatched)) return;
     if (questions.length >= BANK_LIMIT) { message(strings.bankFull); return; }
-    if (persist([...questions, unmatched])) { add.hidden = true; message(strings.added); }
+    if (persist([...questions, unmatched])) {
+      required('[data-lp-bank-list] li:last-child .lp-course-lookup-q').focus();
+      add.hidden = true; message(strings.added);
+    }
   };
   /** @param {MouseEvent} event */
   const onClick = event => {
@@ -168,7 +187,7 @@ export function enhance(root, { content, strings, state, ask }) {
   } else useFallback();
   const instance = { destroy() {
     if (destroyed) return;
-    destroyed = true; cancel(); session.notify.delete(updateCap);
+    destroyed = true; lifetime.abort(); cancel(); session.notify.delete(updateCap);
     input.removeEventListener('input', onInput); input.removeEventListener('keydown', onKey);
     input.removeEventListener('compositionstart', onCompositionStart); input.removeEventListener('compositionend', onCompositionEnd);
     add.removeEventListener('click', onAdd); root.removeEventListener('click', onClick);

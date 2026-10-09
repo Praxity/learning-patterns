@@ -7,6 +7,82 @@ import { strings } from '../../patterns/course-lookup/strings.js';
 const faq = page => page.locator('[data-lp-kind="faq"]').first();
 const sections = page => page.locator('[data-lp-kind="sections"]').first();
 const draft = 'How long do I have to finish the course';
+
+for (const lang of ['en', 'fr']) test(`Add focuses the new question; Remove focuses the next question or input (${lang})`, async ({ page }) => {
+  await open(page, { lang }); await scores(page, { none: 1 });
+  const root = faq(page), bank = root.locator('[data-lp-bank-list]');
+  const first = 'Can I practise with my team', second = 'Can I practise with a colleague';
+  await auto(page, first); await root.locator('[data-lp-add]').click();
+  await expect(bank.locator('li').last().locator('.lp-course-lookup-q')).toBeFocused();
+  await expect(root.locator('[data-lp-add]')).toBeHidden();
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([strings[lang].noMatch, strings[lang].added]);
+  await auto(page, second); await root.locator('[data-lp-add]').click();
+  await expect(bank.locator('li').last().locator('.lp-course-lookup-q')).toBeFocused();
+  await bank.getByRole('button').first().click();
+  await expect(bank.getByRole('button').first()).toBeFocused();
+  await bank.getByRole('button').first().click();
+  await expect(root.getByRole('textbox')).toBeFocused();
+  await expect(bank.locator('li')).toHaveCount(3);
+});
+
+test('lookup failure moves focused controls to the visible fallback', async ({ page }) => {
+  await open(page, { mode: 'pending' });
+  for (const root of [faq(page), sections(page)]) {
+    await auto(page, draft, root);
+    await page.evaluate(() => window.lpCalls.at(-1).reject(new Error('Offline')));
+    await page.clock.runFor(50);
+    await expect(root.locator('[data-lp-fallback] summary, [data-lp-fallback] a').first()).toBeFocused();
+    await expect(root.locator('[data-lp-controls]')).toBeHidden();
+  }
+});
+
+test('an input update moves focus before hiding the focused Add button', async ({ page }) => {
+  await open(page); await scores(page, { none: 1 });
+  const root = faq(page), input = root.getByRole('textbox'), add = root.locator('[data-lp-add]');
+  await auto(page); await add.focus();
+  await input.evaluate(element => {
+    element.value = 'A revised question about the course';
+    element.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  await expect(input).toBeFocused();
+  await expect(add).toBeHidden();
+});
+
+test('replacing a focused section link retains focus in the lookup', async ({ page }) => {
+  await open(page, { mode: 'pending' });
+  const root = sections(page);
+  await auto(page, 'How do I refuse extra work', root);
+  await page.evaluate(() => window.lpCalls[0].resolve({ boundaries: 1 }));
+  await expect(root.locator('[data-lp-result] a')).toBeVisible();
+  await auto(page, 'How do I speak up in meetings', root);
+  await root.locator('[data-lp-result] a').focus();
+  await page.evaluate(() => window.lpCalls[1].resolve({ speaking: 1 }));
+  await expect(root.locator('[data-lp-result] a')).toBeFocused();
+  await auto(page, 'A question with no matching section', root);
+  await root.locator('[data-lp-result] a').focus();
+  await page.evaluate(() => window.lpCalls[2].resolve({ none: 1 }));
+  await expect(root.getByRole('textbox')).toBeFocused();
+});
+
+test('bank capacity and automatic-check cap keep a usable focused control', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('lp:course-lookup:en:example-faq-question', JSON.stringify({ questions: Array.from({ length: 100 }, (_, index) => `Saved question ${index}`) }));
+  });
+  await open(page); await scores(page, { none: 1 });
+  const root = faq(page), add = root.locator('[data-lp-add]');
+  await auto(page, 'Can I practise with my team'); await add.focus(); await page.keyboard.press('Enter');
+  await expect(add).toBeFocused();
+  await expect(root.locator('[data-lp-bank-message]')).toHaveText('Your bank is full. Remove a question to add another.');
+  for (let index = 1; index < 30; index++) await auto(page, `Another unanswered question ${index}`);
+  await expect(root.locator('[data-lp-paused]')).toBeVisible();
+  await expect(root.getByRole('textbox')).toBeFocused();
+  await add.focus(); await page.keyboard.press('Enter'); await expect(add).toBeFocused();
+  await root.getByRole('textbox').focus();
+  await root.getByRole('textbox').fill('Manual checking still works after the cap');
+  await root.getByRole('textbox').press('Enter');
+  expect(await calls(page)).toBe(31);
+  await expect(root.getByRole('textbox')).toBeFocused();
+});
 async function open(page, { mode = 'ok', lang = 'en', two = false } = {}) {
   await page.addInitScript(({ mode }) => {
     window.lpCalls = [];
@@ -156,10 +232,12 @@ test('browser bank adds, deduplicates, removes and persists separately from the 
 test('bank storage failures preserve the previous bank and report the failed change', async ({ page }) => {
   await open(page); await scores(page,{none:1}); await auto(page,'Can I practise with my team');
   await page.evaluate(() => { Storage.prototype.setItem = () => { throw new Error('Quota'); }; });
-  await faq(page).locator('[data-lp-add]').click();
+  await faq(page).locator('[data-lp-add]').focus();
+  await page.keyboard.press('Enter');
   await expect(faq(page).locator('[data-lp-bank-message]')).toHaveText(strings.en.storageError);
   await expect(faq(page).locator('[data-lp-bank-list] li')).toHaveCount(3);
   await expect(faq(page).locator('[data-lp-add]')).toBeVisible();
+  await expect(faq(page).locator('[data-lp-add]')).toBeFocused();
 });
 
 test('section results reveal and link to the authored outline without moving focus on update', async ({ page }) => {
@@ -175,7 +253,7 @@ test('section results reveal and link to the authored outline without moving foc
 
 for (const mode of ['missing','throws','invalid']) test(`failed lookup exposes full FAQ and outline (${mode})`,async ({page})=>{
   await open(page,{mode});
-  if(mode!=='missing') {await auto(page); await auto(page,'How do I refuse extra work',sections(page));}
+  if(mode!=='missing') {await auto(page); await auto(page,'How do I refuse extra work',sections(page)); await page.clock.runFor(50);}
   for(const root of [faq(page),sections(page)]) {
     await expect(root.locator('[data-lp-controls]')).toBeHidden();
     await expect(root.locator('[data-lp-fallback]')).toBeVisible();

@@ -56,7 +56,7 @@ Meets the shared baseline in the root README.
 - Results and the delayed progress line use `aria-live="off"`. One empty `role="status"` region announces a new result. Typing produces no announcements.
 - Enter starts a check. Shift+Enter adds a line break. Composition input finishes before lookup. Links and bank buttons use native keyboard behaviour.
 - Native FAQ disclosures and outline links work without JavaScript. Failed checks reveal the same content.
-- No animation, colour-only feedback or focus movement on results. Removing a question moves focus to the next removal button or the question field.
+- No animation, colour-only feedback or focus movement on results. Adding a question focuses its text in the bank. Removing a question moves focus to the next removal button or the question field. If lookup fails while a lookup control has focus, focus moves to the first fallback disclosure or outline link.
 - English and Québec French use the same controls. French uses vous.
 - Browser checks cover axe, keyboard use, narrow reflow, text spacing, reduced motion and forced colours. Screen reader listening requires a separate human check.
 
