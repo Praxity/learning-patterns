@@ -1,11 +1,8 @@
 /* A dated journal page and one quiet suggestion. */
-/* The icon box is one line tall, so its glyph centres on the first line of the date. */
 .lp-journal-date { display: flex; gap: 6px; align-items: flex-start; }
-.lp-journal-date > .lp-icon { block-size: 1lh; }
 .lp-journal .lp-journal-page { padding: 16px 18px; min-block-size: 16rem; line-height: 1.65; }
+/* The invalid border is 2px, so its padding drops 1px to keep the text where the valid field puts it. */
 .lp-journal .lp-journal-page[aria-invalid="true"] { padding: 15px 17px; }
-/* Focus keeps the error colour on the border, so the field still reads as invalid. */
-.lp-journal .lp-journal-page[aria-invalid="true"]:focus { border-color: var(--lp-error-ink); }
 .lp-journal-page::placeholder { color: var(--lp-ink-2); opacity: 1; }
 .lp-journal-actions { align-items: flex-start; gap: 16px 24px; }
 /* The save message takes its own line under both actions. Under Save it widened that column and pushed the suggestion sideways. */
@@ -14,14 +11,11 @@
 .lp-journal-action > * + * { margin-block-start: 8px; }
 .lp-journal-suggest { flex: 1; }
 .lp-journal-result { padding: 18px; border-radius: var(--lp-radius-control); background: var(--lp-paper-2); }
-/* The check sits in a one-line box, centred on the first line. Wrapped text hangs under the words, not the icon. */
+/* The check takes the first column, so wrapped text hangs under the words, not the icon. */
 .lp-journal-result:has(> .lp-icon) { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 6px; align-items: start; }
-.lp-journal-result > .lp-icon { block-size: 1lh; }
 .lp-journal-questions { padding-inline-start: 24px; }
 .lp-journal-questions > * + * { margin-block-start: 12px; }
 .lp-journal [data-lp-questions] > summary::before { transition: none; }
-/* A rotated chevron's point hangs below its box centre (by about .35 of its side). Lift the open V onto the heading's middle. */
-.lp-journal [data-lp-questions][open] > summary::before { translate: 0 -.16em; }
 /* The base 24px padding left the heading far below the rule; 12px balances the space above and below it. */
 .lp-journal [data-lp-questions] { padding-block-start: 12px; }
 @container (max-width: 30rem) {
