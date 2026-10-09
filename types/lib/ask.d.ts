@@ -18,7 +18,7 @@ export class AskError extends Error {
     /** @param {ErrorType} type @param {import('./data-notice.js').CapReason} [reason] */
     constructor(type: ErrorType, reason?: import("./data-notice.js").CapReason);
     type: ErrorType;
-    reason: import("./data-notice.js").CapReason | undefined;
+    reason: import("./notice-ui.js").CapReason | undefined;
 }
 export type ErrorType = "offline" | "refused" | "busy" | "budget" | "invalid";
 export type Answer = {

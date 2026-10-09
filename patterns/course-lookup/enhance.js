@@ -1,6 +1,6 @@
 import { lookup, validateContent, validateState, AUTO_CHECK_LIMIT, BANK_LIMIT } from './logic.js';
 import { typingPause } from '../../lib/typing-pause.js';
-import { renderDataNotice, showCapNotice } from '../../lib/data-notice.js';
+import { renderDataNotice, showCapNotice } from '../../lib/notice-ui.js';
 import { escapeHtml as html } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
 import { focusAfterLayout } from '../../lib/focus-after-layout.js';
