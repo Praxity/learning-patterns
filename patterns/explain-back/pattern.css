@@ -7,7 +7,6 @@
 .lp-explain-back [data-lp-challenge] { min-inline-size: 0; }
 /* Closed chevron only: its point sits .16em right of the box centre, so the drawn mark shifts onto the text.
    base.css has no closed-state shift; the open state uses its shared transform. */
-.lp-explain-back .lp-details:not([open]) > summary::before { transform: translate(-.16em, 0) rotate(-45deg); }
 /* Feedback links are touch targets, at least 24 px tall. */
 .lp-explain-back [data-lp-reread] { display: inline-flex; align-items: center; min-block-size: 24px; }
 @media (forced-colors: active) {
