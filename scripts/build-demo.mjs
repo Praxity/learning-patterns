@@ -25,6 +25,7 @@ await copyInto('proxy/logic/20-faq.js');
 await copyInto('proxy/logic/21-sections.js');
 await copyInto('proxy/logic/02-live.js');
 await copyInto('lib/focus-after-layout.js');
+await copyInto('lib/browser-state.js');
 await copyInto('proxy/logic/07-explain-back.js');
 await copyInto('proxy/logic/06-misconceptions.js');
 await copyInto('proxy/logic/03-contract.js');
@@ -102,10 +103,12 @@ const fakeAsk = ${name === 'course-lookup' ? `async block => {
 }` : `async () => (${name === 'journal' ? '{ situation: { noul: 1 }, action: { noul: 1 }, next_step: { noul: 0 }, when: { noul: 0 }, distress: { noul: 0 } }' : name === 'conversation' ? "{ branch: { choice: 'acknowledge', confidence: 1 } }" : name === 'live-feedback' ? '{ three_actions: { noul: 1 }, observable: { noul: 1 }, when: { noul: 0 }, commitments: { noul: 1 } }' : name === 'misconception' ? "{ misconception: { choice: 'rereading', confidence: 1 } }" : '{ stonewalling: { noul: 1 }, pause: { noul: 1 }, return: { noul: 0 } }'})`};
 const injectedAsk = window.lpAsk === null ? undefined : Object.assign(window.lpAsk ?? fakeAsk, { config: async () => mockConfig });` : ''}
 const roots = document.querySelectorAll('[data-lp-pattern]');
-${name === 'journal' ? `const states = [...roots].map(root => window.lpState ?? {
-  read: () => window.lpSeed ?? JSON.parse(localStorage.getItem('lp:journal:${lang}:' + root.querySelector('textarea').id) ?? 'null'),
-  write: value => { localStorage.setItem('lp:journal:${lang}:' + root.querySelector('textarea').id, JSON.stringify(value)); window.lpSaved = value; }
-});` : ''}
+${name === 'journal' ? `import { browserState } from '../lib/browser-state.js';
+// The journal promises its entry stays in this browser, so the demo keeps it across reloads.
+const states = [...roots].map(root => window.lpState ?? (stored => ({
+  read: () => window.lpSeed ?? stored.read(),
+  write: value => { stored.write(value); window.lpSaved = value; }
+}))(browserState({ pattern: 'journal', lang: '${lang}', id: root.querySelector('textarea').id })));` : ''}
 window.lpInstances = [...roots].map((root, index) => enhance(root, { content: contentFor(root), strings: strings.${lang}, state${name === 'course-lookup' ? ': window.lpState' : name === 'journal' ? ': states[index]' : ''}${AI_PATTERNS.includes(name) ? ', ask: injectedAsk' : ''} }));
 window.lpEnhance = () => enhance(roots[0], { content: contentFor(roots[0]), strings: strings.${lang}, state${name === 'course-lookup' ? ': window.lpState' : name === 'journal' ? ': states[0]' : ''}${AI_PATTERNS.includes(name) ? ', ask: injectedAsk' : ''} });
 window.lpReady = true;
