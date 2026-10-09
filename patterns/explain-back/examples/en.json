@@ -7,7 +7,7 @@
       "heading": "Stonewalling",
       "body": "Stonewalling is going silent, withdrawing or changing the subject without saying why. The other person feels ignored or rejected. The problem stays unsolved.",
       "label": "Stonewalling is withdrawing without saying why.",
-      "met": "You explained that stonewalling means withdrawing without saying why.",
+      "met": "You explained that stonewalling means going silent or withdrawing.",
       "missed": "Describe stonewalling: going silent, withdrawing or changing the subject without saying why.",
       "unsure": "It's unclear whether you explained stonewalling. Describe what the person does."
     },
@@ -27,7 +27,7 @@
       "label": "You agree when to come back, and then come back.",
       "met": "You said to agree when to come back, and then come back.",
       "missed": "Add how a time-out ends.",
-      "unsure": "It's unclear whether you said to come back."
+      "unsure": "You said to come back. Say when, too: agree on a time so they aren't left waiting."
     }
   ]
 }
