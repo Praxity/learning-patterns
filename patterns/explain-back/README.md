@@ -1,13 +1,13 @@
 ---
-title: Explain it back
-title_fr: Expliquez-le avec vos mots
+title: Explain what you learned
+title_fr: Expliquez ce que vous avez appris
 summary: Explain a short lesson, check three key ideas and reread any you missed.
 section: reading
 ai: yes
 offline: yes
 learners: not tried
 ---
-# Explain it back
+# Explain what you learned
 
 Explain a lesson in your own words and check which key ideas you included.
 

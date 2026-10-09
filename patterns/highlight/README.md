@@ -1,13 +1,13 @@
 ---
-title: Highlight the passage
-title_fr: Surlignez le passage
+title: Highlight the key passage
+title_fr: Surlignez le passage clé
 summary: Mark key ideas or text that answers a question, then compare with the author's choices.
 section: reading
 ai: no
 offline: yes
 learners: not tried
 ---
-# Highlight the passage
+# Highlight the key passage
 
 Mark key ideas or text that answers a question. Then compare your marks with the author's choices in the passage.
 

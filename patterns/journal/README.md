@@ -1,13 +1,13 @@
 ---
-title: Journal with one nudge
-title_fr: Journal avec une question
+title: Journal entry with a nudge
+title_fr: Entrée de journal avec un coup de pouce
 summary: Reflect on your week, save your entry and ask for a question or support message.
-section: course
+section: question
 ai: yes
 offline: yes
 learners: not tried
 ---
-# Journal with one nudge
+# Journal entry with a nudge
 
 Reflect on practising assertiveness this week. Save your entry in your browser or ask for one optional question.
 

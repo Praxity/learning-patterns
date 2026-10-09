@@ -19,18 +19,18 @@ With Node 22, run `npm ci` and `npm run demo`, then `node scripts/serve-demo.mjs
 | Pattern | What it does |
 | --- | --- |
 | [Check your own answer](patterns/self-check/README.md) | Write an answer, tick the parts it includes, then see a hint for each part you missed and a model answer. |
-| [Explain it back](patterns/explain-back/README.md) | Explain a short lesson, check its three key ideas, then reread the parts to add. |
+| [Explain what you learned](patterns/explain-back/README.md) | Explain a short lesson, check its three key ideas, then reread the parts to add. |
 | [Feedback while you type](patterns/live-feedback/README.md) | Write a classifiable response and see a checklist update when you pause. |
 | [Spot the misconception](patterns/misconception/README.md) | Answer a study question, compare an authored refutation or key idea with a model answer. |
-| [Talk it through](patterns/conversation/README.md) | Reply to an upset colleague, see how the conversation changes, then reflect on your two moves. |
+| [Talk through a scenario](patterns/conversation/README.md) | Reply to an upset colleague, see how the conversation changes, then reflect on your two moves. |
 | ["I don't know" as an answer](patterns/dont-know/README.md) | Multiple choice where "I don't know" scores zero and a wrong answer costs a point, so guesses don't hide gaps. |
 | [Questions inside the reading](patterns/review-prompts/README.md) | Short recall questions between sections of text, each with a next review date. |
 | [Printable retrieval sheet](patterns/retrieval-sheet/README.md) | Print questions on the front and answers on the back to test yourself on a chosen date, with no connection needed. |
-| [Highlight the passage](patterns/highlight/README.md) | Mark the parts of a passage that answer a question, or its key ideas, then compare with the author's choices in place. |
-| [Your first answer comes back](patterns/first-answer/README.md) | Save an answer at the start of a course and compare it with a new one at the end. |
-| [Journal with one nudge](patterns/journal/README.md) | Reflect on your week, save your entry and get one optional question or an authored support line. |
+| [Highlight the key passage](patterns/highlight/README.md) | Mark the parts of a passage that answer a question, or its key ideas, then compare with the author's choices in place. |
+| [Your first answer replayed](patterns/first-answer/README.md) | Save an answer at the start of a course and compare it with a new one at the end. |
+| [Journal entry with a nudge](patterns/journal/README.md) | Reflect on your week, save your entry and get one optional question or an authored support line. |
 | [Instant course lookup](patterns/course-lookup/README.md) | Ask a question to find an authored answer or course section. Save unanswered questions in your browser. |
-| [Test out of sections](patterns/test-out/README.md) | A short placement check marks which sections of a course you can skip; passing an advanced section credits the sections it builds on. |
+| [Pre-test to skip sections](patterns/test-out/README.md) | A short placement check marks which sections of a course you can skip; passing an advanced section credits the sections it builds on. |
 | [Write the wrong options](patterns/write-distractors/README.md) | Answer a question, write wrong options and the misconception behind each, then compare with the author's. |
 
 ## Look and theme tokens

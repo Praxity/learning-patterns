@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Explain it back content",
+  "title": "Explain what you learned content",
   "type": "object",
   "required": ["task", "model", "ideas"],
   "additionalProperties": false,
