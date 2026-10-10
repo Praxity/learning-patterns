@@ -161,11 +161,15 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
 .lp-choice > input[type="checkbox"] { grid-column: 1; grid-row: 1; margin-block-start: 1px; }
 /* Everything else (the text, then any feedback) stacks in the text column, one row each. */
 .lp-choice > :not(input, .lp-choice-mark, .lp-choice-key) { grid-column: 2; min-inline-size: 0; }
-/* The key letter sits on the same baseline as the first line of text. Centring the key box on the
-   line looked high, because lowercase text sits below the line's centre (owner, 2026-10-07). */
+/* The first line of text sits optically centred on the key box: the midpoint between its cap
+   height and x-height on the box's centre. Centring the line box looked high, because lowercase
+   text sits below the line's centre (owner, 2026-10-07); aligning to the 13px key letter's baseline
+   still left the 17px text about 2px high (owner, 2026-10-10). The .125em top margin (2px at body
+   size) closes that gap; later lines and feedback in the text column keep no margin. */
 .lp-choice:has(> input[type="radio"])::before,
 .lp-choice > .lp-choice-key,
-.lp-choice > :not(input, .lp-choice-mark, .lp-choice-key) { align-self: baseline; }
+.lp-choice > :not(input, .lp-choice-mark, .lp-choice-key) { align-self: start; }
+.lp-choice > :not(input, .lp-choice-mark, .lp-choice-key):nth-child(1 of :not(input, .lp-choice-mark, .lp-choice-key)) { margin-block-start: .125em; }
 /* A key without a radio, for read-only rows such as a question preview. */
 .lp-choice > .lp-choice-key { display: grid; grid-column: 1; grid-row: 1; place-items: center; inline-size: 26px; block-size: 26px; border: 1px solid var(--lp-line); border-radius: 6px; color: var(--lp-ink-2); background: var(--lp-paper); font-size: 13px; font-weight: 600; }
 .lp-choice[data-lp-mark="correct"] > .lp-choice-key { color: var(--lp-on-accent); background: var(--lp-success-ink); border-color: var(--lp-success-ink); }
