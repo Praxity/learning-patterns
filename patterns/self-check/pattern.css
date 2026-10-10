@@ -7,7 +7,9 @@
 .lp-self-check-meta { display: grid; grid-template-columns: subgrid; grid-column: 1 / -1; align-items: start; min-block-size: 44px; padding: 8px 16px; border-block-end: 1px solid var(--lp-rule); font-size: var(--lp-type-small); }
 .lp-self-check-meta-key { white-space: nowrap; color: var(--lp-ink-2); }
 .lp-self-check-meta:has(.lp-self-check-recipient) > .lp-self-check-meta-key { padding-block-start: 2px; }
-.lp-self-check-recipient { display: inline-flex; gap: 8px; align-items: center; justify-self: start; white-space: nowrap; padding: 2px 10px 2px 2px; border-radius: 999px; background: var(--lp-paper-2); }
+/* A long name or address wraps inside the pill. The 14px radius is concentric with the 24px avatar:
+   a pill on one line, a rounded box with the avatar on the first line when it wraps. */
+.lp-self-check-recipient { display: inline-flex; gap: 8px; align-items: flex-start; justify-self: start; min-inline-size: 0; padding: 2px 10px 2px 2px; border-radius: 14px; background: var(--lp-paper-2); overflow-wrap: anywhere; }
 .lp-self-check-avatar { display: grid; place-items: center; min-inline-size: 24px; min-block-size: 24px; flex: none; padding: 2px; border-radius: 50%; color: var(--lp-on-accent); background: var(--lp-accent); font-size: .75rem; font-weight: 600; }
 .lp-self-check-composer-label { padding: 12px 16px 0; }
 .lp-self-check-composer-body.lp-input { margin: 0; padding: 6px 16px 14px; min-block-size: 9.5rem; border: 0; border-radius: 0; font-size: 1.125rem; }
@@ -43,8 +45,9 @@
 .lp-self-check-legend-item { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: start; padding: 8px 10px; border-radius: 8px; }
 .lp-self-check-legend-item > .lp-self-check-ann-n { margin: 3px 0 0; }
 .lp-self-check-legend-item[data-lp-included="false"] { background: var(--lp-warning-soft); }
-.lp-self-check-legend-line { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; align-items: start; }
-.lp-self-check-legend-label { font-weight: 600; }
+/* The status sits beside the label, or drops under it when the label would get less than 12rem. */
+.lp-self-check-legend-line { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: flex-start; }
+.lp-self-check-legend-label { flex: 1 1 12rem; min-inline-size: 0; font-weight: 600; }
 .lp-self-check-legend-where { display: block; color: var(--lp-ink-2); font-size: var(--lp-type-small); font-weight: 400; }
 .lp-self-check-legend-status { display: inline-flex; gap: 4px; align-items: center; padding: 1px 8px 1px 6px; border-radius: 999px; font-size: var(--lp-type-small); font-weight: 600; color: var(--lp-success-ink); background: var(--lp-success-soft); }
 [data-lp-included="false"] .lp-self-check-legend-status { color: var(--lp-warning-ink); background: var(--lp-paper); }

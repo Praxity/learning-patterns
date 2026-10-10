@@ -32,8 +32,10 @@ test('shared scene spans the card and centres its tile on the task', async ({ pa
     await page.setViewportSize({ width, height: 900 });
     const geometry = await page.locator('.lp-scene').evaluate(el => {
       const scene = el.getBoundingClientRect(), card = el.parentElement.getBoundingClientRect();
-      const tile = el.querySelector('.lp-scene-icon').getBoundingClientRect(), text = el.querySelector('div').getBoundingClientRect();
-      return [scene.left - card.left, card.right - scene.right, tile.top + tile.height / 2 - text.top - text.height / 2];
+      const tile = el.querySelector('.lp-scene-icon svg').getBoundingClientRect(), text = el.querySelector('div').getBoundingClientRect();
+      // Centred on the text up to two title lines, then level with the first two (lib/base.css).
+      const title = el.querySelector('.lp-scene-title'), centre = Math.min(text.height / 2, title.getBoundingClientRect().top - text.top + parseFloat(getComputedStyle(title).lineHeight));
+      return [scene.left - card.left, card.right - scene.right, tile.top + tile.height / 2 - text.top - centre];
     });
     for (const difference of geometry) expect(Math.abs(difference)).toBeLessThanOrEqual(1);
   }
@@ -104,7 +106,7 @@ for (const forcedColors of ['none', 'active']) {
   });
 }
 
-test('feedback badges and number keys stay at the first line of long part labels', async ({ page }) => {
+test('number keys stay at the first line of long part labels, and badges too until the label would get under 12rem', async ({ page }) => {
   await open(page);
   await page.evaluate(async () => {
     const { render } = await import('/patterns/self-check/render.js');
@@ -122,10 +124,15 @@ test('feedback badges and number keys stay at the first line of long part labels
       const label = el.querySelector('.lp-self-check-legend-label');
       const key = el.querySelector(':scope > .lp-self-check-ann-n');
       const badge = el.querySelector('.lp-self-check-legend-status');
-      return { label: label.getBoundingClientRect().top, key: key.getBoundingClientRect().top, badge: badge.getBoundingClientRect().top };
+      return { label: label.getBoundingClientRect().top, labelBottom: label.getBoundingClientRect().bottom, labelWidth: label.getBoundingClientRect().width, key: key.getBoundingClientRect().top, badge: badge.getBoundingClientRect().top };
     });
     expect(Math.abs(positions.key - positions.label)).toBeLessThanOrEqual(4);
-    expect(Math.abs(positions.badge - positions.label)).toBeLessThanOrEqual(4);
+    // The badge sits on the label's first line while the label keeps 12rem, and drops under it otherwise.
+    const beside = Math.abs(positions.badge - positions.label) <= 4;
+    if (width === 1280) expect(beside).toBe(true);
+    if (width === 320) expect(beside).toBe(false);
+    if (!beside) expect(positions.badge).toBeGreaterThanOrEqual(positions.labelBottom);
+    expect(positions.labelWidth).toBeGreaterThanOrEqual(192);
     const summary = await page.locator('.lp-self-check-result-head').evaluate(el => ({
       ring: el.querySelector('svg').getBoundingClientRect().top,
       title: el.querySelector('h3').getBoundingClientRect().top

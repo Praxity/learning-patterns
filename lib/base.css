@@ -66,12 +66,18 @@
 .lp-quote { padding: 12px 16px; border-inline-start: 3px solid var(--lp-line-mid); border-radius: 0 8px 8px 0; background: var(--lp-paper-2); }
 
 /* The scene header: what this activity is, shown as the real task (an icon tile, a short label,
-   the title). It spans the top of the card. Centre the tile on the text block so one-line and
-   two-line titles both line up. */
+   the title). It spans the top of the card. The tile centres on the text block while the block is
+   up to two title lines tall, so one-line and two-line titles line up. A taller block keeps the tile
+   level with its first two lines instead of floating mid-block. The icon column stretches to the
+   text; its top spacer stops at the two-line offset and the bottom spacer takes the rest. */
 .lp-scene { display: flex; gap: 14px; align-items: center; margin: -28px -28px 24px; padding: 20px 28px; border-block-end: 1px solid var(--lp-rule); border-radius: var(--lp-radius-box) var(--lp-radius-box) 0 0; background: var(--lp-paper-2); }
 .lp-scene > div { min-inline-size: 0; }
-.lp-scene-icon { display: grid; flex: none; place-items: center; inline-size: 40px; block-size: 40px; border-radius: var(--lp-radius-control); color: var(--lp-accent-ink); background: var(--lp-accent-soft); }
-.lp-scene-icon .lp-icon { inline-size: 22px; block-size: 22px; }
+.lp-scene-icon { display: flex; flex: none; flex-direction: column; align-self: stretch; color: var(--lp-accent-ink); }
+.lp-scene-icon::before, .lp-scene-icon::after { content: ""; flex: 1 1 0; }
+/* Centred on the first two title lines: the title's 2px top margin and one .lp-scene-title line
+   (1.1875rem at line-height 1.35), less half the 40px tile. */
+.lp-scene-icon::before { max-block-size: calc(2px + 1.35 * 1.1875rem - 20px); }
+.lp-scene-icon .lp-icon { inline-size: 40px; block-size: 40px; padding: 9px; border-radius: var(--lp-radius-control); background: var(--lp-accent-soft); }
 .lp-scene-label { color: var(--lp-ink-2); font-size: var(--lp-type-small); font-weight: 600; line-height: 1.3; }
 .lp-scene-title { margin-block-start: 2px; font-size: 1.1875rem; font-weight: 600; line-height: 1.35; letter-spacing: -.005em; }
 .lp-scene-sub { margin-block-start: 4px; color: var(--lp-ink-2); font-size: var(--lp-type-small); line-height: 1.45; }
@@ -176,7 +182,8 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
 .lp-choice[data-lp-mark="wrong"] > .lp-choice-key { color: var(--lp-on-accent); background: var(--lp-error-ink); border-color: var(--lp-error-ink); }
 .lp-choice > .lp-choice-mark { grid-column: 3; grid-row: 1; align-self: start; margin-inline-start: 0; }
 @container (max-width: 34rem) {
-  .lp-choice > .lp-choice-mark { grid-column: 2 / -1; grid-row: 2; justify-self: start; }
+  /* On its own row a long mark (French, 400% zoom) wraps rather than leaving the row. */
+  .lp-choice > .lp-choice-mark { grid-column: 2 / -1; grid-row: 2; justify-self: start; white-space: normal; }
 }
 
 /* Marking a choice after submit: icon, word and colour on the row itself. */
@@ -185,7 +192,9 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
 .lp-choice[data-lp-mark="wrong"], .lp-choice[data-lp-mark="wrong"]:has(input:checked) { border: 2px solid var(--lp-error-ink); padding: 9px 13px; background: var(--lp-error-soft); }
 .lp-choice[data-lp-mark="correct"]:has(> input[type="radio"])::before { color: var(--lp-on-accent); background: var(--lp-success-ink); border-color: var(--lp-success-ink); }
 .lp-choice[data-lp-mark="wrong"]:has(> input[type="radio"])::before { color: var(--lp-on-accent); background: var(--lp-error-ink); border-color: var(--lp-error-ink); }
-.lp-choice-mark { display: inline-flex; gap: 4px; align-items: center; margin-inline-start: auto; padding: 2px 10px 2px 8px; border-radius: 999px; background: var(--lp-paper); font-size: var(--lp-type-small); font-weight: 600; white-space: nowrap; }
+/* The radius is half of one line plus padding: a pill on one line, a rounded box when the mark wraps,
+   with the line-high icon on the first line. */
+.lp-choice-mark { display: inline-flex; gap: 4px; align-items: flex-start; margin-inline-start: auto; padding: 2px 10px 2px 8px; border-radius: 12px; border-radius: calc(.5lh + 2px); background: var(--lp-paper); font-size: var(--lp-type-small); font-weight: 600; white-space: nowrap; }
 .lp-choice-mark.lp-met { color: var(--lp-success-ink); }
 .lp-choice-mark.lp-missed { color: var(--lp-error-ink); }
 .lp-choice-mark.lp-neutral { color: var(--lp-ink-2); }
@@ -238,10 +247,11 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
    align icons with align-items: start and no per-icon margins. Older browsers keep the 1.15em box. */
 .lp-icon { block-size: 1lh; }
 .lp-outcomes { display: grid; gap: 6px; padding: 0; list-style: none; }
-.lp-outcome { display: grid; grid-template-columns: auto 1fr; column-gap: 10px; align-items: start; padding: 8px 10px; border-radius: 8px; }
+.lp-outcome { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 10px; align-items: start; padding: 8px 10px; border-radius: 8px; }
 .lp-outcome > :not(.lp-icon) { grid-column: 2; }
 .lp-outcome-word { font-weight: 600; }
-.lp-outcome-detail { color: var(--lp-ink-2); }
+/* Details often echo what the learner typed: keep their line breaks and break a pasted URL. */
+.lp-outcome-detail { color: var(--lp-ink-2); white-space: pre-line; overflow-wrap: anywhere; }
 .lp-met { color: var(--lp-success-ink); }
 .lp-missed { color: var(--lp-error-ink); }
 .lp-neutral { color: var(--lp-ink-2); }

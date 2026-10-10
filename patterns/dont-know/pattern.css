@@ -13,7 +13,10 @@
 .lp-dont-know-review ul { display: grid; gap: 8px; margin-block-start: 8px; padding: 0; list-style: none; }
 .lp-dont-know-review a { display: inline-flex; gap: 8px; align-items: flex-start; }
 .lp-dont-know-review .lp-icon { margin-block-start: .2em; }
-.lp-dont-know-review span { min-inline-size: 0; }
+/* A review link only has to identify its question, so it shows two lines and the rest on hover or
+   keyboard focus. The clipped text stays in the link's accessible name. */
+.lp-dont-know-review span { display: -webkit-box; min-inline-size: 0; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
+.lp-dont-know-review a:is(:hover, :focus-visible) span { -webkit-line-clamp: none; line-clamp: none; }
 .lp-dont-know-fallback-list { display: grid; gap: 16px; padding-inline-start: 24px; }
 .lp-dont-know-fallback-list li > * + * { margin-block-start: 8px; }
 .lp-dont-know-unknown { flex-wrap: wrap; }
