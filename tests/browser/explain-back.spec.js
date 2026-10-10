@@ -346,7 +346,8 @@ test('forced colours preserve row marks and keyboard focus', async ({ page, brow
   }
 });
 
-test('choice keys share the first text baseline at wide and narrow widths', async ({ page }) => {
+// Keys and text align to the row's top; choice-rows.spec.js checks the text is optically centred on the key.
+test('choice keys and text align to the top of the row at wide and narrow widths', async ({ page }) => {
   await open(page, 'en', [1, 0, .5]); await submit(page); await page.evaluate(() => document.fonts.ready);
   for (const width of [1280, 390, 320]) {
     await page.setViewportSize({ width, height: 900 });
@@ -354,7 +355,7 @@ test('choice keys share the first text baseline at wide and narrow widths', asyn
       const key = row.querySelector('.lp-choice-key');
       return [getComputedStyle(key).alignSelf, getComputedStyle(key.nextElementSibling).alignSelf];
     }));
-    expect(alignments).toEqual([['baseline', 'baseline'], ['baseline', 'baseline'], ['baseline', 'baseline']]);
+    expect(alignments).toEqual([['start', 'start'], ['start', 'start'], ['start', 'start']]);
   }
 });
 
