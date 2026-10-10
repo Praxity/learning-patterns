@@ -1,3 +1,4 @@
+import { frenchTypography } from '../../lib/html.js';
 import { CAP_MESSAGES } from '../../lib/data-notice.js';
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
@@ -92,7 +93,7 @@ for (const lang of ['en', 'fr']) {
     const requests = []; page.on('request', request => requests.push(request.url()));
     await open(page, lang); await observe(page);
     await expect(page.locator('[data-lp-pattern]')).toHaveAttribute('lang', lang);
-    await expect(page.getByRole('textbox')).toHaveAccessibleName(examples[lang].prompt);
+    await expect(page.getByRole('textbox')).toHaveAccessibleName(frenchTypography(examples[lang].prompt, lang).replace(/\s+/g, ' '));
     await expect(page.getByRole('textbox')).toHaveAttribute('maxlength', '1500');
     await expect(page.getByRole('textbox')).toHaveAttribute('placeholder', strings[lang].placeholder);
     await expect(page.locator('.lp-scene-label, label')).toHaveCount(0);
@@ -120,7 +121,7 @@ for (const lang of ['en', 'fr']) {
       await expect(page.locator('[data-lp-result]')).toBeVisible();
       await expect(page.locator('[data-lp-questions]')).toBeHidden();
       await expect(page.getByRole('checkbox')).toHaveCount(0);
-      expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([examples[lang].questions[index].text]);
+      expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([frenchTypography(examples[lang].questions[index].text, lang)]);
       expect(await page.evaluate(() => window.lpTestCalls)).toEqual([{ block: '13-journal', fields: { answer: 'My reflection' }, slot: true }]);
       expect(await page.evaluate(() => window.lpSaved)).toBeUndefined();
       await axe(page);
@@ -402,7 +403,7 @@ test('without JavaScript the dated writing page, questions and authored support 
   const context = await browser.newContext({ javaScriptEnabled: false }); const page = await context.newPage();
   for (const lang of ['en', 'fr']) {
     await page.goto(`${baseURL}/journal/${lang}.html`);
-    await expect(page.getByRole('textbox')).toHaveAccessibleName(examples[lang].prompt); await page.getByRole('textbox').fill('A reflection');
+    await expect(page.getByRole('textbox')).toHaveAccessibleName(frenchTypography(examples[lang].prompt, lang).replace(/\s+/g, ' ')); await page.getByRole('textbox').fill('A reflection');
     await expect(page.locator('[data-lp-actions]')).toBeHidden(); await expect(page.locator('[data-lp-questions] li')).toHaveCount(4);
     await expect(page.locator('[data-lp-support]')).toHaveText(examples[lang].supportNote); await expect(page.locator('[data-lp-support]')).toBeVisible();
     await page.locator('[data-lp-questions] summary').click(); await expect(page.locator('[data-lp-questions]')).not.toHaveAttribute('open');
@@ -467,4 +468,21 @@ test('the save message takes its own line under the actions, even when the host 
   await expect(page.locator('[data-lp-saved]')).toHaveText(examples.en.saved);
   const [saved, suggest] = await Promise.all(['[data-lp-saved]', '.lp-journal-suggest'].map(selector => page.locator(selector).boundingBox()));
   expect(saved.y).toBeGreaterThanOrEqual(suggest.y + suggest.height);
+});
+
+
+for (const lang of ['en', 'fr']) test(`restored entry heading uses its saved date (${lang})`, async ({ page }) => {
+  await page.addInitScript(() => { window.lpSeed = { text: 'A saved reflection', savedAt: '2025-01-15T12:00:00.000Z' }; });
+  await open(page, lang);
+  await expect(page.locator('[data-lp-date]')).toHaveAttribute('datetime', '2025-01-15');
+  await expect(page.locator('[data-lp-date]')).toHaveText(lang === 'fr' ? '15 janvier 2025' : 'January 15, 2025');
+  await page.getByRole('textbox').fill('A newer reflection');
+  await page.locator('[data-lp-save]').click();
+  const savedAt = await page.evaluate(() => window.lpSaved.savedAt);
+  const expected = await page.evaluate(({ savedAt, lang }) => {
+    const date = new Date(savedAt);
+    return { day: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`, label: new Intl.DateTimeFormat(lang === 'fr' ? 'fr-CA' : 'en-CA', { dateStyle: 'long' }).format(date) };
+  }, { savedAt, lang });
+  await expect(page.locator('[data-lp-date]')).toHaveAttribute('datetime', expected.day);
+  await expect(page.locator('[data-lp-date]')).toHaveText(expected.label);
 });
