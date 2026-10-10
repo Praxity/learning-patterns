@@ -68,8 +68,25 @@ export function enhance(root, { content, strings, state }) {
     const sub = !firstMissing ? strings.resultAll : missing.length === 1
       ? strings.resultOne.replaceAll('{label}', firstMissing.label)
       : strings.resultMany;
-    const model = annotate(content.model, content.parts, ticked()).map(segment => segment.partIndex === null ? html(segment.text, root.lang)
-      : `<mark class="lp-self-check-ann" data-lp-included="${segment.included}"><span class="lp-self-check-ann-n" aria-hidden="true">${segment.partIndex + 1}</span>${html(segment.text, root.lang)}</mark>`).join('');
+    const displayModel = frenchTypography(content.model, root.lang);
+    const segments = annotate(content.model, content.parts, ticked());
+    let offset = 0;
+    // Typography changes only horizontal spaces; align them without changing evidence ownership.
+    const horizontalSpace = /^[ \t\u00a0\u202f]$/;
+    const model = segments.map((segment, index) => {
+      const start = offset;
+      for (const character of segment.text) {
+        if (horizontalSpace.test(character)) {
+          if (horizontalSpace.test(displayModel[offset] ?? '')) offset++;
+        } else {
+          while (horizontalSpace.test(displayModel[offset] ?? '')) offset++;
+          offset += character.length;
+        }
+      }
+      const text = html(displayModel.slice(start, index === segments.length - 1 ? undefined : offset), root.lang, { literal: true });
+      return segment.partIndex === null ? text
+        : `<mark class="lp-self-check-ann" data-lp-included="${segment.included}"><span class="lp-self-check-ann-n" aria-hidden="true">${segment.partIndex + 1}</span>${text}</mark>`;
+    }).join('');
     result.innerHTML = `<div class="lp-self-check-result-head">${ring(outcome.count, outcome.total, 64)}<div><h3 class="lp-stem">${html(summary, root.lang)}</h3><p class="lp-small">${html(sub, root.lang)}</p></div></div>
       <div class="lp-self-check-compare">
         <figure class="lp-self-check-pane"><figcaption>${html(strings.mine, root.lang)}</figcaption><p class="lp-self-check-pane-body">${html(answer.value.trim(), root.lang)}</p></figure>
