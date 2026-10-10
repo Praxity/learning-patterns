@@ -256,7 +256,7 @@ test('French summary uses singular for one skippable section', async ({ page }) 
 test('reduced motion applies and new scene colours meet contrast', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' }); await open(page);
   await expect(page.locator('.lp-choice').first()).toHaveCSS('transition-duration', '0s');
-  const [ink, paper] = await page.locator('.lp-scene-icon').evaluate(el => [getComputedStyle(el).color, getComputedStyle(el).backgroundColor]);
+  const [ink, paper] = await page.locator('.lp-scene-icon svg').evaluate(el => [getComputedStyle(el).color, getComputedStyle(el).backgroundColor]);
   const luminance = rgb => rgb.match(/\d+/g).slice(0, 3).map(Number).map(x => x / 255).map(x => x <= .04045 ? x / 12.92 : ((x + .055) / 1.055) ** 2.4).reduce((sum, x, i) => sum + x * [.2126, .7152, .0722][i], 0);
   expect((luminance(paper) + .05) / (luminance(ink) + .05)).toBeGreaterThanOrEqual(3);
 });
