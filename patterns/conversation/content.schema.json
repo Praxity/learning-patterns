@@ -16,7 +16,8 @@
   ],
   "properties": {
     "setup": {
-      "$ref": "#/$defs/text"
+      "$ref": "#/$defs/text",
+      "maxLength": 400
     },
     "person": {
       "type": "object",
@@ -30,22 +31,26 @@
         "name": {
           "type": "string",
           "minLength": 1,
-          "pattern": "\\S"
+          "pattern": "\\S",
+          "maxLength": 120
         },
         "role": {
           "type": "string",
           "minLength": 1,
-          "pattern": "\\S"
+          "pattern": "\\S",
+          "maxLength": 120
         },
         "initial": {
           "type": "string",
           "minLength": 1,
-          "pattern": "\\S"
+          "pattern": "\\S",
+          "maxLength": 2
         }
       }
     },
     "opening": {
-      "$ref": "#/$defs/text"
+      "$ref": "#/$defs/text",
+      "maxLength": 400
     },
     "branches": {
       "type": "object",
@@ -115,24 +120,29 @@
       "additionalProperties": {
         "type": "string",
         "minLength": 1,
-        "pattern": "\\S"
+        "pattern": "\\S",
+        "maxLength": 1500
       }
     },
     "pauseNote": {
-      "$ref": "#/$defs/text"
+      "$ref": "#/$defs/text",
+      "maxLength": 1500
     },
     "unsure": {
-      "$ref": "#/$defs/text"
+      "$ref": "#/$defs/text",
+      "maxLength": 1500
     },
     "offScript": {
-      "$ref": "#/$defs/text"
+      "$ref": "#/$defs/text",
+      "maxLength": 1500
     }
   },
   "$defs": {
     "text": {
       "type": "string",
       "minLength": 1,
-      "pattern": "\\S"
+      "pattern": "\\S",
+      "maxLength": 1500
     },
     "replies": {
       "type": "object",
@@ -148,27 +158,32 @@
         "acknowledge": {
           "type": "string",
           "minLength": 1,
-          "pattern": "\\S"
+          "pattern": "\\S",
+          "maxLength": 400
         },
         "defend": {
           "type": "string",
           "minLength": 1,
-          "pattern": "\\S"
+          "pattern": "\\S",
+          "maxLength": 400
         },
         "attack": {
           "type": "string",
           "minLength": 1,
-          "pattern": "\\S"
+          "pattern": "\\S",
+          "maxLength": 400
         },
         "withdraw": {
           "type": "string",
           "minLength": 1,
-          "pattern": "\\S"
+          "pattern": "\\S",
+          "maxLength": 400
         },
         "pause": {
           "type": "string",
           "minLength": 1,
-          "pattern": "\\S"
+          "pattern": "\\S",
+          "maxLength": 400
         }
       }
     },
@@ -228,7 +243,8 @@
         "line": {
           "type": "string",
           "minLength": 1,
-          "pattern": "\\S"
+          "pattern": "\\S",
+          "maxLength": 400
         },
         "endings": {
           "$ref": "#/$defs/replies"
@@ -236,12 +252,14 @@
         "move": {
           "type": "string",
           "minLength": 1,
-          "pattern": "\\S"
+          "pattern": "\\S",
+          "maxLength": 120
         },
         "debrief": {
           "type": "string",
           "minLength": 1,
-          "pattern": "\\S"
+          "pattern": "\\S",
+          "maxLength": 1500
         }
       }
     }

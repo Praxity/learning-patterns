@@ -1,3 +1,4 @@
+import { frenchTypography } from '../../lib/html.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -59,7 +60,7 @@ test('bilingual no-JS markup contains full FAQ, outline links and one empty stat
       const markup = render(content, strings[lang], { id: 'one', lang });
       assert.equal([...markup.matchAll(/role="status"/g)].length, 1);
       for (const [, id] of markup.matchAll(/\sid="([^"]+)"/g)) assert.ok(id.startsWith('one-'));
-      for (const entry of content.entries) assert.ok(markup.includes(entry.title));
+      for (const entry of content.entries) assert.ok(markup.includes(frenchTypography(entry.title, lang)));
       assert.match(markup, /data-lp-controls hidden/);
       if (content.kind === 'faq') assert.equal([...markup.matchAll(/<details/g)].length, 8);
       else for (const entry of content.entries) assert.ok(markup.includes(`href="#one-section-${entry.id}"`));
@@ -71,4 +72,15 @@ test('bilingual no-JS markup contains full FAQ, outline links and one empty stat
     assert.match(course, /<em>&lt;b&gt;x&lt;\/b&gt;<\/em>/);
     assert.throws(() => render({ ...faq, course: undefined }, strings[lang], { id: 'one', lang }), /Invalid prompt/);
   }
+});
+
+
+test('course is accepted in schema and every prompt placeholder is replaced literally', async () => {
+  const schema = JSON.parse(await readFile(new URL('./content.schema.json', import.meta.url)));
+  assert.equal(schema.properties.course.type, 'string');
+  assert.equal(schema.properties.course.maxLength, 120);
+  const content = { ...example, prompt: '{course} and {course}', course: '$& <Course>' };
+  const markup = render(content, strings.en, { id: 'course', lang: 'en' });
+  assert.equal(markup.includes('{course}'), false);
+  assert.equal(markup.split('<em>$&amp; &lt;Course&gt;</em>').length - 1, 2);
 });

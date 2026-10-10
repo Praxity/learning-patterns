@@ -1,3 +1,4 @@
+import { validateTextLengths } from '../../lib/text-limits.js';
 /** @typedef {{ id: string, question: string, answer: string }} Question */
 /** @typedef {{ title: string, questions: Question[] }} Content */
 /** @typedef {'front' | 'back'} Side */
@@ -14,10 +15,14 @@ function fields(value, allowed, path) {
  * @param {unknown} content @returns {asserts content is Content}
  */
 export function validateContent(content) {
+  validateTextLengths(content, {
+    title: 120,
+    questions: [{"id": 120, "question": 400, "answer": 1500}],
+  });
   if (!object(content)) throw new Error('Invalid content');
   fields(content, ['title', 'questions'], 'content');
   if (typeof content.title !== 'string' || content.title.length === 0) throw new Error('Invalid title');
-  if (!Array.isArray(content.questions) || content.questions.length === 0) throw new Error('Invalid questions');
+  if (!Array.isArray(content.questions) || content.questions.length === 0 || content.questions.length > 8) throw new Error('Invalid questions');
   const known = new Set();
   content.questions.forEach((row, index) => {
     const path = `questions[${index}]`;

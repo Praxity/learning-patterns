@@ -59,7 +59,7 @@ Authors write plain text. Rendering escapes HTML characters. Keep English and Qu
 | `questions[].id` | Unique string id using letters, digits, underscores or hyphens. |
 | `questions[].section` | Existing numeric section id. |
 | `questions[].text` | Fieldset legend. |
-| `questions[].options` | Nonempty list of choices. |
+| `questions[].options` | At least two choices. |
 | `questions[].options[].id` | Unique within the question. Letters, digits, underscores or hyphens. |
 | `questions[].options[].text` | Choice label. |
 | `questions[].correct` | Id of the correct option. |
@@ -69,13 +69,15 @@ Authors write plain text. Rendering escapes HTML characters. Keep English and Qu
 
 ## Logic
 
+Authored text is capped at 120 characters for titles and labels, 400 for questions and prompts, 300 for options, and 1,500 for answers, explanations and passage text. The schema gives each field's limit; `validateContent` enforces it.
+
 `logic.js` and `strings.js` have no DOM code or runtime dependencies.
 
 | Export | Returns |
 | --- | --- |
 | `validateContent(content)` | Nothing. Throws an `Error` naming the bad field. |
-| `plan(sections, passed, allowTestOut = true)` | `{ rows, skip }`. Rows follow outline order and contain `{ id, title, action: 'take' \| 'passed' \| 'credited', by? }`. `by` names the section granting credit. Invalid sections, passed ids and settings throw. |
-| `score(content, picks)` | `{ right, wrong, unanswered, passed, rows, skip }`. Question ids follow content order; `passed` section ids follow outline order. Partial picks can pass fully answered sections. The enhancer requires complete picks. Invalid picks throw. |
+| `plan(sections, passed, allowTestOut = true, failed = [])` | `{ rows, skip }`. Rows follow outline order and contain `{ id, title, action: 'take' \| 'passed' \| 'credited', by? }`. `by` names the section granting credit. Invalid sections, passed or failed ids, overlapping pass/fail ids and settings throw. |
+| `score(content, picks)` | `{ right, wrong, unanswered, passed, failed, rows, skip }`. Question ids follow content order; `passed` and `failed` section ids follow outline order. A wrong answer directly fails its section. Partial picks can pass fully answered sections. The enhancer requires complete picks. Invalid picks throw. |
 | `validateState(content, value)` | Copied `{ picks, shown, step }` or `null`. Step 0 is the outline, 1 through question count are questions, and question count + 1 is results. Shown state requires every answer and the result step. Disabled test-out accepts only step 0. |
 | `format(template, values)` | Replaces known `{key}` placeholders once. Inserted values stay literal. |
 
@@ -83,7 +85,7 @@ Without JavaScript, learners can read the outline, answer native questions and o
 
 Set `allowTestOut` to `false` when all sections are required. The outline explains this and hides Start. Learners cannot change the setting.
 
-Passing a section requires every answer to be correct. A passed section also credits its prerequisites and theirs. When several passes credit one section, the lowest numeric passed id supplies credit. A direct pass takes precedence. Passed and credited sections both show "Skip"; others show "Take it".
+Passing a section requires every answer to be correct. A passed section also credits its prerequisites and theirs. When several passes credit one section, the lowest numeric passed id supplies credit. A directly failed section stays required even when another pass would credit it. A direct pass takes precedence over credit. Passed and credited sections both show "Skip"; others show "Take it".
 
 Submission locks answers. Panels show the question number, total and section title. They slide horizontally over 240 ms, or change instantly under reduced motion.
 

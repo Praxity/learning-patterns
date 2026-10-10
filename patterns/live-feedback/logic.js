@@ -18,14 +18,14 @@ function fields(value, keys, path) {
 export function validateContent(content) {
   if (!object(content)) throw new Error('Invalid content');
   fields(content, ['prompt', 'criteria'], 'content');
-  if (typeof content.prompt !== 'string' || !content.prompt.length) throw new Error('Invalid prompt');
+  if (typeof content.prompt !== 'string' || !content.prompt.length || [...content.prompt].length > 400) throw new Error('Invalid prompt');
   if (!Array.isArray(content.criteria) || content.criteria.length !== CRITERION_KEYS.length) throw new Error('Invalid criteria');
   content.criteria.forEach((item, index) => {
     const path = `criteria[${index}]`;
     if (!object(item)) throw new Error(`Invalid ${path}`);
     const keys = ['id', 'done', 'todo'];
     fields(item, keys, path);
-    for (const key of keys) if (typeof item[key] !== 'string' || !item[key].length) throw new Error(`Invalid ${path}.${key}`);
+    for (const key of keys) if (typeof item[key] !== 'string' || !item[key].length || [...item[key]].length > (key === 'id' ? 120 : 1500)) throw new Error(`Invalid ${path}.${key}`);
     if (item.id !== CRITERION_KEYS[index]) throw new Error(`Invalid ${path}.id`);
   });
 }

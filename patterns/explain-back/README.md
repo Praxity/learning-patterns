@@ -57,6 +57,9 @@ Text must be nonempty. The schema and validator reject unknown fields and requir
 
 ## Logic
 
+Authored text is capped at 120 characters for titles and labels, 400 for questions and prompts, 300 for options, and 1,500 for answers, explanations and passage text. The schema gives each field's limit; `validateContent` enforces it.
+
+
 `logic.js` is pure and imports the gate, idea identities and answer limit from `proxy/logic/`. Keep those browser-safe modules when copying the pattern.
 
 | Function | Returns |

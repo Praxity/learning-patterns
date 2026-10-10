@@ -315,11 +315,10 @@ test('reset uses a quiet button and theme tokens reach controls and focus', asyn
   }
 });
 
-test('decorative score rings stay bounded for zero, negative and exceeded authored totals', async ({ page }) => {
+test('decorative score rings stay bounded for zero and negative authored totals', async ({ page }) => {
   for (const [points, expected, offset] of [
-    [{ right: 0, wrong: -1, unknown: 0 }, 'Score 0 out of 0.', '100'],
-    [{ right: -1, wrong: -2, unknown: 0 }, 'Score 0 out of −3.', '100'],
-    [{ right: 1, wrong: -1, unknown: 2 }, 'Score 6 out of 3.', '0']
+    [{ right: 0, wrong: -1, unknown: -0.5 }, 'Score −1.5 out of 0.', '100'],
+    [{ right: -1, wrong: -2, unknown: -1.5 }, 'Score −4.5 out of −3.', '100']
   ]) {
     await open(page);
     await page.evaluate(async ({ content, points }) => {

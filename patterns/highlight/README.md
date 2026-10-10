@@ -62,6 +62,9 @@ Text fields must contain non-whitespace text. Unknown fields and duplicate ids a
 
 ## Logic
 
+Authored text is capped at 120 characters for titles and labels, 400 for questions and prompts, 300 for options, and 1,500 for answers, explanations and passage text. The schema gives each field's limit; `validateContent` enforces it.
+
+
 `logic.js`, `strings.js` and `content.schema.json` have no DOM dependencies. Praxity Studio can use them with its own interface.
 
 | Function | Returns |

@@ -114,3 +114,10 @@ test('the debrief names each distinct move once', () => {
   const two = { history: [{ branch: 'defend' }, { branch: 'acknowledge' }] };
   assert.equal(renderDebrief(content, strings.en, two).match(/<li>/g).length, 2);
 });
+
+
+test('avatar initials accept two characters and reject a third', () => {
+  const value = structuredClone(content);
+  value.person.initial = 'AW'; assert.doesNotThrow(() => validateContent(value));
+  for (const initial of ['Dr.', 'Dr. W']) assert.throws(() => validateContent({ ...value, person: { ...value.person, initial } }), /person.initial/);
+});

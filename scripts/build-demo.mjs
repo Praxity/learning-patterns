@@ -16,7 +16,11 @@ const COPIED = ['logic.js', 'render.js', 'enhance.js', 'strings.js', 'pattern.cs
 
 await rm(output, { recursive: true, force: true });
 await copyInto('lib/html.js');
+await copyInto('lib/text-limits.js');
 await copyInto('lib/icons.js');
+await copyInto('lib/course-lookup-icons.js');
+await copyInto('lib/conversation-icons.js');
+await copyInto('lib/write-distractors-icons.js');
 await copyInto('lib/base.css');
 await copyInto('lib/data-notice.js');
 await copyInto('lib/notice-ui.js');

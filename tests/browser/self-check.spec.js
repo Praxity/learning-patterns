@@ -1,3 +1,4 @@
+import { frenchTypography } from '../../lib/html.js';
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { readFile } from 'node:fs/promises';
@@ -447,7 +448,7 @@ test('French root has French language and translated feedback', async ({ page })
   const model = await page.locator('.lp-self-check-pane-model p').evaluate(el => {
     const copy = el.cloneNode(true); copy.querySelectorAll('[aria-hidden="true"]').forEach(number => number.remove()); return copy.textContent;
   });
-  expect(model).toBe(french.model);
+  expect(model).toBe(frenchTypography(french.model, 'fr'));
 });
 
 for (const shown of [false, true]) {

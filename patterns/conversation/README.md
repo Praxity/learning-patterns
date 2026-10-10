@@ -60,6 +60,9 @@ The schema and validator reject unknown fields, missing branch IDs and blank tex
 
 ## Logic
 
+Authored text is capped at 120 characters for titles and labels, 400 for questions and prompts, 300 for options, and 1,500 for answers, explanations and passage text. Avatar `person.initial` is at most two characters; example replies stay capped at 1,200. The schema gives each field's limit; `validateContent` enforces it.
+
+
 `logic.js` imports branch identities, the two-round limit, reply limit and decision model's confidence gate from the browser-safe `proxy/logic/03-contract.js`. That module owns the gate.
 
 | Export | Returns |

@@ -1,7 +1,7 @@
 import { start, turn, feedback, validateContent, validateState } from './logic.js';
 import { renderMichel, renderChoices, renderDebrief } from './render.js';
-import { escapeHtml as html } from '../../lib/html.js';
-import { renderDataNotice, showCapNotice } from '../../lib/data-notice.js';
+import { escapeHtml as html, frenchTypography } from '../../lib/html.js';
+import { renderDataNotice, showCapNotice } from '../../lib/notice-ui.js';
 import { focusAfterLayout } from '../../lib/focus-after-layout.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
@@ -53,13 +53,13 @@ export function enhance(root, { content, strings, state, ask }) {
     summary.hidden = !automatic;
     offline.hidden = automatic;
     hint.hidden = true;
-    replies.innerHTML = renderChoices(content, conversation.node);
+    replies.innerHTML = renderChoices(content, conversation.node, root.lang);
     debrief.hidden = !conversation.end;
-    debrief.innerHTML = conversation.end ? renderDebrief(content, strings, conversation) : '';
+    debrief.innerHTML = conversation.end ? renderDebrief(content, strings, conversation, root.lang) : '';
   };
   /** @param {string} reply @param {string} line @param {string} note */
   const append = (reply, line, note) => {
-    chat.insertAdjacentHTML('beforeend', `<li class="lp-conversation-turn lp-conversation-turn-you"><p class="lp-conversation-bubble" data-lp-you><span class="lp-conversation-speaker">${html(strings.you)}</span>${html(reply)}</p></li>${renderMichel(content, line, `${prefix}-line-${conversation.round}`)}${note ? `<li class="lp-conversation-note" data-lp-note><em>${html(note)}</em></li>` : ''}`);
+    chat.insertAdjacentHTML('beforeend', `<li class="lp-conversation-turn lp-conversation-turn-you"><p class="lp-conversation-bubble" data-lp-you><span class="lp-conversation-speaker">${html(strings.you, root.lang)}</span>${html(reply, root.lang)}</p></li>${renderMichel(content, line, `${prefix}-line-${conversation.round}`, root.lang)}${note ? `<li class="lp-conversation-note" data-lp-note><em>${html(note, root.lang)}</em></li>` : ''}`);
   };
   /** Focus is the one announcement for a completed turn; never repeat it in status. */
   const focusMichel = () => {
@@ -75,8 +75,8 @@ export function enhance(root, { content, strings, state, ask }) {
   const take = (branch, reply) => {
     const result = turn(content, conversation, branch, reply);
     if (!result.line) {
-      hint.textContent = result.note; hint.hidden = false; choices.open = true;
-      status.textContent = result.note;
+      hint.textContent = frenchTypography(result.note, root.lang); hint.hidden = false; choices.open = true;
+      status.textContent = frenchTypography(result.note, root.lang);
       return;
     }
     conversation = result.state;
@@ -122,7 +122,7 @@ export function enhance(root, { content, strings, state, ask }) {
       input.focus(); return;
     }
     const mine = generation;
-    pending = true; send.setAttribute('aria-disabled', 'true'); send.textContent = strings.sending;
+    pending = true; send.setAttribute('aria-disabled', 'true'); send.textContent = frenchTypography(strings.sending, root.lang);
     try {
       const answers = await ask('03-branch', { node: conversation.node, reply: draft }, { challengeSlot, signal: AbortSignal.any([lifetime.signal, request.signal]) });
       if (destroyed || mine !== generation || input.value.trim() !== draft) return;
@@ -131,10 +131,10 @@ export function enhance(root, { content, strings, state, ask }) {
       if (!destroyed && mine === generation) {
         capped = showCapNotice(error, root, offline, status);
         useFallback();
-        if (!capped) status.textContent = strings.fallback;
+        if (!capped) status.textContent = frenchTypography(strings.fallback, root.lang);
       }
     } finally {
-      if (!destroyed && mine === generation) { pending = false; if (!capped) send.removeAttribute('aria-disabled'); send.textContent = strings.send; }
+      if (!destroyed && mine === generation) { pending = false; if (!capped) send.removeAttribute('aria-disabled'); send.textContent = frenchTypography(strings.send, root.lang); }
     }
   };
   /** @param {MouseEvent} event */
@@ -147,8 +147,8 @@ export function enhance(root, { content, strings, state, ask }) {
   const onRestart = () => {
     generation++; request.abort(); request = new AbortController();
     conversation = start(); pending = false;
-    if (!capped) send.removeAttribute('aria-disabled'); send.textContent = strings.send;
-    chat.innerHTML = renderMichel(content, content.opening, `${prefix}-line-0`);
+    if (!capped) send.removeAttribute('aria-disabled'); send.textContent = frenchTypography(strings.send, root.lang);
+    chat.innerHTML = renderMichel(content, content.opening, `${prefix}-line-0`, root.lang);
     input.value = ''; error.hidden = true; input.removeAttribute('aria-invalid'); status.textContent = '';
     if (!notice.hidden) input.setAttribute('aria-describedby', `${notice.id}-text`);
     refresh(); save(); focusMichel();

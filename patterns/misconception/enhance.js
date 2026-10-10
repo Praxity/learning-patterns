@@ -1,7 +1,7 @@
 import { feedback, validateContent, validateState } from './logic.js';
-import { escapeHtml as html } from '../../lib/html.js';
+import { escapeHtml as html, frenchTypography } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
-import { renderDataNotice, showCapNotice } from '../../lib/data-notice.js';
+import { renderDataNotice, showCapNotice } from '../../lib/notice-ui.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
 const instances = new WeakMap();
@@ -67,11 +67,11 @@ export function enhance(root, { content, strings, state, ask }) {
     if (!draft) {
       error.hidden = false; answer.setAttribute('aria-invalid', 'true');
       answer.setAttribute('aria-describedby', `${error.id}${notice.hidden ? '' : ` ${notice.id}-text`}`);
-      answer.focus(); status.textContent = strings.empty; return;
+      answer.focus(); status.textContent = frenchTypography(strings.empty, root.lang); return;
     }
-    if (!automatic || !ask) { showFallback(); status.textContent = strings.fallback; return; }
+    if (!automatic || !ask) { showFallback(); status.textContent = frenchTypography(strings.fallback, root.lang); return; }
     // Guard repeated submissions without dropping keyboard focus in WebKit.
-    check.setAttribute('aria-disabled', 'true'); check.textContent = strings.checking;
+    check.setAttribute('aria-disabled', 'true'); check.textContent = frenchTypography(strings.checking, root.lang);
     try {
       const answers = await ask('06-misconceptions', { answer: draft }, { challengeSlot, signal: lifetime.signal });
       if (destroyed || answer.value.trim() !== draft) return;
@@ -79,18 +79,18 @@ export function enhance(root, { content, strings, state, ask }) {
       const found = outcome.kind === 'correct', known = outcome.kind === 'misconception';
       const word = found ? strings.found : known ? strings.misconception : outcome.kind === 'none' ? strings.noMatch : strings.unsure;
       result.innerHTML = known
-        ? `<h3 class="lp-run-in lp-misconception-heading">${icons['alert-circle']}${html(outcome.heading)}</h3><p>${html(outcome.text)}</p>`
-        : `<p class="lp-misconception-feedback ${found ? 'lp-met' : 'lp-neutral'}">${found ? icons.check : icons['question-mark']}<span>${html(outcome.text)}</span></p>`;
+        ? `<h3 class="lp-run-in lp-misconception-heading">${icons['alert-circle']}${html(outcome.heading, root.lang)}</h3><p>${html(outcome.text, root.lang)}</p>`
+        : `<p class="lp-misconception-feedback ${found ? 'lp-met' : 'lp-neutral'}">${found ? icons.check : icons['question-mark']}<span>${html(outcome.text, root.lang)}</span></p>`;
       result.hidden = false; fallback.hidden = true; model.hidden = false; model.open = true;
-      status.textContent = known ? `${word}: ${outcome.heading}. ${outcome.text}` : `${word}. ${outcome.text}`;
+      status.textContent = frenchTypography(known ? `${word}: ${outcome.heading}. ${outcome.text}` : `${word}. ${outcome.text}`, root.lang);
     } catch (error) {
       if (!destroyed) {
         const capped = showCapNotice(error, root, fallback, status);
         showFallback();
-        if (!capped) status.textContent = strings.fallback;
+        if (!capped) status.textContent = frenchTypography(strings.fallback, root.lang);
       }
     } finally {
-      if (!destroyed) { check.removeAttribute('aria-disabled'); check.textContent = strings.check; }
+      if (!destroyed) { check.removeAttribute('aria-disabled'); check.textContent = frenchTypography(strings.check, root.lang); }
     }
   };
   answer.addEventListener('input', onInput); check.addEventListener('click', onCheck);
@@ -103,7 +103,7 @@ export function enhance(root, { content, strings, state, ask }) {
     root.querySelector('[data-lp-cap]')?.remove();
     showFallback(); check.hidden = true; check.disabled = false;
     error.hidden = true; answer.removeAttribute('aria-invalid'); status.textContent = '';
-    check.removeAttribute('aria-disabled'); check.textContent = strings.check; instances.delete(root);
+    check.removeAttribute('aria-disabled'); check.textContent = frenchTypography(strings.check, root.lang); instances.delete(root);
   } };
   instances.set(root, instance);
   return instance;

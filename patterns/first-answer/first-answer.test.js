@@ -1,3 +1,4 @@
+import { frenchTypography } from '../../lib/html.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -138,7 +139,7 @@ test('journal scene, day headings and dated cards render in both languages and e
     const markup = render(content, strings[lang], { id: 'journal', lang, stage });
     assert.match(markup, /<header class="lp-scene">/);
     assert.equal(markup.includes(journal), false);
-    assert.equal(markup.split(content.prompt).length - 1, 1);
+    assert.equal(markup.split(frenchTypography(content.prompt, lang)).length - 1, 1);
     assert.equal(markup.includes('Step 1'), false); assert.equal(markup.includes('Étape 1'), false);
     if (stage !== 'end') assert.ok(markup.includes(`id="journal-start">${day}</h3>`));
     if (stage !== 'first') {

@@ -1,7 +1,8 @@
+import { frenchTypography } from '../../lib/html.js';
 import { feedback, validateContent, validateState, MIN_CHARS, AUTO_CHECK_LIMIT } from './logic.js';
 import { typingPause } from '../../lib/typing-pause.js';
 import { icons } from '../../lib/icons.js';
-import { renderDataNotice, showCapNotice } from '../../lib/data-notice.js';
+import { renderDataNotice, showCapNotice } from '../../lib/notice-ui.js';
 import { focusAfterLayout } from '../../lib/focus-after-layout.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
@@ -35,11 +36,11 @@ export function enhance(root, { content, strings, state, ask }) {
   completeLine.className = 'lp-live-feedback-complete lp-run-in lp-met';
   completeLine.dataset.lpComplete = ''; completeLine.innerHTML = icons.check;
   const completeText = root.ownerDocument.createElement('span');
-  completeText.textContent = strings.complete; completeLine.append(completeText);
+  completeText.textContent = frenchTypography(strings.complete, root.lang); completeLine.append(completeText);
   const edit = root.ownerDocument.createElement('button');
   edit.type = 'button'; edit.className = 'lp-button lp-button-quiet'; edit.innerHTML = icons.pencil;
   const editText = root.ownerDocument.createElement('span');
-  editText.textContent = strings.edit; edit.append(editText);
+  editText.textContent = frenchTypography(strings.edit, root.lang); edit.append(editText);
   completion.append(completeLine, edit); list.before(completion);
   const initialItems = items.innerHTML;
   const rows = [...items.querySelectorAll('li')];
@@ -64,14 +65,14 @@ export function enhance(root, { content, strings, state, ask }) {
   const unlock = () => { complete = false; answer.readOnly = false; completion.hidden = true; };
   const useFallback = () => {
     cancel(); unlock(); ready = false;
-    list.hidden = true; fallback.hidden = false; fallbackText.textContent = strings.fallback;
+    list.hidden = true; fallback.hidden = false; fallbackText.textContent = frenchTypography(strings.fallback, root.lang);
     paused.hidden = true; notice.hidden = true;
     answer.removeAttribute('aria-describedby');
   };
   const useLimit = () => {
     // Keep a completed plan readable; Edit opens self-checks if the allowance is spent.
     if (complete) return;
-    useFallback(); paused.hidden = false; fallbackText.textContent = strings.selfCheck;
+    useFallback(); paused.hidden = false; fallbackText.textContent = frenchTypography(strings.selfCheck, root.lang);
   };
   const stopAtLimit = () => { for (const stop of session.stop) stop(); };
   session.stop.add(useLimit);
@@ -88,8 +89,8 @@ export function enhance(root, { content, strings, state, ask }) {
         row.dataset.lpMark = item.mark;
         bullet.innerHTML = item.mark === 'done' ? icons.check : '';
       }
-      text.textContent = item.text;
-      stateWord.textContent = `${item.mark === 'done' ? strings.done : strings.todo} `;
+      text.textContent = frenchTypography(item.text, root.lang);
+      stateWord.textContent = frenchTypography(`${item.mark === 'done' ? strings.done : strings.todo} `, root.lang);
       items.append(row);
     }
     // FLIP preserves each row's old position while the DOM takes its new order.
@@ -122,7 +123,7 @@ export function enhance(root, { content, strings, state, ask }) {
       answer.readOnly = complete; completion.hidden = !complete;
       if (outcome.count !== count || complete) {
         const summary = strings.summary.replaceAll('{count}', String(outcome.count)).replaceAll('{total}', String(outcome.total));
-        status.textContent = complete ? `${strings.complete} ${summary}` : summary;
+        status.textContent = frenchTypography(complete ? `${strings.complete} ${summary}` : summary, root.lang);
       }
       count = outcome.count;
     } catch (error) {
@@ -180,7 +181,7 @@ export function enhance(root, { content, strings, state, ask }) {
     answer.removeEventListener('keydown', onKey);
     edit.removeEventListener('click', onEdit); completion.remove();
     root.querySelector('[data-lp-cap]')?.remove();
-    useFallback(); fallbackText.textContent = strings.selfCheck; status.textContent = '';
+    useFallback(); fallbackText.textContent = frenchTypography(strings.selfCheck, root.lang); status.textContent = '';
     items.innerHTML = initialItems; notice.replaceChildren();
     challengeSlot.replaceChildren(); challengeSlot.hidden = true; instances.delete(root);
   } };

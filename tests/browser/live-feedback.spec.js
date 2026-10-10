@@ -1,3 +1,4 @@
+import { frenchTypography } from '../../lib/html.js';
 import { CAP_MESSAGES } from '../../lib/data-notice.js';
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
@@ -5,6 +6,7 @@ import { readFile } from 'node:fs/promises';
 import { strings } from '../../patterns/live-feedback/strings.js';
 
 const examples = Object.fromEntries(await Promise.all(['en', 'fr'].map(async lang => [lang, JSON.parse(await readFile(new URL(`../../patterns/live-feedback/examples/${lang}.json`, import.meta.url)))])));
+examples.fr = JSON.parse(JSON.stringify(examples.fr), (_key, value) => typeof value === 'string' ? frenchTypography(value, 'fr') : value);
 const draft = 'I will speak at the next meeting.';
 
 for (const lang of ['en', 'fr']) test(`checklist states are readable while typing stays silent (${lang})`, async ({ page }) => {
@@ -75,8 +77,10 @@ async function open(page, { lang = 'en', mode = 'ok', two = false } = {}) {
       for (const record of records) if (record.target.textContent) window.lpAnnouncements.push(record.target.textContent);
     }).observe(document.querySelector('[role="status"]'), { childList: true, characterData: true, subtree: true });
   });
-  await page.clock.install();
-  await page.clock.pauseAt(new Date());
+  // Host and browser clocks can differ; freeze at a known future tick.
+  const time = new Date(2026, 9, 6);
+  await page.clock.install({ time });
+  await page.clock.pauseAt(new Date(time.getTime() + 60_000));
 }
 const calls = page => page.evaluate(() => window.lpTestCalls.length);
 // Advance past the adaptive ceiling for checks whose exact timing is not under test.
@@ -162,7 +166,7 @@ for (const lang of ['en', 'fr']) test(`completion locks the answer, announces on
   await expect(page.locator('[data-lp-complete]')).toHaveText(strings[lang].complete);
   await expect(page.locator('[data-lp-complete] .lp-icon')).toHaveAttribute('aria-hidden', 'true');
   await expect(page.locator('[data-lp-notice]')).toBeVisible();
-  const complete = `${strings[lang].complete} ${strings[lang].summary.replace('{count}', '4').replace('{total}', '4')}`;
+  const complete = frenchTypography(`${strings[lang].complete} ${strings[lang].summary.replace('{count}', '4').replace('{total}', '4')}`, lang);
   await expect(page.locator('[role="status"]')).toHaveText(complete);
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([complete]);
   await answer.press('End');
@@ -399,7 +403,7 @@ for (const lang of ['en', 'fr']) {
     expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([summary]);
     await page.evaluate(() => { window.lpValues = [1, 1, 1, 1]; });
     await auto(page, 'I will finish the whole plan.');
-    const complete = `${strings[lang].complete} ${strings[lang].summary.replace('{count}', '4').replace('{total}', '4')}`;
+    const complete = frenchTypography(`${strings[lang].complete} ${strings[lang].summary.replace('{count}', '4').replace('{total}', '4')}`, lang);
     expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([summary, complete]);
     await expect(page.locator('[data-lp-hint]')).toHaveCount(0);
     await axe(page);

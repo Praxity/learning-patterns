@@ -10,6 +10,9 @@ export namespace strings {
         let instructor: string;
         let learner: string;
         let remove: string;
+        let removeQuestion: string;
+        let showAll: string;
+        let showLatest: string;
         let added: string;
         let removed: string;
         let saved: string;
@@ -43,6 +46,12 @@ export namespace strings {
         export { learner_1 as learner };
         let remove_1: string;
         export { remove_1 as remove };
+        let removeQuestion_1: string;
+        export { removeQuestion_1 as removeQuestion };
+        let showAll_1: string;
+        export { showAll_1 as showAll };
+        let showLatest_1: string;
+        export { showLatest_1 as showLatest };
         let added_1: string;
         export { added_1 as added };
         let removed_1: string;

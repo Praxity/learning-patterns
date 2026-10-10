@@ -1,3 +1,4 @@
+import { validateTextLengths } from '../../lib/text-limits.js';
 /** @typedef {{ id: string, label: string, missed: string, evidence: string | null }} Part */
 /** @typedef {{ task: string, context?: { to: string, initials: string, subject: string, placeholder?: string }, parts: Part[], model: string }} Content */
 /** @typedef {{ text: string, partIndex: number | null, included: boolean }} Segment */
@@ -20,6 +21,12 @@ function fields(value, fields, path) {
  * @returns {asserts content is Content}
  */
 export function validateContent(content) {
+  validateTextLengths(content, {
+    task: 400,
+    model: 1500,
+    parts: [{"id": 120, "label": 120, "missed": 1500, "evidence": 1500}],
+    context: {"to": 120, "initials": 120, "subject": 120, "placeholder": 120},
+  });
   if (!object(content)) throw new Error('Invalid content');
   fields(content, ['task', 'context', 'parts', 'model'], 'content');
   for (const field of ['task', 'model']) {

@@ -1,6 +1,6 @@
 import { validateContent, validateOptions, validateState, coverage, coverageMessage, targetOf, optionKey, OTHER, MAX_OPTION, MAX_CUSTOM } from './logic.js';
-import { escapeHtml as html } from '../../lib/html.js';
-import { icons } from '../../lib/icons.js';
+import { escapeHtml as html, frenchTypography } from '../../lib/html.js';
+import { icons } from '../../lib/write-distractors-icons.js';
 import { renderQuestionPreview } from './render.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
@@ -115,19 +115,19 @@ export function enhance(root, { content, strings, state }) {
       .replaceAll('{authorTotal}', String(counts.authorTotal))
       .replaceAll('{ownExtra}', String(counts.ownExtra));
     /** @param {import('./logic.js').AuthorOption | import('./logic.js').LearnerOption} item */
-    const targetLine = item => html(strings.targets.replaceAll('{target}', targetOf(content, item)));
+    const targetLine = item => html(strings.targets.replaceAll('{target}', targetOf(content, item)), root.lang);
     fields.forEach((field, index) => {
-      field.summary.innerHTML = `<span class="lp-choice-key" aria-hidden="true">${html(optionKey(index + 1))}</span><span data-lp-option-text>${html(values[index].text)}</span><p class="lp-small">${targetLine(values[index])}</p>`;
+      field.summary.innerHTML = `<span class="lp-choice-key" aria-hidden="true">${html(optionKey(index + 1), root.lang)}</span><span data-lp-option-text>${html(values[index].text, root.lang)}</span><p class="lp-small">${targetLine(values[index])}</p>`;
       field.editor.hidden = true; field.summary.hidden = false;
     });
-    result.innerHTML = `<p class="lp-run-in" data-lp-summary data-lp-coverage>${html(message)}</p>
+    result.innerHTML = `<p class="lp-run-in" data-lp-summary data-lp-coverage>${html(message, root.lang)}</p>
       <div class="lp-write-distractors-comparison">
-        ${renderQuestionPreview(content, strings, values, { matches: outcome.matches })}
-        ${renderQuestionPreview(content, strings, content.authorOptions, { author: true })}
+        ${renderQuestionPreview(content, strings, values, { matches: outcome.matches , lang: root.lang })}
+        ${renderQuestionPreview(content, strings, content.authorOptions, { author: true , lang: root.lang })}
       </div>`;
     result.hidden = false; clear.hidden = false; shown = true;
     // A single replacement announces each submit, including an identical comparison.
-    if (announce) status.textContent = message;
+    if (announce) status.textContent = frenchTypography(message, root.lang);
   }
   if (saved) {
     answer.value = saved.answer;
@@ -146,18 +146,18 @@ export function enhance(root, { content, strings, state }) {
       answerError.hidden = false;
       answer.setAttribute('aria-invalid', 'true'); answer.setAttribute('aria-describedby', answerError.id);
       answer.focus();
-      status.textContent = strings.errorsOne;
+      status.textContent = frenchTypography(strings.errorsOne, root.lang);
       return;
     }
     clearAnswerError(); showAnswer(); save();
-    status.textContent = content.rightAnswer;
+    status.textContent = frenchTypography(content.rightAnswer, root.lang);
   });
   for (const [button, value] of /** @type {[HTMLButtonElement, boolean][]} */ ([[yes, true], [notQuite, false]])) {
     listen(button, 'click', () => {
       if (!checkedAnswer || hadIt === value) return;
       hadIt = value;
       paintChoice(); save();
-      status.textContent = strings.noted;
+      status.textContent = frenchTypography(strings.noted, root.lang);
       writeHeading.focus();
     });
   }
@@ -183,13 +183,13 @@ export function enhance(root, { content, strings, state }) {
           // Name the option by its visible letter (B, C…), not its position.
           .replaceAll('{n}', optionKey(error.option + 1))
           .replaceAll('{max}', String(error.field === 'text' ? MAX_OPTION : MAX_CUSTOM));
-        field.errors[error.field].innerHTML = `${icons['alert-circle']}<span>${html(message)}</span>`;
+        field.errors[error.field].innerHTML = `${icons['alert-circle']}<span>${html(message, root.lang)}</span>`;
         field.errors[error.field].hidden = false;
         field.inputs[error.field].setAttribute('aria-invalid', 'true');
       }
       const first = checked.errors[0];
       fields[first.option].inputs[first.field].focus();
-      status.textContent = (checked.errors.length === 1 ? strings.errorsOne : strings.errorsMany).replaceAll('{count}', String(checked.errors.length));
+      status.textContent = frenchTypography((checked.errors.length === 1 ? strings.errorsOne : strings.errorsMany).replaceAll('{count}', String(checked.errors.length)), root.lang);
       save(); return;
     }
     checked.options.forEach((option, index) => {
@@ -209,7 +209,7 @@ export function enhance(root, { content, strings, state }) {
     });
     clearErrors(); hideResult();
     answer.focus();
-    status.textContent = strings.cleared; save();
+    status.textContent = frenchTypography(strings.cleared, root.lang); save();
   });
   if (saved?.shown) show(saved.options, false);
   fallback.hidden = true; answerFallback.hidden = true; check.hidden = false;

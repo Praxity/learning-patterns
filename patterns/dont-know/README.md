@@ -62,18 +62,23 @@ Content is plain text. Rendering escapes HTML characters.
 
 ## Logic
 
+Authored text is capped at 120 characters for titles and labels, 400 for questions and prompts, 300 for options, and 1,500 for answers, explanations and passage text. The schema gives each field's limit; `validateContent` enforces it.
+
+
 `logic.js` has no DOM code. Hosts can build their own interface.
 
 | Export | Returns |
 | --- | --- |
 | `DONT_KNOW` | The reserved option identity `dont-know`. |
 | `validateContent(content)` | Nothing. Throws an `Error` naming the first bad field. |
-| `score(content, picks)` | `{ points, total, right, wrong, unknown, unanswered }`. Each group contains question identities in content order. `total` is `questions.length * points.right`. Missing picks are unanswered. Invalid picks throw. |
+| `score(content, picks)` | `{ points, total, right, wrong, unknown, unanswered }`. Each group contains question identities in content order. `points` and `total` are rounded to hundredths; `total` is `questions.length * points.right`. Missing picks are unanswered. Invalid picks throw. |
 | `validateState(content, value)` | A copied `{ picks, shown }`, or `null` for invalid saved state. A shown result requires complete picks. |
-| `displayPoints(value, positive)` | A number as text, using a mathematical minus sign and an optional plus sign. |
+| `displayPoints(value, positive = false, lang = 'en')` | Localized text rounded to hundredths, with a mathematical minus and an optional plus sign. |
 | `format(template, values)` | Text with known `{key}` placeholders replaced once. Inserted values stay literal. |
 
 Without JavaScript, choose answers with the radios, then open "Answers" for correct options and explanations.
+
+`points` must use hundredths and satisfy `right > unknown >= wrong`.
 
 The example scores +1 for right, −1 for wrong and 0 for "I don't know". Submission locks answers until reset. The decorative score ring stays between empty and full. It is empty for negative scores or nonpositive totals. Text always shows the actual score. Zero counts and empty review lists are hidden.
 

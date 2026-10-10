@@ -1,3 +1,4 @@
+import { validateTextLengths } from '../../lib/text-limits.js';
 import { ANSWER_LIMIT, NUDGE_KEYS, journalDecision } from '../../proxy/logic/13-journal.js';
 export { ANSWER_LIMIT };
 
@@ -17,6 +18,15 @@ function textFields(value, keys, path) {
  * @param {unknown} content @returns {asserts content is Content}
  */
 export function validateContent(content) {
+  validateTextLengths(content, {
+    prompt: 400,
+    complete: 1500,
+    support: 1500,
+    supportNote: 1500,
+    saved: 1500,
+    changed: 1500,
+    questions: [{"text": 400}],
+  });
   if (!object(content)) throw new Error('Invalid content');
   const { questions, ...text } = content;
   textFields(text, ['prompt', 'complete', 'support', 'supportNote', 'saved', 'changed'], 'content');

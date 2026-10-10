@@ -1,3 +1,4 @@
+import { frenchTypography } from '../../lib/html.js';
 import { dateAfterDays, defaultDate, formatDate, formatShortDate, isDate, presetDays, validateContent, validateState, isPartialYear } from './logic.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
@@ -27,7 +28,7 @@ export function enhance(root, { content, strings, state }) {
     text: required(`[data-lp-spacing] label:has(input[value="${days}"]) [data-lp-choice-date-text]`)
   }));
   /** @param {{ box: HTMLElement, text: Element }} choice @param {string} value */
-  function setChoiceDate({ box, text }, value) { text.textContent = value; box.hidden = value === ''; }
+  function setChoiceDate({ box, text }, value) { text.textContent = frenchTypography(value, root.lang); box.hidden = value === ''; }
   const input = /** @type {HTMLInputElement} */ (required('[data-lp-date]'));
   const error = /** @type {HTMLElement} */ (required('[data-lp-date-error]'));
   const printControls = /** @type {HTMLElement} */ (required('[data-lp-print-controls]'));
@@ -59,7 +60,7 @@ export function enhance(root, { content, strings, state }) {
   }
   function showDate() {
     const label = formatDate(current.date, root.lang);
-    for (const time of times) { time.setAttribute('datetime', current.date); time.textContent = label; }
+    for (const time of times) { time.setAttribute('datetime', current.date); time.textContent = frenchTypography(label, root.lang); }
   }
   function clearError() {
     input.removeAttribute('aria-invalid'); input.removeAttribute('aria-describedby'); error.hidden = true; print.disabled = false;
@@ -68,12 +69,12 @@ export function enhance(root, { content, strings, state }) {
   function changeDate(date, announce = false) {
     const message = strings.dateChanged.replaceAll('{date}', formatDate(date, root.lang));
     if (current.date === date) {
-      if (announce) status.textContent = message;
+      if (announce) status.textContent = frenchTypography(message, root.lang);
       else if (status.textContent === strings.dateError) status.textContent = '';
       return;
     }
     current = { ...current, date }; showDate();
-    status.textContent = message;
+    status.textContent = frenchTypography(message, root.lang);
     state?.write({ ...current });
   }
   function showSide() {
@@ -137,7 +138,7 @@ export function enhance(root, { content, strings, state }) {
       // The status region speaks the error once in every browser. Firefox with NVDA ignores a new description on the
       // focused field and Chrome speaks it as well, so the description is added only once focus leaves.
       if (root.ownerDocument.activeElement !== input) input.setAttribute('aria-describedby', error.id);
-      status.textContent = strings.dateError;
+      status.textContent = frenchTypography(strings.dateError, root.lang);
       return;
     }
     const recovered = !error.hidden;
@@ -154,7 +155,7 @@ export function enhance(root, { content, strings, state }) {
   });
   listen(print, 'click', () => {
     root.setAttribute('data-lp-printing', '');
-    status.textContent = strings.printing;
+    status.textContent = frenchTypography(strings.printing, root.lang);
     view.print();
   });
   listen(view, 'afterprint', () => root.removeAttribute('data-lp-printing'));
@@ -176,7 +177,7 @@ export function enhance(root, { content, strings, state }) {
       times.forEach((time, index) => {
         const original = originalTimes[index];
         if (original) {
-          time.textContent = original.text;
+          time.textContent = frenchTypography(original.text, root.lang);
           if (original.date === null) time.removeAttribute('datetime'); else time.setAttribute('datetime', original.date);
         }
       });

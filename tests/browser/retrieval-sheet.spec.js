@@ -508,3 +508,31 @@ for (const format of ['A4', 'Letter']) {
     });
   }
 }
+
+
+for (const lang of ['en', 'fr']) for (const format of ['A4', 'Letter']) {
+  test(`eight-question cap prints a duplex pair (${lang}, ${format})`, async ({ page, browserName }, info) => {
+    test.skip(browserName !== 'chromium', 'PDF generation is Chromium only.');
+    const content = structuredClone(lang === 'fr' ? french : english);
+    content.title = lang === 'fr' ? 'Les quatre cavaliers du conflit au travail et les façons de leur répondre' : 'The four horsemen of workplace conflict and what to do instead';
+    content.questions[1].question = lang === 'fr'
+      ? 'Pendant la réunion de planification hebdomadaire, un collègue lève les yeux au ciel devant une idée, en présence de deux personnes d’une autre équipe qui y assistent pour la première fois. De quel cavalier s’agit-il, et quelle est la première chose que vous pourriez dire?'
+      : 'A colleague rolls their eyes at an idea during the weekly planning meeting, in front of two people from another team who are joining for the first time. Which horseman is this, and what is the first thing you could say?';
+    content.questions.push({ id: 'repair', question: lang === 'fr' ? 'Qu’est-ce qu’une tentative de réparation?' : 'What is a repair attempt?', answer: lang === 'fr' ? 'Une parole ou un geste qui empêche la tension de monter.' : 'A statement or action that stops tension from escalating.' }, { id: 'duration', question: lang === 'fr' ? 'Combien de temps une pause devrait-elle durer?' : 'How long should a time-out last?', answer: lang === 'fr' ? 'Au moins 20 minutes.' : 'At least 20 minutes.' });
+    await open(page, `/retrieval-sheet/${lang}.html`);
+    await page.evaluate(async ({ content, lang }) => {
+      window.lpInstances[0].destroy();
+      const { render } = await import('/patterns/retrieval-sheet/render.js');
+      const { strings } = await import('/patterns/retrieval-sheet/strings.js');
+      document.querySelector('main').innerHTML = render(content, strings[lang], { id: 'cap', lang });
+    }, { content, lang });
+    await page.emulateMedia({ media: 'print' });
+    const path = info.outputPath(`${lang}-${format}-cap.pdf`);
+    await page.pdf({ path, format });
+    expect(execFileSync('pdfinfo', [path], { encoding: 'utf8' })).toMatch(/Pages:\s+2\b/);
+    const pages = execFileSync('pdftotext', ['-layout', path, '-'], { encoding: 'utf8' }).split('\f').filter(page => page.trim());
+    expect(pages).toHaveLength(2);
+    expect(pages[0]).toContain(content.questions.at(-1).question.replace('?', '').trim());
+    expect(pages[1]).toContain(content.questions.at(-1).answer);
+  });
+}

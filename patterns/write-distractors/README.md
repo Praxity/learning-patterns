@@ -61,6 +61,10 @@ Strings must be nonempty. Unknown fields, duplicate ids and invalid author refer
 
 ## Logic
 
+`count` is an integer from one to five, matching the bilingual authored count names.
+
+Authored text is capped at 120 characters for titles and labels, 400 for questions and prompts, 300 for options, and 1,500 for answers, explanations and passage text. The schema gives each field's limit; `validateContent` enforces it.
+
 `logic.js` has no DOM code. Hosts can use these functions to build their own interface.
 
 | Function | Returns |
