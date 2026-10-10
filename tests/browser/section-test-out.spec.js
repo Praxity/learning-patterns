@@ -54,7 +54,7 @@ test('repeating a course plan announces each result once and leaves progress to 
       await expect(page.getByRole('status')).toHaveText('');
     }
   }
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You can skip 2 of 3 sections.', 'You can skip 2 of 3 sections.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You can skip 1 of 3 sections.', 'You can skip 1 of 3 sections.']);
 });
 
 for (const [lang, headings] of [
@@ -146,7 +146,7 @@ test('keyboard validates only this panel, Back keeps picks, changes announce onc
   await expect(page.locator('[data-lp-outline-heading]')).toBeFocused();
   await pick(page); await page.locator('[data-lp-check]').click();
   await expect(page.locator('[data-lp-outline-heading]')).toBeFocused();
-  expect((await page.evaluate(() => window.lpAnnouncements)).filter(x => x === 'You can skip 2 of 3 sections.')).toHaveLength(1);
+  expect((await page.evaluate(() => window.lpAnnouncements)).filter(x => x === 'You can skip 1 of 3 sections.')).toHaveLength(1);
   await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-review] > summary')).toBeFocused();
   await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-restart]')).toBeFocused();
   await page.keyboard.press('Enter'); await expect(page.locator('[data-lp-outline-heading]')).toBeFocused();
@@ -156,15 +156,15 @@ test('keyboard validates only this panel, Back keeps picks, changes announce onc
 });
 
 for (const [lang, content, correct, wrong, answer, summary, statuses] of [
-  ['en', english, 'Correct', 'Not quite', 'Correct answer', 'You can skip 2 of 3 sections.', ['Take it', 'Skip', 'Skip']],
-  ['fr', french, 'Correct', 'Pas tout à fait', 'Bonne réponse', 'Sections que vous pouvez passer : 2 sur 3.', ['À suivre', 'Passer', 'Passer']]
+  ['en', english, 'Correct', 'Not quite', 'Correct answer', 'You can skip 1 of 3 sections.', ['Take it', 'Take it', 'Skip']],
+  ['fr', french, 'Correct', 'Pas tout à fait', 'Bonne réponse', 'Sections que vous pouvez passer : 1 sur 3.', ['À suivre', 'À suivre', 'Passer']]
 ]) {
   test(`in-place marks, explanations and credited outline (${lang})`, async ({ page }) => {
     await open(page, `/test-out/${lang}.html`); await observe(page); await pick(page); await page.locator('[data-lp-check]').click();
     await expect(page.locator('[data-lp-pattern]')).toHaveAttribute('lang', lang);
     await expect(page.locator('[data-lp-result]')).toHaveText(summary);
     await expect(page.locator('[data-lp-section-status]')).toHaveText(statuses);
-    await expect(page.locator('[data-lp-section-status].lp-met svg[aria-hidden="true"]')).toHaveCount(2);
+    await expect(page.locator('[data-lp-section-status].lp-met svg[aria-hidden="true"]')).toHaveCount(1);
     await expect(page.locator('[data-lp-review]')).toBeVisible();
     await expect(page.locator('fieldset:visible')).toHaveCount(0);
     await expect(page.locator('[data-lp-credit]')).toHaveCount(0);
@@ -232,7 +232,7 @@ test('all right, all wrong, advanced credit and author refusal', async ({ page }
   for (const [values, count] of [
     [english.questions.map(q => q.correct), 3],
     [english.questions.map(q => q.options.find(o => o.id !== q.correct).id), 0],
-    [['attendees', 'wait', 'actions'], 2]
+    [['attendees', 'wait', 'actions'], 1]
   ]) {
     await pick(page, values); await page.locator('[data-lp-check]').click();
     await expect(page.locator('[data-lp-result]')).toHaveText(`You can skip ${count} of 3 sections.`);
@@ -246,7 +246,7 @@ test('all right, all wrong, advanced credit and author refusal', async ({ page }
   await scan(page);
 });
 
-test('French summary uses singular for one skippable section', async ({ page }) => {
+test('French summary stays plural when one of several sections is skippable', async ({ page }) => {
   await open(page, '/test-out/fr.html');
   await pick(page, ['outcomes', 'wait', 'next-meeting']);
   await page.locator('[data-lp-check]').click();
@@ -315,7 +315,7 @@ for (const shown of [false, true]) {
     await expect(page.locator('[data-lp-result]')).toBeVisible({ visible: shown });
     await expect(page.locator('input:disabled')).toHaveCount(shown ? 9 : 0);
     if (!shown) { await expect(page.locator('[data-lp-panel-heading]:visible')).toHaveText('Question 2 of 3: Running the discussion'); await expect(page.locator('fieldset:visible')).toHaveCount(1); }
-    if (shown) await expect(page.locator('[data-lp-result]')).toHaveText('You can skip 2 of 3 sections.');
+    if (shown) await expect(page.locator('[data-lp-result]')).toHaveText('You can skip 1 of 3 sections.');
   });
 }
 
@@ -343,7 +343,7 @@ test('invalid state, independent instances, idempotent enhancement and destroy',
   const before = await page.evaluate(() => window.lpSaved); await roots.first().locator('input').first().check();
   expect(await page.evaluate(() => window.lpSaved)).toEqual(before);
   await page.evaluate(() => window.lpEnhance());
-  await expect(roots.first().locator('[data-lp-result]')).toHaveText('You can skip 2 of 3 sections.');
+  await expect(roots.first().locator('[data-lp-result]')).toHaveText('You can skip 1 of 3 sections.');
   await expect(roots.first().locator('[role="status"]')).toHaveText('');
 });
 
@@ -404,3 +404,23 @@ for (const width of [1280, 390, 320]) {
     await expect(page.locator('[data-lp-outline-heading]')).toHaveText("What you'll cover");
   });
 }
+
+
+for (const lang of ['en', 'fr']) test(`one section has a real singular summary (${lang})`, async ({ page }) => {
+  await open(page, `/test-out/${lang}.html`);
+  await page.evaluate(async lang => {
+    window.lpInstances[0].destroy();
+    const { render } = await import('/patterns/test-out/render.js');
+    const { enhance } = await import('/patterns/test-out/enhance.js');
+    const { strings } = await import('/patterns/test-out/strings.js');
+    const content = { title: 'One section', allowTestOut: true, sections: [{ id: 1, title: 'One', requires: [] }], questions: [{ id: 'q', section: 1, text: 'Ready?', options: [{ id: 'yes', text: 'Yes' }, { id: 'no', text: 'No' }], correct: 'yes', explanation: 'Ready.' }] };
+    document.querySelector('main').innerHTML = render(content, strings[lang], { id: 'one', lang });
+    const root = document.querySelector('[data-lp-pattern]');
+    window.lpInstances = [enhance(root, { content, strings: strings[lang] })];
+  }, lang);
+  await pick(page, ['yes']); await page.locator('[data-lp-check]').click();
+  await expect(page.locator('[data-lp-result]')).toHaveText(lang === 'fr' ? 'Vous pouvez passer cette section.' : 'You can skip this section.');
+  await page.locator('[data-lp-restart]').click();
+  await pick(page, ['no']); await page.locator('[data-lp-check]').click();
+  await expect(page.locator('[data-lp-result]')).toHaveText(lang === 'fr' ? 'Vous devez suivre cette section.' : 'You need to take this section.');
+});

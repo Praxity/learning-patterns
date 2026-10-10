@@ -1,9 +1,41 @@
+import { frenchTypography } from '../../lib/html.js';
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { readFile } from 'node:fs/promises';
 
 const english = JSON.parse(await readFile(new URL('../../patterns/self-check/examples/en.json', import.meta.url)));
 const french = JSON.parse(await readFile(new URL('../../patterns/self-check/examples/fr.json', import.meta.url)));
+
+for (const [model, evidence, expected, marked] of [
+  ['Question?', 'Question', 'Question\u202f?', 'Question'],
+  ['1 234 567 euros : oui!', '234', '1\u202f234\u202f567 euros\u202f: oui\u202f!', '234'],
+  ['Question   ? «oui»', 'Question   ', 'Question\u202f? «\u202foui\u202f»', 'Question\u202f'],
+  ['Voir www.example.test/search?q=1 et `"yes!"`.', 'example.test', 'Voir www.example.test/search?q=1 et `"yes!"`.', 'example.test']
+]) test(`model typography survives evidence boundaries: ${model}`, async ({ page }) => {
+  await open(page, '/self-check/fr.html');
+  await page.evaluate(async ({ model, evidence }) => {
+    const { render } = await import('/patterns/self-check/render.js');
+    const { enhance } = await import('/patterns/self-check/enhance.js');
+    const { strings } = await import('/patterns/self-check/strings.js');
+    window.lpInstances[0].destroy();
+    const content = { task: 'Répondez.', model, parts: [{ id: 'part', label: 'Élément', missed: 'Ajoutez cet élément.', evidence }] };
+    document.querySelector('main').innerHTML = render(content, strings.fr, { id: 'boundary', lang: 'fr' });
+    enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.fr });
+  }, { model, evidence });
+  expect(await page.locator('[data-lp-fallback] .lp-quote').textContent()).toBe(expected);
+  await page.getByRole('textbox').fill('Réponse.');
+  await page.locator('[data-lp-check]').click();
+  await page.getByRole('checkbox').check();
+  await page.locator('[data-lp-show]').click();
+  const comparison = page.locator('.lp-self-check-pane-model .lp-self-check-pane-body');
+  const text = await comparison.evaluate(el => {
+    const copy = el.cloneNode(true);
+    copy.querySelectorAll('[aria-hidden]').forEach(node => node.remove());
+    return { model: copy.textContent, marked: copy.querySelector('mark').textContent };
+  });
+  expect(text).toEqual({ model: expected, marked });
+  await expect(comparison.locator('mark')).toHaveAttribute('data-lp-included', 'true');
+});
 for (const [lang, content] of [['en', english], ['fr', french]]) test(`every checkbox keeps its native label and name on Tab (${lang})`, async ({ page }) => {
   await open(page, `/self-check/${lang}.html`);
   await page.locator('textarea').fill('A message about the report.');
@@ -447,7 +479,7 @@ test('French root has French language and translated feedback', async ({ page })
   const model = await page.locator('.lp-self-check-pane-model p').evaluate(el => {
     const copy = el.cloneNode(true); copy.querySelectorAll('[aria-hidden="true"]').forEach(number => number.remove()); return copy.textContent;
   });
-  expect(model).toBe(french.model);
+  expect(model).toBe(frenchTypography(french.model, 'fr'));
 });
 
 for (const shown of [false, true]) {

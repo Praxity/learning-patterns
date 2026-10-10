@@ -62,6 +62,8 @@ The proxy checks an assertiveness reflection. To change the task, change and eva
 
 ## Logic
 
+Authored text is capped at 120 characters for titles and labels, 400 for questions and prompts, 300 for options, and 1,500 for answers, explanations and passage text. The schema gives each field's limit; `validateContent` enforces it.
+
 `logic.js` imports `journalDecision`, the criterion order and input limit from `proxy/logic/13-journal.js`. That module owns the confidence gates and returns decisions without text. Replace `complete` in the bilingual examples to change the completion message. An uncertain criterion counts as missing. The lower distress gate favours showing support over missing a need for help.
 
 | Export | Returns |
@@ -75,7 +77,7 @@ The proxy checks an assertiveness reflection. To change the task, change and eva
 
 Pass `state: { read, write }` to store an entry and its save date. Only Save writes to storage. Invalid saved entries are ignored. A failed read blocks overwriting unreadable storage. A failed write reports failure. Without an adapter, Save reports that saving is unavailable.
 
-Repeated enhancement returns the same instance. `destroy()` cancels pending work, removes listeners and restores native questions and support text. The renderer accepts an optional `date: Date`; enhancement updates it to the learner’s local today.
+Repeated enhancement returns the same instance. `destroy()` cancels pending work, removes listeners and restores native questions and support text. The renderer accepts an optional `date: Date`; enhancement shows the saved entry’s local date after a restore or successful save, and local today before an entry exists.
 
 ## Use it
 

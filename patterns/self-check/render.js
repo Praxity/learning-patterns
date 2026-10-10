@@ -15,39 +15,39 @@ export function render(content, strings, { id, lang }) {
   return `<section class="lp lp-self-check" data-lp-pattern="self-check" lang="${html(lang)}">
   <header class="lp-scene">
     ${context ? `<span class="lp-scene-icon">${icons.mail}</span>` : ''}
-    <div><p class="lp-scene-title">${html(content.task)}</p></div>
+    <div><p class="lp-scene-title">${html(content.task, lang)}</p></div>
   </header>
   <div class="lp-self-check-composer">
     ${context ? `<div class="lp-self-check-meta-list">
-    <p class="lp-self-check-meta"><span class="lp-self-check-meta-key">${html(strings.to)}</span><span class="lp-self-check-recipient"><span class="lp-self-check-avatar" aria-hidden="true">${html(context.initials)}</span>${html(context.to)}</span></p>
-    <p class="lp-self-check-meta"><span class="lp-self-check-meta-key">${html(strings.subject)}</span><span>${html(context.subject)}</span></p>
+    <p class="lp-self-check-meta"><span class="lp-self-check-meta-key">${html(strings.to, lang)}</span><span class="lp-self-check-recipient"><span class="lp-self-check-avatar" aria-hidden="true">${html(context.initials, lang)}</span>${html(context.to, lang)}</span></p>
+    <p class="lp-self-check-meta"><span class="lp-self-check-meta-key">${html(strings.subject, lang)}</span><span>${html(context.subject, lang)}</span></p>
     </div>` : ''}
-    <label class="lp-label lp-self-check-composer-label" for="${answerId}">${html(strings.answer)}</label>
-    <textarea class="lp-input lp-self-check-composer-body" id="${answerId}" rows="5"${context?.placeholder === undefined ? '' : ` placeholder="${html(context.placeholder)}"`}></textarea>
+    <label class="lp-label lp-self-check-composer-label" for="${answerId}">${html(strings.answer, lang)}</label>
+    <textarea class="lp-input lp-self-check-composer-body" id="${answerId}" rows="5"${context?.placeholder === undefined ? '' : ` placeholder="${html(context.placeholder, lang)}"`}></textarea>
     <div class="lp-self-check-composer-foot">
-      <p class="lp-error-text" id="${errorId}" data-lp-error hidden>${icons['alert-circle']}<span>${html(strings.empty)}</span></p>
-      <button class="lp-button" type="button" data-lp-check hidden>${html(strings.check)}</button>
+      <p class="lp-error-text" id="${errorId}" data-lp-error hidden>${icons['alert-circle']}<span>${html(strings.empty, lang)}</span></p>
+      <button class="lp-button" type="button" data-lp-check hidden>${html(strings.check, lang)}</button>
     </div>
   </div>
   <details class="lp-details lp-section" data-lp-fallback>
-    <summary>${html(strings.checkOwn)}</summary>
-    <ul class="lp-self-check-fallback-list">${content.parts.map(part => `<li><span class="lp-run-in">${html(part.label)}</span><p>${html(part.missed)}</p></li>`).join('')}</ul>
-    <h3 class="lp-run-in">${html(strings.model)}</h3>
-    <p class="lp-quote">${html(content.model)}</p>
+    <summary>${html(strings.checkOwn, lang)}</summary>
+    <ul class="lp-self-check-fallback-list">${content.parts.map(part => `<li><span class="lp-run-in">${html(part.label, lang)}</span><p>${html(part.missed, lang)}</p></li>`).join('')}</ul>
+    <h3 class="lp-run-in">${html(strings.model, lang)}</h3>
+    <p class="lp-quote">${html(content.model, lang)}</p>
   </details>
   <div data-lp-flow hidden>
     <div class="lp-section" data-lp-ticks hidden>
       <fieldset class="lp-choices">
-        <legend class="lp-run-in" id="${html(`${id}-ticks`)}"><span class="lp-self-check-step-head"><span>${html(strings.tick)}</span><span class="lp-self-check-meter" data-lp-meter>${ring(0, content.parts.length)}<span>${html(strings.meter.replaceAll('{count}', '0').replaceAll('{total}', String(content.parts.length)))}</span></span></span></legend>
-        ${content.parts.map((part, index) => `<label class="lp-choice" for="${html(`${id}-part-${index}`)}"><input type="checkbox" id="${html(`${id}-part-${index}`)}" value="${html(part.id)}"><span>${html(part.label)}</span></label>`).join('\n        ')}
+        <legend class="lp-run-in" id="${html(`${id}-ticks`)}"><span class="lp-self-check-step-head"><span>${html(strings.tick, lang)}</span><span class="lp-self-check-meter" data-lp-meter>${ring(0, content.parts.length)}<span>${html(strings.meter.replaceAll('{count}', '0').replaceAll('{total}', String(content.parts.length)), lang)}</span></span></span></legend>
+        ${content.parts.map((part, index) => `<label class="lp-choice" for="${html(`${id}-part-${index}`)}"><input type="checkbox" id="${html(`${id}-part-${index}`)}" value="${html(part.id)}"><span>${html(part.label, lang)}</span></label>`).join('\n        ')}
       </fieldset>
       <div class="lp-actions lp-self-check-step-actions">
-        <button class="lp-button" type="button" data-lp-show>${html(strings.show)}</button>
+        <button class="lp-button" type="button" data-lp-show>${html(strings.show, lang)}</button>
       </div>
     </div>
     <div class="lp-section" data-lp-result hidden></div>
     <div class="lp-actions">
-      <button class="lp-button lp-button-quiet" type="button" data-lp-restart hidden>${icons.refresh}${html(strings.restart)}</button>
+      <button class="lp-button lp-button-quiet" type="button" data-lp-restart hidden>${icons.refresh}${html(strings.restart, lang)}</button>
     </div>
   </div>
   <p class="lp-visually-hidden" role="status" aria-atomic="true"></p>

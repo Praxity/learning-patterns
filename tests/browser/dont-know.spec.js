@@ -6,6 +6,24 @@ const english = JSON.parse(await readFile(new URL('../../patterns/dont-know/exam
 const french = JSON.parse(await readFile(new URL('../../patterns/dont-know/examples/fr.json', import.meta.url)));
 const mixed = ['unexpected-expenses', 'no-interest', 'dont-know'];
 
+for (const [lang, expected] of [['en', 'Score 0.33 out of 1.'], ['fr', 'Score de 0,33 sur 1.']]) {
+  test(`one-third reward displays without float artefacts (${lang})`, async ({ page }) => {
+    await open(page, `/dont-know/${lang}.html`);
+    await page.evaluate(async ({ content, lang }) => {
+      const { render } = await import('/patterns/dont-know/render.js');
+      const { enhance } = await import('/patterns/dont-know/enhance.js');
+      const { strings } = await import('/patterns/dont-know/strings.js');
+      window.lpInstances[0].destroy();
+      content.points = { right: 1 / 3, unknown: 0, wrong: -1 };
+      document.querySelector('main').innerHTML = render(content, strings[lang], { id: 'third', lang });
+      enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings[lang] });
+    }, { content: lang === 'fr' ? french : english, lang });
+    await pick(page, [english.questions[0].correct, 'dont-know', 'dont-know']);
+    await page.locator('[data-lp-check]').click();
+    expect(await page.locator('[data-lp-score]').textContent()).toBe(expected);
+  });
+}
+
 test('shared scene spans the card and centres its tile on title and scoring', async ({ page }) => {
   await open(page);
   await expect(page.locator('.lp-scene-title')).toHaveText(english.title);
@@ -315,11 +333,10 @@ test('reset uses a quiet button and theme tokens reach controls and focus', asyn
   }
 });
 
-test('decorative score rings stay bounded for zero, negative and exceeded authored totals', async ({ page }) => {
+test('decorative score rings stay bounded for zero and negative authored totals', async ({ page }) => {
   for (const [points, expected, offset] of [
-    [{ right: 0, wrong: -1, unknown: 0 }, 'Score 0 out of 0.', '100'],
-    [{ right: -1, wrong: -2, unknown: 0 }, 'Score 0 out of −3.', '100'],
-    [{ right: 1, wrong: -1, unknown: 2 }, 'Score 6 out of 3.', '0']
+    [{ right: 0, wrong: -1, unknown: -0.5 }, 'Score −1.5 out of 0.', '100'],
+    [{ right: -1, wrong: -2, unknown: -1.5 }, 'Score −4.5 out of −3.', '100']
   ]) {
     await open(page);
     await page.evaluate(async ({ content, points }) => {

@@ -5,12 +5,12 @@
   "required": ["question", "keyIdea", "model", "unsureKeyIdea", "unsureMisconception", "noMatch", "misconceptions"],
   "additionalProperties": false,
   "properties": {
-    "question": { "type": "string", "minLength": 1 },
-    "keyIdea": { "type": "string", "minLength": 1 },
-    "model": { "type": "string", "minLength": 1 },
-    "unsureKeyIdea": { "type": "string", "minLength": 1 },
-    "unsureMisconception": { "type": "string", "allOf": [{ "pattern": "\\{idea\\}" }, { "pattern": "\\{why\\}" }] },
-    "noMatch": { "type": "string", "minLength": 1 },
+    "question": { "type": "string", "minLength": 1, "maxLength": 400 },
+    "keyIdea": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "model": { "type": "string", "minLength": 1, "maxLength": 1500 },
+    "unsureKeyIdea": { "type": "string", "minLength": 1, "maxLength": 1500 },
+    "unsureMisconception": { "type": "string", "allOf": [{ "pattern": "\\{idea\\}" }, { "pattern": "\\{why\\}" }], "maxLength": 1500 },
+    "noMatch": { "type": "string", "minLength": 1, "maxLength": 1500 },
     "misconceptions": {
       "type": "array", "minItems": 4, "maxItems": 4,
       "prefixItems": [
@@ -27,10 +27,10 @@
       "type": "object", "additionalProperties": false,
       "required": ["id", "label", "idea", "why"],
       "properties": {
-        "id": { "type": "string", "enum": ["rereading", "highlighting", "cramming", "watching"] },
-        "label": { "type": "string", "minLength": 1 },
-        "idea": { "type": "string", "minLength": 1 },
-        "why": { "type": "string", "minLength": 1 }
+        "id": { "type": "string", "enum": ["rereading", "highlighting", "cramming", "watching"], "maxLength": 120 },
+        "label": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "idea": { "type": "string", "minLength": 1, "maxLength": 1500 },
+        "why": { "type": "string", "minLength": 1, "maxLength": 1500 }
       }
     }
   }

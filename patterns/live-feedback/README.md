@@ -66,6 +66,8 @@ All fields are escaped plain text. Unknown fields, empty strings and incorrect c
 
 ## Logic
 
+Authored text is capped at 120 characters for titles and labels, 400 for questions and prompts, 300 for options, and 1,500 for answers, explanations and passage text. The schema gives each field's limit; `validateContent` enforces it.
+
 `logic.js` imports decisions, criterion IDs and the answer limit from `proxy/logic/02-live.js`. The browser and proxy share that pure module.
 
 | Export | Returns or value |

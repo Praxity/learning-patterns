@@ -204,3 +204,11 @@ test('a year with fewer than four digits is still being typed, not a date', () =
   for (const value of ['0002-11-09', '0020-11-09', '0202-11-09', '0999-12-31']) assert.equal(logic.isPartialYear(value), true, value);
   for (const value of ['1000-01-01', '2027-11-09', '', 'nope', '2026-02-30', null]) assert.equal(logic.isPartialYear(value), false, String(value));
 });
+
+
+test('a duplex sheet accepts eight questions and rejects a ninth in schema and logic', () => {
+  assert.equal(schema.properties.questions.maxItems, 8);
+  const questions = Array.from({ length: 8 }, (_, i) => ({ id: `question-${i}`, question: 'What would you do?', answer: 'Take a pause.' }));
+  assert.doesNotThrow(() => logic.validateContent({ ...content, questions }));
+  assert.throws(() => logic.validateContent({ ...content, questions: [...questions, { ...questions[0], id: 'ninth' }] }), /questions/);
+});

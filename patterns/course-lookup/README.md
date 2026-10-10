@@ -31,7 +31,7 @@ Editing cancels the older request and discards stale results. Each instance has 
 
 The shared data notice explains the decision service. The offline demo uses fixed matches and sends no text. Live lookup sends the question to the decision model through the proxy. The proxy stores no question text.
 
-The question bank keeps added questions in this tab. Reloading keeps them; closing the tab clears them. Each language and instance has its own bank. Three authored examples show two instructor replies and one reply from another learner. Those examples always remain. Only added learner questions are stored. The demo stores no bank entries on a server and sends no notifications. A failed save shows an error and keeps the previous bank. The bank holds up to 100 added questions.
+The question bank keeps added questions in this tab. Reloading keeps them; closing the tab clears them. Each language and instance has its own bank. Three authored examples show two instructor replies and one reply from another learner. Those examples remain available through "Show all". Only added learner questions are stored. The demo stores no bank entries on a server and sends no notifications. A failed save shows an error and keeps the previous bank. The bank holds up to 100 added questions. It shows the latest ten questions, including authored examples when there are fewer than ten newer questions. "Show all" reveals the complete bank; "Show latest 10" collapses it again.
 
 A real course should send questions to its forum or instructor queue. Ask for consent before sending. For example, "Send this question to the course forum? Other learners and the instructor can read it." Decide who can answer and remove questions, and state how long they remain.
 
@@ -67,7 +67,8 @@ Meets the shared baseline in the root README.
 | Field | Meaning |
 | --- | --- |
 | `kind` | `faq` or `sections`. |
-| `prompt` | Visible heading and question field label. |
+| `prompt` | Visible heading and question field label, up to 400 characters. |
+| `course` | Optional course name, up to 120 characters; required when the prompt contains `{course}`. Every occurrence renders in italics. |
 | `entries` | Eight FAQ entries or six sections, in the proxy's fixed ID order. |
 | `entries[].id`, `title` | Fixed identity and authored question or section title. |
 | `entries[].answer` | Short authored FAQ answer, for `faq` only. |
@@ -78,6 +79,9 @@ Meets the shared baseline in the root README.
 All text is escaped. Unknown fields, wrong IDs and empty text fail validation. Keep the displayed catalogue consistent with the server-owned catalogue. To change topics, change both and calibrate the questions again. Section results link to the outline anchors that `render` creates.
 
 ## Logic
+
+Authored text is capped at 120 characters for titles and labels, 400 for questions and prompts, 300 for options, and 1,500 for answers, explanations and passage text. The schema gives each field's limit; `validateContent` enforces it.
+
 
 The proxy owns both catalogues and the Choice questions. The browser sends only the question to `20-faq` or `21-sections`. Both use Perplexity Decider v1.1. The best entry must reach 0.35 probability and the decision's confidence must reach 0.35. A second entry appears if its probability also reaches 0.35 and is within 0.20 of the best. A winning or tied `none` suppresses matches. These are selection probabilities, not evidence that an answer is correct.
 

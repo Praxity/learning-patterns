@@ -5,8 +5,8 @@
   "required": ["task", "model", "ideas"],
   "additionalProperties": false,
   "properties": {
-    "task": { "type": "string", "minLength": 1 },
-    "model": { "type": "string", "minLength": 1 },
+    "task": { "type": "string", "minLength": 1, "maxLength": 400 },
+    "model": { "type": "string", "minLength": 1, "maxLength": 1500 },
     "ideas": {
       "type": "array", "minItems": 3, "maxItems": 3,
       "prefixItems": [
@@ -22,13 +22,13 @@
       "type": "object", "additionalProperties": false,
       "required": ["id", "heading", "body", "label", "met", "missed", "unsure"],
       "properties": {
-        "id": { "type": "string", "enum": ["stonewalling", "pause", "return"] },
-        "heading": { "type": "string", "minLength": 1 },
-        "body": { "type": "string", "minLength": 1 },
-        "label": { "type": "string", "minLength": 1 },
-        "met": { "type": "string", "minLength": 1 },
-        "missed": { "type": "string", "minLength": 1 },
-        "unsure": { "type": "string", "minLength": 1 }
+        "id": { "type": "string", "enum": ["stonewalling", "pause", "return"], "maxLength": 120 },
+        "heading": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "body": { "type": "string", "minLength": 1, "maxLength": 1500 },
+        "label": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "met": { "type": "string", "minLength": 1, "maxLength": 1500 },
+        "missed": { "type": "string", "minLength": 1, "maxLength": 1500 },
+        "unsure": { "type": "string", "minLength": 1, "maxLength": 1500 }
       }
     }
   }

@@ -1,3 +1,4 @@
+import { validateTextLengths } from '../../lib/text-limits.js';
 import { confidenceGate, MISCONCEPTION_KEYS, ANSWER_LIMIT } from '../../proxy/logic/06-misconceptions.js';
 export { ANSWER_LIMIT };
 
@@ -18,6 +19,15 @@ function fields(value, keys, path) {
  * @param {unknown} content @returns {asserts content is Content}
  */
 export function validateContent(content) {
+  validateTextLengths(content, {
+    question: 400,
+    keyIdea: 120,
+    model: 1500,
+    unsureKeyIdea: 1500,
+    unsureMisconception: 1500,
+    noMatch: 1500,
+    misconceptions: [{"label": 120, "idea": 1500, "why": 1500}],
+  });
   if (!object(content)) throw new Error('Invalid content');
   const { misconceptions, ...text } = content;
   fields(text, ['question', 'keyIdea', 'model', 'unsureKeyIdea', 'unsureMisconception', 'noMatch'], 'content');

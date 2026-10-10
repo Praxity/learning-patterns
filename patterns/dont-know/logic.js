@@ -1,3 +1,4 @@
+import { validateTextLengths } from '../../lib/text-limits.js';
 /** @typedef {{ id: string, text: string }} Option */
 /** @typedef {{ id: string, text: string, options: Option[], correct: string, explanation: string }} Question */
 /** @typedef {{ title: string, questions: Question[], points: { right: number, wrong: number, unknown: number } }} Content */
@@ -22,6 +23,10 @@ function text(value, path) {
 
 /** @param {unknown} content @returns {asserts content is Content} */
 export function validateContent(content) {
+  validateTextLengths(content, {
+    title: 120,
+    questions: [{"id": 120, "text": 400, "correct": 120, "explanation": 1500, "options": [{"id": 120, "text": 300}]}],
+  });
   if (!object(content)) throw new Error('Invalid content');
   fields(content, ['title', 'questions', 'points'], 'content');
   text(content.title, 'title');
@@ -49,7 +54,12 @@ export function validateContent(content) {
   });
   if (!object(content.points)) throw new Error('Invalid points');
   fields(content.points, ['right', 'wrong', 'unknown'], 'points');
-  for (const field of ['right', 'wrong', 'unknown']) if (typeof content.points[field] !== 'number' || !Number.isFinite(content.points[field])) throw new Error(`Invalid points.${field}`);
+  for (const field of ['right', 'wrong', 'unknown']) {
+    const value = content.points[field];
+    if (typeof value !== 'number' || !Number.isFinite(value)) throw new Error(`Invalid points.${field}`);
+  }
+  const points = /** @type {Content['points']} */ (content.points);
+  if (!(points.right > points.unknown && points.unknown >= points.wrong)) throw new Error('Invalid points: require right > unknown >= wrong');
 }
 
 /** Validate picks at the host boundary. Missing own keys mean unanswered.
@@ -91,11 +101,13 @@ export function validateState(content, value) {
   return { picks: { ...picks }, shown: value.shown };
 }
 
-/** Use the mathematical minus sign; scoring rules also show positive signs.
- * @param {number} value @param {boolean} [positive]
+/** Format hundredths in the page language, with a mathematical minus and optional plus.
+ * @param {number} value @param {boolean} [positive] @param {string} [lang]
  */
-export function displayPoints(value, positive = false) {
-  return value < 0 ? `−${-value}` : `${positive && value > 0 ? '+' : ''}${value}`;
+export function displayPoints(value, positive = false, lang = 'en') {
+  const rounded = Number(value.toFixed(2));
+  const number = new Intl.NumberFormat(lang, { maximumFractionDigits: 2 }).format(Math.abs(rounded));
+  return `${rounded < 0 ? '−' : positive && rounded > 0 ? '+' : ''}${number}`;
 }
 
 /** Replace authored placeholders in a single pass so inserted content stays literal.

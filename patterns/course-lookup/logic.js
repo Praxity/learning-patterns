@@ -14,17 +14,17 @@ function object(value) { return value !== null && typeof value === 'object' && !
 function fields(value, keys, path) {
   for (const key of Object.keys(value)) if (!keys.includes(key)) throw new Error(`Invalid ${path}.${key}`);
 }
-/** @param {unknown} value @returns {value is string} */
-function text(value) { return typeof value === 'string' && value.trim().length > 0; }
+/** @param {unknown} value @param {number} [max] @returns {value is string} */
+function text(value, max = 1500) { return typeof value === 'string' && value.trim().length > 0 && [...value].length <= max; }
 
 /** @param {unknown} content @returns {asserts content is Content} */
 export function validateContent(content) {
   if (!object(content)) throw new Error('Invalid content');
   fields(content, ['kind', 'prompt', 'course', 'entries', 'seeds'], 'content');
   if (content.kind !== 'faq' && content.kind !== 'sections') throw new Error('Invalid kind');
-  if (!text(content.prompt)) throw new Error('Invalid prompt');
+  if (!text(content.prompt, 400)) throw new Error('Invalid prompt');
   // {course} in the prompt renders the course name in italics, so a prompt that uses it needs the name.
-  if (content.course !== undefined && !text(content.course)) throw new Error('Invalid course');
+  if (content.course !== undefined && !text(content.course, 120)) throw new Error('Invalid course');
   if (content.prompt.includes('{course}') && content.course === undefined) throw new Error('Invalid prompt');
   const ids = content.kind === 'faq' ? FAQ_IDS : SECTION_IDS;
   const body = content.kind === 'faq' ? 'answer' : 'summary';
@@ -34,7 +34,7 @@ export function validateContent(content) {
     if (!object(entry)) throw new Error(`Invalid ${path}`);
     fields(entry, ['id', 'title', body], path);
     if (entry.id !== ids[index]) throw new Error(`Invalid ${path}.id`);
-    for (const key of ['title', body]) if (!text(entry[key])) throw new Error(`Invalid ${path}.${key}`);
+    for (const key of ['title', body]) if (!text(entry[key], key === 'title' ? 120 : 1500)) throw new Error(`Invalid ${path}.${key}`);
   });
   if (!Array.isArray(content.seeds) || content.seeds.length !== 3) throw new Error('Invalid seeds');
   const seen = new Set();
@@ -42,7 +42,7 @@ export function validateContent(content) {
     const path = `seeds[${index}]`;
     if (!object(seed)) throw new Error(`Invalid ${path}`);
     fields(seed, ['id', 'question', 'author', 'answer'], path);
-    for (const key of ['id', 'question', 'answer']) if (!text(seed[key])) throw new Error(`Invalid ${path}.${key}`);
+    for (const key of ['id', 'question', 'answer']) if (!text(seed[key], key === 'id' ? 120 : key === 'question' ? 400 : 1500)) throw new Error(`Invalid ${path}.${key}`);
     if (seen.has(seed.id)) throw new Error(`Invalid ${path}.id`);
     seen.add(seed.id);
     if (seed.author !== 'instructor' && seed.author !== 'learner') throw new Error(`Invalid ${path}.author`);

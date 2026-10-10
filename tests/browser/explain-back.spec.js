@@ -146,7 +146,7 @@ for (const lang of ['en', 'fr']) {
     await expect(page.locator('[data-lp-mark="correct"]')).toHaveCount(3);
     await expect(page.locator('[data-lp-model]')).toHaveAttribute('open', '');
     await expect(page.locator('[data-lp-model] p')).toHaveText(examples[lang].model);
-    expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([lang === 'fr' ? 'Idées clés : 3 sur 3' : '3 of 3 key ideas']);
+    expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([lang === 'fr' ? 'Idées clés\u202f: 3 sur 3' : '3 of 3 key ideas']);
     expect(await page.evaluate(() => window.lpTestCalls)).toEqual([{ block: '07-explain-back', fields: { answer: 'My explanation' }, slot: true }]);
     await axe(page);
   });

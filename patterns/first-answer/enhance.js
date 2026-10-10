@@ -1,3 +1,4 @@
+import { frenchTypography } from '../../lib/html.js';
 import { MAX_LENGTH, emptyState, validateAnswer, validateContent, validateState, withFirstAnswer, withAnswerNow, withChecks } from './logic.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
@@ -60,11 +61,11 @@ export function enhance(root, { content, strings, state }) {
   }
   /** @param {string} text */
   function showProblem(text) {
-    problem.textContent = text; problem.hidden = !text;
+    problem.textContent = frenchTypography(text, root.lang); problem.hidden = !text;
   }
   /** @param {HTMLTextAreaElement} input @param {HTMLElement} error @param {string} text */
   function fieldError(input, error, text) {
-    error.textContent = text; error.hidden = !text;
+    error.textContent = frenchTypography(text, root.lang); error.hidden = !text;
     if (text) {
       input.setAttribute('aria-invalid', 'true'); input.setAttribute('aria-describedby', error.id); input.focus();
     } else {
@@ -87,8 +88,8 @@ export function enhance(root, { content, strings, state }) {
       first.editor.hidden = record.first !== null;
       first.saved.hidden = record.first === null;
       first.save.hidden = record.first !== null;
-      first.quote.textContent = record.first?.text ?? '';
-      first.date.textContent = record.first ? strings.saved.replaceAll('{date}', when(record.first.savedAt)) : '';
+      first.quote.textContent = frenchTypography(record.first?.text ?? '', root.lang);
+      first.date.textContent = frenchTypography(record.first ? strings.saved.replaceAll('{date}', when(record.first.savedAt)) : '', root.lang);
     }
     if (course) course.hidden = !record.first || endOpen;
     if (end) {
@@ -99,10 +100,10 @@ export function enhance(root, { content, strings, state }) {
       end.input.readOnly = locked;
       end.compare.hidden = locked;
       end.retry.hidden = !locked;
-      end.firstQuote.textContent = record.first?.text ?? strings.missing;
-      end.firstDate.textContent = record.first ? strings.saved.replaceAll('{date}', when(record.first.savedAt)) : '';
+      end.firstQuote.textContent = frenchTypography(record.first?.text ?? strings.missing, root.lang);
+      end.firstDate.textContent = frenchTypography(record.first ? strings.saved.replaceAll('{date}', when(record.first.savedAt)) : '', root.lang);
       for (const box of boxes) box.checked = record.checks[box.value];
-      end.summary.textContent = strings.summary.replaceAll('{count}', String(boxes.filter(box => box.checked).length)).replaceAll('{total}', String(content.checks.length));
+      end.summary.textContent = frenchTypography(strings.summary.replaceAll('{count}', String(boxes.filter(box => box.checked).length)).replaceAll('{total}', String(content.checks.length)), root.lang);
       if (restoreDraft) end.input.value = record.now?.text ?? '';
     }
     restart.hidden = !record.first && !record.now && !blocked;
@@ -129,9 +130,9 @@ export function enhance(root, { content, strings, state }) {
     const copy = validateState(content, next);
     if (!copy) throw new Error('Invalid next state');
     try { state?.write(copy); }
-    catch { showProblem(strings.writeFailed); status.textContent = strings.writeFailed; paint(); return false; }
+    catch { showProblem(strings.writeFailed); status.textContent = frenchTypography(strings.writeFailed, root.lang); paint(); return false; }
     record = next; showProblem('');
-    if (message !== null) status.textContent = message;
+    if (message !== null) status.textContent = frenchTypography(message, root.lang);
     return true;
   }
 

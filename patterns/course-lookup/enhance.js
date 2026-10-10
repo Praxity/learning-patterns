@@ -1,8 +1,8 @@
 import { lookup, validateContent, validateState, AUTO_CHECK_LIMIT, BANK_LIMIT } from './logic.js';
 import { typingPause } from '../../lib/typing-pause.js';
 import { renderDataNotice, showCapNotice } from '../../lib/notice-ui.js';
-import { escapeHtml as html } from '../../lib/html.js';
-import { icons } from '../../lib/icons.js';
+import { escapeHtml as html, frenchTypography } from '../../lib/html.js';
+import { icons } from '../../lib/course-lookup-icons.js';
 import { focusAfterLayout } from '../../lib/focus-after-layout.js';
 import { browserState } from '../../lib/browser-state.js';
 
@@ -31,6 +31,8 @@ export function enhance(root, { content, strings, state, ask }) {
   const paused = required('[data-lp-paused]'), add = /** @type {HTMLButtonElement} */ (required('[data-lp-add]'));
   const fallback = required('[data-lp-fallback]'), fallbackMessage = required('[data-lp-fallback-message]');
   const bank = required('[data-lp-bank]'), bankList = required('[data-lp-bank-list]');
+  const bankToggle = required('[data-lp-bank-toggle]');
+  let showAll = false;
   const bankMessage = required('[data-lp-bank-message]'), status = required('[role="status"]');
   const challengeSlot = required('[data-lp-challenge]');
   const session = sessions.get(root.ownerDocument) ?? { checks: 0, notify: new Set() };
@@ -48,11 +50,16 @@ export function enhance(root, { content, strings, state, ask }) {
   /** @type {AbortController | undefined} */
   let pending;
   /** @param {string} text */
-  const message = text => { bankMessage.textContent = text; bankMessage.hidden = false; status.textContent = text; };
+  const message = text => { bankMessage.textContent = frenchTypography(text, root.lang); bankMessage.hidden = false; status.textContent = frenchTypography(text, root.lang); };
   try { questions = validateState(storage.read())?.questions ?? []; }
   catch { message(strings.storageError); }
   const updateBank = () => {
-    bankList.innerHTML = content.seeds.map(seed => `<li><p class="lp-run-in lp-course-lookup-q">${icons['help-circle']}<span>${html(seed.question)}</span></p><p class="lp-small">${html(strings[seed.author])}</p><p>${html(seed.answer)}</p></li>`).join('') + questions.map((question, index) => `<li><p class="lp-run-in lp-course-lookup-q" tabindex="-1">${icons['help-circle']}<span>${html(question)}</span></p><p class="lp-small">${html(strings.waiting)}</p><button type="button" class="lp-button lp-button-quiet" data-lp-remove="${index}" aria-label="${html(`${strings.remove}: ${question}`)}">${icons.x}${html(strings.remove)}</button></li>`).join('');
+    bankList.innerHTML = content.seeds.map(seed => `<li><p class="lp-run-in lp-course-lookup-q">${icons['help-circle']}<span>${html(seed.question, root.lang)}</span></p><p class="lp-small">${html(strings[seed.author], root.lang)}</p><p>${html(seed.answer, root.lang)}</p></li>`).join('') + questions.map((question, index) => `<li><p class="lp-run-in lp-course-lookup-q" tabindex="-1">${icons['help-circle']}<span>${html(question, root.lang)}</span></p><p class="lp-small">${html(strings.waiting, root.lang)}</p><button type="button" class="lp-button lp-button-quiet" data-lp-remove="${index}" aria-label="${html(strings.removeQuestion.replaceAll('{number}', String(content.seeds.length + index + 1)), root.lang)}">${icons.x}${html(strings.remove, root.lang)}</button></li>`).join('');
+    const rows = [...bankList.children];
+    rows.forEach((row, index) => { /** @type {HTMLElement} */ (row).hidden = !showAll && index < rows.length - 10; });
+    bankToggle.hidden = rows.length <= 10;
+    bankToggle.setAttribute('aria-expanded', String(showAll));
+    bankToggle.textContent = frenchTypography(showAll ? strings.showLatest : strings.showAll, root.lang);
     bank.hidden = false;
   };
   updateBank();
@@ -97,7 +104,7 @@ export function enhance(root, { content, strings, state, ask }) {
       if (destroyed || my !== seq) return;
       const entries = lookup(content, answers);
       const resultFocused = result.contains(root.ownerDocument.activeElement);
-      result.innerHTML = entries.length ? entries.map(entry => `<article><h3 class="lp-run-in${content.kind === 'faq' ? ' lp-course-lookup-q' : ''}">${content.kind === 'faq' ? `${icons['help-circle']}<span>${html(entry.title)}</span>` : `<a href="#${html(input.id.replace(/-question$/, `-section-${entry.id}`))}">${html(entry.title)}</a>`}</h3><p>${html(content.kind === 'faq' ? entry.answer ?? '' : entry.summary ?? '')}</p></article>`).join('') : `<p class="lp-run-in">${html(strings.noMatch)}</p>`;
+      result.innerHTML = entries.length ? entries.map(entry => `<article><h3 class="lp-run-in${content.kind === 'faq' ? ' lp-course-lookup-q' : ''}">${content.kind === 'faq' ? `${icons['help-circle']}<span>${html(entry.title, root.lang)}</span>` : `<a href="#${html(input.id.replace(/-question$/, `-section-${entry.id}`))}">${html(entry.title, root.lang)}</a>`}</h3><p>${html(content.kind === 'faq' ? entry.answer ?? '' : entry.summary ?? '', root.lang)}</p></article>`).join('') : `<p class="lp-run-in">${html(strings.noMatch, root.lang)}</p>`;
       result.hidden = false;
       if (resultFocused) {
         const focus = /** @type {HTMLElement} */ (result.querySelector('a') ?? input);
@@ -106,11 +113,11 @@ export function enhance(root, { content, strings, state, ask }) {
       unmatched = entries.length ? '' : question;
       if (!unmatched || questions.includes(unmatched)) hideAdd();
       else add.hidden = false;
-      if (unmatched && questions.includes(unmatched)) { bankMessage.textContent = strings.saved; bankMessage.hidden = false; }
+      if (unmatched && questions.includes(unmatched)) { bankMessage.textContent = frenchTypography(strings.saved, root.lang); bankMessage.hidden = false; }
       const signature = entries.map(entry => entry.id).join(',') || 'none';
       if (signature !== announced) {
         announced = signature;
-        status.textContent = entries.length ? (content.kind === 'faq' ? strings.found : strings.sectionFound).replace('{title}', entries.map(entry => entry.title).join('; ')) : strings.noMatch;
+        status.textContent = frenchTypography(entries.length ? (content.kind === 'faq' ? strings.found : strings.sectionFound).replace('{title}', entries.map(entry => entry.title).join('; ')) : strings.noMatch, root.lang);
       }
     } catch (error) {
       if (!destroyed) {
@@ -168,10 +175,12 @@ export function enhance(root, { content, strings, state, ask }) {
       if (persist(next)) {
         add.hidden = !unmatched || questions.includes(unmatched);
         message(strings.removed);
-        const focus = bankList.querySelectorAll('button')[Math.min(index, next.length - 1)] ?? input;
+        const visible = [...bankList.querySelectorAll('li:not([hidden]) [data-lp-remove]')];
+        const focus = visible.find(button => Number(/** @type {HTMLElement} */ (button).dataset.lpRemove) >= index) ?? visible.at(-1) ?? input;
         /** @type {HTMLElement} */ (focus).focus();
       }
     }
+    if (target.closest('[data-lp-bank-toggle]')) { showAll = !showAll; updateBank(); }
     if (target.closest('[data-lp-result] a')) fallback.hidden = false;
   };
   input.addEventListener('input', onInput); input.addEventListener('keydown', onKey);

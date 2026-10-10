@@ -10,7 +10,8 @@
   "properties": {
     "prompt": {
       "type": "string",
-      "minLength": 1
+      "minLength": 1,
+      "maxLength": 400
     },
     "criteria": {
       "type": "array",
@@ -70,15 +71,18 @@
             "observable",
             "when",
             "commitments"
-          ]
+          ],
+          "maxLength": 120
         },
         "done": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "maxLength": 1500
         },
         "todo": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "maxLength": 1500
         }
       }
     }

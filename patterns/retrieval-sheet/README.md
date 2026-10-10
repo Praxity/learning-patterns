@@ -64,6 +64,10 @@ English and Québec French strings share `instruction`, `dateLabel`, `dateError`
 
 ## Logic
 
+Authored text is capped at 120 characters for titles and labels, 400 for questions and prompts, 300 for options, and 1,500 for answers, explanations and passage text. The schema gives each field's limit; `validateContent` enforces it.
+
+`validateContent` and the schema cap `questions` at eight.
+
 `logic.js` has no DOM code. Hosts can use these exports with their own interface.
 
 | Export | Returns |
@@ -84,7 +88,7 @@ The preview has A4 proportions, a paper edge and a soft shadow. It grows for nar
 
 Without JavaScript, both sides appear in order with the server's date. Controls stay hidden. Use the browser's Print command.
 
-The examples print as two black-on-white pages on A4 or Letter, without controls or site navigation. Choose double-sided printing with the long-edge flip for one sheet. Turn off browser headers and footers to omit URLs or page numbers. Custom content can use more pages; text is never clipped. Check print preview after editing questions.
+The examples print as two black-on-white pages on A4 or Letter, without controls or site navigation. Choose double-sided printing with the long-edge flip for one sheet. Turn off browser headers and footers to omit URLs or page numbers. A sheet accepts at most eight questions. The print tests cover eight questions on both paper sizes in both languages. Long stems, answers or deliberate line breaks can still add pages; text is never clipped. Check print preview after editing questions.
 
 `render` accepts optional `today: Date` for a reproducible build date. Enhancement uses the learner's local day, so a static build date does not determine the interactive default.
 

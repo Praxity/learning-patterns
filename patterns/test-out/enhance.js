@@ -1,5 +1,5 @@
 import { format, score, validateContent, validateState } from './logic.js';
-import { escapeHtml as html } from '../../lib/html.js';
+import { escapeHtml as html, frenchTypography } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
@@ -76,7 +76,7 @@ export function enhance(root, { content, strings, state }) {
   const save = () => state?.write({ picks: picks(), shown, step });
   /** @param {string} message */
   function announce(message) {
-    if (status.textContent !== message) status.textContent = message;
+    if (status.textContent !== message) status.textContent = frenchTypography(message, root.lang);
   }
   /** @param {typeof questions[number]} question */
   function clearQuestionError({ fieldset, radios, message }) {
@@ -110,7 +110,7 @@ export function enhance(root, { content, strings, state }) {
     panel.classList.add('lp-test-out-enter');
     heading.focus();
     // Question progress is read by heading focus. Results add a distinct summary.
-    if (shown) status.textContent = result.textContent ?? '';
+    if (shown) status.textContent = frenchTypography(result.textContent ?? '', root.lang);
     else if (status.textContent) status.replaceChildren();
   }
   /** @param {import('./logic.js').PlanRow[]} rows */
@@ -120,11 +120,11 @@ export function enhance(root, { content, strings, state }) {
       outline[i].hidden = false;
       outline[i].classList.toggle('lp-met', row.action !== 'take');
       outline[i].classList.toggle('lp-neutral', row.action === 'take');
-      outline[i].innerHTML = `${row.action === 'take' ? icons['circle-dashed'] : icons.check}<span>${html(word)}</span>`;
+      outline[i].innerHTML = `${row.action === 'take' ? icons['circle-dashed'] : icons.check}<span>${html(word, root.lang)}</span>`;
     });
   }
   function clearResults() {
-    outlineHeading.textContent = strings.outline;
+    outlineHeading.textContent = frenchTypography(strings.outline, root.lang);
     result.textContent = ''; result.hidden = true; restart.hidden = true; shown = false;
     restartActions.hidden = true; review.hidden = true; review.open = false; intro.hidden = false;
     if (startActions) startActions.hidden = false;
@@ -139,7 +139,7 @@ export function enhance(root, { content, strings, state }) {
   /** @param {boolean} notify */
   function show(notify) {
     const outcome = score(content, picks());
-    const summary = format(outcome.skip === 1 ? strings.summaryOne : strings.summary, { skip: outcome.skip, total: content.sections.length });
+    const summary = format(content.sections.length === 1 ? (outcome.skip ? strings.summaryOne : strings.summaryOneRequired) : strings.summary, { skip: outcome.skip, total: content.sections.length });
     for (const { q, radios, rows, explanation } of questions) {
       const right = outcome.right.includes(q.id);
       explanation.hidden = right;
@@ -150,13 +150,13 @@ export function enhance(root, { content, strings, state }) {
         rows[i].dataset.lpMark = correct ? 'correct' : 'wrong';
         const mark = root.ownerDocument.createElement('span');
         mark.className = `lp-choice-mark ${correct ? 'lp-met' : 'lp-missed'}`;
-        mark.innerHTML = `${correct ? icons.check : icons.x}<span>${html(correct ? right ? strings.markCorrect : strings.markAnswer : strings.markWrong)}</span>`;
+        mark.innerHTML = `${correct ? icons.check : icons.x}<span>${html(correct ? right ? strings.markCorrect : strings.markAnswer : strings.markWrong, root.lang)}</span>`;
         rows[i].append(mark);
       });
     }
-    outlineHeading.textContent = strings.resultOutline;
+    outlineHeading.textContent = frenchTypography(strings.resultOutline, root.lang);
     showOutline(outcome.rows);
-    result.textContent = summary; result.hidden = false; restart.hidden = false; shown = true;
+    result.textContent = frenchTypography(summary, root.lang); result.hidden = false; restart.hidden = false; shown = true;
     intro.hidden = true; if (startActions) startActions.hidden = true;
     review.hidden = false; restartActions.hidden = false; review.append(questionList);
     move(questions.length + 1, notify);

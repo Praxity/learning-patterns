@@ -17,29 +17,29 @@ function fields(value, keys, path) {
   for (const key of Object.keys(value)) if (!keys.includes(key)) throw new Error(`Invalid ${path}.${key}`);
   for (const key of keys) if (!Object.hasOwn(value, key)) throw new Error(`Invalid ${path}.${key}`);
 }
-/** @param {unknown} value @param {string} path */
-function text(value, path) { if (typeof value !== 'string' || !value.trim()) throw new Error(`Invalid ${path}`); }
-/** @param {unknown} value @param {string[]} keys @param {string} path */
-function texts(value, keys, path) {
+/** @param {unknown} value @param {string} path @param {number} [max] */
+function text(value, path, max = 1500) { if (typeof value !== 'string' || !value.trim() || [...value].length > max) throw new Error(`Invalid ${path}`); }
+/** @param {unknown} value @param {string[]} keys @param {string} path @param {number} [max] */
+function texts(value, keys, path, max = 1500) {
   fields(value, keys, path);
-  for (const key of keys) text(value[key], `${path}.${key}`);
+  for (const key of keys) text(value[key], `${path}.${key}`, key === 'initial' ? 2 : max);
 }
 
 /** @param {unknown} content @returns {asserts content is Content} */
 export function validateContent(content) {
   fields(content, ['setup', 'person', 'opening', 'branches', 'examples', 'stageNotes', 'pauseNote', 'unsure', 'offScript'], 'content');
-  for (const key of ['setup', 'opening', 'pauseNote', 'unsure', 'offScript']) text(content[key], `content.${key}`);
-  texts(content.person, ['name', 'role', 'initial'], 'person');
+  for (const key of ['setup', 'opening', 'pauseNote', 'unsure', 'offScript']) text(content[key], `content.${key}`, ['setup', 'opening'].includes(key) ? 400 : 1500);
+  texts(content.person, ['name', 'role', 'initial'], 'person', 120);
   fields(content.branches, BRANCHES, 'branches');
   for (const branch of BRANCHES) {
     const value = content.branches[branch];
     fields(value, ['line', 'endings', 'move', 'debrief'], `branches.${branch}`);
-    for (const key of ['line', 'move', 'debrief']) text(value[key], `branches.${branch}.${key}`);
-    texts(value.endings, BRANCHES, `branches.${branch}.endings`);
+    for (const key of ['line', 'move', 'debrief']) text(value[key], `branches.${branch}.${key}`, key === 'move' ? 120 : key === 'line' ? 400 : 1500);
+    texts(value.endings, BRANCHES, `branches.${branch}.endings`, 400);
   }
   fields(content.examples, ['opening', ...BRANCHES], 'examples');
   for (const node of ['opening', ...BRANCHES]) {
-    texts(content.examples[node], BRANCHES, `examples.${node}`);
+    texts(content.examples[node], BRANCHES, `examples.${node}`, REPLY_LIMIT);
     for (const branch of BRANCHES) if (String(/** @type {Record<string, unknown>} */ (content.examples[node])[branch]).length > REPLY_LIMIT) throw new Error(`Invalid examples.${node}.${branch}`);
   }
   if (!object(content.stageNotes)) throw new Error('Invalid stageNotes');

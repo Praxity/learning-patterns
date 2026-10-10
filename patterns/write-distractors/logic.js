@@ -44,17 +44,17 @@ export function validateContent(content) {
   if (!object(content)) throw new Error('Invalid content');
   fields(content, ['question', 'rightAnswer', 'misconceptions', 'authorOptions', 'count'], 'content');
   for (const field of ['question', 'rightAnswer']) {
-    if (typeof content[field] !== 'string' || content[field].length === 0) throw new Error(`Invalid ${field}`);
+    if (typeof content[field] !== 'string' || content[field].length === 0 || [...content[field]].length > (field === 'question' ? 400 : MAX_OPTION)) throw new Error(`Invalid ${field}`);
   }
-  if (!Number.isSafeInteger(content.count) || typeof content.count !== 'number' || content.count < 1) throw new Error('Invalid count');
+  if (!Number.isSafeInteger(content.count) || typeof content.count !== 'number' || content.count < 1 || content.count > 5) throw new Error('Invalid count');
   if (!Array.isArray(content.misconceptions) || !content.misconceptions.length) throw new Error('Invalid misconceptions');
   const known = new Set();
   content.misconceptions.forEach((item, index) => {
     const path = `misconceptions[${index}]`;
     if (!object(item)) throw new Error(`Invalid ${path}`);
     fields(item, ['id', 'label'], path);
-    if (typeof item.id !== 'string' || !/^[a-zA-Z0-9_-]+$/.test(item.id) || item.id === OTHER || known.has(item.id)) throw new Error(`Invalid ${path}.id`);
-    if (typeof item.label !== 'string' || !item.label.length) throw new Error(`Invalid ${path}.label`);
+    if (typeof item.id !== 'string' || !/^[a-zA-Z0-9_-]+$/.test(item.id) || item.id === OTHER || known.has(item.id) || [...item.id].length > 120) throw new Error(`Invalid ${path}.id`);
+    if (typeof item.label !== 'string' || !item.label.length || [...item.label].length > 120) throw new Error(`Invalid ${path}.label`);
     known.add(item.id);
   });
   if (!Array.isArray(content.authorOptions) || !content.authorOptions.length) throw new Error('Invalid authorOptions');
@@ -62,8 +62,8 @@ export function validateContent(content) {
     const path = `authorOptions[${index}]`;
     if (!object(item)) throw new Error(`Invalid ${path}`);
     fields(item, ['text', 'misconception'], path);
-    if (typeof item.text !== 'string' || !item.text.length) throw new Error(`Invalid ${path}.text`);
-    if (typeof item.misconception !== 'string' || !known.has(item.misconception)) throw new Error(`Invalid ${path}.misconception`);
+    if (typeof item.text !== 'string' || !item.text.length || [...item.text].length > MAX_OPTION) throw new Error(`Invalid ${path}.text`);
+    if (typeof item.misconception !== 'string' || !known.has(item.misconception) || [...item.misconception].length > 120) throw new Error(`Invalid ${path}.misconception`);
   });
 }
 

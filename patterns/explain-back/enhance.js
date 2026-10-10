@@ -1,7 +1,7 @@
 import { feedback, validateContent, validateState } from './logic.js';
-import { escapeHtml as html } from '../../lib/html.js';
+import { escapeHtml as html, frenchTypography } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
-import { renderDataNotice, showCapNotice } from '../../lib/data-notice.js';
+import { renderDataNotice, showCapNotice } from '../../lib/notice-ui.js';
 import { focusAfterLayout } from '../../lib/focus-after-layout.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
@@ -39,9 +39,9 @@ export function enhance(root, { content, strings, state, ask }) {
     .map(element => ({ element, attributes: [...element.attributes].map(attribute => [attribute.name, attribute.value]) }));
   const originalContents = [check, notice, challengeSlot, result, status].map(element => ({ element, markup: element.innerHTML }));
   const ready = root.ownerDocument.createElement('button');
-  ready.type = 'button'; ready.className = 'lp-button'; ready.textContent = strings.ready;
+  ready.type = 'button'; ready.className = 'lp-button'; ready.textContent = frenchTypography(strings.ready, root.lang);
   const readAgain = root.ownerDocument.createElement('button');
-  readAgain.type = 'button'; readAgain.className = 'lp-button lp-button-secondary'; readAgain.textContent = strings.readAgain;
+  readAgain.type = 'button'; readAgain.className = 'lp-button lp-button-secondary'; readAgain.textContent = frenchTypography(strings.readAgain, root.lang);
   // Both primary buttons sit in .lp-actions rows, so each goes full width on narrow screens.
   const checkRow = required('.lp-actions');
   const readyRow = root.ownerDocument.createElement('div');
@@ -92,10 +92,10 @@ export function enhance(root, { content, strings, state, ask }) {
     if (!draft) {
       error.hidden = false; answer.setAttribute('aria-invalid', 'true');
       answer.setAttribute('aria-describedby', `${error.id}${notice.hidden ? '' : ` ${notice.id}-text`}`);
-      answer.focus(); status.textContent = strings.empty; return;
+      answer.focus(); status.textContent = frenchTypography(strings.empty, root.lang); return;
     }
     // Native disabling drops keyboard focus in WebKit. Guard repeated submissions instead.
-    check.setAttribute('aria-disabled', 'true'); check.textContent = strings.checking;
+    check.setAttribute('aria-disabled', 'true'); check.textContent = frenchTypography(strings.checking, root.lang);
     try {
       const answers = await ask('07-explain-back', { answer: draft }, { challengeSlot, signal: lifetime.signal });
       if (destroyed) return;
@@ -103,22 +103,22 @@ export function enhance(root, { content, strings, state, ask }) {
       if (answer.value.trim() !== draft) return;
       const outcome = feedback(content, answers);
       const summary = strings.summary.replaceAll('{count}', String(outcome.count)).replaceAll('{total}', String(outcome.total));
-      result.innerHTML = `<p class="lp-run-in">${html(summary)}</p><ol class="lp-choices lp-explain-back-results">${outcome.items.map((item, index) => {
+      result.innerHTML = `<p class="lp-run-in">${html(summary, root.lang)}</p><ol class="lp-choices lp-explain-back-results">${outcome.items.map((item, index) => {
         const found = item.mark === 'met', missed = item.mark === 'missed';
         const word = found ? strings.found : missed ? strings.missed : strings.unsure;
         const icon = found ? icons.check : missed ? icons['circle-plus'] : icons['question-mark'];
-        return `<li class="lp-choice" data-lp-mark="${found ? 'correct' : missed ? 'missing' : 'unsure'}"><span class="lp-choice-key" aria-hidden="true">${index + 1}</span><span>${html(item.text)}</span><span class="lp-choice-mark ${found ? 'lp-met' : missed ? 'lp-explain-back-to-add' : 'lp-neutral'}">${icon}${html(word)}</span>${found ? '' : `<a href="#${html(headings[index].id)}" tabindex="0" data-lp-reread="${index}">${html(strings.reread.replaceAll('{heading}', item.heading))}</a>`}</li>`;
+        return `<li class="lp-choice" data-lp-mark="${found ? 'correct' : missed ? 'missing' : 'unsure'}"><span class="lp-choice-key" aria-hidden="true">${index + 1}</span><span>${html(item.text, root.lang)}</span><span class="lp-choice-mark ${found ? 'lp-met' : missed ? 'lp-explain-back-to-add' : 'lp-neutral'}">${icon}${html(word, root.lang)}</span>${found ? '' : `<a href="#${html(headings[index].id)}" tabindex="0" data-lp-reread="${index}">${html(strings.reread.replaceAll('{heading}', item.heading), root.lang)}</a>`}</li>`;
       }).join('')}</ol>`;
       result.hidden = false; model.hidden = !outcome.allFound; model.open = outcome.allFound;
-      status.textContent = summary;
+      status.textContent = frenchTypography(summary, root.lang);
     } catch (error) {
       if (!destroyed) {
         capped = showCapNotice(error, root, fallback, status);
         useFallback();
-        if (!capped) status.textContent = strings.fallback;
+        if (!capped) status.textContent = frenchTypography(strings.fallback, root.lang);
       }
     } finally {
-      if (!destroyed) { if (!capped) check.removeAttribute('aria-disabled'); check.textContent = strings.check; }
+      if (!destroyed) { if (!capped) check.removeAttribute('aria-disabled'); check.textContent = frenchTypography(strings.check, root.lang); }
     }
   };
   /** @param {MouseEvent} event */

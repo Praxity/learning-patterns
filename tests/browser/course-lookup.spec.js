@@ -139,7 +139,10 @@ async function open(page, { mode = 'ok', lang = 'en', two = false } = {}) {
       for (const record of records) if (record.target.textContent) window.lpAnnouncements.push(record.target.textContent);
     }).observe(status, { childList: true, characterData: true, subtree: true });
   });
-  await page.clock.install(); await page.clock.pauseAt(new Date());
+  // Host and browser clocks can differ; freeze at a known future tick.
+  const time = new Date(2026, 9, 6);
+  await page.clock.install({ time });
+  await page.clock.pauseAt(new Date(time.getTime() + 60_000));
 }
 const calls = page => page.evaluate(() => window.lpCalls.length);
 async function auto(page, text = draft, root = faq(page)) {
@@ -429,4 +432,25 @@ for (const lang of ['en', 'fr']) for (const reason of ['ip_daily', 'budget']) te
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([CAP_MESSAGES[reason][lang]]);
   const cap = root.locator('[data-lp-cap]');
   await expect(cap).toBeVisible();
+});
+
+
+for (const lang of ['en', 'fr']) test(`bank shows the latest ten, expands and uses short removal names (${lang})`, async ({ page }) => {
+  await page.addInitScript(() => { window.lpState = { read: () => ({ questions: Array.from({ length: 100 }, (_, i) => `Question ${i + 1} about the course`) }), write: () => {} }; });
+  await open(page, { lang });
+  const root = faq(page), bank = root.locator('[data-lp-bank-list]');
+  await expect(bank.locator('li:visible')).toHaveCount(10);
+  await expect(bank.locator('li:visible').first()).toContainText('Question 91 about the course');
+  await expect(bank.locator('li:visible').last().getByRole('button')).toHaveAccessibleName(lang === 'fr' ? 'Retirer la question 103' : 'Remove question 103');
+  await expect(bank.locator('li:visible').last().getByRole('button')).toHaveText(lang === 'fr' ? 'Retirer la question' : 'Remove question');
+  const toggle = root.locator('[data-lp-bank-toggle]');
+  await expect(toggle).toHaveAccessibleName(lang === 'fr' ? 'Tout afficher' : 'Show all');
+  await toggle.focus(); await toggle.press('Enter');
+  await expect(bank.locator('li:visible')).toHaveCount(103);
+  await expect(toggle).toBeFocused(); await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  await axe(page);
+  await toggle.press('Enter'); await expect(bank.locator('li:visible')).toHaveCount(10);
+  await bank.locator('li:visible').first().getByRole('button').click();
+  await expect(bank.locator('li:visible')).toHaveCount(10);
+  await expect(bank.locator('li:visible').nth(1).getByRole('button')).toBeFocused();
 });

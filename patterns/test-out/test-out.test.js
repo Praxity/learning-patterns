@@ -38,7 +38,7 @@ test('score groups keyed answers and requires all of a section’s one or two qu
   const result = score(content, { agenda: 'attendees', discussion: 'wait', 'follow-up': 'actions' });
   assert.deepEqual(result.right, ['follow-up']);
   assert.deepEqual(result.wrong, ['agenda', 'discussion']);
-  assert.deepEqual(result.passed, [4]); assert.equal(result.skip, 2);
+  assert.deepEqual(result.passed, [4]); assert.equal(result.skip, 1);
   assert.equal(score(content, all(q => q.correct)).skip, 3);
   assert.equal(score(content, all(q => q.options.find(o => o.id !== q.correct).id)).skip, 0);
   assert.equal(score({ ...content, allowTestOut: false }, all(q => q.correct)).skip, 0);
@@ -212,4 +212,20 @@ test('owner audit: question carries its context and outline has no credit messag
     assert.equal(Object.hasOwn(strings[lang], 'credited'), false);
     assert.equal(Object.hasOwn(strings[lang], 'creditFrom'), false);
   }
+});
+
+
+test('a directly failed prerequisite stays required after an advanced pass', () => {
+  const value = score(content, { agenda: 'attendees', discussion: 'wait', 'follow-up': 'actions' });
+  assert.equal(value.rows.find(row => row.id === 3).action, 'take');
+  assert.equal(value.skip, 1);
+  assert.equal(plan(content.sections, [4], true, [3]).rows.find(row => row.id === 3).action, 'take');
+  assert.throws(() => plan(content.sections, [4], true, [99]), /failed/);
+  assert.throws(() => plan(content.sections, [4], true, [4]), /failed/);
+});
+
+test('a question must offer at least two choices', () => {
+  const value = structuredClone(content);
+  value.questions[0].options = value.questions[0].options.filter(o => o.id === value.questions[0].correct);
+  assert.throws(() => validateContent(value), /options/);
 });

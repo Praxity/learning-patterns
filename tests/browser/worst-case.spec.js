@@ -30,7 +30,8 @@ const overflow = page => page.evaluate(() => {
 
 for (const width of [320, 1280]) test(`a long recipient wraps inside its pill at ${width}px`, async ({ page }) => {
   const content = await example('self-check');
-  content.context = { ...content.context, to: 'Bartholomew Fitzgerald, Regional Director of Customer Operations (bartholomew.fitzgerald@northwind-industries-holdings.example.com)' };
+  // A recipient inside the schema's 120-character limit still overflows a one-line pill.
+  content.context = { ...content.context, to: 'Bartholomew Fitzgerald, Customer Operations (bartholomew.fitzgerald@northwind-industries-holdings.example.com)' };
   await mount(page, 'self-check', content, { width });
   const geometry = await page.locator('.lp-self-check-recipient').evaluate(pill => {
     const box = pill.getBoundingClientRect(), composer = pill.closest('.lp-self-check-composer').getBoundingClientRect();

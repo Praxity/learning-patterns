@@ -1,3 +1,4 @@
+import { validateTextLengths } from '../../lib/text-limits.js';
 import { band } from '../../proxy/logic/shared.js';
 import { ANSWER_LIMIT, IDEA_KEYS } from '../../proxy/logic/07-explain-back.js';
 export { ANSWER_LIMIT };
@@ -19,6 +20,11 @@ function fields(value, keys, path) {
  * @param {unknown} content @returns {asserts content is Content}
  */
 export function validateContent(content) {
+  validateTextLengths(content, {
+    task: 400,
+    model: 1500,
+    ideas: [{"heading": 120, "body": 1500, "label": 120, "met": 1500, "missed": 1500, "unsure": 1500}],
+  });
   if (!object(content)) throw new Error('Invalid content');
   fields(content, ['task', 'model', 'ideas'], 'content');
   for (const key of ['task', 'model']) if (typeof content[key] !== 'string' || !content[key].length) throw new Error(`Invalid ${key}`);

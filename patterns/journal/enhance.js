@@ -1,6 +1,6 @@
 import { feedback, validateAnswer, validateContent, validateState, savedEntry, ANSWER_LIMIT } from './logic.js';
-import { renderDataNotice, showCapNotice } from '../../lib/data-notice.js';
-import { escapeHtml as html } from '../../lib/html.js';
+import { renderDataNotice, showCapNotice } from '../../lib/notice-ui.js';
+import { escapeHtml as html, frenchTypography } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
 import { focusAfterLayout } from '../../lib/focus-after-layout.js';
 
@@ -36,18 +36,21 @@ export function enhance(root, { content, strings, state, ask }) {
   const noScript = required('[data-lp-no-script]');
   const status = required('[role="status"]');
   const date = required('[data-lp-date]');
-  const now = new Date();
-  date.setAttribute('datetime', `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`);
-  date.textContent = new Intl.DateTimeFormat(root.lang === 'fr' ? 'fr-CA' : 'en-CA', { dateStyle: 'long' }).format(now);
+  /** @param {Date} value */
+  function showDate(value) {
+    date.setAttribute('datetime', `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, '0')}-${String(value.getDate()).padStart(2, '0')}`);
+    date.textContent = frenchTypography(new Intl.DateTimeFormat(root.lang === 'fr' ? 'fr-CA' : 'en-CA', { dateStyle: 'long' }).format(value), root.lang);
+  }
+  showDate(new Date());
   const lifetime = new AbortController();
   let destroyed = false, automatic = Boolean(ask), capped = false, readFailed = false, revision = 0;
   /** @param {string} message */
-  function storageMessage(message) { savedMessage.textContent = message; savedMessage.hidden = !message; }
+  function storageMessage(message) { savedMessage.textContent = frenchTypography(message, root.lang); savedMessage.hidden = !message; }
   entry.value = '';
   if (state) {
     try {
       const saved = validateState(state.read());
-      if (saved) { entry.value = saved.text; storageMessage(content.saved); }
+      if (saved) { entry.value = saved.text; showDate(new Date(saved.savedAt)); storageMessage(content.saved); }
     } catch { readFailed = true; storageMessage(strings.unreadable); }
   }
   const useFallback = () => {
@@ -75,8 +78,8 @@ export function enhance(root, { content, strings, state, ask }) {
     const answer = validateAnswer(entry.value);
     if (!answer.ok) {
       const text = strings[answer.error].replaceAll('{max}', String(ANSWER_LIMIT));
-      error.textContent = text; error.hidden = false; entry.setAttribute('aria-invalid', 'true');
-      entry.setAttribute('aria-describedby', error.id); entry.focus(); status.textContent = text;
+      error.textContent = frenchTypography(text, root.lang); error.hidden = false; entry.setAttribute('aria-invalid', 'true');
+      entry.setAttribute('aria-describedby', error.id); entry.focus(); status.textContent = frenchTypography(text, root.lang);
     }
     return answer;
   };
@@ -88,41 +91,44 @@ export function enhance(root, { content, strings, state, ask }) {
     if (!state) message = strings.noStorage;
     else if (readFailed) message = strings.unreadable;
     else {
-      try { state.write(savedEntry(answer.text, new Date().toISOString())); }
+      try {
+        const saved = savedEntry(answer.text, new Date().toISOString());
+        state.write(saved); showDate(new Date(saved.savedAt));
+      }
       catch { message = strings.writeFailed; }
     }
-    storageMessage(message); status.textContent = message;
+    storageMessage(message); status.textContent = frenchTypography(message, root.lang);
   };
   const onSuggest = async () => {
     if (suggest.disabled || suggest.hidden || suggest.getAttribute('aria-disabled') === 'true') return;
     changed.hidden = true;
-    if (!automatic || !ask) { showQuestions(); status.textContent = content.questions.map(question => question.text).join(' '); return; }
+    if (!automatic || !ask) { showQuestions(); status.textContent = frenchTypography(content.questions.map(question => question.text).join(' '), root.lang); return; }
     const answer = readEntry();
     if (!answer.ok) return;
     const submittedRevision = revision;
     result.hidden = true; result.textContent = ''; result.classList.remove('lp-met');
     // An aria-disabled guard retains the triggering button's keyboard focus in WebKit.
-    suggest.setAttribute('aria-disabled', 'true'); suggest.textContent = strings.reading;
+    suggest.setAttribute('aria-disabled', 'true'); suggest.textContent = frenchTypography(strings.reading, root.lang);
     const edited = () => revision !== submittedRevision || entry.value !== answer.text;
-    const discard = () => { changed.textContent = content.changed; changed.hidden = false; status.textContent = content.changed; };
+    const discard = () => { changed.textContent = frenchTypography(content.changed, root.lang); changed.hidden = false; status.textContent = frenchTypography(content.changed, root.lang); };
     try {
       const answers = await ask('13-journal', { answer: answer.text.trim() }, { challengeSlot, signal: lifetime.signal });
       if (destroyed) return;
       if (edited()) { discard(); return; }
       const outcome = feedback(content, answers);
       result.classList.toggle('lp-met', outcome.kind === 'complete');
-      result.innerHTML = `${outcome.kind === 'complete' ? icons.check : ''}<span>${html(outcome.text)}</span>`;
-      result.hidden = false; status.textContent = outcome.text;
+      result.innerHTML = `${outcome.kind === 'complete' ? icons.check : ''}<span>${html(outcome.text, root.lang)}</span>`;
+      result.hidden = false; status.textContent = frenchTypography(outcome.text, root.lang);
     } catch (error) {
       if (!destroyed) {
         capped = showCapNotice(error, root, offline, status);
         useFallback();
         if (capped) return;
         if (edited()) discard();
-        else { showQuestions(); status.textContent = strings.fallback; }
+        else { showQuestions(); status.textContent = frenchTypography(strings.fallback, root.lang); }
       }
     } finally {
-      if (!destroyed) { if (!capped) suggest.removeAttribute('aria-disabled'); suggest.textContent = strings.suggest; }
+      if (!destroyed) { if (!capped) suggest.removeAttribute('aria-disabled'); suggest.textContent = frenchTypography(strings.suggest, root.lang); }
     }
   };
   entry.addEventListener('input', onInput); save.addEventListener('click', onSave); suggest.addEventListener('click', onSuggest);
@@ -133,7 +139,7 @@ export function enhance(root, { content, strings, state, ask }) {
     root.querySelector('[data-lp-cap]')?.remove();
     actions.hidden = true; noScript.hidden = false; notice.hidden = true; offline.hidden = true;
     showQuestions(); support.hidden = false; changed.hidden = true; clearError(); status.textContent = '';
-    suggest.hidden = false; suggest.disabled = false; suggest.removeAttribute('aria-disabled'); suggest.removeAttribute('aria-describedby'); suggest.textContent = strings.suggest;
+    suggest.hidden = false; suggest.disabled = false; suggest.removeAttribute('aria-disabled'); suggest.removeAttribute('aria-describedby'); suggest.textContent = frenchTypography(strings.suggest, root.lang);
     instances.delete(root);
   } };
   instances.set(root, instance);

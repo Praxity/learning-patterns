@@ -1,5 +1,5 @@
 import { DONT_KNOW, displayPoints, format, score, validateContent, validateState } from './logic.js';
-import { escapeHtml as html } from '../../lib/html.js';
+import { escapeHtml as html, frenchTypography } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
@@ -87,7 +87,7 @@ export function enhance(root, { content, strings, state }) {
   function show(announce) {
     const selected = picks();
     const outcome = score(content, selected);
-    const summary = format(strings.summary, { points: displayPoints(outcome.points), total: displayPoints(outcome.total) });
+    const summary = format(strings.summary, { points: displayPoints(outcome.points, false, root.lang), total: displayPoints(outcome.total, false, root.lang) });
     for (const { q, radios, rows, explanation } of questions) {
       const right = outcome.right.includes(q.id);
       explanation.hidden = right;
@@ -102,7 +102,7 @@ export function enhance(root, { content, strings, state }) {
         const mark = root.ownerDocument.createElement('span');
         mark.className = `lp-choice-mark ${correct ? 'lp-met' : unknown ? 'lp-neutral' : 'lp-missed'}`;
         const word = correct ? right ? strings.markCorrect : strings.markAnswer : unknown ? strings.markUnknown : strings.markWrong;
-        mark.innerHTML = `${correct ? icons.check : unknown ? icons['question-mark'] : icons.x}<span>${html(word)}</span>`;
+        mark.innerHTML = `${correct ? icons.check : unknown ? icons['question-mark'] : icons.x}<span>${html(word, root.lang)}</span>`;
         row.append(mark);
       });
     }
@@ -120,11 +120,11 @@ export function enhance(root, { content, strings, state }) {
         <circle class="lp-dont-know-ring-track" cx="32" cy="32" r="29"/>
         <circle class="lp-dont-know-ring-fill" cx="32" cy="32" r="29" pathLength="100" stroke-dasharray="100" stroke-dashoffset="${100 * (1 - progress)}" transform="rotate(-90 32 32)"/>
       </svg>
-      <div><p class="lp-stem" data-lp-score tabindex="-1">${html(summary)}</p>
-        <p class="lp-small" data-lp-counts>${html(counts)}</p></div>
+      <div><p class="lp-stem" data-lp-score tabindex="-1">${html(summary, root.lang)}</p>
+        <p class="lp-small" data-lp-counts>${html(counts, root.lang)}</p></div>
       </div>
-      ${review.length ? `<div class="lp-dont-know-review" data-lp-review><h3 class="lp-run-in">${html(strings.review)}</h3>
-        <ul>${review.map(({ q, fieldset }) => `<li><a href="#${html(fieldset.id)}" tabindex="0">${icons['arrow-right']}<span>${html(q.text)}</span></a></li>`).join('')}</ul></div>` : ''}`;
+      ${review.length ? `<div class="lp-dont-know-review" data-lp-review><h3 class="lp-run-in">${html(strings.review, root.lang)}</h3>
+        <ul>${review.map(({ q, fieldset }) => `<li><a class="lp-dont-know-review-link" href="#${html(fieldset.id)}" tabindex="0">${icons['arrow-right']}<span>${html(q.text, root.lang)}</span></a></li>`).join('')}</ul></div>` : ''}`;
     // A result replaces any earlier status, such as "Cleared." after Start over.
     status.replaceChildren();
     result.hidden = false; restart.hidden = false; check.hidden = true; shown = true;
@@ -148,7 +148,7 @@ export function enhance(root, { content, strings, state }) {
     if (outcome.unanswered.length) {
       clearResults();
       const message = outcome.unanswered.length === 1 ? strings.unansweredOne : format(strings.unanswered, { count: outcome.unanswered.length });
-      error.innerHTML = `${icons['alert-circle']}<span>${html(message)}</span>`; error.hidden = false;
+      error.innerHTML = `${icons['alert-circle']}<span>${html(message, root.lang)}</span>`; error.hidden = false;
       const missing = questions.filter(({ q }) => outcome.unanswered.includes(q.id));
       for (const { fieldset, radios, message } of missing) {
         message.hidden = false; fieldset.setAttribute('aria-describedby', message.id);
@@ -161,7 +161,7 @@ export function enhance(root, { content, strings, state }) {
   listen(restart, 'click', () => {
     for (const { radios } of questions) for (const radio of radios) radio.checked = false;
     clearErrors(); clearResults(); questions[0]?.radios[0]?.focus();
-    status.textContent = strings.cleared; save();
+    status.textContent = frenchTypography(strings.cleared, root.lang); save();
   });
   fallback.hidden = true; flow.hidden = false;
   const instance = {

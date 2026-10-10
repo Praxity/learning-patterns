@@ -1,5 +1,5 @@
 import { check, markLimit, validateContent, validateState } from './logic.js';
-import { escapeHtml as html } from '../../lib/html.js';
+import { escapeHtml as html, frenchTypography } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
@@ -51,7 +51,7 @@ export function enhance(root, { content, strings, state }) {
 
   function paintMarks() {
     for (let i = 0; i < chunks.length; i++) chunks[i].setAttribute('aria-pressed', String(marked.has(authored[i].id)));
-    count.textContent = strings.count.replaceAll('{n}', String(marked.size)).replaceAll('{max}', String(max));
+    count.textContent = frenchTypography(strings.count.replaceAll('{n}', String(marked.size)).replaceAll('{max}', String(max)), root.lang);
     restart.hidden = marked.size === 0 && !shown;
   }
 
@@ -70,8 +70,8 @@ export function enhance(root, { content, strings, state }) {
     } else if (marked.size >= max) {
       if (limit.hidden) {
         const message = (max === 1 ? strings.limitOne : strings.limitMany).replaceAll('{n}', String(max));
-        limit.textContent = message; limit.hidden = false;
-        status.textContent = message;
+        limit.textContent = frenchTypography(message, root.lang); limit.hidden = false;
+        status.textContent = frenchTypography(message, root.lang);
       }
       return;
     } else marked.add(id);
@@ -99,18 +99,18 @@ export function enhance(root, { content, strings, state }) {
         label = content.mode === 'key' ? `${strings.wrongKey}${item.note ? ` ${item.note}` : ''}` : (item.note ?? strings.wrongEvidence);
         icon = icons['info-circle'];
       }
-      mark.innerHTML = `${icon}${html(label)}`;
+      mark.innerHTML = `${icon}${html(label, root.lang)}`;
       mark.hidden = false;
       chunk.setAttribute('aria-describedby', `${instructions.id} ${mark.id}`);
     });
     shown = true;
-    summary.textContent = message; summary.hidden = false;
+    summary.textContent = frenchTypography(message, root.lang); summary.hidden = false;
     // Check has done its job; Start over takes focus so it isn't lost with the hidden button.
     const hadFocus = root.contains(document.activeElement) && document.activeElement === submit;
     submit.hidden = true;
     restart.hidden = false;
     if (hadFocus) restart.focus();
-    if (announce) status.textContent = message;
+    if (announce) status.textContent = frenchTypography(message, root.lang);
   }
 
   function clearResult() {

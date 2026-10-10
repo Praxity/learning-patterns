@@ -1,3 +1,4 @@
+import { frenchTypography } from '../../lib/html.js';
 import { CAP_MESSAGES } from '../../lib/data-notice.js';
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
@@ -7,6 +8,7 @@ import { confidenceGate } from '../../proxy/logic/06-misconceptions.js';
 import { strings } from '../../patterns/misconception/strings.js';
 
 const examples = Object.fromEntries(await Promise.all(['en', 'fr'].map(async lang => [lang, JSON.parse(await readFile(new URL(`../../patterns/misconception/examples/${lang}.json`, import.meta.url)))])));
+examples.fr = JSON.parse(JSON.stringify(examples.fr), (_key, value) => typeof value === 'string' ? frenchTypography(value, 'fr') : value);
 
 async function open(page, lang = 'en', choice = 'correct', confidence = 1, mode = 'ok') {
   await page.addInitScript(({ choice, confidence, mode }) => {
