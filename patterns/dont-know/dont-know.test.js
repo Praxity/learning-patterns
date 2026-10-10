@@ -180,10 +180,10 @@ test('owner audit: scene contains only icon and title', () => {
 });
 
 
-test('fractional scores are rounded to hundredths and formatted in the page language', () => {
+test('fractional scores keep full precision and display in the page language', () => {
   const value = { ...content, points: { right: 0.1, unknown: 0, wrong: -0.1 } };
   const picks = Object.fromEntries(value.questions.map(q => [q.id, q.correct]));
-  assert.equal(score(value, picks).points, Number((value.questions.length * .1).toFixed(2)));
+  assert.equal(score(value, picks).points, 0.30000000000000004);
   assert.equal(displayPoints(9.75, false, 'fr'), '9,75');
   assert.equal(displayPoints(-9.75, false, 'fr'), '−9,75');
   assert.equal(displayPoints(0.1 + 0.2), '0.3');
@@ -196,11 +196,24 @@ test('points require right > unknown >= wrong', () => {
 });
 
 
-test('authored points use the schema hundredth precision and allow equal unknown/wrong points', () => {
-  assert.equal(schema.properties.points.properties.right.multipleOf, 0.01);
+test('authored points accept full precision and allow equal unknown/wrong points', () => {
+  for (const field of ['right', 'unknown', 'wrong']) assert.equal(schema.properties.points.properties[field].multipleOf, undefined);
   assert.doesNotThrow(() => validateContent({ ...content, points: { right: 1, unknown: 0, wrong: 0 } }));
-  for (const field of ['right', 'unknown', 'wrong']) assert.throws(() => validateContent({ ...content, points: { ...content.points, [field]: 0.005 } }), new RegExp(`points.${field}`));
+  for (const points of [{ right: 0.005, unknown: 0, wrong: -1 }, { right: 1, unknown: 0.005, wrong: -1 }, { right: 1, unknown: 0, wrong: -0.005 }]) {
+    assert.doesNotThrow(() => validateContent({ ...content, points }));
+  }
   assert.equal(displayPoints(.004, true), '0');
   assert.equal(displayPoints(-.004), '0');
   assert.equal(displayPoints(9.75, true, 'fr'), '+9,75');
+});
+
+test('one-third rewards validate and only their display is rounded', () => {
+  const value = { ...content, points: { right: 1 / 3, unknown: 0, wrong: -1 } };
+  assert.doesNotThrow(() => validateContent(value));
+  assert.equal(matches(value, schema), true);
+  const result = score(value, { [value.questions[0].id]: value.questions[0].correct });
+  assert.equal(result.points, 1 / 3);
+  assert.equal(result.total, 1);
+  assert.equal(displayPoints(result.points, false, 'en'), '0.33');
+  assert.equal(displayPoints(result.points, false, 'fr'), '0,33');
 });

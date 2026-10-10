@@ -56,7 +56,7 @@ export function validateContent(content) {
   fields(content.points, ['right', 'wrong', 'unknown'], 'points');
   for (const field of ['right', 'wrong', 'unknown']) {
     const value = content.points[field];
-    if (typeof value !== 'number' || !Number.isFinite(value) || Math.abs(value * 100 - Math.round(value * 100)) > 1e-8) throw new Error(`Invalid points.${field}`);
+    if (typeof value !== 'number' || !Number.isFinite(value)) throw new Error(`Invalid points.${field}`);
   }
   const points = /** @type {Content['points']} */ (content.points);
   if (!(points.right > points.unknown && points.unknown >= points.wrong)) throw new Error('Invalid points: require right > unknown >= wrong');
@@ -87,8 +87,6 @@ export function score(content, picks) {
     result[group].push(q.id);
     result.points += content.points[group];
   }
-  result.points = Number(result.points.toFixed(2));
-  result.total = Number(result.total.toFixed(2));
   return result;
 }
 

@@ -33,7 +33,7 @@
     },
     "points": {
       "type": "object", "required": ["right", "wrong", "unknown"], "additionalProperties": false,
-      "properties": { "right": { "type": "number" , "multipleOf": 0.01}, "wrong": { "type": "number" , "multipleOf": 0.01}, "unknown": { "type": "number" , "multipleOf": 0.01} }
+      "properties": { "right": { "type": "number" }, "wrong": { "type": "number" }, "unknown": { "type": "number" } }
     }
   }
 }
