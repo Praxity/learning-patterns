@@ -240,6 +240,13 @@ test('starting checklist uses four plain to-add rows, without a button', async (
   await expect(page.locator('[data-lp-items] > li [data-lp-item-text]')).toHaveText(examples.en.criteria.map(item => item.todo));
   await expect(page.locator('[data-lp-mark="todo"]')).toHaveCount(4);
   await expect(page.locator('.lp-live-feedback-bullet')).toHaveCount(4);
+  // The open circle is an icon, not a border on the line-tall bullet box, so it stays round.
+  const circles = page.locator('[data-lp-mark="todo"] .lp-live-feedback-bullet .lp-icon');
+  await expect(circles).toHaveCount(4);
+  for (const circle of await circles.all()) {
+    const box = /** @type {{ width: number, height: number }} */ (await circle.boundingBox());
+    expect(box.width).toBeCloseTo(box.height, 1);
+  }
   await expect(page.getByRole('button')).toHaveCount(0);
   await expect(page.locator('[role="status"]')).toBeEmpty();
   expect(await calls(page)).toBe(0);
@@ -256,7 +263,7 @@ test('done rows lead in criterion order; unsure uses the to-add wording and circ
     examples.en.criteria[1].todo, examples.en.criteria[2].todo
   ]);
   await expect(page.locator('[data-lp-mark="done"] .lp-icon')).toHaveCount(2);
-  await expect(page.locator('[data-lp-mark="todo"] .lp-live-feedback-bullet')).toHaveCount(2);
+  await expect(page.locator('[data-lp-mark="todo"] .lp-live-feedback-bullet .lp-icon')).toHaveCount(2);
   await expect(page.locator('[data-lp-mark="unsure"]')).toHaveCount(0);
   for (const row of await page.locator('[data-lp-items] > li').all()) {
     await expect(row).toHaveCSS('border-style', 'none');
@@ -541,7 +548,7 @@ test('forced colours keep marks and visible keyboard focus', async ({ page, brow
   await page.emulateMedia({ forcedColors: 'active' });
   await open(page); await auto(page);
   await expect(page.locator('[data-lp-mark="done"] .lp-icon').first()).toBeVisible();
-  await expect(page.locator('[data-lp-mark="todo"] .lp-live-feedback-bullet').first()).toHaveCSS('border-style', 'dotted');
+  await expect(page.locator('[data-lp-mark="todo"] .lp-live-feedback-bullet .lp-icon').first()).toBeVisible();
   await page.getByRole('textbox').focus();
   await expect(page.getByRole('textbox')).toHaveCSS('outline-style', 'solid');
   await expect(page.getByRole('textbox')).toHaveCSS('outline-width', '2px');

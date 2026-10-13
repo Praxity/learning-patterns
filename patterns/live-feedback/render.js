@@ -1,4 +1,5 @@
 import { escapeHtml as html } from '../../lib/html.js';
+import { icons } from '../../lib/icons.js';
 import { validateContent, ANSWER_LIMIT } from './logic.js';
 
 /** @param {import('./logic.js').Content} content @param {import('./strings.js').Strings} strings
@@ -12,7 +13,7 @@ export function render(content, strings, { id, lang }) {
   <div data-lp-notice id="${html(`${id}-notice`)}" hidden></div>
   <div class="lp-section" data-lp-list aria-live="off" hidden>
     <p class="lp-run-in" data-lp-summary>${html(strings.checklist, lang)}</p>
-    <ul class="lp-live-feedback-results" data-lp-items role="list">${content.criteria.map(item => `<li class="lp-live-feedback-item" data-lp-criterion="${html(item.id)}" data-lp-mark="todo"><span class="lp-live-feedback-bullet" aria-hidden="true"></span><span class="lp-visually-hidden" data-lp-item-state>${html(strings.todo, lang)} </span><span data-lp-item-text>${html(item.todo, lang)}</span></li>`).join('')}</ul>
+    <ul class="lp-live-feedback-results" data-lp-items role="list">${content.criteria.map(item => `<li class="lp-live-feedback-item" data-lp-criterion="${html(item.id)}" data-lp-mark="todo"><span class="lp-live-feedback-bullet" aria-hidden="true">${icons['circle-dashed']}</span><span class="lp-visually-hidden" data-lp-item-state>${html(strings.todo, lang)} </span><span data-lp-item-text>${html(item.todo, lang)}</span></li>`).join('')}</ul>
   </div>
   <div class="lp-section" data-lp-fallback>
     <fieldset class="lp-choices"><legend class="lp-run-in" data-lp-fallback-text>${html(strings.selfCheck, lang)}</legend>

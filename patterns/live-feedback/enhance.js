@@ -87,7 +87,7 @@ export function enhance(root, { content, strings, state, ask }) {
       const stateWord = /** @type {HTMLElement} */ (row.querySelector('[data-lp-item-state]'));
       if (row.dataset.lpMark !== item.mark) {
         row.dataset.lpMark = item.mark;
-        bullet.innerHTML = item.mark === 'done' ? icons.check : '';
+        bullet.innerHTML = item.mark === 'done' ? icons.check : icons['circle-dashed'];
       }
       text.textContent = frenchTypography(item.text, root.lang);
       stateWord.textContent = frenchTypography(`${item.mark === 'done' ? strings.done : strings.todo} `, root.lang);
