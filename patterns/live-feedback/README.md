@@ -24,7 +24,7 @@ Use it for short action plans, outline-like writing assignments, and generally t
 
 The wait is 2.5 times the median of the last nine inter-key gaps, between 400 and 900 ms. It defaults to 700 ms until three gaps are available. Question marks and Enter keep this wait for plans.
 
-All four items start with open dotted circles. Uncertain decisions keep the hint and circle. Done items have green checkmarks. They stay done while the last sentence is unfinished. A final period, exclamation mark, question mark or newline allows them to change.
+All four items start with open dashed circles. Uncertain decisions keep the hint and circle. Done items have green checkmarks. They stay done while the last sentence is unfinished. A final period, exclamation mark, question mark or newline allows them to change.
 
 The quiet "Checking…" line appears during requests. Typing stays available until all four items are done. Editing cancels the pending request and discards stale results. Unchanged text skips the check.
 
@@ -46,7 +46,7 @@ Meets the shared baseline in the root README.
 
 - The list and checking line stay silent. The polite status region announces changed counts once, or "Well done! 4 of 4 done" on completion. Focus stays in place.
 - The completed box is read-only, muted and still focusable, with AA text contrast. "Edit my plan" unlocks it and puts focus and the caret at the end of the text.
-- Checkmarks and open dotted circles show state through shape as well as colour. Each list item also has a screen-reader prefix, "Done:" or "To add:". Native fallback checkboxes expose their checked state.
+- Checkmarks and open dashed circles show state through shape as well as colour. Each list item also has a screen-reader prefix, "Done:" or "To add:". Native fallback checkboxes expose their checked state.
 - Reordering uses a 200 ms transform transition. Reduced motion moves items instantly.
 - Native checkboxes work without JavaScript and after a failed check.
 - English and Québec French share fields and controls. French uses vous.
