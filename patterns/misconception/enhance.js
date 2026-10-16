@@ -2,6 +2,7 @@ import { feedback, validateContent, validateState } from './logic.js';
 import { escapeHtml as html, frenchTypography } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
 import { renderDataNotice, showCapNotice } from '../../lib/notice-ui.js';
+import { pendingCheck } from '../../lib/pending-check.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
 const instances = new WeakMap();
@@ -32,6 +33,7 @@ export function enhance(root, { content, strings, state, ask }) {
   if (boxes.length !== content.misconceptions.length) throw new Error('Invalid misconception catalogue markup');
   const lifetime = new AbortController();
   let destroyed = false, automatic = Boolean(ask), modelId = '';
+  const pending = pendingCheck(check, status, frenchTypography(strings.checking, root.lang));
   const saved = state ? validateState(state.read()) : null;
   if (saved) { answer.value = saved.answer; for (const box of boxes) box.checked = saved.ticked.includes(box.value); }
   const save = () => state?.write({ answer: answer.value, ticked: boxes.filter(box => box.checked).map(box => box.value) });
@@ -62,7 +64,7 @@ export function enhance(root, { content, strings, state, ask }) {
     save();
   };
   const onCheck = async () => {
-    if (check.disabled || check.hidden || check.getAttribute('aria-disabled') === 'true') return;
+    if (pending.active || check.disabled || check.hidden) return;
     const draft = answer.value.trim();
     if (!draft) {
       error.hidden = false; answer.setAttribute('aria-invalid', 'true');
@@ -70,8 +72,7 @@ export function enhance(root, { content, strings, state, ask }) {
       answer.focus(); status.textContent = frenchTypography(strings.empty, root.lang); return;
     }
     if (!automatic || !ask) { showFallback(); status.textContent = frenchTypography(strings.fallback, root.lang); return; }
-    // Guard repeated submissions without dropping keyboard focus in WebKit.
-    check.setAttribute('aria-disabled', 'true'); check.textContent = frenchTypography(strings.checking, root.lang);
+    pending.start();
     try {
       const answers = await ask('06-misconceptions', { answer: draft }, { challengeSlot, signal: lifetime.signal });
       if (destroyed || answer.value.trim() !== draft) return;
@@ -90,20 +91,20 @@ export function enhance(root, { content, strings, state, ask }) {
         if (!capped) status.textContent = frenchTypography(strings.fallback, root.lang);
       }
     } finally {
-      if (!destroyed) { check.removeAttribute('aria-disabled'); check.textContent = frenchTypography(strings.check, root.lang); }
+      if (!destroyed) pending.stop();
     }
   };
   answer.addEventListener('input', onInput); check.addEventListener('click', onCheck);
   fallback.addEventListener('change', save);
   const instance = { destroy() {
     if (destroyed) return;
-    destroyed = true; lifetime.abort();
+    destroyed = true; lifetime.abort(); pending.stop();
     answer.removeEventListener('input', onInput); check.removeEventListener('click', onCheck);
     fallback.removeEventListener('change', save);
     root.querySelector('[data-lp-cap]')?.remove();
     showFallback(); check.hidden = true; check.disabled = false;
     error.hidden = true; answer.removeAttribute('aria-invalid'); status.textContent = '';
-    check.removeAttribute('aria-disabled'); check.textContent = frenchTypography(strings.check, root.lang); instances.delete(root);
+    instances.delete(root);
   } };
   instances.set(root, instance);
   return instance;

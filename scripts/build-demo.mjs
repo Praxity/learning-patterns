@@ -30,6 +30,7 @@ await copyInto('proxy/logic/20-faq.js');
 await copyInto('proxy/logic/21-sections.js');
 await copyInto('proxy/logic/02-live.js');
 await copyInto('lib/focus-after-layout.js');
+await copyInto('lib/pending-check.js');
 await copyInto('lib/browser-state.js');
 await copyInto('proxy/logic/07-explain-back.js');
 await copyInto('proxy/logic/06-misconceptions.js');

@@ -3,6 +3,7 @@ import { escapeHtml as html, frenchTypography } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
 import { renderDataNotice, showCapNotice } from '../../lib/notice-ui.js';
 import { focusAfterLayout } from '../../lib/focus-after-layout.js';
+import { pendingCheck } from '../../lib/pending-check.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
 const instances = new WeakMap();
@@ -61,14 +62,21 @@ export function enhance(root, { content, strings, state, ask }) {
   const onReady = () => showStep(true, taskHeading);
   const onReadAgain = () => showStep(false, /** @type {HTMLElement} */ (headings[0]));
   let destroyed = false, capped = false;
+  const pending = pendingCheck(check, status, frenchTypography(strings.checking, root.lang));
   const saved = state ? validateState(state.read()) : null;
   if (saved) { answer.value = saved.answer; for (const box of boxes) box.checked = saved.ticked.includes(box.value); }
   showStep(Boolean(answer.value || saved?.ticked.length));
   const save = () => state?.write({ answer: answer.value, ticked: boxes.filter(box => box.checked).map(box => box.value) });
+  /** @returns {boolean} Whether focus moved into the fallback, whose legend is the message, so it needs no status. */
   const useFallback = () => {
-    check.hidden = !capped; result.hidden = true; result.replaceChildren(); fallback.hidden = false;
+    const moveFocus = !capped && root.ownerDocument.activeElement === check;
+    result.hidden = true; result.replaceChildren(); fallback.hidden = false;
     model.hidden = false; model.open = true; notice.hidden = true;
     answer.removeAttribute('aria-describedby');
+    // Hide the focused button only once focus has reached the first idea, so focus never falls to the page body.
+    if (moveFocus) { cancelFocus(); cancelFocus = focusAfterLayout(boxes[0], () => { check.hidden = true; }, lifetime.signal); }
+    else check.hidden = !capped;
+    return moveFocus;
   };
   if (ask) {
     fallback.hidden = true; model.hidden = true; model.open = false;
@@ -87,15 +95,14 @@ export function enhance(root, { content, strings, state, ask }) {
     save();
   };
   const onCheck = async () => {
-    if (!ask || check.disabled || check.hidden || check.getAttribute('aria-disabled') === 'true') return;
+    if (!ask || pending.active || check.disabled || check.hidden || check.getAttribute('aria-disabled') === 'true') return;
     const draft = answer.value.trim();
     if (!draft) {
       error.hidden = false; answer.setAttribute('aria-invalid', 'true');
       answer.setAttribute('aria-describedby', `${error.id}${notice.hidden ? '' : ` ${notice.id}-text`}`);
       answer.focus(); status.textContent = frenchTypography(strings.empty, root.lang); return;
     }
-    // Native disabling drops keyboard focus in WebKit. Guard repeated submissions instead.
-    check.setAttribute('aria-disabled', 'true'); check.textContent = frenchTypography(strings.checking, root.lang);
+    pending.start();
     try {
       const answers = await ask('07-explain-back', { answer: draft }, { challengeSlot, signal: lifetime.signal });
       if (destroyed) return;
@@ -114,11 +121,11 @@ export function enhance(root, { content, strings, state, ask }) {
     } catch (error) {
       if (!destroyed) {
         capped = showCapNotice(error, root, fallback, status);
-        useFallback();
-        if (!capped) status.textContent = frenchTypography(strings.fallback, root.lang);
+        if (capped) check.setAttribute('aria-disabled', 'true');
+        if (!useFallback() && !capped) status.textContent = frenchTypography(strings.fallback, root.lang);
       }
     } finally {
-      if (!destroyed) { if (!capped) check.removeAttribute('aria-disabled'); check.textContent = frenchTypography(strings.check, root.lang); }
+      if (!destroyed) pending.stop();
     }
   };
   /** @param {MouseEvent} event */
@@ -134,7 +141,7 @@ export function enhance(root, { content, strings, state, ask }) {
   ready.addEventListener('click', onReady); readAgain.addEventListener('click', onReadAgain);
   const instance = { destroy() {
     if (destroyed) return;
-    destroyed = true; lifetime.abort(); cancelFocus();
+    destroyed = true; lifetime.abort(); cancelFocus(); pending.stop();
     answer.removeEventListener('input', onInput); check.removeEventListener('click', onCheck);
     fallback.removeEventListener('change', save); result.removeEventListener('click', onReread);
     ready.removeEventListener('click', onReady); readAgain.removeEventListener('click', onReadAgain);
