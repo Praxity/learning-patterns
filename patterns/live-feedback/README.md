@@ -20,15 +20,15 @@ Use it for short action plans, outline-like writing assignments, and generally t
 1. Write at least 20 characters, excluding spaces at the start and end. A typing pause checks changed text with Perplexity Decider v1.1.
 2. Read the checklist. Done items move to the top; the other items give hints for revision. Each group keeps criterion order.
 3. Revise your plan. A short count is announced only when the number of done items changes.
-4. When all four items are done, "Well done!" appears and the box becomes read-only. Automatic checks stop. Choose "Edit my plan" to unlock it and resume checks on your next input.
+4. When all four items are done, "Well done!" appears and automatic checks pause. The box stays editable. Your next edit resumes checks with the usual wait. "Well done!" hides if a later check counts fewer done items or the text falls below 20 characters.
 
 The wait is 2.5 times the median of the last nine inter-key gaps, between 400 and 900 ms. It defaults to 700 ms until three gaps are available. Question marks and Enter keep this wait for plans.
 
 All four items start with open dashed circles. Uncertain decisions keep the hint and circle. Done items have green checkmarks. They stay done while the last sentence is unfinished. A final period, exclamation mark, question mark or newline allows them to change.
 
-The quiet "Checking…" line appears during requests. Typing stays available until all four items are done. Editing cancels the pending request and discards stale results. Unchanged text skips the check.
+The quiet "Checking…" line appears during requests. Typing always stays available. Editing cancels the pending request and discards stale results. Unchanged text skips the check.
 
-All instances share 40 automatic checks per page session. At the limit, a calm message and native self-checks let you finish. Reloading resets the allowance. Failed or refused requests also open the self-checks. Without JavaScript, the prompt, answer box and self-checks appear immediately.
+All instances share 40 automatic checks per page session. At the limit, a calm message and native self-checks let you finish. Reloading resets the allowance. If "Well done!" shows when the limit is reached, it stays until your next edit opens the self-checks. A failed or refused check also opens the self-checks and announces "Automatic checking is unavailable. Tick the items in your plan." once, including on the last allowed check. Without JavaScript, the prompt, answer box and self-checks appear immediately.
 
 ## Evidence
 
@@ -44,8 +44,8 @@ Daily proxy caps show and announce the reason and midnight UTC reset once, keep 
 
 Meets the shared baseline in the root README.
 
-- The list and checking line stay silent. The polite status region announces changed counts once, or "Well done! 4 of 4 done" on completion. Focus stays in place.
-- The completed box is read-only, muted and still focusable, with AA text contrast. "Edit my plan" unlocks it and puts focus and the caret at the end of the text.
+- The list and checking line stay silent. The polite status region announces a changed count once. Reaching all four items announces "Well done! 4 of 4 done" once, and later checks that stay at four announce nothing. Focus stays in place.
+- The box never locks, so typing after "Well done!" keeps every character.
 - Checkmarks and open dashed circles show state through shape as well as colour. Each list item also has a screen-reader prefix, "Done:" or "To add:". Native fallback checkboxes expose their checked state.
 - Reordering uses a 200 ms transform transition. Reduced motion moves items instantly.
 - Native checkboxes work without JavaScript and after a failed check.
@@ -80,7 +80,7 @@ Authored text is capped at 120 characters for titles and labels, 400 for questio
 
 `lib/typing-pause.js` owns the adaptive wait. Live feedback uses `typingPause({ minChars: MIN_CHARS, questionMark: false })`, with `key(time)`, `wait()` and `delay(text, checked, enter = false)`. Delay returns milliseconds or `null` when no check is due. Live feedback does not request an immediate check on Enter.
 
-Pass `state: { read, write }` to save drafts and checklist ticks. Check results are not saved. Repeated enhancement returns the same instance. `destroy()` removes listeners and completion controls, cancels checks, unlocks the box and restores the native checklist, keeping the draft and ticks. Re-enhancement keeps the remaining automatic allowance.
+Pass `state: { read, write }` to save drafts and checklist ticks. Check results are not saved. Repeated enhancement returns the same instance. `destroy()` removes listeners and the "Well done!" line, cancels checks and restores the native checklist, keeping the draft and ticks. Re-enhancement keeps the remaining automatic allowance.
 
 ## Use it
 
@@ -102,7 +102,7 @@ The shared client calls `ask('02-live', { answer }, { challengeSlot, signal })` 
 
 ## Adapt it with your agent
 
-> Adapt the action plan for [audience]. Keep three different observable actions, at least one time or situation, and the learner’s own commitments. Keep the four criterion IDs, fields and authored feedback. Write English and Québec French together, using vous. Preserve the pause, unfinished-sentence rule, page allowance, completion lock, Edit control, announcements, data notice and self-check. Evaluate any changed proxy questions before use.
+> Adapt the action plan for [audience]. Keep three different observable actions, at least one time or situation, and the learner’s own commitments. Keep the four criterion IDs, fields and authored feedback. Write English and Québec French together, using vous. Preserve the pause, unfinished-sentence rule, page allowance, completion pause, announcements, data notice and self-check. Evaluate any changed proxy questions before use.
 
 ## Licence
 

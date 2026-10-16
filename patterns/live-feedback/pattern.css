@@ -1,5 +1,4 @@
 .lp-live-feedback-results { display: grid; gap: 12px; margin-block-start: 16px; padding: 0; list-style: none; }
-.lp-live-feedback-completion { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
 .lp-live-feedback-complete { display: flex; align-items: flex-start; gap: 12px; }
 /* Only the width differs from base.css's one-line icon box. */
 .lp-live-feedback-complete .lp-icon { inline-size: 22px; }
