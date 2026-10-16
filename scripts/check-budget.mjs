@@ -4,7 +4,10 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { gzipSync } from 'node:zlib';
 import ts from 'typescript';
 
-export const BUDGET = 10 * 1024;
+// The cap flags a pattern that has grown well past a small interaction; package imports are refused
+// separately below. It counts shared lib/ modules in every pattern, though a page downloads them once.
+// Raised from 10 KiB when the largest pattern reached it, so fixes stop trimming "why" comments to fit.
+export const BUDGET = 16 * 1024;
 
 // Measure each shipped module separately, as browsers receive separate ES modules.
 export async function checkBudget(root) {
