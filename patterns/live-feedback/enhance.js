@@ -3,7 +3,6 @@ import { feedback, validateContent, validateState, MIN_CHARS, AUTO_CHECK_LIMIT }
 import { typingPause } from '../../lib/typing-pause.js';
 import { icons } from '../../lib/icons.js';
 import { renderDataNotice, showCapNotice } from '../../lib/notice-ui.js';
-import { focusAfterLayout } from '../../lib/focus-after-layout.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
 const instances = new WeakMap();
@@ -30,18 +29,12 @@ export function enhance(root, { content, strings, state, ask }) {
   const fallback = required('[data-lp-fallback]'), fallbackText = required('[data-lp-fallback-text]');
   const checking = required('[data-lp-checking]'), paused = required('[data-lp-paused]');
   const challengeSlot = required('[data-lp-challenge]'), status = required('[role="status"]');
-  const completion = root.ownerDocument.createElement('div');
-  completion.className = 'lp-live-feedback-completion'; completion.hidden = true;
-  const completeLine = root.ownerDocument.createElement('p');
-  completeLine.className = 'lp-live-feedback-complete lp-run-in lp-met';
-  completeLine.dataset.lpComplete = ''; completeLine.innerHTML = icons.check;
+  const completion = root.ownerDocument.createElement('p');
+  completion.className = 'lp-live-feedback-complete lp-run-in lp-met'; completion.hidden = true;
+  completion.dataset.lpComplete = ''; completion.innerHTML = icons.check;
   const completeText = root.ownerDocument.createElement('span');
-  completeText.textContent = frenchTypography(strings.complete, root.lang); completeLine.append(completeText);
-  const edit = root.ownerDocument.createElement('button');
-  edit.type = 'button'; edit.className = 'lp-button lp-button-quiet'; edit.innerHTML = icons.pencil;
-  const editText = root.ownerDocument.createElement('span');
-  editText.textContent = frenchTypography(strings.edit, root.lang); edit.append(editText);
-  completion.append(completeLine, edit); list.before(completion);
+  completeText.textContent = frenchTypography(strings.complete, root.lang); completion.append(completeText);
+  list.before(completion);
   const initialItems = items.innerHTML;
   const rows = [...items.querySelectorAll('li')];
   const boxes = [...fallback.querySelectorAll('input')];
@@ -50,8 +43,6 @@ export function enhance(root, { content, strings, state, ask }) {
   sessions.set(root.ownerDocument, session);
   const timing = typingPause({ minChars: MIN_CHARS, questionMark: false });
   let destroyed = false, ready = false, complete = false, seq = 0, lastChecked = '', count = 0;
-  const lifetime = new AbortController();
-  let cancelFocus = () => {};
   /** @type {ReturnType<typeof setTimeout> | undefined} */
   let timer;
   /** @type {AbortController | undefined} */
@@ -62,16 +53,15 @@ export function enhance(root, { content, strings, state, ask }) {
   if (saved) { answer.value = saved.answer; for (const box of boxes) box.checked = saved.ticked.includes(box.value); }
   const save = () => state?.write({ answer: answer.value, ticked: boxes.filter(box => box.checked).map(box => box.value) });
   const cancel = () => { clearTimeout(timer); timer = undefined; seq++; pending?.abort(); pending = undefined; checking.hidden = true; };
-  const unlock = () => { complete = false; answer.readOnly = false; completion.hidden = true; };
   const useFallback = () => {
-    cancel(); unlock(); ready = false;
+    cancel(); complete = false; completion.hidden = true; ready = false;
     list.hidden = true; fallback.hidden = false; fallbackText.textContent = frenchTypography(strings.fallback, root.lang);
     paused.hidden = true; notice.hidden = true;
     answer.removeAttribute('aria-describedby');
   };
   const useLimit = () => {
-    // Keep a completed plan readable; Edit opens self-checks if the allowance is spent.
-    if (complete) return;
+    // Keep "Well done!" until the learner edits a plan that completed on the last allowed check.
+    if (complete && answer.value.trim() === lastChecked) return;
     useFallback(); paused.hidden = false; fallbackText.textContent = frenchTypography(strings.selfCheck, root.lang);
   };
   const stopAtLimit = () => { for (const stop of session.stop) stop(); };
@@ -105,7 +95,7 @@ export function enhance(root, { content, strings, state, ask }) {
     }
   };
   const run = async () => {
-    if (!ready || !ask || destroyed || pending || complete) return;
+    if (!ready || !ask || destroyed || pending) return;
     clearTimeout(timer); timer = undefined;
     const raw = answer.value, draft = raw.trim();
     if (timing.delay(raw, lastChecked) === null) return;
@@ -119,9 +109,10 @@ export function enhance(root, { content, strings, state, ask }) {
       const outcome = feedback(content, answers, raw, previous);
       previous = outcome.items;
       updateItems(outcome.items);
-      complete = outcome.count === outcome.total;
-      answer.readOnly = complete; completion.hidden = !complete;
-      if (outcome.count !== count || complete) {
+      // Announce the move into completion once; an unchanged count stays silent.
+      const wasComplete = complete;
+      complete = outcome.count === outcome.total; completion.hidden = !complete;
+      if (complete ? !wasComplete : outcome.count !== count) {
         const summary = strings.summary.replaceAll('{count}', String(outcome.count)).replaceAll('{total}', String(outcome.total));
         status.textContent = frenchTypography(complete ? `${strings.complete} ${summary}` : summary, root.lang);
       }
@@ -130,8 +121,10 @@ export function enhance(root, { content, strings, state, ask }) {
       if (!destroyed) {
         if (showCapNotice(error, root, fallback, status)) useFallback();
         else if (my === seq) {
-          if (session.checks >= AUTO_CHECK_LIMIT) stopAtLimit();
-          else useFallback();
+          // The failed draft was never assessed, so an earlier "Well done!" must not keep the limit from opening self-checks.
+          complete = false; completion.hidden = true;
+          if (session.checks >= AUTO_CHECK_LIMIT) stopAtLimit(); else useFallback();
+          status.textContent = frenchTypography(strings.fallback, root.lang);
         }
       }
     } finally {
@@ -142,23 +135,20 @@ export function enhance(root, { content, strings, state, ask }) {
     }
   };
   const schedule = () => {
-    if (!ready || complete) return;
+    if (!ready) return;
     if (session.checks >= AUTO_CHECK_LIMIT) { stopAtLimit(); return; }
     const delay = timing.delay(answer.value, lastChecked);
     if (delay !== null) timer = setTimeout(() => { void run(); }, delay);
   };
-  const onInput = () => { if (complete) return; cancel(); save(); schedule(); };
+  const onInput = () => {
+    // Text too short to check cannot hold a complete plan; reaching four again is a new completion.
+    if (answer.value.trim().length < MIN_CHARS) { complete = false; completion.hidden = true; }
+    cancel(); save(); schedule();
+  };
   /** @param {KeyboardEvent} event */
   const onKey = event => {
-    if (complete || event.isComposing || event.ctrlKey || event.metaKey || event.altKey) return;
+    if (event.isComposing || event.ctrlKey || event.metaKey || event.altKey) return;
     if (event.key.length === 1 || event.key === 'Backspace' || event.key === 'Delete') timing.key(performance.now());
-  };
-  const onEdit = () => {
-    cancelFocus(); complete = false; answer.readOnly = false;
-    cancelFocus = focusAfterLayout(answer, () => {
-      completion.hidden = true; answer.setSelectionRange(answer.value.length, answer.value.length);
-      if (session.checks >= AUTO_CHECK_LIMIT) useLimit();
-    }, lifetime.signal);
   };
   if (ask) {
     Promise.resolve().then(() => ask.config()).then(config => {
@@ -173,13 +163,12 @@ export function enhance(root, { content, strings, state, ask }) {
   } else useFallback();
   answer.addEventListener('input', onInput); fallback.addEventListener('change', save);
   answer.addEventListener('keydown', onKey);
-  edit.addEventListener('click', onEdit);
   const instance = { destroy() {
     if (destroyed) return;
-    destroyed = true; lifetime.abort(); cancelFocus(); cancel(); session.stop.delete(useLimit);
+    destroyed = true; cancel(); session.stop.delete(useLimit);
     answer.removeEventListener('input', onInput); fallback.removeEventListener('change', save);
     answer.removeEventListener('keydown', onKey);
-    edit.removeEventListener('click', onEdit); completion.remove();
+    completion.remove();
     root.querySelector('[data-lp-cap]')?.remove();
     useFallback(); fallbackText.textContent = frenchTypography(strings.selfCheck, root.lang); status.textContent = '';
     items.innerHTML = initialItems; notice.replaceChildren();
