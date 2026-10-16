@@ -7,7 +7,6 @@ export namespace strings {
         let done: string;
         let todo: string;
         let complete: string;
-        let edit: string;
         let paused: string;
         let selfCheck: string;
         let fallback: string;
@@ -27,8 +26,6 @@ export namespace strings {
         export { todo_1 as todo };
         let complete_1: string;
         export { complete_1 as complete };
-        let edit_1: string;
-        export { edit_1 as edit };
         let paused_1: string;
         export { paused_1 as paused };
         let selfCheck_1: string;
