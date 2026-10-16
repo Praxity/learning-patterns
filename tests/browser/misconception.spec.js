@@ -132,16 +132,74 @@ test('typing keeps feedback and makes no request or announcement until resubmitt
   expect(await page.evaluate(() => window.lpAnnouncements)).toHaveLength(1);
 });
 
+for (const lang of ['en', 'fr']) test(`a pending check keeps its button and says it is checking once after a second (${lang})`, async ({ page }) => {
+  await open(page, lang, 'correct', 1, 'pending'); await observe(page);
+  const check = page.locator('[data-lp-check]'), status = page.locator('[role="status"]');
+  await page.evaluate(() => {
+    window.lpStateChanges = [];
+    new MutationObserver(records => { for (const record of records) window.lpStateChanges.push(record.attributeName); })
+      .observe(document.querySelector('[data-lp-check]'), { attributes: true, attributeFilter: ['aria-disabled', 'disabled'] });
+    window.lpStatusTimes = [];
+    new MutationObserver(() => { if (document.querySelector('[role="status"]').textContent) window.lpStatusTimes.push(performance.now()); })
+      .observe(document.querySelector('[role="status"]'), { childList: true, characterData: true, subtree: true });
+    document.addEventListener('keydown', () => { window.lpPressed ??= performance.now(); }, true);
+  });
+  await page.getByRole('textbox').fill('My answer');
+  await check.focus(); await page.keyboard.press('Enter');
+  const busy = frenchTypography(strings[lang].checking, lang);
+  await expect(status).toHaveText(busy);
+  await expect(check).toBeFocused();
+  await expect(check).toHaveAccessibleName(frenchTypography(strings[lang].check, lang));
+  // The visible note beside the button carries the wait on screen only.
+  const note = page.locator('[data-lp-check] + span');
+  await expect(note).toBeVisible();
+  await expect(note).toHaveText(busy);
+  await expect(note).toHaveAttribute('aria-hidden', 'true');
+  await page.keyboard.press('Enter');
+  expect(await page.evaluate(() => window.lpTestCalls.length)).toBe(1);
+  await page.evaluate(() => window.lpResolve());
+  await expect(page.locator('[data-lp-result]')).toContainText(examples[lang].keyIdea);
+  await expect(status).toContainText(examples[lang].keyIdea);
+  expect(await page.evaluate(() => window.lpStateChanges)).toEqual([]);
+  await expect(note).toHaveCount(0);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([busy, await status.textContent()]);
+  expect(await page.evaluate(() => window.lpStatusTimes[0] - window.lpPressed)).toBeGreaterThanOrEqual(900);
+});
+
+test('a stale result after the busy message clears it, and destroy cancels or clears it', async ({ page }) => {
+  await open(page, 'en', 'correct', 1, 'pending'); await observe(page);
+  const status = page.locator('[role="status"]'), note = page.locator('[data-lp-check] + span');
+  await submit(page);
+  await expect(status).toHaveText(strings.en.checking);
+  await page.getByRole('textbox').fill('Different answer'); await page.evaluate(() => window.lpResolve());
+  await expect(status).toBeEmpty();
+  await expect(note).toHaveCount(0);
+  await expect(page.locator('[data-lp-result]')).toBeHidden();
+  // Destroy before the busy message: it never arrives.
+  await submit(page);
+  await page.evaluate(() => window.lpInstances[0].destroy());
+  await page.waitForTimeout(1200);
+  await expect(status).toBeEmpty();
+  await expect(note).toHaveCount(0);
+  // Destroy after the busy message: the note goes too.
+  await page.evaluate(() => { window.lpInstances[0] = window.lpEnhance(); });
+  await expect(page.locator('[data-lp-check]')).toBeEnabled();
+  await submit(page);
+  await expect(status).toHaveText(strings.en.checking);
+  await page.evaluate(() => window.lpInstances[0].destroy());
+  await expect(status).toBeEmpty();
+  await expect(note).toHaveCount(0);
+});
+
 test('pending edits discard judgment, retain focus and guard duplicate submissions', async ({ page }) => {
   await open(page, 'en', 'correct', 1, 'pending');
   await page.getByRole('textbox').fill('My answer');
   await page.locator('[data-lp-check]').focus(); await page.keyboard.press('Enter');
   await expect(page.locator('[data-lp-check]')).toBeFocused();
-  await expect(page.locator('[data-lp-check]')).toHaveAttribute('aria-disabled', 'true');
   await page.keyboard.press('Enter');
   expect(await page.evaluate(() => window.lpTestCalls.length)).toBe(1);
   await page.getByRole('textbox').fill('Different answer'); await page.evaluate(() => window.lpResolve());
-  await expect(page.locator('[data-lp-check]')).not.toHaveAttribute('aria-disabled', 'true');
+  await expect(page.locator('[data-lp-check]')).not.toHaveAttribute('aria-disabled');
   await expect(page.locator('[data-lp-result]')).toBeHidden();
   await expect(page.locator('[role="status"]')).toBeEmpty();
 });

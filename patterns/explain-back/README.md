@@ -34,6 +34,8 @@ Daily proxy caps show and announce the reason and midnight UTC reset once, keep 
 Meets the shared baseline in the root README.
 
 - Results appear on submit and announce one summary without moving focus.
+- While a check runs, "Check my explanation" keeps its label and focus, and pressing it again sends nothing. "Checking your explanation…" appears beside it. If the check takes more than a second, the status region says it once.
+- If automatic checking fails while "Check my explanation" has focus, focus moves to the first idea in the checklist before the button hides. The checklist's legend is the message, so the screen reader reads it once as focus enters the group, and the status region stays empty. If focus is elsewhere, the status region announces the message once.
 - Switching steps reveals the new step, waits for browser layout, focuses its heading, then hides the previous step. Feedback links open the reading step and focus the matching lesson heading. "Read the text again" stays available after a check.
 - Each row has an icon and a word as well as colour. "To add" is orange; "Not sure" is neutral.
 - Without JavaScript, the lesson, answer box, native checklist and model answer appear together. JavaScript adds the step controls. If automatic checking is unavailable, the explanation step offers the checklist and model answer.

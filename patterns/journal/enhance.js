@@ -3,6 +3,7 @@ import { renderDataNotice, showCapNotice } from '../../lib/notice-ui.js';
 import { escapeHtml as html, frenchTypography } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
 import { focusAfterLayout } from '../../lib/focus-after-layout.js';
+import { pendingCheck } from '../../lib/pending-check.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
 const instances = new WeakMap();
@@ -44,6 +45,7 @@ export function enhance(root, { content, strings, state, ask }) {
   showDate(new Date());
   const lifetime = new AbortController();
   let destroyed = false, automatic = Boolean(ask), capped = false, readFailed = false, revision = 0;
+  const pending = pendingCheck(suggest, status, frenchTypography(strings.reading, root.lang));
   /** @param {string} message */
   function storageMessage(message) { savedMessage.textContent = frenchTypography(message, root.lang); savedMessage.hidden = !message; }
   entry.value = '';
@@ -100,15 +102,14 @@ export function enhance(root, { content, strings, state, ask }) {
     storageMessage(message); status.textContent = frenchTypography(message, root.lang);
   };
   const onSuggest = async () => {
-    if (suggest.disabled || suggest.hidden || suggest.getAttribute('aria-disabled') === 'true') return;
+    if (pending.active || suggest.disabled || suggest.hidden || suggest.getAttribute('aria-disabled') === 'true') return;
     changed.hidden = true;
     if (!automatic || !ask) { showQuestions(); status.textContent = frenchTypography(content.questions.map(question => question.text).join(' '), root.lang); return; }
     const answer = readEntry();
     if (!answer.ok) return;
     const submittedRevision = revision;
     result.hidden = true; result.textContent = ''; result.classList.remove('lp-met');
-    // An aria-disabled guard retains the triggering button's keyboard focus in WebKit.
-    suggest.setAttribute('aria-disabled', 'true'); suggest.textContent = frenchTypography(strings.reading, root.lang);
+    pending.start();
     const edited = () => revision !== submittedRevision || entry.value !== answer.text;
     const discard = () => { changed.textContent = frenchTypography(content.changed, root.lang); changed.hidden = false; status.textContent = frenchTypography(content.changed, root.lang); };
     try {
@@ -128,13 +129,13 @@ export function enhance(root, { content, strings, state, ask }) {
         else { showQuestions(); status.textContent = frenchTypography(strings.fallback, root.lang); }
       }
     } finally {
-      if (!destroyed) { if (!capped) suggest.removeAttribute('aria-disabled'); suggest.textContent = frenchTypography(strings.suggest, root.lang); }
+      if (!destroyed) pending.stop();
     }
   };
   entry.addEventListener('input', onInput); save.addEventListener('click', onSave); suggest.addEventListener('click', onSuggest);
   const instance = { destroy() {
     if (destroyed) return;
-    destroyed = true; lifetime.abort();
+    destroyed = true; lifetime.abort(); pending.stop();
     entry.removeEventListener('input', onInput); save.removeEventListener('click', onSave); suggest.removeEventListener('click', onSuggest);
     root.querySelector('[data-lp-cap]')?.remove();
     actions.hidden = true; noScript.hidden = false; notice.hidden = true; offline.hidden = true;
