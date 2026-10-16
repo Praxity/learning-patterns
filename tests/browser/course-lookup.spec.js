@@ -59,6 +59,27 @@ test('lookup failure moves focused controls to the visible fallback', async ({ p
   }
 });
 
+for (const lang of ['en', 'fr']) test(`a refused lookup focuses the first question, then announces the fallback once (${lang})`, async ({ page }) => {
+  await open(page, { mode: 'pending', lang });
+  const root = faq(page);
+  await page.evaluate(() => {
+    window.lpOrder = [];
+    document.addEventListener('focusin', event => { if (event.target.matches('[data-lp-fallback] summary')) window.lpOrder.push('focus'); });
+    new MutationObserver(records => { for (const record of records) if (record.target.textContent) window.lpOrder.push(record.target.textContent); })
+      .observe(document.querySelector('[data-lp-kind="faq"] [role="status"]'), { childList: true, characterData: true, subtree: true });
+  });
+  await auto(page, draft, root);
+  await page.evaluate(() => window.lpCalls.at(-1).reject(new Error('Refused')));
+  await page.clock.runFor(50);
+  await expect(root.locator('[data-lp-fallback] summary').first()).toBeFocused();
+  expect(await page.evaluate(() => window.lpOrder)).toEqual(['focus']);
+  await page.clock.runFor(500);
+  await expect(root.locator('[role="status"]')).toHaveText(strings[lang].fallback);
+  expect(await page.evaluate(() => window.lpOrder)).toEqual(['focus', strings[lang].fallback]);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([strings[lang].fallback]);
+  await expect(root.locator('[data-lp-fallback] summary').first()).toBeFocused();
+});
+
 test('an input update moves focus before hiding the focused Add button', async ({ page }) => {
   await open(page); await scores(page, { none: 1 });
   const root = faq(page), input = root.getByRole('textbox'), add = root.locator('[data-lp-add]');
