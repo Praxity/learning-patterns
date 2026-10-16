@@ -243,12 +243,18 @@ for (const lang of ['en', 'fr']) test(`pending check keeps focus and its label, 
   await expect(page.locator('[role="status"]')).toHaveText(frenchTypography(strings[lang].checking, lang));
   await expect(check).toBeFocused();
   await expect(check).toHaveAccessibleName(frenchTypography(strings[lang].check, lang));
+  // The visible note beside the button carries the wait on screen only.
+  const note = page.locator('[data-lp-check] + span');
+  await expect(note).toBeVisible();
+  await expect(note).toHaveText(frenchTypography(strings[lang].checking, lang));
+  await expect(note).toHaveAttribute('aria-hidden', 'true');
   await page.keyboard.press('Enter');
   expect(await page.evaluate(() => window.lpTestCalls.length)).toBe(1);
   await page.evaluate(() => window.lpResolve());
   await expect(page.locator('[data-lp-result]')).toBeVisible();
   await expect(check).toBeFocused();
   expect(await page.evaluate(() => window.lpStateChanges)).toEqual([]);
+  await expect(note).toHaveCount(0);
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([frenchTypography(strings[lang].checking, lang), lang === 'fr' ? 'Idées clés : 3 sur 3' : '3 of 3 key ideas']);
   expect(await page.evaluate(() => window.lpStatusTimes[0] - window.lpPressed)).toBeGreaterThanOrEqual(900);
 });
