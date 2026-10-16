@@ -78,17 +78,16 @@ export function enhance(root, { content, strings, state, ask }) {
     if (root.ownerDocument.activeElement === add) input.focus();
     add.hidden = true;
   };
-  /** @param {boolean} [capped] @param {boolean} [announce] */
+  /** @param {boolean} [capped] @param {boolean} [announce] Say the message if focus stays put. */
   const useFallback = (capped = false, announce = false) => {
     const moveFocus = controls.contains(root.ownerDocument.activeElement);
-    const say = () => { if (announce && !destroyed) status.textContent = frenchTypography(strings.fallback, root.lang); };
     cancel(); ready = false; fallback.hidden = false;
     fallbackMessage.hidden = false; notice.hidden = true;
     input.removeAttribute('aria-describedby');
     if (capped) controls.hidden = false;
-    // A focus move cuts off speech. Write status 300 ms after focus lands, so NVDA queues it after the focus.
-    else if (moveFocus) focusAfterLayout(required('[data-lp-fallback] summary, [data-lp-fallback] a'), () => { controls.hidden = true; setTimeout(say, 300); }, lifetime.signal);
-    else { controls.hidden = true; say(); }
+    // Focus reads the message, so status stays quiet: a status write next to a focus move gets cut off.
+    else if (moveFocus) { fallbackMessage.tabIndex = -1; focusAfterLayout(fallbackMessage, () => { controls.hidden = true; }, lifetime.signal); }
+    else { controls.hidden = true; if (announce) status.textContent = frenchTypography(strings.fallback, root.lang); }
   };
   /** @param {boolean} [manual] */
   const run = async (manual = false) => {

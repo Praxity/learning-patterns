@@ -48,36 +48,37 @@ for (const lang of ['en', 'fr']) test(`Add focuses the new question after layout
   expect(await page.evaluate(() => window.lpAddFocus)).toEqual([{ layoutReady: true, addVisible: true }]);
 });
 
-test('lookup failure moves focused controls to the visible fallback', async ({ page }) => {
-  await open(page, { mode: 'pending' });
-  for (const root of [faq(page), sections(page)]) {
+for (const lang of ['en', 'fr']) test(`a refused lookup focuses the fallback message, then Tab reaches the first question (${lang})`, async ({ page }) => {
+  await open(page, { mode: 'pending', lang });
+  for (const [kind, root] of [['faq', faq(page)], ['sections', sections(page)]]) {
+    await page.evaluate(() => { window.lpAnnouncements = []; });
     await auto(page, draft, root);
-    await page.evaluate(() => window.lpCalls.at(-1).reject(new Error('Offline')));
+    await page.evaluate(() => window.lpCalls.at(-1).reject(new Error('Refused')));
     await page.clock.runFor(50);
-    await expect(root.locator('[data-lp-fallback] summary, [data-lp-fallback] a').first()).toBeFocused();
+    const message = root.locator('[data-lp-fallback-message]');
+    await expect(message).toBeFocused();
+    await expect(message).toHaveText(strings[lang].fallback);
     await expect(root.locator('[data-lp-controls]')).toBeHidden();
+    // Focus reads the message, so the status region stays quiet, now and later.
+    await page.clock.runFor(1000);
+    expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
+    // WebKit skips links on Tab by default, so check the next Tab on the FAQ disclosures.
+    if (kind === 'faq') { await page.keyboard.press('Tab'); await expect(root.locator('[data-lp-fallback] summary').first()).toBeFocused(); }
   }
 });
 
-for (const lang of ['en', 'fr']) test(`a refused lookup focuses the first question, then announces the fallback once (${lang})`, async ({ page }) => {
-  await open(page, { mode: 'pending', lang });
+test('a stale daily cap after a refusal keeps its announcement', async ({ page }) => {
+  await open(page, { mode: 'pending' });
   const root = faq(page);
-  await page.evaluate(() => {
-    window.lpOrder = [];
-    document.addEventListener('focusin', event => { if (event.target.matches('[data-lp-fallback] summary')) window.lpOrder.push('focus'); });
-    new MutationObserver(records => { for (const record of records) if (record.target.textContent) window.lpOrder.push(record.target.textContent); })
-      .observe(document.querySelector('[data-lp-kind="faq"] [role="status"]'), { childList: true, characterData: true, subtree: true });
-  });
   await auto(page, draft, root);
-  await page.evaluate(() => window.lpCalls.at(-1).reject(new Error('Refused')));
-  await page.clock.runFor(50);
-  await expect(root.locator('[data-lp-fallback] summary').first()).toBeFocused();
-  expect(await page.evaluate(() => window.lpOrder)).toEqual(['focus']);
-  await page.clock.runFor(500);
-  await expect(root.locator('[role="status"]')).toHaveText(strings[lang].fallback);
-  expect(await page.evaluate(() => window.lpOrder)).toEqual(['focus', strings[lang].fallback]);
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([strings[lang].fallback]);
-  await expect(root.locator('[data-lp-fallback] summary').first()).toBeFocused();
+  await auto(page, 'How do I get a certificate for the course', root);
+  await page.evaluate(() => window.lpCalls[1].reject(new Error('Refused')));
+  await page.clock.runFor(100);
+  await page.evaluate(() => window.lpCalls[0].reject(Object.assign(new Error('Daily cap'), { type: 'budget', reason: 'budget' })));
+  await expect(root.locator('[role="status"]')).toHaveText(CAP_MESSAGES.budget.en);
+  await page.clock.runFor(1000);
+  await expect(root.locator('[role="status"]')).toHaveText(CAP_MESSAGES.budget.en);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([CAP_MESSAGES.budget.en]);
 });
 
 test('an input update moves focus before hiding the focused Add button', async ({ page }) => {
