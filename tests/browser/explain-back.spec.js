@@ -1,4 +1,6 @@
 import { CAP_MESSAGES } from '../../lib/data-notice.js';
+import { frenchTypography } from '../../lib/html.js';
+import { strings } from '../../patterns/explain-back/strings.js';
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { readFile, mkdir } from 'node:fs/promises';
@@ -170,7 +172,8 @@ for (const lang of ['en', 'fr']) {
   for (const mode of ['missing', 'throws']) {
     test(`self-check fallback when ask ${mode} (${lang})`, async ({ page }) => {
       await open(page, lang, [1, 1, 1], mode);
-      if (mode === 'throws') { await observe(page); await submit(page); }
+      // A click that leaves focus in the text box: the status region carries the message.
+      if (mode === 'throws') { await observe(page); await page.getByRole('textbox').fill('My explanation'); await page.locator('[data-lp-check]').dispatchEvent('click'); }
       await expect(page.locator('[data-lp-check]')).toBeHidden();
       await expect(page.locator('[data-lp-fallback]')).toBeVisible();
       await expect(page.getByRole('checkbox')).toHaveCount(3);
@@ -223,17 +226,61 @@ test('edits while pending discard the judgment and allow a new check', async ({ 
   await expect(page.locator('[role="status"]')).toBeEmpty();
 });
 
-test('pending check keeps keyboard focus and refuses duplicate submissions', async ({ page }) => {
-  await open(page, 'en', [1, 1, 1], 'pending');
+for (const lang of ['en', 'fr']) test(`pending check keeps focus and its label, refuses duplicates and says it is checking once after a second (${lang})`, async ({ page }) => {
+  await open(page, lang, [1, 1, 1], 'pending'); await observe(page);
+  const check = page.locator('[data-lp-check]');
+  await page.evaluate(() => {
+    window.lpStateChanges = [];
+    new MutationObserver(records => { for (const record of records) window.lpStateChanges.push(record.attributeName); })
+      .observe(document.querySelector('[data-lp-check]'), { attributes: true, attributeFilter: ['aria-disabled', 'disabled'] });
+    window.lpStatusTimes = [];
+    new MutationObserver(() => { if (document.querySelector('[role="status"]').textContent) window.lpStatusTimes.push(performance.now()); })
+      .observe(document.querySelector('[role="status"]'), { childList: true, characterData: true, subtree: true });
+    document.addEventListener('keydown', () => { window.lpPressed ??= performance.now(); }, true);
+  });
   await page.getByRole('textbox').fill('My explanation');
-  await page.locator('[data-lp-check]').focus(); await page.keyboard.press('Enter');
-  await expect(page.locator('[data-lp-check]')).toBeFocused();
-  await expect(page.locator('[data-lp-check]')).toHaveAttribute('aria-disabled', 'true');
+  await check.focus(); await page.keyboard.press('Enter');
+  await expect(page.locator('[role="status"]')).toHaveText(frenchTypography(strings[lang].checking, lang));
+  await expect(check).toBeFocused();
+  await expect(check).toHaveAccessibleName(frenchTypography(strings[lang].check, lang));
+  // The visible note beside the button carries the wait on screen only.
+  const note = page.locator('[data-lp-check] + span');
+  await expect(note).toBeVisible();
+  await expect(note).toHaveText(frenchTypography(strings[lang].checking, lang));
+  await expect(note).toHaveAttribute('aria-hidden', 'true');
   await page.keyboard.press('Enter');
   expect(await page.evaluate(() => window.lpTestCalls.length)).toBe(1);
   await page.evaluate(() => window.lpResolve());
   await expect(page.locator('[data-lp-result]')).toBeVisible();
-  await expect(page.locator('[data-lp-check]')).toBeFocused();
+  await expect(check).toBeFocused();
+  expect(await page.evaluate(() => window.lpStateChanges)).toEqual([]);
+  await expect(note).toHaveCount(0);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([frenchTypography(strings[lang].checking, lang), lang === 'fr' ? 'Idées clés : 3 sur 3' : '3 of 3 key ideas']);
+  expect(await page.evaluate(() => window.lpStatusTimes[0] - window.lpPressed)).toBeGreaterThanOrEqual(900);
+});
+
+for (const lang of ['en', 'fr']) test(`a refused check moves focus into the labelled fallback before hiding the button (${lang})`, async ({ page }) => {
+  await open(page, lang, [1, 1, 1], 'throws'); await observe(page);
+  await page.evaluate(() => {
+    window.lpFallbackFocus = [];
+    document.addEventListener('focusin', event => {
+      if (event.target.matches('[data-lp-fallback] input')) window.lpFallbackFocus.push({
+        from: event.relatedTarget?.matches('[data-lp-check]') ?? false,
+        checkVisible: document.querySelector('[data-lp-check]').getClientRects().length > 0
+      });
+    });
+  });
+  await page.getByRole('textbox').fill('My explanation');
+  await page.locator('[data-lp-check]').focus(); await page.keyboard.press('Enter');
+  const group = page.getByRole('group', { name: pageFallback(lang) });
+  await expect(group.getByRole('checkbox').first()).toBeFocused();
+  await expect(page.locator('[data-lp-check]')).toBeHidden();
+  expect(await page.evaluate(() => window.lpFallbackFocus)).toEqual([{ from: true, checkVisible: true }]);
+  // Entering the group reads its legend, which is the message, so the status region stays quiet.
+  await expect(page.locator('[role="status"]')).toBeEmpty();
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
+  await page.keyboard.press('Tab');
+  await expect(group.getByRole('checkbox').nth(1)).toBeFocused();
 });
 
 test('failed configuration selects the fallback without sending an answer', async ({ page }) => {

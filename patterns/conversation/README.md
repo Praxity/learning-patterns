@@ -33,7 +33,9 @@ Daily proxy caps show and announce the reason and midnight UTC reset once, keep 
 
 Meets the shared baseline in the root README.
 
-- Each completed turn moves focus to Michel’s new line, including the final line. Focus announces it once; the status region stays empty. Tab reaches the reply box, or "Start over" at the end.
+- Each completed turn moves focus to Michel’s new line, including the final line. The reply controls hide or change only after focus arrives, so focus never falls to the page body. Focus announces the line once; the status region stays empty. Tab reaches the reply box, or "Start over" at the end.
+- While a reply is sending, "Say it" keeps its label and focus, and pressing it again sends nothing. "Sending…" appears beside it. If the reply takes more than a second, the status region says "Sending…" once.
+- If automatic checking fails while the reply box or "Say it" has focus, focus moves to the message "Automatic checking is unavailable. Choose a reply to continue." before the reply box hides. Focus reads the message, so the status region stays empty, and the next Tab reaches the first reply. If focus is elsewhere, the status region announces the message once.
 - Unsure and off-script lines use the single status region without moving focus. Disclosures open immediately.
 - Reply buttons have visible focus. Speech bubbles differ in position and speaker label, with borders in forced colours.
 - Without the decision model, five reply buttons replace the reply box and support every path. Without JavaScript, nested disclosures show all 25 paths, stage notes and reviews.

@@ -1,4 +1,5 @@
 import { CAP_MESSAGES } from '../../lib/data-notice.js';
+import { frenchTypography } from '../../lib/html.js';
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { readFile, mkdir } from 'node:fs/promises';
@@ -216,6 +217,123 @@ test('keyboard reaches composer after Michel, opens chips instantly and restarts
   await page.keyboard.press('Enter'); await expect(page.locator('[data-lp-michel]').last()).toBeFocused();
   await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-restart]')).toBeFocused();
   await page.keyboard.press('Enter'); await expect(page.locator('[data-lp-michel]')).toBeFocused();
+});
+
+for (const lang of ['en', 'fr']) test(`a pending reply keeps its button, says it is sending once after a second, then the line (${lang})`, async ({ page }) => {
+  await open(page, lang, 'acknowledge', 1, 'pending'); await observe(page);
+  const send = page.locator('[data-lp-send]');
+  await page.evaluate(() => {
+    window.lpStateChanges = [];
+    new MutationObserver(records => { for (const record of records) window.lpStateChanges.push(record.attributeName); })
+      .observe(document.querySelector('[data-lp-send]'), { attributes: true, attributeFilter: ['aria-disabled', 'disabled'] });
+    window.lpStatusTimes = [];
+    new MutationObserver(() => { if (document.querySelector('[role="status"]').textContent) window.lpStatusTimes.push(performance.now()); })
+      .observe(document.querySelector('[role="status"]'), { childList: true, characterData: true, subtree: true });
+    document.addEventListener('keydown', () => { window.lpPressed ??= performance.now(); }, true);
+  });
+  await page.getByRole('textbox').fill('My reply');
+  await send.focus(); await page.keyboard.press('Enter');
+  await expect(page.locator('[role="status"]')).toHaveText(frenchTypography(strings[lang].sending, lang));
+  await expect(send).toBeFocused();
+  await expect(send).toHaveAccessibleName(strings[lang].send);
+  // The visible note beside the button carries the wait on screen only.
+  const note = page.locator('[data-lp-send] + span');
+  await expect(note).toBeVisible();
+  await expect(note).toHaveText(frenchTypography(strings[lang].sending, lang));
+  await expect(note).toHaveAttribute('aria-hidden', 'true');
+  await page.keyboard.press('Enter');
+  expect(await page.evaluate(() => window.lpTestCalls.length)).toBe(1);
+  await page.evaluate(() => window.lpResolve());
+  await expect(page.locator('[data-lp-michel]').last()).toBeFocused();
+  expect(await page.evaluate(() => window.lpStateChanges)).toEqual([]);
+  await expect(note).toHaveCount(0);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([frenchTypography(strings[lang].sending, lang), examples[lang].branches.acknowledge.line]);
+  expect(await page.evaluate(() => window.lpStatusTimes[0] - window.lpPressed)).toBeGreaterThanOrEqual(900);
+});
+
+for (const lang of ['en', 'fr']) test(`a refused reply moves focus to the fallback message before hiding the composer (${lang})`, async ({ page }) => {
+  await open(page, lang, 'acknowledge', 1, 'throws'); await observe(page);
+  await page.evaluate(() => {
+    window.lpFallbackFocus = [];
+    document.addEventListener('focusin', event => {
+      if (event.target.matches('[data-lp-offline]')) window.lpFallbackFocus.push({
+        from: event.relatedTarget?.matches('[data-lp-send]') ?? false,
+        composerVisible: document.querySelector('[data-lp-composer]').getClientRects().length > 0
+      });
+    });
+  });
+  await page.getByRole('textbox').fill('My reply');
+  await page.locator('[data-lp-send]').focus(); await page.keyboard.press('Enter');
+  const message = page.locator('[data-lp-offline]');
+  await expect(message).toBeFocused();
+  await expect(message).toHaveText(strings[lang].fallback);
+  await expect(page.locator('[data-lp-composer]')).toBeHidden();
+  expect(await page.evaluate(() => window.lpFallbackFocus)).toEqual([{ from: true, composerVisible: true }]);
+  // Focus reads the message, so the status region stays quiet.
+  await expect(page.locator('[role="status"]')).toBeEmpty();
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
+  await page.keyboard.press('Tab');
+  await expect(page.locator('[data-lp-branch]').first()).toBeFocused();
+});
+
+for (const lang of ['en', 'fr']) test(`the final line takes focus from the control that ended the turn and exposes only its text (${lang})`, async ({ page }) => {
+  await open(page, lang);
+  await page.evaluate(() => {
+    window.lpLineFocus = [];
+    document.addEventListener('focusin', event => {
+      if (event.target.matches('[data-lp-michel]')) window.lpLineFocus.push({
+        from: event.relatedTarget?.matches('[data-lp-send], [data-lp-branch]') ?? false,
+        flowVisible: document.querySelector('[data-lp-flow]').getClientRects().length > 0
+      });
+    });
+  });
+  // Keyboard activation: a WebKit click does not focus the button.
+  await page.getByRole('textbox').fill('My reply');
+  await page.locator('[data-lp-send]').focus(); await page.keyboard.press('Enter');
+  await expect(page.locator('[data-lp-michel]').last()).toBeFocused();
+  await page.getByRole('textbox').fill('My second reply');
+  await page.locator('[data-lp-send]').focus(); await page.keyboard.press('Enter');
+  const line = examples[lang].branches.acknowledge.endings.acknowledge;
+  await expect(page.locator('[data-lp-michel]').last()).toBeFocused();
+  await expect(page.locator('[data-lp-flow]')).toBeHidden();
+  await expect(page.locator(':focus')).toMatchAriaSnapshot(`- paragraph: ${JSON.stringify(line)}`);
+  // Restart, then end the conversation through the reply buttons.
+  await page.locator('[data-lp-restart]').click();
+  await page.locator('[data-lp-choices] summary').click();
+  await page.locator('[data-lp-branch="defend"]').focus(); await page.keyboard.press('Enter');
+  await expect(page.locator('[data-lp-michel]').last()).toBeFocused();
+  await page.locator('[data-lp-choices] summary').click();
+  await page.locator('[data-lp-branch="acknowledge"]').focus(); await page.keyboard.press('Enter');
+  await expect(page.locator('[data-lp-michel]').last()).toHaveText(examples[lang].branches.defend.endings.acknowledge);
+  await expect(page.locator('[data-lp-michel]').last()).toBeFocused();
+  const turn = { from: true, flowVisible: true };
+  // The third focus is Start over returning to the opening line.
+  expect(await page.evaluate(() => window.lpLineFocus)).toEqual([turn, turn, { from: false, flowVisible: true }, turn, turn]);
+});
+
+test('restart during a pending reply clears the busy message and frees Say it, before and after the busy message', async ({ page }) => {
+  await open(page, 'en', 'acknowledge', 1, 'pending'); await observe(page);
+  const status = page.locator('[role="status"]'), note = page.locator('[data-lp-send] + span');
+  // Restart before the one-second message: it never arrives.
+  await submit(page); await page.locator('[data-lp-restart]').click();
+  await expect(note).toHaveCount(0);
+  await page.waitForTimeout(1200);
+  await expect(status).toBeEmpty();
+  // Restart after the message: it goes away.
+  await submit(page);
+  expect(await page.evaluate(() => window.lpTestCalls.length)).toBe(2);
+  await expect(status).toHaveText(strings.en.sending);
+  await page.locator('[data-lp-restart]').click();
+  await expect(status).toBeEmpty();
+  await expect(note).toHaveCount(0);
+  // Say it still sends.
+  await submit(page);
+  expect(await page.evaluate(() => window.lpTestCalls.length)).toBe(3);
+  await page.evaluate(() => window.lpResolve());
+  await expect(page.locator('[data-lp-michel]').last()).toHaveText(examples.en.branches.acknowledge.line);
+  await expect(page.locator('[data-lp-michel]').last()).toBeFocused();
+  // Each restart focuses the opening line.
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([examples.en.opening, strings.en.sending, examples.en.opening, examples.en.branches.acknowledge.line]);
 });
 
 test('pending edits discard results; restart and destroy cancel pending turns', async ({ page }) => {

@@ -78,15 +78,16 @@ export function enhance(root, { content, strings, state, ask }) {
     if (root.ownerDocument.activeElement === add) input.focus();
     add.hidden = true;
   };
-  /** @param {boolean} [capped] */
-  const useFallback = (capped = false) => {
+  /** @param {boolean} [capped] @param {boolean} [announce] Say the message if focus stays put. */
+  const useFallback = (capped = false, announce = false) => {
     const moveFocus = controls.contains(root.ownerDocument.activeElement);
     cancel(); ready = false; fallback.hidden = false;
     fallbackMessage.hidden = false; notice.hidden = true;
     input.removeAttribute('aria-describedby');
     if (capped) controls.hidden = false;
-    else if (moveFocus) focusAfterLayout(required('[data-lp-fallback] summary, [data-lp-fallback] a'), () => { controls.hidden = true; }, lifetime.signal);
-    else controls.hidden = true;
+    // Focus reads the message, so status stays quiet: a status write next to a focus move gets cut off.
+    else if (moveFocus) { fallbackMessage.tabIndex = -1; focusAfterLayout(fallbackMessage, () => { controls.hidden = true; }, lifetime.signal); }
+    else { controls.hidden = true; if (announce) status.textContent = frenchTypography(strings.fallback, root.lang); }
   };
   /** @param {boolean} [manual] */
   const run = async (manual = false) => {
@@ -122,7 +123,7 @@ export function enhance(root, { content, strings, state, ask }) {
     } catch (error) {
       if (!destroyed) {
         const capped = showCapNotice(error, root, fallback, status);
-        if (capped || my === seq) useFallback(capped);
+        if (capped || my === seq) useFallback(capped, true);
       }
     } finally {
       if (!destroyed && my === seq) {

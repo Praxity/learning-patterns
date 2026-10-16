@@ -237,6 +237,70 @@ for (const mode of ['pending', 'pending-throws']) {
   });
 }
 
+for (const lang of ['en', 'fr']) test(`a pending suggestion keeps its button and says it is reading once after a second (${lang})`, async ({ page }) => {
+  await open(page, lang, [1, 1, 1, 1, 0], 'pending'); await observe(page);
+  const suggest = page.locator('[data-lp-suggest]');
+  await page.evaluate(() => {
+    window.lpStateChanges = [];
+    new MutationObserver(records => { for (const record of records) window.lpStateChanges.push(record.attributeName); })
+      .observe(document.querySelector('[data-lp-suggest]'), { attributes: true, attributeFilter: ['aria-disabled', 'disabled'] });
+    window.lpStatusTimes = [];
+    new MutationObserver(() => { if (document.querySelector('[role="status"]').textContent) window.lpStatusTimes.push(performance.now()); })
+      .observe(document.querySelector('[role="status"]'), { childList: true, characterData: true, subtree: true });
+    document.addEventListener('keydown', () => { window.lpPressed ??= performance.now(); }, true);
+  });
+  await page.getByRole('textbox').fill('My reflection');
+  await suggest.focus(); await page.keyboard.press('Enter');
+  await expect(page.locator('[role="status"]')).toHaveText(frenchTypography(strings[lang].reading, lang));
+  await expect(suggest).toBeFocused();
+  await expect(suggest).toHaveAccessibleName(frenchTypography(strings[lang].suggest, lang));
+  // The visible note beside the button carries the wait on screen only.
+  const note = page.locator('[data-lp-suggest] + span');
+  await expect(note).toBeVisible();
+  await expect(note).toHaveText(frenchTypography(strings[lang].reading, lang));
+  await expect(note).toHaveAttribute('aria-hidden', 'true');
+  await page.keyboard.press('Enter');
+  expect(await page.evaluate(() => window.lpTestCalls.length)).toBe(1);
+  await page.evaluate(() => window.lpResolve());
+  await expect(page.locator('[data-lp-result]')).toHaveText(examples[lang].complete);
+  expect(await page.evaluate(() => window.lpStateChanges)).toEqual([]);
+  await expect(note).toHaveCount(0);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([frenchTypography(strings[lang].reading, lang), frenchTypography(examples[lang].complete, lang)]);
+  expect(await page.evaluate(() => window.lpStatusTimes[0] - window.lpPressed)).toBeGreaterThanOrEqual(900);
+});
+
+test('an authored result equal to the busy text stays in status, before and after the busy message', async ({ page }) => {
+  await open(page);
+  await page.evaluate(async content => {
+    window.lpInstances[0].destroy();
+    const { enhance } = await import('/patterns/journal/enhance.js');
+    const { strings } = await import('/patterns/journal/strings.js');
+    const { noticeConfig } = await import('/lib/data-notice.js');
+    const ask = Object.assign(async () => {
+      await new Promise(resolve => { window.lpResolve = resolve; });
+      return { situation: { noul: 1 }, action: { noul: 1 }, next_step: { noul: 1 }, when: { noul: 1 }, distress: { noul: 0 } };
+    }, { config: async () => ({ provider: 'clef', siteKey: '', ...noticeConfig('clef') }) });
+    window.lpInstances[0] = enhance(document.querySelector('[data-lp-pattern]'), { content: { ...content, complete: strings.en.reading }, strings: strings.en, ask });
+  }, examples.en);
+  await expect(page.locator('[data-lp-suggest]')).toBeEnabled();
+  await observe(page);
+  const status = page.locator('[role="status"]');
+  await page.getByRole('textbox').fill('My reflection');
+  // Before the busy message: the result arrives at once.
+  await page.locator('[data-lp-suggest]').click(); await page.evaluate(() => window.lpResolve());
+  await expect(page.locator('[data-lp-result]')).toHaveText(strings.en.reading);
+  await page.waitForTimeout(1200);
+  await expect(status).toHaveText(strings.en.reading);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([strings.en.reading]);
+  // After the busy message: the result replaces it with the same words.
+  await page.locator('[data-lp-suggest]').click();
+  await expect.poll(() => page.evaluate(() => window.lpAnnouncements.length)).toBe(2);
+  await page.evaluate(() => window.lpResolve());
+  await expect.poll(() => page.evaluate(() => window.lpAnnouncements.length)).toBe(3);
+  await expect(status).toHaveText(strings.en.reading);
+  await expect(page.locator('[data-lp-suggest] + span')).toHaveCount(0);
+});
+
 test('pending button keeps keyboard focus, rejects duplicate suggestions and still allows Save', async ({ page }) => {
   await open(page, 'en', [1, 1, 1, 1, 0], 'pending');
   await page.getByRole('textbox').fill('My reflection');
