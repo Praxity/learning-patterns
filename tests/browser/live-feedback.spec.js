@@ -42,6 +42,7 @@ async function open(page, { lang = 'en', mode = 'ok', two = false } = {}) {
         throw Object.assign(new Error('Daily cap'), { type: 'budget', reason: mode });
       }
       if (mode === 'throws') throw new Error('Offline');
+      if (window.lpFailNext) { window.lpFailNext = false; throw new Error('Refused'); }
       if (mode === 'invalid') return {};
       if (mode === 'pending') return new Promise((resolve, reject) => { call.resolve = resolve; call.reject = reject; });
       return Object.fromEntries(['three_actions', 'observable', 'when', 'commitments'].map((id, index) => [id, { noul: window.lpValues[index] }]));
@@ -195,7 +196,34 @@ for (const lang of ['en', 'fr']) test(`a count drop after completion hides Well 
   expect(await announced(page)).toEqual([completeOf(lang), summaryOf(lang, 3), completeOf(lang)]);
 });
 
-for (const lang of ['en', 'fr']) test(`a refused check announces the self-check message once (${lang})`, async ({ page }) => {
+for (const lang of ['en', 'fr']) test(`cutting a complete plan below 20 characters hides Well done until it completes again (${lang})`, async ({ page }) => {
+  await open(page, { lang });
+  await page.evaluate(() => { window.lpValues = [1, 1, 1, 1]; });
+  await auto(page);
+  await expect(page.locator('[data-lp-complete]')).toBeVisible();
+  await auto(page, 'I will speak.');
+  expect(await calls(page)).toBe(1);
+  await expect(page.locator('[data-lp-complete]')).toBeHidden();
+  await auto(page, 'I will write a whole new plan for the meeting.');
+  await expect(page.locator('[data-lp-complete]')).toBeVisible();
+  expect(await announced(page)).toEqual([completeOf(lang), completeOf(lang)]);
+});
+
+for (const lang of ['en', 'fr']) test(`a refused check 40 after an earlier completion opens the self-checks and announces once (${lang})`, async ({ page }) => {
+  await open(page, { lang });
+  await page.evaluate(() => { window.lpValues = [1, 1, 1, 1]; });
+  for (let index = 0; index < 39; index++) await auto(page, `${draft} ${index}.`);
+  await expect(page.locator('[data-lp-complete]')).toBeVisible();
+  await page.evaluate(() => { window.lpFailNext = true; });
+  await auto(page, 'I will revise my plan before the last check.');
+  expect(await calls(page)).toBe(40);
+  await expect(page.locator('[data-lp-complete]')).toBeHidden();
+  await expect(page.locator('[data-lp-fallback]')).toBeVisible();
+  await expect(page.locator('[data-lp-paused]')).toBeVisible();
+  expect(await announced(page)).toEqual([completeOf(lang), frenchTypography(strings[lang].fallback, lang)]);
+});
+
+for (const lang of ['en', 'fr']) test(`a refused check announces the fallback message once (${lang})`, async ({ page }) => {
   await open(page, { lang, mode: 'throws' });
   await auto(page);
   const message = frenchTypography(strings[lang].fallback, lang);
@@ -344,6 +372,7 @@ test('a failed check after completion hides Well done and opens the fallback', a
   await expect(page.locator('[data-lp-fallback]')).toBeVisible();
   await expect(page.getByRole('textbox')).toBeEditable();
   await expect(page.locator('[data-lp-complete]')).toBeHidden();
+  expect(await announced(page)).toEqual([completeOf('en'), strings.en.fallback]);
 });
 
 test('slow requests keep typing available, abort on edit and discard stale successes and failures', async ({ page }) => {

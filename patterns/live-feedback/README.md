@@ -20,7 +20,7 @@ Use it for short action plans, outline-like writing assignments, and generally t
 1. Write at least 20 characters, excluding spaces at the start and end. A typing pause checks changed text with Perplexity Decider v1.1.
 2. Read the checklist. Done items move to the top; the other items give hints for revision. Each group keeps criterion order.
 3. Revise your plan. A short count is announced only when the number of done items changes.
-4. When all four items are done, "Well done!" appears and automatic checks pause. The box stays editable. Your next edit resumes checks with the usual wait. "Well done!" hides if a later check counts fewer done items.
+4. When all four items are done, "Well done!" appears and automatic checks pause. The box stays editable. Your next edit resumes checks with the usual wait. "Well done!" hides if a later check counts fewer done items or the text falls below 20 characters.
 
 The wait is 2.5 times the median of the last nine inter-key gaps, between 400 and 900 ms. It defaults to 700 ms until three gaps are available. Question marks and Enter keep this wait for plans.
 
@@ -28,7 +28,7 @@ All four items start with open dashed circles. Uncertain decisions keep the hint
 
 The quiet "Checking…" line appears during requests. Typing always stays available. Editing cancels the pending request and discards stale results. Unchanged text skips the check.
 
-All instances share 40 automatic checks per page session. At the limit, a calm message and native self-checks let you finish. Reloading resets the allowance. If "Well done!" shows when the limit is reached, it stays until your next edit opens the self-checks. Failed or refused requests also open the self-checks and announce "Automatic checking is unavailable. Tick the items in your plan." once. Without JavaScript, the prompt, answer box and self-checks appear immediately.
+All instances share 40 automatic checks per page session. At the limit, a calm message and native self-checks let you finish. Reloading resets the allowance. If "Well done!" shows when the limit is reached, it stays until your next edit opens the self-checks. A failed or refused check also opens the self-checks and announces "Automatic checking is unavailable. Tick the items in your plan." once, including on the last allowed check. Without JavaScript, the prompt, answer box and self-checks appear immediately.
 
 ## Evidence
 

@@ -121,8 +121,10 @@ export function enhance(root, { content, strings, state, ask }) {
       if (!destroyed) {
         if (showCapNotice(error, root, fallback, status)) useFallback();
         else if (my === seq) {
-          if (session.checks >= AUTO_CHECK_LIMIT) stopAtLimit();
-          else { useFallback(); status.textContent = frenchTypography(strings.fallback, root.lang); }
+          // The failed draft was never assessed, so an earlier "Well done!" must not keep the limit from opening self-checks.
+          complete = false; completion.hidden = true;
+          if (session.checks >= AUTO_CHECK_LIMIT) stopAtLimit(); else useFallback();
+          status.textContent = frenchTypography(strings.fallback, root.lang);
         }
       }
     } finally {
@@ -138,7 +140,11 @@ export function enhance(root, { content, strings, state, ask }) {
     const delay = timing.delay(answer.value, lastChecked);
     if (delay !== null) timer = setTimeout(() => { void run(); }, delay);
   };
-  const onInput = () => { cancel(); save(); schedule(); };
+  const onInput = () => {
+    // Text too short to check cannot hold a complete plan; reaching four again is a new completion.
+    if (answer.value.trim().length < MIN_CHARS) { complete = false; completion.hidden = true; }
+    cancel(); save(); schedule();
+  };
   /** @param {KeyboardEvent} event */
   const onKey = event => {
     if (event.isComposing || event.ctrlKey || event.metaKey || event.altKey) return;
