@@ -23,6 +23,62 @@ Use it for short practice quizzes where learners need a way to say they are unsu
 4. Read your score. Follow the review links to questions you got wrong or answered with "I don't know".
 5. Select "Start over" to clear your answers and try again.
 
+## Write this in .prax
+
+In Praxity's `.prax` format, an "I don't know" option is a setting on an ordinary single-answer `choice` question. Studio adds the option itself, so authors do not write it among the answers. Option narration reads it last, and reporting treats it as a neutral "don't know" answer.
+
+Studio does not use this library's configurable right/wrong/unknown points. An "I don't know" answer counts as answered and earns no points.
+
+English, unscored practice:
+
+```prax
+---
+lang: en
+---
+# Shapes
+
+::: choice What describes a triangle? {dontKnow=true scored=false required=false}
+correct: A triangle has three straight sides.
+incorrect: Count the straight sides of a triangle.
+(x) A shape with three straight sides
+( ) A shape with four straight sides
+:::
+```
+
+French, unscored practice:
+
+```prax
+---
+lang: fr
+---
+# Les instruments de mesure
+
+::: choice Quel instrument mesure la température ? {dontKnow=true scored=false required=false}
+correct: Un thermomètre mesure la température.
+incorrect: Un chronomètre mesure une durée.
+(x) Un thermomètre
+( ) Un chronomètre
+:::
+```
+
+Private practice, supported in Studio's next release:
+
+```prax
+---
+lang: en
+---
+# Units of time
+
+::: choice How many minutes are in one hour? {dontKnow=true private=true scored=false required=false}
+correct: One hour contains 60 minutes.
+incorrect: An hour is divided into 60 equal minutes.
+(x) 60 minutes
+( ) 100 minutes
+:::
+```
+
+Private practice answers stay in the learner's browser and are not sent to the LMS; private questions must be optional, unscored and outside question groups.
+
 ## Evidence
 
 When learners can withhold an answer, the answers they give are more accurate. The gain depends on how well they judge their knowledge ([Koriat and Goldsmith, 1996](https://doi.org/10.1037/0033-295X.103.3.490)). Medical exams have also used certainty-based marking. It rewards learners for being honest about how sure they are ([Gardner-Medwin, 1995](https://doi.org/10.1080/0968776950030113)).
