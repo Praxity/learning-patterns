@@ -2,6 +2,7 @@ export const strings = {
   en: {
     answer: 'Write your answer first.',
     check: 'Check my answer', emptyAnswer: 'Write your answer before you check it.',
+    longAnswer: 'Keep your answer to {max} characters or fewer.',
     hadIt: 'Was your answer right?', yes: 'Yes', notQuite: 'Not quite', noted: 'Noted.',
     write: 'Write {count} wrong options. Name the mistaken idea behind each.',
     writeOne: 'Write one wrong option. Name the mistaken idea behind it.',
@@ -24,6 +25,7 @@ export const strings = {
   fr: {
     answer: "Rédigez d'abord votre réponse.",
     check: 'Vérifier ma réponse', emptyAnswer: 'Écrivez votre réponse avant de la vérifier.',
+    longAnswer: 'Limitez votre réponse à {max} caractères.',
     hadIt: 'Votre réponse était-elle bonne ?', yes: 'Oui', notQuite: 'Pas tout à fait', noted: 'Noté.',
     write: "Rédigez {count} mauvaises réponses. Nommez l'idée fausse derrière chacune.",
     writeOne: "Rédigez une mauvaise réponse. Nommez l'idée fausse derrière celle-ci.",

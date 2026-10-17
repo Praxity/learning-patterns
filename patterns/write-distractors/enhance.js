@@ -1,4 +1,4 @@
-import { validateContent, validateOptions, validateState, coverage, coverageMessage, targetOf, optionKey, OTHER, MAX_OPTION, MAX_CUSTOM } from './logic.js';
+import { validateContent, validateAnswer, validateOptions, validateState, coverage, coverageMessage, targetOf, optionKey, OTHER, MAX_ANSWER, MAX_OPTION, MAX_CUSTOM } from './logic.js';
 import { escapeHtml as html, frenchTypography } from '../../lib/html.js';
 import { icons } from '../../lib/write-distractors-icons.js';
 import { renderQuestionPreview } from './render.js';
@@ -142,7 +142,10 @@ export function enhance(root, { content, strings, state }) {
   listen(answer, 'input', () => { clearAnswerError(); save(); });
   listen(check, 'click', () => {
     if (checkedAnswer) return;
-    if (!answer.value.trim()) {
+    const checked = validateAnswer(answer.value);
+    if (!checked.ok) {
+      const message = strings[checked.error].replaceAll('{max}', String(MAX_ANSWER));
+      answerError.innerHTML = `${icons['alert-circle']}<span>${html(message, root.lang)}</span>`;
       answerError.hidden = false;
       answer.setAttribute('aria-invalid', 'true'); answer.setAttribute('aria-describedby', answerError.id);
       answer.focus();

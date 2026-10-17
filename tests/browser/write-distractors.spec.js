@@ -70,6 +70,77 @@ async function observe(page) {
   });
 }
 
+for (const lang of ['en', 'fr']) {
+  test(`answer limit preserves text and links one error before checking (${lang})`, async ({ page }) => {
+    await open(page, lang, false);
+    const answer = page.locator('[data-lp-answer]');
+    const check = page.locator('[data-lp-check]');
+    const message = lang === 'en' ? 'Keep your answer to 2000 characters or fewer.' : 'Limitez votre réponse à 2000 caractères.';
+    await expect(answer).not.toHaveAttribute('maxlength');
+    for (const text of ['x'.repeat(2001), '😀'.repeat(1000) + 'x']) {
+      await answer.fill(text);
+      await check.focus();
+      await observe(page);
+      await check.press('Enter');
+      await expect(answer).toHaveValue(text);
+      await expect(answer).not.toHaveAttribute('readonly');
+      await expect(answer).toBeFocused();
+      await expect(answer).toHaveAttribute('aria-invalid', 'true');
+      const errorId = await answer.getAttribute('aria-describedby');
+      await expect(page.locator(`[id="${errorId}"]`)).toHaveText(message);
+      await expect(page.locator(`[id="${errorId}"]`)).not.toHaveAttribute('role');
+      await expect(page.locator('[data-lp-retrieval]')).toBeHidden();
+      await expect(check).not.toHaveAttribute('aria-disabled');
+      expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([lang === 'en' ? '1 field needs attention.' : '1 champ demande votre attention.']);
+      expect(await page.evaluate(() => window.lpSaved)).toMatchObject({ answer: text, hadIt: null, shown: false });
+      await scan(page);
+    }
+    for (const text of ['x'.repeat(1999), 'x'.repeat(2000), '😀'.repeat(1000), ` \n${'x'.repeat(2000)}\t `]) {
+      await answer.fill(text);
+      await expect(answer).not.toHaveAttribute('aria-invalid');
+      await expect(answer).not.toHaveAttribute('aria-describedby');
+      await expect(page.locator('[data-lp-answer-error]')).toBeHidden();
+      await check.focus();
+      await observe(page);
+      await check.press('Enter');
+      await expect(answer).toHaveValue(text);
+      await expect(answer).toHaveAttribute('readonly', '');
+      await expect(check).toBeFocused();
+      await expect(page.locator('[data-lp-retrieval]')).toBeVisible();
+      expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([lang === 'en' ? english.rightAnswer : french.rightAnswer]);
+      await page.locator('[data-lp-clear]').click();
+    }
+  });
+
+  for (const shown of [false, true]) {
+    test(`oversized saved answer restores as a recoverable draft (${lang}, shown=${shown})`, async ({ page }) => {
+      const text = '😀'.repeat(1000) + 'x';
+      const options = [draft('Old B', 'busy'), draft('Old C', 'phone')];
+      await page.addInitScript(value => { window.lpSeed = value; }, { answer: text, hadIt: true, options, shown });
+      await open(page, lang, false);
+      const answer = page.locator('[data-lp-answer]');
+      await expect(answer).toHaveValue(text);
+      await expect(answer).not.toHaveAttribute('readonly');
+      await expect(page.locator('[data-lp-check]')).not.toHaveAttribute('aria-disabled');
+      for (const selector of ['[data-lp-retrieval]', '[data-lp-flow]', '[data-lp-result]']) await expect(page.locator(selector)).toBeHidden();
+      await expect(page.locator('[role="status"]')).toHaveText('');
+      await answer.focus();
+      await answer.press('ControlOrMeta+A');
+      expect(await answer.evaluate(el => el.value.slice(el.selectionStart, el.selectionEnd))).toBe(text);
+      await page.locator('[data-lp-check]').click();
+      await expect(page.locator('[data-lp-answer-error]')).toBeVisible();
+      await expect(answer).toHaveValue(text);
+      await answer.fill('Shorter answer');
+      expect(await page.evaluate(() => window.lpSaved)).toEqual({ answer: 'Shorter answer', hadIt: null, options, shown: false });
+      await page.locator('[data-lp-check]').click();
+      await page.locator('[data-lp-had-it]').click();
+      await expect(page.locator('[data-lp-text]').nth(0)).toHaveValue('Old B');
+      await expect(page.locator('[data-lp-text]').nth(1)).toHaveValue('Old C');
+      await expect(page.locator('[data-lp-result]')).toBeHidden();
+    });
+  }
+}
+
 test('question previews replace result lists and preserve keyed row alignment at every width', async ({ page }) => {
   await open(page); await fill(page, true); await page.locator('[data-lp-compare]').click();
   const result = page.locator('[data-lp-result]');
