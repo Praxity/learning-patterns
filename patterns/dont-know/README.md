@@ -53,7 +53,7 @@ lang: fr
 ---
 # Les instruments de mesure
 
-::: choice Quel instrument mesure la température ? {dontKnow=true scored=false required=false}
+::: choice Quel instrument mesure la température ? {dontKnow=true scored=false required=false}
 correct: Un thermomètre mesure la température.
 incorrect: Un chronomètre mesure une durée.
 (x) Un thermomètre
@@ -61,7 +61,7 @@ incorrect: Un chronomètre mesure une durée.
 :::
 ```
 
-Private practice, supported in Studio's next release:
+Private practice:
 
 ```prax
 ---
