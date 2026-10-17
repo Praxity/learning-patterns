@@ -70,14 +70,17 @@ Authored text is capped at 120 characters for titles and labels, 400 for questio
 | Function | Returns |
 | --- | --- |
 | `validateContent(content)` | Nothing. Throws an `Error` naming the first bad field. |
+| `validateAnswer(text)` | `{ ok: true, text }` with trimmed text, or `{ ok: false, error }` with `emptyAnswer` or `longAnswer`. |
 | `validateOptions(content, options)` | `{ ok: true, options }` with clean text, or `{ ok: false, errors }`. Each error has `{ option, field, code }`, with a zero-based option index. |
 | `targetOf(content, option)` | The named target's label or the learner's custom description. Throws for an unknown target. |
 | `coverage(content, options)` | `{ targeted, missed, extra, matches }`. The first three fields hold unique target labels. `matches` holds one boolean per learner option. |
 | `coverageMessage(content, options)` | `{ authorTargeted, authorTotal, ownExtra, untargeted }`. Counts unique targets in the author's options and the learner's extra targets. `untargeted` holds missed author labels in author-option order. |
-| `validateState(content, value)` | A copy of valid `{ answer, hadIt, options, shown }` state, or `null`. Legacy `{ options, shown }` restores as a draft with `answer: ''`, `hadIt: null`, `shown: false`. |
+| `validateState(content, value)` | A copy of valid `{ answer, hadIt, options, shown }` state, or `null`. Oversized answers keep their full text and options with `hadIt: null`, `shown: false`. Legacy `{ options, shown }` restores as a draft with `answer: ''`, `hadIt: null`, `shown: false`. |
 | `optionKey(index)` | A letter key for a zero-based index: `0` gives A, `1` gives B, `26` gives AA. Throws for an index that is not a nonnegative safe integer. |
 
-Each submitted option has `{ text, misconception, custom }`. Named targets use an empty `custom` string. Exported constants `MAX_OPTION`, `MAX_CUSTOM` and `OTHER` are `300`, `120` and `'other'`. Length checks run before trimming and collapsing whitespace. Comparison rejects the right answer and duplicate options after ignoring case and extra whitespace.
+The initial learner answer must be nonblank and at most `MAX_ANSWER` (`2000`) UTF-16 code units after trimming, matching first-answer. Check refuses an oversized answer with a field error and keeps the original text intact. The textarea has no `maxlength`, so pasted or restored text stays readable, selectable and copyable; leading and trailing whitespace does not consume the limit.
+
+Each submitted option has `{ text, misconception, custom }`. Named targets use an empty `custom` string. Exported constants `MAX_OPTION`, `MAX_CUSTOM` and `OTHER` are `300`, `120` and `'other'`. Option and custom-description length checks count UTF-16 code units before trimming and collapsing whitespace. Comparison rejects the right answer and duplicate options after ignoring case and extra whitespace.
 
 Coverage compares labels, ignoring case and extra whitespace. Custom labels can match authored labels. Repeated labels count once. `missed` lists only labels from the author's options; `extra` lists learner labels absent from those options. `coverageOne` or `coverageMany` formats counts above two question previews. Previews sit side by side at content widths of at least 40rem and stack below that.
 
@@ -85,7 +88,7 @@ Checking locks the first answer. The right answer has letter A; wrong options st
 
 Optional host state stores `{ answer, hadIt, options: [{ text, misconception, custom }], shown }`. `answer` is the learner's text. `hadIt` is `true` for Yes, `false` for Not quite, or `null` before that choice. Input and selection save drafts; comparison saves normalized options; Start over saves empty fields.
 
-A saved draft with `hadIt: null` returns to the answer step, even if previously checked. Legacy state keeps the wrong-option draft and requires the answer step again. Invalid state is ignored. Valid results restore silently. State adapter errors reach the host. Repeated enhancement returns the same instance.
+A saved draft with `hadIt: null` returns to the answer step, even if previously checked. An otherwise valid saved state with an oversized answer restores silently as an editable draft: the full answer and wrong options survive, while `hadIt` becomes `null` and `shown` becomes `false`. The learner must shorten and check the answer again before proceeding; no completed Check or comparison is restored. Legacy state keeps the wrong-option draft and requires the answer step again. Invalid state is ignored. Valid results restore silently. State adapter errors reach the host. Repeated enhancement returns the same instance.
 
 The host decides how to collect submissions. The pattern uses no localStorage and keeps no suggestion list.
 

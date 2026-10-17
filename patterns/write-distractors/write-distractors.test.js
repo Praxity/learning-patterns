@@ -4,10 +4,52 @@ import { readFile } from 'node:fs/promises';
 import { validateContent, validateOptions, validateState, coverage, coverageMessage, targetOf, optionKey } from './logic.js';
 import { render } from './render.js';
 import { strings } from './strings.js';
+import * as logic from './logic.js';
 
 const content = JSON.parse(await readFile(new URL('./examples/en.json', import.meta.url)));
 const fr = JSON.parse(await readFile(new URL('./examples/fr.json', import.meta.url)));
 const option = (text = 'Yes, keep working.', misconception = 'push-through', custom = '') => ({ text, misconception, custom });
+
+test('initial answer uses a 2,000 UTF-16-unit limit after trimming', () => {
+  assert.equal(logic.MAX_ANSWER, 2000);
+  for (const text of ['x'.repeat(1999), 'x'.repeat(2000), '😀'.repeat(1000), ` \n${'x'.repeat(2000)}\t `]) {
+    assert.deepEqual(logic.validateAnswer(text), { ok: true, text: text.trim() });
+  }
+  for (const text of ['x'.repeat(2001), '😀'.repeat(1000) + 'x', ` ${'x'.repeat(2001)} `]) {
+    assert.deepEqual(logic.validateAnswer(text), { ok: false, error: 'longAnswer' });
+  }
+  for (const text of ['', ' \n\t ', null, 2000]) {
+    assert.deepEqual(logic.validateAnswer(text), { ok: false, error: 'emptyAnswer' });
+  }
+});
+
+test('oversized saved answers restore intact as drafts without completed checks', () => {
+  for (const answer of ['x'.repeat(2001), '😀'.repeat(1000) + 'x']) {
+    for (const [hadIt, shown] of [[null, false], [true, false], [false, true], [true, true]]) {
+      const saved = { answer, hadIt, options: [option('A'), option('B')], shown };
+      const copy = validateState(content, saved);
+      assert.deepEqual(copy, { ...saved, hadIt: null, shown: false });
+      assert.notEqual(copy.options, saved.options);
+      assert.notEqual(copy.options[0], saved.options[0]);
+      assert.equal(saved.hadIt, hadIt);
+      assert.equal(saved.shown, shown);
+    }
+  }
+  for (const answer of ['x'.repeat(1999), 'x'.repeat(2000), '😀'.repeat(1000), ` \n${'x'.repeat(2000)}\t `]) {
+    const saved = { answer, hadIt: true, options: [option('A'), option('B')], shown: true };
+    assert.deepEqual(validateState(content, saved), saved);
+  }
+});
+
+test('answer limit errors have authored English and French copy without an HTML truncation limit', () => {
+  assert.equal(strings.en.longAnswer, 'Keep your answer to {max} characters or fewer.');
+  assert.equal(strings.fr.longAnswer, 'Limitez votre réponse à {max} caractères.');
+  for (const lang of ['en', 'fr']) {
+    const output = render(lang === 'en' ? content : fr, strings[lang], { id: 'limit', lang });
+    const answer = output.match(/<textarea[^>]*data-lp-answer[^>]*>/)[0];
+    assert.doesNotMatch(answer, /maxlength/);
+  }
+});
 
 test('quiz keys reserve A for the answer and continue after Z', () => {
   assert.deepEqual([0, 1, 2, 25, 26, 27, 51, 52].map(optionKey), ['A', 'B', 'C', 'Z', 'AA', 'AB', 'AZ', 'BA']);

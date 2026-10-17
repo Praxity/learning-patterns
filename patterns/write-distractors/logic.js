@@ -8,8 +8,20 @@
 /** @typedef {{ option: number, field: Field, code: ErrorCode }} FieldError */
 
 export const OTHER = 'other';
+export const MAX_ANSWER = 2000;
 export const MAX_OPTION = 300;
 export const MAX_CUSTOM = 120;
+
+/** Error keys let the host pick an authored translation. Count UTF-16 units after trim.
+ * @param {unknown} text
+ * @returns {{ ok: true, text: string } | { ok: false, error: 'emptyAnswer' | 'longAnswer' }}
+ */
+export function validateAnswer(text) {
+  const trimmed = typeof text === 'string' ? text.trim() : '';
+  if (!trimmed) return { ok: false, error: 'emptyAnswer' };
+  if (trimmed.length > MAX_ANSWER) return { ok: false, error: 'longAnswer' };
+  return { ok: true, text: trimmed };
+}
 
 /** Key A belongs to the right answer; wrong options start at index 1.
  * @param {number} index @returns {string}
@@ -152,6 +164,7 @@ export function coverageMessage(content, options) {
 }
 
 /** Accept incomplete drafts; shown results must pass submission validation.
+ * Oversized answers keep their full text and options but return to the answer step.
  * @param {Content} content @param {unknown} value @returns {LearnerState | null}
  */
 export function validateState(content, value) {
@@ -165,9 +178,12 @@ export function validateState(content, value) {
   if (!value.options.every(item => isOption(item) && item.text.length <= MAX_OPTION && item.custom.length <= MAX_CUSTOM && known.has(item.misconception))) return null;
   const options = /** @type {LearnerOption[]} */ (value.options);
   if (value.shown && !validateOptions(content, options).ok) return null;
+  const answer = legacy ? '' : /** @type {string} */ (value.answer);
+  const checked = validateAnswer(answer);
+  const resetAnswer = legacy || (!checked.ok && checked.error === 'longAnswer');
   return {
-    answer: legacy ? '' : /** @type {string} */ (value.answer),
-    hadIt: legacy ? null : /** @type {boolean | null} */ (value.hadIt),
-    options: options.map(item => ({ ...item })), shown: legacy ? false : value.shown
+    answer,
+    hadIt: resetAnswer ? null : /** @type {boolean | null} */ (value.hadIt),
+    options: options.map(item => ({ ...item })), shown: resetAnswer ? false : value.shown
   };
 }
