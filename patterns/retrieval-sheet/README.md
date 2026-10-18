@@ -26,6 +26,44 @@ Choosing a date sends no reminder. Arrange one through your course host if neede
 3. Select "Print the sheet". Questions print first, then answers.
 4. On your chosen date, write answers from memory. Check the back and revisit what you missed.
 
+## Write this in .prax
+
+In `.prax`, a `retrieval-sheet` block has a title and one to eight items. Start each question with `::` and give it exactly one `answer:`. Studio creates the IDs; authors do not write them.
+
+In Studio, the learner chooses a review date from presets or a date field. The date and sheet side stay only on the page and reset on reload. Choosing a date sends no reminder. The sheet prints questions first, then answers. Nothing is scored or reported.
+
+English:
+
+```prax
+---
+lang: en
+---
+# The water cycle
+
+::: retrieval-sheet Changes of state
+:: What is evaporation?
+answer: Liquid water changing into water vapour.
+:: What is condensation?
+answer: Water vapour changing into liquid water.
+:::
+```
+
+French:
+
+```prax
+---
+lang: fr
+---
+# La Lune
+
+::: retrieval-sheet Lumière et mouvement
+:: Pourquoi la Lune brille-t-elle ?
+answer: Elle réfléchit une partie de la lumière du Soleil.
+:: Que signifie « orbite » ?
+answer: C’est le trajet d’un astre autour d’un autre.
+:::
+```
+
 ## Evidence
 
 Recalling studied prose improved retention two days and one week later compared with restudying ([Roediger and Karpicke, 2006](https://doi.org/10.1111/j.1467-9280.2006.01693.x)). A meta-analysis found that practice tests beat restudying and other study conditions ([Adesope, Trevisan and Sundararajan, 2017](https://doi.org/10.3102/0034654316689306)). Recall tests, like this sheet, produced larger benefits than recognition tests ([Rowland, 2014](https://doi.org/10.1037/a0037559)).
