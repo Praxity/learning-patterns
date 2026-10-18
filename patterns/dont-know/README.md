@@ -29,7 +29,7 @@ In Praxity's `.prax` format, an "I don't know" option is a setting on an ordinar
 
 Studio does not use this library's configurable right/wrong/unknown points. An "I don't know" answer counts as answered and earns no points.
 
-English, unscored practice:
+English, unscored practice (Praxity Studio from commit `c57f57b`, 2026-10-08):
 
 ```prax
 ---
@@ -45,7 +45,7 @@ incorrect: Count the straight sides of a triangle.
 :::
 ```
 
-French, unscored practice:
+French, unscored practice (Praxity Studio from commit `c57f57b`, 2026-10-08):
 
 ```prax
 ---
@@ -61,7 +61,7 @@ incorrect: Un chronomètre mesure une durée.
 :::
 ```
 
-Private practice:
+Private practice (Praxity Studio from commit `ad4952f`, 2026-10-18):
 
 ```prax
 ---
