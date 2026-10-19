@@ -24,6 +24,48 @@ Use it when learners know enough to answer from memory and explain common mistak
 5. Compare your question with the author's. Each wrong option names its mistaken idea. A check mark shows a matching label. The summary counts matching and extra labels.
 6. Select "Start over" to clear your work.
 
+## Write this in .prax
+
+In `.prax`, start a `write-distractors` block with the question and put exactly one `answer:` before the items. Each `:: Misconception label` item pairs a mistaken idea with one `option:` containing a wrong answer. Studio generates the IDs; authors do not write them. The unquoted `count` setting accepts 1 to 5 and sets how many wrong options the learner writes. It defaults to 2, independently of the number of authored items.
+
+Studio does not publish this block yet. The grammar accepts these examples, but publication is currently refused.
+
+Studio's planned learner activity is private practice saved only on the learner's device, with no scores or LMS records. The comparison matches misconception labels, not the meaning of the learner's writing, and does not grade answers. Overlong entries show an error and keep the full text. Learners can use browser print. Native PDF workbooks include answers only when an answer sheet is requested.
+
+English:
+
+```prax
+---
+lang: en
+---
+# Button names
+
+::: write-distractors What should a button's accessible name tell the user? {count=2}
+answer: The action the button performs.
+:: Appearance replaces purpose
+option: The button's colour.
+:: Position replaces purpose
+option: The button's position on the page.
+:::
+```
+
+French, using the default count:
+
+```prax
+---
+lang: fr
+---
+# Le texte des liens
+
+::: write-distractors Que doit indiquer le texte d'un lien vers un formulaire d'inscription ?
+answer: La destination ou le but du lien.
+:: Une consigne vague suffit
+option: Seulement les mots « cliquez ici ».
+:: La couleur suffit à expliquer la destination
+option: Seulement la couleur du lien.
+:::
+```
+
 ## Evidence
 
 Giving your own answer helps you remember more than reading one. The average effect was 0.40 standard deviations across 86 studies ([Bertsch et al., 2007](https://doi.org/10.3758/BF03193441)). University students wrote questions about a lecture. A week later, they recalled about as much as students who answered practice questions ([Ebersbach, Feierabend and Nazari, 2020](https://doi.org/10.1002/acp.3639)). Students who wrote multiple-choice questions for peers tended to do better in exams. Those studies show a link, not that writing questions caused better scores ([Hardy et al., 2014](https://doi.org/10.1080/09500693.2014.916831)).
