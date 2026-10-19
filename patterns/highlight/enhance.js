@@ -32,7 +32,7 @@ export function enhance(root, { content, strings, state }) {
   const chunks = [...passage.querySelectorAll('span[data-lp-chunk]')].map(element => /** @type {HTMLElement} */ (element));
   const authored = content.paragraphs.flat();
   const feedback = [...passage.querySelectorAll('span[data-lp-feedback]')].map(element => /** @type {HTMLElement} */ (element));
-  if (!instructions.id || chunks.length !== authored.length || feedback.length !== authored.length || chunks.some((chunk, i) => chunk.getAttribute('data-lp-chunk') !== authored[i]?.id || chunk.textContent !== authored[i]?.text || chunk.nextElementSibling !== feedback[i] || !feedback[i]?.id)) {
+  if (!instructions.id || chunks.length !== authored.length || feedback.length !== authored.length || chunks.some((chunk, i) => chunk.getAttribute('data-lp-chunk') !== authored[i]?.id || chunk.textContent !== frenchTypography(authored[i].text, root.lang) || chunk.nextElementSibling !== feedback[i] || !feedback[i]?.id)) {
     throw new Error('Invalid highlight passage markup');
   }
   // Read host state before changing the DOM; adapter errors propagate to the host.

@@ -80,7 +80,7 @@ const formattedPunctuation = [
   'Elle dit «\u202fje reviens\u202f».',
   'Déjà\u00a0: «\u00a0oui\u00a0» et pourquoi\u00a0?',
   'Déjà\u202f: «\u202foui\u202f» et pourquoi\u202f?',
-  'Elle dit\u202f: «\u202f<oui> & "merci"\u202f»\u202f!'
+  'Elle dit\u202f: «\u202f<oui> & "merci"\u202f»!'
 ];
 
 for (const lang of ['fr', 'fr-CA']) {
