@@ -28,9 +28,11 @@ Use it when learners know enough to answer from memory and explain common mistak
 
 In `.prax`, start a `write-distractors` block with the question and put exactly one `answer:` before the items. Each `:: Misconception label` item pairs a mistaken idea with one `option:` containing a wrong answer. Studio generates the IDs; authors do not write them. The unquoted `count` setting accepts 1 to 5 and sets how many wrong options the learner writes. It defaults to 2, independently of the number of authored items.
 
-Studio does not publish this block yet. The grammar accepts these examples, but publication is currently refused.
+Write at least one item; `private`, `scored` and `required` settings are not accepted, and the block cannot go in an assessment group.
 
-Studio's planned learner activity is private practice saved only on the learner's device, with no scores or LMS records. The comparison matches misconception labels, not the meaning of the learner's writing, and does not grade answers. Overlong entries show an error and keep the full text. Learners can use browser print. Native PDF workbooks include answers only when an answer sheet is requested.
+Studio does not publish this block yet and cannot yet preview it or include it in a PDF workbook. The grammar accepts these examples, but publication is currently refused.
+
+Studio's planned learner activity will be private practice saved only on the learner's device, with no scores or LMS records. The comparison will match misconception labels, not the meaning of the learner's writing, and will not grade answers. Overlong entries will show an error and keep the full text. Planned browser printing will let learners print their work. The planned PDF workbook will leave space to write; answers will appear only in an answer sheet the author requests.
 
 English:
 
@@ -57,10 +59,10 @@ lang: fr
 ---
 # Le texte des liens
 
-::: write-distractors Que doit indiquer le texte d'un lien vers un formulaire d'inscription ?
+::: write-distractors Que doit indiquer le texte d’un lien vers un formulaire d’inscription ?
 answer: La destination ou le but du lien.
 :: Une consigne vague suffit
-option: Seulement les mots « cliquez ici ».
+option: Seulement les mots « cliquez ici ».
 :: La couleur suffit à expliquer la destination
 option: Seulement la couleur du lien.
 :::
