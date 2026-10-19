@@ -32,7 +32,7 @@ In `.prax`, a `retrieval-sheet` block has a title and one to eight items. Start 
 
 In Studio, the learner chooses a review date from presets or a date field. The date and sheet side stay only on the page and reset on reload. Choosing a date sends no reminder. The sheet prints questions first, then answers. Nothing is scored or reported.
 
-English:
+English (Praxity Studio from commit `8cad2f0`, 2026-10-19):
 
 ```prax
 ---
@@ -48,7 +48,7 @@ answer: Water vapour changing into liquid water.
 :::
 ```
 
-French:
+French (Praxity Studio from commit `8cad2f0`, 2026-10-19):
 
 ```prax
 ---
