@@ -63,6 +63,73 @@ async function mount(page, content, lang = 'en') {
   }, { content, lang });
 }
 
+const punctuation = {
+  mode: 'evidence', title: 'Une pause', question: 'Pourquoi revenir ?',
+  paragraphs: [[
+    { id: 'question', text: 'Pourquoi partir ?' },
+    { id: 'answer', text: 'Voici : une pause; revenez!', key: true },
+    { id: 'quote', text: 'Elle dit « je reviens ».' },
+    { id: 'nbsp', text: 'Déjà\u00a0: «\u00a0oui\u00a0» et pourquoi\u00a0?' },
+    { id: 'narrow', text: 'Déjà\u202f: «\u202foui\u202f» et pourquoi\u202f?' },
+    { id: 'escaped', text: 'Elle dit : « <oui> & "merci" »!' }
+  ]]
+};
+const formattedPunctuation = [
+  'Pourquoi partir\u202f?',
+  'Voici\u202f: une pause\u202f; revenez\u202f!',
+  'Elle dit «\u202fje reviens\u202f».',
+  'Déjà\u00a0: «\u00a0oui\u00a0» et pourquoi\u00a0?',
+  'Déjà\u202f: «\u202foui\u202f» et pourquoi\u202f?',
+  'Elle dit\u202f: «\u202f<oui> & "merci"\u202f»!'
+];
+
+for (const lang of ['fr', 'fr-CA']) {
+  test(`French punctuation enhances beside unchanged English with independent marks (${lang})`, async ({ page }) => {
+    await open(page, '/highlight/two.html');
+    await page.evaluate(async ({ content, lang }) => {
+      window.lpInstances.forEach(instance => instance.destroy());
+      const { render } = await import('/patterns/highlight/render.js');
+      const { enhance } = await import('/patterns/highlight/enhance.js');
+      const { strings } = await import('/patterns/highlight/strings.js');
+      window.lpInstances = [...document.querySelectorAll('[data-lp-pattern]')].map((old, i) => {
+        const locale = i === 0 ? lang : 'en';
+        const ui = i === 0 ? strings.fr : strings.en;
+        old.outerHTML = render(content, ui, { id: `punctuation-${i}`, lang: locale });
+        const root = document.querySelectorAll('[data-lp-pattern]')[i];
+        return enhance(root, { content, strings: ui });
+      });
+    }, { content: punctuation, lang });
+    const roots = page.locator('[data-lp-pattern]');
+    // Read textContent exactly; whitespace-folding matchers hide NBSP regressions.
+    expect(await roots.first().locator('[data-lp-chunk]').allTextContents()).toEqual(formattedPunctuation);
+    expect(await roots.nth(1).locator('[data-lp-chunk]').allTextContents()).toEqual(punctuation.paragraphs[0].map(chunk => chunk.text));
+    await chunk(roots.first(), 'answer').press('Space');
+    await roots.first().locator('[data-lp-check]').click();
+    await expect(chunk(roots.first(), 'answer')).toHaveAttribute('data-lp-outcome', 'correct');
+    await expect(chunk(roots.nth(1), 'answer')).toHaveAttribute('aria-pressed', 'false');
+    await expect(roots.nth(1).getByRole('status')).toBeEmpty();
+    await chunk(roots.nth(1), 'answer').click();
+    await roots.nth(1).locator('[data-lp-check]').click();
+    await expect(chunk(roots.nth(1), 'answer')).toHaveAttribute('data-lp-outcome', 'correct');
+    expect(await roots.nth(1).locator('[data-lp-chunk]').allTextContents()).toEqual(punctuation.paragraphs[0].map(chunk => chunk.text));
+  });
+}
+
+for (const replacement of ['Pourquoi rester\u202f?', 'Pourquoi partir ?']) {
+  test(`French chunks enhance, but altered rendered text refuses: ${JSON.stringify(replacement)}`, async ({ page }) => {
+    await open(page); await mount(page, punctuation, 'fr');
+    expect(await page.locator('[data-lp-chunk]').allTextContents()).toEqual(formattedPunctuation);
+    await page.evaluate(replacement => {
+      window.lpInstances[0].destroy();
+      document.querySelector('[data-lp-chunk]').textContent = replacement;
+    }, replacement);
+    await expect(page.evaluate(() => window.lpEnhance())).rejects.toThrow('Invalid highlight passage markup');
+    await expect(page.locator('[data-lp-chunk][role]')).toHaveCount(0);
+    await expect(page.locator('[data-lp-flow]')).toBeHidden();
+    await expect(page.locator('[data-lp-fallback]')).toBeVisible();
+  });
+}
+
 test('chunks flow like the source paragraphs across inline boundaries', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 1000 }); await open(page);
   await page.evaluate(() => document.fonts.ready);
