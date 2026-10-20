@@ -11,7 +11,7 @@ test('public configuration supplies the selected provider and both authored noti
     assert.equal(config.providerName, name);
     assert.equal(config.siteKey, 'public-key');
     assert.equal(config.dataNotice.en, `Your answer is sent to ${recipient} to choose which feedback to show. Praxity doesn't keep it. ${recipient}'s terms apply.`);
-    assert.equal(config.dataNotice.fr, `Votre réponse est envoyée à ${recipient} pour choisir les commentaires à vous afficher. Praxity ne la conserve pas. Les conditions de ${recipient} s'appliquent.`);
+    assert.equal(config.dataNotice.fr, `Votre réponse est envoyée à ${recipient} pour choisir la rétroaction à vous afficher. Praxity ne la conserve pas. Les conditions de ${recipient} s'appliquent.`);
     assert.equal(config.questionNotice.en, `Your question is sent to ${recipient} to choose which information to show. Praxity doesn't keep it. ${recipient}'s terms apply.`);
     assert.equal(config.questionNotice.fr, `Votre question est envoyée à ${recipient} pour choisir les informations à vous afficher. Praxity ne la conserve pas. Les conditions de ${recipient} s'appliquent.`);
   }
