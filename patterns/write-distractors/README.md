@@ -30,11 +30,9 @@ In `.prax`, start a `write-distractors` block with the question and put exactly 
 
 Write at least one item; `private`, `scored` and `required` settings are not accepted, and the block cannot go in an assessment group.
 
-Studio does not publish this block yet and cannot yet preview it or include it in a PDF workbook. The grammar accepts these examples, but publication is currently refused.
+In Studio, this is private practice saved only on the learner's device, with no scores or LMS records. The comparison matches misconception labels, not the meaning of the learner's writing, and does not grade answers. Overlong entries show an error and keep the full text. Browser print includes current writing and only content already revealed. The PDF workbook includes the question, instructions and writing space. An answer sheet, included only when the author requests it, adds the right answer and numbered labels with their paired wrong options.
 
-Studio's planned learner activity will be private practice saved only on the learner's device, with no scores or LMS records. The comparison will match misconception labels, not the meaning of the learner's writing, and will not grade answers. Overlong entries will show an error and keep the full text. Planned browser printing will let learners print their work. The planned PDF workbook will leave space to write; answers will appear only in an answer sheet the author requests.
-
-English:
+English (Praxity Studio from commit `5b16180`, 2026-10-20):
 
 ```prax
 ---
@@ -51,7 +49,7 @@ option: The button's position on the page.
 :::
 ```
 
-French, using the default count:
+French, using the default count (Praxity Studio from commit `5b16180`, 2026-10-20):
 
 ```prax
 ---
