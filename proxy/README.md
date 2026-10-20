@@ -46,7 +46,11 @@ Input validation returns `{ set, fields }`; answer parsing strips provider extra
 Feedback selection returns the first matching authored feedback ID, or the default.
 `questionBands` returns the question-ID map of `met`, `missed`, `unsure` or a
 validated Choice ID, using the same inclusive gates as feedback selection.
-Version 2 adds a strict public acceptance record; v1 still validates unchanged.
+Version 2 binds an acceptance record to each provider, model and language.
+The same module owns `DEFAULT_ACCEPTANCE_BAR`, `MIN_ACCEPTANCE_COVERAGE`,
+`acceptancePasses`, `canonicalJson`, `questionSetDigest`, `acceptanceFingerprint`,
+`supportsLanguage`, `hasAcceptedVariant` and `isV2QuestionSet`. See the format
+specification for the exact preimages and v1 migration exceptions.
 The fixed demo registry below continues to own the public demo's topic-specific questions.
 
 `GET /api/patterns/config` returns the public Turnstile site key, provider, decision model, mock status, `providerName` and the authored `dataNotice.en` and `dataNotice.fr`. By default it reports `provider: "perplexity"`, `providerName: "Perplexity (US)"` and `model: "pplx-decider-v1.2"`. `POST /api/patterns/ask` accepts this shape:
