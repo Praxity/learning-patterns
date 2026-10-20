@@ -39,7 +39,7 @@ test('Perplexity reservations cover repeated state at every field cap and dialog
 });
 
 test('the default Perplexity configuration uses Jev gates in all decision owners', () => {
-  const model = 'pplx-decider-v1.1-27b';
+  const model = 'pplx-decider-v1.2';
   assert.deepEqual(blocks['03-branch'].outcome({ branch: { choice: 'acknowledge', confidence: 0.6 } }, model), { branch: null });
   assert.deepEqual(blocks['03-branch'].outcome({ branch: { choice: 'acknowledge', confidence: 0.9 } }, model), { branch: 'acknowledge' });
   assert.equal(blocks['06-misconceptions'].outcome({ misconception: { choice: 'correct', confidence: 0.25 } }, model).sure, false);

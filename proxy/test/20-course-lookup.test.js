@@ -30,7 +30,7 @@ for (const [id, file] of [['20-faq','en.json'],['21-sections','en-sections.json'
     t.mock.method(globalThis,'fetch',async(url,options)=>{
       assert.equal(url,'https://api.perplexity.ai/v1/decisions');
       assert.deepEqual(JSON.parse(options.body),perplexityRequest(request.state,request.questions));
-      return Response.json({model:'pplx-decider-v1.1-27b',answers:{lookup:{type:'choice',choice,confidence:.9,probabilities}},usage:{input_tokens:1200}});
+      return Response.json({model:'pplx-decider-v1.2',answers:{lookup:{type:'choice',choice,confidence:.9,probabilities}},usage:{input_tokens:1200}});
     });
     const result=await perplexity('test-key',request.state,request.questions);
     const answers=readAnswers(result.answers,request.questions);

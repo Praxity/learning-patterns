@@ -56,7 +56,7 @@ test('unsure and off-script preserve each round and do not add learner bubbles',
 });
 
 test('model choices use proxy-owned inclusive gates; off-script always keeps the turn', () => {
-  for (const model of ['pplx-decider-v1.1-27b', 'jev', '@cf/cloudflare/clef', '@cf/cloudflare/clef-flash']) {
+  for (const model of ['pplx-decider-v1.2', 'jev', '@cf/cloudflare/clef', '@cf/cloudflare/clef-flash']) {
     const gate = confidenceGate(model);
     for (const branch of BRANCHES) {
       assert.equal(feedback(answers(branch, gate), model), branch);

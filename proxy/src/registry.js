@@ -17,7 +17,7 @@ import { labelAnswers } from '../logic/16-fixture-data.js';
 
 // Only evaluated blocks can receive live checks.
 // Evaluation and browser callers use the same decision owners and gates.
-// Clef/Jev reserve 8,192 tokens. Perplexity bills shared state per question.
+// Clef/Jev reserve 8,192 tokens. Perplexity bounds conservatively repeat state per question.
 // Its bounds cover the UTF-8 bytes of each separate question request at field
 // caps, including six-byte JSON escapes, plus 1,024 framing tokens per question.
 // Uncertain billing retains this charge; re-evaluate each bound when its wording or fields grow.

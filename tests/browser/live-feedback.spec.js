@@ -473,13 +473,13 @@ test('configured Perplexity notice comes from the shared ask client; refused cal
     window.lpNetwork = [];
     const ask = createAsk({ fetch: async (url, options) => {
       window.lpNetwork.push({ url, body: options.body });
-      if (url.endsWith('/config')) return Response.json({ provider: 'perplexity', siteKey: '', model: 'pplx-decider-v1.1-27b', ...noticeConfig('perplexity') });
+      if (url.endsWith('/config')) return Response.json({ provider: 'perplexity', siteKey: '', model: 'pplx-decider-v1.2', ...noticeConfig('perplexity') });
       return Response.json({ reason: 'budget' }, { status: 429 });
     } });
     enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en, ask });
   }, examples.en);
   await expect(page.locator('[data-lp-list]')).toBeVisible();
-  await expect(page.locator('[data-lp-notice]')).toHaveText('Your answer is sent to a decision model; the service does not store it or use it for training.');
+  await expect(page.locator('[data-lp-notice]')).toHaveText("Your answer is sent to Perplexity to choose which feedback to show. Praxity doesn't keep it. Perplexity's terms apply.");
   await auto(page);
   await expect(page.locator('[data-lp-fallback]')).toBeVisible();
   expect(await page.evaluate(() => window.lpNetwork.map(call => call.url))).toEqual(['/api/patterns/config', '/api/patterns/ask']);

@@ -425,7 +425,7 @@ test('configured data notice and shared client clearance belong only to suggesti
     window.lpInstances[0] = enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en, state, ask });
   }, examples.en);
   await expect(page.locator('[data-lp-suggest]')).toBeEnabled();
-  await expect(page.locator('[data-lp-notice]')).toHaveText('Your answer is sent to a decision model; the service does not store it or use it for training.');
+  await expect(page.locator('[data-lp-notice]')).toHaveText("Your answer is sent to Cloudflare Workers AI to choose which feedback to show. Praxity doesn't keep it. Cloudflare Workers AI's terms apply.");
   await expect(page.locator('[data-lp-challenge]')).toBeHidden();
   await page.getByRole('textbox').fill('My reflection'); await page.locator('[data-lp-save]').click();
   expect(await page.evaluate(() => window.lpNetworkCalls)).toEqual(['/api/patterns/config']);

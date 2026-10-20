@@ -61,7 +61,7 @@ for (const lang of ['en', 'fr']) {
 
   const cases = [
     ['key idea', 'correct', 1, 'keyIdea'],
-    ['unsure key idea', 'correct', confidenceGate('pplx-decider-v1.1-27b') - .0001, 'unsureKeyIdea'],
+    ['unsure key idea', 'correct', confidenceGate('pplx-decider-v1.2') - .0001, 'unsureKeyIdea'],
     ['no match', 'none', 1, 'noMatch'],
     ['low-confidence no match', 'none', 0, 'noMatch'],
     ...examples[lang].misconceptions.flatMap(item => [[item.id, item.id, 1, 'known'], [`unsure ${item.id}`, item.id, 0, 'unsure']])
@@ -239,7 +239,7 @@ test('shared client gets model-specific gate and notice, verifies inline only on
     enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en, ask });
   }, examples.en);
   await expect(page.locator('[data-lp-check]')).toBeEnabled();
-  await expect(page.locator('[data-lp-notice]')).toHaveText('Your answer is sent to a decision model; the service does not store it or use it for training.');
+  await expect(page.locator('[data-lp-notice]')).toHaveText("Your answer is sent to TypeSafe to choose which feedback to show. Praxity doesn't keep it. TypeSafe's terms apply.");
   await expect(page.locator('[data-lp-challenge]')).toBeHidden(); await submit(page);
   await expect(page.locator('[data-lp-challenge]')).toBeVisible();
   expect(await page.evaluate(() => window.lpWidget.slot === document.querySelector('[data-lp-challenge]'))).toBe(true);

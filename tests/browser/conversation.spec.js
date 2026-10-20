@@ -390,18 +390,19 @@ test('failed configuration and invalid answers open the complete fallback', asyn
 });
 
 test('configured model chooses its own gate and public data notice', async ({ page }) => {
-  for (const model of ['pplx-decider-v1.1-27b', 'jev', '@cf/cloudflare/clef-flash', '@cf/cloudflare/clef']) {
+  for (const model of ['pplx-decider-v1.2', 'jev', '@cf/cloudflare/clef-flash', '@cf/cloudflare/clef']) {
+    const recipient = model === 'pplx-decider-v1.2' ? 'Perplexity' : model === 'jev' ? 'TypeSafe' : 'Cloudflare Workers AI';
     await open(page);
     await page.evaluate(async ({ content, model, gate }) => {
       window.lpInstances[0].destroy();
       const { enhance } = await import('/patterns/conversation/enhance.js');
       const { strings } = await import('/patterns/conversation/strings.js');
       const { noticeConfig } = await import('/lib/data-notice.js');
-      const provider = model === 'pplx-decider-v1.1-27b' ? 'perplexity' : model === 'jev' ? 'jev' : 'clef';
+      const provider = model === 'pplx-decider-v1.2' ? 'perplexity' : model === 'jev' ? 'jev' : 'clef';
       const ask = Object.assign(async () => ({ branch: { choice: 'pause', confidence: gate } }), { config: async () => ({ provider, model, siteKey: '', ...noticeConfig(provider) }) });
       window.lpInstances[0] = enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en, ask });
     }, { content: examples.en, model, gate: confidenceGate(model) });
-    await expect(page.locator('[data-lp-notice]')).toHaveText('Your answer is sent to a decision model; the service does not store it or use it for training.');
+    await expect(page.locator('[data-lp-notice]')).toHaveText(`Your answer is sent to ${recipient} to choose which feedback to show. Praxity doesn't keep it. ${recipient}'s terms apply.`);
     await submit(page);
     await expect(page.locator('[data-lp-michel]').last()).toHaveText(examples.en.branches.pause.line);
   }
@@ -426,7 +427,7 @@ test('shared client requests clearance only on submission and renders it inline'
     window.lpInstances[0] = enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en, ask });
   }, examples.en);
   await expect(page.locator('[data-lp-send]')).toBeEnabled();
-  await expect(page.locator('[data-lp-notice]')).toHaveText('Your answer is sent to a decision model; the service does not store it or use it for training.');
+  await expect(page.locator('[data-lp-notice]')).toHaveText("Your answer is sent to Cloudflare Workers AI to choose which feedback to show. Praxity doesn't keep it. Cloudflare Workers AI's terms apply.");
   await expect(page.locator('[data-lp-challenge]')).toBeHidden();
   expect(await page.evaluate(() => window.lpNetworkCalls)).toEqual(['/api/patterns/config']);
   await submit(page);

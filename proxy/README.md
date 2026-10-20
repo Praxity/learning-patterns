@@ -1,6 +1,6 @@
 # Learning patterns proxy
 
-This Cloudflare Worker checks short answers against fixed question sets. The browser posts `{ block, fields }`; the server chooses the questions. The default is Perplexity `pplx-decider-v1.1-27b`, called directly at `POST https://api.perplexity.ai/v1/decisions`. It uses Jev's original question wording and confidence gates. Clef 27B and Jev remain optional providers.
+This Cloudflare Worker checks short answers against fixed question sets. The browser posts `{ block, fields }`; the server chooses the questions. The default is Perplexity `pplx-decider-v1.2`, called directly at `POST https://api.perplexity.ai/v1/decisions`. It uses Jev's original question wording and confidence gates. The [Decisions model documentation](https://docs.perplexity.ai/docs/decisions/quickstart#models) lists this versioned ID. Retired version names may be rerouted and the response echoes the requested name, so response equality does not verify the serving version. Revalidate the gates when Perplexity changes the model. Clef 27B and Jev remain optional providers.
 
 ## Deploy in your own account
 
@@ -34,7 +34,7 @@ On a custom domain, keep Cloudflare's Pseudo IPv4 setting off or on "Add header"
 
 ## Requests and question sets
 
-`GET /api/patterns/config` returns the public Turnstile site key, provider, decision model, mock status, `providerName` and the authored `dataNotice.en` and `dataNotice.fr`. By default it reports `provider: "perplexity"`, `providerName: "Perplexity (US)"` and `model: "pplx-decider-v1.1-27b"`. `POST /api/patterns/ask` accepts this shape:
+`GET /api/patterns/config` returns the public Turnstile site key, provider, decision model, mock status, `providerName` and the authored `dataNotice.en` and `dataNotice.fr`. By default it reports `provider: "perplexity"`, `providerName: "Perplexity (US)"` and `model: "pplx-decider-v1.2"`. `POST /api/patterns/ask` accepts this shape:
 
 ```json
 { "block": "07-explain-back", "fields": { "answer": "I would announce a pause and agree when to return." } }
@@ -99,13 +99,13 @@ For local UI work, `JEV_MOCK=1` returns fake answers and bypasses clearance and 
 
 Place this text next to the answer box:
 
-> Your answer is sent to a decision model; the service does not store it or use it for training.
+> Your answer is sent to Perplexity to choose which feedback to show. Praxity doesn't keep it. Perplexity's terms apply.
 
 Where the learner asks a question rather than answering one, as in Instant course lookup, `/config` also publishes this wording:
 
-> Your question is sent to a decision model; the service does not store it or use it for training.
+> Your question is sent to Perplexity to choose which information to show. Praxity doesn't keep it. Perplexity's terms apply.
 
-[Perplexity's API FAQ](https://docs.perplexity.ai/docs/resources/faq) says, "We do not retain any query data sent through the API and do not train on any of your data." Self-hosters using another provider must confirm that provider's retention and training terms before using this notice. Before sending learner text in a client course, arrange consent wording and a data agreement with the chosen provider.
+[Perplexity's privacy and security documentation](https://docs.perplexity.ai/docs/resources/privacy-security) makes zero retention conditional on eligibility and a written agreement. The notice promises only that Praxity does not keep submitted text; it makes no promise about the provider's retention or training. Self-hosters must adapt the Praxity statement to their own storage policy and confirm that provider's retention and training terms before using this notice. Before sending learner text in a client course, arrange consent wording and a data agreement with the chosen provider.
 
 The proxy sends the answer and authored context to the provider. Except for `13-journal`, it keeps an HMAC-SHA-256 key of the decision model, state and questions, validated decision model answers and response metadata for 30 days. Journal results are never cached or shared between in-flight requests. The cache uses `CACHE_KEY_SECRET`, separate from the IP salt. It stores salted IP and network hashes and daily call and spend counters. It stores neither submitted text nor raw provider responses, and writes no application logs. Extra provider fields are discarded; text in a numeric answer or an unknown choice fails validation before caching. Hosting and decision model providers have their own data policies.
 
