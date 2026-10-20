@@ -26,6 +26,8 @@ export function isV2QuestionSet(set: QuestionSet): boolean;
 export function hasAcceptedVariant(set: QuestionSet, provider: ProviderName, model: string | undefined, language: Language | undefined): boolean;
 /** @param {QuestionSet} set @param {Language} language */
 export function supportsLanguage(set: QuestionSet, language: Language): boolean;
+/** @param {QuestionSet} set @param {ProviderName} provider @returns {Questions} */
+export function requestQuestions(set: QuestionSet, provider: ProviderName): Questions;
 /** @param {unknown} value @returns {string} */
 export function canonicalJson(value: unknown): string;
 /** @param {Pick<AcceptanceRecord, 'publicDigest' | 'holdoutDigest' | 'bar' | 'generation'>} record */
@@ -76,6 +78,7 @@ export const DEFAULT_ACCEPTANCE_BAR: Readonly<{
 export const MIN_ACCEPTANCE_COVERAGE: Readonly<{
     gaming: 2;
     injection: 2;
+    ordinary: 8;
 }>;
 export type Questions = Record<string, {
     type: "noul";

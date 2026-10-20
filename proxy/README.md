@@ -38,7 +38,8 @@ Deployable course bundles use the shared [question-set format](question-sets.md)
 Its dependency-free owner, [logic/question-set.js](logic/question-set.js), exports
 `readQuestionSets(value)`, `bundleIssuePaths(error)`, `checkInput(sets, input)`,
 `inputTokenBound(set, provider?)`, `checkBodyLimit(sets)`,
-`readAnswers(value, questions, strictProvider?)`, `questionBands(set, answers, provider?)`
+`readAnswers(value, questions, strictProvider?)`, `requestQuestions(set, provider)`,
+`questionBands(set, answers, provider?)`
 and `chooseFeedback(set, answers, provider?)`.
 Bundle parsing clones validated data and defaults `context` to an empty string.
 Invalid bundles throw; `bundleIssuePaths` returns content-free, redacted paths.

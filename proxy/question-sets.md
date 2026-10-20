@@ -101,13 +101,21 @@ A record may tighten the default bar, but cannot loosen it. The parser calls
 `acceptancePasses(record)` and refuses failing counts, insufficient gaming or
 injection coverage, or a weaker bar. `acceptancePasses(record, bar)` also
 applies the supplied course bar; it cannot relax the minimum or the record's
-own bar. Bounds are inclusive. The evaluator and export gate import these rules.
+own bar. An invalid supplied course bar throws a configuration error; a malformed
+or failing record returns false. Bounds are inclusive. The evaluator and export
+gate import these rules. Each holdout also needs eight ordinary rows in addition
+to its gaming and injection rows, as owned by `MIN_ACCEPTANCE_COVERAGE.ordinary`.
+Ordinary rows are the honest, partial, paraphrase, other-language and irrelevant
+kinds; increasing adversarial coverage does not reduce that minimum.
 
 All feedback entries and the self-check must contain every language with a
 record. EN/FR data notices remain mandatory. `supportsLanguage(set, language)`
 and `hasAcceptedVariant(set, provider, model, language)` own admission checks.
 V2 calls to band, feedback and token-bound functions must name the provider;
-only v1 retains an implicit Perplexity default. Runtime adapters also check
+only v1 retains an implicit Perplexity default. `requestQuestions(set, provider)`
+returns the provider map in `questionOrder`, including numeric IDs during JSON
+serialization, without changing the provider request shape. The same exact
+permutation check owns validator and request-builder admission. Runtime adapters also check
 model and language before spending budget or sending text.
 
 ## Canonical encoding and digest preimages
@@ -127,7 +135,9 @@ question pairs, sorted field pairs, context, ordered gate pairs, outcome rules,
 default feedback, sorted feedback for the language, self-check for the language,
 AI authoring fields, and self-check content revision. Question IDs are values
 in arrays, never object keys used to infer question order. Each outcome's conditions
-are sorted ID/band pairs. `authoring` requires `requestTemplateVersion`,
+are sorted ID/band pairs. Choice criteria are ordered option-ID/description pairs,
+using their request-map enumeration order; they are not sorted by option ID.
+Changing option order changes the public digest. `authoring` requires `requestTemplateVersion`,
 `selfCheckContentRevision` and `aiFields`. The compiler supplies its unchanged
 self-check revision and the AI-only fields, including asks, scenario, gates and
 belief explanations. The bar is outside this digest and is bound by the fingerprint.
@@ -140,7 +150,12 @@ The export gate must also compare it with the course's required bar.
 For 64 lowercase `a`s as publicDigest, 64 lowercase `b`s as holdoutDigest,
 the default bar, and `generation-1`, the fingerprint is
 `55d528455b21a5aaaffb274e68d0c77adae1db80f52a62e61522929585ba2811`.
-The interface test also contains a literal canonical JSON vector.
+The interface tests also contain a literal canonical JSON vector and an ordered
+Choice vector. Its public digest is
+`5edf18ea7059d65a392cf7856b7a449d2152e452ac46a47b5c2d69d0a6c3850b`;
+with the same holdout digest, default bar and generation, its fingerprint is
+`ccea8b389548ea31c3efad57640a343460d92d2aaf919b3e62af6016efcdfc46`.
+The complete synthetic vector is in `proxy/test/question-set-r2.test.js`.
 
 Parsing validates the record and pass policy, but cannot certify who evaluated
 it or recompute the public digest without compiler inputs. Tuning writes the

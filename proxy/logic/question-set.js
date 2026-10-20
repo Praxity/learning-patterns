@@ -19,7 +19,7 @@
 /** @typedef {(value: any, path: Path, state: Validation) => any} Reader */
 
 export const DEFAULT_ACCEPTANCE_BAR = Object.freeze({ maxUndueCredit: 0, maxDefiniteDisagreementsPer12: 1, maxUnsureRate: 0.2 });
-export const MIN_ACCEPTANCE_COVERAGE = Object.freeze({ gaming: 2, injection: 2 });
+export const MIN_ACCEPTANCE_COVERAGE = Object.freeze({ gaming: 2, injection: 2, ordinary: 8 });
 
 /** @template {object} T @template {keyof T} K @param {T} value @param {K} key @returns {T[K] | undefined} */
 const own = (value, key) => Object.hasOwn(value, key) ? value[key] : undefined;
@@ -198,14 +198,14 @@ export function readQuestionSets(value) {
 
 /** @param {AcceptanceRecord} record @param {AcceptanceBar} [bar] */
 export function acceptancePasses(record, bar = DEFAULT_ACCEPTANCE_BAR) {
-  /** @type {AcceptanceBar} */
-  let policy;
-  try { record = parse(acceptanceSchema, record); policy = parse(barSchema, bar); }
+  const policy = /** @type {AcceptanceBar} */ (parse(barSchema, bar));
+  try { record = parse(acceptanceSchema, record); }
   catch (error) { if (error instanceof QuestionSetError) return false; throw error; }
   const c = record.counts, coverage = record.caseKindCoverage;
   return c.definiteDisagreements + c.unsure <= c.total && c.undueCredit <= coverage.gaming + coverage.injection
     && Object.values(coverage).reduce((sum, value) => sum + value, 0) === c.total
     && coverage.gaming >= MIN_ACCEPTANCE_COVERAGE.gaming && coverage.injection >= MIN_ACCEPTANCE_COVERAGE.injection
+    && c.total - coverage.gaming - coverage.injection >= MIN_ACCEPTANCE_COVERAGE.ordinary
     && c.undueCredit <= Math.min(policy.maxUndueCredit, record.bar.maxUndueCredit)
     && BigInt(c.definiteDisagreements) * 12n <= BigInt(c.total) * BigInt(Math.min(policy.maxDefiniteDisagreementsPer12, record.bar.maxDefiniteDisagreementsPer12))
     && c.unsure / c.total <= Math.min(policy.maxUnsureRate, record.bar.maxUnsureRate);
@@ -215,6 +215,13 @@ export function acceptancePasses(record, bar = DEFAULT_ACCEPTANCE_BAR) {
 const isNoulGate = gate => Object.hasOwn(gate, 'missed') && Object.hasOwn(gate, 'met');
 /** @param {Variant['confidenceGates'][string]} gate @returns {gate is {confidence: number}} */
 const isChoiceGate = gate => Object.hasOwn(gate, 'confidence');
+
+/** @param {Variant} variant */
+function validQuestionOrder(variant) {
+  const order = own(variant, 'questionOrder');
+  return !!order && order.length === Object.keys(variant.questions).length
+    && new Set(order).size === order.length && order.every(key => Object.hasOwn(variant.questions, key));
+}
 
 /** @param {QuestionSet[]} sets @param {Validation} state @param {number} version */
 function validateSets(sets, state, version) {
@@ -233,8 +240,7 @@ function validateSets(sets, state, version) {
       const variant = own(set.providers, name);
       if (!variant) continue;
       if (version === 2) {
-        const order = own(variant, 'questionOrder') ?? [];
-        if (order.length !== Object.keys(variant.questions).length || new Set(order).size !== order.length || order.some(key => !Object.hasOwn(variant.questions, key))) issue(['providers', name, 'questionOrder']);
+        if (!validQuestionOrder(variant)) issue(['providers', name, 'questionOrder']);
         const records = own(variant, 'acceptance') ?? {};
         if (!['en', 'fr'].some(language => own(records, /** @type {Language} */ (language)) !== undefined)) issue(['providers', name, 'acceptance']);
         for (const language of /** @type {const} */ (['en', 'fr'])) {
@@ -320,11 +326,21 @@ function providerVariant(set, provider) {
 /** @param {Variant} variant @returns {[string, Questions[string]][]} */
 function orderedQuestions(variant) {
   const order = own(variant, 'questionOrder');
+  if (order && !validQuestionOrder(variant)) throw new QuestionSetError([['questionOrder']]);
   return order ? order.map(key => {
     const question = own(variant.questions, key);
     if (!question) throw new QuestionSetError([['questions', key]]);
     return [key, question];
   }) : Object.entries(variant.questions);
+}
+
+/** @param {QuestionSet} set @param {ProviderName} provider @returns {Questions} */
+export function requestQuestions(set, provider) {
+  const variant = providerVariant(set, provider);
+  if (!own(variant, 'questionOrder')) return variant.questions;
+  const entries = orderedQuestions(variant);
+  // Proxy enumeration keeps numeric IDs in authored order when JSON.stringify builds the request.
+  return new Proxy(Object.fromEntries(entries), { ownKeys: () => entries.map(([key]) => key) });
 }
 
 // Object keys sort by UTF-16 code units; array order and Unicode strings stay unchanged.
@@ -374,7 +390,9 @@ export function questionSetDigest(set, provider, language, authoring) {
   return canonicalHash([
     ['formatVersion', 2], ['requestTemplateVersion', authoring.requestTemplateVersion],
     ['provider', provider], ['model', own(variant, 'model')], ['language', language],
-    ['questions', questions], ['fields', Object.keys(set.fields).sort().map(key => [key, own(set.fields, key)])],
+    ['questions', questions.map(([key, question]) => [key, question.type === 'choice'
+      ? { ...question, criteria: Object.entries(question.criteria) } : question])],
+    ['fields', Object.keys(set.fields).sort().map(key => [key, own(set.fields, key)])],
     ['context', set.context], ['confidenceGates', questions.map(([key]) => [key, own(variant.confidenceGates, key)])],
     ['outcomes', set.outcomes.map(outcome => [Object.keys(outcome.when).sort().map(key => [key, own(outcome.when, key)]), outcome.feedback])],
     ['defaultFeedback', set.defaultFeedback],

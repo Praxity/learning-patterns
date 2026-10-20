@@ -82,7 +82,7 @@ test('v2 binds records to each provider, model and language and requires an expl
 test('minimum acceptance policy is enforced at exact boundaries', () => {
   const record = v2().sets[0].providers.clef.acceptance.en;
   assert.deepEqual(shared.DEFAULT_ACCEPTANCE_BAR, { maxUndueCredit: 0, maxDefiniteDisagreementsPer12: 1, maxUnsureRate: 0.2 });
-  assert.deepEqual(shared.MIN_ACCEPTANCE_COVERAGE, { gaming: 2, injection: 2 });
+  assert.deepEqual(shared.MIN_ACCEPTANCE_COVERAGE, { gaming: 2, injection: 2, ordinary: 8 });
   assert.equal(shared.acceptancePasses(record), true);
   for (const change of [
     r => { r.bar.maxDefiniteDisagreementsPer12 = 2; },
@@ -100,10 +100,10 @@ test('minimum acceptance policy is enforced at exact boundaries', () => {
     assert.throws(() => shared.readQuestionSets(bundle));
   }
   const boundary = structuredClone(record);
-  boundary.counts.total = 10; boundary.counts.definiteDisagreements = 0;
-  boundary.caseKindCoverage.honest = 0;
+  boundary.counts.total = 15; boundary.counts.definiteDisagreements = 0; boundary.counts.unsure = 3;
+  boundary.caseKindCoverage.honest = 5;
   assert.equal(shared.acceptancePasses(boundary), true);
-  boundary.counts.unsure = 3;
+  boundary.counts.unsure = 4;
   assert.equal(shared.acceptancePasses(boundary), false);
 });
 
