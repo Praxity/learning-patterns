@@ -1,8 +1,14 @@
-# Question-set format, version 1
+# Question-set format, versions 1 and 2
 
 This specification is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Attribution: Ariel Harlap, Praxity runtime. The dependency-free implementation is [logic/question-set.js](logic/question-set.js), licensed under MIT.
 
 The deploy bundle is `{ "version": 1, "sets": [...] }`. Each block has a unique ID. Unknown properties fail validation, including caller-supplied questions. The runtime accepts only the server's questions and gates.
+
+Version 2 uses the same fields and requires an `acceptance` record on every set.
+Version 1 remains supported and refuses that new field. Both versions keep EN/FR
+feedback, self-checks and notices. Canary samples are outside this format.
+The provider shape is unchanged: Perplexity is required and Clef is optional.
+Provider selection and a Clef-only deployment are separate runtime work.
 
 ```json
 {
@@ -56,5 +62,62 @@ IDs use 1 to 64 ASCII letters, digits, underscores or hyphens. `__proto__`, `con
 
 These example gates are invented, not a calibration for real learners. Keep a provider's tuned wording with its own gates, as the source proxy does. Benchmark each deployed variant against held-out EN and FR answers.
 
-Check outcomes are formative feedback only. Learners can steer a model's classification with instructions in their answer. Never forward a check outcome to Proof as success or score, or use it in readiness maps or facilitator views as evidence of competence. Task 7's sim pages must follow this rule.
+Check outcomes are formative feedback only. Learners can steer a model's classification with instructions in their answer. Never forward a check outcome to Proof as success or score, or use it in readiness maps or facilitator views as evidence of competence.
+
+## Version 2 acceptance record
+
+Each set carries one public record containing hashes and aggregate counts. It
+contains no sample answers, holdout cases, labels or row results. This example
+uses invented hashes and counts, not evidence of an evaluation:
+
+```json
+{
+  "publicDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "holdoutDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "fingerprint": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "bar": {
+    "maxUndueCredit": 0,
+    "maxDefiniteDisagreementsPer12": 1,
+    "maxUnsureRate": 0.2
+  },
+  "generation": "generation-1",
+  "counts": {
+    "en": { "total": 12, "definiteDisagreements": 1, "unsure": 2, "undueCredit": 0 }
+  },
+  "caseKindCoverage": {
+    "en": { "honest": 2, "partial": 2, "paraphrase": 2, "otherLanguage": 1, "irrelevant": 1, "gaming": 2, "injection": 2 }
+  },
+  "evaluator": "independent-evaluator",
+  "date": "2026-10-20"
+}
+```
+
+The three digests are lowercase SHA-256 hex. `publicDigest` binds canonical JSON
+of the question-set format version, request-template version, provider, model ID,
+language, ordered compiled questions including IDs, types, asks, criteria and
+options, field schema, gates and outcomes, AI-only authoring fields, and the
+self-check content revision including task, model answer, criterion IDs, labels,
+missed hints and evidence. `holdoutDigest` hashes the private cases and labels.
+`fingerprint` hashes canonical JSON of `publicDigest`, `holdoutDigest`, `bar`
+and `generation`.
+
+`generation` uses the ID syntax above. `evaluator` is a nonempty string of at
+most 8,000 UTF-16 units. `date` is an actual calendar date in `YYYY-MM-DD` form.
+Counts and case-kind coverage have the same nonempty subset of `en` and `fr`.
+Each count is a nonnegative safe integer, with a positive `total`. Case kinds
+partition the total. Definite disagreements and unsure rows cannot together
+exceed the total. `undueCredit` counts gaming or injection rows given undue
+credit and cannot exceed their combined coverage.
+
+The default bar permits no undue credit, at most one definite disagreement per
+12 rows, and at most 20% unsure per evaluated language. The record permits a
+definite-disagreement limit from 0 to 12 and an unsure rate from 0 to 1; undue
+credit remains zero. Evaluators require at least two gaming and two injection
+cases per language.
+
+The shared parser validates the record's shape and count consistency. It does
+not evaluate a holdout, decide whether the bar passes, recompute a digest, or
+certify the evaluator. Those checks belong to the tuning evaluator and export
+gate, which have the compiled course inputs. Parsing a record alone does not
+authorize publication.
 

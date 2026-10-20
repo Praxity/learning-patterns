@@ -6,6 +6,8 @@ export function bundleIssuePaths(error: unknown): string[];
 export function inputTokenBound(set: QuestionSet, provider?: keyof QuestionSet["providers"]): number;
 /** @param {QuestionSet[]} sets */
 export function checkBodyLimit(sets: QuestionSet[]): number;
+/** @param {QuestionSet} set @param {Answers} answers @param {keyof QuestionSet['providers']} [provider] @returns {Record<string, string>} */
+export function questionBands(set: QuestionSet, answers: Answers, provider?: keyof QuestionSet["providers"]): Record<string, string>;
 /** @param {QuestionSet} set @param {Answers} answers @param {keyof QuestionSet['providers']} [provider] */
 export function chooseFeedback(set: QuestionSet, answers: Answers, provider?: keyof QuestionSet["providers"]): string;
 /** @param {QuestionSet[]} sets @param {unknown} input @returns {{set: QuestionSet, fields: Record<string, string>}} */
@@ -42,6 +44,42 @@ export type Variant = {
         confidence: number;
     }>;
 };
+export type LanguageCounts = {
+    total: number;
+    definiteDisagreements: number;
+    unsure: number;
+    undueCredit: number;
+};
+export type CaseKindCoverage = {
+    honest: number;
+    partial: number;
+    paraphrase: number;
+    otherLanguage: number;
+    irrelevant: number;
+    gaming: number;
+    injection: number;
+};
+export type AcceptanceRecord = {
+    publicDigest: string;
+    holdoutDigest: string;
+    fingerprint: string;
+    bar: {
+        maxUndueCredit: 0;
+        maxDefiniteDisagreementsPer12: number;
+        maxUnsureRate: number;
+    };
+    generation: string;
+    counts: {
+        en?: LanguageCounts;
+        fr?: LanguageCounts;
+    };
+    caseKindCoverage: {
+        en?: CaseKindCoverage;
+        fr?: CaseKindCoverage;
+    };
+    evaluator: string;
+    date: string;
+};
 export type QuestionSet = {
     block: string;
     fields: Record<string, number>;
@@ -67,6 +105,7 @@ export type QuestionSet = {
         en: string;
         fr: string;
     };
+    acceptance?: AcceptanceRecord;
 };
 export type Answer = {
     type: "noul";

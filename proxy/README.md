@@ -38,11 +38,15 @@ Deployable course bundles use the shared [question-set format](question-sets.md)
 Its dependency-free owner, [logic/question-set.js](logic/question-set.js), exports
 `readQuestionSets(value)`, `bundleIssuePaths(error)`, `checkInput(sets, input)`,
 `inputTokenBound(set, provider?)`, `checkBodyLimit(sets)`,
-`readAnswers(value, questions, strictProvider?)` and `chooseFeedback(set, answers, provider?)`.
+`readAnswers(value, questions, strictProvider?)`, `questionBands(set, answers, provider?)`
+and `chooseFeedback(set, answers, provider?)`.
 Bundle parsing clones validated data and defaults `context` to an empty string.
 Invalid bundles throw; `bundleIssuePaths` returns content-free, redacted paths.
 Input validation returns `{ set, fields }`; answer parsing strips provider extras.
 Feedback selection returns the first matching authored feedback ID, or the default.
+`questionBands` returns the question-ID map of `met`, `missed`, `unsure` or a
+validated Choice ID, using the same inclusive gates as feedback selection.
+Version 2 adds a strict public acceptance record; v1 still validates unchanged.
 The fixed demo registry below continues to own the public demo's topic-specific questions.
 
 `GET /api/patterns/config` returns the public Turnstile site key, provider, decision model, mock status, `providerName` and the authored `dataNotice.en` and `dataNotice.fr`. By default it reports `provider: "perplexity"`, `providerName: "Perplexity (US)"` and `model: "pplx-decider-v1.2"`. `POST /api/patterns/ask` accepts this shape:

@@ -3,7 +3,10 @@
 
 /** @typedef {Record<string, {type: 'noul', instructions: string | {situation: string, question: string}, criteria?: {true: string, false: string}} | {type: 'choice', instructions: string | {situation: string, question: string}, criteria: Record<string, string>}>} Questions */
 /** @typedef {{questions: Questions, confidenceGates: Record<string, {missed: number, met: number} | {confidence: number}>}} Variant */
-/** @typedef {{block: string, fields: Record<string, number>, context: string, providers: {perplexity: Variant, clef?: Variant}, outcomes: {when: Record<string, string>, feedback: string}[], feedback: Record<string, {en: string, fr: string}>, defaultFeedback: string, selfCheck: {en: string, fr: string}, dataNotice: {en: string, fr: string}}} QuestionSet */
+/** @typedef {{total: number, definiteDisagreements: number, unsure: number, undueCredit: number}} LanguageCounts */
+/** @typedef {{honest: number, partial: number, paraphrase: number, otherLanguage: number, irrelevant: number, gaming: number, injection: number}} CaseKindCoverage */
+/** @typedef {{publicDigest: string, holdoutDigest: string, fingerprint: string, bar: {maxUndueCredit: 0, maxDefiniteDisagreementsPer12: number, maxUnsureRate: number}, generation: string, counts: {en?: LanguageCounts, fr?: LanguageCounts}, caseKindCoverage: {en?: CaseKindCoverage, fr?: CaseKindCoverage}, evaluator: string, date: string}} AcceptanceRecord */
+/** @typedef {{block: string, fields: Record<string, number>, context: string, providers: {perplexity: Variant, clef?: Variant}, outcomes: {when: Record<string, string>, feedback: string}[], feedback: Record<string, {en: string, fr: string}>, defaultFeedback: string, selfCheck: {en: string, fr: string}, dataNotice: {en: string, fr: string}, acceptance?: AcceptanceRecord}} QuestionSet */
 /** @typedef {{type: 'noul', noul: number} | {type: 'choice', choice: string, confidence: number, probabilities?: Record<string, number>}} Answer */
 /** @typedef {Record<string, Answer>} Answers */
 /** @typedef {(string | number)[]} Path */
@@ -123,7 +126,7 @@ const questions = record(id, /** @type {Reader} */ ((value, path, state) => {
 const variant = object({ questions, confidenceGates: record(id, union(
   object({ missed: probability, met: probability }), object({ confidence: probability }),
 )) });
-const setSchema = object({
+const setShape = {
   block: id,
   fields: record(id, number(1, 1500, true)),
   context: optional(string(0, 8000), ''),
@@ -133,15 +136,57 @@ const setSchema = object({
   defaultFeedback: id,
   selfCheck: localized,
   dataNotice: localized,
+};
+const setSchema = object(setShape);
+
+/** @param {RegExp} pattern @returns {Reader} */
+const formatted = pattern => (value, path, state) => {
+  if (typeof value !== 'string') invalid(state, path, true);
+  else if (!pattern.test(value)) invalid(state, path);
+  return value;
+};
+const digest = formatted(/^[a-f0-9]{64}$/);
+const count = number(0, Number.MAX_SAFE_INTEGER, true);
+const counts = object({ total: number(1, Number.MAX_SAFE_INTEGER, true), definiteDisagreements: count, unsure: count, undueCredit: count });
+const coverage = object({ honest: count, partial: count, paraphrase: count, otherLanguage: count, irrelevant: count, gaming: count, injection: count });
+const acceptanceSchema = object({
+  publicDigest: digest, holdoutDigest: digest, fingerprint: digest,
+  bar: object({ maxUndueCredit: literal(0), maxDefiniteDisagreementsPer12: number(0, 12, true), maxUnsureRate: probability }),
+  generation: id,
+  counts: object({ en: optional(counts), fr: optional(counts) }),
+  caseKindCoverage: object({ en: optional(coverage), fr: optional(coverage) }),
+  evaluator: text,
+  date: (/** @type {Reader} */ ((value, path, state) => {
+    formatted(/^\d{4}-\d{2}-\d{2}$/)(value, path, state);
+    if (typeof value === 'string' && (!Number.isFinite(Date.parse(value)) || new Date(value).toISOString().slice(0, 10) !== value)) invalid(state, path);
+    return value;
+  })),
 });
+const setSchemaV2 = object({ ...setShape, acceptance: acceptanceSchema });
 
 /** @param {unknown} value @returns {QuestionSet[]} */
 export function readQuestionSets(value) {
   const state = { paths: /** @type {Path[]} */ ([]), aborted: false };
-  const bundle = object({ version: literal(1), sets: array(setSchema, 0, 256) })(value, [], state);
-  if (!state.aborted) validateSets(bundle.sets, state);
+  const version = isObject(value) && /** @type {{version?: unknown}} */ (value).version === 2 ? 2 : 1;
+  const bundle = object({ version: literal(version), sets: array(version === 2 ? setSchemaV2 : setSchema, 0, 256) })(value, [], state);
+  if (!state.aborted) {
+    validateSets(bundle.sets, state);
+    if (version === 2) bundle.sets.forEach((/** @type {QuestionSet} */ set, /** @type {number} */ index) => validateAcceptance(/** @type {AcceptanceRecord} */ (set.acceptance), ['sets', index, 'acceptance'], state));
+  }
   if (state.paths.length) throw new QuestionSetError(state.paths);
   return bundle.sets;
+}
+
+/** @param {AcceptanceRecord} record @param {Path} path @param {Validation} state */
+function validateAcceptance(record, path, state) {
+  if (!Object.keys(record.counts).length) invalid(state, [...path, 'counts']);
+  for (const language of /** @type {const} */ (['en', 'fr'])) {
+    const counts = record.counts[language], coverage = record.caseKindCoverage[language];
+    if (!counts !== !coverage) invalid(state, [...path, 'caseKindCoverage', language]);
+    if (!counts || !coverage) continue;
+    if (counts.definiteDisagreements + counts.unsure > counts.total || counts.undueCredit > coverage.gaming + coverage.injection) invalid(state, [...path, 'counts', language]);
+    if (Object.values(coverage).reduce((sum, count) => sum + count, 0) !== counts.total) invalid(state, [...path, 'caseKindCoverage', language]);
+  }
 }
 
 /** @param {QuestionSet[]} sets @param {Validation} state */
@@ -213,15 +258,20 @@ export function checkBodyLimit(sets) {
   }));
 }
 
-/** @param {QuestionSet} set @param {Answers} answers @param {keyof QuestionSet['providers']} [provider] */
-export function chooseFeedback(set, answers, provider = 'perplexity') {
+/** @param {QuestionSet} set @param {Answers} answers @param {keyof QuestionSet['providers']} [provider] @returns {Record<string, string>} */
+export function questionBands(set, answers, provider = 'perplexity') {
   const variant = /** @type {Variant} */ (set.providers[provider]);
-  const bands = Object.fromEntries(Object.entries(variant.questions).map(([key]) => {
+  return Object.fromEntries(Object.entries(variant.questions).map(([key]) => {
     const answer = answers[key], gate = variant.confidenceGates[key];
     if (answer.type === 'noul' && 'met' in gate) return [key, answer.noul >= gate.met ? 'met' : answer.noul <= gate.missed ? 'missed' : 'unsure'];
     if (answer.type === 'choice' && 'confidence' in gate) return [key, answer.confidence >= gate.confidence ? answer.choice : 'unsure'];
     throw new Error('Mismatched confidence gate');
   }));
+}
+
+/** @param {QuestionSet} set @param {Answers} answers @param {keyof QuestionSet['providers']} [provider] */
+export function chooseFeedback(set, answers, provider = 'perplexity') {
+  const bands = questionBands(set, answers, provider);
   return set.outcomes.find(outcome => Object.entries(outcome.when).every(([key, value]) => bands[key] === value))?.feedback ?? set.defaultFeedback;
 }
 
