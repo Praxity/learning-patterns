@@ -403,7 +403,7 @@ for (const provider of ['perplexity', 'clef', 'jev']) {
     const model = async questions => {
       s.calls.model++;
       if (s.calls.model === 1) { started(); await stalled; }
-      return { model: 'pplx-decider-v1.1-27b', answers: Object.fromEntries(Object.keys(questions).map(key => [key, { type: 'noul', noul: 0.9 }])), usage: { input_tokens: 1000 } };
+      return { model: 'pplx-decider-v1.2', answers: Object.fromEntries(Object.keys(questions).map(key => [key, { type: 'noul', noul: 0.9 }])), usage: { input_tokens: 1000 } };
     };
     if (provider === 'clef') s.env.AI = { run: async (_model, { questions }) => model(questions) };
     else {
@@ -499,7 +499,7 @@ test('Perplexity is the default, keeps Jev questions and settles only reported i
   const config = await (await worker.fetch(new Request('https://demo.example/api/patterns/config'), s.env)).json();
   assert.equal(config.provider, 'perplexity');
   assert.equal(config.providerName, 'Perplexity (US)');
-  assert.equal(config.model, 'pplx-decider-v1.1-27b');
+  assert.equal(config.model, 'pplx-decider-v1.2');
   s.env.AI = { run: () => assert.fail('must not select Clef') };
   const normalFetch = globalThis.fetch;
   t.mock.method(globalThis, 'fetch', async (url, options) => {
@@ -550,7 +550,7 @@ test('Perplexity HTTP 429 refunds the budget and both daily call allowances', as
   t.mock.method(globalThis, 'fetch', async (url, options) => {
     if (String(url).includes('siteverify')) return normalFetch(url, options);
     s.calls.model++;
-    return Response.json({ model: 'pplx-decider-v1.1-27b', answers: Object.fromEntries(Object.keys(JSON.parse(options.body).questions).map(key => [key, { type: 'noul', noul: 0.9 }])), usage: { input_tokens: 0 } });
+    return Response.json({ model: 'pplx-decider-v1.2', answers: Object.fromEntries(Object.keys(JSON.parse(options.body).questions).map(key => [key, { type: 'noul', noul: 0.9 }])), usage: { input_tokens: 0 } });
   });
   assert.equal((await s.ask()).status, 200);
   const ipLimited = await s.ask({ answer: 'second call' });
@@ -598,7 +598,7 @@ for (const [provider, tokens, budget] of [
     s.env.MODEL_PROVIDER = provider;
     s.env.PERPLEXITY_API_KEY = 'test-key';
     s.env.DAILY_BUDGET_USD = budget;
-    const data = questions => ({ model: 'pplx-decider-v1.1-27b', answers: Object.fromEntries(Object.keys(questions).map(key => [key, { type: 'noul', noul: 0.9 }])), usage: { input_tokens: tokens } });
+    const data = questions => ({ model: 'pplx-decider-v1.2', answers: Object.fromEntries(Object.keys(questions).map(key => [key, { type: 'noul', noul: 0.9 }])), usage: { input_tokens: tokens } });
     s.env.AI = { run: async (_model, { questions }) => { s.calls.model++; return data(questions); } };
     const normalFetch = globalThis.fetch;
     t.mock.method(globalThis, 'fetch', async (url, options) => {
@@ -661,7 +661,7 @@ for (const provider of ['perplexity', 'clef', 'jev']) {
     const data = questions => ({ answers: Object.fromEntries(Object.entries(questions).map(([key, q]) => [key,
       q.type === 'choice' ? { type: 'choice', choice: invalid ? submitted : Object.keys(q.criteria)[0], confidence: 0.9, probabilities: Object.fromEntries(Object.keys(q.criteria).map((option, index) => [option, index === 0 ? 1 : 0])), explanation: submitted }
         : { type: 'noul', noul: invalid ? submitted : 0.9, explanation: submitted },
-    ])), model: 'pplx-decider-v1.1-27b', usage: { input_tokens: 1000 }, state: submitted, explanation: submitted });
+    ])), model: 'pplx-decider-v1.2', usage: { input_tokens: 1000 }, state: submitted, explanation: submitted });
     s.env.AI = { run: async (_model, request) => data(request.questions) };
     const normalFetch = globalThis.fetch;
     t.mock.method(globalThis, 'fetch', async (url, options) => {
@@ -1041,7 +1041,7 @@ test('02-live Perplexity calls use fixed questions, retain failed reservations a
     calls++;
     assert.equal(url, 'https://api.perplexity.ai/v1/decisions');
     const request = JSON.parse(options.body);
-    assert.equal(request.model, 'pplx-decider-v1.1-27b');
+    assert.equal(request.model, 'pplx-decider-v1.2');
     assert.deepEqual(Object.keys(request.questions), ['three_actions', 'observable', 'when', 'commitments']);
     return Response.json({ model: request.model, answers: Object.fromEntries(Object.keys(request.questions).map(key => [key, { type: 'noul', noul: .65 }])), usage: {} });
   });

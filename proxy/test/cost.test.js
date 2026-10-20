@@ -10,7 +10,7 @@ test("cost uses $0.042 per million input tokens", () => {
 
 test('Perplexity is the default price at $0.02 per million input tokens', () => {
 	assert.equal(costOf(1_000_000), 0.02);
-	assert.equal(costOf(1500, 'pplx-decider-v1.1-27b'), 0.00003);
+	assert.equal(costOf(1500, 'pplx-decider-v1.2'), 0.00003);
 	assert.throws(() => costOf(-1), /Invalid billed/);
 	assert.throws(() => costOf(0.5), /Invalid billed/);
 });
@@ -22,7 +22,7 @@ test("the browser price module exposes the same calculations", async () => {
 	assert.equal(browser.costOf(1000, "jev-1.13.0"), 0.000042);
 	assert.equal(browser.costOf(1000, "@cf/cloudflare/clef-flash"), 0.00009);
 	assert.equal(browser.costOf(1000, "@cf/cloudflare/clef"), 0.00024);
-	assert.equal(browser.DEFAULT_MODEL, 'pplx-decider-v1.1-27b');
+	assert.equal(browser.DEFAULT_MODEL, 'pplx-decider-v1.2');
 	assert.equal(browser.costOf(1000), 0.00002);
 });
 

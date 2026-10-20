@@ -16,7 +16,7 @@ test('default feedback uses the Jev gate used by Perplexity', () => {
 });
 
 test('Choice outcomes use the proxy gate at and below every model boundary', () => {
-  for (const model of ['pplx-decider-v1.1-27b', '@cf/cloudflare/clef', '@cf/cloudflare/clef-flash', 'jev']) {
+  for (const model of ['pplx-decider-v1.2', '@cf/cloudflare/clef', '@cf/cloudflare/clef-flash', 'jev']) {
     const gate = confidenceGate(model);
     assert.deepEqual(feedback(content, answers('correct', gate), model), { kind: 'correct', heading: '', text: content.keyIdea });
     assert.equal(feedback(content, answers('correct', gate - .0001), model).text, content.unsureKeyIdea);
