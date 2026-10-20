@@ -11,9 +11,13 @@ learners: not tried
 
 Answer a quiz with an "I don't know" option. See your score, explanations and questions to review.
 
-## When to use it
+## Use it when
 
-Use it for short practice quizzes where learners need a way to say they are unsure. Set points for right, wrong and unknown answers. Losing points for wrong answers may discourage guessing. Test the scoring with your learners before using it for assessment.
+Use it for short practice quizzes where learners need a way to say they are unsure. Set points for right, wrong and unknown answers. Losing points for wrong answers may discourage guessing.
+
+## Avoid it when
+
+Test the scoring with your learners before using it for assessment.
 
 ## How it works
 

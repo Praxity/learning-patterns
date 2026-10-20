@@ -11,9 +11,13 @@ learners: not tried
 
 Answer from memory, then write wrong options and name the mistaken idea behind each. Compare your options with the author's.
 
-## When to use it
+## Use it when
 
-Use it when learners know enough to answer from memory and explain common mistakes. Authors can review their wrong options for use in quizzes. A person must judge whether each option expresses the chosen misconception and would tempt a learner. Matching labels cannot do that.
+Use it when learners know enough to answer from memory and explain common mistakes. Authors can review their wrong options for use in quizzes.
+
+## Avoid it when
+
+A person must judge whether each option expresses the chosen misconception and would tempt a learner. Matching labels cannot do that.
 
 ## How it works
 

@@ -11,9 +11,13 @@ learners: not tried
 
 Save an answer at the start of a course. Answer again at the end, then compare what changed.
 
-## When to use it
+## Use it when
 
-Use it when learners can answer the same question at the start and end of a course. Keep the question and self-check criteria the same. Learners judge their own changes, so use another method to grade answers.
+Use it when learners can answer the same question at the start and end of a course. Keep the question and self-check criteria the same.
+
+## Avoid it when
+
+Learners judge their own changes, so use another method to grade answers.
 
 ## How it works
 

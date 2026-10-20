@@ -11,11 +11,13 @@ learners: not tried
 
 Print questions on the front and answers on the back. Choose a date to answer from memory and check your work.
 
-## When to use it
+## Use it when
 
 Use it for a short module with a few ideas or actions worth recalling. Keep questions focused and answers short.
 
 Learners can use the sheet without internet. Print it or save a PDF while connected. A SCORM package prints from its course files without fetching anything.
+
+## Avoid it when
 
 Choosing a date sends no reminder. Arrange one through your course host if needed.
 

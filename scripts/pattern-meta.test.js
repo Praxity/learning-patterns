@@ -55,7 +55,7 @@ test('every pattern README has valid front matter', async () => {
 });
 
 const README_SECTIONS = [
-  'When to use it', 'How it works', 'Evidence', 'Accessibility',
+  'Use it when', 'Avoid it when', 'How it works', 'Evidence', 'Accessibility',
   'Content fields', 'Logic', 'Use it', 'Adapt it with your agent', 'Licence'
 ];
 
@@ -67,9 +67,13 @@ function checkReadmeStructure(readme) {
   const prose = readme.replace(/^```[^\n]*\n[\s\S]*?^```[^\n]*$/gm, '');
   const sections = [...prose.matchAll(/^## ([^\r\n]+)\r?$/gm)].map(match => match[1]);
   const expected = sections.includes('Write this in .prax')
-    ? README_SECTIONS.toSpliced(2, 0, 'Write this in .prax')
+    ? README_SECTIONS.toSpliced(3, 0, 'Write this in .prax')
     : README_SECTIONS;
   assert.deepEqual(sections, expected);
+  for (const heading of ['Use it when', 'Avoid it when']) {
+    const content = prose.split(`## ${heading}`)[1].split(/^## /m)[0].trim();
+    assert.ok(content, `${heading} is empty`);
+  }
   const how = readme.split(/^## How it works\r?$/m)[1].split(/^## /m)[0];
   assert.doesNotMatch(how, /`|\b[A-Za-z_$][\w.$]*\s*\(/, 'How it works contains code');
   // READMEs are public. They never mention how they were written or where files sit on a machine.
@@ -92,6 +96,9 @@ test('README structure guard catches missing, reordered and technical sections',
   assert.doesNotThrow(() => checkReadmeStructure(readme.replace('## Use it\n\nPlain text.', '## Use it\n\n```js\n## Example heading inside code\n```')));
   for (const section of README_SECTIONS) {
     assert.throws(() => checkReadmeStructure(readme.replace(`## ${section}\n`, '')), section);
+  }
+  for (const heading of ['Use it when', 'Avoid it when']) {
+    assert.throws(() => checkReadmeStructure(readme.replace(`## ${heading}\n\nPlain text.`, `## ${heading}\n`)), /is empty/);
   }
   assert.throws(() => checkReadmeStructure(readme.replace('## Evidence', '## Temporary').replace('## Logic', '## Evidence').replace('## Temporary', '## Logic')));
   assert.doesNotThrow(() => checkReadmeStructure(readme.replaceAll('\n', '\r\n')));
