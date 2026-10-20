@@ -4,7 +4,25 @@ import { readFile } from 'node:fs/promises';
 
 const english = JSON.parse(await readFile(new URL('../../patterns/dont-know/examples/en.json', import.meta.url)));
 const french = JSON.parse(await readFile(new URL('../../patterns/dont-know/examples/fr.json', import.meta.url)));
-const mixed = ['unexpected-expenses', 'no-interest', 'dont-know', 'plan-spending-saving'];
+const mixed = ['unexpected-expenses', 'no-interest', 'dont-know'];
+
+for (const [lang, expected] of [['en', 'Score 0.33 out of 1.'], ['fr', 'Score de 0,33 sur 1.']]) {
+  test(`one-third reward displays without float artefacts (${lang})`, async ({ page }) => {
+    await open(page, `/dont-know/${lang}.html`);
+    await page.evaluate(async ({ content, lang }) => {
+      const { render } = await import('/patterns/dont-know/render.js');
+      const { enhance } = await import('/patterns/dont-know/enhance.js');
+      const { strings } = await import('/patterns/dont-know/strings.js');
+      window.lpInstances[0].destroy();
+      content.points = { right: 1 / 3, unknown: 0, wrong: -1 };
+      document.querySelector('main').innerHTML = render(content, strings[lang], { id: 'third', lang });
+      enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings[lang] });
+    }, { content: lang === 'fr' ? french : english, lang });
+    await pick(page, [english.questions[0].correct, 'dont-know', 'dont-know']);
+    await page.locator('[data-lp-check]').click();
+    expect(await page.locator('[data-lp-score]').textContent()).toBe(expected);
+  });
+}
 
 test('shared scene spans the card and centres its tile on title and scoring', async ({ page }) => {
   await open(page);
@@ -14,8 +32,10 @@ test('shared scene spans the card and centres its tile on title and scoring', as
     await page.setViewportSize({ width, height: 900 });
     const geometry = await page.locator('.lp-scene').evaluate(el => {
       const scene = el.getBoundingClientRect(), card = el.parentElement.getBoundingClientRect();
-      const tile = el.querySelector('.lp-scene-icon').getBoundingClientRect(), text = el.querySelector('div').getBoundingClientRect();
-      return [scene.left - card.left, card.right - scene.right, tile.top + tile.height / 2 - text.top - text.height / 2];
+      const tile = el.querySelector('.lp-scene-icon svg').getBoundingClientRect(), text = el.querySelector('div').getBoundingClientRect();
+      // Centred on the text up to two title lines, then level with the first two (lib/base.css).
+      const title = el.querySelector('.lp-scene-title'), centre = Math.min(text.height / 2, title.getBoundingClientRect().top - text.top + parseFloat(getComputedStyle(title).lineHeight));
+      return [scene.left - card.left, card.right - scene.right, tile.top + tile.height / 2 - text.top - centre];
     });
     for (const difference of geometry) expect(Math.abs(difference)).toBeLessThanOrEqual(1);
   }
@@ -39,8 +59,8 @@ async function observe(page) {
 const scan = async page => expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()).violations).toEqual([]);
 
 for (const [lang, title, label, number] of [
-  ['en', 'Money basics', 'Quick check', 'Question 1 of 4'],
-  ['fr', "Les bases de l'argent", 'Vérification rapide', 'Question 1 sur 4']
+  ['en', 'Money basics', 'Quick check', 'Question 1 of 3'],
+  ['fr', "Les bases des finances personnelles", 'Vérification rapide', 'Question 1 sur 3']
 ]) {
   test(`quiz card has a scene, numbered questions, explanation panels and a score ring (${lang})`, async ({ page }) => {
     await open(page, `/dont-know/${lang}.html`);
@@ -48,7 +68,7 @@ for (const [lang, title, label, number] of [
     await expect(scene.locator('.lp-scene-label')).toHaveCount(0);
     await expect(scene.getByRole('heading')).toHaveText(title);
     await expect(scene.locator('svg[aria-hidden="true"][focusable="false"]')).toHaveCount(1);
-    await expect(page.locator('.lp-dont-know-question-number')).toHaveText(Array.from({ length: 4 }, (_, i) => number.replace('1', String(i + 1))));
+    await expect(page.locator('.lp-dont-know-question-number')).toHaveText(Array.from({ length: 3 }, (_, i) => number.replace('1', String(i + 1))));
     await pick(page); await page.locator('[data-lp-check]').click();
     const panels = page.locator('[data-lp-explanation]:visible');
     await expect(panels).toHaveCount(2);
@@ -57,7 +77,7 @@ for (const [lang, title, label, number] of [
     const ring = page.locator('.lp-dont-know-score-ring');
     await expect(ring).toHaveAttribute('aria-hidden', 'true');
     await expect(ring).toHaveAttribute('focusable', 'false');
-    await expect(ring.locator('.lp-dont-know-ring-fill')).toHaveAttribute('stroke-dashoffset', '75');
+    await expect(ring.locator('.lp-dont-know-ring-fill')).toHaveAttribute('stroke-dashoffset', '100');
     await expect(page.locator('[data-lp-review] h3')).toHaveText(lang === 'en' ? 'Review' : 'À revoir');
     await expect(page.locator('[data-lp-review] li')).toHaveCount(2);
     await expect(page.locator('[data-lp-review] a svg[aria-hidden="true"]')).toHaveCount(2);
@@ -89,7 +109,7 @@ test('shared v2 styles give one card, sans stems, keyed full-width choices and a
     const input = row.querySelector('input');
     return [getComputedStyle(row, '::before').content, getComputedStyle(input).opacity];
   }));
-  expect(keys).toEqual(Array.from({ length: 4 }, () => ['counter(lp-key, upper-alpha)', '0']));
+  expect(keys).toEqual(Array.from({ length: 4 }, () => ['counter(lp-key, upper-alpha) / ""', '0']));
   const sizes = await root.evaluate(el => [...el.querySelectorAll('.lp-choice')].map(row => [row.getBoundingClientRect().width, row.parentElement.getBoundingClientRect().width]));
   expect(sizes.every(([row, question]) => Math.abs(row - question) < 1)).toBe(true);
 });
@@ -101,25 +121,24 @@ test('keyboard journey associates each unanswered error, focuses first missing r
   await page.keyboard.press('Tab'); await expect(questions.nth(0).locator('input').first()).toBeFocused();
   // Select only the first question, then tab past the remaining radio groups.
   await page.keyboard.press('Space');
-  for (let n = 0; n < 4; n++) await page.keyboard.press('Tab');
+  for (let n = 0; n < 3; n++) await page.keyboard.press('Tab');
   await expect(check).toBeFocused(); await page.keyboard.press('Enter');
   await expect(questions.nth(1).locator('input').first()).toBeFocused();
-  await expect(page.locator('[data-lp-error]')).toHaveText("3 questions unanswered. Choose an option, or I don't know.");
-  for (let n = 1; n < 4; n++) {
+  await expect(page.locator('[data-lp-error]')).toHaveText("2 questions need answers. Choose an answer or \"I don't know\".");
+  for (let n = 1; n < 3; n++) {
     const fieldset = questions.nth(n);
     const id = await fieldset.getAttribute('aria-describedby');
     await expect(page.locator(`[id="${id}"]`)).toHaveText('Choose an answer');
-    await expect(fieldset.locator('input').first()).toHaveAttribute('aria-describedby', id);
+    for (const radio of await fieldset.locator('input').all()) await expect(radio).not.toHaveAttribute('aria-describedby');
     await expect(fieldset.locator('[data-lp-question-error] svg[aria-hidden="true"]')).toHaveCount(1);
   }
   await expect(page.locator('[data-lp-error] svg[aria-hidden="true"]')).toHaveCount(1);
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
   await page.keyboard.press('Space'); await page.keyboard.press('Tab');
   await page.keyboard.press('ArrowDown'); await page.keyboard.press('ArrowDown'); await page.keyboard.press('ArrowDown');
-  await page.keyboard.press('Tab'); await page.keyboard.press('Space');
   await page.keyboard.press('Tab'); await expect(check).toBeFocused(); await page.keyboard.press('Enter');
   await expect(page.locator('[data-lp-score]').first()).toBeFocused();
-  await expect(page.locator('[data-lp-score]').first()).toHaveText('Score 1 out of 4.');
+  await expect(page.locator('[data-lp-score]').first()).toHaveText('Score 0 out of 3.');
   await expect(check).toBeHidden();
   await page.keyboard.press('Tab'); await expect(page.getByRole('link', { name: english.questions[1].text, exact: true })).toBeFocused();
   await page.keyboard.press('Enter'); await expect(questions.nth(1)).toBeFocused();
@@ -129,12 +148,32 @@ test('keyboard journey associates each unanswered error, focuses first missing r
   await page.keyboard.press('Enter'); await expect(questions.first().locator('input').first()).toBeFocused();
   await expect(page.locator('input:checked')).toHaveCount(0);
   await expect(page.locator('[data-lp-result]')).toBeHidden(); await expect(page.locator('[data-lp-restart]')).toBeHidden();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Score 1 out of 4.', 'Cleared.']);
+  // Focusing the score supplies the result speech; the status must not repeat it.
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Answers cleared.']);
+});
+
+test('choice names and browse text omit decorative letter keys', async ({ page }) => {
+  await open(page);
+  const rows = page.locator('fieldset').first().locator('label');
+  for (const [index, option] of english.questions[0].options.entries()) {
+    const row = rows.nth(index);
+    expect(await row.evaluate(el => getComputedStyle(el, '::before').content)).toBe('counter(lp-key, upper-alpha) / ""');
+    await expect(row.getByRole('radio')).toHaveAccessibleName(option.text);
+    expect(await row.ariaSnapshot()).toBe(`- radio "${option.text}"\n- text: ${option.text}`);
+  }
+});
+
+test('score focus supplies one result announcement without a duplicate status update', async ({ page }) => {
+  await open(page); await observe(page); await pick(page);
+  await page.locator('[data-lp-check]').click();
+  await expect(page.locator('[data-lp-score]')).toBeFocused();
+  await expect(page.locator('[data-lp-score]')).toHaveText('Score 0 out of 3.');
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
 });
 
 for (const [lang, content, correct, wrong, answer, unknown, counts] of [
-  ['en', english, 'Correct', 'Not quite', 'Correct answer', "You chose I don't know", '2 right, 1 wrong, 1 "I don\'t know"'],
-  ['fr', french, 'Correct', 'Pas tout à fait', 'Bonne réponse', 'Vous avez choisi « Je ne sais pas »', '2 bonnes réponses, 1 mauvaise réponse, 1 « Je ne sais pas »']
+  ['en', english, 'Correct', 'Not quite', 'Correct answer', "You chose \"I don't know\"", '1 right, 1 wrong, 1 "I don\'t know"'],
+  ['fr', french, 'Correct', 'Pas tout à fait', 'Bonne réponse', 'Vous avez choisi « Je ne sais pas »', '1 bonne réponse, 1 mauvaise réponse, 1 « Je ne sais pas »']
 ]) {
   test(`results mark choices in place, explain only gaps and link back to questions (${lang})`, async ({ page }) => {
     await open(page, `/dont-know/${lang}.html`); await observe(page);
@@ -146,10 +185,10 @@ for (const [lang, content, correct, wrong, answer, unknown, counts] of [
     await expect(result.locator('[data-lp-counts]')).toHaveText(counts);
     await expect(page.locator('[data-lp-group]')).toHaveCount(0);
     await expect(page.locator('[data-lp-check]')).toBeHidden();
-    await expect(page.locator('input:disabled')).toHaveCount(16);
-    await expect(page.locator('input:checked')).toHaveCount(4);
+    await expect(page.locator('input:disabled')).toHaveCount(12);
+    await expect(page.locator('input:checked')).toHaveCount(3);
     const questions = page.locator('fieldset');
-    for (const index of [0, 3]) {
+    for (const index of [0]) {
       await expect(questions.nth(index).locator('label:has(input:checked)')).toHaveAttribute('data-lp-mark', 'correct');
       await expect(questions.nth(index).locator('.lp-choice-mark')).toHaveText(correct);
       await expect(questions.nth(index).locator('[data-lp-explanation]')).toBeHidden();
@@ -163,21 +202,21 @@ for (const [lang, content, correct, wrong, answer, unknown, counts] of [
       await expect(questions.nth(index).locator(`label:has(input[value="${content.questions[index].correct}"]) .lp-choice-mark`)).toHaveText(answer);
       await expect(questions.nth(index).locator('[data-lp-explanation]')).toHaveText(content.questions[index].explanation);
     }
-    await expect(page.locator('.lp-choice-mark')).toHaveCount(6);
-    await expect(page.locator('.lp-choice-mark svg[aria-hidden="true"][focusable="false"]')).toHaveCount(6);
+    await expect(page.locator('.lp-choice-mark')).toHaveCount(5);
+    await expect(page.locator('.lp-choice-mark svg[aria-hidden="true"][focusable="false"]')).toHaveCount(5);
     const links = result.getByRole('link');
     await expect(links).toHaveText([content.questions[1].text, content.questions[2].text]);
     for (const index of [1, 2]) {
       await links.nth(index - 1).click();
       await expect(questions.nth(index)).toBeFocused();
     }
-    expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([lang === 'en' ? 'Score 1 out of 4.' : 'Score de 1 sur 4.']);
+    expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
   });
 
   test(`no JavaScript provides native radios and every correct option and explanation (${lang})`, async ({ browser }) => {
     const context = await browser.newContext({ javaScriptEnabled: false });
     const page = await context.newPage(); await page.goto(`/dont-know/${lang}.html`);
-    await expect(page.getByRole('radio')).toHaveCount(16);
+    await expect(page.getByRole('radio')).toHaveCount(12);
     await page.getByRole('radio').first().check(); await expect(page.getByRole('radio').first()).toBeChecked();
     await page.locator('summary').click(); await expect(page.locator('details')).toHaveAttribute('open', '');
     for (const q of content.questions) {
@@ -232,9 +271,9 @@ test('all wrong, all unknown and all right omit zero counts and unnecessary revi
   await open(page);
   await expect(page.locator('.lp-scene-sub')).toHaveText('A right answer scores a point. A wrong answer costs a point. "I don\'t know" costs nothing.');
   for (const [values, summary, counts, reviews, explanations, offset] of [
-    [english.questions.map(q => q.options.find(o => o.id !== q.correct).id), 'Score −4 out of 4.', '4 wrong', 4, 4, '100'],
-    [english.questions.map(() => 'dont-know'), 'Score 0 out of 4.', '4 "I don\'t know"', 4, 4, '100'],
-    [english.questions.map(q => q.correct), 'Score 4 out of 4.', '4 right', 0, 0, '0']
+    [english.questions.map(q => q.options.find(o => o.id !== q.correct).id), 'Score −3 out of 3.', '3 wrong', 3, 3, '100'],
+    [english.questions.map(() => 'dont-know'), 'Score 0 out of 3.', '3 "I don\'t know"', 3, 3, '100'],
+    [english.questions.map(q => q.correct), 'Score 3 out of 3.', '3 right', 0, 0, '0']
   ]) {
     await pick(page, values); await page.locator('[data-lp-check]').click();
     await expect(page.locator('[data-lp-score]').first()).toHaveText(summary);
@@ -262,8 +301,8 @@ test('authored fractional points reach the rule and total; feedback preserves ho
   }, english);
   await expect(page.locator('.lp-scene-sub')).toHaveText('A right answer scores 2 points. A wrong answer costs 0.5 points. "I don\'t know" scores 0.25 points.');
   await pick(page); await page.locator('[data-lp-check]').click();
-  await expect(page.locator('[data-lp-score]').first()).toHaveText('Score 3.75 out of 8.');
-  await expect(page.locator('.lp-dont-know-ring-fill')).toHaveAttribute('stroke-dashoffset', '53.125');
+  await expect(page.locator('[data-lp-score]').first()).toHaveText('Score 1.75 out of 6.');
+  await expect(page.locator('.lp-dont-know-ring-fill')).toHaveAttribute('stroke-dashoffset', '70.83333333333333');
   await expect(page.locator('fieldset').nth(1).locator('label:has(input:checked)')).toContainText('<img src=x onerror=alert(1)> {option} & "quoted"');
   await expect(page.locator('fieldset').nth(1).locator('[data-lp-explanation]')).toHaveText('<script>alert(1)</script> {total}');
   await expect(page.locator('[data-lp-pattern] img, [data-lp-pattern] script')).toHaveCount(0);
@@ -294,11 +333,10 @@ test('reset uses a quiet button and theme tokens reach controls and focus', asyn
   }
 });
 
-test('decorative score rings stay bounded for zero, negative and exceeded authored totals', async ({ page }) => {
+test('decorative score rings stay bounded for zero and negative authored totals', async ({ page }) => {
   for (const [points, expected, offset] of [
-    [{ right: 0, wrong: -1, unknown: 0 }, 'Score 0 out of 0.', '100'],
-    [{ right: -1, wrong: -2, unknown: 0 }, 'Score 0 out of −4.', '100'],
-    [{ right: 1, wrong: -1, unknown: 2 }, 'Score 8 out of 4.', '0']
+    [{ right: 0, wrong: -1, unknown: -0.5 }, 'Score −1.5 out of 0.', '100'],
+    [{ right: -1, wrong: -2, unknown: -1.5 }, 'Score −4.5 out of −3.', '100']
   ]) {
     await open(page);
     await page.evaluate(async ({ content, points }) => {
@@ -314,7 +352,8 @@ test('decorative score rings stay bounded for zero, negative and exceeded author
     await page.locator('[data-lp-check]').click();
     await expect(page.locator('[data-lp-score]')).toHaveText(expected);
     await expect(page.locator('.lp-dont-know-ring-fill')).toHaveAttribute('stroke-dashoffset', offset);
-    await expect(page.locator('[role="status"]')).toHaveText(expected);
+    await expect(page.locator('[data-lp-score]')).toBeFocused();
+    await expect(page.locator('[role="status"]')).toHaveText('');
   }
 });
 
@@ -323,12 +362,12 @@ test('answers lock on submit; Start over clears marks, explanations and host sta
   await page.locator('input').first().check();
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ picks: { q1: mixed[0] }, shown: false });
   await pick(page); await page.locator('[data-lp-check]').click();
-  expect(await page.evaluate(() => window.lpSaved)).toEqual({ picks: { q1: mixed[0], q2: mixed[1], q3: mixed[2], q4: mixed[3] }, shown: true });
-  await expect(page.locator('input:disabled')).toHaveCount(16);
+  expect(await page.evaluate(() => window.lpSaved)).toEqual({ picks: { q1: mixed[0], q2: mixed[1], q3: mixed[2] }, shown: true });
+  await expect(page.locator('input:disabled')).toHaveCount(12);
   await expect(page.locator('[data-lp-score]').first()).toBeFocused();
   await page.locator('[data-lp-check]').evaluate(button => button.click());
-  await expect(page.locator('.lp-choice-mark')).toHaveCount(6);
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Score 1 out of 4.']);
+  await expect(page.locator('.lp-choice-mark')).toHaveCount(5);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
   await page.locator('[data-lp-restart]').click();
   await expect(page.locator('input:disabled, input:checked, [data-lp-mark], .lp-choice-mark')).toHaveCount(0);
   await expect(page.locator('[data-lp-explanation]:visible')).toHaveCount(0);
@@ -339,19 +378,21 @@ test('answers lock on submit; Start over clears marks, explanations and host sta
   await expect(page.locator('input').first()).toBeFocused();
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ picks: {}, shown: false });
   await pick(page); await page.locator('[data-lp-check]').click();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Score 1 out of 4.', 'Cleared.', 'Score 1 out of 4.']);
+  // The new result replaces "Answers cleared.", so reading to the end doesn't hear it after the score.
+  await expect(page.getByRole('status')).toHaveText('');
+  expect(await page.evaluate(() => window.lpAnnouncements.filter(Boolean))).toEqual(['Answers cleared.']);
 });
 
 for (const shown of [false, true]) {
   test(`valid saved picks restore shown=${shown} silently`, async ({ page }) => {
     await page.addInitScript(value => { window.lpSeed = value; }, { picks: Object.fromEntries(english.questions.map((q, i) => [q.id, mixed[i]])), shown });
-    await open(page); await expect(page.locator('input:checked')).toHaveCount(4);
+    await open(page); await expect(page.locator('input:checked')).toHaveCount(3);
     await expect(page.locator('[role="status"]')).toHaveText('');
     if (shown) {
-      await expect(page.locator('[data-lp-result]')).toContainText('Score 1 out of 4.');
+      await expect(page.locator('[data-lp-result]')).toContainText('Score 0 out of 3.');
       await expect(page.locator('[data-lp-restart]')).toBeVisible();
-      await expect(page.locator('input:disabled')).toHaveCount(16);
-      await expect(page.locator('.lp-choice-mark')).toHaveCount(6);
+      await expect(page.locator('input:disabled')).toHaveCount(12);
+      await expect(page.locator('.lp-choice-mark')).toHaveCount(5);
       await expect(page.locator('[data-lp-explanation]:visible')).toHaveCount(2);
       await expect(page.locator('[data-lp-check]')).toBeHidden();
       await expect(page.locator('[data-lp-score]').first()).not.toBeFocused();
@@ -376,13 +417,13 @@ test('two instances have unique ids and independent radio names, errors and resu
   await expect(roots.nth(1).locator('input:checked')).toHaveCount(0); await expect(roots.nth(1).locator('[data-lp-result]')).toBeHidden();
   await roots.nth(1).locator('[data-lp-check]').click();
   await expect(roots.first().locator('[data-lp-result]')).toBeVisible();
-  await expect(roots.nth(1).locator('[data-lp-question-error]:visible')).toHaveCount(4);
+  await expect(roots.nth(1).locator('[data-lp-question-error]:visible')).toHaveCount(3);
 });
 
 test('enhance twice returns one instance; destroy removes listeners and safely restores fallback', async ({ page }) => {
   await open(page); expect(await page.evaluate(() => window.lpEnhance() === window.lpInstances[0])).toBe(true);
   await observe(page); await pick(page); await page.locator('[data-lp-check]').click();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Score 1 out of 4.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
   await page.evaluate(() => window.lpInstances[0].destroy());
   await expect(page.locator('[data-lp-flow]')).toBeHidden(); await expect(page.locator('[data-lp-fallback]')).toBeVisible();
   const before = await page.evaluate(() => window.lpSaved);
@@ -390,11 +431,11 @@ test('enhance twice returns one instance; destroy removes listeners and safely r
   await page.evaluate(() => { window.lpEnhance(); window.lpInstances[0].destroy(); });
   await expect(page.locator('[data-lp-flow]')).toBeVisible();
   expect(await page.evaluate(() => window.lpEnhance() === window.lpEnhance())).toBe(true);
-  await expect(page.locator('input:disabled')).toHaveCount(16);
-  await expect(page.locator('.lp-choice-mark')).toHaveCount(6);
+  await expect(page.locator('input:disabled')).toHaveCount(12);
+  await expect(page.locator('.lp-choice-mark')).toHaveCount(5);
   await expect(page.locator('[role="status"]')).toHaveText('');
   await page.locator('[data-lp-restart]').click();
-  await pick(page); await page.locator('[data-lp-check]').click(); await expect(page.locator('.lp-choice-mark')).toHaveCount(6);
+  await pick(page); await page.locator('[data-lp-check]').click(); await expect(page.locator('.lp-choice-mark')).toHaveCount(5);
 });
 
 test('missing and mismatched markup fail loudly', async ({ page }) => {
@@ -444,9 +485,9 @@ test('quiet reset and forced colours preserve focus rings and button distinction
 });
 
 test('one unanswered question uses the singular message in English and French', async ({ page }) => {
-  for (const [lang, text] of [['en', "1 question unanswered. Choose an option, or I don't know."], ['fr', '1 question sans réponse. Choisissez une option ou « Je ne sais pas ».']]) {
+  for (const [lang, text] of [['en', "1 question needs an answer. Choose an answer or \"I don't know\"."], ['fr', 'Répondez à la question restante ou choisissez « Je ne sais pas ».']]) {
     await open(page, `/dont-know/${lang}.html`);
-    await pick(page, mixed.slice(0, 3));
+    await pick(page, mixed.slice(0, 2));
     await page.locator('[data-lp-check]').click();
     await expect(page.locator('[data-lp-error]')).toHaveText(text);
   }

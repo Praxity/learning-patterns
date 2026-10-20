@@ -1,0 +1,56 @@
+{
+  "kind": "sections",
+  "prompt": "Trouvez une section du cours",
+  "entries": [
+    {
+      "id": "basics",
+      "title": "Les bases de l’affirmation de soi",
+      "summary": "Distinguez les réactions affirmées, passives et agressives."
+    },
+    {
+      "id": "needs",
+      "title": "Nommez vos besoins",
+      "summary": "Déterminez ce qui compte pour vous avant de demander un changement."
+    },
+    {
+      "id": "speaking",
+      "title": "Faites-vous entendre",
+      "summary": "Formulez une demande claire et réagissez quand on vous coupe la parole."
+    },
+    {
+      "id": "boundaries",
+      "title": "Fixez vos limites",
+      "summary": "Refusez du travail de plus et proposez une solution que vous pouvez gérer."
+    },
+    {
+      "id": "conflict",
+      "title": "Gérez les conflits",
+      "summary": "Prenez une pause pour vous calmer et convenez d’un moment pour reprendre la discussion."
+    },
+    {
+      "id": "practice",
+      "title": "Préparez un plan d’action",
+      "summary": "Choisissez trois actions observables et décidez quand les pratiquer au travail."
+    }
+  ],
+  "seeds": [
+    {
+      "id": "partner",
+      "question": "Puis-je m’exercer avec quelqu’un?",
+      "author": "instructor",
+      "answer": "Oui. Faites une demande à tour de rôle. Dites ensuite si la demande était claire."
+    },
+    {
+      "id": "private",
+      "question": "Dois-je raconter un vrai conflit?",
+      "author": "instructor",
+      "answer": "Non. Vous pouvez inventer une situation. Évitez de nommer d’autres personnes dans vos messages."
+    },
+    {
+      "id": "nerves",
+      "question": "Comment vous exercer quand vous êtes nerveux?",
+      "author": "learner",
+      "answer": "J’ai fait ma première demande à une collègue en qui j’ai confiance. La suivante était plus facile."
+    }
+  ]
+}

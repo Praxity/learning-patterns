@@ -1,5 +1,5 @@
 import { check, markLimit, validateContent, validateState } from './logic.js';
-import { escapeHtml as html } from '../../lib/html.js';
+import { escapeHtml as html, frenchTypography } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
@@ -29,32 +29,29 @@ export function enhance(root, { content, strings, state }) {
   const submit = required('[data-lp-check]');
   const restart = required('[data-lp-restart]');
   const status = required('[role="status"]');
-  const chunks = [...passage.querySelectorAll('span[data-lp-chunk]')];
+  const chunks = [...passage.querySelectorAll('span[data-lp-chunk]')].map(element => /** @type {HTMLElement} */ (element));
   const authored = content.paragraphs.flat();
   const feedback = [...passage.querySelectorAll('span[data-lp-feedback]')].map(element => /** @type {HTMLElement} */ (element));
-  if (!instructions.id || chunks.length !== authored.length || feedback.length !== authored.length || chunks.some((chunk, i) => chunk.getAttribute('data-lp-chunk') !== authored[i]?.id || chunk.textContent !== authored[i]?.text || chunk.nextElementSibling !== feedback[i] || !feedback[i]?.id)) {
+  if (!instructions.id || chunks.length !== authored.length || feedback.length !== authored.length || chunks.some((chunk, i) => chunk.getAttribute('data-lp-chunk') !== authored[i]?.id || chunk.textContent !== frenchTypography(authored[i].text, root.lang) || chunk.nextElementSibling !== feedback[i] || !feedback[i]?.id)) {
     throw new Error('Invalid highlight passage markup');
   }
   // Read host state before changing the DOM; adapter errors propagate to the host.
   const saved = validateState(content, state?.read());
   const marked = new Set(saved?.marked ?? []);
   let shown = false;
-  let active = 0;
   let destroyed = false;
   const controller = new AbortController();
   const markedIds = () => authored.filter(chunk => marked.has(chunk.id)).map(chunk => chunk.id);
   const save = () => state?.write({ marked: markedIds(), shown });
 
-  /** @param {number} index @param {boolean} focus */
-  function move(index, focus) {
-    active = (index + chunks.length) % chunks.length;
-    chunks.forEach((chunk, i) => chunk.setAttribute('tabindex', i === active ? '0' : '-1'));
-    if (focus) /** @type {HTMLElement} */ (chunks[active]).focus();
+  /** @param {number} index */
+  function move(index) {
+    chunks[(index + chunks.length) % chunks.length].focus();
   }
 
   function paintMarks() {
     for (let i = 0; i < chunks.length; i++) chunks[i].setAttribute('aria-pressed', String(marked.has(authored[i].id)));
-    count.textContent = strings.count.replaceAll('{n}', String(marked.size)).replaceAll('{max}', String(max));
+    count.textContent = frenchTypography(strings.count.replaceAll('{n}', String(marked.size)).replaceAll('{max}', String(max)), root.lang);
     restart.hidden = marked.size === 0 && !shown;
   }
 
@@ -73,8 +70,8 @@ export function enhance(root, { content, strings, state }) {
     } else if (marked.size >= max) {
       if (limit.hidden) {
         const message = (max === 1 ? strings.limitOne : strings.limitMany).replaceAll('{n}', String(max));
-        limit.textContent = message; limit.hidden = false;
-        status.textContent = message;
+        limit.textContent = frenchTypography(message, root.lang); limit.hidden = false;
+        status.textContent = frenchTypography(message, root.lang);
       }
       return;
     } else marked.add(id);
@@ -102,18 +99,18 @@ export function enhance(root, { content, strings, state }) {
         label = content.mode === 'key' ? `${strings.wrongKey}${item.note ? ` ${item.note}` : ''}` : (item.note ?? strings.wrongEvidence);
         icon = icons['info-circle'];
       }
-      mark.innerHTML = `${icon}${html(label)}`;
+      mark.innerHTML = `${icon}${html(label, root.lang)}`;
       mark.hidden = false;
       chunk.setAttribute('aria-describedby', `${instructions.id} ${mark.id}`);
     });
     shown = true;
-    summary.textContent = message; summary.hidden = false;
+    summary.textContent = frenchTypography(message, root.lang); summary.hidden = false;
     // Check has done its job; Start over takes focus so it isn't lost with the hidden button.
     const hadFocus = root.contains(document.activeElement) && document.activeElement === submit;
     submit.hidden = true;
     restart.hidden = false;
     if (hadFocus) restart.focus();
-    if (announce) status.textContent = message;
+    if (announce) status.textContent = frenchTypography(message, root.lang);
   }
 
   function clearResult() {
@@ -126,28 +123,31 @@ export function enhance(root, { content, strings, state }) {
       feedback[i].removeAttribute('data-lp-outcome');
     }
     summary.replaceChildren(); summary.hidden = true;
+    status.replaceChildren();
     submit.hidden = false;
   }
 
   chunks.forEach((chunk, i) => {
+    // Inline spans preserve prose flow; every chunk needs a Tab stop in browse mode.
     chunk.setAttribute('role', 'button');
+    chunk.tabIndex = 0;
     chunk.setAttribute('aria-describedby', instructions.id);
-    chunk.addEventListener('click', () => { move(i, false); toggle(i); }, { signal: controller.signal });
-    chunk.addEventListener('focus', () => move(i, false), { signal: controller.signal });
+    chunk.addEventListener('click', () => toggle(i), { signal: controller.signal });
     chunk.addEventListener('keydown', event => {
       const key = /** @type {KeyboardEvent} */ (event).key;
       if (!['ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowDown', 'Home', 'End', ' ', 'Enter'].includes(key)) return;
       event.preventDefault();
-      if (key === ' ' || key === 'Enter') toggle(i);
-      else move(key === 'Home' ? 0 : key === 'End' ? chunks.length - 1 : i + (key === 'ArrowLeft' || key === 'ArrowUp' ? -1 : 1), true);
+      // A held key repeats keydown; toggle once per press, as a native button does.
+      if (key === ' ' || key === 'Enter') { if (!event.repeat) toggle(i); }
+      else move(key === 'Home' ? 0 : key === 'End' ? chunks.length - 1 : i + (key === 'ArrowLeft' || key === 'ArrowUp' ? -1 : 1));
     }, { signal: controller.signal });
   });
   submit.addEventListener('click', () => { if (!shown) { show(true); save(); } }, { signal: controller.signal });
   restart.addEventListener('click', () => {
     marked.clear(); shown = false;
-    clearResult(); paintMarks(); move(0, true); save();
+    clearResult(); paintMarks(); move(0); save();
   }, { signal: controller.signal });
-  move(0, false); paintMarks();
+  paintMarks();
   if (saved?.shown) show(false);
   passage.setAttribute('aria-describedby', instructions.id);
   fallback.hidden = true; instructions.hidden = false; flow.hidden = false;

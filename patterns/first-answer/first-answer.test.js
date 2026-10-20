@@ -1,3 +1,4 @@
+import { frenchTypography } from '../../lib/html.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -121,7 +122,7 @@ test('render escapes every authored value and prefixes all ids and references', 
 test('render stages select the two placements; only both has the course skip', () => {
   const both = render(content, strings.en, { id: 'p', lang: 'en' });
   assert.ok(both.includes('data-lp-stage="both"')); assert.ok(both.includes('data-lp-skip'));
-  assert.ok(both.includes('In a course, the lessons happen here.'));
+  assert.ok(both.includes('Take the course, then answer again.'));
   const first = render(content, strings.en, { id: 'p', lang: 'en', stage: 'first' });
   const end = render(content, strings.en, { id: 'p', lang: 'en', stage: 'end' });
   assert.ok(first.includes('data-lp-first-step')); assert.equal(first.includes('data-lp-end-step'), false);
@@ -138,7 +139,7 @@ test('journal scene, day headings and dated cards render in both languages and e
     const markup = render(content, strings[lang], { id: 'journal', lang, stage });
     assert.match(markup, /<header class="lp-scene">/);
     assert.equal(markup.includes(journal), false);
-    assert.equal(markup.split(content.prompt).length - 1, 1);
+    assert.equal(markup.split(frenchTypography(content.prompt, lang)).length - 1, 1);
     assert.equal(markup.includes('Step 1'), false); assert.equal(markup.includes('Étape 1'), false);
     if (stage !== 'end') assert.ok(markup.includes(`id="journal-start">${day}</h3>`));
     if (stage !== 'first') {

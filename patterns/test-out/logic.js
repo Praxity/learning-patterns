@@ -1,3 +1,4 @@
+import { validateTextLengths } from '../../lib/text-limits.js';
 /** @typedef {{ id: number, title: string, requires: number[] }} Section */
 /** @typedef {{ id: string, text: string }} Option */
 /** @typedef {{ id: string, section: number, text: string, options: Option[], correct: string, explanation: string }} Question */
@@ -60,6 +61,11 @@ function validateSections(sections) {
 
 /** @param {unknown} content @returns {asserts content is Content} */
 export function validateContent(content) {
+  validateTextLengths(content, {
+    title: 120,
+    sections: [{"title": 120}],
+    questions: [{"id": 120, "text": 400, "correct": 120, "explanation": 1500, "options": [{"id": 120, "text": 300}]}],
+  });
   if (!object(content)) throw new Error('Invalid content');
   fields(content, ['title', 'allowTestOut', 'sections', 'questions'], 'content');
   text(content.title, 'title');
@@ -75,7 +81,7 @@ export function validateContent(content) {
     identity(q.id, ids, `${path}.id`);
     for (const field of ['text', 'correct', 'explanation']) text(q[field], `${path}.${field}`);
     if (!sectionId(q.section) || !sections.has(q.section)) throw new Error(`Invalid ${path}.section`);
-    if (!Array.isArray(q.options) || !q.options.length) throw new Error(`Invalid ${path}.options`);
+    if (!Array.isArray(q.options) || q.options.length < 2) throw new Error(`Invalid ${path}.options`);
     const optionIds = new Set();
     for (const [n, o] of q.options.entries()) {
       const optionPath = `${path}.options[${n}]`;
@@ -91,15 +97,17 @@ export function validateContent(content) {
   }
 }
 
-/** A passed section credits every prerequisite. The lowest numeric passed id wins ties.
- * @param {Section[]} sections @param {number[]} passed @param {boolean} [allowTestOut]
+/** A passed section credits prerequisites unless they were directly failed. The lowest numeric passed id wins ties.
+ * @param {Section[]} sections @param {number[]} passed @param {boolean} [allowTestOut] @param {number[]} [failed]
  * @returns {{ rows: PlanRow[], skip: number }}
  */
-export function plan(sections, passed, allowTestOut = true) {
+export function plan(sections, passed, allowTestOut = true, failed = []) {
   validateSections(sections);
   const byId = new Map(sections.map(s => [s.id, s]));
   if (!Array.isArray(passed) || Array.from(passed).some(id => !byId.has(id))) throw new Error('Invalid passed');
   if (typeof allowTestOut !== 'boolean') throw new Error('Invalid allowTestOut');
+  if (!Array.isArray(failed) || Array.from(failed).some(id => !byId.has(id) || passed.includes(id))) throw new Error('Invalid failed');
+  const fail = new Set(failed);
   const pass = new Set(passed);
   const creditedBy = new Map();
   for (const id of [...pass].sort((a, b) => a - b)) {
@@ -117,7 +125,7 @@ export function plan(sections, passed, allowTestOut = true) {
     const row = { id: s.id, title: s.title, action: 'take' };
     if (allowTestOut) {
       if (pass.has(s.id)) row.action = 'passed';
-      else if (creditedBy.has(s.id)) { row.action = 'credited'; row.by = creditedBy.get(s.id); }
+      else if (!fail.has(s.id) && creditedBy.has(s.id)) { row.action = 'credited'; row.by = creditedBy.get(s.id); }
     }
     return row;
   });
@@ -142,7 +150,8 @@ export function score(content, picks) {
   const result = { right: [], wrong: [], unanswered: [] };
   for (const q of content.questions) result[!Object.hasOwn(picks, q.id) ? 'unanswered' : picks[q.id] === q.correct ? 'right' : 'wrong'].push(q.id);
   const passed = content.sections.filter(s => content.questions.filter(q => q.section === s.id).every(q => result.right.includes(q.id))).map(s => s.id);
-  return { ...result, passed, ...plan(content.sections, passed, content.allowTestOut) };
+  const failed = content.sections.filter(s => content.questions.some(q => q.section === s.id && result.wrong.includes(q.id))).map(s => s.id);
+  return { ...result, passed, failed, ...plan(content.sections, passed, content.allowTestOut, failed) };
 }
 
 /** @param {Content} content @param {unknown} value @returns {LearnerState | null} */

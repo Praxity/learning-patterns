@@ -1,10 +1,10 @@
 /** @param {unknown} content @returns {asserts content is Content} */
 export function validateContent(content: unknown): asserts content is Content;
-/** A passed section credits every prerequisite. The lowest numeric passed id wins ties.
- * @param {Section[]} sections @param {number[]} passed @param {boolean} [allowTestOut]
+/** A passed section credits prerequisites unless they were directly failed. The lowest numeric passed id wins ties.
+ * @param {Section[]} sections @param {number[]} passed @param {boolean} [allowTestOut] @param {number[]} [failed]
  * @returns {{ rows: PlanRow[], skip: number }}
  */
-export function plan(sections: Section[], passed: number[], allowTestOut?: boolean): {
+export function plan(sections: Section[], passed: number[], allowTestOut?: boolean, failed?: number[]): {
     rows: PlanRow[];
     skip: number;
 };
@@ -15,6 +15,7 @@ export function score(content: Content, picks: Record<string, string>): {
     rows: PlanRow[];
     skip: number;
     passed: number[];
+    failed: number[];
     right: string[];
     wrong: string[];
     unanswered: string[];

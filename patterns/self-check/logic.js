@@ -1,5 +1,6 @@
+import { validateTextLengths } from '../../lib/text-limits.js';
 /** @typedef {{ id: string, label: string, missed: string, evidence: string | null }} Part */
-/** @typedef {{ task: string, context: { to: string, initials: string, subject: string, placeholder?: string }, parts: Part[], model: string }} Content */
+/** @typedef {{ task: string, context?: { to: string, initials: string, subject: string, placeholder?: string }, parts: Part[], model: string }} Content */
 /** @typedef {{ text: string, partIndex: number | null, included: boolean }} Segment */
 /** @typedef {{ answer: string, ticked: string[], shown: boolean }} LearnerState */
 
@@ -20,17 +21,25 @@ function fields(value, fields, path) {
  * @returns {asserts content is Content}
  */
 export function validateContent(content) {
+  validateTextLengths(content, {
+    task: 400,
+    model: 1500,
+    parts: [{"id": 120, "label": 120, "missed": 1500, "evidence": 1500}],
+    context: {"to": 120, "initials": 120, "subject": 120, "placeholder": 120},
+  });
   if (!object(content)) throw new Error('Invalid content');
   fields(content, ['task', 'context', 'parts', 'model'], 'content');
   for (const field of ['task', 'model']) {
     if (typeof content[field] !== 'string' || content[field].length === 0) throw new Error(`Invalid ${field}`);
   }
-  if (!object(content.context)) throw new Error('Invalid context');
-  fields(content.context, ['to', 'initials', 'subject', 'placeholder'], 'context');
-  for (const field of ['to', 'initials', 'subject']) {
-    if (typeof content.context[field] !== 'string' || content.context[field].length === 0) throw new Error(`Invalid context.${field}`);
+  if (Object.hasOwn(content, 'context')) {
+    if (!object(content.context)) throw new Error('Invalid context');
+    fields(content.context, ['to', 'initials', 'subject', 'placeholder'], 'context');
+    for (const field of ['to', 'initials', 'subject']) {
+      if (typeof content.context[field] !== 'string' || content.context[field].length === 0) throw new Error(`Invalid context.${field}`);
+    }
+    if (Object.hasOwn(content.context, 'placeholder') && typeof content.context.placeholder !== 'string') throw new Error('Invalid context.placeholder');
   }
-  if (Object.hasOwn(content.context, 'placeholder') && typeof content.context.placeholder !== 'string') throw new Error('Invalid context.placeholder');
   if (!Array.isArray(content.parts) || content.parts.length === 0) throw new Error('Invalid parts');
   const known = new Set();
   content.parts.forEach((part, index) => {
@@ -51,7 +60,7 @@ export function validateContent(content) {
   });
 }
 
-/** Segment validated model text in reading order. Whole-message parts stay in the legend.
+/** Segment validated model text in reading order. Whole-answer parts stay in the legend.
  * When evidence overlaps, the first span in model order owns that text.
  * @param {string} model @param {Part[]} parts @param {string[]} includedIds
  * @returns {Segment[]}

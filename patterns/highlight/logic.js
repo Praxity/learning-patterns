@@ -1,3 +1,4 @@
+import { validateTextLengths } from '../../lib/text-limits.js';
 /** @typedef {{ id: string, text: string, key?: boolean, note?: string }} Chunk */
 /** @typedef {{ mode: 'key' | 'evidence', title: string, question?: string, maxMarks?: number, paragraphs: Chunk[][] }} Content */
 /** @typedef {{ marked: string[], shown: boolean }} LearnerState */
@@ -27,6 +28,11 @@ function text(value, field) {
  * @param {unknown} content @returns {asserts content is Content}
  */
 export function validateContent(content) {
+  validateTextLengths(content, {
+    title: 120,
+    question: 400,
+    paragraphs: [[{"id": 120, "text": 1500, "note": 1500}]],
+  });
   if (!object(content)) throw new Error('Invalid content');
   fields(content, ['mode', 'title', 'question', 'maxMarks', 'paragraphs'], 'content');
   for (const field of ['mode', 'title', 'paragraphs']) if (!Object.hasOwn(content, field)) throw new Error(`Invalid ${field}`);

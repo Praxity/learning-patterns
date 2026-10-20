@@ -1,0 +1,56 @@
+{
+  "kind": "sections",
+  "prompt": "Find a course section",
+  "entries": [
+    {
+      "id": "basics",
+      "title": "Assertiveness basics",
+      "summary": "Tell assertive, passive and aggressive responses apart."
+    },
+    {
+      "id": "needs",
+      "title": "Name your needs",
+      "summary": "Identify what matters to you before you ask for a change."
+    },
+    {
+      "id": "speaking",
+      "title": "Speak and be heard",
+      "summary": "Make a clear request and respond when someone interrupts you."
+    },
+    {
+      "id": "boundaries",
+      "title": "Set boundaries",
+      "summary": "Say no to extra work and offer an alternative you can manage."
+    },
+    {
+      "id": "conflict",
+      "title": "Handle conflict",
+      "summary": "Use a time-out to cool down and agree when to return to the conversation."
+    },
+    {
+      "id": "practice",
+      "title": "Make an action plan",
+      "summary": "Choose three observable actions and decide when to practise them at work."
+    }
+  ],
+  "seeds": [
+    {
+      "id": "partner",
+      "question": "Can I practise with a partner?",
+      "author": "instructor",
+      "answer": "Yes. Take turns making a request and giving feedback on how clear it was."
+    },
+    {
+      "id": "private",
+      "question": "Do I have to share a real conflict?",
+      "author": "instructor",
+      "answer": "No. Use an invented situation if you prefer. Keep other people’s names out of your posts."
+    },
+    {
+      "id": "nerves",
+      "question": "How do you practise when you feel nervous?",
+      "author": "learner",
+      "answer": "I tried my first request with a colleague I trust. That made the next one easier."
+    }
+  ]
+}

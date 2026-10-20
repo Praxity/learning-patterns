@@ -20,8 +20,10 @@ test('scene has a title and centred file tile, with one task instruction', async
       await page.setViewportSize({ width, height: 900 });
       const geometry = await page.locator('.lp-scene').evaluate(el => {
         const scene = el.getBoundingClientRect(), card = el.parentElement.getBoundingClientRect();
-        const tile = el.querySelector('.lp-scene-icon').getBoundingClientRect(), text = el.querySelector('div').getBoundingClientRect();
-        return [scene.left - card.left, card.right - scene.right, tile.top + tile.height / 2 - text.top - text.height / 2];
+        const tile = el.querySelector('.lp-scene-icon svg').getBoundingClientRect(), text = el.querySelector('div').getBoundingClientRect();
+        // Centred on the text up to two title lines, then level with the first two (lib/base.css).
+        const title = el.querySelector('.lp-scene-title'), centre = Math.min(text.height / 2, title.getBoundingClientRect().top - text.top + parseFloat(getComputedStyle(title).lineHeight));
+        return [scene.left - card.left, card.right - scene.right, tile.top + tile.height / 2 - text.top - centre];
       });
       for (const difference of geometry) expect(Math.abs(difference)).toBeLessThanOrEqual(1);
     }
@@ -61,28 +63,148 @@ async function mount(page, content, lang = 'en') {
   }, { content, lang });
 }
 
-test('keyboard passage has one tab stop, complete roving navigation, silent toggles and a focus ring', async ({ page }) => {
+const punctuation = {
+  mode: 'evidence', title: 'Une pause', question: 'Pourquoi revenir ?',
+  paragraphs: [[
+    { id: 'question', text: 'Pourquoi partir ?' },
+    { id: 'answer', text: 'Voici : une pause; revenez!', key: true },
+    { id: 'quote', text: 'Elle dit « je reviens ».' },
+    { id: 'nbsp', text: 'Déjà\u00a0: «\u00a0oui\u00a0» et pourquoi\u00a0?' },
+    { id: 'narrow', text: 'Déjà\u202f: «\u202foui\u202f» et pourquoi\u202f?' },
+    { id: 'escaped', text: 'Elle dit : « <oui> & "merci" »!' }
+  ]]
+};
+const formattedPunctuation = [
+  'Pourquoi partir\u202f?',
+  'Voici\u202f: une pause\u202f; revenez\u202f!',
+  'Elle dit «\u202fje reviens\u202f».',
+  'Déjà\u00a0: «\u00a0oui\u00a0» et pourquoi\u00a0?',
+  'Déjà\u202f: «\u202foui\u202f» et pourquoi\u202f?',
+  'Elle dit\u202f: «\u202f<oui> & "merci"\u202f»!'
+];
+
+for (const lang of ['fr', 'fr-CA']) {
+  test(`French punctuation enhances beside unchanged English with independent marks (${lang})`, async ({ page }) => {
+    await open(page, '/highlight/two.html');
+    await page.evaluate(async ({ content, lang }) => {
+      window.lpInstances.forEach(instance => instance.destroy());
+      const { render } = await import('/patterns/highlight/render.js');
+      const { enhance } = await import('/patterns/highlight/enhance.js');
+      const { strings } = await import('/patterns/highlight/strings.js');
+      window.lpInstances = [...document.querySelectorAll('[data-lp-pattern]')].map((old, i) => {
+        const locale = i === 0 ? lang : 'en';
+        const ui = i === 0 ? strings.fr : strings.en;
+        old.outerHTML = render(content, ui, { id: `punctuation-${i}`, lang: locale });
+        const root = document.querySelectorAll('[data-lp-pattern]')[i];
+        return enhance(root, { content, strings: ui });
+      });
+    }, { content: punctuation, lang });
+    const roots = page.locator('[data-lp-pattern]');
+    // Read textContent exactly; whitespace-folding matchers hide NBSP regressions.
+    expect(await roots.first().locator('[data-lp-chunk]').allTextContents()).toEqual(formattedPunctuation);
+    expect(await roots.nth(1).locator('[data-lp-chunk]').allTextContents()).toEqual(punctuation.paragraphs[0].map(chunk => chunk.text));
+    await chunk(roots.first(), 'answer').press('Space');
+    await roots.first().locator('[data-lp-check]').click();
+    await expect(chunk(roots.first(), 'answer')).toHaveAttribute('data-lp-outcome', 'correct');
+    await expect(chunk(roots.nth(1), 'answer')).toHaveAttribute('aria-pressed', 'false');
+    await expect(roots.nth(1).getByRole('status')).toBeEmpty();
+    await chunk(roots.nth(1), 'answer').click();
+    await roots.nth(1).locator('[data-lp-check]').click();
+    await expect(chunk(roots.nth(1), 'answer')).toHaveAttribute('data-lp-outcome', 'correct');
+    expect(await roots.nth(1).locator('[data-lp-chunk]').allTextContents()).toEqual(punctuation.paragraphs[0].map(chunk => chunk.text));
+  });
+}
+
+for (const replacement of ['Pourquoi rester\u202f?', 'Pourquoi partir ?']) {
+  test(`French chunks enhance, but altered rendered text refuses: ${JSON.stringify(replacement)}`, async ({ page }) => {
+    await open(page); await mount(page, punctuation, 'fr');
+    expect(await page.locator('[data-lp-chunk]').allTextContents()).toEqual(formattedPunctuation);
+    await page.evaluate(replacement => {
+      window.lpInstances[0].destroy();
+      document.querySelector('[data-lp-chunk]').textContent = replacement;
+    }, replacement);
+    await expect(page.evaluate(() => window.lpEnhance())).rejects.toThrow('Invalid highlight passage markup');
+    await expect(page.locator('[data-lp-chunk][role]')).toHaveCount(0);
+    await expect(page.locator('[data-lp-flow]')).toBeHidden();
+    await expect(page.locator('[data-lp-fallback]')).toBeVisible();
+  });
+}
+
+test('chunks flow like the source paragraphs across inline boundaries', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 1000 }); await open(page);
+  await page.evaluate(() => document.fonts.ready);
+  const paragraphs = page.locator('[data-lp-passage] > p');
+  await expect(paragraphs).toHaveCount(english.paragraphs.length);
+  for (const [i, paragraph] of english.paragraphs.entries()) {
+    await expect(paragraphs.nth(i)).toHaveText(paragraph.map(chunk => chunk.text).join(' '));
+  }
+  const lines = await page.locator('[data-lp-passage]').evaluate(passage => {
+    const rects = id => {
+      const range = document.createRange(); range.selectNodeContents(passage.querySelector(`[data-lp-chunk="${id}"]`));
+      return [...range.getClientRects()].map(rect => ({ top: rect.top, right: rect.right, left: rect.left }));
+    };
+    return { first: rects('signals').at(-1), next: rects('horsemen')[0] };
+  });
+  expect(lines.next.top).toBeCloseTo(lines.first.top, 1);
+  expect(lines.next.left).toBeGreaterThan(lines.first.right);
+  // Removing enhancement exposes the source layout without changing text or paragraph styles.
+  const layout = () => paragraphs.evaluateAll(elements => elements.map(paragraph => {
+    const bounds = paragraph.getBoundingClientRect();
+    return { height: bounds.height, chunks: [...paragraph.querySelectorAll('[data-lp-chunk]')].map(chunk => {
+      const range = document.createRange(); range.selectNodeContents(chunk);
+      // Vertical page shifts can change Firefox's fractional coordinates by less than 0.01px.
+      return [...range.getClientRects()].map(rect => [rect.left - bounds.left, rect.top - bounds.top, rect.width, rect.height].map(value => Math.round(value * 100) / 100));
+    }) };
+  }));
+  const enhanced = await layout();
+  await page.evaluate(() => window.lpInstances[0].destroy());
+  expect(enhanced).toEqual(await layout());
+});
+
+test('question stems wrap as prose while headings stay balanced', async ({ page }) => {
+  await open(page);
+  if (await page.evaluate(() => CSS.supports('text-wrap', 'pretty'))) {
+    await expect(page.locator('.lp-stem')).toHaveCSS('text-wrap', 'pretty');
+  }
+  if (await page.evaluate(() => CSS.supports('text-wrap', 'balance'))) {
+    await expect(page.locator('h2')).toHaveCSS('text-wrap', 'balance');
+  }
+});
+
+test('passage buttons support Tab through every chunk, arrow shortcuts and silent toggles', async ({ page }) => {
   await open(page); await observeStatus(page);
   const chunks = page.locator('[data-lp-chunk]');
-  await expect(page.locator('[data-lp-chunk][tabindex="0"]')).toHaveCount(1);
-  await page.keyboard.press('Tab'); await expect(chunks.first()).toBeFocused();
+  for (const [i, target] of (await chunks.all()).entries()) {
+    await page.keyboard.press('Tab'); await expect(target).toBeFocused();
+    const named = page.getByRole('button', { name: english.paragraphs.flat()[i].text, exact: true });
+    await expect(named).toHaveAttribute('aria-pressed', 'false');
+    const scroll = await page.evaluate(() => scrollY);
+    await page.keyboard.press('Space'); await expect(named).toHaveAttribute('aria-pressed', 'true');
+    await page.waitForTimeout(100);
+    expect(await page.evaluate(() => scrollY)).toBe(scroll);
+    await page.keyboard.press('Enter'); await expect(named).toHaveAttribute('aria-pressed', 'false');
+  }
+  await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-check]')).toBeFocused();
+  await page.keyboard.press('Shift+Tab'); await expect(chunks.last()).toBeFocused();
+  await page.keyboard.press('Home');
+  await expect(chunks.first()).toBeFocused();
   const instructions = await chunks.first().getAttribute('aria-describedby');
   await expect(page.locator('[data-lp-passage]')).toHaveAttribute('aria-describedby', instructions);
-  await expect(page.locator(`[id="${instructions}"]`)).toContainText('Click or tap');
+  await expect(page.locator(`[id="${instructions}"]`)).toContainText('Click or tap a passage to mark or unmark it.');
   const outline = await chunks.first().evaluate(el => {
     const css = getComputedStyle(el); return [css.outlineWidth, css.outlineStyle, css.outlineOffset];
   });
   expect(outline).toEqual(['2px', 'solid', '2px']);
   for (const [key, index] of [['ArrowRight', 1], ['ArrowDown', 2], ['ArrowLeft', 1], ['ArrowUp', 0], ['ArrowLeft', english.paragraphs.flat().length - 1], ['Home', 0], ['End', english.paragraphs.flat().length - 1], ['ArrowRight', 0]]) {
     await page.keyboard.press(key); await expect(chunks.nth(index)).toBeFocused();
-    await expect(page.locator('[data-lp-chunk][tabindex="0"]')).toHaveCount(1);
+    await expect(page.locator('[data-lp-chunk][tabindex="-1"]')).toHaveCount(0);
   }
   await page.keyboard.press('Space'); await expect(chunks.first()).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('[data-lp-count]')).toHaveText('1 of 1 marked');
   await page.keyboard.press('Enter'); await expect(chunks.first()).toHaveAttribute('aria-pressed', 'false');
   await page.keyboard.press('a'); await expect(chunks.first()).toHaveAttribute('aria-pressed', 'false');
   await expect(page.locator('[data-lp-count]')).toHaveText('0 of 1 marked');
-  await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-check]')).toBeFocused();
+  await page.keyboard.press('Tab'); await expect(chunks.nth(1)).toBeFocused();
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
 });
 
@@ -96,7 +218,7 @@ test('evidence check puts authored and default feedback in place, locks marks, a
   await expect(feedback(page, 'ignored')).toHaveText('Missed');
   await expect(chunk(page, 'ignored')).toHaveAttribute('data-lp-outcome', 'missed');
   await expect(feedback(page, 'overwhelmed')).toBeHidden();
-  await expect(page.locator('[data-lp-summary]')).toHaveText('Passages that answer the question: 0 of 1.');
+  await expect(page.locator('[data-lp-summary]')).toHaveText('You found 0 of 1 passages that answer the question.');
   await expect(page.locator('[data-lp-chunk][aria-disabled="true"]')).toHaveCount(english.paragraphs.flat().length);
   const saved = { marked: ['withdraw', 'actions'], shown: true };
   expect(await page.evaluate(() => window.lpSaved)).toEqual(saved);
@@ -105,18 +227,20 @@ test('evidence check puts authored and default feedback in place, locks marks, a
   await page.keyboard.press('Space'); await page.keyboard.press('Enter');
   expect(await page.evaluate(() => window.lpSaved)).toEqual(saved);
   await expect(page.locator('[data-lp-check]')).toBeHidden();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Passages that answer the question: 0 of 1.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You found 0 of 1 passages that answer the question.']);
   await page.locator('[data-lp-restart]').click();
   await expect(page.locator('[data-lp-chunk]').first()).toBeFocused();
   await expect(page.locator('[data-lp-summary]')).toBeHidden();
   await expect(page.locator('[data-lp-chunk][aria-pressed="true"]')).toHaveCount(0);
   await expect(page.locator('[data-lp-check]')).toBeVisible();
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ marked: [], shown: false });
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Passages that answer the question: 0 of 1.']);
+  // Reset empties the status, so the old count isn't read again.
+  await expect(page.getByRole('status')).toHaveText('');
+  expect(await page.evaluate(() => window.lpAnnouncements.filter(Boolean))).toEqual(['You found 0 of 1 passages that answer the question.']);
   await chunk(page, 'ignored').click(); await page.locator('[data-lp-check]').click();
-  await expect(feedback(page, 'ignored')).toHaveText('This answers it');
+  await expect(feedback(page, 'ignored')).toHaveText('Answers the question');
   await expect(chunk(page, 'ignored')).toHaveAttribute('data-lp-outcome', 'correct');
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Passages that answer the question: 0 of 1.', 'Passages that answer the question: 1 of 1.']);
+  expect(await page.evaluate(() => window.lpAnnouncements.filter(Boolean))).toEqual(['You found 0 of 1 passages that answer the question.', 'You found 1 of 1 passages that answer the question.']);
 });
 
 test('pointer toggles preserve server passage nodes, count marks and use a warm clone highlighter', async ({ page }) => {
@@ -133,8 +257,8 @@ test('pointer toggles preserve server passage nodes, count marks and use a warm 
 });
 
 for (const [lang, content, singular, plural] of [
-  ['en', english, 'You can mark one passage. Unmark it first.', 'You can mark up to 2 passages. Unmark one first.'],
-  ['fr', french, "Vous pouvez marquer un seul passage. Enlevez d'abord sa marque.", "Vous pouvez marquer jusqu'à 2 passages. Enlevez d'abord une marque."]
+  ['en', english, 'You can mark one passage. Unmark it to choose another.', 'You can mark up to 2 passages. Unmark one to choose another.'],
+  ['fr', french, "Vous pouvez marquer un passage. Enlevez sa marque pour en choisir un autre.", "Vous pouvez marquer jusqu'à 2 passages. Enlevez une marque pour en choisir un autre."]
 ]) {
   for (const max of [1, 2]) {
     test(`mark cap refuses pointer and keyboard additions, announces once and clears on removal (${lang}, ${max})`, async ({ page }) => {
@@ -194,7 +318,7 @@ test('limit feedback clears on check and destroy, and missing limit markup fails
   await chunk(page, 'withdraw').click(); await chunk(page, 'ignored').click();
   await page.locator('[data-lp-check]').click();
   await expect(page.locator('[data-lp-limit]')).toBeHidden();
-  await expect(page.locator('[role="status"]')).toHaveText('Passages that answer the question: 0 of 1.');
+  await expect(page.locator('[role="status"]')).toHaveText('You found 0 of 1 passages that answer the question.');
   await page.locator('[data-lp-restart]').click();
   await chunk(page, 'withdraw').click(); await chunk(page, 'ignored').click();
   await page.evaluate(() => window.lpInstances[0].destroy());
@@ -217,7 +341,7 @@ test('graded marks keep yellow non-targets, tint found targets and leave missed 
 
 for (const [lang, content, correct, wrong, missed, summary] of [
   ['en', englishKey, 'Key idea', 'Not a key idea', 'Missed', 'You found 1 of 4 key ideas.'],
-  ['fr', frenchKey, 'Idée clé', "Ce n'est pas une idée clé", 'Manqué', 'Vous avez trouvé 1 des 4 idées clés.']
+  ['fr', frenchKey, 'Idée clé', "Ce n'est pas une idée clé", 'Manqué', 'Idées clés trouvées : 1 sur 4.']
 ]) {
   test(`key mode has inline success, neutral authored notes and dashed missed targets (${lang})`, async ({ page }) => {
     await open(page); await mount(page, content, lang);
@@ -263,9 +387,9 @@ test('French language and evidence feedback use French words and authored notes'
   await expect(page.locator('[data-lp-pattern]')).toHaveAttribute('lang', 'fr');
   await expect(page.locator('.lp-stem')).toContainText(french.question);
   await chunk(page, 'ignored').click(); await chunk(page, 'overwhelmed').click(); await page.locator('[data-lp-check]').click();
-  await expect(feedback(page, 'ignored')).toHaveText('Ce passage répond à la question');
+  await expect(feedback(page, 'ignored')).toHaveText('Répond à la question');
   await expect(feedback(page, 'overwhelmed')).toHaveText(french.paragraphs.flat().find(c => c.id === 'overwhelmed').note);
-  await expect(page.locator('[data-lp-summary]')).toHaveText('Passages qui répondent à la question : 1 sur 1.');
+  await expect(page.locator('[data-lp-summary]')).toHaveText('Passages trouvés pour cette question : 1 sur 1.');
 });
 
 for (const shown of [false, true]) {
@@ -274,7 +398,7 @@ for (const shown of [false, true]) {
     await open(page);
     await expect(chunk(page, 'ignored')).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('[data-lp-count]')).toHaveText('1 of 1 marked');
-    if (shown) { await expect(feedback(page, 'ignored')).toHaveText('This answers it'); await expect(page.locator('[data-lp-summary]')).toBeVisible(); }
+    if (shown) { await expect(feedback(page, 'ignored')).toHaveText('Answers the question'); await expect(page.locator('[data-lp-summary]')).toBeVisible(); }
     else await expect(page.locator('[data-lp-summary]')).toBeHidden();
     await expect(page.locator('[role="status"]')).toHaveText('');
     expect(await page.evaluate(() => document.activeElement.tagName)).toBe('BODY');
@@ -286,7 +410,7 @@ test('invalid saved marks are ignored and repeated enhance returns the same inst
   await expect(page.locator('[data-lp-chunk][aria-pressed="true"]')).toHaveCount(0);
   expect(await page.evaluate(() => window.lpEnhance() === window.lpEnhance())).toBe(true);
   await observeStatus(page); await page.locator('[data-lp-check]').click();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Passages that answer the question: 0 of 1.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You found 0 of 1 passages that answer the question.']);
 });
 
 test('destroy restores fallback and removes listeners; re-enhance survives repeated old destroy', async ({ page }) => {
@@ -302,10 +426,10 @@ test('destroy restores fallback and removes listeners; re-enhance survives repea
   await page.evaluate(() => { window.lpEnhance(); window.lpOldInstance.destroy(); });
   await expect(page.locator('[data-lp-flow]')).toBeVisible(); await observeStatus(page);
   await page.locator('[data-lp-restart]').click(); await page.locator('[data-lp-check]').click();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Passages that answer the question: 0 of 1.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You found 0 of 1 passages that answer the question.']);
 });
 
-test('two instances have unique IDs and independent roving marks and status', async ({ page }) => {
+test('two instances have unique IDs and independent marks and status', async ({ page }) => {
   await open(page, '/highlight/two.html');
   const ids = await page.locator('[id]').evaluateAll(elements => elements.map(el => el.id)); expect(new Set(ids).size).toBe(ids.length);
   const roots = page.locator('[data-lp-pattern]');
@@ -313,7 +437,7 @@ test('two instances have unique IDs and independent roving marks and status', as
   await expect(roots.nth(1).locator('[data-lp-count]')).toHaveText('0 of 1 marked');
   await expect(roots.nth(1).locator('[role="status"]')).toHaveText('');
   await expect(roots.nth(1).locator('[data-lp-chunk][aria-disabled]')).toHaveCount(0);
-  for (const root of await roots.all()) await expect(root.locator('[data-lp-chunk][tabindex="0"]')).toHaveCount(1);
+  for (const root of await roots.all()) await expect(root.locator('[data-lp-chunk]').and(root.getByRole('button'))).toHaveCount(english.paragraphs.flat().length);
 });
 
 test('missing and reordered or mismatched passage markup throws before partial enhancement', async ({ page }) => {
@@ -371,5 +495,5 @@ test('forced colours distinguishes marks, missed targets and visible keyboard fo
   expect(await page.locator('[data-lp-restart]').evaluate(el => getComputedStyle(el).outlineWidth)).toBe('2px');
   await page.locator('[data-lp-restart]').click(); await chunk(page, 'ignored').click(); await page.locator('[data-lp-check]').click();
   expect(await chunk(page, 'ignored').evaluate(el => getComputedStyle(el).textDecorationStyle)).toBe('solid');
-  await expect(feedback(page, 'ignored')).toHaveText('This answers it');
+  await expect(feedback(page, 'ignored')).toHaveText('Answers the question');
 });

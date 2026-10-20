@@ -3,14 +3,18 @@
 .lp-first-answer .lp-first-answer-page[aria-invalid="true"] { padding: 15px 17px; }
 .lp-first-answer-card { padding: 18px; border-radius: var(--lp-radius-control); background: var(--lp-paper-2); }
 .lp-first-answer-card > * + * { margin-block-start: 12px; }
-.lp-first-answer-date { display: flex; gap: 6px; align-items: baseline; }
-.lp-first-answer-date > .lp-icon { align-self: flex-start; margin-block-start: .15em; }
+.lp-first-answer-date { display: flex; gap: 6px; align-items: flex-start; }
+/* The icon fills the first line-high box, so it centres on the first line of the date and wrapped dates hang under the words.
+   Line-box centre sits about 0.9px under the capitals' midline at 15px, so lift it optically. */
+.lp-first-answer-date > .lp-icon { translate: 0 -.06em; }
 .lp-first-answer-date:has(> span:empty) { display: none; }
 .lp-first-answer-quote { margin: 0; white-space: pre-wrap; line-height: 1.65; }
-.lp-first-answer-timeline { position: relative; display: flex; gap: 14px; align-items: flex-start; margin-block: 24px; padding-block: 24px; }
+/* The connector runs from the icon's top edge to the last control, with no overhang past the content. */
+.lp-first-answer-timeline { position: relative; display: flex; gap: 14px; align-items: flex-start; margin-block: 24px; }
 .lp-first-answer-timeline::before { content: ""; position: absolute; inset-block: 0; inset-inline-start: 19px; border-inline-start: 2px dashed var(--lp-line-mid); }
 .lp-first-answer-history { z-index: 1; display: grid; place-items: center; flex: none; inline-size: 40px; block-size: 40px; color: var(--lp-ink-2); background: var(--lp-paper); }
-.lp-first-answer-timeline > div { min-inline-size: 0; padding-block-start: 8px; }
+/* 9px puts the first line of the note (15px, line-height 1.45) on the 40px icon's centre. */
+.lp-first-answer-timeline > div { min-inline-size: 0; padding-block-start: 9px; }
 .lp-first-answer-timeline .lp-actions { margin-block-start: 12px; }
 .lp-first-answer-check-text { min-inline-size: 0; }
 /* base.css covers these targets only on :focus-visible. Pointer actions focus them too.

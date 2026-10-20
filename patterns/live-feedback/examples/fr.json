@@ -1,0 +1,25 @@
+{
+  "prompt": "Quelles sont les trois actions que vous allez entreprendre, dès maintenant, pour mieux vous affirmer au travail?",
+  "criteria": [
+    {
+      "id": "three_actions",
+      "done": "Trois actions différentes",
+      "todo": "Ajoutez une autre action"
+    },
+    {
+      "id": "observable",
+      "done": "Des actions visibles",
+      "todo": "Décrivez des actions qu'on pourrait vous voir faire"
+    },
+    {
+      "id": "when",
+      "done": "Un moment ou un lieu pour agir",
+      "todo": "Dites quand vous allez agir"
+    },
+    {
+      "id": "commitments",
+      "done": "Vos propres actions",
+      "todo": "Tenez-vous à ce que vous ferez vous-même"
+    }
+  ]
+}

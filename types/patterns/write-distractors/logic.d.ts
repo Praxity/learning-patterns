@@ -1,3 +1,14 @@
+/** Error keys let the host pick an authored translation. Count UTF-16 units after trim.
+ * @param {unknown} text
+ * @returns {{ ok: true, text: string } | { ok: false, error: 'emptyAnswer' | 'longAnswer' }}
+ */
+export function validateAnswer(text: unknown): {
+    ok: true;
+    text: string;
+} | {
+    ok: false;
+    error: "emptyAnswer" | "longAnswer";
+};
 /** Key A belongs to the right answer; wrong options start at index 1.
  * @param {number} index @returns {string}
  */
@@ -40,6 +51,7 @@ export function coverageMessage(content: Content, options: LearnerOption[]): {
     untargeted: string[];
 };
 /** Accept incomplete drafts; shown results must pass submission validation.
+ * Oversized answers keep their full text and options but return to the answer step.
  * @param {Content} content @param {unknown} value @returns {LearnerState | null}
  */
 export function validateState(content: Content, value: unknown): LearnerState | null;
@@ -52,6 +64,7 @@ export function validateState(content: Content, value: unknown): LearnerState | 
 /** @typedef {'empty' | 'longText' | 'right' | 'duplicate' | 'choose' | 'describe' | 'longCustom'} ErrorCode */
 /** @typedef {{ option: number, field: Field, code: ErrorCode }} FieldError */
 export const OTHER: "other";
+export const MAX_ANSWER: 2000;
 export const MAX_OPTION: 300;
 export const MAX_CUSTOM: 120;
 export type Misconception = {

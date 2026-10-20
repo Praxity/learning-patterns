@@ -38,7 +38,7 @@ test('score groups keyed answers and requires all of a section’s one or two qu
   const result = score(content, { agenda: 'attendees', discussion: 'wait', 'follow-up': 'actions' });
   assert.deepEqual(result.right, ['follow-up']);
   assert.deepEqual(result.wrong, ['agenda', 'discussion']);
-  assert.deepEqual(result.passed, [4]); assert.equal(result.skip, 2);
+  assert.deepEqual(result.passed, [4]); assert.equal(result.skip, 1);
   assert.equal(score(content, all(q => q.correct)).skip, 3);
   assert.equal(score(content, all(q => q.options.find(o => o.id !== q.correct).id)).skip, 0);
   assert.equal(score({ ...content, allowTestOut: false }, all(q => q.correct)).skip, 0);
@@ -149,15 +149,15 @@ test('advanced answer explanations describe answers only', () => {
   const fr = render(french, strings.fr, { id: 'fr', lang: 'fr' });
   assert.doesNotMatch(en, /Passing this section|credits/);
   assert.doesNotMatch(fr, /Réussir cette section|crédit/);
-  assert.ok(en.includes('The facilitator makes room for other people to contribute.'));
-  assert.ok(en.includes('Confirm decisions, action owners and deadlines.'));
-  assert.ok(fr.includes('La personne qui anime la réunion laisse de la place aux autres.'));
-  assert.ok(fr.includes('Confirmez les décisions, les responsables des actions et les échéances.'));
+  assert.ok(en.includes('Invite others to speak so everyone can contribute.'));
+  assert.ok(en.includes('Confirm what was decided, who will do each task and by when.'));
+  assert.ok(fr.includes('Invitez les autres à parler pour que tout le monde puisse contribuer.'));
+  assert.ok(fr.includes('Confirmez les décisions, qui fera chaque tâche et pour quand.'));
 });
 
 test('server counters carry section titles in both languages', () => {
   assert.match(render(content, strings.en, { id: 'en', lang: 'en' }), /data-lp-panel-heading>Question 1 of 3: Writing an agenda<\/h3>/);
-  assert.match(render(french, strings.fr, { id: 'fr', lang: 'fr' }), /data-lp-panel-heading>Question 1 sur 3 : Préparer un ordre du jour<\/h3>/);
+  assert.match(render(french, strings.fr, { id: 'fr', lang: 'fr' }), /data-lp-panel-heading>Question 1 sur 3 : Préparer un ordre du jour<\/h3>/);
 });
 
 test('server questions have no progress bar', () => {
@@ -212,4 +212,20 @@ test('owner audit: question carries its context and outline has no credit messag
     assert.equal(Object.hasOwn(strings[lang], 'credited'), false);
     assert.equal(Object.hasOwn(strings[lang], 'creditFrom'), false);
   }
+});
+
+
+test('a directly failed prerequisite stays required after an advanced pass', () => {
+  const value = score(content, { agenda: 'attendees', discussion: 'wait', 'follow-up': 'actions' });
+  assert.equal(value.rows.find(row => row.id === 3).action, 'take');
+  assert.equal(value.skip, 1);
+  assert.equal(plan(content.sections, [4], true, [3]).rows.find(row => row.id === 3).action, 'take');
+  assert.throws(() => plan(content.sections, [4], true, [99]), /failed/);
+  assert.throws(() => plan(content.sections, [4], true, [4]), /failed/);
+});
+
+test('a question must offer at least two choices', () => {
+  const value = structuredClone(content);
+  value.questions[0].options = value.questions[0].options.filter(o => o.id === value.questions[0].correct);
+  assert.throws(() => validateContent(value), /options/);
 });

@@ -52,9 +52,9 @@
 .lp [hidden] { display: none !important; }
 .lp :where(p, ul, ol, fieldset, details, figure, h2, h3, h4) { margin: 0; }
 .lp :where(p) { white-space: pre-line; }
-/* Body text avoids a lone last word; headings balance their lines. */
-.lp :where(p, li, dd, figcaption, label, legend) { text-wrap: pretty; }
-.lp :where(h2, h3, h4), .lp-stem, .lp-scene-title, .lp-run-in { text-wrap: balance; }
+/* Body text and question stems avoid a lone last word; short headings and titles balance. */
+.lp :where(p, li, dd, figcaption, label, legend), .lp-stem { text-wrap: pretty; }
+.lp :where(h2, h3, h4), .lp-scene-title, .lp-run-in { text-wrap: balance; }
 .lp > * + *, .lp-stack > * + * { margin-block-start: 16px; }
 
 /* Text roles */
@@ -66,12 +66,18 @@
 .lp-quote { padding: 12px 16px; border-inline-start: 3px solid var(--lp-line-mid); border-radius: 0 8px 8px 0; background: var(--lp-paper-2); }
 
 /* The scene header: what this activity is, shown as the real task (an icon tile, a short label,
-   the title). It spans the top of the card. Centre the tile on the text block so one-line and
-   two-line titles both line up. */
+   the title). It spans the top of the card. The tile centres on the text block while the block is
+   up to two title lines tall, so one-line and two-line titles line up. A taller block keeps the tile
+   level with its first two lines instead of floating mid-block. The icon column stretches to the
+   text; its top spacer stops at the two-line offset and the bottom spacer takes the rest. */
 .lp-scene { display: flex; gap: 14px; align-items: center; margin: -28px -28px 24px; padding: 20px 28px; border-block-end: 1px solid var(--lp-rule); border-radius: var(--lp-radius-box) var(--lp-radius-box) 0 0; background: var(--lp-paper-2); }
 .lp-scene > div { min-inline-size: 0; }
-.lp-scene-icon { display: grid; flex: none; place-items: center; inline-size: 40px; block-size: 40px; border-radius: var(--lp-radius-control); color: var(--lp-accent-ink); background: var(--lp-accent-soft); }
-.lp-scene-icon .lp-icon { inline-size: 22px; block-size: 22px; }
+.lp-scene-icon { display: flex; flex: none; flex-direction: column; align-self: stretch; color: var(--lp-accent-ink); }
+.lp-scene-icon::before, .lp-scene-icon::after { content: ""; flex: 1 1 0; }
+/* Centred on the first two title lines: the title's 2px top margin and one .lp-scene-title line
+   (1.1875rem at line-height 1.35), less half the 40px tile. */
+.lp-scene-icon::before { max-block-size: calc(2px + 1.35 * 1.1875rem - 20px); }
+.lp-scene-icon .lp-icon { inline-size: 40px; block-size: 40px; padding: 9px; border-radius: var(--lp-radius-control); background: var(--lp-accent-soft); }
 .lp-scene-label { color: var(--lp-ink-2); font-size: var(--lp-type-small); font-weight: 600; line-height: 1.3; }
 .lp-scene-title { margin-block-start: 2px; font-size: 1.1875rem; font-weight: 600; line-height: 1.35; letter-spacing: -.005em; }
 .lp-scene-sub { margin-block-start: 4px; color: var(--lp-ink-2); font-size: var(--lp-type-small); line-height: 1.45; }
@@ -97,7 +103,7 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
 .lp-input:hover { border-color: var(--lp-ink-2); }
 .lp-input[readonly] { color: var(--lp-ink); background: var(--lp-paper-2); border-color: var(--lp-line-mid); }
 .lp-input[aria-invalid="true"] { border: 2px solid var(--lp-error-ink); padding: 10px 13px; }
-.lp-error-text { display: flex; gap: 6px; align-items: flex-start; color: var(--lp-error-ink); font-size: var(--lp-type-small); font-weight: 600; }
+.lp-error-text { display: flex; gap: 8px; align-items: flex-start; color: var(--lp-error-ink); font-size: var(--lp-type-small); font-weight: 600; }
 
 /* Choice rows, after Tally: a light row, a letter key for single choice, a square for
    multiple choice. The native input stays in the row for keyboards and screen readers. */
@@ -125,7 +131,8 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
 .lp-choice:has(input:focus-visible) { outline: 2px solid var(--lp-focus); outline-offset: 2px; }
 /* Single choice: the radio sits under a letter key. */
 .lp-choice:has(> input[type="radio"])::before {
-  content: counter(lp-key, upper-alpha);
+  /* Empty CSS alt text keeps the visual key out of screen-reader browse text. */
+  content: counter(lp-key, upper-alpha) / "";
   display: grid;
   flex: none;
   place-items: center;
@@ -140,6 +147,11 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
 }
 .lp-choice:has(> input[type="radio"]:checked)::before { color: var(--lp-on-accent); background: var(--lp-accent); border-color: var(--lp-accent); }
 .lp-choice > input[type="radio"] { position: absolute; inset-inline-start: 14px; inline-size: 26px; block-size: 26px; margin: 0; opacity: 0; cursor: pointer; }
+/* Engines without CSS alt text show the native radio instead of a spoken letter. */
+@supports not (content: counter(lp-key, upper-alpha) / "") {
+  .lp-choice:has(> input[type="radio"])::before { display: none; }
+  .lp-choice > input[type="radio"] { position: static; opacity: 1; }
+}
 /* Multiple choice: a square that fills. */
 .lp-choice > input[type="checkbox"] { appearance: none; position: relative; flex: none; inline-size: 22px; block-size: 22px; margin: 0; border: 1.5px solid var(--lp-line); border-radius: 6px; background: var(--lp-paper); cursor: pointer; }
 .lp-choice > input[type="checkbox"]::after { content: ""; position: absolute; inset-inline-start: 6.5px; inset-block-start: 2.5px; inline-size: 5px; block-size: 10px; border: solid var(--lp-on-accent); border-width: 0 2px 2px 0; transform: rotate(45deg); opacity: 0; }
@@ -155,18 +167,23 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
 .lp-choice > input[type="checkbox"] { grid-column: 1; grid-row: 1; margin-block-start: 1px; }
 /* Everything else (the text, then any feedback) stacks in the text column, one row each. */
 .lp-choice > :not(input, .lp-choice-mark, .lp-choice-key) { grid-column: 2; min-inline-size: 0; }
-/* The key letter sits on the same baseline as the first line of text. Centring the key box on the
-   line looked high, because lowercase text sits below the line's centre (owner, 2026-10-07). */
+/* The first line of text sits optically centred on the key box: the midpoint between its cap
+   height and x-height on the box's centre. Centring the line box looked high, because lowercase
+   text sits below the line's centre (owner, 2026-10-07); aligning to the 13px key letter's baseline
+   still left the 17px text about 2px high (owner, 2026-10-10). The .125em top margin (2px at body
+   size) closes that gap; later lines and feedback in the text column keep no margin. */
 .lp-choice:has(> input[type="radio"])::before,
 .lp-choice > .lp-choice-key,
-.lp-choice > :not(input, .lp-choice-mark, .lp-choice-key) { align-self: baseline; }
+.lp-choice > :not(input, .lp-choice-mark, .lp-choice-key) { align-self: start; }
+.lp-choice > :not(input, .lp-choice-mark, .lp-choice-key):nth-child(1 of :not(input, .lp-choice-mark, .lp-choice-key)) { margin-block-start: .125em; }
 /* A key without a radio, for read-only rows such as a question preview. */
 .lp-choice > .lp-choice-key { display: grid; grid-column: 1; grid-row: 1; place-items: center; inline-size: 26px; block-size: 26px; border: 1px solid var(--lp-line); border-radius: 6px; color: var(--lp-ink-2); background: var(--lp-paper); font-size: 13px; font-weight: 600; }
 .lp-choice[data-lp-mark="correct"] > .lp-choice-key { color: var(--lp-on-accent); background: var(--lp-success-ink); border-color: var(--lp-success-ink); }
 .lp-choice[data-lp-mark="wrong"] > .lp-choice-key { color: var(--lp-on-accent); background: var(--lp-error-ink); border-color: var(--lp-error-ink); }
 .lp-choice > .lp-choice-mark { grid-column: 3; grid-row: 1; align-self: start; margin-inline-start: 0; }
 @container (max-width: 34rem) {
-  .lp-choice > .lp-choice-mark { grid-column: 2 / -1; grid-row: 2; justify-self: start; }
+  /* On its own row a long mark (French, 400% zoom) wraps rather than leaving the row. */
+  .lp-choice > .lp-choice-mark { grid-column: 2 / -1; grid-row: 2; justify-self: start; white-space: normal; }
 }
 
 /* Marking a choice after submit: icon, word and colour on the row itself. */
@@ -175,7 +192,9 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
 .lp-choice[data-lp-mark="wrong"], .lp-choice[data-lp-mark="wrong"]:has(input:checked) { border: 2px solid var(--lp-error-ink); padding: 9px 13px; background: var(--lp-error-soft); }
 .lp-choice[data-lp-mark="correct"]:has(> input[type="radio"])::before { color: var(--lp-on-accent); background: var(--lp-success-ink); border-color: var(--lp-success-ink); }
 .lp-choice[data-lp-mark="wrong"]:has(> input[type="radio"])::before { color: var(--lp-on-accent); background: var(--lp-error-ink); border-color: var(--lp-error-ink); }
-.lp-choice-mark { display: inline-flex; gap: 4px; align-items: center; margin-inline-start: auto; padding: 2px 10px 2px 8px; border-radius: 999px; background: var(--lp-paper); font-size: var(--lp-type-small); font-weight: 600; white-space: nowrap; }
+/* The radius is half of one line plus padding: a pill on one line, a rounded box when the mark wraps,
+   with the line-high icon on the first line. */
+.lp-choice-mark { display: inline-flex; gap: 4px; align-items: flex-start; margin-inline-start: auto; padding: 2px 10px 2px 8px; border-radius: 12px; border-radius: calc(.5lh + 2px); background: var(--lp-paper); font-size: var(--lp-type-small); font-weight: 600; white-space: nowrap; }
 .lp-choice-mark.lp-met { color: var(--lp-success-ink); }
 .lp-choice-mark.lp-missed { color: var(--lp-error-ink); }
 .lp-choice-mark.lp-neutral { color: var(--lp-ink-2); }
@@ -208,7 +227,7 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
   line-height: 1.2;
   text-align: start;
   cursor: pointer;
-  transition: background .15s, transform .1s;
+  transition: background .15s, transform .15s;
 }
 .lp-button:hover { background: var(--lp-accent-ink); }
 .lp-button:active { transform: scale(.96); }
@@ -217,25 +236,33 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
 .lp-button-secondary[aria-pressed="true"] { padding: 9px 17px; border: 2px solid var(--lp-accent); color: var(--lp-accent-ink); background: var(--lp-accent-soft); box-shadow: none; }
 .lp-button-quiet { padding-inline: 10px; color: var(--lp-ink-2); background: transparent; border-color: transparent; box-shadow: none; }
 .lp-button-quiet:hover { color: var(--lp-ink); background: var(--lp-paper-2); }
+/* When nothing visible comes before it, the quiet button hangs its 10px padding and 1px border into the margin, so its
+   icon lines up with the text column. Beside another button it keeps its place. */
+.lp-button-quiet:not(:not([hidden]) ~ .lp-button-quiet) { margin-inline-start: calc(-10px - 1px); }
 .lp-button:disabled, .lp-button[aria-disabled="true"] { color: var(--lp-ink-2); background: var(--lp-paper-2); border-color: var(--lp-rule); box-shadow: none; cursor: default; }
 
 /* Status: icon, word and colour; never colour alone. */
 .lp-icon { flex: none; inline-size: 1.15em; block-size: 1.15em; }
+/* A box one line tall centres the glyph on the first line of its text, at any size or weight, so rows
+   align icons with align-items: start and no per-icon margins. Older browsers keep the 1.15em box. */
+.lp-icon { block-size: 1lh; }
 .lp-outcomes { display: grid; gap: 6px; padding: 0; list-style: none; }
-.lp-outcome { display: grid; grid-template-columns: auto 1fr; column-gap: 10px; align-items: start; padding: 8px 10px; border-radius: 8px; }
-.lp-outcome > .lp-icon { margin-block-start: .2em; }
+.lp-outcome { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 10px; align-items: start; padding: 8px 10px; border-radius: 8px; }
 .lp-outcome > :not(.lp-icon) { grid-column: 2; }
 .lp-outcome-word { font-weight: 600; }
-.lp-outcome-detail { color: var(--lp-ink-2); }
+/* Details often echo what the learner typed: keep their line breaks and break a pasted URL. */
+.lp-outcome-detail { color: var(--lp-ink-2); white-space: pre-line; overflow-wrap: anywhere; }
 .lp-met { color: var(--lp-success-ink); }
 .lp-missed { color: var(--lp-error-ink); }
 .lp-neutral { color: var(--lp-ink-2); }
 
 /* Native disclosure */
-.lp-details > summary { display: flex; gap: 8px; align-items: center; min-block-size: 44px; font-weight: 600; cursor: pointer; list-style: none; }
+.lp-details > summary { display: flex; gap: 8px; align-items: flex-start; min-block-size: 44px; padding-block: max(0px, calc((44px - 1lh) / 2)); font-weight: 600; cursor: pointer; list-style: none; }
 .lp-details > summary::-webkit-details-marker { display: none; }
-.lp-details > summary::before { content: ""; inline-size: .45em; block-size: .45em; border-block-end: 2px solid; border-inline-end: 2px solid; transform: rotate(-45deg); transition: transform .15s var(--lp-ease); }
-.lp-details[open] > summary::before { transform: rotate(45deg); }
+/* The chevron is a rotated corner. Open, its point hangs below the box centre, so it moves up to sit
+   on the centre of the first text line. */
+.lp-details > summary::before { content: ""; flex: none; inline-size: .45em; block-size: .45em; margin-block: calc((1lh - .45em) / 2); border-block-end: 2px solid; border-inline-end: 2px solid; transform: rotate(-45deg); transition: transform .15s var(--lp-ease); }
+.lp-details[open] > summary::before { transform: translate(0, -.16em) rotate(45deg); }
 .lp-details > :not(summary) { margin-block-start: 12px; }
 /* Disclosures open at once: a rise after the panel has opened reads as a twitch (owner, 2026-10-07). */
 
@@ -243,6 +270,7 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
 .lp :is(a, button, textarea, select, summary, input:not([type="radio"], [type="checkbox"])):focus,
 .lp [tabindex="-1"]:focus-visible { outline: 2px solid var(--lp-focus); outline-offset: 2px; }
 .lp-input:focus { border-color: var(--lp-accent); }
+.lp-input[aria-invalid="true"]:focus { border-color: var(--lp-error-ink); }
 
 .lp-visually-hidden {
   position: absolute !important;
@@ -255,9 +283,8 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
   white-space: nowrap;
 }
 
-/* Feedback appears with a short rise; nothing loops and nothing celebrates. */
-.lp-reveal { animation: lp-rise .3s var(--lp-ease); }
-@keyframes lp-rise { from { opacity: 0; transform: translateY(6px); } }
+/* Revealed answers and feedback open at once, with no rise (AGENTS.md, Motion). The class stays as a hook. */
+.lp-reveal { animation: none; }
 
 @container (max-width: 30rem) {
   .lp-actions > .lp-button:not(.lp-button-quiet) { flex: 1 1 100%; justify-content: center; }

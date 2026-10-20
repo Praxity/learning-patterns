@@ -2,13 +2,14 @@
  * @param {import('./logic.js').Content} content
  * @param {import('./strings.js').Strings} strings
  * @param {(import('./logic.js').AuthorOption | import('./logic.js').LearnerOption)[]} options
- * @param {{ author?: boolean, matches?: boolean[], heading?: boolean }} [settings]
+ * @param {{ author?: boolean, matches?: boolean[], heading?: boolean, lang?: string }} [settings]
  * @returns {string}
  */
-export function renderQuestionPreview(content: import("./logic.js").Content, strings: import("./strings.js").Strings, options: (import("./logic.js").AuthorOption | import("./logic.js").LearnerOption)[], { author, matches, heading }?: {
+export function renderQuestionPreview(content: import("./logic.js").Content, strings: import("./strings.js").Strings, options: (import("./logic.js").AuthorOption | import("./logic.js").LearnerOption)[], { author, matches, heading, lang }?: {
     author?: boolean;
     matches?: boolean[];
     heading?: boolean;
+    lang?: string;
 }): string;
 /** @param {import('./logic.js').Content} content
  * @param {import('./strings.js').Strings} strings

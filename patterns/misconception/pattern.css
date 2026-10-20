@@ -1,0 +1,8 @@
+/* Three-line quiz answer; the shared styles own all controls and choice marks. */
+.lp-misconception textarea.lp-input { min-block-size: 0; }
+/* A grid fieldset makes WebKit size the two-part legend to its unwrapped text.
+   Keep the fieldset native; the inner choice list uses the shared grid. */
+.lp-misconception fieldset.lp-choices { display: block; }
+.lp-misconception-heading { display: flex; gap: 8px; align-items: flex-start; color: var(--lp-warning-ink); }
+.lp-misconception-feedback { display: flex; gap: 8px; align-items: flex-start; }
+.lp-misconception .lp-details > summary::before { transition: transform .18s var(--lp-ease); }

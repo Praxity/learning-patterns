@@ -4,10 +4,52 @@ import { readFile } from 'node:fs/promises';
 import { validateContent, validateOptions, validateState, coverage, coverageMessage, targetOf, optionKey } from './logic.js';
 import { render } from './render.js';
 import { strings } from './strings.js';
+import * as logic from './logic.js';
 
 const content = JSON.parse(await readFile(new URL('./examples/en.json', import.meta.url)));
 const fr = JSON.parse(await readFile(new URL('./examples/fr.json', import.meta.url)));
 const option = (text = 'Yes, keep working.', misconception = 'push-through', custom = '') => ({ text, misconception, custom });
+
+test('initial answer uses a 2,000 UTF-16-unit limit after trimming', () => {
+  assert.equal(logic.MAX_ANSWER, 2000);
+  for (const text of ['x'.repeat(1999), 'x'.repeat(2000), '😀'.repeat(1000), ` \n${'x'.repeat(2000)}\t `]) {
+    assert.deepEqual(logic.validateAnswer(text), { ok: true, text: text.trim() });
+  }
+  for (const text of ['x'.repeat(2001), '😀'.repeat(1000) + 'x', ` ${'x'.repeat(2001)} `]) {
+    assert.deepEqual(logic.validateAnswer(text), { ok: false, error: 'longAnswer' });
+  }
+  for (const text of ['', ' \n\t ', null, 2000]) {
+    assert.deepEqual(logic.validateAnswer(text), { ok: false, error: 'emptyAnswer' });
+  }
+});
+
+test('oversized saved answers restore intact as drafts without completed checks', () => {
+  for (const answer of ['x'.repeat(2001), '😀'.repeat(1000) + 'x']) {
+    for (const [hadIt, shown] of [[null, false], [true, false], [false, true], [true, true]]) {
+      const saved = { answer, hadIt, options: [option('A'), option('B')], shown };
+      const copy = validateState(content, saved);
+      assert.deepEqual(copy, { ...saved, hadIt: null, shown: false });
+      assert.notEqual(copy.options, saved.options);
+      assert.notEqual(copy.options[0], saved.options[0]);
+      assert.equal(saved.hadIt, hadIt);
+      assert.equal(saved.shown, shown);
+    }
+  }
+  for (const answer of ['x'.repeat(1999), 'x'.repeat(2000), '😀'.repeat(1000), ` \n${'x'.repeat(2000)}\t `]) {
+    const saved = { answer, hadIt: true, options: [option('A'), option('B')], shown: true };
+    assert.deepEqual(validateState(content, saved), saved);
+  }
+});
+
+test('answer limit errors have authored English and French copy without an HTML truncation limit', () => {
+  assert.equal(strings.en.longAnswer, 'Keep your answer to {max} characters or fewer.');
+  assert.equal(strings.fr.longAnswer, 'Limitez votre réponse à {max} caractères.');
+  for (const lang of ['en', 'fr']) {
+    const output = render(lang === 'en' ? content : fr, strings[lang], { id: 'limit', lang });
+    const answer = output.match(/<textarea[^>]*data-lp-answer[^>]*>/)[0];
+    assert.doesNotMatch(answer, /maxlength/);
+  }
+});
 
 test('quiz keys reserve A for the answer and continue after Z', () => {
   assert.deepEqual([0, 1, 2, 25, 26, 27, 51, 52].map(optionKey), ['A', 'B', 'C', 'Z', 'AA', 'AB', 'AZ', 'BA']);
@@ -33,8 +75,8 @@ function matches(value, rule, root = value) {
 }
 
 test('example preserves the demo question, labels and author options with topic IDs', () => {
-  assert.equal(content.question, 'Is taking a real break during the workday a waste of time?');
-  assert.equal(content.rightAnswer, 'No. Short breaks restore attention and reduce mistakes.');
+  assert.equal(content.question, 'Are breaks during the workday a waste of time?');
+  assert.equal(content.rightAnswer, 'No. Short breaks help you regain focus and make fewer mistakes.');
   assert.equal(content.count, 2);
   assert.deepEqual(content.misconceptions.map(item => item.id), ['busy', 'push-through', 'phone', 'exhausted']);
   assert.deepEqual(content.authorOptions.map(item => targetOf(content, item)), content.misconceptions.map(item => item.label));
@@ -95,11 +137,11 @@ test('clean options normalize spaces and omit irrelevant custom text by emptying
 
 test('coverage identifies targeted, missed, extra and matching targets without repeats', () => {
   const value = coverage(content, [option('A'), option('B', 'other', 'Breaks disrupt focus')]);
-  assert.deepEqual(value.targeted, ['Pushing through is always more productive', 'Breaks disrupt focus']);
+  assert.deepEqual(value.targeted, ['Working without breaks always gets more done', 'Breaks disrupt focus']);
   assert.deepEqual(value.missed, [content.misconceptions[0].label, content.misconceptions[2].label, content.misconceptions[3].label]);
   assert.deepEqual(value.extra, ['Breaks disrupt focus']);
   assert.deepEqual(value.matches, [true, false]);
-  assert.deepEqual(coverage(content, [option('A', 'other', ' PUSHING through is always more productive '), option('B')]).matches, [true, true]);
+  assert.deepEqual(coverage(content, [option('A', 'other', ' WORKING without breaks always gets more done '), option('B')]).matches, [true, true]);
   assert.deepEqual(coverage(content, [option('A', 'other', ' New tag '), option('B', 'other', 'new TAG')]).extra, ['New tag']);
   const partial = { ...content, authorOptions: [content.authorOptions[0]] };
   assert.deepEqual(coverage(partial, [option('A'), option('B', 'phone')]).extra, [content.misconceptions[1].label, content.misconceptions[2].label]);
@@ -127,8 +169,8 @@ test('coverage counts unique normalized author targets rather than the whole tax
     authorTargeted: 0, authorTotal: 1, ownExtra: 2, untargeted: [content.misconceptions[0].label]
   });
   assert.deepEqual(coverage(partial, [option('A'), option('B', 'phone')]).missed, [content.misconceptions[0].label]);
-  const aliases = { ...partial, misconceptions: [...content.misconceptions, { id: 'alias', label: "  BREAKS are for people who aren't busy  " }], authorOptions: [...partial.authorOptions, { text: 'Alias answer', misconception: 'alias' }] };
-  assert.deepEqual(coverageMessage(aliases, [option('A', 'alias'), option('B', 'other', "BREAKS are for people who aren't BUSY")]), {
+  const aliases = { ...partial, misconceptions: [...content.misconceptions, { id: 'alias', label: "  BUSY people don't need breaks  " }], authorOptions: [...partial.authorOptions, { text: 'Alias answer', misconception: 'alias' }] };
+  assert.deepEqual(coverageMessage(aliases, [option('A', 'alias'), option('B', 'other', "BUSY people don't need BREAKS")]), {
     authorTargeted: 1, authorTotal: 1, ownExtra: 0, untargeted: []
   });
 });
@@ -192,9 +234,9 @@ test('English and French keys and placeholders match', () => {
 test('render uses the shared frame, text roles, sectioned fields and quiet Start over', () => {
   const output = render(content, strings.en, { id: 'design', lang: 'en' });
   assert.match(output, /class="lp lp-write-distractors"/);
-  assert.match(output, /<h2 class="lp-scene-title">Is taking a real break/);
+  assert.match(output, /<h2 class="lp-scene-title">Are breaks during the workday/);
   assert.match(output, /<p class="lp-run-in lp-met">Right answer<\/p>/);
-  assert.match(output, /data-lp-write-heading[^>]*>Write two wrong options and the misconception behind each\.<\/h3>/);
+  assert.match(output, /data-lp-write-heading[^>]*>Write two wrong options\. Name the mistaken idea behind each\.<\/h3>/);
   assert.equal((output.match(/class="lp-write-distractors-builder lp-section"/g) || []).length, 2);
   assert.equal((output.match(/<legend class="lp-run-in"[^>]*>Wrong option/g) || []).length, 2);
   assert.equal((output.match(/class="lp-input"/g) || []).length, 6);
@@ -219,15 +261,20 @@ test('render merges repeated instructions and names builders by their answer key
   }
 });
 
-test('render writes counts two to five in words in both languages, then digits', () => {
+test('render writes counts two to five in words in both languages and rejects higher counts', () => {
   for (const [lang, authored, headings] of [
-    ['en', content, ['Write one wrong option and the misconception behind it.', ...['two', 'three', 'four', 'five', '6', '12'].map(n => `Write ${n} wrong options and the misconception behind each.`)]],
-    ['fr', fr, ["Rédigez une mauvaise réponse et l'idée fausse derrière celle-ci.", ...['deux', 'trois', 'quatre', 'cinq', '6', '12'].map(n => `Rédigez ${n} mauvaises réponses et l'idée fausse derrière chacune.`)]]
+    ['en', content, ['Write one wrong option. Name the mistaken idea behind it.', ...['two', 'three', 'four', 'five'].map(n => `Write ${n} wrong options. Name the mistaken idea behind each.`)]],
+    ['fr', fr, ["Rédigez une mauvaise réponse. Nommez l'idée fausse derrière celle-ci.", ...['deux', 'trois', 'quatre', 'cinq'].map(n => `Rédigez ${n} mauvaises réponses. Nommez l'idée fausse derrière chacune.`)]]
   ]) {
-    for (const [index, count] of [1, 2, 3, 4, 5, 6, 12].entries()) {
+    for (const [index, count] of [1, 2, 3, 4, 5].entries()) {
       const output = render({ ...authored, count }, strings[lang], { id: 'count', lang });
       assert.equal(output.match(/data-lp-write-heading[^>]*>([^<]+)</)[1], headings[index].replaceAll("'", '&#39;'));
       assert.equal((output.match(/<fieldset/g) || []).length, count);
     }
   }
+});
+
+
+test('counts above the five authored names are rejected', () => {
+  for (const count of [6, 50, 2 ** 32, Number.MAX_SAFE_INTEGER]) assert.throws(() => validateContent({ ...content, count }), /count/);
 });

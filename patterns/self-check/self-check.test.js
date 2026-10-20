@@ -37,9 +37,9 @@ test('feedback counts unique known ticks and returns labels and missed hints in 
   const result = feedback(content, ['reason', 'reason', 'no_blame']);
   assert.equal(result.count, 2);
   assert.equal(result.total, 6);
-  assert.deepEqual(result.items[1], { id: 'reason', included: true, label: 'Reason for the delay', hint: null });
-  assert.deepEqual(result.items[5], { id: 'no_blame', included: true, label: 'No blame', hint: null });
-  assert.deepEqual(result.items[0], { id: 'work_deadline', included: false, label: 'Client report and Friday deadline', hint: 'Name the client report and its Friday deadline.' });
+  assert.deepEqual(result.items[1], { id: 'reason', included: true, label: 'Sales data arrived late', hint: null });
+  assert.deepEqual(result.items[5], { id: 'no_blame', included: true, label: 'Describe the delay without blame', hint: null });
+  assert.deepEqual(result.items[0], { id: 'work_deadline', included: false, label: 'Client report due Friday', hint: 'Say the client report is due Friday.' });
   assert.equal(feedback(content, content.parts.map(part => part.id)).count, 6);
   assert.throws(() => feedback(content, ['unknown']), /Unknown part: unknown/);
 });
@@ -55,7 +55,9 @@ test('content parts use evidence and reject the obsolete met field', () => {
 
 test('content validator and schema agree on shared valid and planted invalid fields', async () => {
   const fr = JSON.parse(await readFile(new URL('./examples/fr.json', import.meta.url)));
-  const fixtures = [[content, true], [fr, true], [{ ...content, task: ' ' }, true]];
+  const withoutContext = structuredClone(content);
+  delete withoutContext.context;
+  const fixtures = [[content, true], [fr, true], [withoutContext, true], [{ ...content, task: ' ' }, true]];
   const bad = (value, field) => fixtures.push([value, false, field]);
   bad(null, 'content'); bad([], 'content'); bad({ ...content, extra: '' }, 'extra');
   for (const field of ['task', 'model']) {
@@ -69,8 +71,11 @@ test('content validator and schema agree on shared valid and planted invalid fie
   bad({ ...content, parts: [{ ...content.parts[0], id: 'bad id' }] }, 'id');
   bad({ ...content, parts: [{ ...content.parts[0], extra: 'x' }] }, 'extra');
   bad({ ...content, parts: [content.parts[0], { ...content.parts[0], label: 'Duplicate identity' }] }, 'id');
-  for (const value of [undefined, null, [], 'Sam', { ...content.context, extra: 'x' }]) bad({ ...content, context: value }, 'context');
+  for (const value of [undefined, null, {}, [], 'Sam', { ...content.context, extra: 'x' }]) bad({ ...content, context: value }, 'context');
   for (const field of ['to', 'initials', 'subject']) {
+    const incomplete = structuredClone(content);
+    delete incomplete.context[field];
+    bad(incomplete, `context.${field}`);
     for (const value of [undefined, null, '', 3]) bad({ ...content, context: { ...content.context, [field]: value } }, `context.${field}`);
   }
   for (const evidence of [undefined, '', 3, 'Absent', 'a']) bad({ ...content, parts: [{ ...content.parts[0], evidence }] }, 'evidence');
@@ -78,6 +83,36 @@ test('content validator and schema agree on shared valid and planted invalid fie
     assert.equal(matches(value, schema), valid, `schema: ${field}`);
     if (valid) assert.doesNotThrow(() => validateContent(value));
     else assert.throws(() => validateContent(value), error => error instanceof Error && error.message.includes(field));
+  }
+});
+
+test('context may be absent but supplied context must be complete', () => {
+  const value = structuredClone(content);
+  delete value.context;
+  assert.doesNotThrow(() => validateContent(value));
+  for (const context of [null, {}, { to: 'Sam', initials: 'S' }]) {
+    assert.throws(() => validateContent({ ...value, context }), /context/);
+  }
+});
+
+test('render without context keeps the escaped task and labelled answer without recipient chrome', () => {
+  const value = { task: 'Explain <why>.', model: 'Late data.', parts: [{ id: 'reason', label: 'Reason', missed: 'Explain the delay.', evidence: 'Late data.' }] };
+  const markup = render(value, strings.en, { id: 'general', lang: 'en' });
+  assert.match(markup, /lp-scene-title">Explain &lt;why&gt;\.<\/p>/);
+  assert.match(markup, /<label[^>]*for="general-answer">Your answer<\/label>/);
+  assert.match(markup, /<textarea[^>]*id="general-answer"[^>]*><\/textarea>/);
+  assert.doesNotMatch(markup, /lp-self-check-meta|lp-self-check-recipient|lp-self-check-avatar|lp-scene-icon|placeholder=/);
+});
+
+test('shared English and French instructions refer to answers with stable keys', () => {
+  const keys = ['to', 'subject', 'answer', 'check', 'empty', 'tick', 'meter', 'show', 'resultAll', 'resultOne', 'resultMany', 'mine', 'model', 'legend', 'included', 'notIncluded', 'whole', 'restart', 'cleared', 'checkOwn', 'summary'];
+  const expected = {
+    en: { answer: 'Your answer', empty: 'Write your answer first.', tick: 'Tick each part your answer includes.', resultMany: 'Use the hints to add missing parts.', mine: 'Your answer', whole: 'Whole answer', checkOwn: 'Check for these parts.' },
+    fr: { answer: 'Votre réponse', empty: "Écrivez d'abord votre réponse.", tick: 'Cochez chaque élément présent dans votre réponse.', resultMany: 'Ajoutez les éléments manquants à l\'aide des conseils.', mine: 'Votre réponse', whole: "Toute la réponse", checkOwn: 'Vérifiez ces éléments dans votre réponse.' }
+  };
+  for (const lang of ['en', 'fr']) {
+    assert.deepEqual(Object.keys(strings[lang]), keys);
+    for (const [key, value] of Object.entries(expected[lang])) assert.equal(strings[lang][key], value);
   }
 });
 

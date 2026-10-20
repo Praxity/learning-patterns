@@ -1,3 +1,4 @@
+import { validateTextLengths } from '../../lib/text-limits.js';
 /** @typedef {'remembered' | 'forgot'} Result */
 /** @typedef {{ remembered: number, forgot: number }} ReviewDays */
 /** @typedef {{ id: string, heading: string, paragraphs: string[], question: string, answer: string }} Part */
@@ -31,6 +32,10 @@ function result(value) { return value === 'remembered' || value === 'forgot'; }
  * @param {unknown} content @returns {asserts content is Content}
  */
 export function validateContent(content) {
+  validateTextLengths(content, {
+    title: 120,
+    parts: [{"id": 120, "heading": 120, "paragraphs": [1500], "question": 400, "answer": 1500}],
+  });
   if (!object(content)) throw new Error('Invalid content');
   fields(content, ['title', 'parts', 'reviewDays'], 'content');
   if (typeof content.title !== 'string' || content.title.length === 0) throw new Error('Invalid title');

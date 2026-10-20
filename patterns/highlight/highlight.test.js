@@ -1,3 +1,4 @@
+import { frenchTypography } from '../../lib/html.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -125,7 +126,7 @@ test('render has one task instruction and no decorative scene label in either la
   for (const lang of ['en', 'fr']) {
     const html = render(example('evidence'), strings[lang], { id: lang, lang });
     assert.equal(html.includes('lp-scene-label'), false);
-    assert.ok(html.includes(strings[lang].evidenceInstruction.replaceAll('{question}', 'How do they feel?')));
+    assert.ok(html.includes(frenchTypography(strings[lang].evidenceInstruction.replaceAll('{question}', 'How do they feel?'), lang)));
     assert.ok(html.includes(strings[lang].count.replaceAll('{n}', '0').replaceAll('{max}', '2')));
     assert.match(html, /data-lp-limit hidden/);
   }

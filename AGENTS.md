@@ -22,7 +22,7 @@ Each `patterns/<name>/` contains pure `logic.js`, server `render.js`, DOM `enhan
 - Choices are full-width `lp-choice` rows; selection is a 2px accent border (padding 1px smaller so the row keeps its size) with a soft accent tint; no shadow rings, since shadows belong to cards and floating layers only. After submit, mark rows with `data-lp-mark="correct|wrong"` and a `lp-choice-mark` line with an icon and a word.
 - Buttons: `lp-button` (one primary action), `lp-button-secondary`, `lp-button-quiet` (with an icon, for Start over and Try again). Status uses `lp-met`, `lp-missed` and `lp-neutral` with an icon and a word, never colour alone.
 - A thick single-side border (an accent stripe) only ever sits on a straight edge. If the element has rounded corners, use an even 1px border or none. Most stripes are decoration; leave them out.
-- Body text uses `text-wrap: pretty`; headings, stems and titles use `text-wrap: balance` (set in `lib/base.css`).
+- Body text and question stems use `text-wrap: pretty`; short headings and titles use `text-wrap: balance` (set in `lib/base.css`).
 - No emoji or celebration.
 - Keep English and French together with identical string keys. Authors write every learner-facing message. A model may only pick which one.
 
@@ -47,4 +47,6 @@ Motion explains a change; it never decorates. From the motion-timing, motion-per
 
 Use Node 22 and npm. When another worktree may be running browser tests, set `LP_PORT` to a free port. Run `npm test`, `npm run typecheck`, `npm run types:check`, `npm run budget`, `npm run demo` and `npm run test:browser`. After changing JSDoc types, run `npm run types` and commit `types/`.
 
-This repo will be public: no machine paths, no client material, no private links.
+`npm run preview:deploy` is for people hosting their own copy, under their own Worker name. Praxity's live demos are deployed separately, so `scripts/check-deploy-account.mjs` refuses the Praxity Cloudflare account unless `LP_ALLOW_PRAXITY_DEPLOY=1` is set on purpose.
+
+This repo is public: no machine paths, no client material, no private links.

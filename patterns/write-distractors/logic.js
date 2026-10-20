@@ -8,8 +8,20 @@
 /** @typedef {{ option: number, field: Field, code: ErrorCode }} FieldError */
 
 export const OTHER = 'other';
+export const MAX_ANSWER = 2000;
 export const MAX_OPTION = 300;
 export const MAX_CUSTOM = 120;
+
+/** Error keys let the host pick an authored translation. Count UTF-16 units after trim.
+ * @param {unknown} text
+ * @returns {{ ok: true, text: string } | { ok: false, error: 'emptyAnswer' | 'longAnswer' }}
+ */
+export function validateAnswer(text) {
+  const trimmed = typeof text === 'string' ? text.trim() : '';
+  if (!trimmed) return { ok: false, error: 'emptyAnswer' };
+  if (trimmed.length > MAX_ANSWER) return { ok: false, error: 'longAnswer' };
+  return { ok: true, text: trimmed };
+}
 
 /** Key A belongs to the right answer; wrong options start at index 1.
  * @param {number} index @returns {string}
@@ -44,17 +56,17 @@ export function validateContent(content) {
   if (!object(content)) throw new Error('Invalid content');
   fields(content, ['question', 'rightAnswer', 'misconceptions', 'authorOptions', 'count'], 'content');
   for (const field of ['question', 'rightAnswer']) {
-    if (typeof content[field] !== 'string' || content[field].length === 0) throw new Error(`Invalid ${field}`);
+    if (typeof content[field] !== 'string' || content[field].length === 0 || [...content[field]].length > (field === 'question' ? 400 : MAX_OPTION)) throw new Error(`Invalid ${field}`);
   }
-  if (!Number.isSafeInteger(content.count) || typeof content.count !== 'number' || content.count < 1) throw new Error('Invalid count');
+  if (!Number.isSafeInteger(content.count) || typeof content.count !== 'number' || content.count < 1 || content.count > 5) throw new Error('Invalid count');
   if (!Array.isArray(content.misconceptions) || !content.misconceptions.length) throw new Error('Invalid misconceptions');
   const known = new Set();
   content.misconceptions.forEach((item, index) => {
     const path = `misconceptions[${index}]`;
     if (!object(item)) throw new Error(`Invalid ${path}`);
     fields(item, ['id', 'label'], path);
-    if (typeof item.id !== 'string' || !/^[a-zA-Z0-9_-]+$/.test(item.id) || item.id === OTHER || known.has(item.id)) throw new Error(`Invalid ${path}.id`);
-    if (typeof item.label !== 'string' || !item.label.length) throw new Error(`Invalid ${path}.label`);
+    if (typeof item.id !== 'string' || !/^[a-zA-Z0-9_-]+$/.test(item.id) || item.id === OTHER || known.has(item.id) || [...item.id].length > 120) throw new Error(`Invalid ${path}.id`);
+    if (typeof item.label !== 'string' || !item.label.length || [...item.label].length > 120) throw new Error(`Invalid ${path}.label`);
     known.add(item.id);
   });
   if (!Array.isArray(content.authorOptions) || !content.authorOptions.length) throw new Error('Invalid authorOptions');
@@ -62,8 +74,8 @@ export function validateContent(content) {
     const path = `authorOptions[${index}]`;
     if (!object(item)) throw new Error(`Invalid ${path}`);
     fields(item, ['text', 'misconception'], path);
-    if (typeof item.text !== 'string' || !item.text.length) throw new Error(`Invalid ${path}.text`);
-    if (typeof item.misconception !== 'string' || !known.has(item.misconception)) throw new Error(`Invalid ${path}.misconception`);
+    if (typeof item.text !== 'string' || !item.text.length || [...item.text].length > MAX_OPTION) throw new Error(`Invalid ${path}.text`);
+    if (typeof item.misconception !== 'string' || !known.has(item.misconception) || [...item.misconception].length > 120) throw new Error(`Invalid ${path}.misconception`);
   });
 }
 
@@ -152,6 +164,7 @@ export function coverageMessage(content, options) {
 }
 
 /** Accept incomplete drafts; shown results must pass submission validation.
+ * Oversized answers keep their full text and options but return to the answer step.
  * @param {Content} content @param {unknown} value @returns {LearnerState | null}
  */
 export function validateState(content, value) {
@@ -165,9 +178,12 @@ export function validateState(content, value) {
   if (!value.options.every(item => isOption(item) && item.text.length <= MAX_OPTION && item.custom.length <= MAX_CUSTOM && known.has(item.misconception))) return null;
   const options = /** @type {LearnerOption[]} */ (value.options);
   if (value.shown && !validateOptions(content, options).ok) return null;
+  const answer = legacy ? '' : /** @type {string} */ (value.answer);
+  const checked = validateAnswer(answer);
+  const resetAnswer = legacy || (!checked.ok && checked.error === 'longAnswer');
   return {
-    answer: legacy ? '' : /** @type {string} */ (value.answer),
-    hadIt: legacy ? null : /** @type {boolean | null} */ (value.hadIt),
-    options: options.map(item => ({ ...item })), shown: legacy ? false : value.shown
+    answer,
+    hadIt: resetAnswer ? null : /** @type {boolean | null} */ (value.hadIt),
+    options: options.map(item => ({ ...item })), shown: resetAnswer ? false : value.shown
   };
 }

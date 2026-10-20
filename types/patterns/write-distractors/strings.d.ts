@@ -3,6 +3,7 @@ export namespace strings {
         let answer: string;
         let check: string;
         let emptyAnswer: string;
+        let longAnswer: string;
         let hadIt: string;
         let yes: string;
         let notQuite: string;
@@ -46,6 +47,8 @@ export namespace strings {
         export { check_1 as check };
         let emptyAnswer_1: string;
         export { emptyAnswer_1 as emptyAnswer };
+        let longAnswer_1: string;
+        export { longAnswer_1 as longAnswer };
         let hadIt_1: string;
         export { hadIt_1 as hadIt };
         let yes_1: string;

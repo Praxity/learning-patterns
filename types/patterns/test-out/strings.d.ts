@@ -18,6 +18,7 @@ export namespace strings {
         let unanswered: string;
         let summary: string;
         let summaryOne: string;
+        let summaryOneRequired: string;
         let markCorrect: string;
         let markWrong: string;
         let markAnswer: string;
@@ -65,6 +66,8 @@ export namespace strings {
         export { summary_1 as summary };
         let summaryOne_1: string;
         export { summaryOne_1 as summaryOne };
+        let summaryOneRequired_1: string;
+        export { summaryOneRequired_1 as summaryOneRequired };
         let markCorrect_1: string;
         export { markCorrect_1 as markCorrect };
         let markWrong_1: string;

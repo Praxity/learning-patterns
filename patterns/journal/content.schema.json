@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Journal entry with a nudge content",
+  "type": "object",
+  "required": ["prompt", "questions", "complete", "support", "supportNote", "saved", "changed"],
+  "additionalProperties": false,
+  "properties": {
+    "prompt": { "$ref": "#/$defs/text", "maxLength": 400 },
+    "complete": { "$ref": "#/$defs/text", "maxLength": 1500 },
+    "support": { "$ref": "#/$defs/text", "maxLength": 1500 },
+    "supportNote": { "$ref": "#/$defs/text", "maxLength": 1500 },
+    "saved": { "$ref": "#/$defs/text", "maxLength": 1500 },
+    "changed": { "$ref": "#/$defs/text", "maxLength": 1500 },
+    "questions": {
+      "type": "array", "minItems": 4, "maxItems": 4,
+      "prefixItems": [
+        { "$ref": "#/$defs/question", "properties": { "id": { "const": "situation" } } },
+        { "$ref": "#/$defs/question", "properties": { "id": { "const": "action" } } },
+        { "$ref": "#/$defs/question", "properties": { "id": { "const": "next_step" } } },
+        { "$ref": "#/$defs/question", "properties": { "id": { "const": "when" } } }
+      ],
+      "items": false
+    }
+  },
+  "$defs": {
+    "text": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 1500 },
+    "question": {
+      "type": "object", "additionalProperties": false, "required": ["id", "text"],
+      "properties": {
+        "id": { "enum": ["situation", "action", "next_step", "when"] },
+        "text": { "$ref": "#/$defs/text", "maxLength": 400 }
+      }
+    }
+  }
+}

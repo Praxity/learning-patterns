@@ -1,3 +1,4 @@
+import { frenchTypography } from '../../lib/html.js';
 import { isoDate, scheduleReview, validateContent, validateState } from './logic.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
@@ -41,7 +42,7 @@ export function enhance(root, { content, strings, state }) {
   });
   let current = validateState(content, state?.read()) ?? { results: {} };
   function showProgress() {
-    progress.textContent = strings.progress.replaceAll('{count}', String(Object.keys(current.results).length)).replaceAll('{total}', String(content.parts.length));
+    progress.textContent = frenchTypography(strings.progress.replaceAll('{count}', String(Object.keys(current.results).length)).replaceAll('{total}', String(content.parts.length)), root.lang);
   }
   showProgress(); progress.hidden = false;
   let destroyed = false;
@@ -56,7 +57,7 @@ export function enhance(root, { content, strings, state }) {
   function show(block, record) {
     const date = format.format(new Date(`${record.reviewOn}T00:00:00Z`));
     const time = root.ownerDocument.createElement('time');
-    time.dateTime = record.reviewOn; time.textContent = date;
+    time.dateTime = record.reviewOn; time.textContent = frenchTypography(date, root.lang);
     // Keep the time element even if the host puts {date} first or repeats it.
     const chunks = strings.nextReview.split('{date}');
     block.reviewText.replaceChildren();
@@ -92,7 +93,7 @@ export function enhance(root, { content, strings, state }) {
         const record = { result: choice, reviewOn: isoDate(scheduleReview(new Date(), choice, content.reviewDays)) };
         current = { results: { ...current.results, [block.part.id]: record } };
         showProgress();
-        status.textContent = show(block, record);
+        status.textContent = frenchTypography(show(block, record), root.lang);
         // A host receives its own copy so it cannot mutate the current interaction.
         state?.write({ results: Object.fromEntries(Object.entries(current.results).map(([id, row]) => [id, { ...row }])) });
       });

@@ -2,6 +2,13 @@ export namespace strings {
     namespace en {
         let instruction: string;
         let dateLabel: string;
+        let spacingLegend: string;
+        let in2Days: string;
+        let in1Week: string;
+        let in2Weeks: string;
+        let in1Month: string;
+        let anotherDate: string;
+        let customDateLabel: string;
         let dateError: string;
         let dateChanged: string;
         let sides: string;
@@ -19,6 +26,20 @@ export namespace strings {
         export { instruction_1 as instruction };
         let dateLabel_1: string;
         export { dateLabel_1 as dateLabel };
+        let spacingLegend_1: string;
+        export { spacingLegend_1 as spacingLegend };
+        let in2Days_1: string;
+        export { in2Days_1 as in2Days };
+        let in1Week_1: string;
+        export { in1Week_1 as in1Week };
+        let in2Weeks_1: string;
+        export { in2Weeks_1 as in2Weeks };
+        let in1Month_1: string;
+        export { in1Month_1 as in1Month };
+        let anotherDate_1: string;
+        export { anotherDate_1 as anotherDate };
+        let customDateLabel_1: string;
+        export { customDateLabel_1 as customDateLabel };
         let dateError_1: string;
         export { dateError_1 as dateError };
         let dateChanged_1: string;

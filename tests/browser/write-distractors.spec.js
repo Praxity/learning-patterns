@@ -14,11 +14,27 @@ test('shared scene spans the quiz builder card and centres its tile on the quest
     await page.setViewportSize({ width, height: 900 });
     const geometry = await page.locator('.lp-scene').evaluate(el => {
       const scene = el.getBoundingClientRect(), card = el.parentElement.getBoundingClientRect();
-      const tile = el.querySelector('.lp-scene-icon').getBoundingClientRect(), text = el.querySelector('div').getBoundingClientRect();
-      return [scene.left - card.left, card.right - scene.right, tile.top + tile.height / 2 - text.top - text.height / 2];
+      const tile = el.querySelector('.lp-scene-icon svg').getBoundingClientRect(), text = el.querySelector('div').getBoundingClientRect();
+      // Centred on the text up to two title lines, then level with the first two (lib/base.css).
+      const title = el.querySelector('.lp-scene-title'), centre = Math.min(text.height / 2, title.getBoundingClientRect().top - text.top + parseFloat(getComputedStyle(title).lineHeight));
+      return [scene.left - card.left, card.right - scene.right, tile.top + tile.height / 2 - text.top - centre];
     });
     for (const difference of geometry) expect(Math.abs(difference)).toBeLessThanOrEqual(1);
   }
+});
+
+test('right-answer icon and Start over sit on the text column; revealed answers open at once', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await open(page, 'en', false);
+  await retrieve(page.locator('[data-lp-pattern]'));
+  expect(await page.locator('[data-lp-retrieval]').evaluate(el => getComputedStyle(el).animationName)).toBe('none');
+  const centre = box => box.y + box.height / 2;
+  const icon = await page.locator('[data-lp-right] .lp-icon').boundingBox();
+  const heading = await page.locator('[data-lp-right] .lp-run-in').boundingBox();
+  expect(Math.abs(centre(icon) - centre(heading))).toBeLessThanOrEqual(1);
+  const column = await page.locator('[data-lp-answer]').boundingBox();
+  const startOver = await page.locator('[data-lp-clear] svg').boundingBox();
+  expect(Math.abs(startOver.x - column.x)).toBeLessThanOrEqual(.5);
 });
 
 async function retrieve(root) {
@@ -54,6 +70,77 @@ async function observe(page) {
   });
 }
 
+for (const lang of ['en', 'fr']) {
+  test(`answer limit preserves text and links one error before checking (${lang})`, async ({ page }) => {
+    await open(page, lang, false);
+    const answer = page.locator('[data-lp-answer]');
+    const check = page.locator('[data-lp-check]');
+    const message = lang === 'en' ? 'Keep your answer to 2000 characters or fewer.' : 'Limitez votre réponse à 2000 caractères.';
+    await expect(answer).not.toHaveAttribute('maxlength');
+    for (const text of ['x'.repeat(2001), '😀'.repeat(1000) + 'x']) {
+      await answer.fill(text);
+      await check.focus();
+      await observe(page);
+      await check.press('Enter');
+      await expect(answer).toHaveValue(text);
+      await expect(answer).not.toHaveAttribute('readonly');
+      await expect(answer).toBeFocused();
+      await expect(answer).toHaveAttribute('aria-invalid', 'true');
+      const errorId = await answer.getAttribute('aria-describedby');
+      await expect(page.locator(`[id="${errorId}"]`)).toHaveText(message);
+      await expect(page.locator(`[id="${errorId}"]`)).not.toHaveAttribute('role');
+      await expect(page.locator('[data-lp-retrieval]')).toBeHidden();
+      await expect(check).not.toHaveAttribute('aria-disabled');
+      expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([lang === 'en' ? '1 field needs attention.' : '1 champ demande votre attention.']);
+      expect(await page.evaluate(() => window.lpSaved)).toMatchObject({ answer: text, hadIt: null, shown: false });
+      await scan(page);
+    }
+    for (const text of ['x'.repeat(1999), 'x'.repeat(2000), '😀'.repeat(1000), ` \n${'x'.repeat(2000)}\t `]) {
+      await answer.fill(text);
+      await expect(answer).not.toHaveAttribute('aria-invalid');
+      await expect(answer).not.toHaveAttribute('aria-describedby');
+      await expect(page.locator('[data-lp-answer-error]')).toBeHidden();
+      await check.focus();
+      await observe(page);
+      await check.press('Enter');
+      await expect(answer).toHaveValue(text);
+      await expect(answer).toHaveAttribute('readonly', '');
+      await expect(check).toBeFocused();
+      await expect(page.locator('[data-lp-retrieval]')).toBeVisible();
+      expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([lang === 'en' ? english.rightAnswer : french.rightAnswer]);
+      await page.locator('[data-lp-clear]').click();
+    }
+  });
+
+  for (const shown of [false, true]) {
+    test(`oversized saved answer restores as a recoverable draft (${lang}, shown=${shown})`, async ({ page }) => {
+      const text = '😀'.repeat(1000) + 'x';
+      const options = [draft('Old B', 'busy'), draft('Old C', 'phone')];
+      await page.addInitScript(value => { window.lpSeed = value; }, { answer: text, hadIt: true, options, shown });
+      await open(page, lang, false);
+      const answer = page.locator('[data-lp-answer]');
+      await expect(answer).toHaveValue(text);
+      await expect(answer).not.toHaveAttribute('readonly');
+      await expect(page.locator('[data-lp-check]')).not.toHaveAttribute('aria-disabled');
+      for (const selector of ['[data-lp-retrieval]', '[data-lp-flow]', '[data-lp-result]']) await expect(page.locator(selector)).toBeHidden();
+      await expect(page.locator('[role="status"]')).toHaveText('');
+      await answer.focus();
+      await answer.press('ControlOrMeta+A');
+      expect(await answer.evaluate(el => el.value.slice(el.selectionStart, el.selectionEnd))).toBe(text);
+      await page.locator('[data-lp-check]').click();
+      await expect(page.locator('[data-lp-answer-error]')).toBeVisible();
+      await expect(answer).toHaveValue(text);
+      await answer.fill('Shorter answer');
+      expect(await page.evaluate(() => window.lpSaved)).toEqual({ answer: 'Shorter answer', hadIt: null, options, shown: false });
+      await page.locator('[data-lp-check]').click();
+      await page.locator('[data-lp-had-it]').click();
+      await expect(page.locator('[data-lp-text]').nth(0)).toHaveValue('Old B');
+      await expect(page.locator('[data-lp-text]').nth(1)).toHaveValue('Old C');
+      await expect(page.locator('[data-lp-result]')).toBeHidden();
+    });
+  }
+}
+
 test('question previews replace result lists and preserve keyed row alignment at every width', async ({ page }) => {
   await open(page); await fill(page, true); await page.locator('[data-lp-compare]').click();
   const result = page.locator('[data-lp-result]');
@@ -61,7 +148,7 @@ test('question previews replace result lists and preserve keyed row alignment at
   await expect(result.locator('[data-lp-preview] h3')).toHaveText(['Your question', "The author's question"]);
   await expect(result.locator('[data-lp-untargeted], [data-lp-yours], .lp-write-distractors-list')).toHaveCount(0);
   expect(await result.evaluate(el => el.firstElementChild.matches('[data-lp-summary]'))).toBe(true);
-  await expect(result.locator('[data-lp-preview="yours"] .lp-choice-mark')).toHaveText(['Correct answer', 'Same misconception as the author']);
+  await expect(result.locator('[data-lp-preview="yours"] .lp-choice-mark')).toHaveText(['Correct answer', 'Same mistaken idea as the author']);
   for (const width of [1280, 730, 729, 390, 320]) {
     await page.setViewportSize({ width, height: 900 });
     await expect(page.locator('.lp-write-distractors-comparison')).toHaveCSS('grid-template-columns', width >= 730 ? /\S+px \S+px/ : /^\S+px$/);
@@ -87,6 +174,8 @@ test('Compare collapses builders to key, text and tag summaries; Start over rest
   await page.locator('[data-lp-compare]').click();
   const builders = page.locator('.lp-write-distractors-builder');
   await expect(builders.locator('fieldset:visible')).toHaveCount(0);
+  for (const key of await page.locator('.lp-choice-key').all()) await expect(key).toHaveAttribute('aria-hidden', 'true');
+  expect(await builders.first().ariaSnapshot()).not.toMatch(/(?:text:|generic:) B(?:\n|$)/);
   await expect(page.locator('[data-lp-compare]')).toBeFocused();
   await expect(builders.locator('textarea:visible, select:visible, input:visible')).toHaveCount(0);
   await expect(builders.nth(0)).toContainText('B');
@@ -178,9 +267,13 @@ test('old saved results restore as hidden drafts until retrieval is done', async
 
 test('retrieval guards reject blank answers and prevent skipping or repeating steps', async ({ page }) => {
   await open(page, 'en', false); await observe(page);
+  // The hidden error isn't linked until it shows, so VoiceOver doesn't read it on arrival.
+  await expect(page.locator('[data-lp-answer]')).not.toHaveAttribute('aria-describedby');
   await page.locator('[data-lp-answer]').fill(' \n ');
   await page.locator('[data-lp-check]').click();
   await expect(page.locator('[data-lp-answer]')).toHaveAttribute('aria-invalid', 'true');
+  const errorId = await page.locator('[data-lp-answer]').getAttribute('aria-describedby');
+  await expect(page.locator(`[id="${errorId}"]`)).toHaveText('Write your answer before you check it.');
   await page.evaluate(() => {
     document.querySelector('[data-lp-had-it]').click();
     document.querySelector('[data-lp-compare]').click();
@@ -188,6 +281,7 @@ test('retrieval guards reject blank answers and prevent skipping or repeating st
   await expect(page.locator('[data-lp-flow]')).toBeHidden();
   await expect(page.locator('[data-lp-result]')).toBeHidden();
   await page.locator('[data-lp-answer]').fill('A remembered answer');
+  await expect(page.locator('[data-lp-answer]')).not.toHaveAttribute('aria-describedby');
   await observe(page);
   await page.locator('[data-lp-check]').click();
   await page.evaluate(() => document.querySelector('[data-lp-check]').click());
@@ -254,7 +348,7 @@ test('shared course design keeps one frame and local icon feedback', async ({ pa
   await expect(root.locator('[data-lp-result]')).toHaveClass('lp-section lp-reveal');
   await expect(root.locator('[data-lp-summary]')).toHaveClass('lp-run-in');
   const yours = root.locator('[data-lp-preview="yours"] li').filter({ has: page.locator('.lp-small') });
-  await expect(yours.nth(0).locator('.lp-met')).toHaveText('Same misconception as the author');
+  await expect(yours.nth(0).locator('.lp-met')).toHaveText('Same mistaken idea as the author');
   await expect(yours.nth(0).locator('.lp-met path[d="M5 12l5 5l10 -10"]')).toHaveCount(1);
   await expect(yours.nth(1).locator('.lp-choice-mark')).toHaveCount(0);
   expect(await yours.nth(0).locator('.lp-met').evaluate(el => getComputedStyle(el).color)).toBe('rgb(18, 112, 79)');
@@ -299,6 +393,8 @@ test('empty submit announces field count, links each error and focuses first tex
   await page.locator('[data-lp-compare]').click();
   await expect(page.locator('[data-lp-text]').first()).toBeFocused();
   await expect(page.locator('[role="status"]')).toHaveText('4 fields need attention.');
+  // Errors name each option by the letter its legend shows (B, C), not its position.
+  await expect(page.locator('[data-lp-text-error]')).toHaveText(['Write wrong option B.', 'Write wrong option C.']);
   const inputs = page.locator('[aria-invalid="true"]');
   await expect(inputs).toHaveCount(4);
   for (const input of await inputs.all()) {
@@ -317,16 +413,16 @@ for (const lang of ['en', 'fr']) {
     await open(page, lang); await observe(page); await fill(page, true);
     expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
     await page.locator('[data-lp-compare]').click();
-    const message = lang === 'en' ? "You targeted 1 of the author's 4 misconceptions, and 1 of your own."
-      : "Vous avez ciblé 1 sur 4 idées fausses de l'auteur, et 1 des vôtres.";
+    const message = lang === 'en' ? "Your labels match 1 of the author's 4 mistaken ideas. You added 1 of your own."
+      : "Idées fausses en commun avec l'auteur : 1 sur 4. Autres idées fausses : 1.";
     await expect(page.locator('[data-lp-summary]')).toHaveText(message);
     await expect(page.locator('[role="status"]')).toHaveText(message);
     expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([message]);
     expect(await page.locator('[data-lp-summary]').evaluate(el => getComputedStyle(el).fontWeight)).toBe('600');
     await expect(page.locator('[data-lp-result]')).not.toContainText(lang === 'en' ? 'Compared' : 'comparées');
     await expect(page.locator('[data-lp-result] [data-lp-preview] h3')).toHaveText(lang === 'en' ? ['Your question', "The author's question"] : ['Votre question', "La question de l'auteur"]);
-    await expect(page.locator('[data-lp-result] [data-lp-preview="author"] .lp-small')).toHaveText(content.misconceptions.map(item => `${lang === 'en' ? 'Targets:' : 'Cible :'} ${item.label}`));
-    await expect(page.locator('[data-lp-result] [data-lp-preview="yours"] .lp-small')).toHaveText([`${lang === 'en' ? 'Targets:' : 'Cible :'} ${content.misconceptions[1].label}`, `${lang === 'en' ? 'Targets:' : 'Cible :'} Breaks disrupt focus`]);
+    await expect(page.locator('[data-lp-result] [data-lp-preview="author"] .lp-small')).toHaveText(content.misconceptions.map(item => `${lang === 'en' ? 'Mistaken idea:' : 'Idée fausse :'} ${item.label}`));
+    await expect(page.locator('[data-lp-result] [data-lp-preview="yours"] .lp-small')).toHaveText([`${lang === 'en' ? 'Mistaken idea:' : 'Idée fausse :'} ${content.misconceptions[1].label}`, `${lang === 'en' ? 'Mistaken idea:' : 'Idée fausse :'} Breaks disrupt focus`]);
     await expect(page.locator('[data-lp-result] [data-lp-untargeted], [data-lp-result] [data-lp-yours]')).toHaveCount(0);
   });
 
@@ -357,8 +453,8 @@ for (const lang of ['en', 'fr']) {
         if (fixture.targets[index] === 'other') await row.locator('input').fill(fixture.alias ? `  ${content.misconceptions[0].label.toUpperCase()}  ` : fixture.customs[index]);
       }
       await page.locator('[data-lp-compare]').click();
-      const message = lang === 'en' ? `You targeted ${fixture.author} of the author's ${fixture.total} ${fixture.total === 1 ? 'misconception' : 'misconceptions'}, and ${fixture.own} of your own.`
-        : `Vous avez ciblé ${fixture.author} sur ${fixture.total} ${fixture.total === 1 ? 'idée fausse' : 'idées fausses'} de l'auteur, et ${fixture.own} des vôtres.`;
+      const message = lang === 'en' ? `Your labels match ${fixture.author} of the author's ${fixture.total} ${fixture.total === 1 ? 'mistaken idea' : 'mistaken ideas'}. You added ${fixture.own} of your own.`
+        : `${fixture.total === 1 ? 'Idée fausse' : 'Idées fausses'} en commun avec l'auteur : ${fixture.author} sur ${fixture.total}. Autres idées fausses : ${fixture.own}.`;
       await expect(page.locator('[data-lp-summary]')).toHaveText(message);
       expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([message]);
       const rows = page.locator('[data-lp-result] [data-lp-preview="yours"] li').filter({ has: page.locator('.lp-small') });
@@ -392,7 +488,7 @@ test('keyboard-only error, custom tag, comparison, repeated announcement and cle
   await expect(page.locator('[data-lp-compare]')).toBeFocused();
   const coverage = await page.locator('[data-lp-coverage]').innerText();
   await expect(page.locator('[role="status"]')).toHaveText(coverage);
-  await expect(page.locator('[data-lp-coverage]')).toHaveText("You targeted 1 of the author's 4 misconceptions, and 1 of your own.");
+  await expect(page.locator('[data-lp-coverage]')).toHaveText("Your labels match 1 of the author's 4 mistaken ideas. You added 1 of your own.");
   await page.keyboard.press('Enter');
   await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-clear]')).toBeFocused();
   await page.keyboard.press('Enter'); await expect(page.locator('[data-lp-answer]')).toBeFocused();
@@ -437,14 +533,15 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
       await expect(author.nth(index + 1)).toContainText(content.misconceptions.find(target => target.id === item.misconception).label);
     }
     const yours = page.locator('[data-lp-preview="yours"] li');
-    await expect(yours.nth(1)).toContainText(lang === 'en' ? 'Same misconception as the author' : "Même idée fausse que l'auteur");
+    await expect(yours.nth(1)).toContainText(lang === 'en' ? 'Same mistaken idea as the author' : "Même idée fausse que l'auteur");
     await expect(yours.nth(2)).not.toHaveAttribute('data-lp-mark');
-    await expect(yours.nth(2).locator('.lp-small')).toHaveText(lang === 'en' ? 'Targets: Breaks disrupt focus' : 'Cible : Breaks disrupt focus');
+    await expect(yours.nth(2).locator('.lp-small')).toHaveText(lang === 'en' ? 'Mistaken idea: Breaks disrupt focus' : 'Idée fausse : Breaks disrupt focus');
     await expect(page.locator('[data-lp-clear]')).toHaveAccessibleName(lang === 'en' ? 'Start over' : 'Recommencer');
-    await expect(yours.locator('[aria-hidden="true"]')).toHaveCount(2);
+    await expect(yours.locator('svg[aria-hidden="true"]')).toHaveCount(2);
+    await expect(yours.locator('.lp-choice-key[aria-hidden="true"]')).toHaveCount(3);
     await expect(page.locator('[data-lp-summary]')).toHaveText(lang === 'en'
-      ? "You targeted 1 of the author's 4 misconceptions, and 1 of your own."
-      : "Vous avez ciblé 1 sur 4 idées fausses de l'auteur, et 1 des vôtres.");
+      ? "Your labels match 1 of the author's 4 mistaken ideas. You added 1 of your own."
+      : "Idées fausses en commun avec l'auteur : 1 sur 4. Autres idées fausses : 1.");
   });
 
   test(`native no-JavaScript baseline (${lang})`, async ({ browser }) => {

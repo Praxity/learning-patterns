@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Explain what you learned content",
+  "type": "object",
+  "required": ["task", "model", "ideas"],
+  "additionalProperties": false,
+  "properties": {
+    "task": { "type": "string", "minLength": 1, "maxLength": 400 },
+    "model": { "type": "string", "minLength": 1, "maxLength": 1500 },
+    "ideas": {
+      "type": "array", "minItems": 3, "maxItems": 3,
+      "prefixItems": [
+        { "$ref": "#/$defs/idea", "properties": { "id": { "const": "stonewalling" } } },
+        { "$ref": "#/$defs/idea", "properties": { "id": { "const": "pause" } } },
+        { "$ref": "#/$defs/idea", "properties": { "id": { "const": "return" } } }
+      ],
+      "items": false
+    }
+  },
+  "$defs": {
+    "idea": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "heading", "body", "label", "met", "missed", "unsure"],
+      "properties": {
+        "id": { "type": "string", "enum": ["stonewalling", "pause", "return"], "maxLength": 120 },
+        "heading": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "body": { "type": "string", "minLength": 1, "maxLength": 1500 },
+        "label": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "met": { "type": "string", "minLength": 1, "maxLength": 1500 },
+        "missed": { "type": "string", "minLength": 1, "maxLength": 1500 },
+        "unsure": { "type": "string", "minLength": 1, "maxLength": 1500 }
+      }
+    }
+  }
+}

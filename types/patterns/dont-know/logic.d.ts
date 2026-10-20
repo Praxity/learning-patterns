@@ -13,10 +13,10 @@ export function score(content: Content, picks: Record<string, string>): {
  * @param {Content} content @param {unknown} value @returns {LearnerState | null}
  */
 export function validateState(content: Content, value: unknown): LearnerState | null;
-/** Use the mathematical minus sign; scoring rules also show positive signs.
- * @param {number} value @param {boolean} [positive]
+/** Format hundredths in the page language, with a mathematical minus and optional plus.
+ * @param {number} value @param {boolean} [positive] @param {string} [lang]
  */
-export function displayPoints(value: number, positive?: boolean): string;
+export function displayPoints(value: number, positive?: boolean, lang?: string): string;
 /** Replace authored placeholders in a single pass so inserted content stays literal.
  * @param {string} template @param {Record<string, string | number>} values
  */

@@ -1,9 +1,60 @@
+import { frenchTypography } from '../../lib/html.js';
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { readFile } from 'node:fs/promises';
 
 const english = JSON.parse(await readFile(new URL('../../patterns/self-check/examples/en.json', import.meta.url)));
 const french = JSON.parse(await readFile(new URL('../../patterns/self-check/examples/fr.json', import.meta.url)));
+
+for (const [model, evidence, expected, marked] of [
+  ['Question?', 'Question', 'Question\u202f?', 'Question'],
+  ['1 234 567 euros : oui!', '234', '1\u202f234\u202f567 euros\u202f: oui\u202f!', '234'],
+  ['Question   ? «oui»', 'Question   ', 'Question\u202f? «\u202foui\u202f»', 'Question\u202f'],
+  ['Voir www.example.test/search?q=1 et `"yes!"`.', 'example.test', 'Voir www.example.test/search?q=1 et `"yes!"`.', 'example.test']
+]) test(`model typography survives evidence boundaries: ${model}`, async ({ page }) => {
+  await open(page, '/self-check/fr.html');
+  await page.evaluate(async ({ model, evidence }) => {
+    const { render } = await import('/patterns/self-check/render.js');
+    const { enhance } = await import('/patterns/self-check/enhance.js');
+    const { strings } = await import('/patterns/self-check/strings.js');
+    window.lpInstances[0].destroy();
+    const content = { task: 'Répondez.', model, parts: [{ id: 'part', label: 'Élément', missed: 'Ajoutez cet élément.', evidence }] };
+    document.querySelector('main').innerHTML = render(content, strings.fr, { id: 'boundary', lang: 'fr' });
+    enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.fr });
+  }, { model, evidence });
+  expect(await page.locator('[data-lp-fallback] .lp-quote').textContent()).toBe(expected);
+  await page.getByRole('textbox').fill('Réponse.');
+  await page.locator('[data-lp-check]').click();
+  await page.getByRole('checkbox').check();
+  await page.locator('[data-lp-show]').click();
+  const comparison = page.locator('.lp-self-check-pane-model .lp-self-check-pane-body');
+  const text = await comparison.evaluate(el => {
+    const copy = el.cloneNode(true);
+    copy.querySelectorAll('[aria-hidden]').forEach(node => node.remove());
+    return { model: copy.textContent, marked: copy.querySelector('mark').textContent };
+  });
+  expect(text).toEqual({ model: expected, marked });
+  await expect(comparison.locator('mark')).toHaveAttribute('data-lp-included', 'true');
+});
+for (const [lang, content] of [['en', english], ['fr', french]]) test(`every checkbox keeps its native label and name on Tab (${lang})`, async ({ page }) => {
+  await open(page, `/self-check/${lang}.html`);
+  await page.locator('textarea').fill('A message about the report.');
+  await page.locator('[data-lp-check]').click();
+  const boxes = page.getByRole('checkbox');
+  await expect(boxes).toHaveCount(content.parts.length);
+  for (const [index, part] of content.parts.entries()) {
+    const box = boxes.nth(index);
+    await expect(box).toBeFocused();
+    await expect(box).toHaveAccessibleName(part.label);
+    await expect(box.locator('..')).not.toHaveAttribute('role');
+    await page.keyboard.press('Tab');
+  }
+  const box = boxes.first();
+  const row = box.locator('..');
+  expect(await row.ariaSnapshot()).toContain(`checkbox "${content.parts[0].label}"`);
+  await row.locator('span').first().click(); await expect(box).toBeChecked();
+  await box.focus(); await page.keyboard.press('Space'); await expect(box).not.toBeChecked();
+});
 
 test('shared scene spans the card and centres its tile on the task', async ({ page }) => {
   await open(page);
@@ -13,16 +64,18 @@ test('shared scene spans the card and centres its tile on the task', async ({ pa
     await page.setViewportSize({ width, height: 900 });
     const geometry = await page.locator('.lp-scene').evaluate(el => {
       const scene = el.getBoundingClientRect(), card = el.parentElement.getBoundingClientRect();
-      const tile = el.querySelector('.lp-scene-icon').getBoundingClientRect(), text = el.querySelector('div').getBoundingClientRect();
-      return [scene.left - card.left, card.right - scene.right, tile.top + tile.height / 2 - text.top - text.height / 2];
+      const tile = el.querySelector('.lp-scene-icon svg').getBoundingClientRect(), text = el.querySelector('div').getBoundingClientRect();
+      // Centred on the text up to two title lines, then level with the first two (lib/base.css).
+      const title = el.querySelector('.lp-scene-title'), centre = Math.min(text.height / 2, title.getBoundingClientRect().top - text.top + parseFloat(getComputedStyle(title).lineHeight));
+      return [scene.left - card.left, card.right - scene.right, tile.top + tile.height / 2 - text.top - centre];
     });
     for (const difference of geometry) expect(Math.abs(difference)).toBeLessThanOrEqual(1);
   }
 });
 
 for (const [lang, placeholder, instruction] of [
-  ['en', 'Hi Sam,\n\nType your message here…', 'Select each part you can point to in your message.'],
-  ['fr', 'Bonjour Sam,\n\nÉcrivez votre message ici…', 'Sélectionnez chaque élément que vous trouvez dans votre message.']
+  ['en', 'Hi Sam,\n\nType your message here…', 'Tick each part your answer includes.'],
+  ['fr', 'Bonjour Sam,\n\nÉcrivez votre message ici…', 'Cochez chaque élément présent dans votre réponse.']
 ]) {
   test(`composer labels size to content and recipient stays on one line (${lang})`, async ({ page }) => {
     await open(page, `/self-check/${lang}.html`);
@@ -46,7 +99,7 @@ for (const [lang, placeholder, instruction] of [
 
   test(`placeholder is authored, empty, labelled and has 4.5:1 contrast (${lang})`, async ({ page }) => {
     await open(page, `/self-check/${lang}.html`);
-    await expect(page.getByRole('textbox')).toHaveAccessibleName(lang === 'fr' ? 'Votre message' : 'Your message');
+    await expect(page.getByRole('textbox')).toHaveAccessibleName(lang === 'fr' ? 'Votre réponse' : 'Your answer');
     await expect(page.getByRole('textbox')).toHaveAttribute('placeholder', placeholder);
     await expect(page.getByRole('textbox')).toHaveValue('');
     const contrast = await page.getByRole('textbox').evaluate(el => {
@@ -66,7 +119,7 @@ for (const [lang, placeholder, instruction] of [
 }
 
 for (const forcedColors of ['none', 'active']) {
-  test(`message focus outlines the whole composer (${forcedColors})`, async ({ page, browserName }) => {
+  test(`answer focus outlines the whole composer (${forcedColors})`, async ({ page, browserName }) => {
     test.skip(forcedColors === 'active' && browserName !== 'chromium', 'Forced colours emulation checked in Chromium.');
     await page.emulateMedia({ forcedColors });
     await open(page);
@@ -85,7 +138,7 @@ for (const forcedColors of ['none', 'active']) {
   });
 }
 
-test('feedback badges and number keys stay at the first line of long part labels', async ({ page }) => {
+test('number keys stay at the first line of long part labels, and badges too until the label would get under 12rem', async ({ page }) => {
   await open(page);
   await page.evaluate(async () => {
     const { render } = await import('/patterns/self-check/render.js');
@@ -103,10 +156,15 @@ test('feedback badges and number keys stay at the first line of long part labels
       const label = el.querySelector('.lp-self-check-legend-label');
       const key = el.querySelector(':scope > .lp-self-check-ann-n');
       const badge = el.querySelector('.lp-self-check-legend-status');
-      return { label: label.getBoundingClientRect().top, key: key.getBoundingClientRect().top, badge: badge.getBoundingClientRect().top };
+      return { label: label.getBoundingClientRect().top, labelBottom: label.getBoundingClientRect().bottom, labelWidth: label.getBoundingClientRect().width, key: key.getBoundingClientRect().top, badge: badge.getBoundingClientRect().top };
     });
     expect(Math.abs(positions.key - positions.label)).toBeLessThanOrEqual(4);
-    expect(Math.abs(positions.badge - positions.label)).toBeLessThanOrEqual(4);
+    // The badge sits on the label's first line while the label keeps 12rem, and drops under it otherwise.
+    const beside = Math.abs(positions.badge - positions.label) <= 4;
+    if (width === 1280) expect(beside).toBe(true);
+    if (width === 320) expect(beside).toBe(false);
+    if (!beside) expect(positions.badge).toBeGreaterThanOrEqual(positions.labelBottom);
+    expect(positions.labelWidth).toBeGreaterThanOrEqual(192);
     const summary = await page.locator('.lp-self-check-result-head').evaluate(el => ({
       ring: el.querySelector('svg').getBoundingClientRect().top,
       title: el.querySelector('h3').getBoundingClientRect().top
@@ -119,6 +177,50 @@ async function open(page, path = '/self-check/en.html') {
   await page.goto(path);
   await page.waitForFunction(() => window.lpReady);
 }
+
+for (const [lang, answerLabel, empty, check, show, whole, summary, restart] of [
+  ['en', 'Your answer', 'Write your answer first.', 'Check my answer', 'Show feedback', 'Whole answer', 'You ticked 1 of 2 parts.', 'Start over'],
+  ['fr', 'Votre réponse', "Écrivez d'abord votre réponse.", 'Vérifier ma réponse', 'Afficher la rétroaction', "Toute la réponse", 'Éléments cochés : 1 sur 2.', 'Recommencer']
+]) test(`general answer without email context supports the complete journey (${lang})`, async ({ page }) => {
+  await open(page, `/self-check/${lang}.html`);
+  const content = lang === 'en'
+    ? { task: 'Explain why the report needs another day.', model: 'The data arrived late.', parts: [{ id: 'reason', label: 'Reason', missed: 'Explain the delay.', evidence: 'The data arrived late.' }, { id: 'tone', label: 'Tone', missed: 'Avoid blame.', evidence: null }] }
+    : { task: 'Expliquez pourquoi le rapport exige une journée de plus.', model: 'Les données sont arrivées en retard.', parts: [{ id: 'reason', label: 'Raison', missed: 'Expliquez le retard.', evidence: 'Les données sont arrivées en retard.' }, { id: 'tone', label: 'Ton', missed: 'Évitez le blâme.', evidence: null }] };
+  await page.evaluate(async ({ content, lang }) => {
+    const { render } = await import('/patterns/self-check/render.js');
+    const { enhance } = await import('/patterns/self-check/enhance.js');
+    const { strings } = await import('/patterns/self-check/strings.js');
+    window.lpInstances[0].destroy();
+    document.querySelector('main').innerHTML = render(content, strings[lang], { id: 'general', lang });
+    enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings[lang] });
+  }, { content, lang });
+  await expect(page.locator('.lp-scene-title')).toHaveText(content.task);
+  await expect(page.locator('.lp-self-check-meta-list, .lp-self-check-recipient, .lp-self-check-avatar, .lp-scene-icon')).toHaveCount(0);
+  const answer = page.getByRole('textbox', { name: answerLabel, exact: true });
+  await expect(answer).not.toHaveAttribute('placeholder');
+  const scan = async () => {
+    await page.waitForFunction(() => [...document.getAnimations()].every(animation => animation.playState !== 'running' && !animation.pending));
+    expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()).violations).toEqual([]);
+  };
+  await scan();
+  await page.getByRole('button', { name: check, exact: true }).click();
+  await expect(answer).toBeFocused();
+  await expect(page.locator('[data-lp-error]')).toHaveText(empty);
+  await answer.fill(content.model);
+  await page.getByRole('button', { name: check, exact: true }).click();
+  await expect(page.getByRole('checkbox').first()).toBeFocused();
+  await page.keyboard.press('Space');
+  await scan();
+  await page.getByRole('button', { name: show, exact: true }).click();
+  await expect(page.locator('.lp-self-check-pane').first().locator('figcaption')).toHaveText(answerLabel);
+  await expect(page.locator('.lp-self-check-pane').first().locator('p')).toHaveText(content.model);
+  await expect(page.locator('.lp-self-check-legend')).toContainText(whole);
+  await expect(page.getByRole('status')).toHaveText(summary);
+  await scan();
+  await page.getByRole('button', { name: restart, exact: true }).click();
+  await expect(answer).toHaveValue('');
+  await expect(answer).toBeFocused();
+});
 
 async function ticks(page) {
   await page.getByRole('textbox').fill('My draft');
@@ -136,7 +238,7 @@ async function observeStatus(page) {
 
 test('message scene, live meter and annotated comparison use authored content', async ({ page }) => {
   await open(page); await observeStatus(page);
-  await expect(page.getByRole('textbox')).toHaveAccessibleName('Your message');
+  await expect(page.getByRole('textbox')).toHaveAccessibleName('Your answer');
   await expect(page.locator('.lp-self-check-composer')).toContainText('Sam, your manager');
   await expect(page.locator('.lp-self-check-composer')).toContainText('Client report');
   await ticks(page);
@@ -149,7 +251,7 @@ test('message scene, live meter and annotated comparison use authored content', 
   await expect(page.locator('.lp-self-check-pane').first()).toContainText('My draft');
   await expect(page.locator('.lp-self-check-pane-model mark')).toHaveCount(5);
   await expect(page.locator('mark[data-lp-included="true"]')).toContainText('The sales data arrived three days late');
-  await expect(page.locator('.lp-self-check-legend')).toContainText('Across the whole message');
+  await expect(page.locator('.lp-self-check-legend')).toContainText('Whole answer');
   await expect(page.locator('[data-lp-result]')).toHaveClass(/lp-reveal/);
   await page.setViewportSize({ width: 1280, height: 900 });
   const wide = await page.locator('.lp-self-check-pane').evaluateAll(panes => panes.map(p => p.getBoundingClientRect().top));
@@ -184,13 +286,13 @@ test('comparison escapes draft text and summaries cover one missing part and all
   await page.getByRole('textbox').fill(draft);
   for (const box of await page.getByRole('checkbox').all()) await box.check();
   await page.getByRole('checkbox').nth(4).uncheck(); await page.locator('[data-lp-show]').click();
-  await expect(page.locator('.lp-self-check-result-head')).toContainText("One part to add: Manager's agreement or input.");
+  await expect(page.locator('.lp-self-check-result-head')).toContainText("One part to add. Check that Tuesday works.");
   await expect(page.locator('.lp-self-check-pane').first().locator('p')).toHaveText(draft);
   await expect(page.locator('.lp-self-check-pane img')).toHaveCount(0);
   await expect(page.locator('mark[data-lp-included="false"]')).toHaveCount(1);
   await expect(page.locator('.lp-self-check-legend-hint')).toHaveCount(1);
   await page.getByRole('checkbox').nth(4).check(); await page.locator('[data-lp-show]').click();
-  await expect(page.locator('.lp-self-check-result-head')).toContainText('Compare your wording with the model.');
+  await expect(page.locator('.lp-self-check-result-head')).toContainText('Compare your wording with the model answer.');
   await expect(page.locator('mark[data-lp-included="true"]')).toHaveCount(5);
   await expect(page.locator('.lp-self-check-legend-hint')).toHaveCount(0);
 });
@@ -210,7 +312,7 @@ test('keyboard-only journey, error association, focus and one mutation per annou
   await page.keyboard.press('Enter');
   await expect(answer).toBeFocused(); await expect(answer).toHaveAttribute('aria-invalid', 'true');
   const errorId = await answer.getAttribute('aria-describedby');
-  await expect(page.locator(`[id="${errorId}"]`)).toHaveText('Write your message first.');
+  await expect(page.locator(`[id="${errorId}"]`)).toHaveText('Write your answer first.');
   await page.keyboard.type('A message to my manager.');
   await expect(answer).not.toHaveAttribute('aria-invalid', 'true');
   await expect(page.locator('[data-lp-error]')).toBeHidden();
@@ -220,7 +322,7 @@ test('keyboard-only journey, error association, focus and one mutation per annou
   for (let index = 0; index < 6; index++) await page.keyboard.press('Tab');
   const show = page.getByRole('button', { name: 'Show feedback' });
   await expect(show).toBeFocused(); await page.keyboard.press('Enter'); await expect(show).toBeFocused();
-  await expect(page.locator('[data-lp-result]')).toContainText('You included 1 of 6 parts.');
+  await expect(page.locator('[data-lp-result]')).toContainText('You ticked 1 of 6 parts.');
   await expect(page.locator('[data-lp-result]')).toContainText('Included');
   await expect(page.locator('[data-lp-result]')).toContainText('To add');
   await page.keyboard.press('Enter'); await expect(show).toBeFocused();
@@ -229,7 +331,7 @@ test('keyboard-only journey, error association, focus and one mutation per annou
   await expect(answer).toHaveValue(''); await expect(page.locator('[data-lp-ticks]')).toBeHidden();
   await expect(page.locator('[data-lp-result]')).toBeHidden();
   await expect(page.locator('input:checked')).toHaveCount(0);
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You included 1 of 6 parts.', 'You included 1 of 6 parts.', 'Cleared.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You ticked 1 of 6 parts.', 'You ticked 1 of 6 parts.', 'Answer cleared.']);
 });
 
 for (const [lang, content, included, notIncluded] of [
@@ -267,7 +369,7 @@ test('Start over is hidden initially and after reset, and available from the che
   await ticks(page); await page.locator('[data-lp-show]').click();
   await expect(restart).toBeVisible(); await restart.click();
   await expect(restart).toBeHidden(); await expect(page.locator('[data-lp-result]')).toBeHidden();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Cleared.', 'You included 0 of 6 parts.', 'Cleared.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Answer cleared.', 'You ticked 0 of 6 parts.', 'Answer cleared.']);
 });
 
 test('Start over is a quiet text button with an icon, the same target size and focus ring', async ({ page }) => {
@@ -285,8 +387,9 @@ test('Start over is a quiet text button with an icon, the same target size and f
   for (const name of ['check', 'show', 'restart']) {
     const button = page.locator(`[data-lp-${name}]`);
     if (name !== 'restart') {
-      const primary = await button.evaluate(el => { const css = getComputedStyle(el); return { background: css.backgroundColor, color: css.color }; });
-      expect(primary).toEqual({ background: 'rgb(44, 85, 201)', color: 'rgb(255, 255, 255)' });
+      // Wait for the hover transition to finish before checking its exact final colour.
+      await expect(button).toHaveCSS('background-color', 'rgb(44, 85, 201)');
+      await expect(button).toHaveCSS('color', 'rgb(255, 255, 255)');
     }
     await button.focus();
     const outline = await button.evaluate(el => { const css = getComputedStyle(el); return [css.outlineWidth, css.outlineStyle, css.outlineOffset, css.outlineColor]; });
@@ -324,7 +427,7 @@ test('editing answers or ticks preserves feedback, next submit replaces it and s
   expect(await page.locator('[data-lp-result]').innerHTML()).toBe(before);
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ answer: 'Edited draft', ticked: ['work_deadline', 'reason'], shown: true });
   await page.getByRole('button', { name: 'Show feedback' }).click();
-  await expect(page.locator('.lp-self-check-result-head h3')).toHaveText('You included 2 of 6 parts.');
+  await expect(page.locator('.lp-self-check-result-head h3')).toHaveText('You ticked 2 of 6 parts.');
   await expect(page.locator('[data-lp-result] > ol')).toHaveCount(1);
   await page.getByRole('button', { name: 'Start over' }).click();
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ answer: '', ticked: [], shown: false });
@@ -372,11 +475,11 @@ test('French root has French language and translated feedback', async ({ page })
   await open(page, '/self-check/fr.html'); await expect(page.locator('[data-lp-pattern]')).toHaveAttribute('lang', 'fr');
   await page.getByRole('textbox').fill('Mon message'); await page.locator('[data-lp-check]').click();
   await page.getByRole('checkbox').first().check(); await page.locator('[data-lp-show]').click();
-  await expect(page.locator('[data-lp-result]')).toContainText('Vous avez inclus 1 des 6 éléments.');
+  await expect(page.locator('[data-lp-result]')).toContainText('Éléments cochés : 1 sur 6.');
   const model = await page.locator('.lp-self-check-pane-model p').evaluate(el => {
     const copy = el.cloneNode(true); copy.querySelectorAll('[aria-hidden="true"]').forEach(number => number.remove()); return copy.textContent;
   });
-  expect(model).toBe(french.model);
+  expect(model).toBe(frenchTypography(french.model, 'fr'));
 });
 
 for (const shown of [false, true]) {
@@ -386,7 +489,7 @@ for (const shown of [false, true]) {
     await expect(page.getByRole('checkbox').nth(1)).toBeChecked(); await expect(page.locator('[data-lp-ticks]')).toBeVisible();
     await expect(page.locator('[data-lp-restart]')).toBeVisible();
     await expect(page.locator('[role="status"]')).toHaveText('');
-    if (shown) await expect(page.locator('[data-lp-result]')).toContainText('You included 1 of 6 parts.');
+    if (shown) await expect(page.locator('[data-lp-result]')).toContainText('You ticked 1 of 6 parts.');
     else await expect(page.locator('[data-lp-result]')).toBeHidden();
   });
 }
@@ -401,7 +504,7 @@ test('invalid saved state is ignored', async ({ page }) => {
 test('enhance is idempotent and destroy removes listeners and restores fallback', async ({ page }) => {
   await open(page); expect(await page.evaluate(() => window.lpEnhance() === window.lpInstances[0])).toBe(true);
   await observeStatus(page); await ticks(page); await page.locator('[data-lp-show]').click();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You included 0 of 6 parts.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You ticked 0 of 6 parts.']);
   await page.evaluate(() => window.lpInstances[0].destroy());
   await expect(page.locator('[data-lp-flow]')).toBeHidden(); await expect(page.locator('[data-lp-fallback]')).toBeVisible();
   await page.evaluate(() => window.lpEnhance()); await ticks(page); await page.locator('[data-lp-show]').click();
@@ -429,7 +532,7 @@ test('destroy is safe to repeat after another enhancement', async ({ page }) => 
   await expect(page.locator('[data-lp-check]')).toBeVisible();
   expect(await page.evaluate(() => window.lpEnhance() === window.lpEnhance())).toBe(true);
   await observeStatus(page); await ticks(page); await page.locator('[data-lp-show]').click();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You included 0 of 6 parts.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You ticked 0 of 6 parts.']);
 });
 
 test('missing or mismatched markup throws a useful error', async ({ page }) => {

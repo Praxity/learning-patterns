@@ -1,3 +1,4 @@
+import { validateTextLengths } from '../../lib/text-limits.js';
 /** @typedef {{ id: string, label: string }} Check */
 /** @typedef {{ prompt: string, checks: Check[] }} Content */
 /** @typedef {{ text: string, savedAt: string }} Entry */
@@ -16,6 +17,10 @@ function only(value, keys) {
 
 /** @param {unknown} content @returns {asserts content is Content} */
 export function validateContent(content) {
+  validateTextLengths(content, {
+    prompt: 400,
+    checks: [{"id": 120, "label": 120}],
+  });
   if (!object(content)) throw new Error('Invalid content');
   for (const key of Object.keys(content)) if (!['prompt', 'checks'].includes(key)) throw new Error(`Invalid content.${key}`);
   if (typeof content.prompt !== 'string' || !content.prompt.length) throw new Error('Invalid prompt');
