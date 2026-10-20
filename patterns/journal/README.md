@@ -19,6 +19,8 @@ Use it for weekly course reflections. Each suggestion asks about the first missi
 
 There is no score or checklist.
 
+## Setting it up
+
 The distress check was tested only on agent-written answers. It shows an authored support message instead of a question. It does not diagnose, contact anyone or send alerts. Replace the message with your real support details. Test the decision model with your own examples before use with learners.
 
 ## How it works

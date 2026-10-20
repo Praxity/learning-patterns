@@ -13,9 +13,13 @@ Ask about Assertive at work. The decision model picks an authored answer or a se
 
 ## Use it when
 
-Use it across a course with a small, stable catalogue. The demo has eight FAQ entries and six course sections. Both shapes use the same renderer and enhancer, configured with `kind: 'faq' | 'sections'`.
+Use it across a course with a small, stable catalogue. The demo has eight FAQ entries and six course sections.
 
 ## Avoid it when
+
+## Setting it up
+
+Both shapes use the same renderer and enhancer, configured with `kind: 'faq' | 'sections'`.
 
 For catalogues with more than about 30 entries, first narrow the candidates with embeddings. Check the chosen candidates against the learner's question before showing them.
 
