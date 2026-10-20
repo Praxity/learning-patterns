@@ -9,6 +9,6 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "noEmit": true
   },
-  "include": ["patterns/**/*.js", "lib/**/*.js"],
+  "include": ["patterns/**/*.js", "lib/**/*.js", "proxy/logic/question-set.js"],
   "exclude": ["**/*.test.js"]
 }
