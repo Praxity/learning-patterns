@@ -11,9 +11,13 @@ learners: not tried
 
 Mark key ideas or text that answers a question. Then compare your marks with the author's choices in the passage.
 
-## When to use it
+## Use it when
 
-Use it to find key ideas or evidence for a question. Keep passages short and split them into meaningful pieces. Learners select whole pieces, so use another pattern for selecting individual words. Searching visible text does not test recall.
+Use it to find key ideas or evidence for a question. Keep passages short and split them into meaningful pieces.
+
+## Avoid it when
+
+Learners select whole pieces, so use another pattern for selecting individual words. Searching visible text does not test recall.
 
 ## How it works
 

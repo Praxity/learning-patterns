@@ -11,9 +11,13 @@ learners: not tried
 
 Explain a lesson in your own words and check which key ideas you included.
 
-## When to use it
+## Use it when
 
-Use it after a short reading. This example checks three ideas: stonewalling, announcing a pause and returning to the conversation. The feedback helps you revise your explanation. It gives no grade.
+Use it after a short reading. This example checks three ideas: stonewalling, announcing a pause and returning to the conversation. The feedback helps you revise your explanation.
+
+## Avoid it when
+
+It gives no grade.
 
 ## How it works
 

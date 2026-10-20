@@ -11,9 +11,13 @@ learners: not tried
 
 Write an answer, tick the parts it includes, then compare with a model. Hints help you add missing parts.
 
-## When to use it
+## Use it when
 
-Use it when learners can check their answers against a short list of clear parts. It works offline and can help you compare self-checking with automated feedback. The pattern does not judge the learner's text.
+Use it when learners can check their answers against a short list of clear parts. It works offline and can help you compare self-checking with automated feedback.
+
+## Avoid it when
+
+The pattern does not judge the learner's text.
 
 ## How it works
 

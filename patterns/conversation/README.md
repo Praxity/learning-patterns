@@ -11,9 +11,13 @@ learners: not tried
 
 You changed a work plan without asking Michel. Practise answering him in two rounds.
 
-## When to use it
+## Use it when
 
-Use it to practise a difficult workplace conversation. You can acknowledge the impact, defend the change, attack, withdraw or ask for a pause. Michel responds to each choice. The review explains the effects of your two replies. It gives no score.
+Use it to practise a difficult workplace conversation. You can acknowledge the impact, defend the change, attack, withdraw or ask for a pause. Michel responds to each choice. The review explains the effects of your two replies.
+
+## Avoid it when
+
+It gives no score.
 
 ## How it works
 

@@ -55,21 +55,27 @@ test('every pattern README has valid front matter', async () => {
 });
 
 const README_SECTIONS = [
-  'When to use it', 'How it works', 'Evidence', 'Accessibility',
+  'Use it when', 'Avoid it when', 'How it works', 'Evidence', 'Accessibility',
   'Content fields', 'Logic', 'Use it', 'Adapt it with your agent', 'Licence'
 ];
 
-/** @param {string} readme */
-function checkReadmeStructure(readme) {
-  readMeta('pattern', readme);
+/** @param {string} readme @param {string} [name] */
+function checkReadmeStructure(readme, name = 'pattern') {
+  readMeta(name, readme);
   assert.match(readme, /^---\r?\n[\s\S]*?\r?\n---\r?\n# [^\r\n]+\r?\n/);
   // Code examples may contain Markdown headings; they are not README sections.
   const prose = readme.replace(/^```[^\n]*\n[\s\S]*?^```[^\n]*$/gm, '');
   const sections = [...prose.matchAll(/^## ([^\r\n]+)\r?$/gm)].map(match => match[1]);
-  const expected = sections.includes('Write this in .prax')
-    ? README_SECTIONS.toSpliced(2, 0, 'Write this in .prax')
-    : README_SECTIONS;
+  const expected = [...README_SECTIONS];
+  if (sections.includes('Setting it up')) expected.splice(2, 0, 'Setting it up');
+  if (sections.includes('Write this in .prax')) expected.splice(expected.indexOf('Evidence'), 0, 'Write this in .prax');
   assert.deepEqual(sections, expected);
+  for (const heading of ['Use it when', 'Avoid it when']) {
+    const content = prose.split(`## ${heading}`)[1].split(/^## /m)[0].trim();
+    // course-lookup has no avoid condition yet; keep its heading for the owner follow-up.
+    if (heading === 'Avoid it when' && name === 'course-lookup') continue;
+    assert.ok(content, `${heading} is empty`);
+  }
   const how = readme.split(/^## How it works\r?$/m)[1].split(/^## /m)[0];
   assert.doesNotMatch(how, /`|\b[A-Za-z_$][\w.$]*\s*\(/, 'How it works contains code');
   // READMEs are public. They never mention how they were written or where files sit on a machine.
@@ -87,12 +93,25 @@ test('README structure guard catches missing, reordered and technical sections',
   const withPrax = readme.replace('## Evidence', '## Write this in .prax\n\nPlain text.\n\n## Evidence');
   assert.doesNotThrow(() => checkReadmeStructure(withPrax));
   assert.doesNotThrow(() => checkReadmeStructure(withPrax.replaceAll('\n', '\r\n')));
+  const withSetup = readme.replace('## How it works', '## Setting it up\n\nPlain text.\n\n## How it works');
+  assert.doesNotThrow(() => checkReadmeStructure(withSetup));
+  assert.doesNotThrow(() => checkReadmeStructure(withSetup.replaceAll('\n', '\r\n')));
+  assert.doesNotThrow(() => checkReadmeStructure(withSetup.replace('## Evidence', '## Write this in .prax\n\nPlain text.\n\n## Evidence')));
+  assert.throws(() => checkReadmeStructure(withSetup.replace('## How it works', '## Setting it up\n\nPlain text.\n\n## How it works')));
+  assert.throws(() => checkReadmeStructure(readme.replace('## Evidence', '## Setting it up\n\nPlain text.\n\n## Evidence')));
   assert.throws(() => checkReadmeStructure(readme.replace('## Logic', '## Write this in .prax\n\nPlain text.\n\n## Logic')));
   assert.throws(() => checkReadmeStructure(withPrax.replace('## Evidence', '## Write this in .prax\n\nPlain text.\n\n## Evidence')));
   assert.doesNotThrow(() => checkReadmeStructure(readme.replace('## Use it\n\nPlain text.', '## Use it\n\n```js\n## Example heading inside code\n```')));
   for (const section of README_SECTIONS) {
     assert.throws(() => checkReadmeStructure(readme.replace(`## ${section}\n`, '')), section);
   }
+  for (const heading of ['Use it when', 'Avoid it when']) {
+    assert.throws(() => checkReadmeStructure(readme.replace(`## ${heading}\n\nPlain text.`, `## ${heading}\n`)), /is empty/);
+  }
+  const emptyAvoid = readme.replace('## Avoid it when\n\nPlain text.', '## Avoid it when\n');
+  assert.doesNotThrow(() => checkReadmeStructure(emptyAvoid, 'course-lookup'));
+  assert.throws(() => checkReadmeStructure(emptyAvoid, 'journal'), /is empty/);
+  assert.throws(() => checkReadmeStructure(readme.replace('## Use it when\n\nPlain text.', '## Use it when\n'), 'course-lookup'), /is empty/);
   assert.throws(() => checkReadmeStructure(readme.replace('## Evidence', '## Temporary').replace('## Logic', '## Evidence').replace('## Temporary', '## Logic')));
   assert.doesNotThrow(() => checkReadmeStructure(readme.replaceAll('\n', '\r\n')));
   for (const code of ['`answer`', 'readingMinutes(content)', 'scheduleReview (date)']) {
@@ -110,7 +129,7 @@ test('every pattern README has the shared structure and plain learner steps', as
   for (const entry of await readdir(root, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue;
     const readme = await readFile(new URL(`${entry.name}/README.md`, root), 'utf8');
-    assert.doesNotThrow(() => checkReadmeStructure(readme), `${entry.name}/README.md`);
+    assert.doesNotThrow(() => checkReadmeStructure(readme, entry.name), `${entry.name}/README.md`);
   }
 });
 

@@ -11,11 +11,17 @@ learners: not tried
 
 Answer a short check to see which course sections you can skip and which to take.
 
-## When to use it
+## Use it when
 
 Use it for a small refresher where one or two questions can justify skipping a section. Advanced questions must test any prerequisite knowledge they credit.
 
-Keep all sections required when the course needs proof that learners saw each one. The host course handles navigation and completion records.
+## Avoid it when
+
+Keep all sections required when the course needs proof that learners saw each one.
+
+## Setting it up
+
+The host course handles navigation and completion records.
 
 ## How it works
 

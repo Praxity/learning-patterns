@@ -11,9 +11,13 @@ learners: not tried
 
 Answer a study question. Compare your reasoning with the feedback and model answer.
 
-## When to use it
+## Use it when
 
-Use it when a short answer can reveal a mistaken belief. This example asks whether rereading notes prepares you for a test. The proxy checks four study misconceptions. Feedback helps you revise your reasoning. It gives no grade.
+Use it when a short answer can reveal a mistaken belief. This example asks whether rereading notes prepares you for a test. The proxy checks four study misconceptions. Feedback helps you revise your reasoning.
+
+## Avoid it when
+
+It gives no grade.
 
 ## How it works
 

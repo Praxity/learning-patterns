@@ -11,9 +11,13 @@ learners: not tried
 
 Answer questions between reading sections, compare with the answers and see when to review.
 
-## When to use it
+## Use it when
 
-Use it for short readings with facts or actions learners need to recall later. Give each section one focused question and a short answer. Ratings record what learners say they remembered. They do not verify recall or workplace performance.
+Use it for short readings with facts or actions learners need to recall later. Give each section one focused question and a short answer.
+
+## Avoid it when
+
+Ratings record what learners say they remembered. They do not verify recall or workplace performance.
 
 ## How it works
 

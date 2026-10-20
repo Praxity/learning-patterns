@@ -11,9 +11,13 @@ learners: not tried
 
 Write three actions to become more assertive at work. A checklist updates when you pause. The decision model selects authored feedback to help you revise.
 
-## When to use it
+## Use it when
 
-Use it for short action plans, outline-like writing assignments, and generally to give learners immediate feedback on responses that can be classified. This example checks for three different actions a colleague could see or hear, a time or situation, and your own commitments. The feedback helps you revise. It gives no grade.
+Use it for short action plans, outline-like writing assignments, and generally to give learners immediate feedback on responses that can be classified. This example checks for three different actions a colleague could see or hear, a time or situation, and your own commitments. The feedback helps you revise.
+
+## Avoid it when
+
+It gives no grade.
 
 ## How it works
 

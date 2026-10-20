@@ -11,9 +11,15 @@ learners: not tried
 
 Reflect on practising assertiveness this week. Save your entry in your tab or ask for one optional question.
 
-## When to use it
+## Use it when
 
-Use it for weekly course reflections. Each suggestion asks about the first missing detail: a situation, your response, a next step or when to try it. There is no score or checklist.
+Use it for weekly course reflections. Each suggestion asks about the first missing detail: a situation, your response, a next step or when to try it.
+
+## Avoid it when
+
+There is no score or checklist.
+
+## Setting it up
 
 The distress check was tested only on agent-written answers. It shows an authored support message instead of a question. It does not diagnose, contact anyone or send alerts. Replace the message with your real support details. Test the decision model with your own examples before use with learners.
 
