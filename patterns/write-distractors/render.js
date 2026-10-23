@@ -1,5 +1,6 @@
 import { escapeHtml as html } from '../../lib/html.js';
 import { icons } from '../../lib/write-distractors-icons.js';
+import { renderChoiceMark } from '../../lib/choice-mark.js';
 import { validateContent, targetOf, optionKey, MAX_OPTION, MAX_CUSTOM, OTHER } from './logic.js';
 
 /** Render keyed rows for both the native fallback and the enhanced comparison.
@@ -22,7 +23,7 @@ export function renderQuestionPreview(content, strings, options, { author = fals
             <span data-lp-option-text>${html(item.text, lang)}</span>
             ${'misconception' in item ? `<p class="lp-small">${html(strings.targets.replaceAll('{target}', targetOf(content, item)), lang)}</p>` : ''}
           </div>
-          ${mark ? `<span class="lp-choice-mark lp-met">${icons.check}${html(mark, lang)}</span>` : ''}
+          ${mark ? renderChoiceMark('correct', mark, lang) : ''}
         </li>`;
       }).join('')}
     </ol>

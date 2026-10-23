@@ -1,6 +1,7 @@
 import { DONT_KNOW, displayPoints, format, score, validateContent, validateState } from './logic.js';
 import { escapeHtml as html, frenchTypography } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
+import { markChoice } from '../../lib/choice-mark.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
 const instances = new WeakMap();
@@ -76,9 +77,8 @@ export function enhance(root, { content, strings, state }) {
     for (const { radios, rows, explanation } of questions) {
       for (const radio of radios) radio.disabled = false;
       for (const row of rows) {
-        row.removeAttribute('data-lp-mark');
+        markChoice(row, null, strings, root.lang);
         row.classList.remove('lp-dont-know-unknown');
-        row.querySelector('.lp-choice-mark')?.remove();
       }
       explanation.hidden = true;
     }
@@ -99,13 +99,13 @@ export function enhance(root, { content, strings, state }) {
         const unknown = radio.value === DONT_KNOW;
         // An unchosen correct answer is "missed": neutral, so it doesn't read as the learner's pick.
         const missed = correct && !right;
-        if (unknown) row.classList.add('lp-dont-know-unknown');
-        else row.dataset.lpMark = missed ? 'missed' : correct ? 'correct' : 'wrong';
-        const mark = root.ownerDocument.createElement('span');
-        mark.className = `lp-choice-mark ${missed || unknown ? 'lp-neutral' : correct ? 'lp-met' : 'lp-missed'}`;
-        const word = missed ? strings.markAnswer : correct ? strings.markCorrect : unknown ? strings.markUnknown : strings.markWrong;
-        mark.innerHTML = `${missed ? icons['circle-dashed'] : correct ? icons.check : unknown ? icons['question-mark'] : icons.x}<span>${html(word, root.lang)}</span>`;
-        row.append(mark);
+        if (unknown) {
+          row.classList.add('lp-dont-know-unknown');
+          const mark = root.ownerDocument.createElement('span');
+          mark.className = 'lp-choice-mark lp-neutral';
+          mark.innerHTML = `${icons['question-mark']}<span>${html(strings.markUnknown, root.lang)}</span>`;
+          row.append(mark);
+        } else markChoice(row, missed ? 'missed' : correct ? 'correct' : 'wrong', strings, root.lang);
       });
     }
     const counts = [

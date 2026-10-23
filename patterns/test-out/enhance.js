@@ -1,6 +1,7 @@
 import { format, score, validateContent, validateState } from './logic.js';
 import { escapeHtml as html, frenchTypography } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
+import { markChoice } from '../../lib/choice-mark.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
 const instances = new WeakMap();
@@ -132,7 +133,7 @@ export function enhance(root, { content, strings, state }) {
     for (const el of outline) { el.hidden = true; el.textContent = ''; el.classList.remove('lp-met', 'lp-neutral'); }
     for (const { radios, rows, explanation } of questions) {
       for (const radio of radios) radio.disabled = false;
-      for (const row of rows) { row.removeAttribute('data-lp-mark'); row.querySelector('.lp-choice-mark')?.remove(); }
+      for (const row of rows) markChoice(row, null, strings, root.lang);
       explanation.hidden = true;
     }
   }
@@ -149,11 +150,7 @@ export function enhance(root, { content, strings, state }) {
         const correct = radio.value === q.correct;
         // An unchosen correct answer is "missed": neutral, so it doesn't read as the learner's pick.
         const missed = correct && !right;
-        rows[i].dataset.lpMark = missed ? 'missed' : correct ? 'correct' : 'wrong';
-        const mark = root.ownerDocument.createElement('span');
-        mark.className = `lp-choice-mark ${missed ? 'lp-neutral' : correct ? 'lp-met' : 'lp-missed'}`;
-        mark.innerHTML = `${missed ? icons['circle-dashed'] : correct ? icons.check : icons.x}<span>${html(missed ? strings.markAnswer : correct ? strings.markCorrect : strings.markWrong, root.lang)}</span>`;
-        rows[i].append(mark);
+        markChoice(rows[i], missed ? 'missed' : correct ? 'correct' : 'wrong', strings, root.lang);
       });
     }
     outlineHeading.textContent = frenchTypography(strings.resultOutline, root.lang);
