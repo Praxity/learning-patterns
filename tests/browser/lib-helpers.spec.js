@@ -127,6 +127,177 @@ test('lock moves focus to the visible enabled Try again before disabling or hidi
   await expect(page.locator('#action')).toBeVisible();
 });
 
+test('lock focuses Try again unhidden after lock and after the first layout frame', async ({ page }) => {
+  await fixture(page, `<section id="scope"><textarea>Draft</textarea>
+    <div class="lp-actions"><button id="action">Check</button><button id="retry" data-lp-try-again hidden>Try again</button></div>
+  </section>`);
+  await page.evaluate(async () => {
+    const { lock } = await import('/lib/lock.js');
+    document.querySelector('#action').focus();
+    window.unlockFixture = lock(document.querySelector('#scope'));
+    await new Promise(requestAnimationFrame);
+    document.querySelector('#retry').hidden = false;
+  });
+  await expect(page.locator('#retry')).toBeFocused();
+  await expect(page.locator('#action')).toBeDisabled();
+  await expect(page.locator('#action')).toBeHidden();
+});
+
+for (const afterFrame of [false, true]) {
+  test(`lock preserves caller focus and still freezes Check (${afterFrame ? 'after first frame' : 'immediately'})`, async ({ page }) => {
+    await fixture(page, `<section id="scope"><h2 id="result" tabindex="-1">Result</h2>
+      <div class="lp-actions"><button id="action">Check</button><button data-lp-try-again>Try again</button></div>
+    </section>`);
+    const result = await page.evaluate(async afterFrame => {
+      const { lock } = await import('/lib/lock.js');
+      document.querySelector('#action').focus();
+      window.unlockFixture = lock(document.querySelector('#scope'));
+      if (afterFrame) await new Promise(requestAnimationFrame);
+      document.querySelector('#result').focus();
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      return { focused: document.activeElement.id, tabindex: document.querySelector('#scope').getAttribute('tabindex') };
+    }, afterFrame);
+    expect(result).toEqual({ focused: 'result', tabindex: null });
+    await expect(page.locator('#action')).toBeDisabled();
+    await expect(page.locator('#action')).toBeHidden();
+  });
+}
+
+for (const failure of ['disconnected', 'focus ignored', 'removed on focus']) {
+  test(`lock focuses the scope before freezing Check when Try again is ${failure}`, async ({ page }) => {
+    await fixture(page, `<section id="scope">
+      <div class="lp-actions"><button id="action">Check</button><button id="retry" data-lp-try-again>Try again</button></div>
+    </section>`);
+    const result = await page.evaluate(async failure => {
+      const { lock } = await import('/lib/lock.js');
+      const scope = document.querySelector('#scope'), action = document.querySelector('#action'), retry = document.querySelector('#retry');
+      let atFocus;
+      scope.addEventListener('focus', () => {
+        atFocus = { disabled: action.disabled, hidden: action.hidden };
+      }, { once: true });
+      action.focus();
+      window.unlockFixture = lock(scope);
+      if (failure === 'disconnected') retry.remove();
+      else if (failure === 'focus ignored') retry.focus = () => {};
+      else retry.addEventListener('focus', () => retry.remove(), { once: true });
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      return { focused: document.activeElement.id, atFocus };
+    }, failure);
+    expect(result).toEqual({ focused: 'scope', atFocus: { disabled: false, hidden: false } });
+    await expect(page.locator('#action')).toBeDisabled();
+    await expect(page.locator('#action')).toBeHidden();
+    await expect(page.locator('#scope')).toHaveAttribute('tabindex', '-1');
+    await page.evaluate(() => window.unlockFixture());
+    await expect(page.locator('#scope')).not.toHaveAttribute('tabindex');
+    await expect(page.locator('#action')).toBeEnabled();
+    await expect(page.locator('#action')).toBeVisible();
+  });
+}
+
+for (const disabledFirst of [false, true]) {
+  test(`lock moves body focus to Try again (${disabledFirst ? 'Check disabled first' : 'no control focused'})`, async ({ page }) => {
+    await fixture(page, `<section id="scope">
+      <div class="lp-actions"><button id="action">Check</button><button id="retry" data-lp-try-again hidden>Try again</button></div>
+    </section>`);
+    const focused = await page.evaluate(async disabledFirst => {
+      const { lock } = await import('/lib/lock.js');
+      const action = document.querySelector('#action');
+      if (disabledFirst) {
+        action.focus();
+        action.disabled = true;
+        // Explicit blur also covers engines that retain focus on a disabled button.
+        action.blur();
+      }
+      const wasBody = document.activeElement === document.body;
+      window.unlockFixture = lock(document.querySelector('#scope'));
+      document.querySelector('#retry').hidden = false;
+      return wasBody;
+    }, disabledFirst);
+    expect(focused).toBe(true);
+    await expect(page.locator('#retry')).toBeFocused();
+    await expect(page.locator('#action')).toBeDisabled();
+    await expect(page.locator('#action')).toBeHidden();
+  });
+}
+
+test('lock with focus disabled freezes controls immediately without moving body focus', async ({ page }) => {
+  await fixture(page, `<section id="scope"><textarea id="draft">Draft</textarea><input id="radio" type="radio">
+    <div class="lp-actions"><button id="action">Check</button><button id="retry" data-lp-try-again>Try again</button></div>
+  </section>`);
+  const result = await page.evaluate(async () => {
+    const { lock } = await import('/lib/lock.js');
+    const scope = document.querySelector('#scope'), action = document.querySelector('#action');
+    const wasBody = document.activeElement === document.body;
+    window.unlockFixture = lock(scope, { focus: false });
+    const immediate = { disabled: action.disabled, hidden: action.hidden };
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    return { wasBody, immediate, isBody: document.activeElement === document.body, tabindex: scope.getAttribute('tabindex') };
+  });
+  expect(result).toEqual({ wasBody: true, immediate: { disabled: true, hidden: true }, isBody: true, tabindex: null });
+  await expect(page.locator('#draft')).toHaveJSProperty('readOnly', true);
+  await expect(page.locator('#radio')).toBeDisabled();
+  await expect(page.locator('#retry')).toBeEnabled();
+  await page.evaluate(() => window.unlockFixture());
+  await expect(page.locator('#draft')).toHaveJSProperty('readOnly', false);
+  await expect(page.locator('#radio')).toBeEnabled();
+  await expect(page.locator('#action')).toBeEnabled();
+  await expect(page.locator('#action')).toBeVisible();
+});
+
+test('lock with focus disabled freezes a focused control immediately', async ({ page }) => {
+  await fixture(page, `<section id="scope"><input id="radio" type="radio">
+    <button id="retry" data-lp-try-again>Try again</button></section>`);
+  const result = await page.evaluate(async () => {
+    const { lock } = await import('/lib/lock.js');
+    const scope = document.querySelector('#scope'), radio = document.querySelector('#radio');
+    let retryFocused = false;
+    document.querySelector('#retry').addEventListener('focus', () => { retryFocused = true; });
+    radio.focus();
+    window.unlockFixture = lock(scope, { focus: false });
+    const disabled = radio.disabled;
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    return { disabled, retryFocused, tabindex: scope.getAttribute('tabindex') };
+  });
+  expect(result).toEqual({ disabled: true, retryFocused: false, tabindex: null });
+});
+
+for (const retry of ['absent', 'hidden', 'disabled']) {
+  test(`lock leaves body focus alone when Try again is ${retry}`, async ({ page }) => {
+    await fixture(page, `<section id="scope"><textarea>Draft</textarea>
+      <div class="lp-actions"><button id="action">Check</button>
+        ${retry === 'absent' ? '' : `<button data-lp-try-again ${retry}>Try again</button>`}</div>
+    </section>`);
+    const result = await page.evaluate(async () => {
+      const { lock } = await import('/lib/lock.js');
+      const scope = document.querySelector('#scope');
+      const wasBody = document.activeElement === document.body;
+      window.unlockFixture = lock(scope);
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      return { wasBody, isBody: document.activeElement === document.body, tabindex: scope.getAttribute('tabindex') };
+    });
+    expect(result).toEqual({ wasBody: true, isBody: true, tabindex: null });
+    await expect(page.locator('#action')).toBeDisabled();
+    await expect(page.locator('#action')).toBeHidden();
+  });
+}
+
+test('lock focuses the usable control inside a Try again wrapper', async ({ page }) => {
+  await fixture(page, `<section id="scope"><div class="lp-actions"><button id="action">Check</button>
+    <div id="retry-wrapper" data-lp-try-again><button disabled>Unavailable</button><button id="retry">Try again</button></div>
+  </div></section>`);
+  await page.evaluate(async () => {
+    const { lock } = await import('/lib/lock.js');
+    document.querySelector('#action').focus();
+    window.unlockFixture = lock(document.querySelector('#scope'));
+  });
+  await expect(page.locator('#retry')).toBeFocused();
+  await expect(page.locator('#retry')).toBeEnabled();
+  await expect(page.locator('#retry-wrapper')).not.toHaveAttribute('tabindex');
+  await expect(page.locator('#scope')).not.toHaveAttribute('tabindex');
+  await expect(page.locator('#action')).toBeDisabled();
+  await expect(page.locator('#action')).toBeHidden();
+});
+
 for (const fallback of ['draft', 'scope']) {
   test(`lock falls back to ${fallback} when no usable Try again exists`, async ({ page }) => {
     await fixture(page, `<section id="scope">
@@ -191,6 +362,39 @@ for (const afterFrame of [false, true]) {
     expect(result.after).toEqual(result.before);
     expect(result.focused).toBe('action');
     expect(result.tabindex).toBe(null);
+  });
+}
+
+for (const focusTarget of ['retry', 'removed retry', 'scope']) {
+  test(`unlock from the ${focusTarget} focus handler restores controls without a stray tabindex`, async ({ page }) => {
+    await fixture(page, `<section id="scope"><input id="readonly" readonly><input id="disabled" type="radio" disabled>
+      <input id="radio" type="radio"><div class="lp-actions"><button id="already" hidden disabled>Hidden</button>
+        <button id="action">Check</button><button id="retry" data-lp-try-again>Try again</button></div></section>`);
+    const result = await page.evaluate(async focusTarget => {
+      const { lock } = await import('/lib/lock.js');
+      const scope = document.querySelector('#scope'), action = document.querySelector('#action'), retry = document.querySelector('#retry');
+      const states = () => [...scope.querySelectorAll('input, button:not([data-lp-try-again])')].map(control => ({
+        id: control.id, readOnly: control.readOnly ?? null, disabled: control.disabled, hidden: control.hidden
+      }));
+      const before = states();
+      let handled = false;
+      const target = focusTarget === 'scope' ? scope : retry;
+      target.addEventListener('focus', () => {
+        handled = true;
+        window.unlockFixture();
+        if (focusTarget === 'removed retry') retry.remove();
+      }, { once: true });
+      action.focus();
+      window.unlockFixture = lock(scope);
+      if (focusTarget === 'scope') retry.focus = () => {};
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      return { handled, before, after: states(), tabindex: scope.getAttribute('tabindex') };
+    }, focusTarget);
+    expect(result.handled).toBe(true);
+    expect(result.after).toEqual(result.before);
+    expect(result.tabindex).toBe(null);
+    await expect(page.locator('#action')).toBeEnabled();
+    await expect(page.locator('#action')).toBeVisible();
   });
 }
 
