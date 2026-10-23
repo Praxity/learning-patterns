@@ -3,7 +3,7 @@
 .lp-highlight-chunk { padding-block: 2px; border-radius: 3px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 .lp-highlight-chunk[role="button"] { cursor: pointer; }
 .lp-highlight-chunk[role="button"]:not([aria-disabled="true"]):hover { text-decoration: underline; text-underline-offset: 4px; }
-.lp-highlight-chunk[role="button"]:focus { outline: 2px solid var(--lp-focus); outline-offset: 2px; }
+.lp-highlight-chunk[role="button"]:focus { outline: 3px solid var(--lp-focus); outline-offset: 2px; }
 /* The paper highlighter is local to this reading activity; shared tokens supply result inks. */
 .lp-highlight-chunk[aria-pressed="true"] { background: #ffe49a; }
 .lp-highlight-chunk[data-lp-outcome="correct"] { background: var(--lp-success-soft); text-decoration: underline solid var(--lp-success-ink) 2px; text-underline-offset: 4px; }

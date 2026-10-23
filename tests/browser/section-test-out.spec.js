@@ -384,9 +384,9 @@ test('forced colours keep marks, keyboard focus and quiet reset visible', async 
   await review(page);
   await expect(page.locator('[data-lp-mark]').first()).toHaveCSS('border-style', 'double');
   await page.locator('[data-lp-restart]').press('Tab'); await page.locator('[data-lp-restart]').focus();
-  await expect(page.locator('[data-lp-restart]')).toHaveCSS('outline-width', '2px');
+  await expect(page.locator('[data-lp-restart]')).toHaveCSS('outline-width', '3px');
   await page.locator('[data-lp-restart]').click(); await page.locator('[data-lp-start]').click(); await page.keyboard.press('Tab'); await page.locator('input').first().focus();
-  await expect(page.locator('label').first()).toHaveCSS('outline-width', '2px');
+  await expect(page.locator('label').first()).toHaveCSS('outline-width', '3px');
 });
 
 for (const width of [1280, 390, 320]) {

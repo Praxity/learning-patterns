@@ -565,7 +565,7 @@ test('forced colours keep marks and visible keyboard focus', async ({ page, brow
   await expect(page.locator('[data-lp-mark="todo"] .lp-live-feedback-bullet .lp-icon').first()).toBeVisible();
   await page.getByRole('textbox').focus();
   await expect(page.getByRole('textbox')).toHaveCSS('outline-style', 'solid');
-  await expect(page.getByRole('textbox')).toHaveCSS('outline-width', '2px');
+  await expect(page.getByRole('textbox')).toHaveCSS('outline-width', '3px');
 });
 
 for (const lang of ['en', 'fr']) for (const reason of ['ip_daily', 'budget']) test(`daily cap shows and announces once, keeps focus and a usable fallback (${lang}, ${reason})`, async ({ page }) => {

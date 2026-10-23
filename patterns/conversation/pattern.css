@@ -15,7 +15,7 @@
 .lp-conversation-composer { overflow: hidden; border: 1px solid var(--lp-line); border-radius: var(--lp-radius-control); }
 .lp-conversation-composer:has(textarea[aria-invalid="true"]) { border-color: var(--lp-error-ink); }
 /* The box rings only for the text. The send button keeps its own outline rather than doubling it. */
-.lp-conversation-composer:has(textarea:focus) { outline: 2px solid var(--lp-accent); outline-offset: 2px; }
+.lp-conversation-composer:has(textarea:focus) { outline: 3px solid var(--lp-focus); outline-offset: 2px; }
 .lp-conversation-input.lp-input { padding: 14px 16px; border: 0; border-radius: 0; }
 .lp-conversation textarea.lp-conversation-input:focus { outline: none; }
 .lp-conversation-input::placeholder { color: var(--lp-ink-2); opacity: 1; }

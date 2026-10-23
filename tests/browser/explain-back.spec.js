@@ -389,7 +389,7 @@ test('forced colours preserve row marks and keyboard focus', async ({ page, brow
   await expect(page.locator('[data-lp-mark="correct"]')).toHaveCSS('border-style', 'double');
   await expect(page.locator('[data-lp-mark="missing"]')).toHaveCSS('border-style', 'double');
   for (const target of [page.locator('[data-lp-check]'), page.locator('[data-lp-reread]').first()]) {
-    await target.focus(); await expect(target).toHaveCSS('outline-width', '2px'); await expect(target).toHaveCSS('outline-style', 'solid');
+    await target.focus(); await expect(target).toHaveCSS('outline-width', '3px'); await expect(target).toHaveCSS('outline-style', 'solid');
   }
 });
 

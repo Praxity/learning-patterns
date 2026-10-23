@@ -500,7 +500,7 @@ test('Chromium forced colours keeps focus rings, borders and quiet link actions'
   test.skip(browserName !== 'chromium', 'Forced-colour emulation is checked in Chromium.');
   await page.emulateMedia({ forcedColors: 'active' }); await open(page);
   await page.locator('[data-lp-save-first]').focus();
-  expect(await page.locator('[data-lp-save-first]').evaluate(el => [getComputedStyle(el).outlineWidth, getComputedStyle(el).outlineStyle, getComputedStyle(el).outlineOffset])).toEqual(['2px', 'solid', '2px']);
+  expect(await page.locator('[data-lp-save-first]').evaluate(el => [getComputedStyle(el).outlineWidth, getComputedStyle(el).outlineStyle, getComputedStyle(el).outlineOffset])).toEqual(['3px', 'solid', '2px']);
   await saveFirst(page);
   await expect(page.locator('[data-lp-course] p')).toHaveText('Take the course, then answer again.');
   await page.addStyleTag({ content: '.lp-first-answer-timeline::before{display:none}' });
@@ -508,10 +508,10 @@ test('Chromium forced colours keeps focus rings, borders and quiet link actions'
   await expect(page.locator('[data-lp-skip]')).toHaveText('Skip to the end of the course');
   for (const selector of ['[data-lp-skip]', '[data-lp-restart]']) {
     await page.locator(selector).focus();
-    expect(await page.locator(selector).evaluate(el => [getComputedStyle(el).outlineWidth, getComputedStyle(el).outlineStyle, getComputedStyle(el).outlineOffset])).toEqual(['2px', 'solid', '2px']);
+    expect(await page.locator(selector).evaluate(el => [getComputedStyle(el).outlineWidth, getComputedStyle(el).outlineStyle, getComputedStyle(el).outlineOffset])).toEqual(['3px', 'solid', '2px']);
   }
   await page.locator('[data-lp-skip]').click(); await expect(page.locator('[data-lp-end-heading]')).toBeFocused();
-  expect(await page.locator('[data-lp-end-heading]').evaluate(el => getComputedStyle(el).outlineWidth)).toBe('2px');
+  expect(await page.locator('[data-lp-end-heading]').evaluate(el => getComputedStyle(el).outlineWidth)).toBe('3px');
   const colors = await page.evaluate(() => {
     const span = document.createElement('span'); document.body.append(span); const result = {};
     for (const name of ['ButtonText', 'ButtonFace', 'Highlight', 'LinkText']) { span.style.color = name; result[name] = getComputedStyle(span).color; }
@@ -526,7 +526,7 @@ test('Chromium forced colours keeps focus rings, borders and quiet link actions'
   await compare(page);
   for (const selector of ['[data-lp-try-again]', '[data-lp-restart]']) {
     await page.locator(selector).focus();
-    expect(await page.locator(selector).evaluate(el => [getComputedStyle(el).color, getComputedStyle(el).outlineColor, getComputedStyle(el).outlineWidth])).toEqual([colors.LinkText, colors.Highlight, '2px']);
+    expect(await page.locator(selector).evaluate(el => [getComputedStyle(el).color, getComputedStyle(el).outlineColor, getComputedStyle(el).outlineWidth])).toEqual([colors.LinkText, colors.Highlight, '3px']);
   }
 });
 

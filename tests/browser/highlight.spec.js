@@ -194,7 +194,7 @@ test('passage buttons support Tab through every chunk, arrow shortcuts and silen
   const outline = await chunks.first().evaluate(el => {
     const css = getComputedStyle(el); return [css.outlineWidth, css.outlineStyle, css.outlineOffset];
   });
-  expect(outline).toEqual(['2px', 'solid', '2px']);
+  expect(outline).toEqual(['3px', 'solid', '2px']);
   for (const [key, index] of [['ArrowRight', 1], ['ArrowDown', 2], ['ArrowLeft', 1], ['ArrowUp', 0], ['ArrowLeft', english.paragraphs.flat().length - 1], ['Home', 0], ['End', english.paragraphs.flat().length - 1], ['ArrowRight', 0]]) {
     await page.keyboard.press(key); await expect(chunks.nth(index)).toBeFocused();
     await expect(page.locator('[data-lp-chunk][tabindex="-1"]')).toHaveCount(0);
@@ -485,14 +485,14 @@ test('forced colours distinguishes marks, missed targets and visible keyboard fo
   expect(await chunk(page, 'withdraw').evaluate(el => getComputedStyle(el).borderStyle)).toBe('solid');
   expect(await chunk(page, 'withdraw').evaluate(el => getComputedStyle(el).borderWidth)).toBe('1px');
   await chunk(page, 'withdraw').focus();
-  expect(await chunk(page, 'withdraw').evaluate(el => getComputedStyle(el).outlineWidth)).toBe('2px');
+  expect(await chunk(page, 'withdraw').evaluate(el => getComputedStyle(el).outlineWidth)).toBe('3px');
   await page.locator('[data-lp-check]').click();
   expect(await chunk(page, 'withdraw').evaluate(el => getComputedStyle(el).textDecorationLine)).toBe('none');
   await expect(feedback(page, 'withdraw').locator('svg')).toHaveAttribute('aria-hidden', 'true');
   expect(await chunk(page, 'ignored').evaluate(el => getComputedStyle(el).textDecorationStyle)).toBe('dashed');
   await expect(feedback(page, 'ignored')).toHaveText('Missed');
   await page.locator('[data-lp-restart]').focus();
-  expect(await page.locator('[data-lp-restart]').evaluate(el => getComputedStyle(el).outlineWidth)).toBe('2px');
+  expect(await page.locator('[data-lp-restart]').evaluate(el => getComputedStyle(el).outlineWidth)).toBe('3px');
   await page.locator('[data-lp-restart]').click(); await chunk(page, 'ignored').click(); await page.locator('[data-lp-check]').click();
   expect(await chunk(page, 'ignored').evaluate(el => getComputedStyle(el).textDecorationStyle)).toBe('solid');
   await expect(feedback(page, 'ignored')).toHaveText('Answers the question');

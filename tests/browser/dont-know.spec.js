@@ -321,7 +321,7 @@ test('reset uses a quiet button and theme tokens reach controls and focus', asyn
   await restart.focus();
   await expect(restart).toHaveCSS('outline-color', 'rgb(101, 67, 33)');
   await expect(restart).toHaveCSS('outline-style', 'solid');
-  await expect(restart).toHaveCSS('outline-width', '2px');
+  await expect(restart).toHaveCSS('outline-width', '3px');
   await restart.click();
   await page.keyboard.press('Tab');
   for (const control of [page.locator('input').first(), page.locator('[data-lp-check]')]) {
@@ -329,7 +329,7 @@ test('reset uses a quiet button and theme tokens reach controls and focus', asyn
     const target = await control.getAttribute('type') === 'radio' ? control.locator('..') : control;
     await expect(target).toHaveCSS('outline-color', 'rgb(101, 67, 33)');
     await expect(target).toHaveCSS('outline-style', 'solid');
-    await expect(target).toHaveCSS('outline-width', '2px');
+    await expect(target).toHaveCSS('outline-width', '3px');
   }
 });
 
@@ -476,12 +476,12 @@ test('quiet reset and forced colours preserve focus rings and button distinction
     await locator.focus();
     const target = await locator.getAttribute('type') === 'radio' ? locator.locator('..') : locator;
     const style = await target.evaluate(el => { const css = getComputedStyle(el); return [css.outlineWidth, css.outlineStyle, css.outlineOffset, css.outlineColor]; });
-    expect(style.slice(0, 3)).toEqual(['2px', 'solid', '2px']); expect(style[3]).not.toBe('rgba(0, 0, 0, 0)');
+    expect(style.slice(0, 3)).toEqual(['3px', 'solid', '2px']); expect(style[3]).not.toBe('rgba(0, 0, 0, 0)');
   }
   await expect(page.locator('[data-lp-check]')).toHaveCSS('border-style', 'solid');
   await pick(page); await page.locator('[data-lp-check]').click();
   await page.locator('[data-lp-restart]').focus();
-  await expect(page.locator('[data-lp-restart]')).toHaveCSS('outline-width', '2px');
+  await expect(page.locator('[data-lp-restart]')).toHaveCSS('outline-width', '3px');
 });
 
 test('one unanswered question uses the singular message in English and French', async ({ page }) => {

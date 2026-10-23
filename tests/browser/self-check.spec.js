@@ -130,7 +130,7 @@ for (const forcedColors of ['none', 'active']) {
       const highlight = getComputedStyle(probe).color; probe.remove();
       return { width: css.outlineWidth, style: css.outlineStyle, offset: css.outlineOffset, color: css.outlineColor, radius: css.borderRadius, fieldStyle: textarea.outlineStyle, highlight };
     });
-    expect(styles.width).toBe('2px'); expect(styles.style).toBe('solid'); expect(styles.offset).toBe('2px');
+    expect(styles.width).toBe('3px'); expect(styles.style).toBe('solid'); expect(styles.offset).toBe('2px');
     expect(styles.radius).toBe('10px'); expect(styles.fieldStyle).toBe('none');
     expect(styles.color).toBe(forcedColors === 'active' ? styles.highlight : 'rgb(44, 85, 201)');
     await page.getByRole('textbox').blur();
@@ -393,7 +393,7 @@ test('Start over is a quiet text button with an icon, the same target size and f
     }
     await button.focus();
     const outline = await button.evaluate(el => { const css = getComputedStyle(el); return [css.outlineWidth, css.outlineStyle, css.outlineOffset, css.outlineColor]; });
-    expect(outline).toEqual(['2px', 'solid', '2px', 'rgb(44, 85, 201)']);
+    expect(outline).toEqual(['3px', 'solid', '2px', 'rgb(44, 85, 201)']);
   }
   // Theme overrides reach the quiet button too.
   await page.locator('[data-lp-pattern]').evaluate(el => el.style.setProperty('--lp-ink-2', '#123456'));
@@ -546,14 +546,14 @@ test('missing or mismatched markup throws a useful error', async ({ page }) => {
   await expect(page.evaluate(() => window.lpEnhance())).rejects.toThrow('Invalid self-check parts markup');
 });
 
-test('forced colours keeps a 2px focus outline on buttons and checkboxes', async ({ page, browserName }) => {
+test('forced colours keeps a 3px focus outline on buttons and checkboxes', async ({ page, browserName }) => {
   test.skip(browserName !== 'chromium', 'Forced colours emulation checked in Chromium.');
   await page.emulateMedia({ forcedColors: 'active' }); await open(page); await ticks(page);
   await page.keyboard.press('Tab');
   for (const locator of [page.getByRole('checkbox').first(), page.locator('[data-lp-check]'), page.locator('[data-lp-show]'), page.locator('[data-lp-restart]')]) {
     await locator.focus();
     const outline = await locator.evaluate(el => { const css = getComputedStyle(el.matches('input') ? el.closest('.lp-choice') : el); return { width: css.outlineWidth, style: css.outlineStyle, offset: css.outlineOffset, color: css.outlineColor }; });
-    expect(outline.width).toBe('2px'); expect(outline.style).toBe('solid'); expect(outline.offset).toBe('2px'); expect(outline.color).not.toBe('rgba(0, 0, 0, 0)');
+    expect(outline.width).toBe('3px'); expect(outline.style).toBe('solid'); expect(outline.offset).toBe('2px'); expect(outline.color).not.toBe('rgba(0, 0, 0, 0)');
   }
   const styles = await page.locator('[data-lp-pattern] button').evaluateAll(buttons => buttons.map(el => {
     const css = getComputedStyle(el);

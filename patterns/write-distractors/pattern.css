@@ -24,8 +24,8 @@ textarea.lp-write-distractors-answer { min-block-size: 0; }
 .lp-write-distractors-option { min-inline-size: 0; padding: 0; border: 0; }
 .lp-write-distractors-option > legend { max-inline-size: 100%; padding: 0; margin-block-end: 16px; }
 .lp-write-distractors-option > div + div { margin-block-start: 16px; }
-/* Contain WebKit's closed select overflow, with room for its 2px focus ring and offset. */
-.lp-write-distractors-option > div:has(select) { overflow: clip; margin-inline: -4px; padding: 4px; }
+/* Contain WebKit's closed select overflow, with room for its 3px focus ring and 2px offset. */
+.lp-write-distractors-option > div:has(select) { overflow: clip; margin-inline: -5px; padding: 5px; }
 .lp-write-distractors-option .lp-error-text { margin-block-start: 8px; }
 @container (min-width: 40rem) {
   .lp-write-distractors-comparison { grid-template-columns: repeat(2, minmax(0, 1fr)); }
