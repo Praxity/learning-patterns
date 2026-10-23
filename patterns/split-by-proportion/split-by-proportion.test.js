@@ -63,15 +63,48 @@ test('other totals, fractional steps and two to six options work', () => {
   assert.equal(compare(fractional, initialDividers(fractional)).exact, true);
 });
 
+test('authored headings describe both tables for another topic', () => {
+  const content = { ...en, optionHeading: 'Work', options: [{ label: 'API work', share: 60 }, { label: 'Meetings', share: 40 }] };
+  const output = render(content, strings.en, { id: 'week', lang: 'en' });
+  assert.equal((output.match(/<th scope="col">Work<\/th>/g) ?? []).length, 2);
+  assert.match(output, /<caption[^>]*>Your split and the real split<\/caption>/);
+  assert.ok(!output.includes('Cause'));
+});
+
+test('optional singular units are validated and used throughout the rendered split', () => {
+  const content = { ...en, total: 2, step: 1, close: 0, unit: 'hours', unitOne: 'hour',
+    options: [{ label: 'Reading', share: 1 }, { label: 'Writing', share: 1 }] };
+  assert.doesNotThrow(() => validateContent(content));
+  assert.doesNotThrow(() => validateContent({ ...content, unitOne: 'x'.repeat(120) }));
+  assert.equal(quantity(1, content, 'en'), '1 hour');
+  assert.equal(quantity(0, content, 'en'), '0 hours');
+  assert.equal(quantity(2, content, 'en'), '2 hours');
+  assert.equal(quantity(1, { ...en, unit: 'h' }, 'en'), '1 h');
+  assert.equal(quantity(1, { ...content, unit: 'heures', unitOne: 'heure' }, 'fr-CA'), '1 heure');
+  const output = render(content, strings.en, { id: 'hours', lang: 'en' });
+  assert.match(output, /aria-valuetext="Reading 1 hour, Writing 1 hour"/);
+  assert.match(output, /data-lp-share hidden>1 hour<\/strong>/);
+  assert.match(output, /<td>1 hour<\/td>/);
+  for (const value of ['', ' ', null, 1, 'x'.repeat(121)]) {
+    assert.throws(() => validateContent({ ...en, unitOne: value }), /unitOne/);
+  }
+});
+
+test('format substitutes only own properties and preserves unknown placeholders', () => {
+  assert.equal(format('{constructor} {toString} {missing}', {}), '{constructor} {toString} {missing}');
+  assert.equal(format('{constructor} {zero}', { constructor: 'authored', zero: 0 }), 'authored 0');
+});
+
 test('content rejects planted violations and names each field', () => {
   for (const value of [null, [], 1, 'content']) assert.throws(() => validateContent(value), /content/);
-  for (const field of ['title', 'context', 'question', 'resultTitle', 'source', 'unit', 'total', 'step', 'close', 'options']) {
+  for (const field of ['title', 'context', 'question', 'resultTitle', 'optionHeading', 'source', 'unit', 'total', 'step', 'close', 'options']) {
     const content = structuredClone(en); delete content[field];
     assert.throws(() => validateContent(content), new RegExp(field));
   }
-  for (const field of ['title', 'context', 'question', 'resultTitle', 'source', 'unit']) {
+  for (const field of ['title', 'context', 'question', 'resultTitle', 'optionHeading', 'source', 'unit']) {
     for (const value of ['', ' ', null, 1]) assert.throws(() => validateContent({ ...en, [field]: value }), new RegExp(field));
   }
+  assert.throws(() => validateContent({ ...en, optionHeading: 'x'.repeat(61) }), /optionHeading/);
   for (const [field, values] of [
     ['total', [0, -1, NaN, Infinity, '100']],
     ['step', [0, -1, 3, 101, NaN, Infinity, '5', 1e-20]],
@@ -114,6 +147,10 @@ test('render has one empty status, prefixed ids, hidden controls and a complete 
   assert.match(output, /data-lp-interaction hidden/);
   assert.match(output, /data-lp-check hidden/);
   assert.match(output, /data-lp-try-again hidden/);
+  const beforeAnswer = output.split('<details')[0];
+  assert.match(beforeAnswer, /<\/div>\s*<\/div>\s*<ul class="lp-split-by-proportion-key">/);
+  for (const option of en.options) assert.ok(beforeAnswer.includes(option.label));
+  assert.equal((beforeAnswer.match(/data-lp-share hidden/g) ?? []).length, en.options.length);
   const fallback = output.match(/<details[^>]*data-lp-fallback>([\s\S]*?)<\/details>/)[1];
   for (const option of en.options) {
     assert.ok(fallback.includes(option.label));
@@ -125,7 +162,7 @@ test('render has one empty status, prefixed ids, hidden controls and a complete 
 
 test('render escapes authored text, interface text, ids and language', () => {
   const unsafe = '<script>"&\'';
-  const content = { ...en, title: unsafe, context: unsafe, question: unsafe, resultTitle: unsafe, source: unsafe, unit: unsafe,
+  const content = { ...en, title: unsafe, context: unsafe, question: unsafe, resultTitle: unsafe, optionHeading: unsafe, source: unsafe, unit: unsafe, unitOne: unsafe,
     options: en.options.map((o, i) => ({ ...o, label: unsafe + i })) };
   const output = render(content, { ...strings.en, check: unsafe, divider: unsafe }, { id: unsafe, lang: unsafe });
   assert.ok(!output.includes('<script>'));
@@ -141,7 +178,8 @@ test('French render uses French text and nonbreaking punctuation', () => {
   assert.ok(output.includes('Contexte\u202f:'));
   assert.ok(output.includes('35\u202f%'));
   assert.ok(output.includes('cause\u202f?'));
-  assert.ok(output.includes('Les chiffres de cet exemple sont inventés.'));
+  assert.ok(output.includes('Registre des demandes de soutien du mois dernier.'));
+  assert.ok(output.includes('elle a traité 400 demandes.'));
 });
 
 test('all six pattern colours meet the contrast floor with the shared default ink', async () => {

@@ -83,7 +83,7 @@ for (const lang of ['en', 'fr']) {
     await page.keyboard.press('Home');
     expect(await values(page)).toEqual([0, 0, 0]);
     await page.locator('[data-lp-check]').click();
-    await expect(page.locator('[data-lp-summary]')).toContainText(lang === 'en' ? 'how-to questions' : "questions d'utilisation");
+    await expect(page.locator('[data-lp-summary]')).toContainText(lang === 'en' ? 'how-to questions' : frenchTypography("« Questions d'utilisation »", lang));
     await expect(page.getByRole('status')).toHaveText(await page.locator('[data-lp-summary]').textContent());
     expect(await page.evaluate(() => window.announcements.length)).toBe(1);
   });
@@ -107,7 +107,7 @@ for (const lang of ['en', 'fr']) {
     await page.locator('[data-lp-check]').click();
     await expect(page.locator('[data-lp-result]')).toBeVisible();
     await expect(page.locator('[data-lp-try-again]')).toBeFocused();
-    await expect(page.locator('[data-lp-summary]')).toContainText(lang === 'en' ? 'sign-in problems' : 'problèmes de connexion');
+    await expect(page.locator('[data-lp-summary]')).toContainText(lang === 'en' ? 'sign-in problems' : frenchTypography('« Problèmes de connexion »', lang));
     await page.locator('[data-lp-try-again]').click();
     await expect(sliders(page).first()).toBeFocused();
     await page.keyboard.press('Home');
@@ -129,6 +129,11 @@ for (const lang of ['en', 'fr']) {
       await expect(page.locator('legend')).toHaveText(frenchTypography(examples[lang].question, lang));
       await expect(page.locator('[data-lp-interaction]')).toBeHidden();
       await expect(page.locator('[data-lp-check]')).toBeHidden();
+      await expect(page.locator('[data-lp-fallback]')).not.toHaveAttribute('open', '');
+      for (const option of examples[lang].options) {
+        await expect(page.locator('.lp-split-by-proportion-key li').filter({ hasText: option.label })).toBeVisible();
+      }
+      for (const node of await page.locator('[data-lp-share]').all()) await expect(node).toBeHidden();
       await page.locator('[data-lp-fallback] summary').focus(); await page.keyboard.press('Enter');
       for (const option of examples[lang].options) {
         const row = page.locator('[data-lp-fallback] tbody tr').filter({ hasText: option.label });
@@ -151,6 +156,8 @@ for (const lang of ['en', 'fr']) {
     await scan();
     await exactByKeyboard(page);
     await expect(page.locator('[data-lp-try-again]')).toBeFocused();
+    await expect(page.locator('.lp-split-by-proportion-table')).toHaveCSS('table-layout', 'auto');
+    for (const cell of await page.locator('[data-lp-result] td').all()) await expect(cell).toHaveCSS('white-space', 'nowrap');
     await scan();
   });
 }
@@ -172,6 +179,9 @@ async function restore(page, saved, custom = examples.en) {
 test('host state restores silently, writes changes, ignores bad state and destroys without rebuilding', async ({ page }) => {
   await open(page);
   await restore(page, { dividers: [35, 55, 70], touched: true, shown: true });
+  // Wait through the lock helper's deferred focus frames before checking silent restoration.
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  await expect(page.locator('body')).toBeFocused();
   expect(await page.evaluate(() => window.sameInstance)).toBe(true);
   await expect(page.locator('[data-lp-result]')).toBeVisible();
   await expect(page.getByRole('status')).toBeEmpty();
@@ -187,6 +197,8 @@ test('host state restores silently, writes changes, ignores bad state and destro
   await page.evaluate(() => { window.firstInput = document.querySelector('input'); window.restored.destroy(); window.restored.destroy(); });
   await expect(page.locator('[data-lp-fallback]')).toBeVisible();
   await expect(page.locator('[data-lp-interaction]')).toBeHidden();
+  for (const node of await page.locator('[data-lp-share]').all()) await expect(node).toBeHidden();
+  await expect(page.locator('.lp-split-by-proportion-key')).toBeVisible();
   expect(await page.evaluate(() => window.firstInput === document.querySelector('input'))).toBe(true);
   // Retire the destroyed demo instance; restore() calls destroy idempotently.
   await restore(page, { dividers: [60, 20, 75], touched: true, shown: true });
@@ -197,16 +209,44 @@ test('host state restores silently, writes changes, ignores bad state and destro
 test('six options with a 40-hour total support all five dividers at 320px', async ({ page }) => {
   await open(page);
   await page.setViewportSize({ width: 320, height: 900 });
-  const content = { ...examples.en, total: 40, step: 1, unit: 'hours', close: 4,
+  const content = { ...examples.en, total: 40, step: 1, unit: 'hours', unitOne: 'hour', close: 4,
     options: [10, 8, 7, 6, 5, 4].map((share, i) => ({ label: `Work ${i + 1}`, share })) };
   await restore(page, null, content);
   await expect(sliders(page)).toHaveCount(5);
+  await sliders(page).first().focus(); await page.keyboard.press('Home'); await page.keyboard.press('ArrowRight');
+  await expect(page.locator('[data-lp-share]').first()).toHaveText('1 hour');
+  await expect(sliders(page).first()).toHaveAttribute('aria-valuetext', 'Work 1 1 hour, Work 2 12 hours');
   await sliders(page).last().focus(); await page.keyboard.press('Home');
   expect(await values(page)).toEqual([0, 0, 0, 0, 0]);
+  const segment = page.locator('[data-lp-bar] .lp-split-by-proportion-seg:not([hidden])').first();
+  await expect(segment).toHaveCSS('border-start-start-radius', '6px');
+  await expect(segment).toHaveCSS('border-end-start-radius', '6px');
   await page.locator('[data-lp-check]').click();
   await expect(page.locator('[data-lp-result]')).toBeVisible();
   expect(await page.locator('[data-lp-mine]').allTextContents()).toEqual(['0 hours', '0 hours', '0 hours', '0 hours', '0 hours', '40 hours']);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test('mismatched option markup fails with a named error before enhancement', async ({ page }) => {
+  await open(page);
+  for (const variation of ['fewer options', 'more options', 'input', 'segment', 'grip', 'share']) {
+    const message = await page.evaluate(async ({ variation, example }) => {
+      const { render } = await import('/patterns/split-by-proportion/render.js');
+      const { enhance } = await import('/patterns/split-by-proportion/enhance.js');
+      const { strings } = await import('/patterns/split-by-proportion/strings.js');
+      const root = document.createElement('div');
+      root.innerHTML = render(example, strings.en, { id: 'mismatch', lang: 'en' });
+      const content = structuredClone(example);
+      if (variation === 'fewer options') content.options = [{ label: 'A', share: 50 }, { label: 'B', share: 50 }];
+      else if (variation === 'more options') content.options.push({ label: 'Extra', share: 0 });
+      else root.querySelector({ input: 'input', segment: '[data-lp-bar] .lp-split-by-proportion-seg',
+        grip: '.lp-split-by-proportion-grip', share: '[data-lp-share]' }[variation]).remove();
+      try { enhance(root, { content, strings: strings.en }); }
+      catch (error) { return error.message; }
+      return null;
+    }, { variation, example: examples.en });
+    expect(message).toBe('Invalid split-by-proportion options markup');
+  }
 });
 
 for (const forcedColors of ['none', 'active']) test(`divider focus ring and segment contrast (${forcedColors})`, async ({ page, browserName }) => {

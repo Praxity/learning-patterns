@@ -1,7 +1,7 @@
 import { validateTextLengths } from '../../lib/text-limits.js';
 
 /** @typedef {{ label: string, share: number }} Option */
-/** @typedef {{ title: string, context: string, question: string, resultTitle: string, source: string, total: number, unit: string, step: number, close: number, options: Option[] }} Content */
+/** @typedef {{ title: string, context: string, question: string, resultTitle: string, optionHeading: string, source: string, total: number, unit: string, unitOne?: string, step: number, close: number, options: Option[] }} Content */
 /** @typedef {{ dividers: number[], touched: boolean, shown: boolean }} LearnerState */
 
 /** @param {unknown} value @returns {value is Record<string, unknown>} */
@@ -14,12 +14,13 @@ const equal = (value, other) => Math.abs(value - other) <= Number.EPSILON * 16 *
 /** @param {unknown} content @returns {asserts content is Content} */
 export function validateContent(content) {
   if (!object(content)) throw new Error('Invalid content');
-  const keys = ['title', 'context', 'question', 'resultTitle', 'source', 'total', 'unit', 'step', 'close', 'options'];
+  const keys = ['title', 'context', 'question', 'resultTitle', 'optionHeading', 'source', 'total', 'unit', 'unitOne', 'step', 'close', 'options'];
   for (const key of Object.keys(content)) if (!keys.includes(key)) throw new Error(`Invalid ${key}`);
-  validateTextLengths(content, { title: 120, context: 1500, question: 400, resultTitle: 120, source: 1500, unit: 120, options: [{ label: 300 }] });
-  for (const key of ['title', 'context', 'question', 'resultTitle', 'source', 'unit']) {
+  validateTextLengths(content, { title: 120, context: 1500, question: 400, resultTitle: 120, optionHeading: 60, source: 1500, unit: 120, unitOne: 120, options: [{ label: 300 }] });
+  for (const key of ['title', 'context', 'question', 'resultTitle', 'optionHeading', 'source', 'unit']) {
     if (typeof content[key] !== 'string' || !content[key].trim()) throw new Error(`Invalid ${key}`);
   }
+  if ('unitOne' in content && (typeof content.unitOne !== 'string' || !content.unitOne.trim())) throw new Error('Invalid unitOne');
   for (const key of ['total', 'step', 'close']) {
     if (typeof content[key] !== 'number' || !Number.isFinite(content[key])) throw new Error(`Invalid ${key}`);
   }
@@ -88,10 +89,11 @@ export function compare(content, dividers) {
 
 /** Insert values once, keeping inserted braces literal. @param {string} template @param {Record<string, string | number>} values */
 export function format(template, values) {
-  return template.replace(/\{(\w+)\}/g, (match, key) => String(values[key] ?? match));
+  return template.replace(/\{(\w+)\}/g, (match, key) => Object.hasOwn(values, key) ? String(values[key]) : match);
 }
 
 /** @param {number} value @param {Content} content @param {string} lang */
 export function quantity(value, content, lang) {
-  return `${new Intl.NumberFormat(/^fr(?:-|$)/i.test(lang) ? 'fr-CA' : 'en', { maximumFractionDigits: 12 }).format(value)}${content.unit === '%' ? '' : ' '}${content.unit}`;
+  const unit = value === 1 ? content.unitOne ?? content.unit : content.unit;
+  return `${new Intl.NumberFormat(/^fr(?:-|$)/i.test(lang) ? 'fr-CA' : 'en', { maximumFractionDigits: 12 }).format(value)}${unit === '%' ? '' : ' '}${unit}`;
 }

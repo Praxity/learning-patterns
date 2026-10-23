@@ -30,9 +30,11 @@ export type Content = {
     context: string;
     question: string;
     resultTitle: string;
+    optionHeading: string;
     source: string;
     total: number;
     unit: string;
+    unitOne?: string;
     step: number;
     close: number;
     options: Option[];

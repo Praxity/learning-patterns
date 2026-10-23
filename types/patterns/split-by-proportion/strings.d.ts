@@ -8,7 +8,6 @@ export namespace strings {
         let mine: string;
         let real: string;
         let caption: string;
-        let option: string;
         let exact: string;
         let close: string;
         let apart: string;
@@ -34,8 +33,6 @@ export namespace strings {
         export { real_1 as real };
         let caption_1: string;
         export { caption_1 as caption };
-        let option_1: string;
-        export { option_1 as option };
         let exact_1: string;
         export { exact_1 as exact };
         let close_1: string;

@@ -1,7 +1,7 @@
 ---
 title: Split by proportion
 title_fr: Répartir un total
-summary: Split a fixed total across a few options, then compare your split with the real one.
+summary: Split a fixed total across a few options by dragging the dividers on one bar, then compare your split with the real one.
 section: question
 ai: no
 offline: yes
@@ -25,6 +25,8 @@ Use separate questions when the values do not share one total. Supply enough con
 
 Write two to six options and the real split, with its source. Choose the total, unit, step and largest gap that counts as close. The total can be 100%, 10 points or a 40-hour week. The example's figures are made up.
 
+Write the option-column heading for your topic, such as "Cause" or "Work". English labels are lowercased in the summary; start them with a common noun and avoid acronyms or proper names that need their original capitals. French summaries quote labels as authored.
+
 ## How it works
 
 1. Drag a divider or tap the bar to move the nearest divider. A divider pushes any neighbours in its way.
@@ -42,7 +44,7 @@ Follows the shared baseline in the root README. Every divider is a native, label
 
 The layout wraps at 320px. Forced colours retain segment boundaries, letters and the focus ring. Reveals are immediate; the shared reveal helper respects reduced motion when scrolling.
 
-Without JavaScript, the question and context remain visible. Learners can open "Compare with the real split" for a table of all real values and the source. Interactive controls stay hidden.
+Without JavaScript, the question, context and option labels remain visible so learners can form an estimate. Learners can open "Compare with the real split" for a table of all real values and the source. Interactive controls and starting shares stay hidden.
 
 ## Content fields
 
@@ -54,9 +56,11 @@ All text is plain text and escaped on render. Keep English and Canadian French e
 | `context` | Situation, at most 1,500 characters. |
 | `question` | Task legend, at most 400 characters. |
 | `resultTitle` | Heading above the comparison, at most 120 characters. |
+| `optionHeading` | Required option-column heading for both tables, at most 60 characters. |
 | `source` | Source of the real split, at most 1,500 characters. |
 | `total` | Positive finite total in the chosen unit. |
 | `unit` | Unit suffix, at most 120 characters. `%` attaches to the number in English. |
+| `unitOne` | Optional unit suffix for exactly 1, at most 120 characters, such as `hour` when `unit` is `hours`. Defaults to `unit`. |
 | `step` | Positive finite increment dividing the total into a safe integer number of steps. |
 | `close` | Largest absolute option gap counted as close, from zero to the total, inclusive. |
 | `options` | Two to six options in bar order. |
@@ -78,7 +82,7 @@ All text is plain text and escaped on render. Keep English and Canadian French e
 | `compare(content, dividers)` | `{ mine, real, gaps, biggest, exact, close }`. `biggest` is the first option with the largest absolute gap; the close boundary is inclusive. Rejects invalid positions. |
 | `validateState(content, value)` | Independent `{ dividers, touched, shown }` copy or `null`. Rejects unordered, out-of-range and off-step dividers, and shown results without a move. |
 | `format(template, values)` | Placeholder substitution preserving inserted text literally. |
-| `quantity(value, content, lang)` | Localized number and authored unit. |
+| `quantity(value, content, lang)` | Localized number and authored unit, using `unitOne` for exactly 1 when present. |
 
 Divider arrays contain one fewer value than options. Use validated content and valid positions with `shares` and `moveDivider`. A successful move counts as touched even if later moves return to the starting split.
 

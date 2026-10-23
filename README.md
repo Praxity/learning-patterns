@@ -32,7 +32,7 @@ With Node 22, run `npm ci` and `npm run demo`, then `node scripts/serve-demo.mjs
 | [Instant course lookup](patterns/course-lookup/README.md) | Ask a question to find an authored answer or course section. Save unanswered questions in your tab. |
 | [Pre-test to skip sections](patterns/test-out/README.md) | A short placement check marks which sections of a course you can skip; passing an advanced section credits the sections it builds on. |
 | [Write the wrong options](patterns/write-distractors/README.md) | Answer a question, write wrong options and the misconception behind each, then compare with the author's. |
-| [Split by proportion](patterns/split-by-proportion/README.md) | Split a fixed total across a few options, then compare your split with the real one. |
+| [Split by proportion](patterns/split-by-proportion/README.md) | Split a fixed total across a few options by dragging the dividers on one bar, then compare your split with the real one. |
 
 ## Look and theme tokens
 

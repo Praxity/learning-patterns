@@ -24,7 +24,11 @@ export function enhance(root, { content, strings, state }) {
   const inputs = [...split.querySelectorAll('input')];
   const grips = [...bar.querySelectorAll('.lp-split-by-proportion-grip')].map(n => /** @type {HTMLElement} */ (n));
   const segments = [...bar.querySelectorAll('.lp-split-by-proportion-seg')].map(n => /** @type {HTMLElement} */ (n));
-  const keyShares = [...root.querySelectorAll('[data-lp-share]')];
+  const keyShares = [...root.querySelectorAll('[data-lp-share]')].map(n => /** @type {HTMLElement} */ (n));
+  if (inputs.length !== content.options.length - 1 || grips.length !== inputs.length
+    || segments.length !== content.options.length || keyShares.length !== content.options.length) {
+    throw new Error('Invalid split-by-proportion options markup');
+  }
   const interaction = required('[data-lp-interaction]');
   const help = required('[data-lp-help]');
   const check = required('[data-lp-check]');
@@ -86,7 +90,7 @@ export function enhance(root, { content, strings, state }) {
     cancelFocus();
     const outcome = compare(content, dividers);
     const message = text(outcome.exact ? strings.exact : format(outcome.close ? strings.close : strings.apart, {
-      label: content.options[outcome.biggest].label.toLocaleLowerCase(/^fr(?:-|$)/i.test(root.lang) ? 'fr-CA' : 'en'),
+      label: /^en(?:-|$)/i.test(root.lang) ? content.options[outcome.biggest].label.toLocaleLowerCase('en') : content.options[outcome.biggest].label,
       mine: quantity(outcome.mine[outcome.biggest], content, root.lang),
       real: quantity(outcome.real[outcome.biggest], content, root.lang)
     }));
@@ -107,7 +111,7 @@ export function enhance(root, { content, strings, state }) {
     summary.hidden = false;
     shown = true;
     again.hidden = false;
-    unlock = lock(root);
+    unlock = announce ? lock(root) : lock(root, { focus: false });
     if (announce) {
       reveal(result);
       status.textContent = message;
@@ -188,6 +192,7 @@ export function enhance(root, { content, strings, state }) {
   paint();
   fallback.hidden = true;
   interaction.hidden = false;
+  keyShares.forEach(node => { node.hidden = false; });
   help.hidden = false;
   check.hidden = false;
   if (saved?.shown) show(false);
@@ -200,6 +205,7 @@ export function enhance(root, { content, strings, state }) {
       cancelFocus();
       unlock();
       interaction.hidden = true;
+      keyShares.forEach(node => { node.hidden = true; });
       help.hidden = true;
       check.hidden = true;
       again.hidden = true;
