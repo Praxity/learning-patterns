@@ -4,7 +4,6 @@
 textarea.lp-write-distractors-answer { min-block-size: 0; }
 /* Swap disabled ink and background together; reset must retain contrast on every frame. */
 .lp-write-distractors-body [data-lp-check] { transition: none; }
-.lp-write-distractors-body .lp-error-text { margin-block-start: 8px; }
 .lp-write-distractors-right { display: flex; gap: 12px; align-items: flex-start; padding: 16px; border-radius: var(--lp-radius-control); background: var(--lp-success-soft); }
 /* At the heading's line height, the shared one-line icon box centres the icon on the heading's first line. */
 .lp-write-distractors-right > .lp-icon { line-height: 1.3; color: var(--lp-success-ink); }
@@ -26,7 +25,6 @@ textarea.lp-write-distractors-answer { min-block-size: 0; }
 .lp-write-distractors-option > div + div { margin-block-start: 16px; }
 /* Contain WebKit's closed select overflow, with room for its 3px focus ring and 2px offset. */
 .lp-write-distractors-option > div:has(select) { overflow: clip; margin-inline: -5px; padding: 5px; }
-.lp-write-distractors-option .lp-error-text { margin-block-start: 8px; }
 @container (min-width: 40rem) {
   .lp-write-distractors-comparison { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
