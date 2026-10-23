@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Split by proportion content",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["title", "context", "question", "resultTitle", "optionHeading", "source", "total", "unit", "step", "close", "options"],
+  "properties": {
+    "title": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "context": { "type": "string", "minLength": 1, "maxLength": 1500 },
+    "question": { "type": "string", "minLength": 1, "maxLength": 400 },
+    "resultTitle": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "optionHeading": { "type": "string", "minLength": 1, "maxLength": 60 },
+    "source": { "type": "string", "minLength": 1, "maxLength": 1500 },
+    "total": { "type": "number", "exclusiveMinimum": 0 },
+    "unit": { "type": "string", "minLength": 1, "maxLength": 40 },
+    "unitOne": { "type": "string", "minLength": 1, "maxLength": 40 },
+    "step": { "type": "number", "exclusiveMinimum": 0, "x-divides": "total" },
+    "close": { "type": "number", "minimum": 0, "x-maximumField": "total" },
+    "options": {
+      "type": "array", "minItems": 2, "maxItems": 6, "x-uniqueBy": "label", "x-sum": { "field": "share", "equals": "total" },
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["label", "share"],
+        "properties": {
+          "label": { "type": "string", "minLength": 1, "maxLength": 300 },
+          "share": { "type": "number", "minimum": 0, "x-maximumField": "total" }
+        }
+      }
+    }
+  }
+}

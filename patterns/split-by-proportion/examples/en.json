@@ -1,0 +1,18 @@
+{
+  "title": "Estimate where support tickets come from",
+  "context": "You've just joined the support team. Last month it closed 400 tickets.",
+  "question": "What share of those 400 tickets came from each cause?",
+  "resultTitle": "Where last month's 400 tickets came from",
+  "optionHeading": "Cause",
+  "source": "Support desk ticket log, last month.",
+  "total": 100,
+  "unit": "%",
+  "step": 5,
+  "close": 10,
+  "options": [
+    { "label": "Sign-in problems", "share": 35 },
+    { "label": "Billing and refunds", "share": 20 },
+    { "label": "Bugs and errors", "share": 15 },
+    { "label": "How-to questions", "share": 30 }
+  ]
+}
