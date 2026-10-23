@@ -80,6 +80,7 @@ Titles and labels allow 120 characters, the question 400, and context, explanati
 | --- | --- |
 | `validateContent(content)` | Nothing. Throws an Error naming the invalid field. |
 | `snap(content, value)` | Guess rounded to the nearest step and clamped to zero through `top`. Half steps round up. Non-finite input throws. Pass validated content. |
+| `x(i, count)`, `y(value, top)` | Horizontal point centre and vertical position, as fractions of plot width and height. Vertical positions are measured from the top. |
 | `compare(content, guesses)` | `{ trend, summary, differences }`. Summary is the authored message for the trend. Differences are guess minus real value, in future-point order. Incomplete or off-step guesses throw. |
 | `validateState(content, value)` | Copied `{ guesses, shown }` or `null`. Unset guesses are `null`; shown state requires every point. Pass validated content. |
 | `format(template, values)` | String with known placeholders replaced once; inserted text stays literal. |
@@ -87,7 +88,7 @@ Titles and labels allow 120 characters, the question 400, and context, explanati
 
 Trend comparison starts at the last known point. Both positive and negative changes mean `changedDirection`. All zero changes mean `flat`. Otherwise the line rose or fell; a final zero change adds `ThenFlat`. Real values supply the overlay and signed differences; authors describe their shape in the six feedback messages. The sample keeps "fell then levelled off" for the gradual flattening of its real line.
 
-The guess line stops at the first unset point, while each set point remains visible. An untouched slider starts at the last known value, snapped to the step, so the first arrow press moves from there. Real squares draw after guess circles so matching values remain distinguishable.
+The guess line stops at the first unset point, while each set point remains visible. An untouched slider starts at the last known value, snapped to the step, so the first arrow press moves from there. Real squares draw after guess circles so matching values remain distinguishable. Axis ticks use multiples of the authored step, including zero and the scale's top. Displayed numbers use `Intl.NumberFormat(lang)`; pass a valid language tag.
 
 Without JavaScript, learners see the context and known line. Open "Show the real values" for all known and future values, the explanation and source. JavaScript-dependent controls stay hidden.
 

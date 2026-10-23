@@ -102,10 +102,11 @@ test('render escapes all authored text and instance attributes', () => {
   const attack = '<img src=x onerror="oops"> & \'text\'';
   for (const field of ['title', 'context', 'question', 'unit', 'changeLabel', 'realLabel', 'resultTitle', 'explanationLabel', 'explanation', 'source']) value[field] = attack;
   for (const point of [...value.known, ...value.future]) point.label = point.name = attack;
-  const markup = render(value, strings.en, { id: 'one"<>', lang: 'en"<>' });
+  const markup = render(value, strings.en, { id: 'one"<>', lang: 'en' });
   assert.ok(!markup.includes('<img')); assert.ok(markup.includes('&lt;img')); assert.ok(markup.includes('one&quot;&lt;&gt;-point-0'));
   assert.equal((markup.match(/role="status"/g) ?? []).length, 1);
   assert.ok(markup.includes('role="status" aria-atomic="true"></p>'));
+  assert.throws(() => render(value, strings.en, { id: 'one', lang: 'en"<>' }), RangeError);
 });
 
 test('no-JavaScript markup contains every real value, explanation and source, and hides JS controls', () => {
@@ -113,7 +114,9 @@ test('no-JavaScript markup contains every real value, explanation and source, an
   const fallback = markup.match(/<details[^>]*data-lp-fallback[\s\S]*?<\/details>/)[0];
   for (const point of [...content.known, ...content.future]) { assert.ok(fallback.includes(point.name)); assert.ok(fallback.includes(`<td>${point.value}</td>`)); }
   assert.ok(fallback.includes('password calls fell from 45 a day to about 4'));
-  assert.ok(fallback.includes('The figures in this sample are made up.'));
+  assert.ok(fallback.includes('IT help desk call log, December to July'));
+  assert.ok(fallback.includes('<caption>Real calls</caption>'));
+  assert.match(markup, /<fieldset class="lp-draw-your-guess-fieldset">/);
   assert.match(markup, /data-lp-future hidden/); assert.match(markup, /data-lp-check hidden/); assert.match(markup, /data-lp-try-again hidden/);
   const ids = [...markup.matchAll(/ id="([^"]+)"/g)].map(match => match[1]);
   assert.equal(ids.length, new Set(ids).size); assert.ok(ids.every(id => id.startsWith('chart-')));
@@ -123,7 +126,43 @@ test('French render retains accents, French punctuation and translated fallback'
   const markup = render(french, strings.fr, { id: 'fr', lang: 'fr-CA' });
   assert.ok(markup.includes('lang="fr-CA"')); assert.ok(markup.includes('Prévoyez'));
   assert.ok(markup.includes('Contexte\u202f:')); assert.ok(markup.includes('juillet\u202f?'));
-  assert.ok(markup.includes('Décembre')); assert.ok(markup.includes('chiffres de cet exemple sont inventés.'));
+  assert.ok(markup.includes('décembre')); assert.ok(markup.includes("Journal des appels au soutien informatique, de décembre à juillet"));
+});
+
+test('axis ticks follow the authored step and always include both scale boundaries', () => {
+  for (const [top, step, expected] of [[100, 5, [0, 35, 70, 100]], [40, 5, [0, 15, 30, 40]], [150, 5, [0, 50, 100, 150]], [10, 10, [0, 10]]]) {
+    const value = { ...content, top, step, known: content.known.map(p => ({ ...p, value: 0 })), future: content.future.map(p => ({ ...p, value: 0 })) };
+    const markup = render(value, strings.en, { id: 'axis', lang: 'en' });
+    const axis = markup.match(/<div class="lp-draw-your-guess-y"[^>]*>(.*?)<\/div>/)[1];
+    assert.deepEqual([...axis.matchAll(/<span[^>]*>(.*?)<\/span>/g)].map(match => Number(match[1])), expected);
+  }
+});
+
+test('French known-point descriptions and answer tables format fractional real values', () => {
+  const value = structuredClone(french);
+  value.known[0].value = 115.5; value.future[0].value = 95.5;
+  const markup = render(value, strings.fr, { id: 'fr', lang: 'fr-CA' });
+  assert.ok(markup.includes('décembre, 115,5 appels par jour'));
+  assert.ok(markup.includes('<td>115,5</td>'));
+  assert.ok(markup.includes('<td>95,5</td>'));
+  assert.ok(!markup.includes('>115.5<'));
+});
+
+test('French axis ticks use locale grouping', () => {
+  const markup = render({ ...french, top: 10000 }, strings.fr, { id: 'fr', lang: 'fr-CA' });
+  const axis = markup.match(/<div class="lp-draw-your-guess-y"[^>]*>(.*?)<\/div>/)[1];
+  assert.ok(axis.includes('>3\u00a0335</span>'));
+  assert.ok(axis.includes('>10\u00a0000</span>'));
+});
+
+test('server chart places points at column centres and scales real values from the top', () => {
+  const markup = render(content, strings.en, { id: 'chart', lang: 'en' });
+  const line = markup.match(/data-lp-real points="([^"]+)"/)[1];
+  const points = line.split(' ').map(point => point.split(',').map(Number));
+  for (const [i, expected] of [[0, [50, 68]], [1, [150, 52]], [2, [250, 58]], [3, [350, 60]]]) {
+    assert.equal(points[i][0], expected[0]);
+    assert.ok(Math.abs(points[i][1] - expected[1]) < 1e-10);
+  }
 });
 
 test('format leaves placeholder syntax inside author values literal', () => {

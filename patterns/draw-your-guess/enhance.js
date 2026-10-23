@@ -1,4 +1,4 @@
-import { compare, format, snap, validateContent, validateState } from './logic.js';
+import { compare, format, snap, validateContent, validateState, x, y } from './logic.js';
 import { frenchTypography } from '../../lib/html.js';
 import { lock } from '../../lib/lock.js';
 import { reveal } from '../../lib/reveal.js';
@@ -20,6 +20,7 @@ export function enhance(root, { content, strings, state }) {
     return /** @type {T} */ (element);
   }
   const chart = /** @type {HTMLElement} */ (required('[data-lp-chart]'));
+  const fieldset = required('fieldset');
   const future = /** @type {HTMLElement} */ (required('[data-lp-future]'));
   const inputs = [...future.querySelectorAll('input')];
   if (inputs.length !== content.future.length) throw new Error('Invalid future markup');
@@ -27,6 +28,7 @@ export function enhance(root, { content, strings, state }) {
   const marks = required('[data-lp-marks]');
   const fallback = /** @type {HTMLElement} */ (required('[data-lp-fallback]'));
   const result = /** @type {HTMLElement} */ (required('[data-lp-result]'));
+  const comparison = /** @type {HTMLElement} */ (required('[data-lp-comparison]'));
   const summary = /** @type {HTMLElement} */ (required('[data-lp-summary]'));
   const check = /** @type {HTMLButtonElement} */ (required('[data-lp-check]'));
   const again = /** @type {HTMLButtonElement} */ (required('[data-lp-try-again]'));
@@ -46,15 +48,16 @@ export function enhance(root, { content, strings, state }) {
   /** @type {number | null} */
   let pointer = null;
   const text = /** @param {string} value */ value => frenchTypography(value, root.lang);
+  const numbers = new Intl.NumberFormat(root.lang);
   const save = () => state?.write({ guesses: [...guesses], shown });
   /** @param {[number, number][]} points */
-  const points = points => points.map(([i, v]) => `${(i + .5) / n * 800},${(1 - v / content.top) * 300}`).join(' ');
+  const points = points => points.map(([i, v]) => `${x(i, n) * 800},${y(v, content.top) * 300}`).join(' ');
   /** @param {string} kind @param {number} i @param {number} value @param {string} [label] */
   function mark(kind, i, value, label) {
     const node = root.ownerDocument.createElement('span');
     node.className = cls + kind;
-    node.style.insetInlineStart = `${(i + .5) / n * 100}%`;
-    node.style.insetBlockStart = `${(1 - value / content.top) * 100}%`;
+    node.style.insetInlineStart = `${x(i, n) * 100}%`;
+    node.style.insetBlockStart = `${y(value, content.top) * 100}%`;
     if (label !== undefined) node.textContent = label;
     return node;
   }
@@ -67,11 +70,11 @@ export function enhance(root, { content, strings, state }) {
     for (let i = 0; i < guesses.length && guesses[i] !== null; i++) line.push([k + i, /** @type {number} */ (guesses[i])]);
     guessLine.setAttribute('points', line.length > 1 ? points(line) : '');
     // Squares go last, so a real point stays visible inside a guess that matches it.
-    marks.replaceChildren(...guesses.flatMap((v, i) => v === null ? [] : [mark('dot', k + i, v), mark('val', k + i, v, String(v))]), ...realPoints.map(([i, v]) => mark('sq', i, v)));
+    marks.replaceChildren(...guesses.flatMap((v, i) => v === null ? [] : [mark('dot', k + i, v), mark('val', k + i, v, numbers.format(v))]), ...realPoints.map(([i, v]) => mark('sq', i, v)));
     inputs.forEach((input, i) => {
       input.value = String(guesses[i] ?? initial);
       input.setAttribute('aria-valuetext', text(format(shown ? strings.compared : guesses[i] === null ? strings.notSet : strings.value, {
-        name: content.future[i].name, value: guesses[i] ?? '', guess: guesses[i] ?? '', real: content.future[i].value, unit: content.unit
+        name: content.future[i].name, value: guesses[i] === null ? '' : numbers.format(guesses[i]), guess: guesses[i] === null ? '' : numbers.format(guesses[i]), real: numbers.format(content.future[i].value), unit: content.unit
       })));
     });
     chart.classList.toggle(cls + 'done', shown);
@@ -93,17 +96,16 @@ export function enhance(root, { content, strings, state }) {
   function show(announce) {
     const outcome = compare(content, /** @type {number[]} */ (guesses));
     shown = true; paint();
-    const comparison = /** @type {HTMLElement} */ (required('[data-lp-comparison]'));
     comparison.replaceChildren(...content.future.map((p, i) => {
       const item = root.ownerDocument.createElement('li');
-      item.textContent = text(format(strings.compared, { name: p.name, guess: guesses[i] ?? '', real: p.value, unit: content.unit }));
+      item.textContent = text(format(strings.compared, { name: p.name, guess: guesses[i] === null ? '' : numbers.format(guesses[i]), real: numbers.format(p.value), unit: content.unit }));
       return item;
     }));
     comparison.hidden = false;
     summary.textContent = text(outcome.summary); summary.hidden = false;
     again.hidden = false;
     // One check completes the interaction. Expose Try again before locking controls.
-    unlock = lock(root);
+    unlock = announce ? lock(root) : lock(root, { focus: false });
     if (announce) { reveal(result); status.textContent = text(outcome.summary); }
     else result.hidden = false;
   }
@@ -125,6 +127,7 @@ export function enhance(root, { content, strings, state }) {
   future.addEventListener('pointermove', event => { if (event.pointerId === pointer) at(event); }, { signal: lifetime.signal });
   for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) future.addEventListener(type, () => { pointer = null; }, { signal: lifetime.signal });
   chart.addEventListener('keydown', () => chart.classList.remove(cls + 'pointer'), { signal: lifetime.signal });
+  chart.addEventListener('focusin', () => { if (pointer === null) chart.classList.remove(cls + 'pointer'); }, { signal: lifetime.signal });
   check.addEventListener('click', () => {
     if (shown) return;
     const empty = content.future.filter((_, i) => guesses[i] === null).map(p => p.name);
@@ -132,7 +135,9 @@ export function enhance(root, { content, strings, state }) {
       const names = empty.length < 2 ? empty.join('') : `${empty.slice(0, -1).join(', ')}${strings.and}${empty.at(-1)}`;
       const message = text(format(strings.missing, { names }));
       required('[data-lp-error] span').textContent = message; error.hidden = false;
-      inputs.forEach((input, i) => { if (guesses[i] === null) input.setAttribute('aria-invalid', 'true'); });
+      inputs.forEach((input, i) => {
+        if (guesses[i] === null) { input.setAttribute('aria-invalid', 'true'); input.setAttribute('aria-describedby', error.id); }
+      });
       status.textContent = message;
       return;
     }
@@ -141,14 +146,14 @@ export function enhance(root, { content, strings, state }) {
   again.addEventListener('click', () => {
     unlock(); cancelFocus();
     shown = false; guesses = content.future.map(() => null); pointer = null;
-    const comparison = /** @type {HTMLElement} */ (required('[data-lp-comparison]'));
     comparison.hidden = true; comparison.replaceChildren();
-    result.hidden = true; summary.hidden = true; summary.textContent = ''; again.hidden = true;
+    result.hidden = true; summary.hidden = true; summary.textContent = '';
     clearError(); chart.classList.remove(cls + 'pointer'); paint();
-    cancelFocus = focusAfterLayout(inputs[0], () => {}, lifetime.signal);
+    cancelFocus = focusAfterLayout(inputs[0], () => { again.hidden = true; }, lifetime.signal);
     status.textContent = text(strings.cleared); save();
   }, { signal: lifetime.signal });
   fallback.hidden = true; future.hidden = false; help.hidden = false; guessKey.hidden = false; check.hidden = false;
+  fieldset.setAttribute('aria-describedby', help.id);
   paint();
   if (saved?.shown) show(false);
   const instance = {
@@ -157,10 +162,10 @@ export function enhance(root, { content, strings, state }) {
       destroyed = true; lifetime.abort(); cancelFocus(); unlock();
       if (pointer !== null && future.hasPointerCapture(pointer)) future.releasePointerCapture(pointer);
       pointer = null; shown = false; guesses = content.future.map(() => null); paint(); clearError();
-      const comparison = /** @type {HTMLElement} */ (required('[data-lp-comparison]'));
       comparison.hidden = true; comparison.replaceChildren();
       chart.classList.remove(cls + 'pointer');
       fallback.hidden = false; future.hidden = true; help.hidden = true; guessKey.hidden = true; check.hidden = true;
+      fieldset.removeAttribute('aria-describedby');
       result.hidden = true; summary.hidden = true; summary.textContent = ''; again.hidden = true; status.textContent = '';
       instances.delete(root);
     }

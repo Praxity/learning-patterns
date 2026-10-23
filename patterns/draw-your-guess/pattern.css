@@ -23,7 +23,7 @@
 
 /* The guess columns take pointer input. Each holds its month's native range input, invisible,
    so keyboards and screen readers get a real slider; the ring shows on the column it sets. */
-.lp-draw-your-guess-future { position: absolute; inset-block: 0; inset-inline-end: 0; display: grid; grid-template-columns: repeat(4, 1fr); cursor: pointer; touch-action: none; user-select: none; }
+.lp-draw-your-guess-future { position: absolute; inset-block: 0; inset-inline-end: 0; display: grid; cursor: pointer; touch-action: none; user-select: none; }
 .lp-draw-your-guess-col { position: relative; border-radius: 6px; }
 .lp-draw-your-guess-col input { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; margin: 0; opacity: 0; pointer-events: none; }
 .lp-draw-your-guess-chart:not(.lp-draw-your-guess-pointer) .lp-draw-your-guess-col:has(input:focus-visible) { outline: 3px solid var(--lp-focus); outline-offset: -2px; }

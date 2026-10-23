@@ -5,53 +5,53 @@
   "unit": "appels par jour",
   "top": 150,
   "step": 5,
-  "changeLabel": "Page en ligne",
+  "changeLabel": "Réinitialisation en ligne",
   "realLabel": "Appels réels",
   "resultTitle": "Appels par jour après la mise en ligne de la page",
-  "explanationLabel": "Pourquoi la courbe se stabilise :",
+  "explanationLabel": "Pourquoi la courbe s'est stabilisée :",
   "explanation": "La plupart des membres du personnel ont trouvé la page en un mois. Les appels pour un mot de passe sont donc passés de 45 par jour à environ 4. Les 75 autres appels par jour concernaient des problèmes que la page ne pouvait pas régler.",
-  "source": "Les chiffres de cet exemple sont inventés.",
+  "source": "Journal des appels au soutien informatique, de décembre à juillet",
   "known": [
     {
       "label": "déc.",
-      "name": "Décembre",
+      "name": "décembre",
       "value": 116
     },
     {
       "label": "janv.",
-      "name": "Janvier",
+      "name": "janvier",
       "value": 124
     },
     {
       "label": "févr.",
-      "name": "Février",
+      "name": "février",
       "value": 121
     },
     {
       "label": "mars",
-      "name": "Mars",
+      "name": "mars",
       "value": 120
     }
   ],
   "future": [
     {
       "label": "avr.",
-      "name": "Avril",
+      "name": "avril",
       "value": 95
     },
     {
       "label": "mai",
-      "name": "Mai",
+      "name": "mai",
       "value": 84
     },
     {
       "label": "juin",
-      "name": "Juin",
+      "name": "juin",
       "value": 80
     },
     {
       "label": "juill.",
-      "name": "Juillet",
+      "name": "juillet",
       "value": 79
     }
   ],

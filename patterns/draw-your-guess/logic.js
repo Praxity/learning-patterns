@@ -55,6 +55,14 @@ export function snap(content, value) {
   return Math.min(content.top, Math.max(0, Math.round(value / content.step) * content.step));
 }
 
+/** Horizontal point centre as a fraction of the plot width.
+ * @param {number} i @param {number} count */
+export function x(i, count) { return (i + .5) / count; }
+
+/** Vertical point position as a fraction of the plot height, measured from the top.
+ * @param {number} value @param {number} top */
+export function y(value, top) { return 1 - value / top; }
+
 /** Compare a complete guess with the last known point. No numeric grade is assigned.
  * @param {Content} content @param {number[]} guesses
  * @returns {{ trend: Trend, summary: string, differences: number[] }} */
