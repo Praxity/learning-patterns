@@ -2,6 +2,7 @@ export namespace strings {
     namespace en {
         let context: string;
         let instructions: string;
+        let ten: string;
         let check: string;
         let tryAgain: string;
         let cleared: string;
@@ -21,6 +22,8 @@ export namespace strings {
         export { context_1 as context };
         let instructions_1: string;
         export { instructions_1 as instructions };
+        let ten_1: string;
+        export { ten_1 as ten };
         let check_1: string;
         export { check_1 as check };
         let tryAgain_1: string;

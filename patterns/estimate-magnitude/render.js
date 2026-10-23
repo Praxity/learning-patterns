@@ -26,7 +26,7 @@ export function render(content, strings, { id, lang }) {
   <header class="lp-scene"><span class="lp-scene-icon">${icons['file-text']}</span><div><h2 class="lp-scene-title">${html(content.title, lang)}</h2></div></header>
   <div class="lp-context"><p><strong>${html(strings.context, lang)}</strong> ${html(content.context, lang)}</p></div>
   <div data-lp-interaction>
-    <p class="lp-small" data-lp-instructions hidden>${html(format(strings.instructions, { ratio: numberText(ratio, lang) }), lang)}</p>
+    <p class="lp-small" data-lp-instructions hidden>${html(format(strings.instructions, { ratio: ratio === 10 ? strings.ten : numberText(ratio, lang) }), lang)}</p>
     ${content.questions.map((question, index) => `<fieldset class="lp-stack lp-estimate-magnitude-question" data-lp-question>
       <legend class="lp-stem" id="${html(`${id}-q${index}`)}">${html(question.question, lang)}</legend>
       <div class="lp-estimate-magnitude-scale" hidden><div class="lp-estimate-magnitude-line" data-lp-line>

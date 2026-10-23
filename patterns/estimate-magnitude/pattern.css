@@ -18,6 +18,10 @@
 .lp-estimate-magnitude-answer { position: absolute; inset-block-start: calc(50% - 6px); display: grid; justify-items: center; transform: translateX(-50%); pointer-events: none; inline-size: max-content; white-space: nowrap; max-inline-size: 14rem; font-size: var(--lp-type-small); font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
 .lp-estimate-magnitude-answer::before { content: ""; inline-size: 12px; block-size: 12px; margin-block-end: 18px; background: currentColor; transform: rotate(45deg); }
 .lp-estimate-magnitude-answer[data-edge="start"] { transform: none; justify-items: start; }
+.lp-estimate-magnitude-answer[data-edge="end"] { transform: translateX(-100%); justify-items: end; }
+/* Keep the diamond centred on its value when the label changes alignment. */
+.lp-estimate-magnitude-answer[data-edge="start"]::before { transform: translateX(-50%) rotate(45deg); }
+.lp-estimate-magnitude-answer[data-edge="end"]::before { transform: translateX(50%) rotate(45deg); }
 .lp-estimate-magnitude-feedback { display: flex; gap: var(--lp-gap-label); align-items: flex-start; font-weight: 600; }
 .lp-estimate-magnitude-feedback .lp-icon { flex: none; margin-block-start: 2px; }
 .lp-estimate-magnitude-answers { padding-inline-start: var(--lp-gap-group); }

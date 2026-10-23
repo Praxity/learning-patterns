@@ -2,6 +2,7 @@ export const strings = {
   en: {
     context: 'Context:',
     instructions: 'Slide each range to hold your estimate. Each range is limited to {ratio} times its low end.',
+    ten: 'ten',
     check: 'Check my ranges',
     tryAgain: 'Try again',
     cleared: 'Cleared. Start again.',
@@ -19,6 +20,7 @@ export const strings = {
   fr: {
     context: 'Contexte :',
     instructions: 'Faites glisser chaque plage pour y inclure votre estimation. Chaque plage est limitée à {ratio} fois sa borne inférieure.',
+    ten: 'dix',
     check: 'Vérifier mes plages',
     tryAgain: 'Réessayer',
     cleared: 'Plages effacées. Recommencez.',

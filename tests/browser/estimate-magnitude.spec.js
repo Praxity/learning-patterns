@@ -44,8 +44,19 @@ async function setByKeyboard(page) {
 }
 
 for (const lang of ['en', 'fr']) {
+  const instructions = lang === 'en' ? {
+    10: 'Slide each range to hold your estimate. Each range is limited to ten times its low end.',
+    100: 'Slide each range to hold your estimate. Each range is limited to 100 times its low end.',
+    1000: 'Slide each range to hold your estimate. Each range is limited to 1,000 times its low end.'
+  } : {
+    10: 'Faites glisser chaque plage pour y inclure votre estimation. Chaque plage est limitée à dix fois sa borne inférieure.',
+    100: 'Faites glisser chaque plage pour y inclure votre estimation. Chaque plage est limitée à 100 fois sa borne inférieure.',
+    1000: /^Faites glisser chaque plage pour y inclure votre estimation\. Chaque plage est limitée à 1[\u00a0\u202f]000 fois sa borne inférieure\.$/
+  };
+
   test(`keyboard, validation, checked ranges, one announcement and Try again (${lang})`, async ({ page }) => {
     await open(page, lang);
+    await expect(page.locator('[data-lp-instructions]')).toHaveText(instructions[10]);
     const bands = page.getByRole('slider');
     const status = page.getByRole('status');
     await expect(status).toHaveText('');
@@ -159,38 +170,63 @@ for (const lang of ['en', 'fr']) {
     }
   });
 
-  test(`configured ratio changes instructions, bands and scoring (${lang})`, async ({ page }) => {
-    const content = { ...structuredClone(examples[lang]), ratio: lang === 'fr' ? 1000 : 100 };
-    content.questions.forEach(question => { question.answer = content.ratio; });
-    await openContent(page, content, lang);
-    await expect(page.locator('[data-lp-instructions]')).toHaveText(frenchTypography(format(strings[lang].instructions, { ratio: numberText(content.ratio, lang) }), lang));
-    for (const [index, band] of (await page.getByRole('slider').all()).entries()) {
-      await band.press('Home');
-      const label = format(strings[lang].range, { low: '1', high: numberText(content.ratio, lang) });
-      await expect(band).toHaveAttribute('aria-valuetext', frenchTypography(`${label} ${content.questions[index].unit}`, lang));
-    }
-    await page.locator('[data-lp-check]').click();
-    await expect(page.locator('[data-lp-result]')).toHaveText(frenchTypography(format(strings[lang].summary, { count: 3, total: 3 }), lang));
-  });
+  for (const ratio of [10, 100, 1000]) {
+    test(`configured ratio ${ratio} changes instructions, bands and scoring (${lang})`, async ({ page }) => {
+      const content = { ...structuredClone(examples[lang]), ratio };
+      content.questions.forEach(question => { question.answer = content.ratio; });
+      await openContent(page, content, lang);
+      await expect(page.locator('[data-lp-instructions]')).toHaveText(instructions[ratio]);
+      for (const [index, band] of (await page.getByRole('slider').all()).entries()) {
+        await band.press('Home');
+        const label = format(strings[lang].range, { low: '1', high: numberText(content.ratio, lang) });
+        await expect(band).toHaveAttribute('aria-valuetext', frenchTypography(`${label} ${content.questions[index].unit}`, lang));
+      }
+      await page.locator('[data-lp-check]').click();
+      await expect(page.locator('[data-lp-result]')).toHaveText(frenchTypography(format(strings[lang].summary, { count: 3, total: 3 }), lang));
+    });
+  }
 }
 
-test('large answer labels stay on one line at 320 px with text spacing', async ({ page }) => {
-  await page.setViewportSize({ width: 320, height: 900 });
-  const content = structuredClone(examples.en);
-  content.questions[2].answer = 2_000_000;
-  await openContent(page, content);
-  await page.addStyleTag({ content: '.lp, .lp * { line-height: 1.5 !important; letter-spacing: .12em !important; word-spacing: .16em !important; }' });
-  for (const band of await page.getByRole('slider').all()) await band.press('Home');
-  await page.locator('[data-lp-check]').click();
-  const answer = page.locator('[data-lp-answer]').nth(2);
-  await expect(answer).toHaveText('2,000,000');
-  expect(await answer.evaluate(element => {
-    const range = document.createRange();
-    range.selectNodeContents(element);
-    return range.getClientRects().length;
-  })).toBe(1);
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-});
+for (const lang of ['en', 'fr']) for (const ratio of [10, 100, 1000]) {
+  test(`labels fit at every band position at 320 px with text spacing, ratio ${ratio} (${lang})`, async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 900 });
+    const content = { ...structuredClone(examples[lang]), ratio };
+    content.questions.forEach(question => { question.answer = 1e12; });
+    await openContent(page, content, lang);
+    await page.addStyleTag({ content: '.lp, .lp * { line-height: 1.5 !important; letter-spacing: .12em !important; word-spacing: .16em !important; }' });
+    for (const band of await page.getByRole('slider').all()) await band.press('Home');
+    const fits = async () => {
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      expect(await page.locator('[data-lp-pattern]').evaluate(root => {
+        const card = root.getBoundingClientRect();
+        return [...root.querySelectorAll('[data-lp-value], [data-lp-answer]:not([hidden])')].every(label => {
+          const bounds = label.getBoundingClientRect();
+          return bounds.left >= card.left && bounds.right <= card.right;
+        });
+      })).toBe(true);
+    };
+    const first = page.getByRole('slider').first();
+    const last = Number(await first.getAttribute('aria-valuemax'));
+    for (let position = 0; position <= last; position++) {
+      if (position) await first.press('ArrowRight');
+      await expect(first).toHaveAttribute('aria-valuenow', String(position));
+      await fits();
+    }
+    await first.press('End');
+    await fits();
+    await page.locator('[data-lp-check]').click();
+    await expect(page.locator('[data-lp-try-again]')).toBeFocused();
+    await fits();
+    for (const answer of await page.locator('[data-lp-answer]').all()) {
+      await expect(answer).toHaveText(lang === 'en' ? '1,000,000,000,000' : /^1[\u00a0\u202f]000[\u00a0\u202f]000[\u00a0\u202f]000[\u00a0\u202f]000$/);
+      expect(await answer.evaluate(element => {
+        const range = document.createRange();
+        range.selectNodeContents(element);
+        return range.getClientRects().length;
+      })).toBe(1);
+    }
+  });
+}
 
 test('track taps and dragging select discrete bands without a keyboard', async ({ page }) => {
   await open(page);

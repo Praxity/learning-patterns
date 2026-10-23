@@ -142,12 +142,26 @@ test('French render and strings use identical keys and placeholders', () => {
 test('formatting replaces placeholders once and localizes numbers and ratios', () => {
   assert.equal(format('{value} {x}', { value: '{x}', x: 'answer' }), '{x} answer');
   assert.equal(numberText(1.5, 'fr'), '1,5');
+  const expected = {
+    en: {
+      10: 'Slide each range to hold your estimate. Each range is limited to ten times its low end.',
+      100: 'Slide each range to hold your estimate. Each range is limited to 100 times its low end.',
+      1000: 'Slide each range to hold your estimate. Each range is limited to 1,000 times its low end.'
+    },
+    fr: {
+      10: 'Faites glisser chaque plage pour y inclure votre estimation. Chaque plage est limitée à dix fois sa borne inférieure.',
+      100: 'Faites glisser chaque plage pour y inclure votre estimation. Chaque plage est limitée à 100 fois sa borne inférieure.',
+      1000: 'Faites glisser chaque plage pour y inclure votre estimation. Chaque plage est limitée à 1\u00a0000 fois sa borne inférieure.'
+    }
+  };
   for (const lang of ['en', 'fr']) {
-    const value = { ...clone(), ratio: 1000 };
-    const output = render(value, strings[lang], { id: lang, lang });
-    const instructions = format(strings[lang].instructions, { ratio: numberText(1000, lang) });
-    assert.ok(output.includes(instructions));
-    assert.ok(!output.includes('{ratio}'));
+    for (const ratio of [undefined, 10, 100, 1000]) {
+      const value = { ...clone(), ratio };
+      const output = render(value, strings[lang], { id: lang, lang });
+      const instructions = output.match(/data-lp-instructions hidden>([^<]+)</)[1];
+      assert.equal(instructions.replaceAll('\u202f', '\u00a0'), expected[lang][ratio ?? 10]);
+      assert.ok(!output.includes('{ratio}'));
+    }
   }
 });
 
