@@ -20,9 +20,11 @@ export function render(content, strings, { id, lang, stage = 'both' }) {
   </div>`;
   const first = `<section class="lp-stack lp-first-answer-step" data-lp-first-step aria-labelledby="${key('start')}">
     <h3 class="lp-run-in lp-first-answer-heading" id="${key('start')}">${html(strings.start, lang)}</h3>
-    <div data-lp-first-editor>${input('first', strings.firstLabel)}</div>
-    <div class="lp-actions">
-      <button class="lp-button" type="button" data-lp-save-first hidden>${html(strings.saveFirst, lang)}</button>
+    <div data-lp-first-editor>
+      ${input('first', strings.firstLabel)}
+      <div class="lp-actions" data-lp-first-actions>
+        <button class="lp-button" type="button" data-lp-save-first hidden>${html(strings.saveFirst, lang)}</button>
+      </div>
     </div>
     <div class="lp-stack lp-first-answer-card lp-first-answer-saved" data-lp-first-saved hidden>
       <p class="lp-small lp-first-answer-date">${icons.calendar}<span data-lp-first-date></span></p>

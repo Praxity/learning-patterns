@@ -1,6 +1,6 @@
 /* Chat bubbles and a reply composer, using the shared course controls. */
 .lp-conversation-avatar { display: grid; place-items: center; flex: none; inline-size: 36px; block-size: 36px; border-radius: 50%; color: var(--lp-on-accent); background: var(--lp-accent); font-weight: 600; }
-.lp-conversation-chat { display: grid; gap: 16px; padding: 0; list-style: none; }
+.lp-conversation-chat { display: grid; gap: var(--lp-gap-flow); padding: 0; list-style: none; }
 .lp-conversation-turn { display: flex; gap: 10px; align-items: flex-start; min-inline-size: 0; }
 .lp-conversation-bubble { max-inline-size: 85%; min-inline-size: 0; padding: 12px 16px; border-radius: var(--lp-radius-control); background: var(--lp-paper-2); }
 /* The avatar's centre sits on the first line of its bubble: the bubble's top padding, plus half the
@@ -8,7 +8,7 @@
 .lp-conversation-chat .lp-conversation-avatar { margin-block-start: calc(12px + (1lh - 36px) / 2); }
 .lp-conversation-turn-you { justify-content: flex-end; }
 .lp-conversation-turn-you .lp-conversation-bubble { background: var(--lp-accent-soft); }
-.lp-conversation-speaker { display: block; margin-block-end: 4px; color: var(--lp-ink-2); font-size: var(--lp-type-small); font-weight: 600; }
+.lp-conversation-speaker { display: block; margin-block-end: var(--lp-gap-hint); color: var(--lp-ink-2); font-size: var(--lp-type-small); font-weight: 600; }
 /* Notes start where Michel's bubbles start, after the avatar and its gap. */
 .lp-conversation-note { padding-inline-start: 46px; color: var(--lp-ink-2); font-style: italic; }
 /* Clipping keeps the textarea's square corners from covering the rounded border. */
@@ -23,16 +23,16 @@
 .lp-conversation-foot { display: flex; gap: 12px; flex-wrap: wrap; justify-content: flex-end; align-items: center; padding: 10px 16px; border-block-start: 1px solid var(--lp-rule); }
 .lp-conversation-foot .lp-error-text { margin-inline-end: auto; }
 /* The restart button's 44px target already adds space above its label, so it sits closer to the choices. */
-.lp-conversation .lp-actions { margin-block-start: 8px; }
+.lp-conversation .lp-actions { margin-block-start: var(--lp-gap-label); }
 /* The avatar lines up with the name, not with the name and role together. The name is as tall as the
    avatar and centres its line in that height, so the avatar's centre is the name's centre. */
 .lp-conversation .lp-scene { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: 0 14px; }
 .lp-conversation .lp-scene > div { display: contents; }
 .lp-conversation .lp-scene-title { display: flex; align-items: center; min-block-size: 36px; min-inline-size: 0; margin: 0; }
 .lp-conversation .lp-scene-sub { grid-column: 2; min-inline-size: 0; margin: 0; }
-.lp-conversation [data-lp-flow] > * + *, .lp-conversation [data-lp-composer] > * + * { margin-block-start: 12px; }
+.lp-conversation [data-lp-flow] > * + *, .lp-conversation [data-lp-composer] > * + * { margin-block-start: var(--lp-gap-stem); }
 .lp-conversation-choice { inline-size: 100%; font: inherit; text-align: start; color: inherit; }
-.lp-conversation-debrief { display: grid; gap: 16px; padding-inline-start: 24px; }
+.lp-conversation-debrief { display: grid; gap: var(--lp-gap-flow); padding-inline-start: 24px; }
 .lp-conversation [data-lp-choices] > summary::before { transition: none; }
 @container (max-width: 25rem) {
   .lp-conversation-bubble { max-inline-size: 100%; padding: 10px 12px; }

@@ -120,7 +120,7 @@ for (const width of [1280, 390]) {
       await expect(box.locator('details')).toBeHidden();
       await expect(box.locator(':scope > .lp-stem')).toHaveText(authored.question);
       await expect(box.locator(':scope > .lp-small')).toHaveCount(0);
-      await expect(box.locator(':scope > details.lp-details > summary')).toHaveText('Show the answer');
+      await expect(box.locator(':scope > div > details.lp-details > summary')).toHaveText('Show the answer');
       expect(await box.evaluate(el => el.previousElementSibling?.tagName)).toBe('P');
       await box.locator('[data-lp-commit]').click();
       await expect(box.locator('[data-lp-answer]')).toHaveText(authored.answer);

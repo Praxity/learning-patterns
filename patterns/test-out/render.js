@@ -15,7 +15,7 @@ export function render(content, strings, { id, lang }) {
     <div><h2 class="lp-scene-title">${html(content.title, lang)}</h2></div>
   </header>
   <div class="lp-test-out-stepper" data-lp-stepper>
-    <div class="lp-test-out-panel" data-lp-panel="outline">
+    <div class="lp-test-out-panel lp-stack" data-lp-panel="outline">
       <h3 class="lp-stem" id="${html(`${id}-outline`)}" tabindex="-1" data-lp-outline-heading>${html(strings.outline, lang)}</h3>
       <p class="lp-run-in" data-lp-result hidden></p>
       <ol class="lp-test-out-outline-list">${content.sections.map(s => `<li>
@@ -30,7 +30,7 @@ export function render(content, strings, { id, lang }) {
       <div class="lp-actions" data-lp-restart-actions hidden><button class="lp-button lp-button-quiet" type="button" data-lp-restart hidden>${icons.refresh}${html(strings.restart, lang)}</button></div>
     </div>
     <div class="lp-test-out-questions" data-lp-questions>
-      ${questions.map((q, index) => `<div class="lp-test-out-panel lp-section" data-lp-panel="question" data-lp-section="${q.section}">
+      ${questions.map((q, index) => `<div class="lp-test-out-panel lp-section lp-stack" data-lp-panel="question" data-lp-section="${q.section}">
         <h3 class="lp-label" tabindex="-1" data-lp-panel-heading>${html(format(strings.question, { number: index + 1, total: questions.length, section: content.sections.find(s => s.id === q.section)?.title ?? '' }))}</h3>
         <fieldset class="lp-choices" id="${html(`${id}-question-${q.id}`)}" tabindex="-1" data-lp-question="${html(q.id)}">
           <legend class="lp-stem">${html(q.text, lang)}</legend>

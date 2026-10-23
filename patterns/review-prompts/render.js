@@ -22,13 +22,15 @@ export function render(content, strings, { id, lang }) {
     ${part.paragraphs.map(text => `<p>${html(text, lang)}</p>`).join('\n    ')}
     <div class="lp-box" role="group" aria-labelledby="${prompt}">
       <p class="lp-stem" id="${prompt}">${html(part.question, lang)}</p>
-      <details class="lp-details">
-        <summary>${html(strings.show, lang)}</summary>
-        <p data-lp-fallback-answer>${html(part.answer, lang)}</p>
-      </details>
-      <button class="lp-button lp-button-secondary" type="button" data-lp-commit aria-controls="${answer}" hidden>${html(strings.commit, lang)}</button>
-      <div id="${answer}" data-lp-answer role="region" aria-label="${html(strings.answer, lang)}" tabindex="-1" hidden>
-        <p>${html(part.answer, lang)}</p>
+      <div>
+        <details class="lp-details">
+          <summary>${html(strings.show, lang)}</summary>
+          <p data-lp-fallback-answer>${html(part.answer, lang)}</p>
+        </details>
+        <button class="lp-button lp-button-secondary" type="button" data-lp-commit aria-controls="${answer}" hidden>${html(strings.commit, lang)}</button>
+        <div id="${answer}" data-lp-answer role="region" aria-label="${html(strings.answer, lang)}" tabindex="-1" hidden>
+          <p>${html(part.answer, lang)}</p>
+        </div>
       </div>
       <div class="lp-stack" data-lp-rating hidden>
         <div class="lp-actions">

@@ -4,11 +4,60 @@ import { test, expect } from '@playwright/test';
 // font synthesis and no italic face loaded.
 const HOST = 'h1, h2, h3 { font-family: Georgia, serif; } html { font-synthesis: none; }';
 
+// Conversation's role is scenario content: it changes what a good reply is.
+const HEADER_EXCEPTIONS = { conversation: '.lp-scene-sub' };
+
+async function checkHeader(page, name) {
+  const scene = page.locator('[data-lp-pattern] .lp-scene');
+  await expect(scene.locator('.lp-scene-title')).toHaveCount(1);
+  const exception = HEADER_EXCEPTIONS[name];
+  if (exception) {
+    await expect(scene.locator(exception)).toHaveCount(1);
+    await expect(scene.locator(exception)).toBeVisible();
+    const role = await scene.locator(exception).innerText();
+    expect(role.trim()).not.toBe('');
+  } else {
+    await expect(scene.locator('.lp-scene-sub')).toHaveCount(0);
+  }
+  const extraText = await scene.evaluate((header, exception) => {
+    const allowed = [header.querySelector('.lp-scene-title'), exception && header.querySelector(exception)].filter(Boolean);
+    const walker = document.createTreeWalker(header, NodeFilter.SHOW_TEXT);
+    const extra = [];
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      // Decorative icons and conversation's avatar are hidden from the reading order.
+      if (node.textContent.trim() && !node.parentElement.closest('[aria-hidden="true"]') && !allowed.some(element => element.contains(node))) extra.push(node.textContent.trim());
+    }
+    return extra;
+  }, exception);
+  expect(extraText).toEqual([]);
+}
+
 async function open(page, path, host = false) {
   await page.goto(path);
   await page.waitForFunction(() => window.lpReady);
   if (host) await page.addStyleTag({ content: HOST });
 }
+
+for (const lang of ['en', 'fr']) test(`scene headers hold one title, with the named conversation role exception (${lang})`, async ({ page }) => {
+  for (const name of ['conversation', 'dont-know', 'first-answer', 'highlight', 'retrieval-sheet', 'self-check', 'test-out', 'write-distractors']) {
+    await open(page, `/${name}/${lang}.html`);
+    await checkHeader(page, name);
+    if (name === 'conversation') await expect(page.locator('.lp-scene-sub')).toHaveText(lang === 'en' ? 'Your colleague' : 'Votre collègue');
+  }
+});
+
+test('the header guard rejects added subtitles, including beyond the conversation exception', async ({ page }) => {
+  test.setTimeout(15000);
+  for (const name of ['dont-know', 'conversation']) for (const location of ['nested', 'direct', 'text']) {
+    await open(page, `/${name}/en.html`);
+    await page.locator('[data-lp-pattern] .lp-scene').evaluate((scene, location) => {
+      if (location === 'text') scene.append('Extra subtitle');
+      else (location === 'nested' ? scene.querySelector('div') : scene).insertAdjacentHTML('beforeend', '<p>Extra subtitle</p>');
+    }, location);
+    await expect(checkHeader(page, name)).rejects.toThrow();
+  }
+});
 
 for (const name of ['dont-know', 'first-answer', 'highlight', 'retrieval-sheet', 'test-out', 'write-distractors']) {
   test(`headings inside the pattern keep the body face when the host styles headings (${name})`, async ({ page }) => {

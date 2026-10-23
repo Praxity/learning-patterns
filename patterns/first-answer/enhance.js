@@ -24,7 +24,7 @@ export function enhance(root, { content, strings, state }) {
   const first = stage === 'end' ? null : {
     step: required('[data-lp-first-step]'), editor: required('[data-lp-first-editor]'),
     saved: required('[data-lp-first-saved]'), quote: required('[data-lp-first-quote]'), date: required('[data-lp-first-date]'),
-    save: required('[data-lp-save-first]')
+    save: required('[data-lp-save-first]'), actions: required('[data-lp-first-actions]')
   };
   const end = stage === 'first' ? null : {
     step: required('[data-lp-end-step]'), heading: required('[data-lp-end-heading]'),
@@ -88,6 +88,7 @@ export function enhance(root, { content, strings, state }) {
       first.editor.hidden = record.first !== null;
       first.saved.hidden = record.first === null;
       first.save.hidden = record.first !== null;
+      first.actions.hidden = record.first !== null;
       first.quote.textContent = frenchTypography(record.first?.text ?? '', root.lang);
       first.date.textContent = frenchTypography(record.first ? strings.saved.replaceAll('{date}', when(record.first.savedAt)) : '', root.lang);
     }
@@ -195,7 +196,7 @@ export function enhance(root, { content, strings, state }) {
       fallback.hidden = false; if (endFallback) endFallback.hidden = false;
       if (first) {
         first.step.hidden = false; first.editor.hidden = false; first.saved.hidden = true;
-        first.save.hidden = true; first.save.removeAttribute('aria-disabled');
+        first.save.hidden = true; first.actions.hidden = false; first.save.removeAttribute('aria-disabled');
       }
       if (end) { end.step.hidden = true; end.result.hidden = true; end.retry.hidden = true; end.input.readOnly = false; end.compare.hidden = false; fieldError(end.input, end.error, ''); }
       if (course) course.hidden = true;

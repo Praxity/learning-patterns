@@ -3,7 +3,6 @@
 .lp-retrieval-sheet-choice-date { display: block; margin-block-start: 4px; }
 .lp-retrieval-sheet-date-field { min-inline-size: 0; }
 .lp-retrieval-sheet-date-field .lp-input { inline-size: 12rem; max-inline-size: 100%; }
-.lp-retrieval-sheet-date-field .lp-error-text { margin-block-start: 8px; }
 .lp-retrieval-sheet-tabs { display: flex; flex-wrap: wrap; gap: 4px; }
 .lp-retrieval-sheet-tab {
   min-block-size: 44px;

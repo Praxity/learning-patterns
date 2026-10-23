@@ -13,9 +13,9 @@ export function render(content, strings, { id, lang }) {
   <h2 class="lp-stem" id="${html(`${id}-prompt`)}">${html(content.prompt, lang).replaceAll('{course}', () => `<em>${html(content.course ?? '', lang)}</em>`)}</h2>
   <div data-lp-controls hidden class="lp-stack">
     <textarea class="lp-input" rows="2" maxlength="${QUESTION_LIMIT}" id="${html(`${id}-question`)}" aria-labelledby="${html(`${id}-prompt`)}" placeholder="${html(strings.placeholder, lang)}"></textarea>
-    <div data-lp-notice id="${html(`${id}-notice`)}" hidden></div>
     <p class="lp-small" data-lp-checking hidden>${html(strings.checking, lang)}</p>
     <p class="lp-small" data-lp-paused hidden>${html(strings.paused, lang)}</p>
+    <div data-lp-notice id="${html(`${id}-notice`)}" hidden></div>
     <div class="lp-section lp-stack" data-lp-result aria-live="off" hidden></div>
     <button type="button" class="lp-button lp-button-secondary" data-lp-add hidden>${html(strings.add, lang)}</button>
     <p class="lp-small" data-lp-bank-message hidden></p>

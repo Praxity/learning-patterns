@@ -7,6 +7,11 @@ import { render } from './render.js';
 import { strings } from './strings.js';
 
 const content = JSON.parse(await readFile(new URL('./examples/en.json', import.meta.url)));
+
+test('field error precedes the data notice in reading order', () => {
+  const markup = render(content, strings.en, { id: 'spacing', lang: 'en' });
+  assert.match(markup, /<\/textarea>\s*<p[^>]*data-lp-error[^>]*>[\s\S]*?<\/p>\s*<div data-lp-notice/);
+});
 const answers = (choice, confidence) => ({ misconception: { choice, confidence } });
 
 test('default feedback uses the Jev gate used by Perplexity', () => {
