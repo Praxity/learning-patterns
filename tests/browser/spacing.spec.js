@@ -180,6 +180,8 @@ for (const width of [1280, 390]) {
     const field = page.locator(role === 'stem' ? 'textarea' : '[data-lp-first-input]');
     expect(await gap(label, hint)).toBeCloseTo(4, 1);
     expect(await gap(hint, field)).toBeCloseTo(8, 1);
+    await hint.evaluate(el => { el.hidden = true; });
+    expect(await gap(label, field)).toBeCloseTo(role === 'stem' ? 12 : 8, 1);
   });
 }
 
