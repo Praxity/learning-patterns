@@ -100,13 +100,13 @@ test('two-part content uses two columns without inline styles and stacks in narr
   await expect(page.locator('[data-lp-fact]')).toHaveCount(2);
   await expect(page.getByRole('radio')).toHaveCount(4);
   for (const selector of ['.lp-prolific-questions-worked', '.lp-prolific-questions-fact']) {
-    expect(await page.locator(selector).first().evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').length)).toBe(2);
+    expect(await page.locator(selector).first().evaluate(el => new Set([...el.children].filter(child => child.getClientRects().length).map(child => Math.round(child.getBoundingClientRect().left))).size)).toBe(2);
   }
   expect(await page.locator('[data-lp-worked]').evaluate(el => getComputedStyle(el).borderBlockStartWidth)).toBe('0px');
   await expect(page.locator('[data-lp-worked]').getByRole('region')).toHaveCount(0);
   await page.setViewportSize({ width: 320, height: 900 });
   for (const selector of ['.lp-prolific-questions-worked', '.lp-prolific-questions-fact']) {
-    expect(await page.locator(selector).first().evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').length)).toBe(1);
+    expect(await page.locator(selector).first().evaluate(el => new Set([...el.children].filter(child => child.getClientRects().length).map(child => Math.round(child.getBoundingClientRect().left))).size)).toBe(1);
   }
 });
 
@@ -139,7 +139,9 @@ test('missing answers describe only unanswered groups and announce once per chec
   await page.locator('[data-lp-fact]').nth(2).getByRole('radio').nth(1).check();
   await expect(page.locator('[data-lp-error]')).toBeHidden();
   await expect(page.locator('[data-lp-fact][aria-describedby]')).toHaveCount(0);
-  expect(await page.evaluate(() => window.lpAnnouncements)).toHaveLength(4);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([
+    'Choose an answer for each fact first.', 'Choose an answer for the other 2 facts too.', 'Choose an answer for the last fact too.'
+  ]);
 });
 
 for (const lang of ['en', 'fr']) {
