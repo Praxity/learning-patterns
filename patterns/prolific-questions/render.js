@@ -7,7 +7,7 @@ import { validateContent } from './logic.js';
  * @param {{ id: string, lang: string }} options */
 export function render(content, strings, { id, lang }) {
   validateContent(content);
-  return `<section class="lp lp-prolific-questions" data-lp-pattern="prolific-questions" lang="${html(lang)}" style="--lp-prolific-questions-cols: ${content.parts.length}">
+  return `<section class="lp lp-prolific-questions" data-lp-pattern="prolific-questions" lang="${html(lang)}">
   <header class="lp-scene"><span class="lp-scene-icon">${icons['file-text']}</span><div><h2 class="lp-scene-title">${html(content.title, lang)}</h2></div></header>
   <div class="lp-context"><p><strong>${html(strings.context, lang)}</strong> ${html(content.context, lang)}</p></div>
   <div class="lp-section" data-lp-worked>

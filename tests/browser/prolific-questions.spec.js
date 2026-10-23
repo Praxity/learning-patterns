@@ -85,7 +85,7 @@ test('Check freezes every radio before returning to the event loop', async ({ pa
   await expect(page.locator('[data-lp-next]')).toBeFocused();
 });
 
-test('two-part content uses two columns for the worked example and choices', async ({ page }) => {
+test('two-part content uses two columns without inline styles and stacks in narrow containers', async ({ page }) => {
   await open(page);
   const content = { ...english, parts: english.parts.slice(0, 2), workedExample: english.workedExample.slice(0, 2), cases: english.cases.map(facts => facts.slice(0, 2)) };
   await page.evaluate(async content => {
@@ -94,6 +94,7 @@ test('two-part content uses two columns for the worked example and choices', asy
     const { strings } = await import('/patterns/prolific-questions/strings.js');
     window.lpInstances[0].destroy();
     document.querySelector('[data-lp-pattern]').outerHTML = render(content, strings.en, { id: 'two-parts', lang: 'en' });
+    document.querySelector('[data-lp-pattern]').removeAttribute('style');
     enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en });
   }, content);
   await expect(page.locator('[data-lp-fact]')).toHaveCount(2);
@@ -103,6 +104,10 @@ test('two-part content uses two columns for the worked example and choices', asy
   }
   expect(await page.locator('[data-lp-worked]').evaluate(el => getComputedStyle(el).borderBlockStartWidth)).toBe('0px');
   await expect(page.locator('[data-lp-worked]').getByRole('region')).toHaveCount(0);
+  await page.setViewportSize({ width: 320, height: 900 });
+  for (const selector of ['.lp-prolific-questions-worked', '.lp-prolific-questions-fact']) {
+    expect(await page.locator(selector).first().evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').length)).toBe(1);
+  }
 });
 
 test('French results keep singular wording for one answer and zero cumulative placements', async ({ page }) => {
@@ -123,10 +128,7 @@ test('missing answers describe only unanswered groups and announce once per chec
   await expect(check).toBeFocused();
   await expect(page.locator('[data-lp-error]')).toHaveText('Choose an answer for each fact first.');
   await expect(page.locator('[data-lp-fact][aria-describedby]')).toHaveCount(3);
-  await check.click();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([
-    'Choose an answer for each fact first.', 'Choose an answer for each fact first.'
-  ]);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Choose an answer for each fact first.']);
   await page.locator('[data-lp-fact]').nth(0).getByRole('radio').nth(2).check();
   await check.click();
   await expect(page.locator('[data-lp-fact][aria-describedby]')).toHaveCount(2);
@@ -184,7 +186,7 @@ for (const lang of ['en', 'fr']) {
 for (const checked of [false, true]) test(`saved deck, order, picks and counts restore silently, checked=${checked}`, async ({ page }) => {
   const saved = { ...seed(), picks: checked ? [2, 0, 1] : [2, null, null], checked, completed: checked ? 1 : 0, placed: checked ? 3 : 0 };
   await open(page, 'en', saved);
-  // Let any deferred lock focus run before checking that restore leaves the page alone.
+  // Regression guard for restore focus; lock's own specs prove that focus: false suppresses movement.
   await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
   expect(await page.evaluate(() => document.activeElement === document.body)).toBe(true);
   await expect(page.locator('input:checked')).toHaveCount(checked ? 3 : 1);

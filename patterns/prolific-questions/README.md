@@ -24,7 +24,7 @@ Use a scored assessment when learners need a pass decision. This activity keeps 
 
 Name the parts and define each in one line. Write a worked example and at least eight complete cases, with one fact for each part in the same order. Each fact names its person so it makes sense when shuffled. The sample practises the WHO's International Classification of Functioning model.
 
-Put it after the worked example. Novices need a few similar cases before variety helps. All facts and answers are authored.
+Practice follows the worked example, because novices need a few similar cases before variety helps. All facts and answers are authored.
 
 ## How it works
 
@@ -37,7 +37,7 @@ Checking freezes only the current answers. New set remains available, with no pa
 
 ## Evidence
 
-The worked example introduces each part before learners classify new facts. Starting with similar cases before adding variety follows Braithwaite and Goldstone's study of how prior knowledge affects learning from varied examples, ["Effects of variation and prior knowledge on abstract concept learning", 2015, Cognition and Instruction, 33(3), 226-256](https://doi.org/10.1080/07370008.2015.1067215).
+Learners with less prior knowledge learned a math concept better from similar examples. Pretraining on the concept's structure let them benefit from varied ones ([Braithwaite and Goldstone, 2015](https://doi.org/10.1080/07370008.2015.1067215)). The worked example plays that role here. The study did not test this pattern.
 
 The running count records correct placements, without a mastery claim. This pattern has not been tested with learners.
 

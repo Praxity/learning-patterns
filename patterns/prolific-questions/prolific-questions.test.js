@@ -206,7 +206,6 @@ test('two-part content renders matching column count, worked parts and radio gro
   const two = { ...content, parts: content.parts.slice(0, 2), workedExample: content.workedExample.slice(0, 2), cases: content.cases.map(facts => facts.slice(0, 2)) };
   assert.doesNotThrow(() => validateContent(two));
   const markup = render(two, strings.en, { id: 'two', lang: 'en' });
-  assert.match(markup, /style="--lp-prolific-questions-cols: 2"/);
   assert.equal((markup.match(/class="lp-prolific-questions-component"/g) ?? []).length, 2);
   assert.equal((markup.match(/data-lp-fact>/g) ?? []).length, 2);
   assert.equal((markup.match(/type="radio"/g) ?? []).length, 4);

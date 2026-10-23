@@ -109,7 +109,6 @@ export function enhance(root, { content, strings, state }) {
       const message = count === outcome.total ? strings.empty : count === 1 ? strings.last : strings.remaining.replace('{count}', String(count));
       errorText.textContent = display(message); error.hidden = false;
       outcome.unanswered.forEach(i => facts[i].setAttribute('aria-describedby', error.id));
-      status.textContent = '';
       status.textContent = display(message);
       return;
     }
