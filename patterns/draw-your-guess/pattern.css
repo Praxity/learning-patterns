@@ -1,0 +1,55 @@
+.lp-draw-your-guess-fieldset { min-inline-size: 0; margin: var(--lp-gap-section) 0 0; padding: 0; border: 0; }
+.lp-draw-your-guess-fieldset > legend { margin-block-end: var(--lp-gap-label); padding: 0; }
+
+/* The chart: a y-axis gutter, the plot and the month labels. Points are placed by percentage, so it
+   scales to any width; the lines are an SVG stretched over the plot with non-scaling strokes. */
+.lp-draw-your-guess-chart { display: grid; grid-template-columns: 2.25rem minmax(0, 1fr); margin-block: var(--lp-gap-flow) var(--lp-gap-stem); }
+.lp-draw-your-guess-y { position: relative; grid-row: 1; }
+.lp-draw-your-guess-y span { position: absolute; inset-inline-end: 8px; transform: translateY(-50%); color: var(--lp-ink-2); font-size: var(--lp-type-small); font-variant-numeric: tabular-nums; }
+.lp-draw-your-guess-plot { position: relative; grid-row: 1; grid-column: 2; block-size: 240px; border-block-end: 1px solid var(--lp-line); }
+.lp-draw-your-guess-grid span { position: absolute; inset-inline: 0; border-block-start: 1px solid var(--lp-rule); }
+.lp-draw-your-guess-zone { position: absolute; inset-block: 0; inset-inline-end: 0; border-inline-start: 2px dashed var(--lp-line); background: var(--lp-paper-2); }
+.lp-draw-your-guess-zone span { position: absolute; inset-block-start: 6px; inset-inline-start: 8px; color: var(--lp-ink-2); font-size: var(--lp-type-small); font-weight: 600; line-height: 1.2; }
+.lp-draw-your-guess-lines { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; overflow: visible; }
+.lp-draw-your-guess-real { stroke: var(--lp-ink); stroke-width: 2.5; }
+.lp-draw-your-guess-guess { stroke: var(--lp-accent); stroke-width: 2.5; stroke-dasharray: 7 5; }
+.lp-draw-your-guess-marks > span { position: absolute; transform: translate(-50%, -50%); }
+/* Real points are squares, guesses are circles, so the two never rely on colour alone. */
+.lp-draw-your-guess-sq { inline-size: 10px; block-size: 10px; background: var(--lp-ink); }
+.lp-draw-your-guess-dot { inline-size: 14px; block-size: 14px; border: 2.5px solid var(--lp-accent); border-radius: 50%; background: var(--lp-paper); }
+.lp-draw-your-guess-val { margin-block-start: -20px; color: var(--lp-accent-ink); font-size: var(--lp-type-small); font-weight: 600; font-variant-numeric: tabular-nums; }
+.lp-draw-your-guess-done .lp-draw-your-guess-val { display: none; }
+.lp-draw-your-guess-x { display: grid; grid-column: 2; padding-block-start: 6px; color: var(--lp-ink-2); font-size: var(--lp-type-small); text-align: center; }
+
+/* The guess columns take pointer input. Each holds its month's native range input, invisible,
+   so keyboards and screen readers get a real slider; the ring shows on the column it sets. */
+.lp-draw-your-guess-future { position: absolute; inset-block: 0; inset-inline-end: 0; display: grid; grid-template-columns: repeat(4, 1fr); cursor: pointer; touch-action: none; user-select: none; }
+.lp-draw-your-guess-col { position: relative; border-radius: 6px; }
+.lp-draw-your-guess-col input { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; margin: 0; opacity: 0; pointer-events: none; }
+.lp-draw-your-guess-chart:not(.lp-draw-your-guess-pointer) .lp-draw-your-guess-col:has(input:focus-visible) { outline: 3px solid var(--lp-focus); outline-offset: -2px; }
+.lp-draw-your-guess-future:has(input:disabled) { cursor: default; }
+
+.lp-draw-your-guess-key { display: flex; flex-wrap: wrap; gap: 6px 20px; margin: 0; padding: 0; list-style: none; color: var(--lp-ink-2); font-size: var(--lp-type-small); }
+.lp-draw-your-guess-key li { display: flex; gap: 8px; align-items: center; }
+.lp-draw-your-guess-key svg { flex: none; }
+.lp-draw-your-guess-key line { stroke-width: 2.5; }
+.lp-draw-your-guess-sq-ico { fill: var(--lp-ink); }
+.lp-draw-your-guess-dot-ico { fill: var(--lp-paper); stroke: var(--lp-accent); stroke-width: 2.5; }
+
+@media (forced-colors: active) {
+  .lp-draw-your-guess-real, .lp-draw-your-guess-key .lp-draw-your-guess-real { stroke: CanvasText; }
+  .lp-draw-your-guess-guess, .lp-draw-your-guess-key .lp-draw-your-guess-guess { stroke: Highlight; }
+  .lp-draw-your-guess-sq, .lp-draw-your-guess-sq-ico { background: CanvasText; fill: CanvasText; forced-color-adjust: none; }
+  .lp-draw-your-guess-dot { border-color: Highlight; background: Canvas; forced-color-adjust: none; }
+  .lp-draw-your-guess-dot-ico { fill: Canvas; stroke: Highlight; }
+  .lp-draw-your-guess-zone { border-color: CanvasText; }
+  .lp-draw-your-guess-chart .lp-draw-your-guess-col:has(input:focus-visible) { outline-color: Highlight; }
+}
+
+.lp-draw-your-guess-x span { min-inline-size: 0; overflow-wrap: anywhere; }
+.lp-draw-your-guess-y { min-inline-size: 0; }
+.lp-draw-your-guess-key svg { overflow: visible; }
+.lp-draw-your-guess-summary { font-weight: 600; }
+.lp-draw-your-guess-table { inline-size: 100%; border-collapse: collapse; table-layout: fixed; font-size: var(--lp-type-small); }
+.lp-draw-your-guess-table :where(th, td) { padding: var(--lp-gap-label); border-block-end: 1px solid var(--lp-rule); text-align: start; vertical-align: top; overflow-wrap: anywhere; }
+.lp-draw-your-guess-table caption { margin-block-end: var(--lp-gap-label); text-align: start; }

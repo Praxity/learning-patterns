@@ -1,0 +1,66 @@
+{
+  "title": "Predict calls to the help desk",
+  "context": "In March the IT help desk took 120 calls a day, 45 of them to reset a password. On 1 April a page went live that lets staff reset their own.",
+  "question": "How many calls a day do you expect from April to July?",
+  "unit": "calls a day",
+  "top": 150,
+  "step": 5,
+  "changeLabel": "Reset page live",
+  "realLabel": "Real calls",
+  "resultTitle": "Calls a day after the reset page went live",
+  "explanationLabel": "Why it levelled off:",
+  "explanation": "Most staff found the page within a month, so password calls fell from 45 a day to about 4. The other 75 calls a day were about other problems, and the page couldn't help with those.",
+  "source": "The figures in this sample are made up.",
+  "known": [
+    {
+      "label": "Dec",
+      "name": "December",
+      "value": 116
+    },
+    {
+      "label": "Jan",
+      "name": "January",
+      "value": 124
+    },
+    {
+      "label": "Feb",
+      "name": "February",
+      "value": 121
+    },
+    {
+      "label": "Mar",
+      "name": "March",
+      "value": 120
+    }
+  ],
+  "future": [
+    {
+      "label": "Apr",
+      "name": "April",
+      "value": 95
+    },
+    {
+      "label": "May",
+      "name": "May",
+      "value": 84
+    },
+    {
+      "label": "Jun",
+      "name": "June",
+      "value": 80
+    },
+    {
+      "label": "Jul",
+      "name": "July",
+      "value": 79
+    }
+  ],
+  "feedback": {
+    "changedDirection": "Your line changed direction; the real line fell then levelled off.",
+    "fell": "Your line fell; the real line fell then levelled off.",
+    "rose": "Your line rose; the real line fell then levelled off.",
+    "flat": "Your line stayed flat; the real line fell then levelled off.",
+    "fellThenFlat": "Your line fell then levelled off, as the real line did.",
+    "roseThenFlat": "Your line rose then levelled off; the real line fell then levelled off."
+  }
+}

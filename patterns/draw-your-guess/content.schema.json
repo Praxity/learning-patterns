@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Draw your guess content",
+  "type": "object",
+  "required": [
+    "title",
+    "context",
+    "question",
+    "unit",
+    "changeLabel",
+    "realLabel",
+    "resultTitle",
+    "explanationLabel",
+    "explanation",
+    "source",
+    "top",
+    "step",
+    "known",
+    "future",
+    "feedback"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "pattern": "\\S"
+    },
+    "context": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1500,
+      "pattern": "\\S"
+    },
+    "question": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 400,
+      "pattern": "\\S"
+    },
+    "unit": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "pattern": "\\S"
+    },
+    "changeLabel": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "pattern": "\\S"
+    },
+    "realLabel": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "pattern": "\\S"
+    },
+    "resultTitle": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "pattern": "\\S"
+    },
+    "explanationLabel": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "pattern": "\\S"
+    },
+    "explanation": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1500,
+      "pattern": "\\S"
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1500,
+      "pattern": "\\S"
+    },
+    "top": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "step": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991,
+      "x-dividesField": "top"
+    },
+    "known": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 6,
+      "items": {
+        "$ref": "#/$defs/point"
+      }
+    },
+    "future": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 6,
+      "items": {
+        "$ref": "#/$defs/point"
+      }
+    },
+    "feedback": {
+      "type": "object",
+      "required": [
+        "changedDirection",
+        "fell",
+        "rose",
+        "flat",
+        "fellThenFlat",
+        "roseThenFlat"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "changedDirection": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1500,
+          "pattern": "\\S"
+        },
+        "fell": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1500,
+          "pattern": "\\S"
+        },
+        "rose": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1500,
+          "pattern": "\\S"
+        },
+        "flat": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1500,
+          "pattern": "\\S"
+        },
+        "fellThenFlat": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1500,
+          "pattern": "\\S"
+        },
+        "roseThenFlat": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1500,
+          "pattern": "\\S"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "point": {
+      "type": "object",
+      "required": [
+        "label",
+        "name",
+        "value"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "\\S"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "\\S"
+        },
+        "value": {
+          "type": "number",
+          "minimum": 0,
+          "x-maximumField": "top"
+        }
+      }
+    }
+  }
+}
