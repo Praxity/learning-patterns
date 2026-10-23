@@ -10,8 +10,8 @@ export function render(content, strings, { id, lang }) {
   return `<section class="lp lp-misconception" data-lp-pattern="misconception" lang="${html(lang)}">
   <h2 class="lp-stem" id="${html(`${id}-question`)}">${html(content.question, lang)}</h2>
   <textarea class="lp-input" id="${html(`${id}-answer`)}" aria-labelledby="${html(`${id}-question`)}" rows="3" maxlength="${ANSWER_LIMIT}" placeholder="${html(strings.placeholder, lang)}"></textarea>
-  <div data-lp-notice id="${html(`${id}-notice`)}" hidden></div>
   <p class="lp-error-text" id="${html(`${id}-error`)}" data-lp-error hidden>${icons['alert-circle']}<span>${html(strings.empty, lang)}</span></p>
+  <div data-lp-notice id="${html(`${id}-notice`)}" hidden></div>
   <div class="lp-actions"><button class="lp-button" type="button" data-lp-check hidden>${html(strings.check, lang)}</button></div>
   <div data-lp-challenge hidden></div>
   <div class="lp-section" data-lp-result hidden></div>

@@ -13,8 +13,8 @@ export function render(content, strings, { id, lang }) {
     <h2 class="lp-stem" id="${html(`${id}-task`)}">${html(content.task, lang)}</h2>
     <div class="lp-stack lp-explain-back-composer">
       <textarea class="lp-input" id="${html(`${id}-answer`)}" aria-labelledby="${html(`${id}-task`)}" rows="4" maxlength="${ANSWER_LIMIT}" placeholder="${html(strings.placeholder, lang)}"></textarea>
-      <div data-lp-notice id="${html(`${id}-notice`)}" hidden></div>
       <p class="lp-error-text" id="${html(`${id}-error`)}" data-lp-error hidden>${icons['alert-circle']}<span>${html(strings.empty, lang)}</span></p>
+      <div data-lp-notice id="${html(`${id}-notice`)}" hidden></div>
     </div>
     <div class="lp-actions"><button class="lp-button" type="button" data-lp-check hidden>${html(strings.check, lang)}</button></div>
     <div data-lp-challenge hidden></div>

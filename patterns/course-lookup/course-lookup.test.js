@@ -9,6 +9,11 @@ import { ENTRY_IDS, MATCH_GATE, faqLookup } from '../../proxy/logic/20-faq.js';
 import { ENTRY_IDS as SECTION_IDS, sectionLookup } from '../../proxy/logic/21-sections.js';
 
 const example = JSON.parse(await readFile(new URL('./examples/en.json', import.meta.url)));
+
+test('lookup notes precede the data notice directly after the field', () => {
+  const markup = render(example, strings.en, { id: 'spacing', lang: 'en' });
+  assert.match(markup, /<\/textarea>\s*<p[^>]*data-lp-checking[^>]*>[^<]*<\/p>\s*<p[^>]*data-lp-paused[^>]*>[^<]*<\/p>\s*<div data-lp-notice/);
+});
 const answer = (scores, ids = ENTRY_IDS, confidence = 1) => {
   const probabilities = Object.fromEntries([...ids, 'none'].map(id => [id, scores[id] ?? 0]));
   const choice = Object.keys(probabilities).sort((a, b) => probabilities[b] - probabilities[a])[0];

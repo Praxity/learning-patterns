@@ -116,6 +116,8 @@ for (const width of [1280, 390]) {
       expect(await gap(first.locator('.lp-label'), first.locator('textarea'))).toBeCloseTo(8, 1);
       await page.locator('[data-lp-first-input]').fill('Let me finish.');
       await page.locator('[data-lp-save-first]').click();
+      await expect(first.locator('.lp-actions')).toHaveAttribute('hidden', '');
+      expect(await gap(first.locator('h3'), first.locator('[data-lp-first-saved]'))).toBeCloseTo(12, 1);
       await page.locator('[data-lp-skip]').click();
       const end = page.locator('[data-lp-end-step]');
       await expect(end.locator('[data-lp-missing]')).toBeHidden();
@@ -158,7 +160,7 @@ for (const width of [1280, 390]) {
     expect(await gap(heading, list)).toBeCloseTo(12, 1);
   });
 
-  test(`hidden notices do not separate fields from errors at ${width}px`, async ({ page }) => {
+  test(`field errors precede notices and stay 8px from fields at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     for (const name of ['misconception', 'explain-back']) {
       await open(page, name);
@@ -171,7 +173,8 @@ for (const width of [1280, 390]) {
       await expect(page.locator('[data-lp-error]')).toBeVisible();
       expect(await gap(page.locator('textarea'), page.locator('[data-lp-error]')), name).toBeCloseTo(8, 1);
       await page.locator('[data-lp-notice]').evaluate(el => { el.textContent = 'Data notice'; el.hidden = false; });
-      expect(await gap(page.locator('[data-lp-notice]'), page.locator('[data-lp-error]')), name).toBeCloseTo(16, 1);
+      expect(await gap(page.locator('textarea'), page.locator('[data-lp-error]')), name).toBeCloseTo(8, 1);
+      expect(await gap(page.locator('[data-lp-error]'), page.locator('[data-lp-notice]')), name).toBeCloseTo(16, 1);
     }
   });
 
@@ -204,6 +207,23 @@ for (const width of [1280, 390]) {
     }
     await expect(box.locator('[data-lp-answer]')).toBeVisible();
     expect(await gap(stem, box.locator('[data-lp-answer]'))).toBeCloseTo(12, 1);
+  });
+
+  test(`course-lookup checking and paused notes stay 8px below the field at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await open(page, 'course-lookup');
+    for (const root of await page.locator('[data-lp-pattern="course-lookup"]').all()) {
+      await expect(root.locator('textarea')).toBeVisible();
+      // Isolate each transient note with and without the optional data notice.
+      for (const noticeVisible of [false, true]) for (const note of ['checking', 'paused']) {
+        await root.evaluate((el, { note, noticeVisible }) => {
+          for (const name of ['checking', 'paused']) el.querySelector(`[data-lp-${name}]`).hidden = name !== note;
+          const notice = el.querySelector('[data-lp-notice]');
+          notice.textContent = 'Data notice'; notice.hidden = !noticeVisible;
+        }, { note, noticeVisible });
+        expect(await gap(root.locator('textarea'), root.locator(`[data-lp-${note}]`))).toBeCloseTo(8, 1);
+      }
+    }
   });
 
   for (const role of ['stem', 'label']) test(`${role} to hint is 4px and hint to field is 8px at ${width}px`, async ({ page }) => {
