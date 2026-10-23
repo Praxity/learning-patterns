@@ -11,6 +11,12 @@ const content = JSON.parse(await readFile(new URL('./examples/en.json', import.m
 const french = JSON.parse(await readFile(new URL('./examples/fr.json', import.meta.url)));
 const schema = JSON.parse(await readFile(new URL('./content.schema.json', import.meta.url)));
 
+test('fallback, commit and answer share a wrapper directly after the stem', () => {
+  const markup = render(content, strings.en, { id: 'spacing', lang: 'en' });
+  assert.match(markup, /class="lp-stem"[^>]*>[^<]*<\/p>\s*<div>\s*<details/);
+  assert.match(markup, /data-lp-answer[^>]*>\s*<p>[^<]*<\/p>\s*<\/div>\s*<\/div>\s*<div class="lp-stack" data-lp-rating/);
+});
+
 test('article title is required plain text in both the validator and schema', () => {
   for (const title of ['', null, 2, undefined]) {
     const value = { ...content, title };

@@ -1,5 +1,5 @@
 /* Test-out specifics. Link lib/base.css first. */
-.lp-test-out-outline-list { display: grid; gap: 20px; padding-inline-start: 24px; }
+.lp-test-out-outline-list { display: grid; gap: var(--lp-gap-group); padding-inline-start: 24px; }
 .lp-test-out-outline-list li::marker { color: var(--lp-ink-2); font-size: var(--lp-type-small); }
 .lp-test-out-outline-row { display: flex; gap: 16px; align-items: flex-start; }
 .lp-test-out-outline-row > .lp-run-in { flex: 1; min-inline-size: 0; }
@@ -17,9 +17,10 @@
 @keyframes lp-test-out-slide { from { opacity: 0; transform: translateX(var(--lp-test-out-enter-x, 16px)); } }
 /* Without JavaScript both panels show; the questions start 24px below the intro. */
 .lp-test-out-questions { margin-block-start: var(--lp-gap-group); }
+.lp-test-out-questions > .lp-test-out-panel:first-child { margin: 0; padding: 0; border: 0; }
 .lp-test-out .lp-choice > span:not(.lp-choice-mark) { white-space: pre-line; }
 .lp-test-out .lp-choice-mark { white-space: normal; }
-.lp-test-out-fallback-list { display: grid; gap: 20px; padding-inline-start: 24px; }
+.lp-test-out-fallback-list { display: grid; gap: var(--lp-gap-group); padding-inline-start: 24px; }
 .lp-test-out-fallback-list li > * + * { margin-block-start: var(--lp-gap-label); }
 @media (prefers-reduced-motion: reduce) {
   .lp-test-out-enter { animation: none; }

@@ -94,15 +94,15 @@ for (const width of [1280, 390]) {
     }
   });
 
-  test(`write-distractors legend and field groups keep equal 16px gaps at ${width}px`, async ({ page }) => {
+  test(`write-distractors legend stays closer to its field than the next group at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await open(page, 'write-distractors');
     await page.locator('[data-lp-answer]').fill('Breaks help.');
     await page.locator('[data-lp-check]').click();
     await page.locator('[data-lp-had-it]').click();
     const option = page.locator('[data-lp-option]').first();
-    expect(await gap(option.locator('legend'), option.locator('textarea'))).toBeCloseTo(16, 1);
-    expect(await gap(option.locator(':scope > div').nth(0), option.locator(':scope > div').nth(1))).toBeCloseTo(16, 1);
+    expect(await gap(option.locator('legend'), option.locator('textarea'))).toBeCloseTo(12, 1);
+    expect(await gap(option.locator(':scope > div').nth(0), option.locator(':scope > div').nth(1))).toBeCloseTo(24, 1);
     const icon = page.locator('[data-lp-right] > .lp-icon');
     expect(await icon.evaluate(el => parseFloat(getComputedStyle(el).lineHeight) / parseFloat(getComputedStyle(el).fontSize))).toBeCloseTo(1.4, 2);
   });
@@ -148,6 +148,11 @@ for (const width of [1280, 390]) {
       await expect(result).toBeVisible();
       expect(await gap(heading, result)).toBeCloseTo(12, 1);
       expect(await gap(result, list)).toBeCloseTo(12, 1);
+      await page.locator('[data-lp-review] > summary').click();
+      const firstQuestion = page.locator('[data-lp-questions] > [data-lp-panel]').first();
+      await expect(firstQuestion).toBeVisible();
+      await expect(firstQuestion).toHaveCSS('border-top-width', '0px');
+      await expect(firstQuestion).toHaveCSS('padding-top', '0px');
       await page.locator('[data-lp-restart]').click();
     }
     expect(await gap(heading, list)).toBeCloseTo(12, 1);
@@ -168,6 +173,37 @@ for (const width of [1280, 390]) {
       await page.locator('[data-lp-notice]').evaluate(el => { el.textContent = 'Data notice'; el.hidden = false; });
       expect(await gap(page.locator('[data-lp-notice]'), page.locator('[data-lp-error]')), name).toBeCloseTo(16, 1);
     }
+  });
+
+  test(`test-out first question has no top rule without JavaScript at ${width}px`, async ({ browser, baseURL }) => {
+    const context = await browser.newContext({ baseURL, javaScriptEnabled: false, viewport: { width, height: 900 } });
+    try {
+      const page = await context.newPage();
+      await page.goto('/test-out/en.html');
+      const firstQuestion = page.locator('[data-lp-questions] > [data-lp-panel]').first();
+      await expect(firstQuestion).toBeVisible();
+      await expect(firstQuestion).toHaveCSS('border-top-width', '0px');
+      await expect(firstQuestion).toHaveCSS('padding-top', '0px');
+      await expect(page.locator('[data-lp-questions] > [data-lp-panel]').nth(1)).toHaveCSS('border-top-width', '1px');
+    } finally {
+      await context.close();
+    }
+  });
+
+  for (const restored of [false, true]) test(`review-prompts answer stays 12px below its stem, restored=${restored} at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    if (restored) await page.addInitScript(() => {
+      window.lpSeed = { results: { stonewalling: { result: 'remembered', reviewOn: '2026-10-26' } } };
+    });
+    await open(page, 'review-prompts');
+    const box = page.locator('.lp-box').first();
+    const stem = box.locator('.lp-stem');
+    if (!restored) {
+      expect(await gap(stem, box.locator('[data-lp-commit]'))).toBeCloseTo(12, 1);
+      await box.locator('[data-lp-commit]').click();
+    }
+    await expect(box.locator('[data-lp-answer]')).toBeVisible();
+    expect(await gap(stem, box.locator('[data-lp-answer]'))).toBeCloseTo(12, 1);
   });
 
   for (const role of ['stem', 'label']) test(`${role} to hint is 4px and hint to field is 8px at ${width}px`, async ({ page }) => {
@@ -195,8 +231,8 @@ test('pattern relationships scale with a 20px default font', async ({ page }) =>
   await page.locator('[data-lp-check]').click();
   await page.locator('[data-lp-had-it]').click();
   const option = page.locator('[data-lp-option]').first();
-  expect(await gap(option.locator('legend'), option.locator('textarea'))).toBeCloseTo(20, 1);
-  expect(await gap(option.locator(':scope > div').nth(0), option.locator(':scope > div').nth(1))).toBeCloseTo(20, 1);
+  expect(await gap(option.locator('legend'), option.locator('textarea'))).toBeCloseTo(15, 1);
+  expect(await gap(option.locator(':scope > div').nth(0), option.locator(':scope > div').nth(1))).toBeCloseTo(30, 1);
   expect(await gap(option.locator('.lp-label').first(), option.locator('select'))).toBeCloseTo(10, 1);
   await expect(page.locator('[data-lp-retrieval]')).toHaveCSS('margin-top', '30px');
 
@@ -208,6 +244,12 @@ test('pattern relationships scale with a 20px default font', async ({ page }) =>
 
   await open(page, 'test-out');
   await enlarge();
+  await expect(page.locator('.lp-test-out-outline-list')).toHaveCSS('row-gap', '30px');
+  await page.evaluate(() => window.lpInstances.forEach(instance => instance.destroy()));
+  await page.locator('[data-lp-fallback] > summary').click();
+  await expect(page.locator('.lp-test-out-fallback-list')).toBeVisible();
+  await expect(page.locator('.lp-test-out-fallback-list')).toHaveCSS('row-gap', '30px');
+  await page.evaluate(() => { window.lpInstances = [window.lpEnhance()]; });
   await page.locator('[data-lp-start]').click();
   await expect(page.locator('[data-lp-questions]')).toHaveCSS('margin-top', '30px');
 

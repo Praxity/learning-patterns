@@ -20,8 +20,8 @@ textarea.lp-write-distractors-answer { min-block-size: 0; }
 .lp-write-distractors-preview-row[data-lp-mark="correct"]:hover { background: var(--lp-success-soft); border-color: var(--lp-success-ink); }
 .lp-write-distractors-preview-row .lp-choice-mark { white-space: normal; }
 .lp-write-distractors-option { min-inline-size: 0; padding: 0; border: 0; }
-.lp-write-distractors-option > legend { max-inline-size: 100%; padding: 0; margin-block-end: var(--lp-gap-flow); }
-.lp-write-distractors-option > div + div { margin-block-start: var(--lp-gap-flow); }
+.lp-write-distractors-option > legend { max-inline-size: 100%; padding: 0; margin-block-end: var(--lp-gap-stem); }
+.lp-write-distractors-option > div + div { margin-block-start: var(--lp-gap-group); }
 /* Contain WebKit's closed select overflow, with room for its 3px focus ring and 2px offset. */
 .lp-write-distractors-option > div:has(select) { overflow: clip; margin-inline: -5px; padding: 5px; }
 @container (min-width: 40rem) {
