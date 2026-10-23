@@ -1,7 +1,7 @@
 import { DONT_KNOW, displayPoints, format, score, validateContent, validateState } from './logic.js';
 import { escapeHtml as html, frenchTypography } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
-import { markChoice } from '../../lib/choice-mark.js';
+import { clearChoice, markChoice } from '../../lib/choice-mark.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
 const instances = new WeakMap();
@@ -77,7 +77,7 @@ export function enhance(root, { content, strings, state }) {
     for (const { radios, rows, explanation } of questions) {
       for (const radio of radios) radio.disabled = false;
       for (const row of rows) {
-        markChoice(row, null, strings, root.lang);
+        clearChoice(row);
         row.classList.remove('lp-dont-know-unknown');
       }
       explanation.hidden = true;

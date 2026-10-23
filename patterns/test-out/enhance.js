@@ -1,7 +1,7 @@
 import { format, score, validateContent, validateState } from './logic.js';
 import { escapeHtml as html, frenchTypography } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
-import { markChoice } from '../../lib/choice-mark.js';
+import { clearChoice, markChoice } from '../../lib/choice-mark.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
 const instances = new WeakMap();
@@ -133,7 +133,7 @@ export function enhance(root, { content, strings, state }) {
     for (const el of outline) { el.hidden = true; el.textContent = ''; el.classList.remove('lp-met', 'lp-neutral'); }
     for (const { radios, rows, explanation } of questions) {
       for (const radio of radios) radio.disabled = false;
-      for (const row of rows) markChoice(row, null, strings, root.lang);
+      for (const row of rows) clearChoice(row);
       explanation.hidden = true;
     }
   }

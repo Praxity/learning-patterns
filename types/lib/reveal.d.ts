@@ -1,6 +1,4 @@
 /** Show feedback, scrolling only if it crosses the viewport's visible bounds.
- * @param {HTMLElement} element @param {{ focus?: boolean }} [options]
+ * @param {HTMLElement} element
  */
-export function reveal(element: HTMLElement, { focus }?: {
-    focus?: boolean;
-}): void;
+export function reveal(element: HTMLElement): void;
