@@ -1,0 +1,70 @@
+/* One colour per option in the bar, key, chart and table. Ink outlines and letters distinguish
+   the pale colours from white and from each other. The first four retain contrast ratios of at
+   least 9.2, 10.9, 13.2 and 8.4:1; lime and purple also exceed 8.4:1 against the default ink.
+   A second pattern using this divider control should share its implementation. */
+.lp-split-by-proportion {
+  --lp-split-by-proportion-a: #8fbdff;
+  --lp-split-by-proportion-b: #ffbd8f;
+  --lp-split-by-proportion-c: #8ff0d9;
+  --lp-split-by-proportion-d: #ff90b8;
+  --lp-split-by-proportion-e: #e3ff8f;
+  --lp-split-by-proportion-f: #dc98ff;
+}
+.lp-split-by-proportion [data-opt="0"] { --lp-split-by-proportion-colour: var(--lp-split-by-proportion-a); }
+.lp-split-by-proportion [data-opt="1"] { --lp-split-by-proportion-colour: var(--lp-split-by-proportion-b); }
+.lp-split-by-proportion [data-opt="2"] { --lp-split-by-proportion-colour: var(--lp-split-by-proportion-c); }
+.lp-split-by-proportion [data-opt="3"] { --lp-split-by-proportion-colour: var(--lp-split-by-proportion-d); }
+.lp-split-by-proportion [data-opt="4"] { --lp-split-by-proportion-colour: var(--lp-split-by-proportion-e); }
+.lp-split-by-proportion [data-opt="5"] { --lp-split-by-proportion-colour: var(--lp-split-by-proportion-f); }
+.lp-split-by-proportion-estimate { min-inline-size: 0; padding: 0; border: 0; }
+.lp-split-by-proportion-estimate > legend { margin-block-end: var(--lp-gap-label); padding: 0; }
+
+/* Pointer input goes to the bar. Each divider has a native range input over its grip for keyboards
+   and screen readers. The input is transparent, with focus drawn on the corresponding grip. */
+.lp-split-by-proportion-split { position: relative; margin-block: var(--lp-gap-flow) var(--lp-gap-stem); }
+.lp-split-by-proportion-bar { position: relative; display: flex; block-size: 48px; border: 2px solid var(--lp-ink); border-radius: 8px; cursor: pointer; touch-action: pan-y; user-select: none; }
+.lp-split-by-proportion-seg { display: flex; flex: none; align-items: center; justify-content: center; gap: var(--lp-gap-hint); min-inline-size: 0; overflow: hidden; color: var(--lp-ink); background: var(--lp-split-by-proportion-colour); font-size: var(--lp-type-small); font-weight: 600; white-space: nowrap; container-type: inline-size; font-variant-numeric: tabular-nums; }
+.lp-split-by-proportion-bar .lp-split-by-proportion-seg:first-child { border-start-start-radius: 6px; border-end-start-radius: 6px; }
+.lp-split-by-proportion-bar .lp-split-by-proportion-seg:nth-last-child(1 of .lp-split-by-proportion-seg:not([hidden])) { border-start-end-radius: 6px; border-end-end-radius: 6px; }
+@container (width < 3.75rem) { .lp-split-by-proportion-seg .lp-split-by-proportion-pct { display: none; } }
+@container (width < 1rem) { .lp-split-by-proportion-seg .lp-split-by-proportion-letter { display: none; } }
+.lp-split-by-proportion-grip { position: absolute; inset-block: -8px; inline-size: 24px; transform: translateX(-50%); cursor: ew-resize; }
+.lp-split-by-proportion-grip::before { content: ""; position: absolute; inset-block: 0; inset-inline-start: 10.5px; inline-size: 3px; border-radius: 2px; background: var(--lp-ink); }
+.lp-split-by-proportion-grip::after { content: ""; position: absolute; inset-block-start: 50%; inset-inline-start: 5px; inline-size: 14px; block-size: 26px; margin-block-start: -13px; border: 2px solid var(--lp-ink); border-radius: 7px; background: var(--lp-paper); }
+.lp-split-by-proportion-split input { position: absolute; inset-block: 0; inline-size: 24px; margin: 0; transform: translateX(-50%); opacity: 0; pointer-events: none; }
+/* The ring follows the focused divider, including all five in a six-option split. */
+.lp-split-by-proportion-split:not(.lp-split-by-proportion-pointer):has(input[data-i="0"]:focus-visible) .lp-split-by-proportion-grip[data-i="0"],
+.lp-split-by-proportion-split:not(.lp-split-by-proportion-pointer):has(input[data-i="1"]:focus-visible) .lp-split-by-proportion-grip[data-i="1"],
+.lp-split-by-proportion-split:not(.lp-split-by-proportion-pointer):has(input[data-i="2"]:focus-visible) .lp-split-by-proportion-grip[data-i="2"],
+.lp-split-by-proportion-split:not(.lp-split-by-proportion-pointer):has(input[data-i="3"]:focus-visible) .lp-split-by-proportion-grip[data-i="3"],
+.lp-split-by-proportion-split:not(.lp-split-by-proportion-pointer):has(input[data-i="4"]:focus-visible) .lp-split-by-proportion-grip[data-i="4"] { outline: 3px solid var(--lp-focus); outline-offset: 2px; border-radius: 10px; }
+.lp-split-by-proportion-split:has(input:disabled) :is(.lp-split-by-proportion-bar, .lp-split-by-proportion-grip) { cursor: default; }
+
+/* Share and name stay in one text run, including when the name wraps. */
+.lp-split-by-proportion-key { display: grid; gap: var(--lp-gap-label); padding: 0; list-style: none; }
+.lp-split-by-proportion-key li { display: flex; gap: var(--lp-gap-label); align-items: baseline; }
+.lp-split-by-proportion-key strong { margin-inline-start: var(--lp-gap-hint); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.lp-split-by-proportion-swatch { display: inline-grid; flex: none; place-items: center; inline-size: 24px; block-size: 24px; border: 1px solid var(--lp-ink); border-radius: 6px; color: var(--lp-ink); background: var(--lp-split-by-proportion-colour); font-size: var(--lp-type-small); font-weight: 600; align-self: center; }
+
+/* The table is the legend and text equivalent. Drawing bars on ink keeps every segment edge visible. */
+.lp-split-by-proportion-chart { display: flex; flex-wrap: wrap; gap: var(--lp-gap-group); align-items: flex-start; }
+.lp-split-by-proportion-cols { display: flex; gap: var(--lp-gap-flow); max-inline-size: 100%; }
+.lp-split-by-proportion-col { display: grid; justify-items: center; gap: var(--lp-gap-label); flex: 1; min-inline-size: 0; }
+.lp-split-by-proportion-col p { text-align: center; }
+.lp-split-by-proportion-vbar { display: flex; flex-direction: column; gap: 3px; inline-size: 84px; max-inline-size: 100%; block-size: 240px; border: 2px solid var(--lp-ink); border-radius: 8px; background: var(--lp-ink); overflow: hidden; }
+.lp-split-by-proportion-vbar .lp-split-by-proportion-seg { flex: var(--s) 1 0; min-block-size: 0; }
+.lp-split-by-proportion-answer-table { inline-size: 100%; border-collapse: collapse; text-align: start; font-size: var(--lp-type-small); }
+.lp-split-by-proportion-answer-table th, .lp-split-by-proportion-answer-table td { padding: var(--lp-gap-label) var(--lp-gap-hint); border-block-end: 1px solid var(--lp-rule); text-align: start; vertical-align: top; }
+.lp-split-by-proportion-answer-table th { font-weight: 600; }
+.lp-split-by-proportion-summary { font-weight: 600; }
+.lp-split-by-proportion-table { flex: 1 1 18rem; table-layout: fixed; }
+.lp-split-by-proportion-table td, .lp-split-by-proportion-table th + th { text-align: end; font-variant-numeric: tabular-nums; }
+.lp-split-by-proportion-table th:first-child { inline-size: 44%; }
+.lp-split-by-proportion-table tbody th { position: relative; padding-inline-start: 34px; font-weight: 400; }
+.lp-split-by-proportion-table tbody th .lp-split-by-proportion-swatch { position: absolute; inset-inline-start: 4px; inset-block-start: 8px; }
+@media (forced-colors: active) {
+  .lp-split-by-proportion-seg, .lp-split-by-proportion-swatch { border: 1px solid CanvasText; }
+  .lp-split-by-proportion-grip::before { background: CanvasText; }
+  .lp-split-by-proportion-grip::after { border-color: CanvasText; background: Canvas; }
+  .lp-split-by-proportion-split:has(input:focus-visible) .lp-split-by-proportion-grip { outline-color: Highlight; }
+}

@@ -1,0 +1,17 @@
+{
+  "title": "Estimez les causes des demandes de soutien",
+  "context": "Vous venez de rejoindre l'équipe de soutien. Le mois dernier, elle a fermé 400 demandes.",
+  "question": "Quelle part de ces 400 demandes correspond à chaque cause?",
+  "resultTitle": "Les causes des 400 demandes du mois dernier",
+  "source": "Les chiffres de cet exemple sont inventés.",
+  "total": 100,
+  "unit": "%",
+  "step": 5,
+  "close": 10,
+  "options": [
+    { "label": "Problèmes de connexion", "share": 35 },
+    { "label": "Facturation et remboursements", "share": 20 },
+    { "label": "Bogues et erreurs", "share": 15 },
+    { "label": "Questions d'utilisation", "share": 30 }
+  ]
+}
