@@ -28,7 +28,7 @@ export function render(content, strings, { id, lang }) {
   </div>
   <details class="lp-details" data-lp-fallback>
     <summary>${html(strings.answer, lang)}</summary>
-    <ul class="lp-highlight-answer">${chunks.filter(chunk => chunk.key === true || chunk.note).map(chunk => `<li><p><span class="lp-run-in">${html(chunk.key === true ? (content.mode === 'key' ? strings.correctKey : strings.correctEvidence) : (content.mode === 'key' ? strings.wrongKey : strings.wrongEvidence), lang)}</span> ${html(chunk.text, lang)}</p>${chunk.note ? `<p class="lp-small">${html(chunk.note, lang)}</p>` : ''}</li>`).join('')}</ul>
+    <ul class="lp-highlight-answer">${chunks.filter(chunk => chunk.key === true || chunk.note).map(chunk => `<li><p><span class="lp-run-in">${html(chunk.key === true ? strings.markAnswer : strings.markWrong, lang)}</span> ${html(chunk.text, lang)}</p>${chunk.note ? `<p class="lp-small">${html(chunk.note, lang)}</p>` : ''}</li>`).join('')}</ul>
   </details>
   <p class="lp-visually-hidden" role="status" aria-atomic="true"></p>
 </section>`;

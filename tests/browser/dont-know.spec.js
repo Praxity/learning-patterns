@@ -174,8 +174,8 @@ test('score focus supplies one result announcement without a duplicate status up
 });
 
 for (const [lang, content, correct, wrong, answer, unknown, counts] of [
-  ['en', english, 'Correct', 'Not quite', 'Correct answer', "You chose \"I don't know\"", '1 right, 1 wrong, 1 "I don\'t know"'],
-  ['fr', french, 'Correct', 'Pas tout à fait', 'Bonne réponse', 'Vous avez choisi « Je ne sais pas »', '1 bonne réponse, 1 mauvaise réponse, 1 « Je ne sais pas »']
+  ['en', english, 'Correct', 'Incorrect', 'Correct answer', "You chose \"I don't know\"", '1 right, 1 wrong, 1 "I don\'t know"'],
+  ['fr', french, 'Correct', 'Incorrect', 'Bonne réponse', 'Vous avez choisi « Je ne sais pas »', '1 bonne réponse, 1 mauvaise réponse, 1 « Je ne sais pas »']
 ]) {
   test(`results mark choices in place, explain only gaps and link back to questions (${lang})`, async ({ page }) => {
     await open(page, `/dont-know/${lang}.html`); await observe(page);
@@ -200,8 +200,10 @@ for (const [lang, content, correct, wrong, answer, unknown, counts] of [
     await expect(questions.nth(2).locator('label:has(input:checked) .lp-choice-mark.lp-neutral')).toHaveText(unknown);
     await expect(questions.nth(2).locator('label:has(input:checked)')).not.toHaveAttribute('data-lp-mark');
     for (const index of [1, 2]) {
-      await expect(questions.nth(index).locator(`label:has(input[value="${content.questions[index].correct}"])`)).toHaveAttribute('data-lp-mark', 'correct');
-      await expect(questions.nth(index).locator(`label:has(input[value="${content.questions[index].correct}"]) .lp-choice-mark`)).toHaveText(answer);
+      // The correct answer the learner didn't choose is neutral and dashed, not a green pick.
+      await expect(questions.nth(index).locator(`label:has(input[value="${content.questions[index].correct}"])`)).toHaveAttribute('data-lp-mark', 'missed');
+      await expect(questions.nth(index).locator(`label:has(input[value="${content.questions[index].correct}"]) .lp-choice-mark.lp-neutral`)).toHaveText(answer);
+      await expect(questions.nth(index).locator(`label:has(input[value="${content.questions[index].correct}"])`)).toHaveCSS('border-top-style', 'dashed');
       await expect(questions.nth(index).locator('[data-lp-explanation]')).toHaveText(content.questions[index].explanation);
     }
     await expect(page.locator('.lp-choice-mark')).toHaveCount(5);
@@ -478,7 +480,7 @@ test('quiet reset and forced colours preserve focus rings and button distinction
     await locator.focus();
     const target = await locator.getAttribute('type') === 'radio' ? locator.locator('..') : locator;
     const style = await target.evaluate(el => { const css = getComputedStyle(el); return [css.outlineWidth, css.outlineStyle, css.outlineOffset, css.outlineColor]; });
-    expect(style.slice(0, 3)).toEqual(['3px', 'solid', '3px']); expect(style[3]).not.toBe('rgba(0, 0, 0, 0)');
+    expect(style.slice(0, 3)).toEqual(['3px', 'solid', '2px']); expect(style[3]).not.toBe('rgba(0, 0, 0, 0)');
   }
   await expect(page.locator('[data-lp-check]')).toHaveCSS('border-style', 'solid');
   await pick(page); await page.locator('[data-lp-check]').click();

@@ -177,6 +177,9 @@ test('render has a plain passage, authored fallback, hidden controls and one emp
   assert.match(html, /data-lp-flow hidden/);
   assert.match(html, /data-lp-fallback/);
   assert.ok(html.includes('This explains your feelings.'));
+  // The native answer labels targets and noted distractors with the shared mark words.
+  assert.match(html, /<span class="lp-run-in">Correct answer<\/span> You withdraw\./);
+  assert.match(html, /<span class="lp-run-in">Incorrect<\/span> You feel overwhelmed\./);
   assert.equal((html.match(/role="status"/g) || []).length, 1);
   assert.match(html, /role="status" aria-atomic="true"><\/p>/);
   assert.ok(html.includes('data-lp-count'));

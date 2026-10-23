@@ -4,7 +4,7 @@ export function explainFeedback(answers: Record<string, {
 }>): {
     items: {
         key: string;
-        state: "unsure" | "met" | "missed";
+        state: "unsure" | "missed" | "met";
     }[];
     met: number;
     allMet: boolean;

@@ -97,12 +97,14 @@ export function enhance(root, { content, strings, state }) {
         const row = rows[index];
         const correct = radio.value === q.correct;
         const unknown = radio.value === DONT_KNOW;
+        // An unchosen correct answer is "missed": neutral, so it doesn't read as the learner's pick.
+        const missed = correct && !right;
         if (unknown) row.classList.add('lp-dont-know-unknown');
-        else row.dataset.lpMark = correct ? 'correct' : 'wrong';
+        else row.dataset.lpMark = missed ? 'missed' : correct ? 'correct' : 'wrong';
         const mark = root.ownerDocument.createElement('span');
-        mark.className = `lp-choice-mark ${correct ? 'lp-met' : unknown ? 'lp-neutral' : 'lp-missed'}`;
-        const word = correct ? right ? strings.markCorrect : strings.markAnswer : unknown ? strings.markUnknown : strings.markWrong;
-        mark.innerHTML = `${correct ? icons.check : unknown ? icons['question-mark'] : icons.x}<span>${html(word, root.lang)}</span>`;
+        mark.className = `lp-choice-mark ${missed || unknown ? 'lp-neutral' : correct ? 'lp-met' : 'lp-missed'}`;
+        const word = missed ? strings.markAnswer : correct ? strings.markCorrect : unknown ? strings.markUnknown : strings.markWrong;
+        mark.innerHTML = `${missed ? icons['circle-dashed'] : correct ? icons.check : unknown ? icons['question-mark'] : icons.x}<span>${html(word, root.lang)}</span>`;
         row.append(mark);
       });
     }

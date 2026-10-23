@@ -7,7 +7,8 @@
 /* The paper highlighter is local to this reading activity; shared tokens supply result inks. */
 .lp-highlight-chunk[aria-pressed="true"] { background: #ffe49a; }
 .lp-highlight-chunk[data-lp-outcome="correct"] { background: var(--lp-success-soft); text-decoration: underline solid var(--lp-success-ink) 2px; text-underline-offset: 4px; }
-.lp-highlight-chunk[data-lp-outcome="missed"] { text-decoration: underline dashed var(--lp-warning-ink) 2px; text-underline-offset: 4px; }
+/* A target the learner didn't mark is neutral: it shows the answer without judging the learner. */
+.lp-highlight-chunk[data-lp-outcome="missed"] { text-decoration: underline dashed var(--lp-ink-2) 2px; text-underline-offset: 4px; }
 .lp-highlight-chunk[data-lp-outcome="wrong"] { text-decoration: none; }
 .lp-highlight-chunk[aria-disabled="true"] { cursor: default; }
 /* The gap sits on the label, not the chunk: a margin at the end of a chunk that ends a line overflows the paragraph. */
@@ -16,7 +17,7 @@
    the label's capitals (Source Sans 3 cap height; measured within 0.2px at 15px). */
 .lp-highlight-feedback > .lp-icon { display: inline-block; block-size: 1.15em; vertical-align: -.23em; margin-inline-end: 3px; }
 .lp-highlight-feedback[data-lp-outcome="correct"] { color: var(--lp-success-ink); }
-.lp-highlight-feedback[data-lp-outcome="missed"] { color: var(--lp-warning-ink); }
+.lp-highlight-feedback[data-lp-outcome="missed"] { color: var(--lp-ink-2); }
 /* A short label never wraps between its icon and its word. A leading word joiner (silent: empty alt text)
    also keeps it on the line of its chunk's last word. Wrapped to the next line, it read as a verdict on
    the sentence after it. A no-wrap wrapper doesn't do this: Chromium and WebKit still break before it. */
@@ -25,6 +26,9 @@
 /* A note on a wrong answer is a pill on its own line, so the passage text after it starts a new line.
    Its icon fills the first line-high box, so wrapped text hangs under the words, not the icon. */
 .lp-highlight-feedback[data-lp-outcome="wrong"] { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 3px; align-items: start; inline-size: fit-content; max-inline-size: 100%; margin: 8px 0 10px; padding: 3px 10px; border-radius: 12px; color: var(--lp-ink); background: var(--lp-paper-2); font-size: var(--lp-type-body); font-weight: 400; text-wrap: pretty; }
+/* The mark word and its icon carry the colour; the author's note after it stays in ink. */
+.lp-highlight-feedback[data-lp-outcome="wrong"] > .lp-icon, .lp-highlight-word { color: var(--lp-error-ink); }
+.lp-highlight-word { font-weight: 600; }
 /* Same optical lift as the date icon: the line-box centre sits about 1.3px low at 17px. */
 .lp-highlight-feedback[data-lp-outcome="wrong"] > .lp-icon { block-size: 1lh; margin: 0; translate: 0 -.06em; }
 .lp-highlight-count { font-variant-numeric: tabular-nums; }

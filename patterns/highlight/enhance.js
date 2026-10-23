@@ -90,16 +90,10 @@ export function enhance(root, { content, strings, state }) {
       if (item.outcome === 'unmarked') return;
       chunk.setAttribute('data-lp-outcome', item.outcome);
       mark.setAttribute('data-lp-outcome', item.outcome);
-      let label; let icon;
-      if (item.outcome === 'correct') {
-        label = content.mode === 'key' ? strings.correctKey : strings.correctEvidence; icon = icons.check;
-      } else if (item.outcome === 'missed') {
-        label = strings.missed; icon = icons['circle-plus'];
-      } else {
-        label = content.mode === 'key' ? `${strings.wrongKey}${item.note ? ` ${item.note}` : ''}` : (item.note ?? strings.wrongEvidence);
-        icon = icons['info-circle'];
-      }
-      mark.innerHTML = `${icon}${html(label, root.lang)}`;
+      if (item.outcome === 'correct') mark.innerHTML = `${icons.check}${html(strings.markCorrect, root.lang)}`;
+      else if (item.outcome === 'missed') mark.innerHTML = `${icons['circle-dashed']}${html(strings.markAnswer, root.lang)}`;
+      // The mark word stays short; the author's note carries the explanation after it.
+      else mark.innerHTML = `${icons.x}<span><span class="lp-highlight-word">${html(strings.markWrong, root.lang)}</span>${item.note ? ` ${html(item.note, root.lang)}` : ''}</span>`;
       mark.hidden = false;
       chunk.setAttribute('aria-describedby', `${instructions.id} ${mark.id}`);
     });

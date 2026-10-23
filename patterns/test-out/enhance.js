@@ -147,10 +147,12 @@ export function enhance(root, { content, strings, state }) {
         radio.disabled = true;
         if (!radio.checked && radio.value !== q.correct) return;
         const correct = radio.value === q.correct;
-        rows[i].dataset.lpMark = correct ? 'correct' : 'wrong';
+        // An unchosen correct answer is "missed": neutral, so it doesn't read as the learner's pick.
+        const missed = correct && !right;
+        rows[i].dataset.lpMark = missed ? 'missed' : correct ? 'correct' : 'wrong';
         const mark = root.ownerDocument.createElement('span');
-        mark.className = `lp-choice-mark ${correct ? 'lp-met' : 'lp-missed'}`;
-        mark.innerHTML = `${correct ? icons.check : icons.x}<span>${html(correct ? right ? strings.markCorrect : strings.markAnswer : strings.markWrong, root.lang)}</span>`;
+        mark.className = `lp-choice-mark ${missed ? 'lp-neutral' : correct ? 'lp-met' : 'lp-missed'}`;
+        mark.innerHTML = `${missed ? icons['circle-dashed'] : correct ? icons.check : icons.x}<span>${html(missed ? strings.markAnswer : correct ? strings.markCorrect : strings.markWrong, root.lang)}</span>`;
         rows[i].append(mark);
       });
     }

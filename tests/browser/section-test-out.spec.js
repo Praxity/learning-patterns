@@ -156,8 +156,8 @@ test('keyboard validates only this panel, Back keeps picks, changes announce onc
 });
 
 for (const [lang, content, correct, wrong, answer, summary, statuses] of [
-  ['en', english, 'Correct', 'Not quite', 'Correct answer', 'You can skip 1 of 3 sections.', ['Take it', 'Take it', 'Skip']],
-  ['fr', french, 'Correct', 'Pas tout à fait', 'Bonne réponse', 'Sections que vous pouvez passer : 1 sur 3.', ['À suivre', 'À suivre', 'Passer']]
+  ['en', english, 'Correct', 'Incorrect', 'Correct answer', 'You can skip 1 of 3 sections.', ['Take it', 'Take it', 'Skip']],
+  ['fr', french, 'Correct', 'Incorrect', 'Bonne réponse', 'Sections que vous pouvez passer : 1 sur 3.', ['À suivre', 'À suivre', 'Passer']]
 ]) {
   test(`in-place marks, explanations and credited outline (${lang})`, async ({ page }) => {
     await open(page, `/test-out/${lang}.html`); await observe(page); await pick(page); await page.locator('[data-lp-check]').click();
@@ -179,7 +179,10 @@ for (const [lang, content, correct, wrong, answer, summary, statuses] of [
     for (const n of [0, 1]) {
       await expect(qs.nth(n).locator('label:has(input:checked)')).toHaveAttribute('data-lp-mark', 'wrong');
       await expect(qs.nth(n).locator('label:has(input:checked) .lp-choice-mark')).toHaveText(wrong);
-      await expect(qs.nth(n).locator(`label:has(input[value="${content.questions[n].correct}"]) .lp-choice-mark`)).toHaveText(answer);
+      // The correct answer the learner didn't choose is neutral and dashed, not a green pick.
+      await expect(qs.nth(n).locator(`label:has(input[value="${content.questions[n].correct}"])`)).toHaveAttribute('data-lp-mark', 'missed');
+      await expect(qs.nth(n).locator(`label:has(input[value="${content.questions[n].correct}"]) .lp-choice-mark.lp-neutral`)).toHaveText(answer);
+      await expect(qs.nth(n).locator(`label:has(input[value="${content.questions[n].correct}"])`)).toHaveCSS('border-top-style', 'dashed');
       await expect(qs.nth(n).locator('[data-lp-explanation]')).toHaveText(content.questions[n].explanation);
     }
     expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([summary]);
