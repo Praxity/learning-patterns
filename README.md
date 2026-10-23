@@ -21,6 +21,7 @@ With Node 22, run `npm ci` and `npm run demo`, then `node scripts/serve-demo.mjs
 | [Check your own answer](patterns/self-check/README.md) | Write an answer, tick the parts it includes, then see a hint for each part you missed and a model answer. |
 | [Draw your guess](patterns/draw-your-guess/README.md) | Set the next few points of a line chart, then see the real line over your guess. |
 | [Estimate magnitude](patterns/estimate-magnitude/README.md) | Slide a range until it holds your estimate, then see which answers your ranges caught. |
+| [Prolific questions](patterns/prolific-questions/README.md) | Answer a multi-part knowledge check, then take another authored set whenever you want. |
 | [Explain what you learned](patterns/explain-back/README.md) | Explain a short lesson, check its three key ideas, then reread the parts to add. |
 | [Feedback while you type](patterns/live-feedback/README.md) | Write a classifiable response and see a checklist update when you pause. |
 | [Spot the misconception](patterns/misconception/README.md) | Answer a study question, compare an authored refutation or key idea with a model answer. |

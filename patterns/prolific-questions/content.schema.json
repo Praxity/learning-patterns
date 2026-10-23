@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Prolific questions content",
+  "type": "object",
+  "required": ["title", "context", "question", "parts", "workedExample", "cases"],
+  "additionalProperties": false,
+  "properties": {
+    "title": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 120 },
+    "context": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 1500 },
+    "question": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 400 },
+    "parts": {
+      "type": "array", "minItems": 2, "x-uniqueBy": "label",
+      "items": {
+        "type": "object", "required": ["label", "definition"], "additionalProperties": false,
+        "properties": {
+          "label": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 120 },
+          "definition": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 400 }
+        }
+      }
+    },
+    "workedExample": {
+      "type": "array", "minItems": 2, "x-lengthFrom": "parts",
+      "items": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 400 }
+    },
+    "cases": {
+      "type": "array", "minItems": 8,
+      "items": {
+        "type": "array", "minItems": 2, "x-lengthFrom": "parts",
+        "items": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 400 }
+      }
+    }
+  }
+}

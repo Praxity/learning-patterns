@@ -1,0 +1,76 @@
+{
+  "title": "Classez chaque fait dans le modèle de la CIF",
+  "context": "La Classification internationale du fonctionnement (CIF) de l'OMS utilise ces termes pour décrire le handicap.",
+  "question": "Chaque fait décrit-il une déficience, une limitation d'activité ou une restriction de participation?",
+  "parts": [
+    {
+      "label": "Déficience",
+      "definition": "Un problème dans le fonctionnement ou la structure d'une partie du corps ou de l'esprit."
+    },
+    {
+      "label": "Limitation d'activité",
+      "definition": "Une difficulté à accomplir une tâche ou une action, comme marcher, lire ou saisir un objet."
+    },
+    {
+      "label": "Restriction de participation",
+      "definition": "Une difficulté à prendre part à la vie courante, comme travailler, étudier, voyager ou passer du temps avec des amis."
+    }
+  ],
+  "workedExample": [
+    "Les jambes de Rosa sont paralysées à la suite d'une lésion de la moelle épinière.",
+    "Rosa ne peut pas monter les escaliers.",
+    "Rosa ne peut pas se rendre aux réunions d'équipe, qui ont lieu à l'étage d'un bâtiment sans ascenseur."
+  ],
+  "cases": [
+    [
+      "Ana a une basse vision causée par le glaucome.",
+      "Ana ne peut pas lire les caractères de taille standard.",
+      "Ana ne peut pas passer l'examen d'agrément exigé pour son emploi, offert seulement sur papier."
+    ],
+    [
+      "Ben a une perte auditive profonde aux deux oreilles.",
+      "Ben ne peut pas suivre une conversation téléphonique.",
+      "Ben est exclu des réunions téléphoniques hebdomadaires de son équipe."
+    ],
+    [
+      "Chloe a de la polyarthrite rhumatoïde aux mains.",
+      "Chloe ne peut pas saisir et soulever des boîtes lourdes.",
+      "Chloe a cessé de faire du bénévolat à la banque alimentaire, où le travail consiste à remplir des boîtes."
+    ],
+    [
+      "Emi a une dyslexie, qui touche la façon dont son cerveau traite les mots écrits.",
+      "Emi lit les longs documents beaucoup plus lentement que la plupart des gens.",
+      "Emi n'obtient pas de promotion parce que l'évaluation est un test écrit chronométré."
+    ],
+    [
+      "Farid a de l'épilepsie, et les médicaments ne maîtrisent pas entièrement ses crises.",
+      "Farid ne peut pas conduire.",
+      "Farid ne peut pas accepter le poste de représentant sur la route qu'on lui a offert, car il exige un permis de conduire."
+    ],
+    [
+      "Grace a des pertes de mémoire à la suite d'une lésion cérébrale.",
+      "Grace ne peut pas retenir une liste de consignes données de vive voix.",
+      "Grace a dû quitter son poste de responsable de quart au café où elle travaille."
+    ],
+    [
+      "Hugo a des tremblements aux deux mains causés par la maladie de Parkinson.",
+      "Hugo ne peut pas toucher avec précision de petites cibles sur un écran tactile.",
+      "Hugo ne peut pas acheter de billets à sa gare, qui n'a que des distributeurs à écran tactile."
+    ],
+    [
+      "Ines a le syndrome de fatigue chronique, qui lui laisse très peu d'énergie.",
+      "Ines ne peut pas rester debout plus de dix minutes.",
+      "Ines ne peut pas faire ses quarts de travail à la caisse du supermarché, où le personnel travaille debout."
+    ],
+    [
+      "Jamal a un daltonisme rouge-vert.",
+      "Jamal ne peut pas distinguer les voyants rouges des voyants verts.",
+      "Jamal ne peut pas suivre la formation de conducteur de train, un métier qui exige une vision complète des couleurs."
+    ],
+    [
+      "Kai a un bégaiement.",
+      "Kai ne peut pas parler rapidement quand le temps est limité.",
+      "Kai n'obtient pas un emploi dans un centre d'appels après une entrevue téléphonique chronométrée."
+    ]
+  ]
+}
