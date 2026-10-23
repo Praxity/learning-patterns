@@ -16,6 +16,9 @@ const COPIED = ['logic.js', 'render.js', 'enhance.js', 'strings.js', 'pattern.cs
 
 await rm(output, { recursive: true, force: true });
 await copyInto('lib/html.js');
+await copyInto('lib/choice-mark.js');
+await copyInto('lib/lock.js');
+await copyInto('lib/reveal.js');
 await copyInto('lib/text-limits.js');
 await copyInto('lib/icons.js');
 await copyInto('lib/course-lookup-icons.js');
