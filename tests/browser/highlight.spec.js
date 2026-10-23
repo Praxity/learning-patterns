@@ -213,7 +213,7 @@ test('evidence check puts authored and default feedback in place, locks marks, a
   await chunk(page, 'actions').click(); await chunk(page, 'withdraw').click();
   await page.locator('[data-lp-check]').focus(); await page.keyboard.press('Enter');
   await expect(page.locator('[data-lp-check]')).toBeHidden(); await expect(page.locator('[data-lp-restart]')).toBeFocused();
-  await expect(feedback(page, 'actions')).toHaveText(`Incorrect ${english.paragraphs.flat().find(c => c.id === 'actions').note}`);
+  await expect(feedback(page, 'actions')).toHaveText(`Incorrect. ${english.paragraphs.flat().find(c => c.id === 'actions').note}`);
   await expect(feedback(page, 'withdraw')).toHaveText('Incorrect');
   await expect(feedback(page, 'ignored')).toHaveText('Correct answer');
   await expect(chunk(page, 'ignored')).toHaveAttribute('data-lp-outcome', 'missed');
@@ -348,7 +348,7 @@ for (const [lang, content, correct, wrong, missed, summary] of [
     await open(page); await mount(page, content, lang);
     await chunk(page, 'withdraw').click(); await chunk(page, 'overwhelmed').click(); await page.locator('[data-lp-check]').click();
     await expect(feedback(page, 'withdraw')).toHaveText(correct);
-    await expect(feedback(page, 'overwhelmed')).toHaveText(`${wrong} ${content.paragraphs.flat().find(c => c.id === 'overwhelmed').note}`);
+    await expect(feedback(page, 'overwhelmed')).toHaveText(`${wrong}. ${content.paragraphs.flat().find(c => c.id === 'overwhelmed').note}`);
     await expect(feedback(page, 'ignored')).toHaveText(missed);
     await expect(page.locator('[data-lp-summary]')).toHaveText(summary);
     expect(await chunk(page, 'ignored').evaluate(el => getComputedStyle(el).textDecorationStyle)).toBe('dashed');
@@ -389,7 +389,7 @@ test('French language and evidence feedback use French words and authored notes'
   await expect(page.locator('.lp-stem')).toContainText(french.question);
   await chunk(page, 'ignored').click(); await chunk(page, 'overwhelmed').click(); await page.locator('[data-lp-check]').click();
   await expect(feedback(page, 'ignored')).toHaveText('Correct');
-  await expect(feedback(page, 'overwhelmed')).toHaveText(`Incorrect ${french.paragraphs.flat().find(c => c.id === 'overwhelmed').note}`);
+  await expect(feedback(page, 'overwhelmed')).toHaveText(`Incorrect. ${french.paragraphs.flat().find(c => c.id === 'overwhelmed').note}`);
   await expect(page.locator('[data-lp-summary]')).toHaveText('Passages trouvés pour cette question : 1 sur 1.');
 });
 

@@ -92,8 +92,9 @@ export function enhance(root, { content, strings, state }) {
       mark.setAttribute('data-lp-outcome', item.outcome);
       if (item.outcome === 'correct') mark.innerHTML = `${icons.check}${html(strings.markCorrect, root.lang)}`;
       else if (item.outcome === 'missed') mark.innerHTML = `${icons['circle-dashed']}${html(strings.markAnswer, root.lang)}`;
-      // The mark word stays short; the author's note carries the explanation after it.
-      else mark.innerHTML = `${icons.x}<span><span class="lp-highlight-word">${html(strings.markWrong, root.lang)}</span>${item.note ? ` ${html(item.note, root.lang)}` : ''}</span>`;
+      // The mark word stays short; the author's note carries the explanation after it. A hidden
+      // full stop gives screen readers a pause between the word and the note.
+      else mark.innerHTML = `${icons.x}<span><span class="lp-highlight-word">${html(strings.markWrong, root.lang)}</span>${item.note ? `<span class="lp-visually-hidden">.</span> ${html(item.note, root.lang)}` : ''}</span>`;
       mark.hidden = false;
       chunk.setAttribute('aria-describedby', `${instructions.id} ${mark.id}`);
     });
