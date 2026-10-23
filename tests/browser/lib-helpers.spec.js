@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 async function fixture(page, markup) {
   await page.route('**/lib-helpers-fixture.html', route => route.fulfill({
-    contentType: 'text/html; charset=utf-8', body: `<!doctype html><html lang="fr-CA"><title>Library helpers</title><body>${markup}</body></html>`
+    contentType: 'text/html; charset=utf-8', body: `<!doctype html><html lang="fr-CA"><meta charset="utf-8"><title>Library helpers</title><body>${markup}</body></html>`
   }));
   await page.goto('/lib-helpers-fixture.html');
 }
