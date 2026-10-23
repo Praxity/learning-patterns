@@ -71,6 +71,8 @@ Authored text is capped at 120 characters for titles and labels, 400 for questio
 
 `logic.js`, `strings.js` and `content.schema.json` have no DOM dependencies. Praxity Studio can use them with its own interface.
 
+`strings.js` marks answers with `markCorrect`, `markWrong` and `markAnswer`. The older keys `correctKey`, `correctEvidence`, `wrongKey`, `wrongEvidence` and `missed` are deprecated. They hold the same words for hosts that still read them; move to the new keys.
+
 | Function | Returns |
 | --- | --- |
 | `validateContent(content)` | Nothing. Throws an `Error` naming the first bad field. |

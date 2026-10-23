@@ -12,6 +12,11 @@ export namespace strings {
         let markCorrect: string;
         let markWrong: string;
         let markAnswer: string;
+        let correctKey: string;
+        let correctEvidence: string;
+        let wrongKey: string;
+        let wrongEvidence: string;
+        let missed: string;
         let keySummary: string;
         let evidenceSummary: string;
     }
@@ -40,6 +45,16 @@ export namespace strings {
         export { markWrong_1 as markWrong };
         let markAnswer_1: string;
         export { markAnswer_1 as markAnswer };
+        let correctKey_1: string;
+        export { correctKey_1 as correctKey };
+        let correctEvidence_1: string;
+        export { correctEvidence_1 as correctEvidence };
+        let wrongKey_1: string;
+        export { wrongKey_1 as wrongKey };
+        let wrongEvidence_1: string;
+        export { wrongEvidence_1 as wrongEvidence };
+        let missed_1: string;
+        export { missed_1 as missed };
         let keySummary_1: string;
         export { keySummary_1 as keySummary };
         let evidenceSummary_1: string;
