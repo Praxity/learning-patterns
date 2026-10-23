@@ -55,6 +55,9 @@
 /* Body text and question stems avoid a lone last word; short headings and titles balance. */
 .lp :where(p, li, dd, figcaption, label, legend), .lp-stem { text-wrap: pretty; }
 .lp :where(h2, h3, h4), .lp-scene-title, .lp-run-in { text-wrap: balance; }
+/* Headings keep the pattern's face. Hosts often give h1 to h3 a display face (praxity.io uses
+   Bricolage), and a direct heading rule beats the font .lp sets for inheritance. */
+.lp :where(h1, h2, h3, h4, h5, h6), .lp-scene-title, .lp-run-in { font-family: var(--lp-font-heading); }
 .lp > * + *, .lp-stack > * + * { margin-block-start: 16px; }
 
 /* Text roles */
