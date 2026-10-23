@@ -16,7 +16,7 @@ export function validateContent(content) {
   if (!object(content)) throw new Error('Invalid content');
   const keys = ['title', 'context', 'question', 'resultTitle', 'optionHeading', 'source', 'total', 'unit', 'unitOne', 'step', 'close', 'options'];
   for (const key of Object.keys(content)) if (!keys.includes(key)) throw new Error(`Invalid ${key}`);
-  validateTextLengths(content, { title: 120, context: 1500, question: 400, resultTitle: 120, optionHeading: 60, source: 1500, unit: 120, unitOne: 120, options: [{ label: 300 }] });
+  validateTextLengths(content, { title: 120, context: 1500, question: 400, resultTitle: 120, optionHeading: 60, source: 1500, unit: 40, unitOne: 40, options: [{ label: 300 }] });
   for (const key of ['title', 'context', 'question', 'resultTitle', 'optionHeading', 'source', 'unit']) {
     if (typeof content[key] !== 'string' || !content[key].trim()) throw new Error(`Invalid ${key}`);
   }
@@ -94,6 +94,7 @@ export function format(template, values) {
 
 /** @param {number} value @param {Content} content @param {string} lang */
 export function quantity(value, content, lang) {
-  const unit = value === 1 ? content.unitOne ?? content.unit : content.unit;
-  return `${new Intl.NumberFormat(/^fr(?:-|$)/i.test(lang) ? 'fr-CA' : 'en', { maximumFractionDigits: 12 }).format(value)}${unit === '%' ? '' : ' '}${unit}`;
+  const locale = /^fr(?:-|$)/i.test(lang) ? 'fr-CA' : 'en';
+  const unit = new Intl.PluralRules(locale).select(value) === 'one' ? content.unitOne ?? content.unit : content.unit;
+  return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 12 }).format(value)}${unit === '%' ? '' : '\u00a0'}${unit}`;
 }

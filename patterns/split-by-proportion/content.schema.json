@@ -12,8 +12,8 @@
     "optionHeading": { "type": "string", "minLength": 1, "maxLength": 60 },
     "source": { "type": "string", "minLength": 1, "maxLength": 1500 },
     "total": { "type": "number", "exclusiveMinimum": 0 },
-    "unit": { "type": "string", "minLength": 1, "maxLength": 120 },
-    "unitOne": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "unit": { "type": "string", "minLength": 1, "maxLength": 40 },
+    "unitOne": { "type": "string", "minLength": 1, "maxLength": 40 },
     "step": { "type": "number", "exclusiveMinimum": 0, "x-divides": "total" },
     "close": { "type": "number", "minimum": 0, "x-maximumField": "total" },
     "options": {

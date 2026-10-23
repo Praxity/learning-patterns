@@ -57,7 +57,7 @@ test('other totals, fractional steps and two to six options work', () => {
     assert.ok(shares(content, d).every(value => value >= 0));
     assert.ok(validateState(content, { dividers: d, touched: false, shown: false }));
   }
-  assert.equal(quantity(1.5, { ...en, unit: 'hours' }, 'en'), '1.5 hours');
+  assert.equal(quantity(1.5, { ...en, unit: 'hours' }, 'en'), '1.5\u00a0hours');
   assert.equal(quantity(35, en, 'en'), '35%');
   const fractional = { ...en, total: .3, step: .1, close: 0, options: [{ label: 'A', share: .1 }, { label: 'B', share: .1 }, { label: 'C', share: .1 }] };
   assert.equal(compare(fractional, initialDividers(fractional)).exact, true);
@@ -75,19 +75,38 @@ test('optional singular units are validated and used throughout the rendered spl
   const content = { ...en, total: 2, step: 1, close: 0, unit: 'hours', unitOne: 'hour',
     options: [{ label: 'Reading', share: 1 }, { label: 'Writing', share: 1 }] };
   assert.doesNotThrow(() => validateContent(content));
-  assert.doesNotThrow(() => validateContent({ ...content, unitOne: 'x'.repeat(120) }));
-  assert.equal(quantity(1, content, 'en'), '1 hour');
-  assert.equal(quantity(0, content, 'en'), '0 hours');
-  assert.equal(quantity(2, content, 'en'), '2 hours');
-  assert.equal(quantity(1, { ...en, unit: 'h' }, 'en'), '1 h');
-  assert.equal(quantity(1, { ...content, unit: 'heures', unitOne: 'heure' }, 'fr-CA'), '1 heure');
+  assert.equal(quantity(1, content, 'en'), '1\u00a0hour');
+  assert.equal(quantity(0, content, 'en'), '0\u00a0hours');
+  assert.equal(quantity(2, content, 'en'), '2\u00a0hours');
+  assert.equal(quantity(1.5, content, 'en'), '1.5\u00a0hours');
+  assert.equal(quantity(1, { ...en, unit: 'h' }, 'en'), '1\u00a0h');
+  const french = { ...content, unit: 'heures', unitOne: 'heure' };
+  for (const [value, expected] of [[0, '0\u00a0heure'], [.5, '0,5\u00a0heure'], [1, '1\u00a0heure'], [1.5, '1,5\u00a0heure'], [2, '2\u00a0heures']]) {
+    assert.equal(quantity(value, french, 'fr-CA'), expected);
+  }
   const output = render(content, strings.en, { id: 'hours', lang: 'en' });
-  assert.match(output, /aria-valuetext="Reading 1 hour, Writing 1 hour"/);
-  assert.match(output, /data-lp-share hidden>1 hour<\/strong>/);
-  assert.match(output, /<td>1 hour<\/td>/);
-  for (const value of ['', ' ', null, 1, 'x'.repeat(121)]) {
+  assert.match(output, /aria-valuetext="Reading 1\u00a0hour, Writing 1\u00a0hour"/);
+  assert.match(output, /data-lp-share hidden>1\u00a0hour<\/strong>/);
+  assert.match(output, /<td>1\u00a0hour<\/td>/);
+  for (const value of ['', ' ', null, 1]) {
     assert.throws(() => validateContent({ ...en, unitOne: value }), /unitOne/);
   }
+});
+
+test('unit suffixes enforce the same 40-character boundary in validation and schema', async () => {
+  const schema = JSON.parse(await readFile(new URL('./content.schema.json', import.meta.url)));
+  for (const field of ['unit', 'unitOne']) {
+    assert.doesNotThrow(() => validateContent({ ...en, [field]: 'x'.repeat(40) }));
+    assert.throws(() => validateContent({ ...en, [field]: 'x'.repeat(41) }), new RegExp(field));
+    assert.equal(schema.properties[field].maxLength, 40);
+  }
+});
+
+test('reset describes starting shares even when step rounding makes them unequal', () => {
+  const content = { ...en, options: [{ label: 'A', share: 35 }, { label: 'B', share: 30 }, { label: 'C', share: 35 }] };
+  assert.deepEqual(shares(content, initialDividers(content)), [35, 30, 35]);
+  assert.equal(strings.en.cleared, 'Split reset to the starting shares.');
+  assert.equal(strings.fr.cleared, 'Répartition de départ rétablie.');
 });
 
 test('format substitutes only own properties and preserves unknown placeholders', () => {
@@ -148,7 +167,14 @@ test('render has one empty status, prefixed ids, hidden controls and a complete 
   assert.match(output, /data-lp-check hidden/);
   assert.match(output, /data-lp-try-again hidden/);
   const beforeAnswer = output.split('<details')[0];
-  assert.match(beforeAnswer, /<\/div>\s*<\/div>\s*<ul class="lp-split-by-proportion-key">/);
+  const interaction = beforeAnswer.split('<div data-lp-interaction hidden>')[1];
+  let depth = 1, end = 0;
+  for (const tag of interaction.matchAll(/<\/?div\b[^>]*>/g)) {
+    depth += tag[0].startsWith('</') ? -1 : 1;
+    if (depth === 0) { end = tag.index; break; }
+  }
+  assert.ok(end > 0);
+  assert.ok(!interaction.slice(0, end).includes('lp-split-by-proportion-key'));
   for (const option of en.options) assert.ok(beforeAnswer.includes(option.label));
   assert.equal((beforeAnswer.match(/data-lp-share hidden/g) ?? []).length, en.options.length);
   const fallback = output.match(/<details[^>]*data-lp-fallback>([\s\S]*?)<\/details>/)[1];

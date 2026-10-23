@@ -59,8 +59,8 @@ All text is plain text and escaped on render. Keep English and Canadian French e
 | `optionHeading` | Required option-column heading for both tables, at most 60 characters. |
 | `source` | Source of the real split, at most 1,500 characters. |
 | `total` | Positive finite total in the chosen unit. |
-| `unit` | Unit suffix, at most 120 characters. `%` attaches to the number in English. |
-| `unitOne` | Optional unit suffix for exactly 1, at most 120 characters, such as `hour` when `unit` is `hours`. Defaults to `unit`. |
+| `unit` | Unit suffix, at most 40 characters. `%` attaches to the number in English. Other units follow a nonbreaking space. |
+| `unitOne` | Optional unit suffix where the language uses the singular, at most 40 characters, such as `hour` when `unit` is `hours`. Defaults to `unit`. |
 | `step` | Positive finite increment dividing the total into a safe integer number of steps. |
 | `close` | Largest absolute option gap counted as close, from zero to the total, inclusive. |
 | `options` | Two to six options in bar order. |
@@ -82,7 +82,7 @@ All text is plain text and escaped on render. Keep English and Canadian French e
 | `compare(content, dividers)` | `{ mine, real, gaps, biggest, exact, close }`. `biggest` is the first option with the largest absolute gap; the close boundary is inclusive. Rejects invalid positions. |
 | `validateState(content, value)` | Independent `{ dividers, touched, shown }` copy or `null`. Rejects unordered, out-of-range and off-step dividers, and shown results without a move. |
 | `format(template, values)` | Placeholder substitution preserving inserted text literally. |
-| `quantity(value, content, lang)` | Localized number and authored unit, using `unitOne` for exactly 1 when present. |
+| `quantity(value, content, lang)` | Localized number and authored unit, using `unitOne` where the language uses the singular when present. |
 
 Divider arrays contain one fewer value than options. Use validated content and valid positions with `shares` and `moveDivider`. A successful move counts as touched even if later moves return to the starting split.
 

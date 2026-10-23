@@ -14,7 +14,7 @@ export const strings = {
     source: 'Source:',
     answers: 'Compare with the real split',
     tryAgain: 'Try again',
-    cleared: 'Split reset to equal shares.'
+    cleared: 'Split reset to the starting shares.'
   },
   fr: {
     context: 'Contexte :',
@@ -31,7 +31,7 @@ export const strings = {
     source: 'Source :',
     answers: 'Comparer avec la répartition réelle',
     tryAgain: 'Réessayer',
-    cleared: 'Répartition remise à parts égales.'
+    cleared: 'Répartition de départ rétablie.'
   }
 };
 /** @typedef {typeof strings.en} Strings */

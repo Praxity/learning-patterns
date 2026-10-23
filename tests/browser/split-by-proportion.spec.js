@@ -157,7 +157,6 @@ for (const lang of ['en', 'fr']) {
     await exactByKeyboard(page);
     await expect(page.locator('[data-lp-try-again]')).toBeFocused();
     await expect(page.locator('.lp-split-by-proportion-table')).toHaveCSS('table-layout', 'auto');
-    for (const cell of await page.locator('[data-lp-result] td').all()) await expect(cell).toHaveCSS('white-space', 'nowrap');
     await scan();
   });
 }
@@ -214,8 +213,8 @@ test('six options with a 40-hour total support all five dividers at 320px', asyn
   await restore(page, null, content);
   await expect(sliders(page)).toHaveCount(5);
   await sliders(page).first().focus(); await page.keyboard.press('Home'); await page.keyboard.press('ArrowRight');
-  await expect(page.locator('[data-lp-share]').first()).toHaveText('1 hour');
-  await expect(sliders(page).first()).toHaveAttribute('aria-valuetext', 'Work 1 1 hour, Work 2 12 hours');
+  await expect(page.locator('[data-lp-share]').first()).toHaveText('1\u00a0hour');
+  await expect(sliders(page).first()).toHaveAttribute('aria-valuetext', 'Work 1 1\u00a0hour, Work 2 12\u00a0hours');
   await sliders(page).last().focus(); await page.keyboard.press('Home');
   expect(await values(page)).toEqual([0, 0, 0, 0, 0]);
   const segment = page.locator('[data-lp-bar] .lp-split-by-proportion-seg:not([hidden])').first();
@@ -223,7 +222,23 @@ test('six options with a 40-hour total support all five dividers at 320px', asyn
   await expect(segment).toHaveCSS('border-end-start-radius', '6px');
   await page.locator('[data-lp-check]').click();
   await expect(page.locator('[data-lp-result]')).toBeVisible();
-  expect(await page.locator('[data-lp-mine]').allTextContents()).toEqual(['0 hours', '0 hours', '0 hours', '0 hours', '0 hours', '40 hours']);
+  expect(await page.locator('[data-lp-mine]').allTextContents()).toEqual(['0\u00a0hours', '0\u00a0hours', '0\u00a0hours', '0\u00a0hours', '0\u00a0hours', '40\u00a0hours']);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test('multiword units wrap in both tables at 320px', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 900 });
+  await open(page);
+  const content = { ...examples.en, total: 40, step: 1, unit: 'hours of focused work weekly per person', close: 4,
+    options: [{ label: 'Reading', share: 20 }, { label: 'Writing', share: 20 }] };
+  await restore(page, null, content);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await sliders(page).first().focus(); await page.keyboard.press('ArrowRight');
+  await page.locator('[data-lp-check]').click();
+  await expect(page.locator('[data-lp-result]')).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.evaluate(() => window.restored.destroy());
+  await page.locator('[data-lp-fallback] summary').click();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
