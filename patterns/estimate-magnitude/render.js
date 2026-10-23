@@ -11,7 +11,7 @@ export function format(template, values) {
 
 /** @param {number} value @param {string} lang */
 export function numberText(value, lang) {
-  return value.toLocaleString(/^fr(?:-|$)/i.test(lang) ? 'fr-CA' : 'en', value >= 1e15 ? { notation: 'scientific', maximumSignificantDigits: 16 } : { maximumFractionDigits: 15 });
+  return value.toLocaleString(/^fr(?:-|$)/i.test(lang) ? 'fr-CA' : 'en', { maximumFractionDigits: 15 });
 }
 
 /** @param {import('./logic.js').Content} content
@@ -19,17 +19,17 @@ export function numberText(value, lang) {
  * @param {{ id: string, lang: string }} options
  */
 export function render(content, strings, { id, lang }) {
-  const { stops, bands, start } = scaleFor(content);
+  const { stops, bands, start, ratio } = scaleFor(content);
   const [low, high] = bands[start];
   const range = format(strings.range, { low: numberText(low, lang), high: numberText(high, lang) });
   return `<section class="lp lp-estimate-magnitude" data-lp-pattern="estimate-magnitude" lang="${html(lang)}">
   <header class="lp-scene"><span class="lp-scene-icon">${icons['file-text']}</span><div><h2 class="lp-scene-title">${html(content.title, lang)}</h2></div></header>
   <div class="lp-context"><p><strong>${html(strings.context, lang)}</strong> ${html(content.context, lang)}</p></div>
-  <div data-lp-interaction hidden>
-    <p class="lp-small">${html(strings.instructions, lang)}</p>
+  <div data-lp-interaction>
+    <p class="lp-small" data-lp-instructions hidden>${html(format(strings.instructions, { ratio: numberText(ratio, lang) }), lang)}</p>
     ${content.questions.map((question, index) => `<fieldset class="lp-stack lp-estimate-magnitude-question" data-lp-question>
       <legend class="lp-stem" id="${html(`${id}-q${index}`)}">${html(question.question, lang)}</legend>
-      <div class="lp-estimate-magnitude-scale"><div class="lp-estimate-magnitude-line" data-lp-line>
+      <div class="lp-estimate-magnitude-scale" hidden><div class="lp-estimate-magnitude-line" data-lp-line>
         ${stops.map(stop => `<span class="lp-estimate-magnitude-tick" aria-hidden="true" style="inset-inline-start:${positionOf(stop, stops)}%"></span>`).join('')}
         <button type="button" class="lp-estimate-magnitude-band" role="slider" id="${html(`${id}-q${index}-band`)}" value="${start}" aria-valuemin="0" aria-valuemax="${bands.length - 1}" aria-valuenow="${start}" aria-valuetext="${html(`${range} ${question.unit}`, lang)}" aria-labelledby="${html(`${id}-q${index}`)}" data-edge="" data-lp-band style="inset-inline-start:${positionOf(low, stops)}%;inline-size:${positionOf(high, stops) - positionOf(low, stops)}%"><span class="lp-estimate-magnitude-value" aria-hidden="true" data-lp-value>${html(range, lang)}</span></button>
         <span class="lp-estimate-magnitude-answer" aria-hidden="true" data-lp-answer hidden></span>

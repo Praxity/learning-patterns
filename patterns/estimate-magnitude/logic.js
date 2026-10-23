@@ -1,8 +1,11 @@
 import { validateTextLengths } from '../../lib/text-limits.js';
 
 /** @typedef {{ question: string, unit: string, answer: number, source: string }} Question */
-/** @typedef {{ title: string, context: string, questions: Question[] }} Content */
+/** @typedef {{ title: string, context: string, ratio?: number, questions: Question[] }} Content */
 /** @typedef {{ ranges: number[], touched: boolean[], shown: boolean }} LearnerState */
+
+const RATIOS = [10, 100, 1000];
+const DEFAULT_RATIO = 10;
 
 /** @param {unknown} value @returns {value is Record<string, unknown>} */
 function object(value) {
@@ -18,7 +21,8 @@ function fields(value, allowed, path) {
 export function validateContent(content) {
   validateTextLengths(content, { title: 120, context: 1500, questions: [{ question: 400, unit: 120, source: 1500 }] });
   if (!object(content)) throw new Error('Invalid content');
-  fields(content, ['title', 'context', 'questions'], 'content');
+  fields(content, ['title', 'context', 'ratio', 'questions'], 'content');
+  if (content.ratio !== undefined && (typeof content.ratio !== 'number' || !RATIOS.includes(content.ratio))) throw new Error('Invalid ratio: expected 10, 100 or 1000');
   for (const field of ['title', 'context']) {
     if (typeof content[field] !== 'string' || !content[field].trim()) throw new Error(`Invalid ${field}`);
   }
@@ -30,34 +34,33 @@ export function validateContent(content) {
     for (const field of ['question', 'unit', 'source']) {
       if (typeof question[field] !== 'string' || !question[field].trim()) throw new Error(`Invalid ${path}.${field}`);
     }
-    // Leave room for the next 1-or-5 stop above ten times the answer without overflowing.
-    if (typeof question.answer !== 'number' || !Number.isFinite(question.answer) || question.answer < 1 || question.answer > 1e307) throw new Error(`Invalid ${path}.answer`);
+    if (typeof question.answer !== 'number' || !Number.isFinite(question.answer) || question.answer < 1 || question.answer > 1e12) throw new Error(`Invalid ${path}.answer`);
   });
 }
 
-/** Each band starts at a stop and reaches the furthest stop within ten times it.
- * Tolerate floating-point rounding at exact tens, such as 0.003 / 0.0003 > 10.
- * @param {number[]} stops @returns {[number, number][]}
+/** Each band starts at a stop and reaches the furthest stop within the ratio.
+ * @param {number[]} stops @param {number} [ratio] @returns {[number, number][]}
  */
-export function bandsFor(stops) {
-  // The range spans ten times its low end, so nobody wins with 1 to 100,000.
+export function bandsFor(stops, ratio = DEFAULT_RATIO) {
+  if (!RATIOS.includes(ratio)) throw new Error('Invalid ratio: expected 10, 100 or 1000');
   /** @type {[number, number][]} */
   const bands = [];
   for (let low = 0; low < stops.length; low++) {
     let high = low;
-    while (high + 1 < stops.length && stops[high + 1] / stops[low] <= 10 * (1 + 1e-9)) high++;
+    while (high + 1 < stops.length && stops[high + 1] / stops[low] <= ratio) high++;
     bands.push([stops[low], stops[high]]);
     if (high === stops.length - 1) break;
   }
   return bands;
 }
 
-/** Integer stops at 1 and 5 in each power of ten. Every generated band spans exactly 10x.
+/** Integer stops at 1 and 5 in each power of ten. Every generated band spans the ratio.
  * @param {Content} content
  */
 export function scaleFor(content) {
   validateContent(content);
-  const ceiling = Math.max(...content.questions.map(question => question.answer)) * 10;
+  const ratio = content.ratio ?? DEFAULT_RATIO;
+  const ceiling = Math.max(...content.questions.map(question => question.answer)) * ratio;
   const stops = [1];
   for (let exponent = 0; stops[stops.length - 1] < ceiling; exponent++) {
     for (const stop of [5 * 10 ** exponent, 10 ** (exponent + 1)]) {
@@ -65,12 +68,12 @@ export function scaleFor(content) {
       if (stop >= ceiling) break;
     }
   }
-  const bands = bandsFor(stops);
+  const bands = bandsFor(stops, ratio);
   // Start in the middle; require a deliberate setting so the start is not taken as a hint.
-  return { stops, bands, start: Math.floor((bands.length - 1) / 2) };
+  return { stops, bands, start: Math.floor((bands.length - 1) / 2), ratio };
 }
 
-/** Log positions keep every tenfold band the same width, including between 1 and 5.
+/** Log positions keep every band the same width, including between 1 and 5.
  * @param {number} value @param {number[]} stops @returns {number} Percentage along the scale.
  */
 export function positionOf(value, stops) {
@@ -93,10 +96,12 @@ export function score(content, ranges) {
  * @param {Content} content @param {unknown} value @returns {LearnerState | null}
  */
 export function validateState(content, value) {
-  const { bands } = scaleFor(content);
+  const { bands, start } = scaleFor(content);
   if (!object(value) || typeof value.shown !== 'boolean' || !Array.isArray(value.ranges) || !Array.isArray(value.touched)) return null;
-  if (value.ranges.length !== content.questions.length || value.touched.length !== content.questions.length) return null;
-  if (Array.from(value.ranges).some(range => !Number.isInteger(range) || range < 0 || range >= bands.length) || Array.from(value.touched).some(touched => typeof touched !== 'boolean')) return null;
-  if (value.shown && !value.touched.every(Boolean)) return null;
-  return { ranges: [...value.ranges], touched: [...value.touched], shown: value.shown };
+  const { ranges, touched } = value;
+  if (ranges.length !== content.questions.length || touched.length !== content.questions.length) return null;
+  if (Array.from(ranges).some(range => !Number.isInteger(range) || range < 0 || range >= bands.length) || Array.from(touched).some(touch => typeof touch !== 'boolean')) return null;
+  if (value.shown && !touched.every(Boolean)) return null;
+  if (ranges.some((range, index) => !touched[index] && range !== start)) return null;
+  return { ranges: [...ranges], touched: [...touched], shown: value.shown };
 }

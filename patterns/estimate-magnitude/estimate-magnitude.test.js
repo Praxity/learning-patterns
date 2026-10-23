@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { bandsFor, scaleFor, positionOf, score, validateContent, validateState } from './logic.js';
-import { render } from './render.js';
+import { format, numberText, render } from './render.js';
 import { strings } from './strings.js';
 
 const content = JSON.parse(await readFile(new URL('./examples/en.json', import.meta.url)));
@@ -22,10 +22,25 @@ test('integer logarithmic stops reach ten times the largest answer, with fixed t
   assert.ok(widths.every(width => Math.abs(width - widths[0]) < 1e-10));
 });
 
-test('floating-point boundary regression keeps the full tenfold band', () => {
-  assert.ok(0.003 / 0.0003 > 10);
-  assert.deepEqual(bandsFor([0.0003, 0.001, 0.003, 0.01, 0.03]), [[0.0003, 0.003], [0.001, 0.01], [0.003, 0.03]]);
-  assert.deepEqual(bandsFor([1, 5, 10.0001, 50]), [[1, 5], [5, 50]]);
+test('configured ratios give whole, equal-width bands and inclusive scoring', () => {
+  assert.deepEqual(bandsFor([1, 5, 10, 50, 100, 500], 100), [[1, 100], [5, 500]]);
+  for (const ratio of [10, 100, 1000]) {
+    const value = { ...clone(), ratio };
+    value.questions.forEach(q => { q.answer = 1e12; });
+    const { stops, bands } = scaleFor(value);
+    assert.ok(stops.at(-1) >= ratio * 1e12);
+    assert.ok(stops.every(Number.isSafeInteger));
+    for (const [low, high] of bands) assert.equal(high / low, ratio);
+    const widths = bands.map(([low, high]) => positionOf(high, stops) - positionOf(low, stops));
+    assert.ok(widths.every(width => Math.abs(width - widths[0]) < 1e-10));
+  }
+  const value = { ...clone(), ratio: 100 };
+  value.questions.forEach((q, i) => { q.answer = [1, 100, 101][i]; });
+  assert.equal(score(value, [0, 0, 0]).count, 2);
+  for (const ratio of [1, 2, 5, 50, 500, 10000, null, '100', NaN, Infinity]) {
+    assert.throws(() => validateContent({ ...content, ratio }), /ratio/);
+    assert.throws(() => bandsFor([1, 5, 10, 50, 100, 500], ratio), /ratio/);
+  }
 });
 
 test('scoring includes both boundaries and distinguishes misses above and below', () => {
@@ -70,11 +85,11 @@ test('content validation names every invalid field and accepts three to five que
       assert.throws(() => validateContent(value), new RegExp(field));
     }
   }
-  for (const answer of [0, -1, 0.5, NaN, Infinity, 1e308, '4', null, undefined]) {
+  for (const answer of [0, -1, 0.5, NaN, Infinity, 1e12 + 1, 1e307, '4', null, undefined]) {
     const value = clone(); value.questions[0].answer = answer;
     assert.throws(() => validateContent(value), /questions\[0\].answer/);
   }
-  for (const answer of [1, 1.5, 1e307]) {
+  for (const answer of [1, 1.5, 1e12]) {
     const value = clone(); value.questions[0].answer = answer;
     assert.doesNotThrow(() => validateContent(value));
     assert.ok(scaleFor(value).stops.every(Number.isFinite));
@@ -101,7 +116,9 @@ test('render escapes authored and interface text, prefixes ids and supplies comp
   assert.ok(ids.every(id => id.startsWith('a-') || id.startsWith('b-')));
   assert.match(a, /<p[^>]*role="status"[^>]*><\/p>/);
   assert.equal((a.match(/role="status"/g) || []).length, 1);
-  assert.match(a, /data-lp-interaction hidden/);
+  assert.match(a, /<div data-lp-interaction>/);
+  assert.match(a, /data-lp-instructions hidden/);
+  assert.equal((a.match(/class="lp-estimate-magnitude-scale" hidden/g) || []).length, 3);
   assert.match(a, /data-lp-check hidden/);
   assert.match(a, /data-lp-fallback>/);
   const fallback = a.slice(a.indexOf('<details'), a.indexOf('</details>'));
@@ -119,7 +136,19 @@ test('French render and strings use identical keys and placeholders', () => {
   assert.ok(output.includes('lang="fr"'));
   assert.ok(output.includes('Estimez à partir des registres du bureau'));
   assert.ok(output.includes('26\u202f000') || output.includes('26\u00a0000'));
-  assert.ok(output.includes('100 à 1'));
+  assert.ok(output.includes('100 à 1\u00a0000') || output.includes('100 à 1\u202f000'));
+});
+
+test('formatting replaces placeholders once and localizes numbers and ratios', () => {
+  assert.equal(format('{value} {x}', { value: '{x}', x: 'answer' }), '{x} answer');
+  assert.equal(numberText(1.5, 'fr'), '1,5');
+  for (const lang of ['en', 'fr']) {
+    const value = { ...clone(), ratio: 1000 };
+    const output = render(value, strings[lang], { id: lang, lang });
+    const instructions = format(strings[lang].instructions, { ratio: numberText(1000, lang) });
+    assert.ok(output.includes(instructions));
+    assert.ok(!output.includes('{ratio}'));
+  }
 });
 
 test('saved ranges are copied; invalid, incomplete checked and out-of-scale states are ignored', () => {
@@ -129,6 +158,7 @@ test('saved ranges are copied; invalid, incomplete checked and out-of-scale stat
   assert.notEqual(validateState(content, good).touched, good.touched);
   const partial = { ranges: [4, 4, 4], touched: [true, false, false], shown: false };
   assert.deepEqual(validateState(content, partial), partial);
+  assert.equal(validateState(content, { ...partial, ranges: [4, 7, 4] }), null);
   for (const value of [null, [], {}, { ...good, ranges: [0] }, { ...good, touched: [] }, { ...good, ranges: Array(3) }, { ...good, touched: Array(3) }, { ...good, ranges: [0, 3, 999] }, { ...good, ranges: [0, 0.2, 8] }, { ...good, ranges: ['0', 3, 8] }, { ...good, touched: [true, 1, true] }, { ...good, touched: [true, false, true] }, { ...good, shown: 'yes' }]) {
     assert.equal(validateState(content, value), null);
   }

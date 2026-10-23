@@ -24,7 +24,8 @@ export function enhance(root, { content, strings, state }) {
     if (!element) throw new Error(`Missing estimate-magnitude markup: ${selector}`);
     return /** @type {T} */ (element);
   }
-  const flow = /** @type {HTMLElement} */ (required(root, '[data-lp-interaction]'));
+  const instructions = /** @type {HTMLElement} */ (required(root, '[data-lp-instructions]'));
+  const scales = [...root.querySelectorAll('.lp-estimate-magnitude-scale')].map(element => /** @type {HTMLElement} */ (element));
   const fallback = /** @type {HTMLDetailsElement} */ (required(root, '[data-lp-fallback]'));
   const check = /** @type {HTMLButtonElement} */ (required(root, '[data-lp-check]'));
   const again = /** @type {HTMLButtonElement} */ (required(root, '[data-lp-try-again]'));
@@ -130,7 +131,7 @@ export function enhance(root, { content, strings, state }) {
     shown = true;
     // One check completes the interaction. Expose Try again before locking and revealing.
     again.hidden = false;
-    unlock = lock(root);
+    unlock = shouldAnnounce ? lock(root) : lock(root, { focus: false });
     if (shouldAnnounce) { reveal(result); announce(summary); }
     else result.hidden = false;
   }
@@ -145,7 +146,7 @@ export function enhance(root, { content, strings, state }) {
       return [index + 1];
     });
     if (missing.length) {
-      const questions = new Intl.ListFormat(/^fr(?:-|$)/i.test(root.lang) ? 'fr-CA' : 'en', { type: 'conjunction' }).format(missing.map(String));
+      const questions = new Intl.ListFormat(/^fr(?:-|$)/i.test(root.lang) ? 'fr-CA' : 'en-GB', { type: 'conjunction' }).format(missing.map(String));
       announce(format(missing.length === 1 ? strings.missingOne : strings.missingMany, { questions }));
       return;
     }
@@ -175,7 +176,8 @@ export function enhance(root, { content, strings, state }) {
   }, { signal });
 
   fallback.hidden = true;
-  flow.hidden = false;
+  instructions.hidden = false;
+  scales.forEach(scale => { scale.hidden = false; });
   check.hidden = false;
   if (saved?.shown) show(false);
   const instance = {
@@ -185,7 +187,9 @@ export function enhance(root, { content, strings, state }) {
       ranges = content.questions.map(() => start);
       touched = content.questions.map(() => false);
       clearRows();
-      flow.hidden = true; check.hidden = true; again.hidden = true; fallback.hidden = false;
+      instructions.hidden = true;
+      scales.forEach(scale => { scale.hidden = true; });
+      check.hidden = true; again.hidden = true; fallback.hidden = false;
       status.textContent = '';
       instances.delete(root);
     }

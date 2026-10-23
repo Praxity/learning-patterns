@@ -2,13 +2,28 @@ import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { readFile } from 'node:fs/promises';
 import { strings } from '../../patterns/estimate-magnitude/strings.js';
-import { format } from '../../patterns/estimate-magnitude/render.js';
+import { format, numberText, render } from '../../patterns/estimate-magnitude/render.js';
 import { frenchTypography } from '../../lib/html.js';
 
 const examples = Object.fromEntries(await Promise.all(['en', 'fr'].map(async lang => [lang, JSON.parse(await readFile(new URL(`../../patterns/estimate-magnitude/examples/${lang}.json`, import.meta.url), 'utf8'))])));
 
 async function open(page, lang = 'en') {
   await page.goto(`/estimate-magnitude/${lang}.html`);
+  await expect(page.locator('[data-lp-check]')).toBeVisible();
+}
+
+async function openContent(page, content, lang = 'en') {
+  await page.route('**/estimate-magnitude/fixture.html', route => route.fulfill({
+    contentType: 'text/html; charset=utf-8',
+    body: `<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Estimate magnitude</title><link rel="stylesheet" href="/lib/base.css"><link rel="stylesheet" href="/patterns/estimate-magnitude/pattern.css"></head><body>
+      ${render(content, strings[lang], { id: 'fixture', lang })}
+      <script type="module">
+        import { enhance } from '/patterns/estimate-magnitude/enhance.js';
+        import { strings } from '/patterns/estimate-magnitude/strings.js';
+        enhance(document.querySelector('[data-lp-pattern]'), { content: ${JSON.stringify(content)}, strings: strings.${lang} });
+      </script></body></html>`
+  }));
+  await page.goto('/estimate-magnitude/fixture.html');
   await expect(page.locator('[data-lp-check]')).toBeVisible();
 }
 
@@ -43,7 +58,7 @@ for (const lang of ['en', 'fr']) {
     await expect(page.locator('[data-lp-check]')).toBeFocused();
     await expect(page.locator('[data-lp-error]:visible')).toHaveCount(3);
     await expect(bands.first()).toHaveAttribute('aria-invalid', 'true');
-    await expect(status).not.toHaveText('');
+    await expect(status).toHaveText(frenchTypography(format(strings[lang].missingMany, { questions: lang === 'fr' ? '1, 2 et 3' : '1, 2 and 3' }), lang));
     await setByKeyboard(page);
     await expect(page.locator('[data-lp-error]:visible')).toHaveCount(0);
     await expect(bands.first()).not.toHaveAttribute('aria-invalid');
@@ -62,7 +77,7 @@ for (const lang of ['en', 'fr']) {
     await expect(page.locator('[data-lp-feedback]:visible')).toHaveCount(3);
     for (let index = 0; index < 3; index++) {
       await expect(bands.nth(index)).toBeDisabled();
-      await expect(bands.nth(index)).toHaveAttribute('aria-valuetext', new RegExp(lang === 'fr' ? ' à .*Inclus' : ' to .*Caught'));
+      await expect(bands.nth(index)).toHaveAttribute('aria-valuetext', new RegExp(lang === 'fr' ? ' à .*Dans votre plage' : ' to .*Caught'));
       await expect(page.locator('[data-lp-feedback]').nth(index)).toContainText(examples[lang].questions[index].source);
     }
     const original = await bands.first().getAttribute('aria-valuenow');
@@ -92,6 +107,12 @@ for (const lang of ['en', 'fr']) {
       await page.goto(`${baseURL}/estimate-magnitude/${lang}.html`);
       await expect(page.getByRole('slider')).toHaveCount(0);
       await expect(page.locator('[data-lp-check]')).toBeHidden();
+      await expect(page.locator('[data-lp-instructions]')).toBeHidden();
+      await expect(page.locator('[data-lp-fallback]')).not.toHaveAttribute('open');
+      for (const [index, question] of examples[lang].questions.entries()) {
+        await expect(page.locator('[data-lp-question] legend').nth(index)).toBeVisible();
+        await expect(page.locator('[data-lp-question] legend').nth(index)).toHaveText(frenchTypography(question.question, lang));
+      }
       await page.locator('[data-lp-fallback] summary').click();
       for (const question of examples[lang].questions) {
         await expect(page.locator('[data-lp-fallback]')).toContainText(frenchTypography(question.question, lang));
@@ -129,8 +150,47 @@ for (const lang of ['en', 'fr']) {
     await page.keyboard.press('Enter');
     await expect(page.locator('[data-lp-try-again]')).toBeFocused();
     await fits();
+    for (const answer of await page.locator('[data-lp-answer]').all()) {
+      expect(await answer.evaluate(element => {
+        const range = document.createRange();
+        range.selectNodeContents(element);
+        return range.getClientRects().length;
+      })).toBe(1);
+    }
+  });
+
+  test(`configured ratio changes instructions, bands and scoring (${lang})`, async ({ page }) => {
+    const content = { ...structuredClone(examples[lang]), ratio: lang === 'fr' ? 1000 : 100 };
+    content.questions.forEach(question => { question.answer = content.ratio; });
+    await openContent(page, content, lang);
+    await expect(page.locator('[data-lp-instructions]')).toHaveText(frenchTypography(format(strings[lang].instructions, { ratio: numberText(content.ratio, lang) }), lang));
+    for (const [index, band] of (await page.getByRole('slider').all()).entries()) {
+      await band.press('Home');
+      const label = format(strings[lang].range, { low: '1', high: numberText(content.ratio, lang) });
+      await expect(band).toHaveAttribute('aria-valuetext', frenchTypography(`${label} ${content.questions[index].unit}`, lang));
+    }
+    await page.locator('[data-lp-check]').click();
+    await expect(page.locator('[data-lp-result]')).toHaveText(frenchTypography(format(strings[lang].summary, { count: 3, total: 3 }), lang));
   });
 }
+
+test('large answer labels stay on one line at 320 px with text spacing', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 900 });
+  const content = structuredClone(examples.en);
+  content.questions[2].answer = 2_000_000;
+  await openContent(page, content);
+  await page.addStyleTag({ content: '.lp, .lp * { line-height: 1.5 !important; letter-spacing: .12em !important; word-spacing: .16em !important; }' });
+  for (const band of await page.getByRole('slider').all()) await band.press('Home');
+  await page.locator('[data-lp-check]').click();
+  const answer = page.locator('[data-lp-answer]').nth(2);
+  await expect(answer).toHaveText('2,000,000');
+  expect(await answer.evaluate(element => {
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    return range.getClientRects().length;
+  })).toBe(1);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
 
 test('track taps and dragging select discrete bands without a keyboard', async ({ page }) => {
   await open(page);
@@ -161,6 +221,9 @@ test('checked host state restores silently, destroy restores fallback', async ({
   await page.goto('/estimate-magnitude/en.html');
   await expect(page.locator('[data-lp-result]')).toHaveText('You caught 3 of 3 answers in your ranges.');
   await expect(page.getByRole('status')).toHaveText('');
+  // Wait past lock's two-frame focus work before checking the restored page.
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(resolve)))));
+  await expect(page.locator('body')).toBeFocused();
   await page.evaluate(async () => {
     const { enhance } = await import('/patterns/estimate-magnitude/enhance.js');
     const { strings } = await import('/patterns/estimate-magnitude/strings.js');

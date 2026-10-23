@@ -1,19 +1,19 @@
 /** @param {unknown} content @returns {asserts content is Content} */
 export function validateContent(content: unknown): asserts content is Content;
-/** Each band starts at a stop and reaches the furthest stop within ten times it.
- * Tolerate floating-point rounding at exact tens, such as 0.003 / 0.0003 > 10.
- * @param {number[]} stops @returns {[number, number][]}
+/** Each band starts at a stop and reaches the furthest stop within the ratio.
+ * @param {number[]} stops @param {number} [ratio] @returns {[number, number][]}
  */
-export function bandsFor(stops: number[]): [number, number][];
-/** Integer stops at 1 and 5 in each power of ten. Every generated band spans exactly 10x.
+export function bandsFor(stops: number[], ratio?: number): [number, number][];
+/** Integer stops at 1 and 5 in each power of ten. Every generated band spans the ratio.
  * @param {Content} content
  */
 export function scaleFor(content: Content): {
     stops: number[];
     bands: [number, number][];
     start: number;
+    ratio: number;
 };
-/** Log positions keep every tenfold band the same width, including between 1 and 5.
+/** Log positions keep every band the same width, including between 1 and 5.
  * @param {number} value @param {number[]} stops @returns {number} Percentage along the scale.
  */
 export function positionOf(value: number, stops: number[]): number;
@@ -41,6 +41,7 @@ export type Question = {
 export type Content = {
     title: string;
     context: string;
+    ratio?: number;
     questions: Question[];
 };
 export type LearnerState = {

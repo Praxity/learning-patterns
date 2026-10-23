@@ -1,7 +1,7 @@
 export const strings = {
   en: {
     context: 'Context:',
-    instructions: 'Slide each range to hold your estimate. Each range is limited to ten times its low end.',
+    instructions: 'Slide each range to hold your estimate. Each range is limited to {ratio} times its low end.',
     check: 'Check my ranges',
     tryAgain: 'Try again',
     cleared: 'Cleared. Start again.',
@@ -18,15 +18,15 @@ export const strings = {
   },
   fr: {
     context: 'Contexte :',
-    instructions: 'Faites glisser chaque plage pour y inclure votre estimation. Chaque plage est limitée à dix fois sa borne inférieure.',
+    instructions: 'Faites glisser chaque plage pour y inclure votre estimation. Chaque plage est limitée à {ratio} fois sa borne inférieure.',
     check: 'Vérifier mes plages',
     tryAgain: 'Réessayer',
     cleared: 'Plages effacées. Recommencez.',
-    empty: 'Déplacez la bande pour définir votre plage.',
+    empty: 'Faites glisser la bande pour définir votre plage.',
     missingOne: 'Définissez une plage pour la question {questions} avant de vérifier.',
     missingMany: 'Définissez une plage pour les questions {questions} avant de vérifier.',
     range: '{low} à {high}',
-    caught: 'Inclus : {answer} {unit}.',
+    caught: 'Dans votre plage : {answer} {unit}.',
     below: 'Manqué : {answer} {unit}, sous votre plage.',
     above: 'Manqué : {answer} {unit}, au-dessus de votre plage.',
     summary: 'Vos plages incluent {count} réponses sur {total}.',
