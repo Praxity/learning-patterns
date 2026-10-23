@@ -10,17 +10,17 @@
 .lp-test-out-navigation { justify-content: space-between; }
 .lp-test-out-navigation > .lp-button:not(.lp-button-quiet) { flex: none; }
 /* The review section starts 24px below the outline, as the policy note does, not 16px. */
-.lp-test-out-panel > .lp-section { margin-block-start: 24px; }
+.lp-test-out-panel > .lp-section { margin-block-start: var(--lp-gap-section); }
 /* The shared scene and motion guards live in base.css. This entrance is specific to the stepper.
    A view change eases in and out (AGENTS.md motion rule), so the panel does not decelerate. */
 .lp-test-out-enter { animation: lp-test-out-slide 240ms cubic-bezier(.65, 0, .35, 1); }
 @keyframes lp-test-out-slide { from { opacity: 0; transform: translateX(var(--lp-test-out-enter-x, 16px)); } }
 /* Without JavaScript both panels show; the questions start 24px below the intro. */
-.lp-test-out-questions { margin-block-start: 24px; }
+.lp-test-out-questions { margin-block-start: var(--lp-gap-group); }
 .lp-test-out .lp-choice > span:not(.lp-choice-mark) { white-space: pre-line; }
 .lp-test-out .lp-choice-mark { white-space: normal; }
 .lp-test-out-fallback-list { display: grid; gap: 20px; padding-inline-start: 24px; }
-.lp-test-out-fallback-list li > * + * { margin-block-start: 8px; }
+.lp-test-out-fallback-list li > * + * { margin-block-start: var(--lp-gap-label); }
 @media (prefers-reduced-motion: reduce) {
   .lp-test-out-enter { animation: none; }
 }
