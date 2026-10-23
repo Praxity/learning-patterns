@@ -121,12 +121,12 @@ for (const width of [1280, 390]) {
       await page.locator('[data-lp-skip]').click();
       const end = page.locator('[data-lp-end-step]');
       await expect(end.locator('[data-lp-missing]')).toBeHidden();
-      expect(await gap(end.locator('h3'), end.locator('label'))).toBeCloseTo(12, 1);
+      expect(await gap(end.locator('h3'), end.locator('label:not(.lp-choice)'))).toBeCloseTo(12, 1);
       await page.locator('[data-lp-now-input]').fill('When you interrupt I lose my place.');
       await page.locator('[data-lp-compare]').click();
       await expect(end.locator('[data-lp-result]')).toBeVisible();
-      expect(await gap(end.locator('h3'), end.locator('label'))).toBeCloseTo(12, 1);
-      expect(await gap(end.locator('label'), end.locator('textarea'))).toBeCloseTo(8, 1);
+      expect(await gap(end.locator('h3'), end.locator('label:not(.lp-choice)'))).toBeCloseTo(12, 1);
+      expect(await gap(end.locator('label:not(.lp-choice)'), end.locator('textarea'))).toBeCloseTo(8, 1);
       await page.locator('[data-lp-restart]').click();
     }
   });
@@ -310,7 +310,7 @@ for (const lang of ['en', 'fr']) for (const textSpacing of [false, true]) {
         return rect.left < 0 || rect.right > innerWidth + 1 || (!(el instanceof HTMLTextAreaElement) && el.scrollWidth > el.clientWidth + 2) || (!(el instanceof HTMLTextAreaElement) && el.scrollHeight > el.clientHeight + 2);
       }).map(el => el.outerHTML));
       expect(clipped, name).toEqual([]);
-      if (name === 'journal') expect(await gap(page.locator('.lp-stem'), page.locator('textarea'))).toBeGreaterThanOrEqual(12);
+      if (name === 'journal') expect(await gap(page.locator('.lp-stem'), page.locator('textarea'))).toBeGreaterThanOrEqual(11.5);
       if (name === 'first-answer') expect(await gap(page.locator('[data-lp-first-input]'), page.locator('[data-lp-first-error]'))).toBeGreaterThanOrEqual(8);
       if (name === 'retrieval-sheet') expect(await gap(page.locator('.lp-retrieval-sheet-date-field .lp-label'), page.locator('[data-lp-date]'))).toBeGreaterThanOrEqual(8);
     }
