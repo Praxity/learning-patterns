@@ -143,7 +143,7 @@ test('without JavaScript the answer disclosure contains all values and the sourc
     await page.locator('[data-lp-fallback] summary').click();
     await expect(page.locator('[data-lp-fallback] tbody tr')).toHaveCount(8);
     await expect(page.locator('[data-lp-fallback]')).toContainText('IT help desk call log, December to July');
-    await expect(page.getByRole('group')).not.toHaveAttribute('aria-describedby');
+    await expect(page.getByRole('group', { name: english.question })).not.toHaveAttribute('aria-describedby');
     await expect(page.locator('[data-lp-fallback]')).toContainText('79');
   } finally { await context.close(); }
 });
@@ -166,7 +166,7 @@ test('invalid state is ignored; repeated enhancement and destroy preserve the fa
   await keyboardGuess(page); await page.keyboard.press('Enter');
   await page.evaluate(() => { const old = window.lpInstances[0]; old.destroy(); old.destroy(); });
   await expect(page.locator('[data-lp-fallback]')).toBeVisible(); await expect(page.getByRole('slider')).toHaveCount(0);
-  await expect(page.getByRole('group')).not.toHaveAttribute('aria-describedby');
+  await expect(page.getByRole('group', { name: english.question })).not.toHaveAttribute('aria-describedby');
   await page.locator('body').evaluate(body => { body.tabIndex = -1; body.focus(); });
   await observe(page); await page.evaluate(() => { window.lpEnhance(); });
   await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
@@ -228,13 +228,13 @@ test('forced colours retain distinct markers and a 3 px keyboard focus ring', as
   await expect(page.locator('.lp-draw-your-guess-dot').first()).toHaveCSS('forced-color-adjust', 'none');
 });
 
-test('French fractional real values use the locale in slider descriptions and comparisons', async ({ page }) => {
+for (const lang of ['fr-CA', 'fr-invalid_tag']) test(`French real values retain precision in slider descriptions and comparisons (${lang})`, async ({ page }) => {
   const content = structuredClone(french);
-  content.future[0].value = 95.5;
+  content.future[0].value = 95.5555; content.future[1].value = 0.0004;
   await page.route('**/draw-your-guess/fr.html', route => route.fulfill({
     contentType: 'text/html; charset=utf-8',
     body: `<!doctype html><html lang="fr-CA"><head><meta charset="utf-8"></head><body>
-      ${render(content, strings.fr, { id: 'fractional', lang: 'fr-CA' })}
+      ${render(content, strings.fr, { id: 'fractional', lang })}
       <script type="module">
         import { enhance } from '/patterns/draw-your-guess/enhance.js';
         import { strings } from '/patterns/draw-your-guess/strings.js';
@@ -243,8 +243,10 @@ test('French fractional real values use the locale in slider descriptions and co
       </script></body></html>`
   }));
   await open(page, '/draw-your-guess/fr.html');
-  await expect(page.getByRole('group')).toHaveAttribute('aria-describedby', 'fractional-help');
+  await expect(page.getByRole('group', { name: frenchTypography(content.question, lang) })).toHaveAttribute('aria-describedby', 'fractional-help');
   await keyboardGuess(page); await page.keyboard.press('Enter');
-  await expect(page.getByRole('slider').first()).toHaveAttribute('aria-valuetext', 'avril\u202f: votre estimation 115, valeur réelle 95,5 appels par jour');
-  await expect(page.locator('[data-lp-comparison] li').first()).toHaveText('avril\u202f: votre estimation 115, valeur réelle 95,5 appels par jour');
+  await expect(page.getByRole('slider').first()).toHaveAttribute('aria-valuetext', 'avril\u202f: votre estimation 115, valeur réelle 95,5555 appels par jour');
+  await expect(page.getByRole('slider').nth(1)).toHaveAttribute('aria-valuetext', 'mai\u202f: votre estimation 115, valeur réelle 0,0004 appels par jour');
+  await expect(page.locator('[data-lp-comparison] li').first()).toHaveText('avril\u202f: votre estimation 115, valeur réelle 95,5555 appels par jour');
+  await expect(page.locator('[data-lp-comparison] li').nth(1)).toHaveText('mai\u202f: votre estimation 115, valeur réelle 0,0004 appels par jour');
 });

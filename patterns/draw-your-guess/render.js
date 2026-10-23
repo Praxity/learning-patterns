@@ -10,13 +10,13 @@ export function render(content, strings, { id, lang }) {
   const cls = 'lp-draw-your-guess-';
   const text = /** @param {string} value */ value => html(value, lang);
   const identifier = /** @param {string} suffix */ suffix => html(`${id}-${suffix}`);
-  const numbers = new Intl.NumberFormat(lang);
+  const numbers = new Intl.NumberFormat(/^fr(?:-|$)/i.test(lang) ? 'fr-CA' : 'en-CA', { maximumSignificantDigits: 21 });
   const tick = Math.ceil(content.top / 3 / content.step) * content.step;
   const ticks = [...Array.from({ length: Math.ceil(content.top / tick) }, (_, i) => i * tick), content.top];
   const position = /** @param {number} i @param {number} value */ (i, value) => `inset-inline-start:${x(i, n) * 100}%;inset-block-start:${y(value, content.top) * 100}%`;
   return `<section class="lp lp-draw-your-guess" data-lp-pattern="draw-your-guess" lang="${html(lang)}" aria-labelledby="${identifier('title')}">
   <header class="lp-scene"><span class="lp-scene-icon">${icons.presentation}</span><div><h2 class="lp-scene-title" id="${identifier('title')}">${text(content.title)}</h2></div></header>
-  <div><p><strong>${text(strings.context)}</strong> ${text(content.context)}</p></div>
+  <p><strong>${text(strings.context)}</strong> ${text(content.context)}</p>
   <fieldset class="${cls}fieldset">
     <legend class="lp-stem">${text(content.question)}</legend>
     <p class="lp-small" id="${identifier('help')}" data-lp-help hidden>${text(strings.help)}</p>

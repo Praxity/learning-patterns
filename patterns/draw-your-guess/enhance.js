@@ -48,7 +48,7 @@ export function enhance(root, { content, strings, state }) {
   /** @type {number | null} */
   let pointer = null;
   const text = /** @param {string} value */ value => frenchTypography(value, root.lang);
-  const numbers = new Intl.NumberFormat(root.lang);
+  const numbers = new Intl.NumberFormat(/^fr(?:-|$)/i.test(root.lang) ? 'fr-CA' : 'en-CA', { maximumSignificantDigits: 21 });
   const save = () => state?.write({ guesses: [...guesses], shown });
   /** @param {[number, number][]} points */
   const points = points => points.map(([i, v]) => `${x(i, n) * 800},${y(v, content.top) * 300}`).join(' ');
@@ -73,8 +73,9 @@ export function enhance(root, { content, strings, state }) {
     marks.replaceChildren(...guesses.flatMap((v, i) => v === null ? [] : [mark('dot', k + i, v), mark('val', k + i, v, numbers.format(v))]), ...realPoints.map(([i, v]) => mark('sq', i, v)));
     inputs.forEach((input, i) => {
       input.value = String(guesses[i] ?? initial);
+      const value = guesses[i] === null ? '' : numbers.format(guesses[i]);
       input.setAttribute('aria-valuetext', text(format(shown ? strings.compared : guesses[i] === null ? strings.notSet : strings.value, {
-        name: content.future[i].name, value: guesses[i] === null ? '' : numbers.format(guesses[i]), guess: guesses[i] === null ? '' : numbers.format(guesses[i]), real: numbers.format(content.future[i].value), unit: content.unit
+        name: content.future[i].name, value, guess: value, real: numbers.format(content.future[i].value), unit: content.unit
       })));
     });
     chart.classList.toggle(cls + 'done', shown);
@@ -98,14 +99,14 @@ export function enhance(root, { content, strings, state }) {
     shown = true; paint();
     comparison.replaceChildren(...content.future.map((p, i) => {
       const item = root.ownerDocument.createElement('li');
-      item.textContent = text(format(strings.compared, { name: p.name, guess: guesses[i] === null ? '' : numbers.format(guesses[i]), real: numbers.format(p.value), unit: content.unit }));
+      item.textContent = text(format(strings.compared, { name: p.name, guess: numbers.format(/** @type {number} */ (guesses[i])), real: numbers.format(p.value), unit: content.unit }));
       return item;
     }));
     comparison.hidden = false;
     summary.textContent = text(outcome.summary); summary.hidden = false;
     again.hidden = false;
     // One check completes the interaction. Expose Try again before locking controls.
-    unlock = announce ? lock(root) : lock(root, { focus: false });
+    unlock = lock(root, { focus: announce });
     if (announce) { reveal(result); status.textContent = text(outcome.summary); }
     else result.hidden = false;
   }

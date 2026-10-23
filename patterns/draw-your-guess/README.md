@@ -88,7 +88,7 @@ Titles and labels allow 120 characters, the question 400, and context, explanati
 
 Trend comparison starts at the last known point. Both positive and negative changes mean `changedDirection`. All zero changes mean `flat`. Otherwise the line rose or fell; a final zero change adds `ThenFlat`. Real values supply the overlay and signed differences; authors describe their shape in the six feedback messages. The sample keeps "fell then levelled off" for the gradual flattening of its real line.
 
-The guess line stops at the first unset point, while each set point remains visible. An untouched slider starts at the last known value, snapped to the step, so the first arrow press moves from there. Real squares draw after guess circles so matching values remain distinguishable. Axis ticks use multiples of the authored step, including zero and the scale's top. Displayed numbers use `Intl.NumberFormat(lang)`; pass a valid language tag.
+The guess line stops at the first unset point, while each set point remains visible. An untouched slider starts at the last known value, snapped to the step, so the first arrow press moves from there. Real squares draw after guess circles so matching values remain distinguishable. Axis ticks use multiples of the authored step, including zero and the scale's top. Displayed numbers use `Intl.NumberFormat` with `fr-CA` for French and `en-CA` otherwise, preserving real-value precision.
 
 Without JavaScript, learners see the context and known line. Open "Show the real values" for all known and future values, the explanation and source. JavaScript-dependent controls stay hidden.
 

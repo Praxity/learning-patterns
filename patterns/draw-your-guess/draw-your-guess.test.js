@@ -102,11 +102,11 @@ test('render escapes all authored text and instance attributes', () => {
   const attack = '<img src=x onerror="oops"> & \'text\'';
   for (const field of ['title', 'context', 'question', 'unit', 'changeLabel', 'realLabel', 'resultTitle', 'explanationLabel', 'explanation', 'source']) value[field] = attack;
   for (const point of [...value.known, ...value.future]) point.label = point.name = attack;
-  const markup = render(value, strings.en, { id: 'one"<>', lang: 'en' });
+  const markup = render(value, strings.en, { id: 'one"<>', lang: 'en"<>' });
   assert.ok(!markup.includes('<img')); assert.ok(markup.includes('&lt;img')); assert.ok(markup.includes('one&quot;&lt;&gt;-point-0'));
   assert.equal((markup.match(/role="status"/g) ?? []).length, 1);
   assert.ok(markup.includes('role="status" aria-atomic="true"></p>'));
-  assert.throws(() => render(value, strings.en, { id: 'one', lang: 'en"<>' }), RangeError);
+  assert.ok(markup.includes('lang="en&quot;&lt;&gt;"'));
 });
 
 test('no-JavaScript markup contains every real value, explanation and source, and hides JS controls', () => {
@@ -146,6 +146,26 @@ test('French known-point descriptions and answer tables format fractional real v
   assert.ok(markup.includes('<td>115,5</td>'));
   assert.ok(markup.includes('<td>95,5</td>'));
   assert.ok(!markup.includes('>115.5<'));
+});
+
+test('real values retain more than three decimals and small nonzero values in both locales', () => {
+  for (const [lang, messages, decimal] of [['en', strings.en, '.'], ['fr-CA', strings.fr, ',']]) {
+    const value = structuredClone(content);
+    value.known[0].value = 115.5555; value.future[0].value = 0.0004;
+    const markup = render(value, messages, { id: 'precision', lang });
+    assert.ok(markup.includes(`115${decimal}5555 ${value.unit}`));
+    assert.ok(markup.includes(`<td>115${decimal}5555</td>`));
+    assert.ok(markup.includes(`<td>0${decimal}0004</td>`));
+  }
+});
+
+test('language tags use the same French detection as typography and malformed tags stay safe', () => {
+  const value = structuredClone(content);
+  value.known[0].value = 115.5555;
+  for (const [lang, expected] of [['en_US', '115.5555'], ['fr', '115,5555'], ['FR-ca', '115,5555'], ['fr-invalid_tag', '115,5555'], ['fr_CA', '115.5555']]) {
+    const markup = render(value, strings.en, { id: 'locale', lang });
+    assert.ok(markup.includes(`<td>${expected}</td>`), lang);
+  }
 });
 
 test('French axis ticks use locale grouping', () => {
