@@ -471,6 +471,8 @@ test('quiet reset and forced colours preserve focus rings and button distinction
   test.skip(browserName !== 'chromium', 'Forced colours emulation checked in Chromium.');
   await page.emulateMedia({ forcedColors: 'active' }); await open(page); await pick(page); await page.locator('[data-lp-check]').click();
   await expect(page.locator('[data-lp-mark]').first()).toHaveCSS('border-style', 'double');
+  // The unchosen correct answer stays dashed, so it doesn't read as a pick.
+  await expect(page.locator('[data-lp-mark="missed"]').first()).toHaveCSS('border-top-style', 'dashed');
   await page.locator('[data-lp-restart]').focus();
   await expect(page.locator('[data-lp-restart]')).toHaveCSS('text-decoration-line', 'underline');
   await page.locator('[data-lp-restart]').click();

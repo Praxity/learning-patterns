@@ -113,6 +113,8 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
 select.lp-input { appearance: none; padding-inline-end: 40px; background: var(--lp-paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23555c67' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6l6 -6'/%3E%3C/svg%3E") no-repeat right 14px center / 16px; }
 .lp-input[readonly] { color: var(--lp-ink); background: var(--lp-paper-2); border-color: var(--lp-line-mid); }
 .lp-input[aria-invalid="true"] { border: 2px solid var(--lp-error-ink); padding: 10px 13px; }
+/* The error border takes 1px of the end padding; the label still clears the drawn arrow. */
+select.lp-input[aria-invalid="true"] { padding-inline-end: 39px; }
 .lp-error-text { display: flex; gap: 8px; align-items: flex-start; color: var(--lp-error-ink); font-size: var(--lp-type-small); font-weight: 600; }
 
 /* Choice rows, after Tally: a light row, a letter key for single choice, a square for
@@ -208,8 +210,8 @@ select.lp-input { appearance: none; padding-inline-end: 40px; background: var(--
 .lp-choice-mark.lp-met { color: var(--lp-success-ink); }
 .lp-choice-mark.lp-missed { color: var(--lp-error-ink); }
 .lp-choice-mark.lp-neutral { color: var(--lp-ink-2); }
-/* A locked row shows no hover or pointer. Marked rows keep their mark styles. */
-.lp-choice:has(input:disabled):not([data-lp-mark]):hover { border-color: var(--lp-line-mid); background: var(--lp-paper); }
+/* A locked row shows no hover or pointer. Marked and chosen rows keep their own styles. */
+.lp-choice:has(input:disabled):not([data-lp-mark], :has(input:checked)):hover { border-color: var(--lp-line-mid); background: var(--lp-paper); }
 .lp-choice:has(input:disabled), .lp-choice > input:disabled { cursor: default; }
 /* A correct answer the learner didn't choose: neutral, and dashed so it doesn't read as selected. */
 .lp-choice[data-lp-mark="missed"] { border: 2px dashed var(--lp-ink-2); padding: 9px 13px; background: var(--lp-paper-2); }
