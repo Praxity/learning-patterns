@@ -40,7 +40,7 @@ Follows the shared baseline in the root README.
 - Arrow shortcuts work when the screen reader passes them to the page. Left or Up moves back; Right or Down moves forward. They wrap at the ends. Home and End jump to the first and last chunks. Each chunk exposes its pressed state and links to keyboard instructions.
 - Checked chunks stay readable and navigable, with feedback beside correct marks, missed targets and other selections.
 - At the limit, selecting another chunk shows and announces a message below the passage. Removing a mark clears it.
-- Found targets have green highlights and solid underlines; missed targets have dashed underlines and no highlight. Other selections stay yellow, with readable notes in neutral pills. Icons and words identify outcomes, including in forced colours.
+- Found targets have green highlights and solid underlines; missed targets have grey dashed underlines and no highlight. Other selections stay yellow, with an "Incorrect" mark and the author's note in a neutral pill. The marks read "Correct", "Correct answer" for a missed target, and "Incorrect" (French "Correct", "Bonne réponse", "Incorrect"). Icons and words identify outcomes, including in forced colours.
 - Check announces the target count. If Check has focus when it hides, focus moves to Start over. Reset focuses the first chunk silently.
 - Known screen reader behaviour: when NVDA reads line by line and a chunk wraps onto the next line, it says "toggle button, not pressed" again at the start of that line. NVDA does the same for any link that wraps. The chunks stay inline so the passage reads as paragraphs.
 
@@ -58,7 +58,7 @@ Authors write plain text. Rendering escapes HTML characters.
 | `paragraphs[][].id` | Unique across the passage. Letters, digits, underscores and hyphens only. |
 | `paragraphs[][].text` | Text without leading or trailing whitespace. One space joins adjacent chunks. |
 | `paragraphs[][].key` | Optional boolean. `true` marks a target. At least one target is required. |
-| `paragraphs[][].note` | Optional explanation for a selected non-target. Follows "Not a key idea" in key mode; replaces default wrong-selection feedback in evidence mode. Also appears in the native answer. |
+| `paragraphs[][].note` | Optional explanation for a selected non-target. Follows its "Incorrect" mark in both modes. Also appears in the native answer. |
 
 Text fields must contain non-whitespace text. Unknown fields and duplicate ids are rejected. The schema describes the shape, question requirement and required target. Its `x-uniqueChunkIds` annotation needs the global id check in `validateContent`.
 
@@ -70,6 +70,8 @@ Authored text is capped at 120 characters for titles and labels, 400 for questio
 
 
 `logic.js`, `strings.js` and `content.schema.json` have no DOM dependencies. Praxity Studio can use them with its own interface.
+
+`strings.js` marks answers with `markCorrect`, `markWrong` and `markAnswer`. The older keys `correctKey`, `correctEvidence`, `wrongKey`, `wrongEvidence` and `missed` are deprecated. They hold the same words for hosts that still read them; move to the new keys.
 
 | Function | Returns |
 | --- | --- |

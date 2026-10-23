@@ -441,7 +441,7 @@ test('forced colours preserve the soft card, controls and focus', async ({ page,
   await page.emulateMedia({ forcedColors: 'active' }); await open(page); await submit(page);
   await expect(page.locator('[data-lp-result]')).toHaveCSS('border-style', 'solid');
   for (const target of [page.getByRole('textbox'), page.locator('[data-lp-save]'), page.locator('[data-lp-suggest]')]) {
-    await target.focus(); await expect(target).toHaveCSS('outline-width', '2px'); await expect(target).toHaveCSS('outline-style', 'solid');
+    await target.focus(); await expect(target).toHaveCSS('outline-width', '3px'); await expect(target).toHaveCSS('outline-style', 'solid');
   }
 });
 

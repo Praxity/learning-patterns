@@ -9,11 +9,16 @@ export const strings = {
     check: 'Check',
     restart: 'Start over',
     answer: 'Answer',
-    correctKey: 'Key idea',
-    correctEvidence: 'Answers the question',
-    missed: 'Missed',
-    wrongKey: 'Not a key idea',
-    wrongEvidence: "This doesn't answer the question.",
+    markCorrect: 'Correct',
+    markWrong: 'Incorrect',
+    markAnswer: 'Correct answer',
+    // Deprecated: kept for hosts that read the old keys (Praxity Studio). Use markCorrect for
+    // correctKey and correctEvidence, markWrong for wrongKey and wrongEvidence, markAnswer for missed.
+    correctKey: 'Correct',
+    correctEvidence: 'Correct',
+    wrongKey: 'Incorrect',
+    wrongEvidence: 'Incorrect',
+    missed: 'Correct answer',
     keySummary: 'You found {n} of {total} key ideas.',
     evidenceSummary: 'You found {n} of {total} passages that answer the question.'
   },
@@ -27,11 +32,16 @@ export const strings = {
     check: 'Vérifier',
     restart: 'Recommencer',
     answer: 'Réponse',
-    correctKey: 'Idée clé',
-    correctEvidence: 'Répond à la question',
-    missed: 'Manqué',
-    wrongKey: 'Ce n\'est pas une idée clé',
-    wrongEvidence: 'Ce passage ne répond pas à la question.',
+    markCorrect: 'Correct',
+    markWrong: 'Incorrect',
+    markAnswer: 'Bonne réponse',
+    // Deprecated: kept for hosts that read the old keys (Praxity Studio). Use markCorrect for
+    // correctKey and correctEvidence, markWrong for wrongKey and wrongEvidence, markAnswer for missed.
+    correctKey: 'Correct',
+    correctEvidence: 'Correct',
+    wrongKey: 'Incorrect',
+    wrongEvidence: 'Incorrect',
+    missed: 'Bonne réponse',
     keySummary: 'Idées clés trouvées : {n} sur {total}.',
     evidenceSummary: 'Passages trouvés pour cette question : {n} sur {total}.'
   }

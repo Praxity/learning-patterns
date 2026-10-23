@@ -172,10 +172,11 @@ test('quiz scene renders escaped authored titles, bilingual question numbers and
   }
 });
 
-test('owner audit: scene contains only icon and title', () => {
+test('owner audit: scene contains only icon and title, with the scoring rule under it', () => {
   for (const lang of ['en', 'fr']) {
     const markup = render(content, strings[lang], { id: 'audit', lang });
-    assert.doesNotMatch(markup, /lp-scene-label/);
+    assert.doesNotMatch(markup, /lp-scene-label|lp-scene-sub/);
+    assert.match(markup, lang === 'en' ? /<\/header>\s*<p>A right answer scores a point\./ : /<\/header>\s*<p>Une bonne réponse rapporte un point\./);
   }
 });
 

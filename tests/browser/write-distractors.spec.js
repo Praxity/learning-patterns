@@ -752,7 +752,7 @@ test('forced colours keeps focus rings and quiet Start over', async ({ page, bro
   for (const field of [page.locator('[data-lp-text]').first(), page.locator('select').first(), page.locator('input').nth(1), page.locator('[data-lp-compare]'), page.locator('[data-lp-clear]')]) {
     await field.focus();
     const style = await field.evaluate(el => { const css = getComputedStyle(el); return [css.outlineWidth, css.outlineStyle, css.outlineOffset, css.outlineColor]; });
-    expect(style.slice(0, 3)).toEqual(['2px', 'solid', '2px']); expect(style[3]).not.toBe('rgba(0, 0, 0, 0)');
+    expect(style.slice(0, 3)).toEqual(['3px', 'solid', '2px']); expect(style[3]).not.toBe('rgba(0, 0, 0, 0)');
   }
   await page.locator('[data-lp-compare]').click();
   await expect(page.locator('[data-lp-option-summary]').nth(1)).toContainText('Breaks disrupt focus');

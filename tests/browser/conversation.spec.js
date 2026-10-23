@@ -448,7 +448,7 @@ test('forced colours preserve bubbles and visible keyboard focus', async ({ page
   await expect(page.locator('[data-lp-michel]').last()).toBeFocused();
   await page.getByRole('textbox').focus();
   await expect(page.locator('.lp-conversation-composer')).toHaveCSS('outline-style', 'solid');
-  await expect(page.locator('.lp-conversation-composer')).toHaveCSS('outline-width', '2px');
+  await expect(page.locator('.lp-conversation-composer')).toHaveCSS('outline-width', '3px');
 });
 
 test('two instances have independent turns and unique prefixed IDs', async ({ page }) => {

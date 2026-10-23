@@ -194,7 +194,7 @@ test('passage buttons support Tab through every chunk, arrow shortcuts and silen
   const outline = await chunks.first().evaluate(el => {
     const css = getComputedStyle(el); return [css.outlineWidth, css.outlineStyle, css.outlineOffset];
   });
-  expect(outline).toEqual(['2px', 'solid', '2px']);
+  expect(outline).toEqual(['3px', 'solid', '2px']);
   for (const [key, index] of [['ArrowRight', 1], ['ArrowDown', 2], ['ArrowLeft', 1], ['ArrowUp', 0], ['ArrowLeft', english.paragraphs.flat().length - 1], ['Home', 0], ['End', english.paragraphs.flat().length - 1], ['ArrowRight', 0]]) {
     await page.keyboard.press(key); await expect(chunks.nth(index)).toBeFocused();
     await expect(page.locator('[data-lp-chunk][tabindex="-1"]')).toHaveCount(0);
@@ -213,9 +213,9 @@ test('evidence check puts authored and default feedback in place, locks marks, a
   await chunk(page, 'actions').click(); await chunk(page, 'withdraw').click();
   await page.locator('[data-lp-check]').focus(); await page.keyboard.press('Enter');
   await expect(page.locator('[data-lp-check]')).toBeHidden(); await expect(page.locator('[data-lp-restart]')).toBeFocused();
-  await expect(feedback(page, 'actions')).toHaveText(english.paragraphs.flat().find(c => c.id === 'actions').note);
-  await expect(feedback(page, 'withdraw')).toHaveText("This doesn't answer the question.");
-  await expect(feedback(page, 'ignored')).toHaveText('Missed');
+  await expect(feedback(page, 'actions')).toHaveText(`Incorrect. ${english.paragraphs.flat().find(c => c.id === 'actions').note}`);
+  await expect(feedback(page, 'withdraw')).toHaveText('Incorrect');
+  await expect(feedback(page, 'ignored')).toHaveText('Correct answer');
   await expect(chunk(page, 'ignored')).toHaveAttribute('data-lp-outcome', 'missed');
   await expect(feedback(page, 'overwhelmed')).toBeHidden();
   await expect(page.locator('[data-lp-summary]')).toHaveText('You found 0 of 1 passages that answer the question.');
@@ -238,7 +238,7 @@ test('evidence check puts authored and default feedback in place, locks marks, a
   await expect(page.getByRole('status')).toHaveText('');
   expect(await page.evaluate(() => window.lpAnnouncements.filter(Boolean))).toEqual(['You found 0 of 1 passages that answer the question.']);
   await chunk(page, 'ignored').click(); await page.locator('[data-lp-check]').click();
-  await expect(feedback(page, 'ignored')).toHaveText('Answers the question');
+  await expect(feedback(page, 'ignored')).toHaveText('Correct');
   await expect(chunk(page, 'ignored')).toHaveAttribute('data-lp-outcome', 'correct');
   expect(await page.evaluate(() => window.lpAnnouncements.filter(Boolean))).toEqual(['You found 0 of 1 passages that answer the question.', 'You found 1 of 1 passages that answer the question.']);
 });
@@ -334,20 +334,21 @@ test('graded marks keep yellow non-targets, tint found targets and leave missed 
   const style = id => chunk(page, id).evaluate(el => { const css = getComputedStyle(el); return [css.backgroundColor, css.textDecorationLine, css.textDecorationStyle, css.textDecorationColor]; });
   expect(await style('overwhelmed')).toEqual(['rgb(255, 228, 154)', 'none', 'solid', 'rgb(22, 24, 29)']);
   expect(await style('withdraw')).toEqual(['rgb(230, 244, 238)', 'underline', 'solid', 'rgb(18, 112, 79)']);
-  expect(await style('ignored')).toEqual(['rgba(0, 0, 0, 0)', 'underline', 'dashed', 'rgb(162, 74, 7)']);
+  // A missed target is neutral grey, not a warning (owner, 2026-10-22).
+  expect(await style('ignored')).toEqual(['rgba(0, 0, 0, 0)', 'underline', 'dashed', 'rgb(85, 92, 103)']);
   expect(await feedback(page, 'overwhelmed').evaluate(el => { const css = getComputedStyle(el); return [css.color, css.backgroundColor, css.fontSize]; })).toEqual(['rgb(22, 24, 29)', 'rgb(247, 248, 250)', '17px']);
   await expect(feedback(page, 'overwhelmed').locator('svg')).toHaveAttribute('aria-hidden', 'true');
 });
 
 for (const [lang, content, correct, wrong, missed, summary] of [
-  ['en', englishKey, 'Key idea', 'Not a key idea', 'Missed', 'You found 1 of 4 key ideas.'],
-  ['fr', frenchKey, 'Idée clé', "Ce n'est pas une idée clé", 'Manqué', 'Idées clés trouvées : 1 sur 4.']
+  ['en', englishKey, 'Correct', 'Incorrect', 'Correct answer', 'You found 1 of 4 key ideas.'],
+  ['fr', frenchKey, 'Correct', 'Incorrect', 'Bonne réponse', 'Idées clés trouvées : 1 sur 4.']
 ]) {
   test(`key mode has inline success, neutral authored notes and dashed missed targets (${lang})`, async ({ page }) => {
     await open(page); await mount(page, content, lang);
     await chunk(page, 'withdraw').click(); await chunk(page, 'overwhelmed').click(); await page.locator('[data-lp-check]').click();
     await expect(feedback(page, 'withdraw')).toHaveText(correct);
-    await expect(feedback(page, 'overwhelmed')).toHaveText(`${wrong} ${content.paragraphs.flat().find(c => c.id === 'overwhelmed').note}`);
+    await expect(feedback(page, 'overwhelmed')).toHaveText(`${wrong}. ${content.paragraphs.flat().find(c => c.id === 'overwhelmed').note}`);
     await expect(feedback(page, 'ignored')).toHaveText(missed);
     await expect(page.locator('[data-lp-summary]')).toHaveText(summary);
     expect(await chunk(page, 'ignored').evaluate(el => getComputedStyle(el).textDecorationStyle)).toBe('dashed');
@@ -387,8 +388,8 @@ test('French language and evidence feedback use French words and authored notes'
   await expect(page.locator('[data-lp-pattern]')).toHaveAttribute('lang', 'fr');
   await expect(page.locator('.lp-stem')).toContainText(french.question);
   await chunk(page, 'ignored').click(); await chunk(page, 'overwhelmed').click(); await page.locator('[data-lp-check]').click();
-  await expect(feedback(page, 'ignored')).toHaveText('Répond à la question');
-  await expect(feedback(page, 'overwhelmed')).toHaveText(french.paragraphs.flat().find(c => c.id === 'overwhelmed').note);
+  await expect(feedback(page, 'ignored')).toHaveText('Correct');
+  await expect(feedback(page, 'overwhelmed')).toHaveText(`Incorrect. ${french.paragraphs.flat().find(c => c.id === 'overwhelmed').note}`);
   await expect(page.locator('[data-lp-summary]')).toHaveText('Passages trouvés pour cette question : 1 sur 1.');
 });
 
@@ -398,7 +399,7 @@ for (const shown of [false, true]) {
     await open(page);
     await expect(chunk(page, 'ignored')).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('[data-lp-count]')).toHaveText('1 of 1 marked');
-    if (shown) { await expect(feedback(page, 'ignored')).toHaveText('Answers the question'); await expect(page.locator('[data-lp-summary]')).toBeVisible(); }
+    if (shown) { await expect(feedback(page, 'ignored')).toHaveText('Correct'); await expect(page.locator('[data-lp-summary]')).toBeVisible(); }
     else await expect(page.locator('[data-lp-summary]')).toBeHidden();
     await expect(page.locator('[role="status"]')).toHaveText('');
     expect(await page.evaluate(() => document.activeElement.tagName)).toBe('BODY');
@@ -485,15 +486,15 @@ test('forced colours distinguishes marks, missed targets and visible keyboard fo
   expect(await chunk(page, 'withdraw').evaluate(el => getComputedStyle(el).borderStyle)).toBe('solid');
   expect(await chunk(page, 'withdraw').evaluate(el => getComputedStyle(el).borderWidth)).toBe('1px');
   await chunk(page, 'withdraw').focus();
-  expect(await chunk(page, 'withdraw').evaluate(el => getComputedStyle(el).outlineWidth)).toBe('2px');
+  expect(await chunk(page, 'withdraw').evaluate(el => getComputedStyle(el).outlineWidth)).toBe('3px');
   await page.locator('[data-lp-check]').click();
   expect(await chunk(page, 'withdraw').evaluate(el => getComputedStyle(el).textDecorationLine)).toBe('none');
   await expect(feedback(page, 'withdraw').locator('svg')).toHaveAttribute('aria-hidden', 'true');
   expect(await chunk(page, 'ignored').evaluate(el => getComputedStyle(el).textDecorationStyle)).toBe('dashed');
-  await expect(feedback(page, 'ignored')).toHaveText('Missed');
+  await expect(feedback(page, 'ignored')).toHaveText('Correct answer');
   await page.locator('[data-lp-restart]').focus();
-  expect(await page.locator('[data-lp-restart]').evaluate(el => getComputedStyle(el).outlineWidth)).toBe('2px');
+  expect(await page.locator('[data-lp-restart]').evaluate(el => getComputedStyle(el).outlineWidth)).toBe('3px');
   await page.locator('[data-lp-restart]').click(); await chunk(page, 'ignored').click(); await page.locator('[data-lp-check]').click();
   expect(await chunk(page, 'ignored').evaluate(el => getComputedStyle(el).textDecorationStyle)).toBe('solid');
-  await expect(feedback(page, 'ignored')).toHaveText('Answers the question');
+  await expect(feedback(page, 'ignored')).toHaveText('Correct');
 });

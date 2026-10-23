@@ -300,7 +300,7 @@ test('forced colours preserve icon text, native ticks and focus', async ({ page,
   await page.emulateMedia({ forcedColors: 'active' }); await open(page, 'en', 'rereading'); await submit(page);
   await expect(page.locator('[data-lp-result] h3')).toHaveText(examples.en.misconceptions[0].label);
   for (const target of [page.locator('[data-lp-check]'), page.locator('[data-lp-model] summary')]) {
-    await target.focus(); await expect(target).toHaveCSS('outline-width', '2px'); await expect(target).toHaveCSS('outline-style', 'solid');
+    await target.focus(); await expect(target).toHaveCSS('outline-width', '3px'); await expect(target).toHaveCSS('outline-style', 'solid');
   }
   await open(page, 'en', 'correct', 1, 'missing'); await submit(page);
   await page.getByRole('checkbox').first().check();

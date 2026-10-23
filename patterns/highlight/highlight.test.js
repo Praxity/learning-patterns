@@ -177,6 +177,9 @@ test('render has a plain passage, authored fallback, hidden controls and one emp
   assert.match(html, /data-lp-flow hidden/);
   assert.match(html, /data-lp-fallback/);
   assert.ok(html.includes('This explains your feelings.'));
+  // The native answer labels targets and noted distractors with the shared mark words.
+  assert.match(html, /<span class="lp-run-in">Correct answer<\/span> You withdraw\./);
+  assert.match(html, /<span class="lp-run-in">Incorrect<\/span> You feel overwhelmed\./);
   assert.equal((html.match(/role="status"/g) || []).length, 1);
   assert.match(html, /role="status" aria-atomic="true"><\/p>/);
   assert.ok(html.includes('data-lp-count'));
@@ -212,5 +215,17 @@ test('English and French UI keys and placeholders match, and all four examples v
     assert.deepEqual(evidence.paragraphs.map(p => p.map(c => c.text)), key.paragraphs.map(p => p.map(c => c.text)));
     assert.equal(check(evidence, []).total, 1);
     assert.equal(check(key, []).total, 4);
+  }
+});
+
+test('deprecated mark keys stay for hosts that still read them, in both languages', () => {
+  // Praxity Studio reads these until it moves to markCorrect, markWrong and markAnswer.
+  for (const lang of ['en', 'fr']) {
+    for (const key of ['correctKey', 'correctEvidence', 'wrongKey', 'wrongEvidence', 'missed']) {
+      assert.equal(typeof strings[lang][key], 'string', `${lang}.${key}`);
+      assert.ok(strings[lang][key].trim(), `${lang}.${key} is empty`);
+    }
+    assert.equal(strings[lang].missed, strings[lang].markAnswer);
+    assert.equal(strings[lang].wrongKey, strings[lang].markWrong);
   }
 });

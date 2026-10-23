@@ -395,13 +395,13 @@ test('forced colours preserves focus outlines and a visible pressed state', asyn
   await page.emulateMedia({ forcedColors: 'active' }); await open(page);
   const commit = part(page).locator('[data-lp-commit]');
   await commit.focus();
-  await expect(commit).toHaveCSS('outline-width', '2px');
+  await expect(commit).toHaveCSS('outline-width', '3px');
   await commit.press('Enter');
   await part(page).getByRole('button', { name: 'I remembered' }).focus();
   await part(page).getByRole('button', { name: 'I remembered' }).press('Enter');
   for (const target of [part(page).locator('[data-lp-answer]'), ...await part(page).getByRole('button').all()]) {
     await target.focus();
-    expect(await target.evaluate(el => { const css = getComputedStyle(el); return [css.outlineWidth, css.outlineStyle, css.outlineOffset]; })).toEqual(['2px', 'solid', '2px']);
+    expect(await target.evaluate(el => { const css = getComputedStyle(el); return [css.outlineWidth, css.outlineStyle, css.outlineOffset]; })).toEqual(['3px', 'solid', '2px']);
     expect(await target.evaluate(el => getComputedStyle(el).outlineColor)).not.toBe('rgba(0, 0, 0, 0)');
   }
   expect(await part(page).getByRole('button', { name: 'I remembered' }).evaluate(el => [getComputedStyle(el).borderWidth, getComputedStyle(el).borderStyle])).toEqual(['2px', 'solid']);

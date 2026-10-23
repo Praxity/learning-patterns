@@ -55,6 +55,11 @@
 /* Body text and question stems avoid a lone last word; short headings and titles balance. */
 .lp :where(p, li, dd, figcaption, label, legend), .lp-stem { text-wrap: pretty; }
 .lp :where(h2, h3, h4), .lp-scene-title, .lp-run-in { text-wrap: balance; }
+/* Headings keep the pattern's face. Hosts often give h1 to h3 a display face (praxity.io uses
+   Bricolage), and a direct heading rule beats the font .lp sets for inheritance. */
+.lp :where(h1, h2, h3, h4, h5, h6), .lp-scene-title, .lp-run-in { font-family: var(--lp-font-heading); }
+/* Hosts that load no italic face and set font-synthesis: none would show <em> upright. */
+.lp em { font-synthesis-style: auto; }
 .lp > * + *, .lp-stack > * + * { margin-block-start: 16px; }
 
 /* Text roles */
@@ -85,6 +90,8 @@
 /* A section inside the card: space and a hairline, never another card. */
 .lp-section { margin-block-start: 24px; padding-block-start: 24px; border-block-start: 1px solid var(--lp-rule); }
 .lp-section > * + * { margin-block-start: 16px; }
+/* The scene header already ends in a rule, so a section right under it would draw a second line. */
+.lp-scene + .lp-section, .lp-scene + :not(.lp-section) > .lp-section:first-child { margin-block-start: 0; padding-block-start: 0; border-block-start: 0; }
 
 /* Fields */
 .lp-input {
@@ -101,8 +108,13 @@
 }
 textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
 .lp-input:hover { border-color: var(--lp-ink-2); }
+/* The select arrow sits 14px inside the border in every engine. Padding doesn't move Chromium's
+   native arrow, so this draws one (stroke is --lp-ink-2, which a data URL can't read). */
+select.lp-input { appearance: none; padding-inline-end: 40px; background: var(--lp-paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23555c67' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6l6 -6'/%3E%3C/svg%3E") no-repeat right 14px center / 16px; }
 .lp-input[readonly] { color: var(--lp-ink); background: var(--lp-paper-2); border-color: var(--lp-line-mid); }
 .lp-input[aria-invalid="true"] { border: 2px solid var(--lp-error-ink); padding: 10px 13px; }
+/* The error border takes 1px of the end padding; the label still clears the drawn arrow. */
+select.lp-input[aria-invalid="true"] { padding-inline-end: 39px; }
 .lp-error-text { display: flex; gap: 8px; align-items: flex-start; color: var(--lp-error-ink); font-size: var(--lp-type-small); font-weight: 600; }
 
 /* Choice rows, after Tally: a light row, a letter key for single choice, a square for
@@ -128,7 +140,7 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
 /* Selection and marks draw a 2px border with padding 1px smaller, so the row keeps its size.
    No shadow rings: shadows belong to cards and floating layers only (shared with Studio). */
 .lp-choice:has(input:checked) { border: 2px solid var(--lp-accent); padding: 9px 13px; background: var(--lp-accent-soft); }
-.lp-choice:has(input:focus-visible) { outline: 2px solid var(--lp-focus); outline-offset: 2px; }
+.lp-choice:has(input:focus-visible) { outline: 3px solid var(--lp-focus); outline-offset: 2px; }
 /* Single choice: the radio sits under a letter key. */
 .lp-choice:has(> input[type="radio"])::before {
   /* Empty CSS alt text keeps the visual key out of screen-reader browse text. */
@@ -198,7 +210,12 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
 .lp-choice-mark.lp-met { color: var(--lp-success-ink); }
 .lp-choice-mark.lp-missed { color: var(--lp-error-ink); }
 .lp-choice-mark.lp-neutral { color: var(--lp-ink-2); }
-.lp-choice:has(input:disabled) { cursor: default; }
+/* A locked row shows no hover or pointer. Marked and chosen rows keep their own styles. */
+.lp-choice:has(input:disabled):not([data-lp-mark], :has(input:checked)):hover { border-color: var(--lp-line-mid); background: var(--lp-paper); }
+.lp-choice:has(input:disabled), .lp-choice > input:disabled { cursor: default; }
+/* A correct answer the learner didn't choose: neutral, and dashed so it doesn't read as selected. */
+.lp-choice[data-lp-mark="missed"] { border: 2px dashed var(--lp-ink-2); padding: 9px 13px; background: var(--lp-paper-2); }
+.lp-choice[data-lp-mark="missed"] > .lp-choice-key, .lp-choice[data-lp-mark="missed"]:has(> input[type="radio"])::before { color: var(--lp-ink); border-color: var(--lp-ink-2); }
 .lp-choice > input[type="checkbox"]:disabled { opacity: 1; }
 
 /* A pattern that sits in running text keeps its root plain and makes each activity a card. */
@@ -267,8 +284,11 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
 /* Disclosures open at once: a rise after the panel has opened reads as a twitch (owner, 2026-10-07). */
 
 .lp a { color: var(--lp-accent-ink); text-underline-offset: 3px; }
+/* A 3px ring in the focus colour: the 2px one, or a host's own ring, faded on white cards. Outlines
+   follow each control's corners. A native radio outside a choice row still gets a square ring in
+   Chromium, which ignores border-radius on themed radios; draw the radio in CSS if a pattern needs one. */
 .lp :is(a, button, textarea, select, summary, input:not([type="radio"], [type="checkbox"])):focus,
-.lp [tabindex="-1"]:focus-visible { outline: 2px solid var(--lp-focus); outline-offset: 2px; }
+.lp :is([tabindex="-1"], input[type="radio"], input[type="checkbox"]):not(.lp-choice > input):focus-visible { outline: 3px solid var(--lp-focus); outline-offset: 2px; }
 .lp-input:focus { border-color: var(--lp-accent); }
 .lp-input[aria-invalid="true"]:focus { border-color: var(--lp-error-ink); }
 
@@ -309,7 +329,10 @@ textarea.lp-input { min-block-size: 8rem; resize: vertical; line-height: 1.6; }
   .lp-button { color: ButtonText; background: ButtonFace; border-color: ButtonText; }
   .lp-button-quiet { border-color: transparent; color: LinkText; }
   .lp a { color: LinkText; }
+  .lp-choice[data-lp-mark="missed"] { border: 2px dashed CanvasText; }
+  /* The native arrow comes back, since the drawn one doesn't take system colours. */
+  select.lp-input { appearance: auto; padding-inline-end: 14px; background-image: none; }
   .lp :is(a, button, textarea, select, summary, input:not([type="radio"], [type="checkbox"])):focus,
-  .lp [tabindex="-1"]:focus-visible { outline-color: Highlight; }
+  .lp :is([tabindex="-1"], input[type="radio"], input[type="checkbox"]):not(.lp-choice > input):focus-visible { outline-color: Highlight; }
   .lp-choice:has(input:focus-visible) { outline-color: Highlight; }
 }

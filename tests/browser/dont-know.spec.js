@@ -24,10 +24,12 @@ for (const [lang, expected] of [['en', 'Score 0.33 out of 1.'], ['fr', 'Score de
   });
 }
 
-test('shared scene spans the card and centres its tile on title and scoring', async ({ page }) => {
+test('shared scene spans the card and centres its tile on the title', async ({ page }) => {
   await open(page);
   await expect(page.locator('.lp-scene-title')).toHaveText(english.title);
-  await expect(page.locator('.lp-scene-sub')).toContainText("I don't know");
+  // The header holds the title only; the scoring rule is the first line under it.
+  await expect(page.locator('.lp-scene-sub')).toHaveCount(0);
+  await expect(page.locator('.lp-scene + p')).toContainText("I don't know");
   for (const width of [1280, 390, 320]) {
     await page.setViewportSize({ width, height: 900 });
     const geometry = await page.locator('.lp-scene').evaluate(el => {
@@ -172,8 +174,8 @@ test('score focus supplies one result announcement without a duplicate status up
 });
 
 for (const [lang, content, correct, wrong, answer, unknown, counts] of [
-  ['en', english, 'Correct', 'Not quite', 'Correct answer', "You chose \"I don't know\"", '1 right, 1 wrong, 1 "I don\'t know"'],
-  ['fr', french, 'Correct', 'Pas tout à fait', 'Bonne réponse', 'Vous avez choisi « Je ne sais pas »', '1 bonne réponse, 1 mauvaise réponse, 1 « Je ne sais pas »']
+  ['en', english, 'Correct', 'Incorrect', 'Correct answer', "You chose \"I don't know\"", '1 right, 1 wrong, 1 "I don\'t know"'],
+  ['fr', french, 'Correct', 'Incorrect', 'Bonne réponse', 'Vous avez choisi « Je ne sais pas »', '1 bonne réponse, 1 mauvaise réponse, 1 « Je ne sais pas »']
 ]) {
   test(`results mark choices in place, explain only gaps and link back to questions (${lang})`, async ({ page }) => {
     await open(page, `/dont-know/${lang}.html`); await observe(page);
@@ -198,8 +200,10 @@ for (const [lang, content, correct, wrong, answer, unknown, counts] of [
     await expect(questions.nth(2).locator('label:has(input:checked) .lp-choice-mark.lp-neutral')).toHaveText(unknown);
     await expect(questions.nth(2).locator('label:has(input:checked)')).not.toHaveAttribute('data-lp-mark');
     for (const index of [1, 2]) {
-      await expect(questions.nth(index).locator(`label:has(input[value="${content.questions[index].correct}"])`)).toHaveAttribute('data-lp-mark', 'correct');
-      await expect(questions.nth(index).locator(`label:has(input[value="${content.questions[index].correct}"]) .lp-choice-mark`)).toHaveText(answer);
+      // The correct answer the learner didn't choose is neutral and dashed, not a green pick.
+      await expect(questions.nth(index).locator(`label:has(input[value="${content.questions[index].correct}"])`)).toHaveAttribute('data-lp-mark', 'missed');
+      await expect(questions.nth(index).locator(`label:has(input[value="${content.questions[index].correct}"]) .lp-choice-mark.lp-neutral`)).toHaveText(answer);
+      await expect(questions.nth(index).locator(`label:has(input[value="${content.questions[index].correct}"])`)).toHaveCSS('border-top-style', 'dashed');
       await expect(questions.nth(index).locator('[data-lp-explanation]')).toHaveText(content.questions[index].explanation);
     }
     await expect(page.locator('.lp-choice-mark')).toHaveCount(5);
@@ -269,7 +273,7 @@ for (const path of ['/dont-know/en.html', '/dont-know/fr.html', '/dont-know/two.
 
 test('all wrong, all unknown and all right omit zero counts and unnecessary review links', async ({ page }) => {
   await open(page);
-  await expect(page.locator('.lp-scene-sub')).toHaveText('A right answer scores a point. A wrong answer costs a point. "I don\'t know" costs nothing.');
+  await expect(page.locator('.lp-scene + p')).toHaveText('A right answer scores a point. A wrong answer costs a point. "I don\'t know" costs nothing.');
   for (const [values, summary, counts, reviews, explanations, offset] of [
     [english.questions.map(q => q.options.find(o => o.id !== q.correct).id), 'Score −3 out of 3.', '3 wrong', 3, 3, '100'],
     [english.questions.map(() => 'dont-know'), 'Score 0 out of 3.', '3 "I don\'t know"', 3, 3, '100'],
@@ -299,7 +303,7 @@ test('authored fractional points reach the rule and total; feedback preserves ho
     document.querySelector('main').innerHTML = render(content, strings.en, { id: 'authored', lang: 'en' });
     enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en });
   }, english);
-  await expect(page.locator('.lp-scene-sub')).toHaveText('A right answer scores 2 points. A wrong answer costs 0.5 points. "I don\'t know" scores 0.25 points.');
+  await expect(page.locator('.lp-scene + p')).toHaveText('A right answer scores 2 points. A wrong answer costs 0.5 points. "I don\'t know" scores 0.25 points.');
   await pick(page); await page.locator('[data-lp-check]').click();
   await expect(page.locator('[data-lp-score]').first()).toHaveText('Score 1.75 out of 6.');
   await expect(page.locator('.lp-dont-know-ring-fill')).toHaveAttribute('stroke-dashoffset', '70.83333333333333');
@@ -321,7 +325,7 @@ test('reset uses a quiet button and theme tokens reach controls and focus', asyn
   await restart.focus();
   await expect(restart).toHaveCSS('outline-color', 'rgb(101, 67, 33)');
   await expect(restart).toHaveCSS('outline-style', 'solid');
-  await expect(restart).toHaveCSS('outline-width', '2px');
+  await expect(restart).toHaveCSS('outline-width', '3px');
   await restart.click();
   await page.keyboard.press('Tab');
   for (const control of [page.locator('input').first(), page.locator('[data-lp-check]')]) {
@@ -329,7 +333,7 @@ test('reset uses a quiet button and theme tokens reach controls and focus', asyn
     const target = await control.getAttribute('type') === 'radio' ? control.locator('..') : control;
     await expect(target).toHaveCSS('outline-color', 'rgb(101, 67, 33)');
     await expect(target).toHaveCSS('outline-style', 'solid');
-    await expect(target).toHaveCSS('outline-width', '2px');
+    await expect(target).toHaveCSS('outline-width', '3px');
   }
 });
 
@@ -467,6 +471,8 @@ test('quiet reset and forced colours preserve focus rings and button distinction
   test.skip(browserName !== 'chromium', 'Forced colours emulation checked in Chromium.');
   await page.emulateMedia({ forcedColors: 'active' }); await open(page); await pick(page); await page.locator('[data-lp-check]').click();
   await expect(page.locator('[data-lp-mark]').first()).toHaveCSS('border-style', 'double');
+  // The unchosen correct answer stays dashed, so it doesn't read as a pick.
+  await expect(page.locator('[data-lp-mark="missed"]').first()).toHaveCSS('border-top-style', 'dashed');
   await page.locator('[data-lp-restart]').focus();
   await expect(page.locator('[data-lp-restart]')).toHaveCSS('text-decoration-line', 'underline');
   await page.locator('[data-lp-restart]').click();
@@ -476,12 +482,12 @@ test('quiet reset and forced colours preserve focus rings and button distinction
     await locator.focus();
     const target = await locator.getAttribute('type') === 'radio' ? locator.locator('..') : locator;
     const style = await target.evaluate(el => { const css = getComputedStyle(el); return [css.outlineWidth, css.outlineStyle, css.outlineOffset, css.outlineColor]; });
-    expect(style.slice(0, 3)).toEqual(['2px', 'solid', '2px']); expect(style[3]).not.toBe('rgba(0, 0, 0, 0)');
+    expect(style.slice(0, 3)).toEqual(['3px', 'solid', '2px']); expect(style[3]).not.toBe('rgba(0, 0, 0, 0)');
   }
   await expect(page.locator('[data-lp-check]')).toHaveCSS('border-style', 'solid');
   await pick(page); await page.locator('[data-lp-check]').click();
   await page.locator('[data-lp-restart]').focus();
-  await expect(page.locator('[data-lp-restart]')).toHaveCSS('outline-width', '2px');
+  await expect(page.locator('[data-lp-restart]')).toHaveCSS('outline-width', '3px');
 });
 
 test('one unanswered question uses the singular message in English and French', async ({ page }) => {
