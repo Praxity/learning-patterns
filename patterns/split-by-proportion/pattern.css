@@ -53,8 +53,10 @@
 .lp-split-by-proportion-col p { text-align: center; }
 .lp-split-by-proportion-vbar { display: flex; flex-direction: column; gap: 3px; inline-size: 84px; max-inline-size: 100%; block-size: 240px; border: 2px solid var(--lp-ink); border-radius: 8px; background: var(--lp-ink); overflow: hidden; }
 .lp-split-by-proportion-vbar .lp-split-by-proportion-seg { flex: var(--s) 1 0; min-block-size: 0; }
+/* overflow-wrap: anywhere lowers the cells' min-content width, so long French headers and labels break
+   only when 320 px and text spacing leave no room, instead of widening the page. */
 .lp-split-by-proportion-answer-table { inline-size: 100%; border-collapse: collapse; text-align: start; font-size: var(--lp-type-small); }
-.lp-split-by-proportion-answer-table th, .lp-split-by-proportion-answer-table td { padding: var(--lp-gap-label) var(--lp-gap-hint); border-block-end: 1px solid var(--lp-rule); text-align: start; vertical-align: top; }
+.lp-split-by-proportion-answer-table th, .lp-split-by-proportion-answer-table td { padding: var(--lp-gap-label) var(--lp-gap-hint); border-block-end: 1px solid var(--lp-rule); text-align: start; vertical-align: top; overflow-wrap: anywhere; }
 .lp-split-by-proportion-answer-table th { font-weight: 600; }
 .lp-split-by-proportion-summary { font-weight: 600; }
 .lp-split-by-proportion-table { flex: 1 1 18rem; }
