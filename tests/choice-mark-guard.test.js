@@ -32,18 +32,27 @@ function violations(source, pattern) {
       && node.operatorToken.kind <= ts.SyntaxKind.LastAssignment;
     const datasetWrite = assignment && datasetMark(node.left)
       || ts.isDeleteExpression(node) && datasetMark(node.expression);
+    const attribute = ts.isCallExpression(node)
+      ? node.arguments[memberName(node.expression) === 'setAttributeNS' ? 1 : 0] : undefined;
     const attributeWrite = ts.isCallExpression(node)
-      && ['setAttribute', 'removeAttribute'].includes(memberName(node.expression))
-      && node.arguments[0] && ts.isStringLiteralLike(node.arguments[0]) && node.arguments[0].text === 'data-lp-mark';
-    const classWrite = assignment && memberName(node.left) === 'className' && /\blp-choice-mark\b/.test(node.right.getText(tree))
-      || ts.isCallExpression(node) && (
-        ['add', 'remove', 'toggle', 'replace'].includes(memberName(node.expression)) && memberName(node.expression.expression) === 'classList'
-        || memberName(node.expression) === 'setAttribute' && node.arguments[0]?.text === 'class'
-      ) && node.arguments.some(argument => /\blp-choice-mark\b/.test(argument.getText(tree)));
+      && ['setAttribute', 'removeAttribute', 'toggleAttribute', 'setAttributeNS'].includes(memberName(node.expression))
+      && attribute && ts.isStringLiteralLike(attribute) && attribute.text === 'data-lp-mark';
+    const propertyWrite = (ts.isPropertyAssignment(node) || ts.isShorthandPropertyAssignment(node))
+      && (node.name.text === 'lpMark' || ts.isComputedPropertyName(node.name)
+        && ts.isStringLiteralLike(node.name.expression) && node.name.expression.text === 'lpMark');
+    const read = node.parent && ts.isCallExpression(node.parent) && node.parent.arguments.includes(node)
+      && (['querySelector', 'querySelectorAll', 'closest', 'matches'].includes(memberName(node.parent.expression))
+        || memberName(node.parent.expression) === 'contains' && memberName(node.parent.expression.expression) === 'classList');
+    // Join only the template's own text, leaving nested expressions to their own visits.
+    const text = ts.isTemplateExpression(node)
+      ? [node.head.text, ...node.templateSpans.map(span => span.literal.text)].join('${}')
+      : ts.isStringLiteralLike(node) ? node.text : '';
+    const classWrite = /(?:^|\s)lp-choice-mark(?:\s|$)/.test(text) && !read;
     const badgeWrite = (ts.isStringLiteralLike(node) || ts.isTemplateHead(node) || ts.isTemplateMiddle(node) || ts.isTemplateTail(node))
       && (/<[^>]*\blp-choice-mark\b/.test(node.text)
-        || /(?:<[^>]*|^\s*)\bdata-lp-mark\s*=/.test(node.text));
-    if (datasetWrite || attributeWrite || classWrite || badgeWrite) {
+        || /(?:<[^>]*|^\s*)\bdata-lp-mark\s*=/.test(node.text))
+      || ts.isTemplateExpression(node) && /<[^>]*\blp-choice-mark\b/.test(text);
+    if (datasetWrite || attributeWrite || propertyWrite || classWrite || badgeWrite) {
       const line = lines[tree.getLineAndCharacterOfPosition(node.getStart(tree)).line].trim();
       if (!(exceptions[pattern] ?? []).some(allowed => allowed.test(line))) found.add(line);
     }
@@ -100,8 +109,43 @@ test('mark guard allows class, dataset and selector reads', () => {
     'row.dataset.lpMark === "wrong";',
     'row.getAttribute("data-lp-mark");',
     'row.querySelector(".lp-choice-mark");',
+    'row.querySelector("lp-choice-mark");',
+    'row.querySelectorAll("lp-choice-mark");',
+    'row.closest("lp-choice-mark");',
+    'row.matches("lp-choice-mark");',
+    'row.querySelectorAll(`lp-choice-mark ${selector}`);',
+    'row.matches(".lp-choice-mark");',
+    'row["querySelectorAll"](".lp-choice-mark");',
+    'row.closest(".lp-choice-mark");',
+    'row.classList.contains(`lp-choice-mark`);',
+    'row.classList.contains("lp-choice-mark-other");',
+    'const tone = "lp-choice-mark-other";',
+    'const d = row.dataset; d.lpMark = "correct";',
+    'const A = "data-lp-mark"; row.setAttribute(A, "correct");',
     `row.querySelector('.lp-choice[data-lp-mark="wrong"]');`,
     `row.querySelectorAll('[data-lp-mark="correct"]');`,
     `row.closest(':is(.lp-choice[data-lp-mark="missed"])');`
   ]) assert.deepEqual(violations(source, 'new-pattern'), [], source);
 });
+
+for (const source of [
+  'row.innerHTML = `<span ${attrs} class="lp-choice-mark lp-met">Correct</span>`;',
+  'row.innerHTML = `<li ${attrs} data-lp-mark="correct">Answer</li>`;',
+  'mark.classList.value = "lp-choice-mark lp-met";',
+  'mark["classList"]["value"] = "lp-choice-mark lp-met";',
+  'el("span", { className: "lp-choice-mark lp-met" });',
+  'el("li", { dataset: { lpMark: "correct" } });',
+  'el("li", { dataset: { "lpMark": "correct" } });',
+  'el("li", { dataset: { ["lpMark"]: "correct" } });',
+  'Object.assign(row.dataset, { lpMark: "correct" });',
+  'const lpMark = "correct"; el("li", { dataset: { lpMark } });',
+  'const classes = "lp-choice-mark lp-met";',
+  'row.toggleAttribute("data-lp-mark", true);',
+  'row["toggleAttribute"]("data-lp-mark");',
+  'row.setAttributeNS(null, "data-lp-mark", "correct");',
+  'row["setAttributeNS"](null, "data-lp-mark", "correct");'
+]) {
+  test(`mark guard catches ${source}`, () => {
+    assert.deepEqual(violations(source, 'new-pattern'), [source]);
+  });
+}
