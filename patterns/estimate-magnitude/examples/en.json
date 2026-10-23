@@ -1,0 +1,24 @@
+{
+  "title": "Estimate from the office records",
+  "context": "Your office has 120 staff. Each answer below comes from its records.",
+  "questions": [
+    {
+      "question": "How many staff are off sick on a typical day?",
+      "unit": "staff",
+      "answer": 4,
+      "source": "Office absence records."
+    },
+    {
+      "question": "How many IT support tickets did staff raise last month?",
+      "unit": "tickets",
+      "answer": 140,
+      "source": "Monthly IT support log."
+    },
+    {
+      "question": "How many cups of coffee did the office machines make last year?",
+      "unit": "cups",
+      "answer": 26000,
+      "source": "Annual coffee machine counters."
+    }
+  ]
+}

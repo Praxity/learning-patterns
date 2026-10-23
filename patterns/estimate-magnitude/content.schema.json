@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Estimate magnitude content",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["title", "context", "questions"],
+  "properties": {
+    "title": { "type": "string", "minLength": 1, "maxLength": 120, "pattern": "\\S" },
+    "context": { "type": "string", "minLength": 1, "maxLength": 1500, "pattern": "\\S" },
+    "questions": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["question", "unit", "answer", "source"],
+        "properties": {
+          "question": { "type": "string", "minLength": 1, "maxLength": 400, "pattern": "\\S" },
+          "unit": { "type": "string", "minLength": 1, "maxLength": 120, "pattern": "\\S" },
+          "answer": { "type": "number", "minimum": 1, "maximum": 1e307 },
+          "source": { "type": "string", "minLength": 1, "maxLength": 1500, "pattern": "\\S" }
+        }
+      }
+    }
+  }
+}
