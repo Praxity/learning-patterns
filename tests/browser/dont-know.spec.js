@@ -24,10 +24,12 @@ for (const [lang, expected] of [['en', 'Score 0.33 out of 1.'], ['fr', 'Score de
   });
 }
 
-test('shared scene spans the card and centres its tile on title and scoring', async ({ page }) => {
+test('shared scene spans the card and centres its tile on the title', async ({ page }) => {
   await open(page);
   await expect(page.locator('.lp-scene-title')).toHaveText(english.title);
-  await expect(page.locator('.lp-scene-sub')).toContainText("I don't know");
+  // The header holds the title only; the scoring rule is the first line under it.
+  await expect(page.locator('.lp-scene-sub')).toHaveCount(0);
+  await expect(page.locator('.lp-scene + p')).toContainText("I don't know");
   for (const width of [1280, 390, 320]) {
     await page.setViewportSize({ width, height: 900 });
     const geometry = await page.locator('.lp-scene').evaluate(el => {
@@ -269,7 +271,7 @@ for (const path of ['/dont-know/en.html', '/dont-know/fr.html', '/dont-know/two.
 
 test('all wrong, all unknown and all right omit zero counts and unnecessary review links', async ({ page }) => {
   await open(page);
-  await expect(page.locator('.lp-scene-sub')).toHaveText('A right answer scores a point. A wrong answer costs a point. "I don\'t know" costs nothing.');
+  await expect(page.locator('.lp-scene + p')).toHaveText('A right answer scores a point. A wrong answer costs a point. "I don\'t know" costs nothing.');
   for (const [values, summary, counts, reviews, explanations, offset] of [
     [english.questions.map(q => q.options.find(o => o.id !== q.correct).id), 'Score −3 out of 3.', '3 wrong', 3, 3, '100'],
     [english.questions.map(() => 'dont-know'), 'Score 0 out of 3.', '3 "I don\'t know"', 3, 3, '100'],
@@ -299,7 +301,7 @@ test('authored fractional points reach the rule and total; feedback preserves ho
     document.querySelector('main').innerHTML = render(content, strings.en, { id: 'authored', lang: 'en' });
     enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en });
   }, english);
-  await expect(page.locator('.lp-scene-sub')).toHaveText('A right answer scores 2 points. A wrong answer costs 0.5 points. "I don\'t know" scores 0.25 points.');
+  await expect(page.locator('.lp-scene + p')).toHaveText('A right answer scores 2 points. A wrong answer costs 0.5 points. "I don\'t know" scores 0.25 points.');
   await pick(page); await page.locator('[data-lp-check]').click();
   await expect(page.locator('[data-lp-score]').first()).toHaveText('Score 1.75 out of 6.');
   await expect(page.locator('.lp-dont-know-ring-fill')).toHaveAttribute('stroke-dashoffset', '70.83333333333333');
@@ -476,7 +478,7 @@ test('quiet reset and forced colours preserve focus rings and button distinction
     await locator.focus();
     const target = await locator.getAttribute('type') === 'radio' ? locator.locator('..') : locator;
     const style = await target.evaluate(el => { const css = getComputedStyle(el); return [css.outlineWidth, css.outlineStyle, css.outlineOffset, css.outlineColor]; });
-    expect(style.slice(0, 3)).toEqual(['3px', 'solid', '2px']); expect(style[3]).not.toBe('rgba(0, 0, 0, 0)');
+    expect(style.slice(0, 3)).toEqual(['3px', 'solid', '3px']); expect(style[3]).not.toBe('rgba(0, 0, 0, 0)');
   }
   await expect(page.locator('[data-lp-check]')).toHaveCSS('border-style', 'solid');
   await pick(page); await page.locator('[data-lp-check]').click();

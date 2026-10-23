@@ -26,9 +26,9 @@ export function render(content, strings, { id, lang }) {
   return `<section class="lp lp-dont-know" data-lp-pattern="dont-know" lang="${html(lang)}">
   <header class="lp-scene">
     <span class="lp-scene-icon">${icons['list-check']}</span>
-    <div><h2 class="lp-scene-title">${html(content.title, lang)}</h2>
-      <p class="lp-scene-sub">${html(scoring, lang)}</p></div>
+    <div><h2 class="lp-scene-title">${html(content.title, lang)}</h2></div>
   </header>
+  <p>${html(scoring, lang)}</p>
   ${content.questions.map((q, n) => `<div class="lp-section">
   <p class="lp-small lp-dont-know-question-number">${html(format(strings.questionNumber, { number: n + 1, total: content.questions.length }), lang)}</p>
   <fieldset class="lp-choices" id="${html(`${id}-question-${n}`)}" tabindex="-1" data-lp-question="${html(q.id)}">
