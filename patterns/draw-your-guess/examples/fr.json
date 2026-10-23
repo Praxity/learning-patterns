@@ -1,0 +1,66 @@
+{
+  "title": "Prévoyez les appels au soutien informatique",
+  "context": "En mars, le soutien informatique recevait 120 appels par jour, dont 45 pour réinitialiser un mot de passe. Le 1er avril, une page a été mise en ligne pour que le personnel puisse le faire sans aide.",
+  "question": "Combien d'appels par jour prévoyez-vous d'avril à juillet ?",
+  "unit": "appels par jour",
+  "top": 150,
+  "step": 5,
+  "changeLabel": "Réinitialisation en ligne",
+  "realLabel": "Appels réels",
+  "resultTitle": "Appels par jour après la mise en ligne de la page",
+  "explanationLabel": "Pourquoi la courbe s'est stabilisée :",
+  "explanation": "La plupart des membres du personnel ont trouvé la page en un mois. Les appels pour un mot de passe sont donc passés de 45 par jour à environ 4. Les 75 autres appels par jour concernaient des problèmes que la page ne pouvait pas régler.",
+  "source": "Journal des appels au soutien informatique, de décembre à juillet",
+  "known": [
+    {
+      "label": "déc.",
+      "name": "décembre",
+      "value": 116
+    },
+    {
+      "label": "janv.",
+      "name": "janvier",
+      "value": 124
+    },
+    {
+      "label": "févr.",
+      "name": "février",
+      "value": 121
+    },
+    {
+      "label": "mars",
+      "name": "mars",
+      "value": 120
+    }
+  ],
+  "future": [
+    {
+      "label": "avr.",
+      "name": "avril",
+      "value": 95
+    },
+    {
+      "label": "mai",
+      "name": "mai",
+      "value": 84
+    },
+    {
+      "label": "juin",
+      "name": "juin",
+      "value": 80
+    },
+    {
+      "label": "juill.",
+      "name": "juillet",
+      "value": 79
+    }
+  ],
+  "feedback": {
+    "changedDirection": "Votre courbe change de direction; la courbe réelle descend puis se stabilise.",
+    "fell": "Votre courbe descend; la courbe réelle descend puis se stabilise.",
+    "rose": "Votre courbe monte; la courbe réelle descend puis se stabilise.",
+    "flat": "Votre courbe reste stable; la courbe réelle descend puis se stabilise.",
+    "fellThenFlat": "Votre courbe descend puis se stabilise, comme la courbe réelle.",
+    "roseThenFlat": "Votre courbe monte puis se stabilise; la courbe réelle descend puis se stabilise."
+  }
+}
