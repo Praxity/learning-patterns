@@ -22,7 +22,7 @@ function text(value, path) {
 
 /** @param {unknown} content @returns {asserts content is Content} */
 export function validateContent(content) {
-  validateTextLengths(content, { title: 120, context: 1500, question: 400, parts: [{ label: 120, definition: 400 }], workedExample: [400], cases: [[400]] });
+  validateTextLengths(content, { title: 120, context: 1500, question: 400, parts: [{ label: 120, definition: 160 }], workedExample: [400], cases: [[400]] });
   if (!object(content)) throw new Error('Invalid content');
   fields(content, ['title', 'context', 'question', 'parts', 'workedExample', 'cases'], 'content');
   for (const key of ['title', 'context', 'question']) text(content[key], key);
@@ -100,6 +100,19 @@ export function score(order, picks) {
     total: order.length,
     unanswered: picks.flatMap((pick, i) => pick === null ? [i] : [])
   };
+}
+
+/** Format a checked set and its running count, choosing French plurals independently.
+ * @param {import('./strings.js').Strings} strings
+ * @param {{ right: number, total: number, completed: number, placed: number }} counts */
+export function feedback(strings, { right, total, completed, placed }) {
+  const placements = (placed < 2 ? strings.placedOne : strings.placedMany)
+    .replace('{placed}', String(placed)).replace('{facts}', String(completed * total));
+  const summary = (completed === 1 ? strings.summaryOne : strings.summaryMany)
+    .replace('{sets}', String(completed)).replace('{placements}', placements);
+  const announcement = (right < 2 ? strings.resultOne : strings.resultMany)
+    .replace('{right}', String(right)).replace('{total}', String(total)).replace('{summary}', summary);
+  return { summary, announcement };
 }
 
 /** Ignore invalid saved values and copy valid arrays. Counts include the current set only when checked.

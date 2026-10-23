@@ -13,6 +13,18 @@ export function score(order: number[], picks: (number | null)[]): {
     total: number;
     unanswered: number[];
 };
+/** Format a checked set and its running count, choosing French plurals independently.
+ * @param {import('./strings.js').Strings} strings
+ * @param {{ right: number, total: number, completed: number, placed: number }} counts */
+export function feedback(strings: import("./strings.js").Strings, { right, total, completed, placed }: {
+    right: number;
+    total: number;
+    completed: number;
+    placed: number;
+}): {
+    summary: string;
+    announcement: string;
+};
 /** Ignore invalid saved values and copy valid arrays. Counts include the current set only when checked.
  * @param {Content} content @param {unknown} value @returns {LearnerState | null} */
 export function validateState(content: Content, value: unknown): LearnerState | null;

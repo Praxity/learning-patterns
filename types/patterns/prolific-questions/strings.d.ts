@@ -4,7 +4,6 @@ export namespace strings {
         export let worked: string;
         export let check: string;
         export let next: string;
-        export let tryAgain: string;
         export let answers: string;
         let _case: string;
         export { _case as case };
@@ -13,8 +12,10 @@ export namespace strings {
         export let remaining: string;
         export let summaryOne: string;
         export let summaryMany: string;
-        export let result: string;
-        export let cleared: string;
+        export let placedOne: string;
+        export let placedMany: string;
+        export let resultOne: string;
+        export let resultMany: string;
         export let markCorrect: string;
         export let markWrong: string;
         export let markAnswer: string;
@@ -28,8 +29,6 @@ export namespace strings {
         export { check_1 as check };
         let next_1: string;
         export { next_1 as next };
-        let tryAgain_1: string;
-        export { tryAgain_1 as tryAgain };
         let answers_1: string;
         export { answers_1 as answers };
         let _case_1: string;
@@ -44,10 +43,14 @@ export namespace strings {
         export { summaryOne_1 as summaryOne };
         let summaryMany_1: string;
         export { summaryMany_1 as summaryMany };
-        let result_1: string;
-        export { result_1 as result };
-        let cleared_1: string;
-        export { cleared_1 as cleared };
+        let placedOne_1: string;
+        export { placedOne_1 as placedOne };
+        let placedMany_1: string;
+        export { placedMany_1 as placedMany };
+        let resultOne_1: string;
+        export { resultOne_1 as resultOne };
+        let resultMany_1: string;
+        export { resultMany_1 as resultMany };
         let markCorrect_1: string;
         export { markCorrect_1 as markCorrect };
         let markWrong_1: string;

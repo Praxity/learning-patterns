@@ -1,4 +1,5 @@
-.lp-prolific-questions-worked { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--lp-gap-stem) var(--lp-gap-group); }
+.lp-prolific-questions .lp-context + .lp-section { border-block-start: 0; padding-block-start: 0; }
+.lp-prolific-questions-worked { display: grid; grid-template-columns: repeat(var(--lp-prolific-questions-cols), minmax(0, 1fr)); gap: var(--lp-gap-stem) var(--lp-gap-group); }
 .lp-prolific-questions-component { display: grid; grid-template-rows: subgrid; grid-row: span 3; }
 .lp-prolific-questions-deal { min-inline-size: 0; padding: 0; border: 0; }
 .lp-prolific-questions-deal > legend { padding: 0; margin-block-end: var(--lp-gap-stem); }
@@ -6,8 +7,8 @@
 .lp-prolific-questions-deal:focus-visible { outline-offset: 4px; }
 .lp-prolific-questions-fact { margin-block-start: var(--lp-gap-flow); }
 .lp-prolific-questions-fact > legend { margin-block-end: var(--lp-gap-label); font-weight: 600; }
-/* Three short slot names on one row, without the A, B, C keys of an answer list. */
-.lp-prolific-questions-fact { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+/* Short slot names on one row, without the A, B, C keys of an answer list. */
+.lp-prolific-questions-fact { grid-template-columns: repeat(var(--lp-prolific-questions-cols), minmax(0, 1fr)); }
 .lp-prolific-questions-fact > legend { grid-column: 1 / -1; }
 .lp-prolific-questions-fact .lp-choice { display: flex; flex-direction: column; gap: var(--lp-gap-hint); align-items: flex-start; justify-content: center; padding: 10px 12px; }
 .lp-prolific-questions-fact .lp-choice > * { align-self: auto; }
@@ -28,7 +29,7 @@
 /* Forced colours show the native radio beside the slot name, with the mark on its own line. */
 @media (forced-colors: active) {
   .lp-prolific-questions-fact .lp-choice { flex-direction: row; flex-wrap: wrap; align-items: center; gap: var(--lp-gap-hint) var(--lp-gap-label); }
-  .lp-prolific-questions-fact .lp-choice > input { inset: auto; inline-size: auto; block-size: auto; }
+  .lp-prolific-questions-fact .lp-choice > input { position: static; inset: auto; inline-size: auto; block-size: auto; }
   .lp-prolific-questions-fact .lp-choice > span:not(.lp-choice-mark) { flex: 1; }
   .lp-prolific-questions-fact .lp-choice-mark { flex-basis: 100%; }
 }

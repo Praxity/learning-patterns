@@ -14,7 +14,7 @@
         "type": "object", "required": ["label", "definition"], "additionalProperties": false,
         "properties": {
           "label": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 120 },
-          "definition": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 400 }
+          "definition": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 160 }
         }
       }
     },

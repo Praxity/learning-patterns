@@ -40,7 +40,7 @@ async function choose(page, picks, keyboard = false) {
   }
 }
 
-for (const keyboard of [false, true]) test(`complete check, retry and new set using ${keyboard ? 'keyboard' : 'pointer'}`, async ({ page }) => {
+for (const keyboard of [false, true]) test(`complete check and new set using ${keyboard ? 'keyboard' : 'pointer'}`, async ({ page }) => {
   await open(page); await observeStatus(page);
   const facts = page.locator('[data-lp-fact]');
   await expect(facts.nth(0).locator('legend')).toHaveText(english.cases[0][2]);
@@ -58,30 +58,62 @@ for (const keyboard of [false, true]) test(`complete check, retry and new set us
   await expect(page.locator('[data-lp-result]')).toHaveText('1 set, 2 of 3 facts placed right.');
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['2 of 3 right in this set. So far: 1 set, 2 of 3 facts placed right.']);
   const before = await facts.locator('legend').allTextContents();
-  // Keep a reference to a control: retry must preserve the server DOM.
+  // A new set must reuse the server controls and preserve the running count.
   await page.evaluate(() => { window.lpOriginalRadio = document.querySelector('input'); });
-  const again = page.locator('[data-lp-try-again]');
-  if (keyboard) { await page.keyboard.press('Shift+Tab'); await expect(again).toBeFocused(); await page.keyboard.press('Enter'); }
-  else await again.click();
-  await expect(page.locator('[data-lp-question]')).toBeFocused();
-  await expect(page.locator('[data-lp-mark]')).toHaveCount(0);
-  await expect(page.locator('input:checked')).toHaveCount(0);
-  await expect(check).toBeVisible();
-  expect(await facts.locator('legend').allTextContents()).toEqual(before);
-  expect(await page.evaluate(() => window.lpOriginalRadio === document.querySelector('input'))).toBe(true);
-  expect(await page.evaluate(() => [window.lpSaved.completed, window.lpSaved.placed])).toEqual([0, 0]);
-  expect(await page.evaluate(() => window.lpAnnouncements)).toHaveLength(2);
-  await choose(page, [2, 0, 1], keyboard);
-  if (keyboard) await page.keyboard.press('Enter'); else await check.click();
-  await expect(page.locator('[data-lp-next]')).toBeFocused();
-  await expect(page.locator('[data-lp-result]')).toHaveText('1 set, 3 of 3 facts placed right.');
+  await expect(page.getByRole('button')).toHaveCount(1);
   if (keyboard) await page.keyboard.press('Enter'); else await page.locator('[data-lp-next]').click();
   await expect(page.locator('[data-lp-question]')).toBeFocused();
   await expect(check).toBeVisible();
   await expect(page.locator('input:checked, input:disabled, [data-lp-mark]')).toHaveCount(0);
+  expect(await page.evaluate(() => window.lpOriginalRadio === document.querySelector('input'))).toBe(true);
+  expect(await page.evaluate(() => [window.lpSaved.completed, window.lpSaved.placed])).toEqual([1, 2]);
   expect(await page.evaluate(() => window.lpSaved.last)).toBe(9);
   expect(await facts.locator('legend').allTextContents()).not.toEqual(before);
   await expect(page.locator('[role="status"]')).toHaveText('');
+});
+
+test('Check freezes every radio before returning to the event loop', async ({ page }) => {
+  await open(page);
+  await choose(page, [2, 0, 1]);
+  const frozen = await page.evaluate(() => {
+    const check = document.querySelector('[data-lp-check]');
+    check.focus();
+    check.click();
+    return [...document.querySelectorAll('[data-lp-fact] input')].every(input => input.disabled);
+  });
+  expect(frozen).toBe(true);
+  await expect(page.locator('[data-lp-next]')).toBeFocused();
+});
+
+test('two-part content uses two columns for the worked example and choices', async ({ page }) => {
+  await open(page);
+  const content = { ...english, parts: english.parts.slice(0, 2), workedExample: english.workedExample.slice(0, 2), cases: english.cases.map(facts => facts.slice(0, 2)) };
+  await page.evaluate(async content => {
+    const { render } = await import('/patterns/prolific-questions/render.js');
+    const { enhance } = await import('/patterns/prolific-questions/enhance.js');
+    const { strings } = await import('/patterns/prolific-questions/strings.js');
+    window.lpInstances[0].destroy();
+    document.querySelector('[data-lp-pattern]').outerHTML = render(content, strings.en, { id: 'two-parts', lang: 'en' });
+    enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en });
+  }, content);
+  await expect(page.locator('[data-lp-fact]')).toHaveCount(2);
+  await expect(page.getByRole('radio')).toHaveCount(4);
+  for (const selector of ['.lp-prolific-questions-worked', '.lp-prolific-questions-fact']) {
+    expect(await page.locator(selector).first().evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').length)).toBe(2);
+  }
+  expect(await page.locator('[data-lp-worked]').evaluate(el => getComputedStyle(el).borderBlockStartWidth)).toBe('0px');
+  await expect(page.locator('[data-lp-worked]').getByRole('region')).toHaveCount(0);
+});
+
+test('French results keep singular wording for one answer and zero cumulative placements', async ({ page }) => {
+  await open(page, 'fr');
+  await choose(page, [2, 1, 0]);
+  await page.locator('[data-lp-check]').click();
+  await expect(page.locator('[role="status"]')).toHaveText("1 bonne réponse sur 3 dans cette série. Jusqu'ici\u202f: 1 série, 1 fait bien classé sur 3.");
+  await page.reload(); await page.waitForFunction(() => window.lpReady);
+  await choose(page, [0, 1, 2]);
+  await page.locator('[data-lp-check]').click();
+  await expect(page.locator('[data-lp-result]')).toHaveText('1 série, 0 fait bien classé sur 3.');
 });
 
 test('missing answers describe only unanswered groups and announce once per check', async ({ page }) => {
@@ -91,6 +123,10 @@ test('missing answers describe only unanswered groups and announce once per chec
   await expect(check).toBeFocused();
   await expect(page.locator('[data-lp-error]')).toHaveText('Choose an answer for each fact first.');
   await expect(page.locator('[data-lp-fact][aria-describedby]')).toHaveCount(3);
+  await check.click();
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([
+    'Choose an answer for each fact first.', 'Choose an answer for each fact first.'
+  ]);
   await page.locator('[data-lp-fact]').nth(0).getByRole('radio').nth(2).check();
   await check.click();
   await expect(page.locator('[data-lp-fact][aria-describedby]')).toHaveCount(2);
@@ -101,7 +137,7 @@ test('missing answers describe only unanswered groups and announce once per chec
   await page.locator('[data-lp-fact]').nth(2).getByRole('radio').nth(1).check();
   await expect(page.locator('[data-lp-error]')).toBeHidden();
   await expect(page.locator('[data-lp-fact][aria-describedby]')).toHaveCount(0);
-  expect(await page.evaluate(() => window.lpAnnouncements)).toHaveLength(3);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toHaveLength(4);
 });
 
 for (const lang of ['en', 'fr']) {
@@ -117,7 +153,8 @@ for (const lang of ['en', 'fr']) {
     await fallback.locator('summary').click();
     for (const fact of content.cases.flat()) await expect(fallback).toContainText(frenchTypography(fact, lang));
     for (const part of content.parts) await expect(fallback).toContainText(part.label);
-    await expect(fallback).toContainText(frenchTypography(content.context, lang));
+    await expect(fallback).not.toContainText(frenchTypography(content.context, lang));
+    await expect(page.locator('.lp-context')).toHaveText(`${lang === 'en' ? 'Context:' : 'Contexte\u202f:'} ${frenchTypography(content.context, lang)}`);
     await context.close();
   });
 
@@ -147,10 +184,15 @@ for (const lang of ['en', 'fr']) {
 for (const checked of [false, true]) test(`saved deck, order, picks and counts restore silently, checked=${checked}`, async ({ page }) => {
   const saved = { ...seed(), picks: checked ? [2, 0, 1] : [2, null, null], checked, completed: checked ? 1 : 0, placed: checked ? 3 : 0 };
   await open(page, 'en', saved);
+  // Let any deferred lock focus run before checking that restore leaves the page alone.
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  expect(await page.evaluate(() => document.activeElement === document.body)).toBe(true);
   await expect(page.locator('input:checked')).toHaveCount(checked ? 3 : 1);
   await expect(page.locator('[role="status"]')).toHaveText('');
   expect(await page.evaluate(() => window.lpSaved)).toEqual(saved);
   if (checked) {
+    await expect(page.locator('[data-lp-fact] input:disabled')).toHaveCount(9);
+    await expect(page.locator('[data-lp-next]')).toBeEnabled();
     await expect(page.locator('[data-lp-result]')).toHaveText('1 set, 3 of 3 facts placed right.');
     await page.locator('[data-lp-next]').click();
     expect(await page.evaluate(() => window.lpSaved.last)).toBe(9);
@@ -192,7 +234,12 @@ test('forced colours retains native radios and keyboard focus', async ({ page, b
   test.skip(browserName !== 'chromium', 'Forced colours emulation checked in Chromium.');
   await page.emulateMedia({ forcedColors: 'active' }); await open(page);
   const radio = page.locator('[data-lp-fact] input').first(); await radio.focus();
-  expect(await radio.evaluate(el => getComputedStyle(el).opacity)).toBe('1');
+  expect(await radio.evaluate(el => getComputedStyle(el).position)).toBe('static');
+  expect(await radio.evaluate(el => el.getBoundingClientRect().width < el.parentElement.getBoundingClientRect().width)).toBe(true);
   expect(await radio.locator('..').evaluate(el => getComputedStyle(el).outlineWidth)).toBe('3px');
   await page.keyboard.press('Space'); await expect(radio).toBeChecked();
+  await choose(page, [2, 0, 1]);
+  await page.locator('[data-lp-check]').click();
+  // This mark layout belongs to the pattern's forced-colours rule, not base.css.
+  expect(await page.locator('.lp-choice-mark').first().evaluate(el => getComputedStyle(el).flexBasis)).toBe('100%');
 });

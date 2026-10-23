@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { deal, shuffle, score, validateContent, validateState } from './logic.js';
+import { deal, shuffle, score, feedback, validateContent, validateState } from './logic.js';
 import { render } from './render.js';
 import { strings } from './strings.js';
 import { escapeHtml } from '../../lib/html.js';
@@ -114,6 +114,11 @@ test('content has named definitions, a complete worked example and at least eigh
 });
 
 test('schema declares matching text limits and completeness rules', () => {
+  assert.equal(schema.properties.parts.items.properties.definition.maxLength, 160);
+  const longDefinition = structuredClone(content);
+  longDefinition.parts[0].definition = 'x'.repeat(161);
+  assert.throws(() => validateContent(longDefinition), /parts\[0\]\.definition/);
+  assert.equal(matches(longDefinition, schema), false);
   assert.equal(schema.properties.cases.minItems, 8);
   assert.equal(schema.properties.cases.items['x-lengthFrom'], 'parts');
   assert.equal(schema.properties.workedExample['x-lengthFrom'], 'parts');
@@ -174,18 +179,53 @@ test('render escapes content, UI, ids and language and keeps instances independe
   assert.ok(ids.every(id => /^[ab]-/.test(id)));
 });
 
-test('worked example comes first, no-JS answers contain every fact, label and source', () => {
+test('French feedback pluralizes current answers and cumulative placements independently', () => {
+  assert.deepEqual(feedback(strings.fr, { right: 1, total: 3, completed: 1, placed: 1 }), {
+    summary: '1 série, 1 fait bien classé sur 3.',
+    announcement: "1 bonne réponse sur 3 dans cette série. Jusqu'ici: 1 série, 1 fait bien classé sur 3."
+  });
+  assert.deepEqual(feedback(strings.fr, { right: 0, total: 3, completed: 1, placed: 0 }), {
+    summary: '1 série, 0 fait bien classé sur 3.',
+    announcement: "0 bonne réponse sur 3 dans cette série. Jusqu'ici: 1 série, 0 fait bien classé sur 3."
+  });
+  assert.deepEqual(feedback(strings.fr, { right: 0, total: 3, completed: 2, placed: 1 }), {
+    summary: '2 séries, 1 fait bien classé sur 6.',
+    announcement: "0 bonne réponse sur 3 dans cette série. Jusqu'ici: 2 séries, 1 fait bien classé sur 6."
+  });
+  assert.deepEqual(feedback(strings.fr, { right: 2, total: 3, completed: 2, placed: 3 }), {
+    summary: '2 séries, 3 faits bien classés sur 6.',
+    announcement: "2 bonnes réponses sur 3 dans cette série. Jusqu'ici: 2 séries, 3 faits bien classés sur 6."
+  });
+  assert.deepEqual(feedback(strings.en, { right: 1, total: 3, completed: 1, placed: 1 }), {
+    summary: '1 set, 1 of 3 facts placed right.',
+    announcement: '1 of 3 right in this set. So far: 1 set, 1 of 3 facts placed right.'
+  });
+});
+
+test('two-part content renders matching column count, worked parts and radio groups', () => {
+  const two = { ...content, parts: content.parts.slice(0, 2), workedExample: content.workedExample.slice(0, 2), cases: content.cases.map(facts => facts.slice(0, 2)) };
+  assert.doesNotThrow(() => validateContent(two));
+  const markup = render(two, strings.en, { id: 'two', lang: 'en' });
+  assert.match(markup, /style="--lp-prolific-questions-cols: 2"/);
+  assert.equal((markup.match(/class="lp-prolific-questions-component"/g) ?? []).length, 2);
+  assert.equal((markup.match(/data-lp-fact>/g) ?? []).length, 2);
+  assert.equal((markup.match(/type="radio"/g) ?? []).length, 4);
+});
+
+test('worked example comes first, no-JS answers contain every fact and label with context once', () => {
   for (const [example, ui, lang] of [[content, strings.en, 'en'], [french, strings.fr, 'fr']]) {
     const markup = render(example, ui, { id: 'practice', lang });
     assert.ok(markup.indexOf('data-lp-worked') < markup.indexOf('data-lp-practice'));
     assert.match(markup, /data-lp-practice hidden/);
-    assert.match(markup, /data-lp-try-again hidden/);
+    assert.doesNotMatch(markup, /data-lp-try-again|lp-summary|aria-labelledby/);
+    assert.match(markup, /<div class="lp-actions">\s*<button[^>]*data-lp-check>[^]*?<button[^>]*data-lp-next data-lp-keep hidden>[^]*?<\/div>\s*<\/fieldset>\s*<p class="lp-run-in" data-lp-result hidden>/);
     assert.equal((markup.match(/role="status"/g) ?? []).length, 1);
     assert.match(markup, /role="status" aria-atomic="true"><\/p>/);
     const fallback = markup.match(/<details[^>]+data-lp-fallback>[\s\S]*?<\/details>/)[0];
     for (const fact of example.cases.flat()) assert.ok(fallback.includes(escapeHtml(fact, lang)));
     for (const part of example.parts) assert.ok(fallback.includes(escapeHtml(part.label, lang)));
-    assert.ok(fallback.includes(escapeHtml(example.context, lang)));
+    assert.ok(!fallback.includes(escapeHtml(example.context, lang)));
+    assert.equal(markup.split(escapeHtml(example.context, lang)).length - 1, 1);
     if (lang === 'fr') assert.match(markup, /Contexte\u202f:/);
   }
   assert.deepEqual(Object.keys(strings.en), Object.keys(strings.fr));

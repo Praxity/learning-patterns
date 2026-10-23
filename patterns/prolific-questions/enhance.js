@@ -1,4 +1,4 @@
-import { deal, shuffle, score, validateContent, validateState } from './logic.js';
+import { deal, shuffle, score, feedback, validateContent, validateState } from './logic.js';
 import { frenchTypography } from '../../lib/html.js';
 import { markChoice, clearChoice } from '../../lib/choice-mark.js';
 import { lock } from '../../lib/lock.js';
@@ -23,22 +23,24 @@ export function enhance(root, { content, strings, state }) {
   const practice = required('[data-lp-practice]');
   const question = required('[data-lp-question]');
   const check = required('[data-lp-check]');
-  const again = required('[data-lp-try-again]');
   const next = required('[data-lp-next]');
-  const nextActions = required('[data-lp-next-actions]');
   const fallback = required('[data-lp-fallback]');
   const result = required('[data-lp-result]');
   const error = required('[data-lp-error]');
   const errorText = required('[data-lp-error] > span');
   const status = required('[role="status"]');
   const facts = [...root.querySelectorAll('[data-lp-fact]')].map(element => /** @type {HTMLElement} */ (element));
-  const legends = facts.map(fact => fact.querySelector('[data-lp-fact-text]'));
+  const legends = facts.map(fact => {
+    const legend = fact.querySelector('[data-lp-fact-text]');
+    if (!legend) throw new Error('Invalid prolific-questions facts markup');
+    return legend;
+  });
   const rows = facts.map(fact => [...fact.querySelectorAll('.lp-choice')].map(row => /** @type {HTMLElement} */ (row)));
   const inputs = facts.map(fact => [...fact.querySelectorAll('input')]);
-  if (facts.length !== content.parts.length || legends.some(legend => !legend)
+  if (facts.length !== content.parts.length
     || inputs.some(group => group.length !== content.parts.length || group.some((input, i) => input.type !== 'radio' || input.value !== String(i)))
     || rows.some(group => group.length !== content.parts.length)) throw new Error('Invalid prolific-questions facts markup');
-  const initialFacts = legends.map(legend => legend?.textContent ?? '');
+  const initialFacts = legends.map(legend => legend.textContent);
   const lifetime = new AbortController();
   let destroyed = false;
   let cancelFocus = () => {};
@@ -58,19 +60,14 @@ export function enhance(root, { content, strings, state }) {
     cancelFocus(); unlock(); unlock = () => {};
     rows.flat().forEach(clearChoice);
     result.hidden = true; result.textContent = '';
-    again.hidden = true; nextActions.hidden = true; check.hidden = false;
+    next.hidden = true; check.hidden = false;
     clearError();
   }
   function paintFacts() {
     current.order.forEach((part, i) => {
-      if (legends[i]) legends[i].textContent = display(content.cases[current.last][part]);
+      legends[i].textContent = display(content.cases[current.last][part]);
       inputs[i].forEach((input, slot) => { input.checked = current.picks[i] === slot; });
     });
-  }
-  function summary() {
-    return (current.completed === 1 ? strings.summaryOne : strings.summaryMany)
-      .replace('{sets}', String(current.completed)).replace('{placed}', String(current.placed))
-      .replace('{facts}', String(current.completed * content.parts.length));
   }
   /** @param {boolean} announce */
   function showResult(announce) {
@@ -82,16 +79,15 @@ export function enhance(root, { content, strings, state }) {
         else if (slot === part) markChoice(rows[i][slot], 'missed', strings, root.lang);
       });
     });
-    result.textContent = display(summary());
-    again.hidden = false;
-    nextActions.hidden = false;
+    const text = feedback(strings, { ...outcome, completed: current.completed, placed: current.placed });
+    result.textContent = display(text.summary);
+    next.hidden = false;
     if (announce) {
-      // Check disappears; move to New set before locking the answers, preserving keyboard position.
-      cancelFocus = focusAfterLayout(next, () => { unlock = lock(question); reveal(result); }, lifetime.signal);
-      status.textContent = display(strings.result.replace('{right}', String(outcome.right))
-        .replace('{total}', String(outcome.total)).replace('{summary}', summary()));
-    } else {
       unlock = lock(question);
+      reveal(result);
+      status.textContent = display(text.announcement);
+    } else {
+      unlock = lock(question, { focus: false });
       result.hidden = false;
     }
   }
@@ -113,20 +109,12 @@ export function enhance(root, { content, strings, state }) {
       const message = count === outcome.total ? strings.empty : count === 1 ? strings.last : strings.remaining.replace('{count}', String(count));
       errorText.textContent = display(message); error.hidden = false;
       outcome.unanswered.forEach(i => facts[i].setAttribute('aria-describedby', error.id));
+      status.textContent = '';
       status.textContent = display(message);
       return;
     }
     current.checked = true; current.completed++; current.placed += outcome.right;
     showResult(true); save();
-  }
-  function onAgain() {
-    if (!current.checked) return;
-    // Rechecking replaces this set's contribution instead of inflating the running count.
-    current.completed--; current.placed -= score(current.order, current.picks).right;
-    current.checked = false; current.picks = content.parts.map(() => null);
-    clearResult(); paintFacts(); save();
-    cancelFocus = focusAfterLayout(question, () => {}, lifetime.signal);
-    status.textContent = display(strings.cleared);
   }
   function onNext() {
     if (!current.checked) return;
@@ -140,20 +128,15 @@ export function enhance(root, { content, strings, state }) {
   paintFacts(); practice.hidden = false; fallback.hidden = true;
   if (current.checked) showResult(false);
   save();
-  question.addEventListener('change', onChange);
-  check.addEventListener('click', onCheck);
-  again.addEventListener('click', onAgain);
-  next.addEventListener('click', onNext);
+  question.addEventListener('change', onChange, { signal: lifetime.signal });
+  check.addEventListener('click', onCheck, { signal: lifetime.signal });
+  next.addEventListener('click', onNext, { signal: lifetime.signal });
   const instance = {
     destroy() {
       if (destroyed) return;
       destroyed = true; lifetime.abort(); clearResult();
-      question.removeEventListener('change', onChange);
-      check.removeEventListener('click', onCheck);
-      again.removeEventListener('click', onAgain);
-      next.removeEventListener('click', onNext);
       inputs.flat().forEach(input => { input.checked = false; });
-      legends.forEach((legend, i) => { if (legend) legend.textContent = initialFacts[i]; });
+      legends.forEach((legend, i) => { legend.textContent = initialFacts[i]; });
       practice.hidden = true; fallback.hidden = false; status.textContent = '';
       instances.delete(root);
     }

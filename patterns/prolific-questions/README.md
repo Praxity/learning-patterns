@@ -1,6 +1,6 @@
 ---
 title: Prolific questions
-title_fr: Des questions pour continuer à pratiquer
+title_fr: Des questions pour continuer à s'exercer
 summary: Answer a multi-part knowledge check on a scenario, example or set of statements, then take another set whenever you want.
 section: question
 ai: no
@@ -24,7 +24,7 @@ Use a scored assessment when learners need a pass decision. This activity keeps 
 
 Name the parts and define each in one line. Write a worked example and at least eight complete cases, with one fact for each part in the same order. Each fact names its person so it makes sense when shuffled. The sample practises the WHO's International Classification of Functioning model.
 
-The worked example always precedes practice. Start with similar cases before adding variety for beginners. All facts and answers are authored.
+Put it after the worked example. Novices need a few similar cases before variety helps. All facts and answers are authored.
 
 ## How it works
 
@@ -32,13 +32,14 @@ The worked example always precedes practice. Start with similar cases before add
 2. Choose a part for each shuffled fact, then select "Check".
 3. Read the marks and running count. A wrong choice also reveals the correct part.
 4. Select "New set" to continue. Every case appears once before any repeats, including across saved sessions. Consecutive sets always use different cases.
-5. Select "Try again" to clear the current answers. The case and fact order stay the same. Its previous contribution leaves the count until you check again.
 
-Checking freezes only the current answers. New set remains available, with no pass score or completion gate. A retry restores the existing controls without rebuilding the DOM.
+Checking freezes only the current answers. New set remains available, with no pass score or completion gate. It clears the answers and marks for the next case without rebuilding the DOM, preserving the running count.
 
 ## Evidence
 
-The worked example introduces each part before learners classify new facts. The running count records correct placements, without a mastery claim. This pattern has not been tested with learners.
+The worked example introduces each part before learners classify new facts. Starting with similar cases before adding variety follows Braithwaite and Goldstone's study of how prior knowledge affects learning from varied examples, ["Effects of variation and prior knowledge on abstract concept learning", 2015, Cognition and Instruction, 33(3), 226-256](https://doi.org/10.1080/07370008.2015.1067215).
+
+The running count records correct placements, without a mastery claim. This pattern has not been tested with learners.
 
 ## Accessibility
 
@@ -46,11 +47,11 @@ Follows the shared baseline in the root README.
 
 - Native radio groups have a legend for each fact. Arrow keys change the selected part; Tab moves between groups and actions.
 - Missing-answer errors describe unanswered groups and announce once, keeping focus on Check.
-- Check moves focus to New set before hiding the action. New set and Try again focus the question after layout settles.
+- Check moves focus to New set before hiding the action. New set focuses the question after layout settles. Restoring checked answers leaves focus where it is.
 - One status region announces each result. Marks use words, icons and borders. New set clears the old announcement; the focused question introduces the new facts.
 - Choices stack in narrow containers. Forced colours retain native radios. Reveals are immediate, with shared reduced-motion support.
 
-Without JavaScript, the worked example remains readable and a native "Answers" disclosure lists every case with its part labels and source context. Practice controls stay hidden.
+Without JavaScript, the worked example and source context remain readable. A native "Answers" disclosure lists every case with its part labels. Practice controls stay hidden.
 
 ## Content fields
 
@@ -63,7 +64,7 @@ All text is plain text and escaped at render time. English and Canadian French e
 | `question` | The multi-part question, up to 400 characters. |
 | `parts` | At least two parts, in answer-key order. |
 | `parts[].label` | Unique part name, up to 120 characters. |
-| `parts[].definition` | One-line definition, up to 400 characters. |
+| `parts[].definition` | One-line definition, up to 160 characters. |
 | `workedExample` | One fact per part in part order, up to 400 characters each. |
 | `cases` | At least eight complete arrays of facts. Each has one fact per part in part order, up to 400 characters each. |
 
@@ -79,9 +80,10 @@ All text is plain text and escaped at render time. English and Canadian French e
 | `shuffle(values, random = Math.random)` | A shuffled copy. Random must return a value from 0 inclusive to 1 exclusive. |
 | `deal(caseCount, previous = { deck: [], last: -1 }, random = Math.random)` | `{ deck, last }`. `last` is the new case index; `deck` contains remaining indices. Requires at least two cases. Rejects duplicate, out-of-range or inconsistent deck entries. Does not mutate the previous deck. |
 | `score(order, picks)` | `{ right, total, unanswered }`. `order` is a permutation of part indices in displayed fact order. Picks are part indices or `null`; `unanswered` contains displayed fact indices. Invalid permutations or picks throw. |
+| `feedback(strings, { right, total, completed, placed })` | `{ summary, announcement }` for a checked set. Chooses singular and plural wording independently for the set count, current answers and cumulative placements. |
 | `validateState(content, value)` | Copied learner state or `null` for invalid state. |
 
-Optional `state: { read, write }` stores `{ deck, last, order, picks, checked, completed, placed }`. Counts include the current set only when checked. Partial answers, the remaining deck and checked results restore silently. Initial dealing, answer changes, checks, retries and new sets write snapshots. Host state errors propagate.
+Optional `state: { read, write }` stores `{ deck, last, order, picks, checked, completed, placed }`. Counts include the current set only when checked. Partial answers, the remaining deck and checked results restore silently. Initial dealing, answer changes, checks and new sets write snapshots. Host state errors propagate.
 
 Repeated enhancement returns the same instance. `destroy()` removes listeners, cancels pending focus, clears marks, restores controls and shows the native answers. Destroying an old instance again leaves any newer instance alone.
 
@@ -101,7 +103,7 @@ const instance = enhance(document.querySelector('[data-lp-pattern]'), { content,
 
 ## Adapt it with your agent
 
-> Adapt prolific-questions to [topic] for [audience]. Keep `{ title, context, question, parts: [{ label, definition }], workedExample: [], cases: [[]] }`. Write a complete worked example and at least eight complete cases, each with one fact per part in part order. Name the person in every fact. Write English and Canadian French together, using vous. Preserve the worked example first, shuffled facts, fair dealing, local marks, running count, retry, saved state, no-JS answers and narrow-screen layout.
+> Adapt prolific-questions to [topic] for [audience]. Keep `{ title, context, question, parts: [{ label, definition }], workedExample: [], cases: [[]] }`. Write a complete worked example and at least eight complete cases, each with one fact per part in part order. Use 160 characters or fewer per definition. Name the person in every fact. Write English and Canadian French together, using vous. Preserve the worked example first, shuffled facts, fair dealing, local marks, running count, saved state, no-JS answers and narrow-screen layout.
 
 ## Licence
 
