@@ -23,6 +23,19 @@ function memberName(node) {
 function datasetMark(node) {
   return memberName(node) === 'lpMark' && memberName(node.expression) === 'dataset';
 }
+function allowedRead(node) {
+  let argument = node, parent = node.parent;
+  // Only expressions that pass text through to the read argument inherit its exemption.
+  while (parent && (ts.isParenthesizedExpression(parent)
+    || ts.isConditionalExpression(parent) && (parent.whenTrue === argument || parent.whenFalse === argument)
+    || ts.isTemplateSpan(parent) || ts.isTemplateExpression(parent))) {
+    argument = parent;
+    parent = parent.parent;
+  }
+  return parent && ts.isCallExpression(parent) && parent.arguments.includes(argument)
+    && (['querySelector', 'querySelectorAll', 'closest', 'matches', 'getElementsByClassName'].includes(memberName(parent.expression))
+      || memberName(parent.expression) === 'contains' && memberName(parent.expression.expression) === 'classList');
+}
 function violations(source, pattern) {
   const tree = ts.createSourceFile('pattern.js', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
   const lines = source.split(/\r?\n/), found = new Set();
@@ -33,16 +46,14 @@ function violations(source, pattern) {
     const datasetWrite = assignment && datasetMark(node.left)
       || ts.isDeleteExpression(node) && datasetMark(node.expression);
     const attribute = ts.isCallExpression(node)
-      ? node.arguments[memberName(node.expression) === 'setAttributeNS' ? 1 : 0] : undefined;
+      ? node.arguments[['setAttributeNS', 'removeAttributeNS'].includes(memberName(node.expression)) ? 1 : 0] : undefined;
     const attributeWrite = ts.isCallExpression(node)
-      && ['setAttribute', 'removeAttribute', 'toggleAttribute', 'setAttributeNS'].includes(memberName(node.expression))
+      && ['setAttribute', 'removeAttribute', 'toggleAttribute', 'setAttributeNS', 'removeAttributeNS'].includes(memberName(node.expression))
       && attribute && ts.isStringLiteralLike(attribute) && attribute.text === 'data-lp-mark';
     const propertyWrite = (ts.isPropertyAssignment(node) || ts.isShorthandPropertyAssignment(node))
       && (node.name.text === 'lpMark' || ts.isComputedPropertyName(node.name)
         && ts.isStringLiteralLike(node.name.expression) && node.name.expression.text === 'lpMark');
-    const read = node.parent && ts.isCallExpression(node.parent) && node.parent.arguments.includes(node)
-      && (['querySelector', 'querySelectorAll', 'closest', 'matches'].includes(memberName(node.parent.expression))
-        || memberName(node.parent.expression) === 'contains' && memberName(node.parent.expression.expression) === 'classList');
+    const read = allowedRead(node);
     // Join only the template's own text, leaving nested expressions to their own visits.
     const text = ts.isTemplateExpression(node)
       ? [node.head.text, ...node.templateSpans.map(span => span.literal.text)].join('${}')
@@ -51,7 +62,7 @@ function violations(source, pattern) {
     const badgeWrite = (ts.isStringLiteralLike(node) || ts.isTemplateHead(node) || ts.isTemplateMiddle(node) || ts.isTemplateTail(node))
       && (/<[^>]*\blp-choice-mark\b/.test(node.text)
         || /(?:<[^>]*|^\s*)\bdata-lp-mark\s*=/.test(node.text))
-      || ts.isTemplateExpression(node) && /<[^>]*\blp-choice-mark\b/.test(text);
+      || ts.isTemplateExpression(node) && (/<[^>]*\blp-choice-mark\b/.test(text) || /<[^>]*\bdata-lp-mark\s*=/.test(text));
     if (datasetWrite || attributeWrite || propertyWrite || classWrite || badgeWrite) {
       const line = lines[tree.getLineAndCharacterOfPosition(node.getStart(tree)).line].trim();
       if (!(exceptions[pattern] ?? []).some(allowed => allowed.test(line))) found.add(line);
@@ -105,6 +116,8 @@ test('mark guard catches planted markup, attribute and dataset writes', () => {
 test('mark guard allows class, dataset and selector reads', () => {
   for (const source of [
     'row.classList.contains("lp-choice-mark");',
+    'row.classList.contains(("lp-choice-mark"));',
+    'row.classList.contains(x ? "lp-choice-mark" : "lp-met");',
     'row["classList"]["contains"]("lp-choice-mark");',
     'row.dataset.lpMark === "wrong";',
     'row.getAttribute("data-lp-mark");',
@@ -114,6 +127,8 @@ test('mark guard allows class, dataset and selector reads', () => {
     'row.closest("lp-choice-mark");',
     'row.matches("lp-choice-mark");',
     'row.querySelectorAll(`lp-choice-mark ${selector}`);',
+    'row.querySelectorAll(`.${x ? "lp-choice-mark" : "lp-met"}`);',
+    'row.getElementsByClassName("lp-choice-mark");',
     'row.matches(".lp-choice-mark");',
     'row["querySelectorAll"](".lp-choice-mark");',
     'row.closest(".lp-choice-mark");',
@@ -131,6 +146,7 @@ test('mark guard allows class, dataset and selector reads', () => {
 for (const source of [
   'row.innerHTML = `<span ${attrs} class="lp-choice-mark lp-met">Correct</span>`;',
   'row.innerHTML = `<li ${attrs} data-lp-mark="correct">Answer</li>`;',
+  'row.innerHTML = `<li ${attrs} title="hint" data-lp-mark="correct">A</li>`;',
   'mark.classList.value = "lp-choice-mark lp-met";',
   'mark["classList"]["value"] = "lp-choice-mark lp-met";',
   'el("span", { className: "lp-choice-mark lp-met" });',
@@ -140,10 +156,16 @@ for (const source of [
   'Object.assign(row.dataset, { lpMark: "correct" });',
   'const lpMark = "correct"; el("li", { dataset: { lpMark } });',
   'const classes = "lp-choice-mark lp-met";',
+  'mark.className = ("lp-choice-mark");',
+  'mark.className = x ? "lp-choice-mark" : "lp-met";',
+  'mark.className = `${x ? "lp-choice-mark" : "lp-met"}`;',
+  'row.classList.contains(write("lp-choice-mark"));',
   'row.toggleAttribute("data-lp-mark", true);',
   'row["toggleAttribute"]("data-lp-mark");',
   'row.setAttributeNS(null, "data-lp-mark", "correct");',
-  'row["setAttributeNS"](null, "data-lp-mark", "correct");'
+  'row["setAttributeNS"](null, "data-lp-mark", "correct");',
+  'row.removeAttributeNS(null, "data-lp-mark");',
+  'row["removeAttributeNS"](null, "data-lp-mark");'
 ]) {
   test(`mark guard catches ${source}`, () => {
     assert.deepEqual(violations(source, 'new-pattern'), [source]);

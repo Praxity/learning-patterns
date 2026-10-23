@@ -31,7 +31,7 @@ Each `patterns/<name>/` contains pure `logic.js`, server `render.js`, DOM `enhan
 
 ## Accessibility and feedback
 
-Use `lock(scope)` from `lib/lock.js` to freeze controls and `reveal(element)` from `lib/reveal.js` to unhide and scroll feedback into view. Lock chooses its focus target after layout, so Try again can be unhidden before or just after calling it. It moves focus from a frozen control or body to Try again, with a scope fallback if needed, and preserves focus moved by the caller before freezing the focused control.
+Use `lock(scope)` from `lib/lock.js` to freeze controls and `reveal(element)` from `lib/reveal.js` to unhide and scroll feedback into view. Lock chooses its focus target after layout, so Try again can be unhidden before or just after calling it. From a focused control that needs disabling, it moves focus to Try again, or else the first usable control or the scope. From `body` it moves only to a usable Try again. If the caller moves focus first, focus stays there. The focused control is always frozen unless unlocked. When restoring saved state, use `lock(scope, { focus: false })` to freeze everything immediately without moving focus.
 
 Show feedback on submit, next to what it is about (at the chosen option or the field), with at most a one-line summary elsewhere. Keep one empty `role="status"` region in server HTML. Announce each message once without moving focus. Use French `lang`, text and decorative icons for results, and visible keyboard focus. Support no JavaScript, 400% zoom, text spacing and forced colours. Use no time limits or celebratory motion. End the interaction with a short summary.
 
