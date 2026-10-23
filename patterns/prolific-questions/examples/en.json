@@ -1,0 +1,76 @@
+{
+  "title": "Place each fact in the ICF model",
+  "context": "The WHO's International Classification of Functioning (ICF) uses these terms to describe disability.",
+  "question": "Is each fact an impairment, an activity limitation or a participation restriction?",
+  "parts": [
+    {
+      "label": "Impairment",
+      "definition": "A problem in how a part of the body or mind works, or in its structure."
+    },
+    {
+      "label": "Activity limitation",
+      "definition": "Difficulty doing a task or action, such as walking, reading or gripping."
+    },
+    {
+      "label": "Participation restriction",
+      "definition": "A problem taking part in life, such as work, study, travel or time with friends."
+    }
+  ],
+  "workedExample": [
+    "Rosa's legs are paralysed after a spinal cord injury.",
+    "Rosa can't climb stairs.",
+    "Rosa can't get to team meetings, which are upstairs in a building with no lift."
+  ],
+  "cases": [
+    [
+      "Ana has low vision from glaucoma.",
+      "Ana can't read standard-size print.",
+      "Ana can't sit the paper-only licensing exam her job requires."
+    ],
+    [
+      "Ben has profound hearing loss in both ears.",
+      "Ben can't follow speech on a phone call.",
+      "Ben is left out of his team's weekly phone meetings."
+    ],
+    [
+      "Chloe has rheumatoid arthritis in her hands.",
+      "Chloe can't grip and lift heavy boxes.",
+      "Chloe gave up volunteering at the food bank, where the work is packing boxes."
+    ],
+    [
+      "Emi has dyslexia, which affects how her brain processes written words.",
+      "Emi reads long documents much more slowly than most people.",
+      "Emi misses out on promotion because the assessment is a timed written test."
+    ],
+    [
+      "Farid has epilepsy, and medication doesn't fully control his seizures.",
+      "Farid can't drive.",
+      "Farid can't take the field sales job he was offered, which needs a driving licence."
+    ],
+    [
+      "Grace has memory loss after a brain injury.",
+      "Grace can't remember a list of spoken instructions.",
+      "Grace had to step down as the shift manager at her café."
+    ],
+    [
+      "Hugo has a tremor in both hands from Parkinson's disease.",
+      "Hugo can't tap small targets on a touchscreen accurately.",
+      "Hugo can't buy tickets at his station, which has only touchscreen machines."
+    ],
+    [
+      "Ines has chronic fatigue syndrome, which leaves her with very little energy.",
+      "Ines can't stand for more than ten minutes.",
+      "Ines can't work her shifts on the supermarket checkout, where staff stand."
+    ],
+    [
+      "Jamal has red-green colour blindness.",
+      "Jamal can't tell red status lights from green ones.",
+      "Jamal can't train as a train driver, a job that requires full colour vision."
+    ],
+    [
+      "Kai has a stammer.",
+      "Kai can't speak quickly under time pressure.",
+      "Kai is turned down for a call-centre job after a timed phone interview."
+    ]
+  ]
+}
