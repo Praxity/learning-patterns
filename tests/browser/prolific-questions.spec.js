@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { readFile } from 'node:fs/promises';
 import { frenchTypography } from '../../lib/html.js';
+import { expectChoiceMarks } from './choice-marks.js';
 
 const english = JSON.parse(await readFile(new URL('../../patterns/prolific-questions/examples/en.json', import.meta.url), 'utf8'));
 const french = JSON.parse(await readFile(new URL('../../patterns/prolific-questions/examples/fr.json', import.meta.url), 'utf8'));
@@ -174,6 +175,7 @@ for (const lang of ['en', 'fr']) {
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     };
     await scan(); await choose(page, [2, 1, 1]); await page.locator('[data-lp-check]').click();
+    await expectChoiceMarks(page);
     await expect(page.locator('[data-lp-next]')).toBeFocused();
     await expect(page.locator('[data-lp-result]')).toHaveText(lang === 'en' ? '1 set, 2 of 3 facts placed right.' : '1 série, 2 faits bien classés sur 3.');
     await expect(page.locator('[data-lp-mark="missed"] .lp-choice-mark')).toHaveText(lang === 'en' ? 'Correct answer' : 'Bonne réponse');

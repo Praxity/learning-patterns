@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { readFile } from 'node:fs/promises';
+import { expectChoiceMarks } from './choice-marks.js';
 
 const english = JSON.parse(await readFile(new URL('../../patterns/test-out/examples/en.json', import.meta.url)));
 const french = JSON.parse(await readFile(new URL('../../patterns/test-out/examples/fr.json', import.meta.url)));
@@ -161,6 +162,7 @@ for (const [lang, content, correct, wrong, answer, summary, statuses] of [
 ]) {
   test(`in-place marks, explanations and credited outline (${lang})`, async ({ page }) => {
     await open(page, `/test-out/${lang}.html`); await observe(page); await pick(page); await page.locator('[data-lp-check]').click();
+    await expectChoiceMarks(page);
     await expect(page.locator('[data-lp-pattern]')).toHaveAttribute('lang', lang);
     await expect(page.locator('[data-lp-result]')).toHaveText(summary);
     await expect(page.locator('[data-lp-section-status]')).toHaveText(statuses);

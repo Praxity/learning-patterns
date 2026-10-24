@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { readFile } from 'node:fs/promises';
+import { expectChoiceMarks } from './choice-marks.js';
 
 const english = JSON.parse(await readFile(new URL('../../patterns/dont-know/examples/en.json', import.meta.url)));
 const french = JSON.parse(await readFile(new URL('../../patterns/dont-know/examples/fr.json', import.meta.url)));
@@ -183,6 +184,7 @@ for (const [lang, content, correct, wrong, answer, unknown, counts] of [
     await expect(page.locator('[data-lp-restart]')).toBeHidden();
     for (const fieldset of await page.locator('fieldset').all()) await expect(fieldset.locator('label').last()).toHaveText(lang === 'en' ? "I don't know" : 'Je ne sais pas');
     await pick(page); await page.locator('[data-lp-check]').click();
+    await expectChoiceMarks(page);
     const result = page.locator('[data-lp-result]');
     await expect(result.locator('[data-lp-counts]')).toHaveText(counts);
     await expect(page.locator('[data-lp-group]')).toHaveCount(0);
