@@ -58,14 +58,17 @@ export function enhance(root, { content, strings, state }) {
     function paint() {
       const [low, high] = bands[ranges[index]];
       const left = positionOf(low, stops);
+      const right = positionOf(high, stops);
+      const at = (left + right) / 2;
       const label = format(strings.range, { low: numberText(low, root.lang), high: numberText(high, root.lang) });
       input.value = String(ranges[index]);
       input.style.insetInlineStart = `${left}%`;
-      input.style.inlineSize = `${positionOf(high, stops) - left}%`;
+      input.style.inlineSize = `${right - left}%`;
       input.setAttribute('aria-valuenow', input.value);
       input.setAttribute('aria-valuetext', frenchTypography(`${label} ${question.unit}`, root.lang));
       value.textContent = frenchTypography(label, root.lang);
-      value.style.setProperty('--lp-estimate-magnitude-at', String(left));
+      value.style.setProperty('--lp-estimate-magnitude-at', String(at));
+      value.style.textAlign = at > 50 ? 'end' : 'start';
     }
     /** @param {number} next */
     function set(next) {
@@ -96,7 +99,8 @@ export function enhance(root, { content, strings, state }) {
     line.addEventListener('pointerdown', event => {
       if (shown || input.disabled || event.button > 0) return;
       event.preventDefault();
-      offset = input.contains(/** @type {Node} */ (event.target)) ? event.clientX - input.getBoundingClientRect().left : input.getBoundingClientRect().width / 2;
+      const target = /** @type {Node} */ (event.target);
+      offset = input.contains(target) || value.contains(target) ? event.clientX - input.getBoundingClientRect().left : input.getBoundingClientRect().width / 2;
       dragging = true;
       line.setPointerCapture(event.pointerId);
       input.focus({ preventScroll: true });

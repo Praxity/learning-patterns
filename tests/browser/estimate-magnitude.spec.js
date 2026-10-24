@@ -205,6 +205,11 @@ for (const lang of ['en', 'fr']) for (const ratio of [10, 100, 1000]) {
           return bounds.left >= card.left && bounds.right <= card.right;
         });
       })).toBe(true);
+      for (const question of await page.locator('[data-lp-question]').all()) {
+        const legend = await question.locator('legend').boundingBox();
+        const bounds = await question.locator('[data-lp-value]').boundingBox();
+        expect(bounds.y).toBeGreaterThanOrEqual(legend.y + legend.height);
+      }
     };
     const first = page.getByRole('slider').first();
     const last = Number(await first.getAttribute('aria-valuemax'));
@@ -263,6 +268,45 @@ for (const lang of ['en', 'fr']) {
     await page.setViewportSize({ width: 320, height: 900 });
     await page.addStyleTag({ content: '.lp, .lp * { line-height: 1.5 !important; letter-spacing: .12em !important; word-spacing: .16em !important; } .lp p { margin-bottom: 2em !important; }' });
     await fits();
+  });
+}
+
+for (const lang of ['en', 'fr']) {
+  test(`pressing a wrapped range label grabs the band without moving it (${lang})`, async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    const content = { ...structuredClone(examples[lang]), ratio: 1000 };
+    content.questions.forEach(question => { question.answer = 1e12; });
+    await openContent(page, content, lang);
+    await page.locator('[data-lp-pattern]').evaluate(root => { root.dir = 'rtl'; });
+    const band = page.getByRole('slider').first();
+    const label = page.locator('[data-lp-value]').first();
+    const line = page.locator('[data-lp-line]').first();
+    await expect(line).toHaveCSS('direction', 'ltr');
+    await expect(label).toHaveCSS('text-align', 'start');
+    const initialLabel = await label.boundingBox();
+    const initialTrack = await line.boundingBox();
+    expect(Math.abs(initialLabel.x + initialLabel.width / 2 - (initialTrack.x + initialTrack.width / 2))).toBeLessThanOrEqual(1);
+    await page.setViewportSize({ width: 320, height: 900 });
+    await page.addStyleTag({ content: '.lp, .lp * { line-height: 1.5 !important; letter-spacing: .12em !important; word-spacing: .16em !important; }' });
+    await band.press('End');
+    await expect(band).toHaveAttribute('aria-valuenow', '24');
+    await expect(label).toHaveCSS('text-align', 'end');
+    const range = await band.getAttribute('aria-valuetext');
+    const bounds = await label.boundingBox();
+    const track = await line.boundingBox();
+    const x = bounds.x + bounds.width / 2;
+    const y = bounds.y + bounds.height / 2;
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await expect(band).toHaveAttribute('aria-valuenow', '24');
+    await expect(band).toHaveAttribute('aria-valuetext', range);
+    await expect(band).toBeFocused();
+    await page.mouse.move(x - track.width / 5, y, { steps: 6 });
+    await page.mouse.up();
+    // Moving left by 20% of a fifteen-decade track moves the band down three decades.
+    await expect(band).toHaveAttribute('aria-valuenow', '18');
+    await band.press('Home');
+    await expect(label).toHaveCSS('text-align', 'start');
   });
 }
 

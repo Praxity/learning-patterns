@@ -2,9 +2,10 @@
 .lp-estimate-magnitude-question + .lp-estimate-magnitude-question { margin-block-start: var(--lp-gap-group); border-block-start: 1px solid var(--lp-rule); }
 .lp-estimate-magnitude-question legend { float: left; inline-size: 100%; margin-block-end: var(--lp-gap-label); padding: 0; }
 .lp-estimate-magnitude-question legend + * { clear: both; }
-/* The band is the slider. Its label sits above it, leaving the same track for the answer. */
-.lp-estimate-magnitude-scale { padding-block: 28px 24px; }
-.lp-estimate-magnitude-line { position: relative; block-size: 44px; touch-action: pan-y; user-select: none; }
+/* Reserve two label lines above the slider, including at 1.5 line-height with text spacing. */
+.lp-estimate-magnitude-scale { padding-block: calc(3 * var(--lp-type-small)) 24px; }
+/* The scale is a number line, so values always increase from left to right. */
+.lp-estimate-magnitude-line { direction: ltr; position: relative; block-size: 44px; touch-action: pan-y; user-select: none; }
 .lp-estimate-magnitude-line::before { content: ""; position: absolute; inset-inline: 0; inset-block-start: 50%; border-block-start: 2px solid var(--lp-line); }
 .lp-estimate-magnitude-tick { position: absolute; inset-block-start: calc(50% - 4px); block-size: 10px; border-inline-start: 1px solid var(--lp-line); }
 .lp-estimate-magnitude-band { position: absolute; inset-block-start: 6px; block-size: 32px; min-inline-size: 24px; padding: 0; border: 2px solid var(--lp-accent); border-radius: 4px; color: var(--lp-accent-ink); background: var(--lp-accent-soft); font: inherit; cursor: grab; }

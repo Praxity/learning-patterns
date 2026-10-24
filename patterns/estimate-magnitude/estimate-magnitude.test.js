@@ -139,6 +139,16 @@ test('French render and strings use identical keys and placeholders', () => {
   assert.ok(output.includes('100 à 1\u00a0000') || output.includes('100 à 1\u202f000'));
 });
 
+test('render anchors range labels at the band midpoint', () => {
+  const value = { ...clone(), ratio: 1000 };
+  value.questions.forEach(question => { question.answer = 1e12; });
+  const output = render(value, strings.en, { id: 'centre', lang: 'en' });
+  const labels = [...output.matchAll(/data-lp-value style="([^"]+)"/g)];
+  assert.equal(labels.length, 3);
+  // The starting band is 1e6 to 1e9, at 40% to 60% on the 1 to 1e15 track.
+  for (const [, style] of labels) assert.equal(style, '--lp-estimate-magnitude-at:50;text-align:start');
+});
+
 test('formatting replaces placeholders once and localizes numbers and ratios', () => {
   assert.equal(format('{value} {x}', { value: '{x}', x: 'answer' }), '{x} answer');
   assert.equal(numberText(1.5, 'fr'), '1,5');
