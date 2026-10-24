@@ -28,10 +28,10 @@ export function render(content, strings, { id, lang }) {
   <div data-lp-interaction>
     <p class="lp-small" data-lp-instructions hidden>${html(format(strings.instructions, { ratio: ratio === 10 ? strings.ten : numberText(ratio, lang) }), lang)}</p>
     ${content.questions.map((question, index) => `<fieldset class="lp-stack lp-estimate-magnitude-question" data-lp-question>
-      <legend class="lp-stem" id="${html(`${id}-q${index}`)}">${html(question.question, lang)}</legend>
+      <legend class="lp-stem">${html(question.question, lang)}</legend>
       <div class="lp-estimate-magnitude-scale" hidden><div class="lp-estimate-magnitude-line" data-lp-line>
         ${stops.map(stop => `<span class="lp-estimate-magnitude-tick" aria-hidden="true" style="inset-inline-start:${positionOf(stop, stops)}%"></span>`).join('')}
-        <button type="button" class="lp-estimate-magnitude-band" role="slider" id="${html(`${id}-q${index}-band`)}" value="${start}" aria-valuemin="0" aria-valuemax="${bands.length - 1}" aria-valuenow="${start}" aria-valuetext="${html(`${range} ${question.unit}`, lang)}" aria-label="${html(strings.band, lang)}" data-edge="" data-lp-band style="inset-inline-start:${positionOf(low, stops)}%;inline-size:${positionOf(high, stops) - positionOf(low, stops)}%"><span class="lp-estimate-magnitude-value" aria-hidden="true" data-lp-value>${html(range, lang)}</span></button>
+        <button type="button" class="lp-estimate-magnitude-band" role="slider" id="${html(`${id}-q${index}-band`)}" value="${start}" aria-valuemin="0" aria-valuemax="${bands.length - 1}" aria-valuenow="${start}" aria-valuetext="${html(`${range} ${question.unit}`, lang)}" aria-label="${html(format(strings.band, { number: index + 1 }), lang)}" data-edge="" data-lp-band style="inset-inline-start:${positionOf(low, stops)}%;inline-size:${positionOf(high, stops) - positionOf(low, stops)}%"><span class="lp-estimate-magnitude-value" aria-hidden="true" data-lp-value>${html(range, lang)}</span></button>
         <span class="lp-estimate-magnitude-answer" aria-hidden="true" data-lp-answer hidden></span>
       </div></div>
       <p class="lp-error-text" id="${html(`${id}-q${index}-error`)}" data-lp-error hidden>${icons['alert-circle']}<span>${html(strings.empty, lang)}</span></p>
