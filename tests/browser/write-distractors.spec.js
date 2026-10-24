@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { readFile } from 'node:fs/promises';
+import { expectChoiceMarks } from './choice-marks.js';
 
 const english = JSON.parse(await readFile(new URL('../../patterns/write-distractors/examples/en.json', import.meta.url)));
 const french = JSON.parse(await readFile(new URL('../../patterns/write-distractors/examples/fr.json', import.meta.url)));
@@ -413,6 +414,7 @@ for (const lang of ['en', 'fr']) {
     await open(page, lang); await observe(page); await fill(page, true);
     expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
     await page.locator('[data-lp-compare]').click();
+    await expectChoiceMarks(page);
     const message = lang === 'en' ? "Your labels match 1 of the author's 4 mistaken ideas. You added 1 of your own."
       : "Idées fausses en commun avec l'auteur : 1 sur 4. Autres idées fausses : 1.";
     await expect(page.locator('[data-lp-summary]')).toHaveText(message);
