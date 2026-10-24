@@ -120,10 +120,10 @@ export function enhance(root, { content, strings, state }) {
     clearResult();
     current = { ...current, ...deal(content.cases.length, current), order: shuffle(content.parts.map((_, i) => i)), picks: content.parts.map(() => null), checked: false };
     paintFacts(); save();
-    // A new set replaces the old one. Focus its first answer: NVDA then reads the question, the first fact and
-    // the answer, where focusing the whole question read every fact and option in one 1,000-character utterance.
-    const first = /** @type {HTMLInputElement} */ (facts[0].querySelector("input[type=radio]"));
-    cancelFocus = focusAfterLayout(first, () => {}, lifetime.signal);
+    // A new set replaces the old one. Focus its first answer: focusing the whole question made NVDA read every
+    // fact and option in one 1,000-character utterance. Then bring the first fact into view, since Firefox scrolls
+    // a focused control only to the nearest edge and can leave the fact it belongs to above the viewport.
+    cancelFocus = focusAfterLayout(inputs[0][0], () => legends[0].scrollIntoView({ block: 'nearest' }), lifetime.signal);
     status.textContent = '';
   }
   paintFacts(); practice.hidden = false; fallback.hidden = true;
