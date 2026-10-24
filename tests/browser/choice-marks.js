@@ -10,10 +10,9 @@ export async function expectChoiceMarks(page) {
       // Explain-back's Found/To add/Not sure are explanation feedback, not answer marks.
       if (pattern === 'explain-back') continue;
       const { strings } = await import(`/patterns/${pattern}/strings.js`);
+      // Live-feedback's done/todo rows are not .lp-choice rows. Any other unknown mark value makes renderChoiceMark throw.
       for (const row of root.querySelectorAll('.lp-choice[data-lp-mark]')) {
         const kind = row.dataset.lpMark;
-        // Live-feedback's done/todo checklist progress is not an answer mark either.
-        if (!Object.hasOwn(words, kind)) continue;
         const word = pattern === 'write-distractors'
           ? strings[lang][row.matches(':first-child') ? 'correctAnswer' : 'match']
           : strings[lang][words[kind]];
