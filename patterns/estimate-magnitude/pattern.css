@@ -12,16 +12,11 @@
 .lp-estimate-magnitude-band:active { cursor: grabbing; }
 .lp-estimate-magnitude-band:focus-visible { outline: 3px solid var(--lp-focus); outline-offset: 3px; }
 .lp-estimate-magnitude-band:disabled { opacity: 1; cursor: default; }
-.lp-estimate-magnitude-value { position: absolute; inset-block-end: calc(100% + 5px); inset-inline-start: 50%; transform: translateX(-50%); inline-size: max-content; max-inline-size: 14rem; font-size: var(--lp-type-small); font-weight: 600; line-height: 1.3; font-variant-numeric: tabular-nums; }
-.lp-estimate-magnitude-band[data-edge="start"] .lp-estimate-magnitude-value { inset-inline-start: -2px; transform: none; }
-.lp-estimate-magnitude-band[data-edge="end"] .lp-estimate-magnitude-value { inset-inline-start: auto; inset-inline-end: -2px; transform: none; }
-.lp-estimate-magnitude-answer { position: absolute; inset-block-start: calc(50% - 6px); display: grid; justify-items: center; transform: translateX(-50%); pointer-events: none; inline-size: max-content; white-space: nowrap; max-inline-size: 14rem; font-size: var(--lp-type-small); font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
-.lp-estimate-magnitude-answer::before { content: ""; inline-size: 12px; block-size: 12px; margin-block-end: 18px; background: currentColor; transform: rotate(45deg); }
-.lp-estimate-magnitude-answer[data-edge="start"] { transform: none; justify-items: start; }
-.lp-estimate-magnitude-answer[data-edge="end"] { transform: translateX(-100%); justify-items: end; }
-/* Keep the diamond centred on its value when the label changes alignment. */
-.lp-estimate-magnitude-answer[data-edge="start"]::before { transform: translateX(-50%) rotate(45deg); }
-.lp-estimate-magnitude-answer[data-edge="end"]::before { transform: translateX(50%) rotate(45deg); }
+.lp-estimate-magnitude-value, .lp-estimate-magnitude-answer { position: absolute; left: calc(var(--lp-estimate-magnitude-at) * 1%); translate: calc(var(--lp-estimate-magnitude-at) * -1%) 0; inline-size: max-content; font-size: var(--lp-type-small); font-weight: 600; font-variant-numeric: tabular-nums; }
+.lp-estimate-magnitude-value { inset-block-end: calc(100% - 3px); max-inline-size: 100%; color: var(--lp-accent-ink); line-height: 1.3; }
+.lp-estimate-magnitude-answer { inset-block-start: calc(50% - 6px); padding-block-start: 30px; pointer-events: none; white-space: nowrap; line-height: 1; }
+/* The label moves by P% of its width; placing the diamond at P% cancels that shift. */
+.lp-estimate-magnitude-answer::before { content: ""; position: absolute; inset-block-start: 0; left: calc(var(--lp-estimate-magnitude-at) * 1%); inline-size: 12px; block-size: 12px; background: currentColor; transform: translateX(-50%) rotate(45deg); }
 .lp-estimate-magnitude-feedback { display: flex; gap: var(--lp-gap-label); align-items: flex-start; font-weight: 600; }
 .lp-estimate-magnitude-feedback .lp-icon { flex: none; margin-block-start: 2px; }
 .lp-estimate-magnitude-answers { padding-inline-start: var(--lp-gap-group); }

@@ -229,6 +229,43 @@ for (const lang of ['en', 'fr']) for (const ratio of [10, 100, 1000]) {
   });
 }
 
+for (const lang of ['en', 'fr']) {
+  test(`checked labels follow a resize from 1280 to 320 px with text spacing (${lang})`, async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    const content = { ...structuredClone(examples[lang]), ratio: 1000 };
+    content.questions.forEach(question => { question.answer = 1e12; });
+    await openContent(page, content, lang);
+    for (const band of await page.getByRole('slider').all()) await band.press('End');
+    await page.locator('[data-lp-check]').click();
+    await expect(page.locator('[data-lp-try-again]')).toBeFocused();
+    const fits = async () => {
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      expect(await page.locator('[data-lp-pattern]').evaluate(root => {
+        const card = root.getBoundingClientRect();
+        return [...root.querySelectorAll('[data-lp-value], [data-lp-answer]')].every(label => {
+          const bounds = label.getBoundingClientRect();
+          return bounds.left >= card.left && bounds.right <= card.right;
+        });
+      })).toBe(true);
+      for (const answer of await page.locator('[data-lp-answer]').all()) {
+        const distance = await answer.evaluate(element => {
+          const track = element.parentElement.getBoundingClientRect();
+          const label = element.getBoundingClientRect();
+          const diamond = getComputedStyle(element, '::before');
+          const centre = label.left + parseFloat(diamond.left) + parseFloat(diamond.width) / 2 + new DOMMatrix(diamond.transform).m41;
+          // 1e12 is 80% of the logarithmic track from 1 to 1e15.
+          return Math.abs(centre - (track.left + track.width * .8));
+        });
+        expect(distance).toBeLessThanOrEqual(1);
+      }
+    };
+    await fits();
+    await page.setViewportSize({ width: 320, height: 900 });
+    await page.addStyleTag({ content: '.lp, .lp * { line-height: 1.5 !important; letter-spacing: .12em !important; word-spacing: .16em !important; } .lp p { margin-bottom: 2em !important; }' });
+    await fits();
+  });
+}
+
 test('track taps and dragging select discrete bands without a keyboard', async ({ page }) => {
   await open(page);
   const band = page.getByRole('slider').first();
