@@ -177,3 +177,15 @@ test('saved ranges are copied; invalid, incomplete checked and out-of-scale stat
     assert.equal(validateState(content, value), null);
   }
 });
+
+test('each band slider has its own short name, so screen readers do not repeat the question legend', () => {
+  for (const [lang, name] of [['en', 'Range for question'], ['fr', 'Plage de la question']]) {
+    const output = render(lang === 'en' ? content : french, strings[lang], { id: 'n', lang });
+    const sliders = output.match(/<button[^>]*role="slider"[^>]*>/g);
+    assert.equal(sliders.length, content.questions.length);
+    for (const [index, slider] of sliders.entries()) {
+      assert.ok(slider.includes(`aria-label="${name} ${index + 1}"`));
+      assert.ok(!slider.includes('aria-labelledby'));
+    }
+  }
+});

@@ -62,7 +62,8 @@ for (const lang of ['en', 'fr']) {
     await expect(status).toHaveText('');
     await expect(page.locator('[data-lp-fallback]')).toBeHidden();
     for (const [index, question] of examples[lang].questions.entries()) {
-      await expect(bands.nth(index)).toHaveAccessibleName(frenchTypography(question.question, lang));
+      await expect(bands.nth(index)).toHaveAccessibleName(format(strings[lang].band, { number: index + 1 }));
+      await expect(page.getByRole('group', { name: frenchTypography(question.question, lang) })).toHaveCount(1);
       await expect(bands.nth(index)).toHaveAttribute('aria-valuetext', new RegExp(question.unit));
     }
     await page.locator('[data-lp-check]').click();

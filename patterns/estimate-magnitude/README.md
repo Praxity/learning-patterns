@@ -41,7 +41,7 @@ The sample figures and records are made up. The quantities can be reasoned towar
 
 Follows the shared baseline in the root README.
 
-- Each question has a fieldset and legend. Its band is a button with slider semantics and the question as its accessible name.
+- Each question has a fieldset and legend. The legend names the group. Its band is a button with slider semantics and its own short name, "Range for question 1", so screen readers say the question once and lists of controls tell the bands apart.
 - Arrow keys move one stop. Home and End select the first and last bands. Track taps provide an alternative to dragging.
 - `aria-valuetext` gives both bounds and the unit. After checking, it also gives the answer and whether it was caught or missed.
 - Each range must be deliberately set before checking, so the middle starting position is not a hint. Missing ranges get linked errors; focus stays on Check.

@@ -9,6 +9,8 @@ export const strings = {
     empty: 'Slide the band to set your range.',
     missingOne: 'Question {questions} needs a range before the check.',
     missingMany: 'Questions {questions} need a range before the check.',
+    // The fieldset legend already names the question; the slider names only itself, numbered like the validation message, so NVDA does not read the question twice.
+    band: 'Range for question {number}',
     range: '{low} to {high}',
     caught: 'Caught: {answer} {unit}.',
     below: 'Missed: {answer} {unit}, below your range.',
@@ -27,6 +29,7 @@ export const strings = {
     empty: 'Faites glisser la bande pour définir votre plage.',
     missingOne: 'Définissez une plage pour la question {questions} avant de vérifier.',
     missingMany: 'Définissez une plage pour les questions {questions} avant de vérifier.',
+    band: 'Plage de la question {number}',
     range: '{low} à {high}',
     caught: 'Dans votre plage : {answer} {unit}.',
     below: 'Manqué : {answer} {unit}, sous votre plage.',
