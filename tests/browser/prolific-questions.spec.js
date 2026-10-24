@@ -63,7 +63,8 @@ for (const keyboard of [false, true]) test(`complete check and new set using ${k
   await page.evaluate(() => { window.lpOriginalRadio = document.querySelector('input'); });
   await expect(page.getByRole('button')).toHaveCount(1);
   if (keyboard) await page.keyboard.press('Enter'); else await page.locator('[data-lp-next]').click();
-  await expect(page.locator('[data-lp-question]')).toBeFocused();
+  // The first answer of the new set takes focus, not the whole question group (NVDA read it all at once).
+  await expect(page.locator('[data-lp-fact]').first().getByRole('radio').first()).toBeFocused();
   await expect(check).toBeVisible();
   await expect(page.locator('input:checked, input:disabled, [data-lp-mark]')).toHaveCount(0);
   expect(await page.evaluate(() => window.lpOriginalRadio === document.querySelector('input'))).toBe(true);

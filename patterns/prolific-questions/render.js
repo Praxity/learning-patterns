@@ -20,7 +20,7 @@ export function render(content, strings, { id, lang }) {
     </div>
   </div>
   <div class="lp-section" data-lp-practice hidden>
-    <fieldset class="lp-prolific-questions-deal" tabindex="-1" data-lp-question>
+    <fieldset class="lp-prolific-questions-deal" data-lp-question>
       <legend class="lp-stem">${html(content.question, lang)}</legend>
       <div data-lp-facts>${content.parts.map((_, i) => `
         <fieldset class="lp-choices lp-prolific-questions-fact" data-lp-fact>
