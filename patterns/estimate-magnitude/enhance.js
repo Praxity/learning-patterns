@@ -9,20 +9,6 @@ import { focusAfterLayout } from '../../lib/focus-after-layout.js';
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
 const instances = new WeakMap();
 
-/** @param {HTMLElement} marker @param {HTMLElement} label @param {HTMLElement} line */
-function alignLabel(marker, label, line) {
-  marker.dataset.edge = '';
-  label.style.maxInlineSize = '';
-  const track = line.getBoundingClientRect();
-  const bounds = label.getBoundingClientRect();
-  marker.dataset.edge = bounds.right > track.right ? 'end' : bounds.left < track.left ? 'start' : '';
-  if (marker !== label && marker.dataset.edge) {
-    // Wide band labels may need another line to fit on the chosen side of the marker.
-    const aligned = label.getBoundingClientRect();
-    label.style.maxInlineSize = `${Math.min(aligned.right, track.right) - Math.max(aligned.left, track.left)}px`;
-  }
-}
-
 /** @param {HTMLElement} root
  * @param {{ content: import('./logic.js').Content, strings: import('./strings.js').Strings, state?: { read(): unknown, write(value: import('./logic.js').LearnerState): void } }} options
  */
@@ -72,14 +58,17 @@ export function enhance(root, { content, strings, state }) {
     function paint() {
       const [low, high] = bands[ranges[index]];
       const left = positionOf(low, stops);
+      const right = positionOf(high, stops);
+      const at = (left + right) / 2;
       const label = format(strings.range, { low: numberText(low, root.lang), high: numberText(high, root.lang) });
       input.value = String(ranges[index]);
       input.style.insetInlineStart = `${left}%`;
-      input.style.inlineSize = `${positionOf(high, stops) - left}%`;
+      input.style.inlineSize = `${right - left}%`;
       input.setAttribute('aria-valuenow', input.value);
       input.setAttribute('aria-valuetext', frenchTypography(`${label} ${question.unit}`, root.lang));
       value.textContent = frenchTypography(label, root.lang);
-      alignLabel(input, value, line);
+      value.style.setProperty('--lp-estimate-magnitude-at', String(at));
+      value.style.textAlign = at > 50 ? 'end' : 'start';
     }
     /** @param {number} next */
     function set(next) {
@@ -110,7 +99,8 @@ export function enhance(root, { content, strings, state }) {
     line.addEventListener('pointerdown', event => {
       if (shown || input.disabled || event.button > 0) return;
       event.preventDefault();
-      offset = input.contains(/** @type {Node} */ (event.target)) ? event.clientX - input.getBoundingClientRect().left : input.getBoundingClientRect().width / 2;
+      const target = /** @type {Node} */ (event.target);
+      offset = input.contains(target) || value.contains(target) ? event.clientX - input.getBoundingClientRect().left : input.getBoundingClientRect().width / 2;
       dragging = true;
       line.setPointerCapture(event.pointerId);
       input.focus({ preventScroll: true });
@@ -118,7 +108,7 @@ export function enhance(root, { content, strings, state }) {
     }, { signal });
     line.addEventListener('pointermove', event => { if (dragging) at(event); }, { signal });
     for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) line.addEventListener(type, () => { dragging = false; }, { signal });
-    return { input, line, error, feedback, answer, paint, clearError };
+    return { input, error, feedback, answer, paint, clearError };
   });
 
   /** @param {boolean} shouldAnnounce */
@@ -134,9 +124,8 @@ export function enhance(root, { content, strings, state }) {
       row.feedback.hidden = false;
       row.answer.textContent = numberText(item.answer, root.lang);
       row.answer.className = `lp-estimate-magnitude-answer ${kind}`;
-      row.answer.style.insetInlineStart = `${positionOf(item.answer, stops)}%`;
+      row.answer.style.setProperty('--lp-estimate-magnitude-at', String(positionOf(item.answer, stops)));
       row.answer.hidden = false;
-      alignLabel(row.answer, row.answer, row.line);
       row.input.setAttribute('aria-valuetext', `${row.input.getAttribute('aria-valuetext')}. ${frenchTypography(message, root.lang)}`);
     });
     const summary = format(strings.summary, { count: outcome.count, total: outcome.total });

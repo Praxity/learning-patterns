@@ -21,6 +21,7 @@ export function numberText(value, lang) {
 export function render(content, strings, { id, lang }) {
   const { stops, bands, start, ratio } = scaleFor(content);
   const [low, high] = bands[start];
+  const at = (positionOf(low, stops) + positionOf(high, stops)) / 2;
   const range = format(strings.range, { low: numberText(low, lang), high: numberText(high, lang) });
   return `<section class="lp lp-estimate-magnitude" data-lp-pattern="estimate-magnitude" lang="${html(lang)}">
   <header class="lp-scene"><span class="lp-scene-icon">${icons['file-text']}</span><div><h2 class="lp-scene-title">${html(content.title, lang)}</h2></div></header>
@@ -31,7 +32,8 @@ export function render(content, strings, { id, lang }) {
       <legend class="lp-stem">${html(question.question, lang)}</legend>
       <div class="lp-estimate-magnitude-scale" hidden><div class="lp-estimate-magnitude-line" data-lp-line>
         ${stops.map(stop => `<span class="lp-estimate-magnitude-tick" aria-hidden="true" style="inset-inline-start:${positionOf(stop, stops)}%"></span>`).join('')}
-        <button type="button" class="lp-estimate-magnitude-band" role="slider" id="${html(`${id}-q${index}-band`)}" value="${start}" aria-valuemin="0" aria-valuemax="${bands.length - 1}" aria-valuenow="${start}" aria-valuetext="${html(`${range} ${question.unit}`, lang)}" aria-label="${html(format(strings.band, { number: index + 1 }), lang)}" data-edge="" data-lp-band style="inset-inline-start:${positionOf(low, stops)}%;inline-size:${positionOf(high, stops) - positionOf(low, stops)}%"><span class="lp-estimate-magnitude-value" aria-hidden="true" data-lp-value>${html(range, lang)}</span></button>
+        <button type="button" class="lp-estimate-magnitude-band" role="slider" id="${html(`${id}-q${index}-band`)}" value="${start}" aria-valuemin="0" aria-valuemax="${bands.length - 1}" aria-valuenow="${start}" aria-valuetext="${html(`${range} ${question.unit}`, lang)}" aria-label="${html(format(strings.band, { number: index + 1 }), lang)}" data-lp-band style="inset-inline-start:${positionOf(low, stops)}%;inline-size:${positionOf(high, stops) - positionOf(low, stops)}%"></button>
+        <span class="lp-estimate-magnitude-value" aria-hidden="true" data-lp-value style="--lp-estimate-magnitude-at:${at};text-align:${at > 50 ? 'end' : 'start'}">${html(range, lang)}</span>
         <span class="lp-estimate-magnitude-answer" aria-hidden="true" data-lp-answer hidden></span>
       </div></div>
       <p class="lp-error-text" id="${html(`${id}-q${index}-error`)}" data-lp-error hidden>${icons['alert-circle']}<span>${html(strings.empty, lang)}</span></p>
