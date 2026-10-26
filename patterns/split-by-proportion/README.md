@@ -31,7 +31,7 @@ Write the option-column heading for your topic, such as "Cause" or "Work". Engli
 
 1. Drag a divider or tap the bar to move the nearest divider. A divider pushes any neighbours in its way.
 2. With a keyboard, Tab to a divider. Arrow keys move by one step; Home and End move to the ends of the bar.
-3. Select "Check my split". Two bars and a table compare your split with the real one. A one-line summary names the largest gap, or an exact match. Answers lock.
+3. Select "Check my split". One bar compares your split in its top half with the real split in its bottom half, separated by an ink line. Your letters sit over their values above the bar; the real values sit over their letters below it. Labels are centred; wider end labels align with the bar's edges. Values wrap at spaces. A hidden table gives screen readers every value. A one-line summary names the largest gap, or an exact match. Answers lock.
 4. Select "Try again" to restore the near-equal starting split and focus the first divider.
 
 ## Evidence
@@ -40,7 +40,7 @@ This pattern makes a learner's estimate visible before revealing the answer. It 
 
 ## Accessibility
 
-Follows the shared baseline in the root README. Every divider is a native, labelled range input. Its value text names the adjacent options and every option a push changes. Slider changes use that native announcement alone; check and reset use one status region. Pointer tapping provides an alternative to dragging. Letters, outlines, names and numbers accompany colour. The table is the legend and text equivalent of the charts. Focus moves through the shared locking and layout helpers. Saved results restore silently.
+Follows the shared baseline in the root README. Every divider is a native, labelled range input. Its value text names the adjacent options and every option a push changes. Slider changes use that native announcement alone; check and reset use one status region. Pointer tapping provides an alternative to dragging. Letters, outlines, names and numbers accompany colour. The key names the options; letters and values sit above and below the joined result bar. The hidden table is the text equivalent for screen readers. Focus moves through the shared locking and layout helpers. Saved results restore silently.
 
 The layout wraps at 320px. Forced colours retain segment boundaries, letters and the focus ring. Reveals are immediate; the shared reveal helper respects reduced motion when scrolling.
 

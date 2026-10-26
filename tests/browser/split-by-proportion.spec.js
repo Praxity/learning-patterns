@@ -3,6 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { readFile } from 'node:fs/promises';
 import { frenchTypography } from '../../lib/html.js';
 import { strings } from '../../patterns/split-by-proportion/strings.js';
+import { quantity } from '../../patterns/split-by-proportion/logic.js';
 
 const examples = Object.fromEntries(await Promise.all(['en', 'fr'].map(async lang => [lang,
   JSON.parse(await readFile(new URL(`../../patterns/split-by-proportion/examples/${lang}.json`, import.meta.url), 'utf8'))
@@ -37,6 +38,116 @@ async function exactByKeyboard(page) {
   await page.keyboard.press('Enter');
 }
 
+async function textBox(locator) {
+  return locator.evaluate(node => {
+    const range = document.createRange();
+    range.selectNodeContents(node);
+    const { x, y, width, height } = range.getBoundingClientRect();
+    return { x, y, width, height };
+  });
+}
+
+async function expectResultBar(page, mine, real, lang = 'en', content = examples[lang]) {
+  const result = page.locator('[data-lp-result]');
+  const bar = result.locator('.lp-split-by-proportion-bar');
+  const halves = bar.locator('.lp-split-by-proportion-half');
+  const letters = result.locator('.lp-split-by-proportion-letters');
+  const captions = result.locator('.lp-split-by-proportion-chart > p.lp-small');
+  await expect(bar).toHaveCount(1);
+  await expect(halves).toHaveCount(2);
+  await expect(letters).toHaveCount(2);
+  await expect(captions).toHaveText([strings[lang].mine, strings[lang].real].map(value => frenchTypography(value, lang)));
+  for (const caption of await captions.all()) await expect(caption).toHaveAttribute('aria-hidden', 'true');
+  await expect(bar).toHaveAttribute('aria-hidden', 'true');
+  await expect(bar).toHaveCSS('cursor', 'default');
+  await expect(bar).toHaveCSS('pointer-events', 'none');
+  await expect(bar).toHaveCSS('overflow', 'hidden');
+  await expect(bar.locator('span span, .lp-split-by-proportion-grip')).toHaveCount(0);
+  const inputStyle = await page.locator('[data-lp-bar]').evaluate(node => {
+    const css = getComputedStyle(node);
+    return { height: css.height, border: css.border, radius: css.borderRadius };
+  });
+  await expect(bar).toHaveCSS('height', inputStyle.height);
+  await expect(bar).toHaveCSS('border', inputStyle.border);
+  await expect(bar).toHaveCSS('border-radius', inputStyle.radius);
+  const barBox = await bar.boundingBox();
+  const topBox = await halves.first().boundingBox();
+  const bottomBox = await halves.last().boundingBox();
+  expect(Math.abs(topBox.height - bottomBox.height)).toBeLessThanOrEqual(1);
+  expect(Math.abs(topBox.y + topBox.height - barBox.y - barBox.height / 2)).toBeLessThanOrEqual(1);
+  expect(Math.abs(bottomBox.y - barBox.y - barBox.height / 2)).toBeLessThanOrEqual(1);
+  await expect(halves.first()).toHaveCSS('border-bottom', `1px solid ${await bar.evaluate(node => getComputedStyle(node).borderBottomColor)}`);
+  await expect(halves.last()).toHaveCSS('border-top', `1px solid ${await bar.evaluate(node => getComputedStyle(node).borderTopColor)}`);
+  const topCaptionBox = await captions.first().boundingBox();
+  const bottomCaptionBox = await captions.last().boundingBox();
+  expect(topCaptionBox.y + topCaptionBox.height).toBeLessThanOrEqual((await letters.first().boundingBox()).y);
+  const bottomLabelsBox = await letters.last().boundingBox();
+  expect(bottomLabelsBox.y + bottomLabelsBox.height).toBeLessThanOrEqual(bottomCaptionBox.y);
+  await expect(result.locator('.lp-split-by-proportion-cols, .lp-split-by-proportion-col, .lp-split-by-proportion-vbar')).toHaveCount(0);
+  for (const [row, shares] of [mine, real].entries()) {
+    const half = halves.nth(row);
+    const letterRow = letters.nth(row);
+    await expect(letterRow).toHaveAttribute('aria-hidden', 'true');
+    await expect(half.locator('.lp-split-by-proportion-seg')).toHaveCount(shares.length);
+    const labels = letterRow.locator(':scope > span');
+    await expect(labels).toHaveCount(shares.length);
+    const width = (await half.boundingBox()).width;
+    for (const [i, share] of shares.entries()) {
+      const segment = half.locator('.lp-split-by-proportion-seg').nth(i);
+      const label = labels.nth(i);
+      const letter = label.locator('.lp-split-by-proportion-letter');
+      const percentage = label.locator('[data-lp-segment-value]');
+      await expect(letter).toHaveText('ABCDEF'[i]);
+      await expect(percentage).toHaveText(frenchTypography(quantity(share, content, lang), lang));
+      await expect(label.locator('.lp-split-by-proportion-label > span').first()).toHaveClass(row === 0
+        ? 'lp-split-by-proportion-letter' : 'lp-split-by-proportion-pct');
+      if (share === 0) {
+        await expect(segment).toBeHidden();
+        await expect(label).toBeHidden();
+        continue;
+      }
+      await expect(segment).toBeVisible();
+      await expect(letter).toBeVisible();
+      await expect(percentage).toBeVisible();
+      const segmentBox = await segment.boundingBox();
+      const slotBox = await label.boundingBox();
+      const labelBox = await label.locator('.lp-split-by-proportion-label').boundingBox();
+      const letterBox = await textBox(letter);
+      const percentageBox = await textBox(percentage);
+      expect(Math.abs(segmentBox.width - width * share / content.total)).toBeLessThanOrEqual(1);
+      const first = shares.findIndex(value => value > 0);
+      const last = shares.findLastIndex(value => value > 0);
+      if ((i === first || i === last) && labelBox.width > slotBox.width + 1) {
+        expect(labelBox.x).toBeGreaterThanOrEqual(barBox.x + 1);
+        expect(labelBox.x + labelBox.width).toBeLessThanOrEqual(barBox.x + barBox.width - 1);
+        if (i === first) expect(Math.abs(labelBox.x - segmentBox.x)).toBeLessThanOrEqual(1);
+        else expect(Math.abs(labelBox.x + labelBox.width - segmentBox.x - segmentBox.width)).toBeLessThanOrEqual(1);
+      } else {
+        for (const box of [letterBox, percentageBox]) {
+          expect(Math.abs(box.x + box.width / 2 - segmentBox.x - segmentBox.width / 2)).toBeLessThanOrEqual(2);
+        }
+      }
+      if (row === 0) {
+        expect(letterBox.y + letterBox.height).toBeLessThanOrEqual(percentageBox.y);
+        expect(percentageBox.y + percentageBox.height).toBeLessThanOrEqual(barBox.y);
+      } else {
+        expect(percentageBox.y).toBeGreaterThanOrEqual(barBox.y + barBox.height);
+        expect(percentageBox.y + percentageBox.height).toBeLessThanOrEqual(letterBox.y);
+      }
+    }
+  }
+  const table = page.getByRole('table', { name: frenchTypography(strings[lang].caption, lang), exact: true });
+  await expect(table).toHaveCount(1);
+  await expect(table.locator('.lp-split-by-proportion-swatch')).toHaveCount(0);
+  const wrapper = table.locator('..');
+  await expect(wrapper).toHaveClass('lp-visually-hidden');
+  await expect(wrapper).toHaveCSS('overflow', 'hidden');
+  expect(await wrapper.evaluate(node => {
+    const { width, height } = node.getBoundingClientRect();
+    return { width, height };
+  })).toEqual({ width: 1, height: 1 });
+}
+
 for (const lang of ['en', 'fr']) {
   test(`complete keyboard interaction, focus, summary and retry (${lang})`, async ({ page }) => {
     await open(page, lang);
@@ -53,11 +164,13 @@ for (const lang of ['en', 'fr']) {
     await expect(page.locator('[data-lp-check]')).toBeHidden();
     for (let i = 0; i < 3; i++) await expect(sliders(page).nth(i)).toBeDisabled();
     expect(await page.locator('[data-lp-mine]').allTextContents()).toEqual([35, 20, 15, 30].map(n => frenchTypography(`${n}%`, lang)));
+    await expectResultBar(page, [35, 20, 15, 30], [35, 20, 15, 30], lang);
     expect(await page.evaluate(() => window.announcements)).toEqual([strings[lang].exact]);
     await page.keyboard.press('Enter');
     await expect(sliders(page).first()).toBeFocused();
     await expect(page.locator('[data-lp-try-again]')).toBeHidden();
     await expect(page.locator('[data-lp-result]')).toBeHidden();
+    expect(await page.locator('[data-lp-result] [data-lp-segment-value]').allTextContents()).toEqual(Array(8).fill(''));
     await expect(page.locator('[data-lp-summary]')).toBeHidden();
     expect(await values(page)).toEqual([25, 50, 75]);
     expect(await page.evaluate(() => document.querySelector('input') === window.originalSlider)).toBe(true);
@@ -83,6 +196,7 @@ for (const lang of ['en', 'fr']) {
     await page.keyboard.press('Home');
     expect(await values(page)).toEqual([0, 0, 0]);
     await page.locator('[data-lp-check]').click();
+    await expectResultBar(page, [0, 0, 0, 100], [35, 20, 15, 30], lang);
     await expect(page.locator('[data-lp-summary]')).toContainText(lang === 'en' ? 'how-to questions' : frenchTypography("« Questions d'utilisation »", lang));
     await expect(page.getByRole('status')).toHaveText(await page.locator('[data-lp-summary]').textContent());
     expect(await page.evaluate(() => window.announcements.length)).toBe(1);
@@ -156,23 +270,58 @@ for (const lang of ['en', 'fr']) {
     await scan();
     await exactByKeyboard(page);
     await expect(page.locator('[data-lp-try-again]')).toBeFocused();
-    await expect(page.locator('.lp-split-by-proportion-table')).toHaveCSS('table-layout', 'auto');
+    await expectResultBar(page, [35, 20, 15, 30], [35, 20, 15, 30], lang);
     await scan();
   });
 }
 
-async function restore(page, saved, custom = examples.en) {
-  await page.evaluate(async ({ saved, content }) => {
+for (const lang of ['en', 'fr']) for (const width of [1280, 320]) {
+  test(`result percentages stay visible and labels do not overlap at ${width}px (${lang})`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await open(page, lang);
+    await page.evaluate(() => document.fonts.ready);
+    await exactByKeyboard(page);
+    await expectResultBar(page, [35, 20, 15, 30], [35, 20, 15, 30], lang);
+    for (const row of await page.locator('.lp-split-by-proportion-letters').all()) {
+      for (const label of await row.locator(':scope > span').all()) {
+        const slotBox = await label.boundingBox();
+        const labelBox = await label.locator('.lp-split-by-proportion-label').boundingBox();
+        expect(labelBox.width).toBeLessThanOrEqual(slotBox.width + 1);
+      }
+      const boxes = await Promise.all((await row.locator('[data-lp-segment-value]').all()).map(textBox));
+      for (let i = 1; i < boxes.length; i++) {
+        expect(boxes[i - 1].x + boxes[i - 1].width).toBeLessThanOrEqual(boxes[i].x);
+      }
+    }
+  });
+}
+
+test('text alignment assertion detects missing label centring', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await open(page, 'fr');
+  await exactByKeyboard(page);
+  await expectResultBar(page, [35, 20, 15, 30], [35, 20, 15, 30], 'fr');
+  // The initial text-align value reproduces removing the label's centring declaration.
+  const mutation = await page.addStyleTag({ content: '.lp-split-by-proportion-label { text-align: initial !important; }' });
+  const segmentBox = await page.locator('[data-lp-result] .lp-split-by-proportion-seg').first().boundingBox();
+  const letterBox = await textBox(page.locator('.lp-split-by-proportion-letters .lp-split-by-proportion-letter').first());
+  expect(Math.abs(letterBox.x + letterBox.width / 2 - segmentBox.x - segmentBox.width / 2)).toBeGreaterThan(2);
+  await mutation.evaluate(node => node.remove());
+  await expectResultBar(page, [35, 20, 15, 30], [35, 20, 15, 30], 'fr');
+});
+
+async function restore(page, saved, custom = examples.en, lang = 'en') {
+  await page.evaluate(async ({ saved, content, lang }) => {
     const { render } = await import('/patterns/split-by-proportion/render.js');
     const { enhance } = await import('/patterns/split-by-proportion/enhance.js');
     const { strings } = await import('/patterns/split-by-proportion/strings.js');
     window.lpInstances[0].destroy();
-    document.querySelector('main').innerHTML = render(content, strings.en, { id: 'restored', lang: 'en' });
+    document.querySelector('main').innerHTML = render(content, strings[lang], { id: 'restored', lang });
     const root = document.querySelector('[data-lp-pattern]');
-    const options = { content, strings: strings.en, state: { read: () => saved, write: value => { window.saved = value; } } };
+    const options = { content, strings: strings[lang], state: { read: () => saved, write: value => { window.saved = value; } } };
     window.restored = enhance(root, options);
     window.sameInstance = enhance(root, options) === window.restored;
-  }, { saved, content: custom });
+  }, { saved, content: custom, lang });
 }
 
 test('host state restores silently, writes changes, ignores bad state and destroys without rebuilding', async ({ page }) => {
@@ -183,6 +332,7 @@ test('host state restores silently, writes changes, ignores bad state and destro
   await expect(page.locator('body')).toBeFocused();
   expect(await page.evaluate(() => window.sameInstance)).toBe(true);
   await expect(page.locator('[data-lp-result]')).toBeVisible();
+  await expectResultBar(page, [35, 20, 15, 30], [35, 20, 15, 30]);
   await expect(page.getByRole('status')).toBeEmpty();
   expect(await values(page)).toEqual([35, 55, 70]);
   await page.locator('[data-lp-try-again]').click();
@@ -205,16 +355,29 @@ test('host state restores silently, writes changes, ignores bad state and destro
   await expect(page.locator('[data-lp-result]')).toBeHidden();
 });
 
-test('six options with a 40-hour total support all five dividers at 320px', async ({ page }) => {
+test('joined result halves retain zero and off-step real shares', async ({ page }) => {
   await open(page);
-  await page.setViewportSize({ width: 320, height: 900 });
-  const content = { ...examples.en, total: 40, step: 1, unit: 'hours', unitOne: 'hour', close: 4,
-    options: [10, 8, 7, 6, 5, 4].map((share, i) => ({ label: `Work ${i + 1}`, share })) };
+  const content = { ...examples.en,
+    options: [0, 1, 34, 65].map((share, i) => ({ label: `Option ${i + 1}`, share })) };
   await restore(page, null, content);
+  await sliders(page).first().focus();
+  await page.keyboard.press('End');
+  await page.locator('[data-lp-check]').click();
+  await expectResultBar(page, [100, 0, 0, 0], [0, 1, 34, 65]);
+  const table = page.getByRole('table', { name: strings.en.caption, exact: true });
+  expect(await table.locator('tbody td').allTextContents()).toEqual(['100%', '0%', '0%', '1%', '0%', '34%', '0%', '65%']);
+});
+
+for (const lang of ['en', 'fr']) test(`six options with a 40-hour total support all five dividers at 320px (${lang})`, async ({ page }) => {
+  await open(page, lang);
+  await page.setViewportSize({ width: 320, height: 900 });
+  const content = { ...examples[lang], total: 40, step: 1, unit: lang === 'en' ? 'hours' : 'heures', unitOne: lang === 'en' ? 'hour' : 'heure', close: 4,
+    options: [10, 8, 7, 6, 5, 4].map((share, i) => ({ label: `${lang === 'en' ? 'Work' : 'Travail'} ${i + 1}`, share })) };
+  await restore(page, null, content, lang);
   await expect(sliders(page)).toHaveCount(5);
   await sliders(page).first().focus(); await page.keyboard.press('Home'); await page.keyboard.press('ArrowRight');
-  await expect(page.locator('[data-lp-share]').first()).toHaveText('1\u00a0hour');
-  await expect(sliders(page).first()).toHaveAttribute('aria-valuetext', 'Work 1 1\u00a0hour, Work 2 12\u00a0hours');
+  await expect(page.locator('[data-lp-share]').first()).toHaveText(`1\u00a0${content.unitOne}`);
+  await expect(sliders(page).first()).toHaveAttribute('aria-valuetext', `${content.options[0].label} 1\u00a0${content.unitOne}, ${content.options[1].label} 12\u00a0${content.unit}`);
   await sliders(page).last().focus(); await page.keyboard.press('Home');
   expect(await values(page)).toEqual([0, 0, 0, 0, 0]);
   const segment = page.locator('[data-lp-bar] .lp-split-by-proportion-seg:not([hidden])').first();
@@ -222,24 +385,52 @@ test('six options with a 40-hour total support all five dividers at 320px', asyn
   await expect(segment).toHaveCSS('border-end-start-radius', '6px');
   await page.locator('[data-lp-check]').click();
   await expect(page.locator('[data-lp-result]')).toBeVisible();
-  expect(await page.locator('[data-lp-mine]').allTextContents()).toEqual(['0\u00a0hours', '0\u00a0hours', '0\u00a0hours', '0\u00a0hours', '0\u00a0hours', '40\u00a0hours']);
+  expect(await page.locator('[data-lp-mine]').allTextContents()).toEqual([...Array(5).fill(lang === 'en' ? '0\u00a0hours' : '0\u00a0heure'), `40\u00a0${content.unit}`]);
+  await expectResultBar(page, [0, 0, 0, 0, 0, 40], [10, 8, 7, 6, 5, 4], lang, content);
+  const lastValue = page.locator('.lp-split-by-proportion-letters').last().locator('[data-lp-segment-value]').last();
+  await expect(lastValue).toHaveText(`4 ${content.unit}`);
+  expect(await lastValue.evaluate(node => {
+    const range = document.createRange();
+    range.selectNodeContents(node);
+    return range.getClientRects().length;
+  })).toBeGreaterThan(1);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
-test('multiword units wrap in both tables at 320px', async ({ page }) => {
+for (const lang of ['en', 'fr']) test(`multiword units wrap in result labels and the fallback table at 320px (${lang})`, async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 900 });
-  await open(page);
-  const content = { ...examples.en, total: 40, step: 1, unit: 'hours of focused work weekly per person', close: 4,
-    options: [{ label: 'Reading', share: 20 }, { label: 'Writing', share: 20 }] };
-  await restore(page, null, content);
+  await open(page, lang);
+  const content = { ...examples[lang], total: 40, step: 1, unit: lang === 'en' ? 'hours of focused work weekly per person' : 'heures de travail concentré par personne', close: 4,
+    options: [{ label: lang === 'en' ? 'Reading' : 'Lecture', share: 20 }, { label: lang === 'en' ? 'Writing' : 'Écriture', share: 20 }] };
+  await restore(page, null, content, lang);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await sliders(page).first().focus(); await page.keyboard.press('ArrowRight');
   await page.locator('[data-lp-check]').click();
   await expect(page.locator('[data-lp-result]')).toBeVisible();
+  await expectResultBar(page, [21, 19], [20, 20], lang, content);
+  for (const value of await page.locator('.lp-split-by-proportion-letters [data-lp-segment-value]').all()) {
+    expect(await value.evaluate(node => {
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      return range.getClientRects().length;
+    })).toBeGreaterThan(1);
+  }
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.evaluate(() => window.restored.destroy());
   await page.locator('[data-lp-fallback] summary').click();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test('oversized end labels stay inside the bar when leading and trailing shares are zero', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 900 });
+  await open(page);
+  for (const real of [[0, 1, 39, 0], [0, 39, 1, 0]]) {
+    const content = { ...examples.en, total: 40, step: 1, unit: 'hours', close: 4,
+      options: real.map((share, i) => ({ label: `Work ${i + 1}`, share })) };
+    await restore(page, { dividers: [0, 0, 40], touched: true, shown: true }, content);
+    await expectResultBar(page, [0, 0, 40, 0], real, 'en', content);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  }
 });
 
 test('mismatched option markup fails with a named error before enhancement', async ({ page }) => {
