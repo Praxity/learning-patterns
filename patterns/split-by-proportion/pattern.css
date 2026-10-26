@@ -59,8 +59,6 @@
 .lp-split-by-proportion-answer-table th { font-weight: 600; }
 .lp-split-by-proportion-summary { font-weight: 600; }
 .lp-split-by-proportion-table td, .lp-split-by-proportion-table th + th { text-align: end; font-variant-numeric: tabular-nums; }
-.lp-split-by-proportion-table tbody th { position: relative; padding-inline-start: 34px; font-weight: 400; }
-.lp-split-by-proportion-table tbody th .lp-split-by-proportion-swatch { position: absolute; inset-inline-start: 4px; inset-block-start: 8px; }
 @media (forced-colors: active) {
   .lp-split-by-proportion-seg, .lp-split-by-proportion-swatch { border: 1px solid CanvasText; }
   .lp-split-by-proportion-grip::before { background: CanvasText; }

@@ -56,6 +56,7 @@ async function expectResultBars(page, mine, real, lang = 'en') {
   for (const [row, shares] of [mine, real].entries()) {
     const bar = bars.nth(row);
     const letterRow = letters.nth(row);
+    await expect(bar.locator('..').locator('p.lp-small')).toHaveAttribute('aria-hidden', 'true');
     await expect(bar).toHaveAttribute('aria-hidden', 'true');
     await expect(letterRow).toHaveAttribute('aria-hidden', 'true');
     await expect(bar).toHaveCSS('cursor', 'default');
@@ -96,12 +97,14 @@ async function expectResultBars(page, mine, real, lang = 'en') {
   }
   const table = page.getByRole('table', { name: frenchTypography(strings[lang].caption, lang), exact: true });
   await expect(table).toHaveCount(1);
-  expect(await table.evaluate(node => {
-    const box = node.getBoundingClientRect();
-    const css = getComputedStyle(node);
-    return (box.width <= 1 && box.height <= 1)
-      || (css.clipPath === 'inset(50%)' && css.overflow === 'hidden');
-  })).toBe(true);
+  await expect(table.locator('.lp-split-by-proportion-swatch')).toHaveCount(0);
+  const wrapper = table.locator('..');
+  await expect(wrapper).toHaveClass('lp-visually-hidden');
+  await expect(wrapper).toHaveCSS('overflow', 'hidden');
+  expect(await wrapper.evaluate(node => {
+    const { width, height } = node.getBoundingClientRect();
+    return { width, height };
+  })).toEqual({ width: 1, height: 1 });
 }
 
 for (const lang of ['en', 'fr']) {
