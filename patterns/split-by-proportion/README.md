@@ -31,7 +31,7 @@ Write the option-column heading for your topic, such as "Cause" or "Work". Engli
 
 1. Drag a divider or tap the bar to move the nearest divider. A divider pushes any neighbours in its way.
 2. With a keyboard, Tab to a divider. Arrow keys move by one step; Home and End move to the ends of the bar.
-3. Select "Check my split". Two horizontal bars compare your split with the real one. Above each segment, its letter sits over its percentage, both centred. A hidden table gives screen readers every value. A one-line summary names the largest gap, or an exact match. Answers lock.
+3. Select "Check my split". Two horizontal bars compare your split with the real one. Above each segment, its letter sits over its value. Labels are centred; wider end labels align with the bar's edges. Values wrap at spaces. A hidden table gives screen readers every value. A one-line summary names the largest gap, or an exact match. Answers lock.
 4. Select "Try again" to restore the near-equal starting split and focus the first divider.
 
 ## Evidence

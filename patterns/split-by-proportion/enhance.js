@@ -51,13 +51,14 @@ export function enhance(root, { content, strings, state }) {
   const q = (/** @type {number} */ value) => text(quantity(value, content, root.lang));
   const save = () => state?.write({ dividers: [...dividers], touched, shown });
 
-  /** @param {HTMLElement[]} nodes @param {number[]} values */
-  function paintSegments(nodes, values) {
+  /** @param {HTMLElement[]} nodes @param {number[]} values @param {boolean} [wrapUnits] */
+  function paintSegments(nodes, values, wrapUnits = false) {
     nodes.forEach((segment, i) => {
       segment.hidden = values[i] === 0;
       segment.style.inlineSize = `${values[i] / content.total * 100}%`;
       const value = segment.querySelector('[data-lp-segment-value]');
-      if (value) value.textContent = q(values[i]);
+      // Only result labels may wrap between the amount and its unit.
+      if (value) value.textContent = wrapUnits ? q(values[i]).replaceAll('\u00a0', ' ') : q(values[i]);
     });
   }
   // Value text widens to every option a push changed, so each new value is heard once through the slider.
@@ -103,7 +104,7 @@ export function enhance(root, { content, strings, state }) {
       paintSegments([...node.querySelectorAll('.lp-split-by-proportion-seg')].map(n => /** @type {HTMLElement} */ (n)), row === 0 ? outcome.mine : outcome.real);
     });
     result.querySelectorAll('.lp-split-by-proportion-letters').forEach((node, row) => {
-      paintSegments([...node.querySelectorAll(':scope > span')].map(n => /** @type {HTMLElement} */ (n)), row === 0 ? outcome.mine : outcome.real);
+      paintSegments([...node.querySelectorAll(':scope > span')].map(n => /** @type {HTMLElement} */ (n)), row === 0 ? outcome.mine : outcome.real, true);
     });
     summary.textContent = message;
     summary.hidden = false;

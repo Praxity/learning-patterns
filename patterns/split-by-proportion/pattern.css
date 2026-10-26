@@ -51,7 +51,12 @@
 .lp-split-by-proportion-chart .lp-split-by-proportion-bar { pointer-events: none; cursor: default; }
 .lp-split-by-proportion-letters { display: flex; padding-inline: 2px; color: var(--lp-ink); font-size: var(--lp-type-small); font-weight: 600; font-variant-numeric: tabular-nums; }
 /* ponytail: tiny neighbouring shares can overlap labels; add label placement only if those splits need it. */
-.lp-split-by-proportion-letters > span { display: flex; flex-direction: column; flex: none; align-items: center; min-inline-size: 0; white-space: nowrap; overflow: visible; }
+.lp-split-by-proportion-letters > span { display: flex; flex: none; justify-content: center; min-inline-size: 0; overflow: visible; }
+/* Wrap at spaces. A wider single word grows the inner label; only the end slots anchor that overflow to the bar's edges. */
+.lp-split-by-proportion-label { flex: none; inline-size: 100%; min-inline-size: min-content; white-space: normal; overflow-wrap: normal; text-align: center; }
+.lp-split-by-proportion-label > span { display: block; }
+.lp-split-by-proportion-letters > span:nth-child(1 of span:not([hidden])) { justify-content: flex-start; }
+.lp-split-by-proportion-letters > span:nth-last-child(1 of span:not([hidden])) { justify-content: flex-end; }
 /* overflow-wrap: anywhere lowers the cells' min-content width, so long French headers and labels break
    only when 320 px and text spacing leave no room, instead of widening the page. */
 .lp-split-by-proportion-answer-table { inline-size: 100%; border-collapse: collapse; text-align: start; font-size: var(--lp-type-small); }

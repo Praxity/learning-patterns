@@ -3,6 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { readFile } from 'node:fs/promises';
 import { frenchTypography } from '../../lib/html.js';
 import { strings } from '../../patterns/split-by-proportion/strings.js';
+import { quantity } from '../../patterns/split-by-proportion/logic.js';
 
 const examples = Object.fromEntries(await Promise.all(['en', 'fr'].map(async lang => [lang,
   JSON.parse(await readFile(new URL(`../../patterns/split-by-proportion/examples/${lang}.json`, import.meta.url), 'utf8'))
@@ -46,7 +47,7 @@ async function textBox(locator) {
   });
 }
 
-async function expectResultBars(page, mine, real, lang = 'en') {
+async function expectResultBars(page, mine, real, lang = 'en', content = examples[lang]) {
   const result = page.locator('[data-lp-result]');
   const bars = result.locator('.lp-split-by-proportion-bar');
   const letters = result.locator('.lp-split-by-proportion-letters');
@@ -65,6 +66,7 @@ async function expectResultBars(page, mine, real, lang = 'en') {
     await expect(bar.locator('.lp-split-by-proportion-seg')).toHaveCount(shares.length);
     const labels = letterRow.locator(':scope > span');
     await expect(labels).toHaveCount(shares.length);
+    const barBox = await bar.boundingBox();
     const width = await bar.evaluate(node => {
       const css = getComputedStyle(node);
       return node.getBoundingClientRect().width - parseFloat(css.borderLeftWidth) - parseFloat(css.borderRightWidth);
@@ -75,7 +77,7 @@ async function expectResultBars(page, mine, real, lang = 'en') {
       const letter = label.locator('.lp-split-by-proportion-letter');
       const percentage = label.locator('[data-lp-segment-value]');
       await expect(letter).toHaveText('ABCDEF'[i]);
-      await expect(percentage).toHaveText(frenchTypography(`${share}%`, lang));
+      await expect(percentage).toHaveText(frenchTypography(quantity(share, content, lang), lang));
       if (share === 0) {
         await expect(segment).toBeHidden();
         await expect(label).toBeHidden();
@@ -85,11 +87,22 @@ async function expectResultBars(page, mine, real, lang = 'en') {
       await expect(letter).toBeVisible();
       await expect(percentage).toBeVisible();
       const segmentBox = await segment.boundingBox();
+      const slotBox = await label.boundingBox();
+      const labelBox = await label.locator('.lp-split-by-proportion-label').boundingBox();
       const letterBox = await textBox(letter);
       const percentageBox = await textBox(percentage);
-      expect(Math.abs(segmentBox.width - width * share / 100)).toBeLessThanOrEqual(1);
-      for (const box of [letterBox, percentageBox]) {
-        expect(Math.abs(box.x + box.width / 2 - segmentBox.x - segmentBox.width / 2)).toBeLessThanOrEqual(2);
+      expect(Math.abs(segmentBox.width - width * share / content.total)).toBeLessThanOrEqual(1);
+      const first = shares.findIndex(value => value > 0);
+      const last = shares.findLastIndex(value => value > 0);
+      if ((i === first || i === last) && labelBox.width > slotBox.width + 1) {
+        expect(labelBox.x).toBeGreaterThanOrEqual(barBox.x + 1);
+        expect(labelBox.x + labelBox.width).toBeLessThanOrEqual(barBox.x + barBox.width - 1);
+        if (i === first) expect(Math.abs(labelBox.x - segmentBox.x)).toBeLessThanOrEqual(1);
+        else expect(Math.abs(labelBox.x + labelBox.width - segmentBox.x - segmentBox.width)).toBeLessThanOrEqual(1);
+      } else {
+        for (const box of [letterBox, percentageBox]) {
+          expect(Math.abs(box.x + box.width / 2 - segmentBox.x - segmentBox.width / 2)).toBeLessThanOrEqual(2);
+        }
       }
       expect(letterBox.y + letterBox.height).toBeLessThanOrEqual(percentageBox.y);
       expect(percentageBox.y + percentageBox.height).toBeLessThanOrEqual(segmentBox.y);
@@ -242,7 +255,12 @@ for (const width of [1280, 320]) {
     await exactByKeyboard(page);
     await expectResultBars(page, [35, 20, 15, 30], [35, 20, 15, 30], 'fr');
     for (const row of await page.locator('.lp-split-by-proportion-letters').all()) {
-      const boxes = await Promise.all((await row.locator(':scope > span').all()).map(textBox));
+      for (const label of await row.locator(':scope > span').all()) {
+        const slotBox = await label.boundingBox();
+        const labelBox = await label.locator('.lp-split-by-proportion-label').boundingBox();
+        expect(labelBox.width).toBeLessThanOrEqual(slotBox.width + 1);
+      }
+      const boxes = await Promise.all((await row.locator('[data-lp-segment-value]').all()).map(textBox));
       for (let i = 1; i < boxes.length; i++) {
         expect(boxes[i - 1].x + boxes[i - 1].width).toBeLessThanOrEqual(boxes[i].x);
       }
@@ -255,8 +273,8 @@ test('text alignment assertion detects missing label centring', async ({ page })
   await open(page, 'fr');
   await exactByKeyboard(page);
   await expectResultBars(page, [35, 20, 15, 30], [35, 20, 15, 30], 'fr');
-  // The initial align-items value reproduces removing the label's centring declaration.
-  const mutation = await page.addStyleTag({ content: '.lp-split-by-proportion-letters > span { align-items: initial !important; }' });
+  // The initial text-align value reproduces removing the label's centring declaration.
+  const mutation = await page.addStyleTag({ content: '.lp-split-by-proportion-label { text-align: initial !important; }' });
   const segmentBox = await page.locator('[data-lp-result] .lp-split-by-proportion-seg').first().boundingBox();
   const letterBox = await textBox(page.locator('.lp-split-by-proportion-letters .lp-split-by-proportion-letter').first());
   expect(Math.abs(letterBox.x + letterBox.width / 2 - segmentBox.x - segmentBox.width / 2)).toBeGreaterThan(2);
@@ -340,10 +358,18 @@ test('six options with a 40-hour total support all five dividers at 320px', asyn
   await page.locator('[data-lp-check]').click();
   await expect(page.locator('[data-lp-result]')).toBeVisible();
   expect(await page.locator('[data-lp-mine]').allTextContents()).toEqual(['0\u00a0hours', '0\u00a0hours', '0\u00a0hours', '0\u00a0hours', '0\u00a0hours', '40\u00a0hours']);
+  await expectResultBars(page, [0, 0, 0, 0, 0, 40], [10, 8, 7, 6, 5, 4], 'en', content);
+  const lastValue = page.locator('.lp-split-by-proportion-letters').last().locator('[data-lp-segment-value]').last();
+  await expect(lastValue).toHaveText('4 hours');
+  expect(await lastValue.evaluate(node => {
+    const range = document.createRange();
+    range.selectNodeContents(node);
+    return range.getClientRects().length;
+  })).toBeGreaterThan(1);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
-test('multiword units wrap in both tables at 320px', async ({ page }) => {
+test('multiword units wrap in result labels and the fallback table at 320px', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 900 });
   await open(page);
   const content = { ...examples.en, total: 40, step: 1, unit: 'hours of focused work weekly per person', close: 4,
@@ -353,10 +379,30 @@ test('multiword units wrap in both tables at 320px', async ({ page }) => {
   await sliders(page).first().focus(); await page.keyboard.press('ArrowRight');
   await page.locator('[data-lp-check]').click();
   await expect(page.locator('[data-lp-result]')).toBeVisible();
+  await expectResultBars(page, [21, 19], [20, 20], 'en', content);
+  for (const value of await page.locator('.lp-split-by-proportion-letters [data-lp-segment-value]').all()) {
+    expect(await value.evaluate(node => {
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      return range.getClientRects().length;
+    })).toBeGreaterThan(1);
+  }
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.evaluate(() => window.restored.destroy());
   await page.locator('[data-lp-fallback] summary').click();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test('oversized end labels stay inside the bar when leading and trailing shares are zero', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 900 });
+  await open(page);
+  for (const real of [[0, 1, 39, 0], [0, 39, 1, 0]]) {
+    const content = { ...examples.en, total: 40, step: 1, unit: 'hours', close: 4,
+      options: real.map((share, i) => ({ label: `Work ${i + 1}`, share })) };
+    await restore(page, { dividers: [0, 0, 40], touched: true, shown: true }, content);
+    await expectResultBars(page, [0, 0, 40, 0], real, 'en', content);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  }
 });
 
 test('mismatched option markup fails with a named error before enhancement', async ({ page }) => {
