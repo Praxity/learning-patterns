@@ -9,15 +9,26 @@ export function format(template, values) {
   return template.replace(/\{(\w+)\}/g, (match, key) => Object.hasOwn(values, key) ? String(values[key]) : match);
 }
 
+/** @param {string} lang */
+function numberLocale(lang) {
+  return /^fr(?:-|$)/i.test(lang) ? 'fr-CA' : 'en';
+}
+
 /** @param {number} value @param {string} lang */
 export function numberText(value, lang) {
-  return value.toLocaleString(/^fr(?:-|$)/i.test(lang) ? 'fr-CA' : 'en', { maximumFractionDigits: 15 });
+  return value.toLocaleString(numberLocale(lang), { maximumFractionDigits: 15 });
 }
 
 /** @param {number} value @param {string} lang */
 function axisNumberText(value, lang) {
-  lang = /^fr(?:-|$)/i.test(lang) ? 'fr' : 'en';
-  return new Intl.NumberFormat(lang, { notation: 'compact' }).format(value);
+  return new Intl.NumberFormat(numberLocale(lang), { notation: 'compact' }).format(value);
+}
+
+/** @param {number} at */
+function axisLabelStyle(at) {
+  // At 320 px, 10% of the 254 px track fits half of "100 k", including text spacing.
+  if (at > 90) return 'left:100%;translate:-100% 0';
+  return `left:${at}%;translate:${at === 0 ? 0 : -50}% 0`;
 }
 
 /** @param {import('./logic.js').Content} content
@@ -28,8 +39,8 @@ export function render(content, strings, { id, lang }) {
   const { stops, bands, start, ratio } = scaleFor(content);
   const powers = stops.filter(stop => Number.isInteger(Math.log10(stop)));
   // ponytail: cap at six labels for 320 px; wide screens could fit more labels.
-  const labelledPowers = powers.filter((_, index) => index % Math.ceil(powers.length / 6) === 0);
-  const axisLabels = labelledPowers.map(stop => `<span class="lp-estimate-magnitude-axis-label" aria-hidden="true" style="--lp-estimate-magnitude-at:${positionOf(stop, stops)}">${html(axisNumberText(stop, lang), lang).replace(/([\u00a0\u202f])/g, '<wbr>$1')}</span>`).join('');
+  const labelledPowers = powers.length <= 6 ? powers : powers.filter(stop => [1, 1e3, 1e6, 1e9, 1e12].includes(stop));
+  const axisLabels = labelledPowers.map(stop => `<span class="lp-estimate-magnitude-axis-label" aria-hidden="true" style="${axisLabelStyle(positionOf(stop, stops))}">${html(axisNumberText(stop, lang), lang)}</span>`).join('');
   const [low, high] = bands[start];
   const at = (positionOf(low, stops) + positionOf(high, stops)) / 2;
   const range = format(strings.range, { low: numberText(low, lang), high: numberText(high, lang) });

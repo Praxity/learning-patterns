@@ -156,24 +156,44 @@ test('render labels powers of ten in each language and hides the axis from scree
   ]) {
     const output = render(content, strings[lang], { id: 'axis', lang });
     const labels = [...output.matchAll(/class="lp-estimate-magnitude-axis-label" aria-hidden="true" style="[^"]+">(.*?)<\/span>/g)];
-    assert.deepEqual(labels.map(match => match[1].replaceAll('<wbr>', '')), [...expected, ...expected, ...expected]);
+    assert.deepEqual(labels.map(match => match[1]), [...expected, ...expected, ...expected]);
     assert.equal((output.match(/lp-estimate-magnitude-tick-major/g) || []).length, 18);
   }
 });
 
-test('render thins the axis to every second or third power on longer scales', () => {
+test('longer scales label thousands, millions, billions and trillions using the number locale', () => {
+  for (const lang of ['en', 'fr', 'fr-CA']) {
+    for (const [answer, expected] of [
+      [1e3, lang === 'en' ? ['1', '1K', '1M'] : ['1', '1\u00a0k', '1\u00a0M']],
+      [1e8, lang === 'en' ? ['1', '1K', '1M', '1B'] : ['1', '1\u00a0k', '1\u00a0M', '1\u00a0G']],
+      [1e12, lang === 'en' ? ['1', '1K', '1M', '1B', '1T'] : ['1', '1\u00a0k', '1\u00a0M', '1\u00a0G', '1\u00a0T']]
+    ]) {
+      const value = { ...clone(), ratio: 1000 };
+      value.questions.forEach(question => { question.answer = answer; });
+      const output = render(value, strings[lang === 'en' ? 'en' : 'fr'], { id: 'wide', lang });
+      const labels = [...output.matchAll(/class="lp-estimate-magnitude-axis-label"[^>]*>([^<]+)<\/span>/g)];
+      assert.deepEqual(labels.map(match => match[1]), [...expected, ...expected, ...expected]);
+    }
+  }
+});
+
+test('axis positioning centres labels through 90 percent and flushes the ends', () => {
   for (const [answer, expected] of [
-    [1e3, ['1', '100', '10K', '1M']],
-    [1e8, ['1', '100', '10K', '1M', '100M', '10B']],
-    [1e12, ['1', '1K', '1M', '1B', '1T', '1000T']]
+    [1e9, [90, -50]],
+    [5e8, [100, -100]],
+    [1e8, [100, -100]]
   ]) {
-    const value = { ...clone(), ratio: 1000 };
+    const value = clone();
     value.questions.forEach(question => { question.answer = answer; });
-    const output = render(value, strings.en, { id: 'wide', lang: 'en' });
-    const labels = [...output.matchAll(/class="lp-estimate-magnitude-axis-label"[^>]*>([^<]+)<\/span>/g)];
-    assert.deepEqual(labels.map(match => match[1]), [...expected, ...expected, ...expected]);
-    assert.equal(labels[0][0].includes('--lp-estimate-magnitude-at:0'), true);
-    if (answer === 1e12) assert.ok(labels[5][0].includes('--lp-estimate-magnitude-at:100'));
+    const output = render(value, strings.en, { id: 'position', lang: 'en' });
+    const styles = [...output.matchAll(/class="lp-estimate-magnitude-axis-label"[^>]*style="([^"]+)"/g)].map(match => match[1]);
+    assert.equal(styles.length, 12);
+    assert.deepEqual([styles[0], styles[4], styles[8]], ['left:0%;translate:0% 0', 'left:0%;translate:0% 0', 'left:0%;translate:0% 0']);
+    for (const style of [styles[3], styles[7], styles[11]]) {
+      const [, left, shift] = style.match(/left:([\d.]+)%;translate:(-?\d+)% 0/);
+      assert.ok(Math.abs(Number(left) - expected[0]) < 1e-10);
+      assert.equal(Number(shift), expected[1]);
+    }
   }
 });
 
