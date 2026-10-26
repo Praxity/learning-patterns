@@ -37,6 +37,55 @@ async function exactByKeyboard(page) {
   await page.keyboard.press('Enter');
 }
 
+async function expectResultBars(page, mine, real, lang = 'en') {
+  const result = page.locator('[data-lp-result]');
+  const bars = result.locator('.lp-split-by-proportion-bar');
+  const letters = result.locator('.lp-split-by-proportion-letters');
+  await expect(bars).toHaveCount(2);
+  await expect(letters).toHaveCount(2);
+  await expect(result.locator('.lp-split-by-proportion-cols, .lp-split-by-proportion-col, .lp-split-by-proportion-vbar')).toHaveCount(0);
+  for (const [row, shares] of [mine, real].entries()) {
+    const bar = bars.nth(row);
+    const letterRow = letters.nth(row);
+    await expect(bar).toHaveAttribute('aria-hidden', 'true');
+    await expect(letterRow).toHaveAttribute('aria-hidden', 'true');
+    await expect(bar).toHaveCSS('cursor', 'default');
+    await expect(bar).toHaveCSS('pointer-events', 'none');
+    await expect(bar.locator('.lp-split-by-proportion-letter, .lp-split-by-proportion-grip')).toHaveCount(0);
+    await expect(bar.locator('.lp-split-by-proportion-seg')).toHaveCount(shares.length);
+    await expect(letterRow.locator('span')).toHaveCount(shares.length);
+    const width = await bar.evaluate(node => {
+      const css = getComputedStyle(node);
+      return node.getBoundingClientRect().width - parseFloat(css.borderLeftWidth) - parseFloat(css.borderRightWidth);
+    });
+    for (const [i, share] of shares.entries()) {
+      const segment = bar.locator('.lp-split-by-proportion-seg').nth(i);
+      const letter = letterRow.locator('span').nth(i);
+      await expect(letter).toHaveText('ABCDEF'[i]);
+      await expect(segment.locator('[data-lp-segment-value]')).toHaveText(frenchTypography(`${share}%`, lang));
+      if (share === 0) {
+        await expect(segment).toBeHidden();
+        await expect(letter).toBeHidden();
+        continue;
+      }
+      await expect(segment).toBeVisible();
+      await expect(letter).toBeVisible();
+      const segmentBox = await segment.boundingBox();
+      const letterBox = await letter.boundingBox();
+      expect(Math.abs(segmentBox.width - width * share / 100)).toBeLessThanOrEqual(1);
+      expect(Math.abs(letterBox.x + letterBox.width / 2 - segmentBox.x - segmentBox.width / 2)).toBeLessThanOrEqual(2);
+    }
+  }
+  const table = page.getByRole('table', { name: frenchTypography(strings[lang].caption, lang), exact: true });
+  await expect(table).toHaveCount(1);
+  expect(await table.evaluate(node => {
+    const box = node.getBoundingClientRect();
+    const css = getComputedStyle(node);
+    return (box.width <= 1 && box.height <= 1)
+      || (css.clipPath === 'inset(50%)' && css.overflow === 'hidden');
+  })).toBe(true);
+}
+
 for (const lang of ['en', 'fr']) {
   test(`complete keyboard interaction, focus, summary and retry (${lang})`, async ({ page }) => {
     await open(page, lang);
@@ -53,6 +102,7 @@ for (const lang of ['en', 'fr']) {
     await expect(page.locator('[data-lp-check]')).toBeHidden();
     for (let i = 0; i < 3; i++) await expect(sliders(page).nth(i)).toBeDisabled();
     expect(await page.locator('[data-lp-mine]').allTextContents()).toEqual([35, 20, 15, 30].map(n => frenchTypography(`${n}%`, lang)));
+    await expectResultBars(page, [35, 20, 15, 30], [35, 20, 15, 30], lang);
     expect(await page.evaluate(() => window.announcements)).toEqual([strings[lang].exact]);
     await page.keyboard.press('Enter');
     await expect(sliders(page).first()).toBeFocused();
@@ -83,6 +133,7 @@ for (const lang of ['en', 'fr']) {
     await page.keyboard.press('Home');
     expect(await values(page)).toEqual([0, 0, 0]);
     await page.locator('[data-lp-check]').click();
+    await expectResultBars(page, [0, 0, 0, 100], [35, 20, 15, 30], lang);
     await expect(page.locator('[data-lp-summary]')).toContainText(lang === 'en' ? 'how-to questions' : frenchTypography("« Questions d'utilisation »", lang));
     await expect(page.getByRole('status')).toHaveText(await page.locator('[data-lp-summary]').textContent());
     expect(await page.evaluate(() => window.announcements.length)).toBe(1);
@@ -156,7 +207,7 @@ for (const lang of ['en', 'fr']) {
     await scan();
     await exactByKeyboard(page);
     await expect(page.locator('[data-lp-try-again]')).toBeFocused();
-    await expect(page.locator('.lp-split-by-proportion-table')).toHaveCSS('table-layout', 'auto');
+    await expectResultBars(page, [35, 20, 15, 30], [35, 20, 15, 30], lang);
     await scan();
   });
 }
@@ -183,6 +234,7 @@ test('host state restores silently, writes changes, ignores bad state and destro
   await expect(page.locator('body')).toBeFocused();
   expect(await page.evaluate(() => window.sameInstance)).toBe(true);
   await expect(page.locator('[data-lp-result]')).toBeVisible();
+  await expectResultBars(page, [35, 20, 15, 30], [35, 20, 15, 30]);
   await expect(page.getByRole('status')).toBeEmpty();
   expect(await values(page)).toEqual([35, 55, 70]);
   await page.locator('[data-lp-try-again]').click();
@@ -203,6 +255,19 @@ test('host state restores silently, writes changes, ignores bad state and destro
   await restore(page, { dividers: [60, 20, 75], touched: true, shown: true });
   expect(await values(page)).toEqual([25, 50, 75]);
   await expect(page.locator('[data-lp-result]')).toBeHidden();
+});
+
+test('result bars retain zero and off-step real shares', async ({ page }) => {
+  await open(page);
+  const content = { ...examples.en,
+    options: [0, 1, 34, 65].map((share, i) => ({ label: `Option ${i + 1}`, share })) };
+  await restore(page, null, content);
+  await sliders(page).first().focus();
+  await page.keyboard.press('End');
+  await page.locator('[data-lp-check]').click();
+  await expectResultBars(page, [100, 0, 0, 0], [0, 1, 34, 65]);
+  const table = page.getByRole('table', { name: strings.en.caption, exact: true });
+  expect(await table.locator('tbody td').allTextContents()).toEqual(['100%', '0%', '0%', '1%', '0%', '34%', '0%', '65%']);
 });
 
 test('six options with a 40-hour total support all five dividers at 320px', async ({ page }) => {
