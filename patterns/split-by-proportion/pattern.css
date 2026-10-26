@@ -46,12 +46,12 @@
 .lp-split-by-proportion-key strong { margin-inline-start: var(--lp-gap-hint); font-variant-numeric: tabular-nums; }
 .lp-split-by-proportion-swatch { display: inline-grid; flex: none; place-items: center; inline-size: 24px; block-size: 24px; border: 1px solid var(--lp-ink); border-radius: 6px; color: var(--lp-ink); background: var(--lp-split-by-proportion-colour); font-size: var(--lp-type-small); font-weight: 600; align-self: center; }
 
-/* The key and letters are the visible legend; the hidden table gives screen readers every value. */
+/* Letters and percentages sit above the bars; the key names the options and the hidden table gives screen readers every value. */
 .lp-split-by-proportion-chart { display: grid; gap: var(--lp-gap-group); }
 .lp-split-by-proportion-chart .lp-split-by-proportion-bar { pointer-events: none; cursor: default; }
-.lp-split-by-proportion-letters { display: flex; padding-inline: 2px; color: var(--lp-ink); font-size: var(--lp-type-small); font-weight: 600; }
-/* ponytail: 1% real shares can overlap letters; add label placement only if those splits need it. */
-.lp-split-by-proportion-letters span { display: flex; flex: none; justify-content: center; min-inline-size: 0; }
+.lp-split-by-proportion-letters { display: flex; padding-inline: 2px; color: var(--lp-ink); font-size: var(--lp-type-small); font-weight: 600; font-variant-numeric: tabular-nums; }
+/* ponytail: tiny neighbouring shares can overlap labels; add label placement only if those splits need it. */
+.lp-split-by-proportion-letters > span { display: flex; flex-direction: column; flex: none; align-items: center; min-inline-size: 0; white-space: nowrap; overflow: visible; }
 /* overflow-wrap: anywhere lowers the cells' min-content width, so long French headers and labels break
    only when 320 px and text spacing leave no room, instead of widening the page. */
 .lp-split-by-proportion-answer-table { inline-size: 100%; border-collapse: collapse; text-align: start; font-size: var(--lp-type-small); }

@@ -103,7 +103,7 @@ export function enhance(root, { content, strings, state }) {
       paintSegments([...node.querySelectorAll('.lp-split-by-proportion-seg')].map(n => /** @type {HTMLElement} */ (n)), row === 0 ? outcome.mine : outcome.real);
     });
     result.querySelectorAll('.lp-split-by-proportion-letters').forEach((node, row) => {
-      paintSegments([...node.querySelectorAll('span')], row === 0 ? outcome.mine : outcome.real);
+      paintSegments([...node.querySelectorAll(':scope > span')].map(n => /** @type {HTMLElement} */ (n)), row === 0 ? outcome.mine : outcome.real);
     });
     summary.textContent = message;
     summary.hidden = false;

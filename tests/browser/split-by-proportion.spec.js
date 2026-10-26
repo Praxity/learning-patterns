@@ -37,6 +37,15 @@ async function exactByKeyboard(page) {
   await page.keyboard.press('Enter');
 }
 
+async function textBox(locator) {
+  return locator.evaluate(node => {
+    const range = document.createRange();
+    range.selectNodeContents(node);
+    const { x, y, width, height } = range.getBoundingClientRect();
+    return { x, y, width, height };
+  });
+}
+
 async function expectResultBars(page, mine, real, lang = 'en') {
   const result = page.locator('[data-lp-result]');
   const bars = result.locator('.lp-split-by-proportion-bar');
@@ -51,29 +60,38 @@ async function expectResultBars(page, mine, real, lang = 'en') {
     await expect(letterRow).toHaveAttribute('aria-hidden', 'true');
     await expect(bar).toHaveCSS('cursor', 'default');
     await expect(bar).toHaveCSS('pointer-events', 'none');
-    await expect(bar.locator('.lp-split-by-proportion-letter, .lp-split-by-proportion-grip')).toHaveCount(0);
+    await expect(bar.locator('span span, .lp-split-by-proportion-grip')).toHaveCount(0);
     await expect(bar.locator('.lp-split-by-proportion-seg')).toHaveCount(shares.length);
-    await expect(letterRow.locator('span')).toHaveCount(shares.length);
+    const labels = letterRow.locator(':scope > span');
+    await expect(labels).toHaveCount(shares.length);
     const width = await bar.evaluate(node => {
       const css = getComputedStyle(node);
       return node.getBoundingClientRect().width - parseFloat(css.borderLeftWidth) - parseFloat(css.borderRightWidth);
     });
     for (const [i, share] of shares.entries()) {
       const segment = bar.locator('.lp-split-by-proportion-seg').nth(i);
-      const letter = letterRow.locator('span').nth(i);
+      const label = labels.nth(i);
+      const letter = label.locator('.lp-split-by-proportion-letter');
+      const percentage = label.locator('[data-lp-segment-value]');
       await expect(letter).toHaveText('ABCDEF'[i]);
-      await expect(segment.locator('[data-lp-segment-value]')).toHaveText(frenchTypography(`${share}%`, lang));
+      await expect(percentage).toHaveText(frenchTypography(`${share}%`, lang));
       if (share === 0) {
         await expect(segment).toBeHidden();
-        await expect(letter).toBeHidden();
+        await expect(label).toBeHidden();
         continue;
       }
       await expect(segment).toBeVisible();
       await expect(letter).toBeVisible();
+      await expect(percentage).toBeVisible();
       const segmentBox = await segment.boundingBox();
-      const letterBox = await letter.boundingBox();
+      const letterBox = await textBox(letter);
+      const percentageBox = await textBox(percentage);
       expect(Math.abs(segmentBox.width - width * share / 100)).toBeLessThanOrEqual(1);
-      expect(Math.abs(letterBox.x + letterBox.width / 2 - segmentBox.x - segmentBox.width / 2)).toBeLessThanOrEqual(2);
+      for (const box of [letterBox, percentageBox]) {
+        expect(Math.abs(box.x + box.width / 2 - segmentBox.x - segmentBox.width / 2)).toBeLessThanOrEqual(2);
+      }
+      expect(letterBox.y + letterBox.height).toBeLessThanOrEqual(percentageBox.y);
+      expect(percentageBox.y + percentageBox.height).toBeLessThanOrEqual(segmentBox.y);
     }
   }
   const table = page.getByRole('table', { name: frenchTypography(strings[lang].caption, lang), exact: true });
@@ -108,6 +126,7 @@ for (const lang of ['en', 'fr']) {
     await expect(sliders(page).first()).toBeFocused();
     await expect(page.locator('[data-lp-try-again]')).toBeHidden();
     await expect(page.locator('[data-lp-result]')).toBeHidden();
+    expect(await page.locator('[data-lp-result] [data-lp-segment-value]').allTextContents()).toEqual(Array(8).fill(''));
     await expect(page.locator('[data-lp-summary]')).toBeHidden();
     expect(await values(page)).toEqual([25, 50, 75]);
     expect(await page.evaluate(() => document.querySelector('input') === window.originalSlider)).toBe(true);
@@ -211,6 +230,36 @@ for (const lang of ['en', 'fr']) {
     await scan();
   });
 }
+
+for (const width of [1280, 320]) {
+  test(`French result percentages stay visible and labels do not overlap at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await open(page, 'fr');
+    await page.evaluate(() => document.fonts.ready);
+    await exactByKeyboard(page);
+    await expectResultBars(page, [35, 20, 15, 30], [35, 20, 15, 30], 'fr');
+    for (const row of await page.locator('.lp-split-by-proportion-letters').all()) {
+      const boxes = await Promise.all((await row.locator(':scope > span').all()).map(textBox));
+      for (let i = 1; i < boxes.length; i++) {
+        expect(boxes[i - 1].x + boxes[i - 1].width).toBeLessThanOrEqual(boxes[i].x);
+      }
+    }
+  });
+}
+
+test('text alignment assertion detects missing label centring', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await open(page, 'fr');
+  await exactByKeyboard(page);
+  await expectResultBars(page, [35, 20, 15, 30], [35, 20, 15, 30], 'fr');
+  // The initial align-items value reproduces removing the label's centring declaration.
+  const mutation = await page.addStyleTag({ content: '.lp-split-by-proportion-letters > span { align-items: initial !important; }' });
+  const segmentBox = await page.locator('[data-lp-result] .lp-split-by-proportion-seg').first().boundingBox();
+  const letterBox = await textBox(page.locator('.lp-split-by-proportion-letters .lp-split-by-proportion-letter').first());
+  expect(Math.abs(letterBox.x + letterBox.width / 2 - segmentBox.x - segmentBox.width / 2)).toBeGreaterThan(2);
+  await mutation.evaluate(node => node.remove());
+  await expectResultBars(page, [35, 20, 15, 30], [35, 20, 15, 30], 'fr');
+});
 
 async function restore(page, saved, custom = examples.en) {
   await page.evaluate(async ({ saved, content }) => {
