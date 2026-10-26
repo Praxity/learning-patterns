@@ -100,7 +100,7 @@ export function enhance(root, { content, strings, state }) {
       real: quantity(outcome.real[outcome.biggest], content, root.lang)
     }));
     root.querySelectorAll('[data-lp-mine]').forEach((node, i) => { node.textContent = q(outcome.mine[i]); });
-    result.querySelectorAll('.lp-split-by-proportion-bar').forEach((node, row) => {
+    result.querySelectorAll('.lp-split-by-proportion-half').forEach((node, row) => {
       paintSegments([...node.querySelectorAll('.lp-split-by-proportion-seg')].map(n => /** @type {HTMLElement} */ (n)), row === 0 ? outcome.mine : outcome.real);
     });
     result.querySelectorAll('.lp-split-by-proportion-letters').forEach((node, row) => {

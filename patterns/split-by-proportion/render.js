@@ -8,10 +8,17 @@ export function render(content, strings, { id, lang }) {
   validateContent(content);
   const d = initialDividers(content);
   const mine = shares(content, d);
+  const real = content.options.map(o => o.share);
   const h = (/** @type {string} */ text) => html(text, lang);
   const q = (/** @type {number} */ value) => h(quantity(value, content, lang));
   /** @param {number[]} values @param {boolean} [withText] */
   const segments = (values, withText = true) => values.map((v, i) => `<span class="lp-split-by-proportion-seg" data-opt="${i}" style="inline-size:${v / content.total * 100}%"${v === 0 ? ' hidden' : ''}>${withText ? `<span class="lp-split-by-proportion-letter">${'ABCDEF'[i]}</span><span class="lp-split-by-proportion-pct" data-lp-segment-value>${q(v)}</span>` : ''}</span>`).join('');
+  /** @param {number[]} values @param {boolean} [below] */
+  const labels = (values, below = false) => `<div class="lp-split-by-proportion-letters" aria-hidden="true">${values.map((v, i) => {
+    const letter = `<span class="lp-split-by-proportion-letter">${'ABCDEF'[i]}</span>`;
+    const value = `<span class="lp-split-by-proportion-pct" data-lp-segment-value>${q(v)}</span>`;
+    return `<span style="inline-size:${v / content.total * 100}%"${v === 0 ? ' hidden' : ''}><span class="lp-split-by-proportion-label">${below ? value + letter : letter + value}</span></span>`;
+  }).join('')}</div>`;
   return `<section class="lp lp-split-by-proportion" data-lp-pattern="split-by-proportion" lang="${html(lang)}">
   <header class="lp-scene"><span class="lp-scene-icon">${icons.presentation}</span><div><h2 class="lp-scene-title">${h(content.title)}</h2></div></header>
   <div><p><strong>${h(strings.context)}</strong> ${h(content.context)}</p></div>
@@ -36,7 +43,11 @@ export function render(content, strings, { id, lang }) {
   <div class="lp-section" data-lp-result hidden>
     <h3 class="lp-stem">${h(content.resultTitle)}</h3>
     <div class="lp-split-by-proportion-chart">
-      ${[mine, content.options.map(o => o.share)].map((values, row) => `<div><p class="lp-small" aria-hidden="true">${h(row === 0 ? strings.mine : strings.real)}</p><div class="lp-split-by-proportion-letters" aria-hidden="true">${values.map((v, i) => `<span style="inline-size:${v / content.total * 100}%"${v === 0 ? ' hidden' : ''}><span class="lp-split-by-proportion-label"><span class="lp-split-by-proportion-letter">${'ABCDEF'[i]}</span><span class="lp-split-by-proportion-pct" data-lp-segment-value>${q(v)}</span></span></span>`).join('')}</div><div class="lp-split-by-proportion-bar" aria-hidden="true">${segments(values, false)}</div></div>`).join('')}
+      <p class="lp-small" aria-hidden="true">${h(strings.mine)}</p>
+      ${labels(mine)}
+      <div class="lp-split-by-proportion-bar" aria-hidden="true">${[mine, real].map(values => `<div class="lp-split-by-proportion-half">${segments(values, false)}</div>`).join('')}</div>
+      ${labels(real, true)}
+      <p class="lp-small" aria-hidden="true">${h(strings.real)}</p>
       <div class="lp-visually-hidden"><table class="lp-split-by-proportion-answer-table lp-split-by-proportion-table"><caption>${h(strings.caption)}</caption><thead><tr><th scope="col">${h(content.optionHeading)}</th><th scope="col">${h(strings.mine)}</th><th scope="col">${h(strings.real)}</th></tr></thead><tbody>${content.options.map(o => `<tr><th scope="row">${h(o.label)}</th><td data-lp-mine></td><td>${q(o.share)}</td></tr>`).join('')}</tbody></table></div>
     </div>
     <p class="lp-small"><strong>${h(strings.source)}</strong> ${h(content.source)}</p>

@@ -24,8 +24,8 @@
 .lp-split-by-proportion-split { position: relative; margin-block: var(--lp-gap-flow) var(--lp-gap-stem); }
 .lp-split-by-proportion-bar { position: relative; display: flex; block-size: 48px; border: 2px solid var(--lp-ink); border-radius: 8px; cursor: pointer; touch-action: pan-y; user-select: none; }
 .lp-split-by-proportion-seg { display: flex; flex: none; align-items: center; justify-content: center; gap: var(--lp-gap-hint); min-inline-size: 0; overflow: hidden; color: var(--lp-ink); background: var(--lp-split-by-proportion-colour); font-size: var(--lp-type-small); font-weight: 600; white-space: nowrap; container-type: inline-size; font-variant-numeric: tabular-nums; }
-.lp-split-by-proportion-bar .lp-split-by-proportion-seg:nth-child(1 of .lp-split-by-proportion-seg:not([hidden])) { border-start-start-radius: 6px; border-end-start-radius: 6px; }
-.lp-split-by-proportion-bar .lp-split-by-proportion-seg:nth-last-child(1 of .lp-split-by-proportion-seg:not([hidden])) { border-start-end-radius: 6px; border-end-end-radius: 6px; }
+.lp-split-by-proportion-split .lp-split-by-proportion-seg:nth-child(1 of .lp-split-by-proportion-seg:not([hidden])) { border-start-start-radius: 6px; border-end-start-radius: 6px; }
+.lp-split-by-proportion-split .lp-split-by-proportion-seg:nth-last-child(1 of .lp-split-by-proportion-seg:not([hidden])) { border-start-end-radius: 6px; border-end-end-radius: 6px; }
 @container (width < 3.75rem) { .lp-split-by-proportion-seg .lp-split-by-proportion-pct { display: none; } }
 @container (width < 1rem) { .lp-split-by-proportion-seg .lp-split-by-proportion-letter { display: none; } }
 .lp-split-by-proportion-grip { position: absolute; inset-block: -8px; inline-size: 24px; transform: translateX(-50%); cursor: ew-resize; }
@@ -46,9 +46,12 @@
 .lp-split-by-proportion-key strong { margin-inline-start: var(--lp-gap-hint); font-variant-numeric: tabular-nums; }
 .lp-split-by-proportion-swatch { display: inline-grid; flex: none; place-items: center; inline-size: 24px; block-size: 24px; border: 1px solid var(--lp-ink); border-radius: 6px; color: var(--lp-ink); background: var(--lp-split-by-proportion-colour); font-size: var(--lp-type-small); font-weight: 600; align-self: center; }
 
-/* Letters and percentages sit above the bars; the key names the options and the hidden table gives screen readers every value. */
-.lp-split-by-proportion-chart { display: grid; gap: var(--lp-gap-group); }
-.lp-split-by-proportion-chart .lp-split-by-proportion-bar { pointer-events: none; cursor: default; }
+/* One joined bar compares your split above with the real split below. Labels mirror around it; the hidden table gives screen readers every value. */
+.lp-split-by-proportion-chart { display: grid; gap: var(--lp-gap-hint); }
+.lp-split-by-proportion-chart .lp-split-by-proportion-bar { display: grid; grid-template-rows: repeat(2, minmax(0, 1fr)); overflow: hidden; pointer-events: none; cursor: default; }
+.lp-split-by-proportion-half { display: flex; min-inline-size: 0; min-block-size: 0; }
+.lp-split-by-proportion-half:first-child { border-block-end: 1px solid var(--lp-ink); }
+.lp-split-by-proportion-half:last-child { border-block-start: 1px solid var(--lp-ink); }
 .lp-split-by-proportion-letters { display: flex; padding-inline: 2px; color: var(--lp-ink); font-size: var(--lp-type-small); font-weight: 600; font-variant-numeric: tabular-nums; }
 /* ponytail: tiny neighbouring shares can overlap labels; add label placement only if those splits need it. */
 .lp-split-by-proportion-letters > span { display: flex; flex: none; justify-content: center; min-inline-size: 0; overflow: visible; }
