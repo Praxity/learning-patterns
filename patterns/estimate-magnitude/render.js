@@ -9,9 +9,26 @@ export function format(template, values) {
   return template.replace(/\{(\w+)\}/g, (match, key) => Object.hasOwn(values, key) ? String(values[key]) : match);
 }
 
+/** @param {string} lang */
+function numberLocale(lang) {
+  return /^fr(?:-|$)/i.test(lang) ? 'fr-CA' : 'en';
+}
+
 /** @param {number} value @param {string} lang */
 export function numberText(value, lang) {
-  return value.toLocaleString(/^fr(?:-|$)/i.test(lang) ? 'fr-CA' : 'en', { maximumFractionDigits: 15 });
+  return value.toLocaleString(numberLocale(lang), { maximumFractionDigits: 15 });
+}
+
+/** @param {number} value @param {string} lang */
+function axisNumberText(value, lang) {
+  return new Intl.NumberFormat(numberLocale(lang), { notation: 'compact' }).format(value);
+}
+
+/** @param {number} at */
+function axisLabelStyle(at) {
+  // At 320 px, 10% of the 254 px track fits half of "100 k", including text spacing.
+  if (at > 90) return 'left:100%;translate:-100% 0';
+  return `left:${at}%;translate:${at === 0 ? 0 : -50}% 0`;
 }
 
 /** @param {import('./logic.js').Content} content
@@ -20,6 +37,10 @@ export function numberText(value, lang) {
  */
 export function render(content, strings, { id, lang }) {
   const { stops, bands, start, ratio } = scaleFor(content);
+  const powers = stops.filter(stop => Number.isInteger(Math.log10(stop)));
+  // ponytail: cap at six labels for 320 px; wide screens could fit more labels.
+  const labelledPowers = powers.length <= 6 ? powers : powers.filter(stop => [1, 1e3, 1e6, 1e9, 1e12].includes(stop));
+  const axisLabels = labelledPowers.map(stop => `<span class="lp-estimate-magnitude-axis-label" aria-hidden="true" style="${axisLabelStyle(positionOf(stop, stops))}">${html(axisNumberText(stop, lang), lang)}</span>`).join('');
   const [low, high] = bands[start];
   const at = (positionOf(low, stops) + positionOf(high, stops)) / 2;
   const range = format(strings.range, { low: numberText(low, lang), high: numberText(high, lang) });
@@ -31,7 +52,8 @@ export function render(content, strings, { id, lang }) {
     ${content.questions.map((question, index) => `<fieldset class="lp-stack lp-estimate-magnitude-question" data-lp-question>
       <legend class="lp-stem">${html(question.question, lang)}</legend>
       <div class="lp-estimate-magnitude-scale" hidden><div class="lp-estimate-magnitude-line" data-lp-line>
-        ${stops.map(stop => `<span class="lp-estimate-magnitude-tick" aria-hidden="true" style="inset-inline-start:${positionOf(stop, stops)}%"></span>`).join('')}
+        ${stops.map(stop => `<span class="lp-estimate-magnitude-tick${powers.includes(stop) ? ' lp-estimate-magnitude-tick-major' : ''}" aria-hidden="true" style="inset-inline-start:${positionOf(stop, stops)}%"></span>`).join('')}
+        ${axisLabels}
         <button type="button" class="lp-estimate-magnitude-band" role="slider" id="${html(`${id}-q${index}-band`)}" value="${start}" aria-valuemin="0" aria-valuemax="${bands.length - 1}" aria-valuenow="${start}" aria-valuetext="${html(`${range} ${question.unit}`, lang)}" aria-label="${html(format(strings.band, { number: index + 1 }), lang)}" data-lp-band style="inset-inline-start:${positionOf(low, stops)}%;inline-size:${positionOf(high, stops) - positionOf(low, stops)}%"></button>
         <span class="lp-estimate-magnitude-value" aria-hidden="true" data-lp-value style="--lp-estimate-magnitude-at:${at};text-align:${at > 50 ? 'end' : 'start'}">${html(range, lang)}</span>
         <span class="lp-estimate-magnitude-answer" aria-hidden="true" data-lp-answer hidden></span>

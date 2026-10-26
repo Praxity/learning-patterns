@@ -122,7 +122,6 @@ export function enhance(root, { content, strings, state }) {
       const kind = inside ? 'lp-met' : 'lp-missed';
       row.feedback.innerHTML = `<p class="lp-estimate-magnitude-feedback ${kind}">${inside ? icons.check : icons.x}<span>${html(message, root.lang)}</span></p><p class="lp-small">${html(strings.source, root.lang)} ${html(question.source, root.lang)}</p>`;
       row.feedback.hidden = false;
-      row.answer.textContent = numberText(item.answer, root.lang);
       row.answer.className = `lp-estimate-magnitude-answer ${kind}`;
       row.answer.style.setProperty('--lp-estimate-magnitude-at', String(positionOf(item.answer, stops)));
       row.answer.hidden = false;
@@ -160,7 +159,7 @@ export function enhance(root, { content, strings, state }) {
     rows.forEach(row => {
       row.clearError(); row.paint();
       row.feedback.replaceChildren(); row.feedback.hidden = true;
-      row.answer.hidden = true; row.answer.textContent = '';
+      row.answer.hidden = true;
     });
     result.textContent = ''; result.hidden = true;
   }

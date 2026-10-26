@@ -13,9 +13,10 @@ async function open(page, lang = 'en') {
 }
 
 async function openContent(page, content, lang = 'en') {
+  const fonts = [400, 600].map(weight => `@font-face { font-family: "Source Sans 3"; font-weight: ${weight}; font-display: swap; src: url(/fonts/source-sans-3-latin-${weight}-normal.woff2) format("woff2"); }`).join('');
   await page.route('**/estimate-magnitude/fixture.html', route => route.fulfill({
     contentType: 'text/html; charset=utf-8',
-    body: `<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Estimate magnitude</title><link rel="stylesheet" href="/lib/base.css"><link rel="stylesheet" href="/patterns/estimate-magnitude/pattern.css"></head><body>
+    body: `<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Estimate magnitude</title><link rel="stylesheet" href="/lib/base.css"><link rel="stylesheet" href="/patterns/estimate-magnitude/pattern.css"><style>${fonts}</style></head><body>
       ${render(content, strings[lang], { id: 'fixture', lang })}
       <script type="module">
         import { enhance } from '/patterns/estimate-magnitude/enhance.js';
@@ -25,6 +26,11 @@ async function openContent(page, content, lang = 'en') {
   }));
   await page.goto('/estimate-magnitude/fixture.html');
   await expect(page.locator('[data-lp-check]')).toBeVisible();
+  expect(await page.evaluate(async () => {
+    const faces = await Promise.all([400, 600].map(weight => document.fonts.load(`${weight} 15px "Source Sans 3"`)));
+    await document.fonts.ready;
+    return faces.every(loaded => loaded.length && loaded.every(face => face.status === 'loaded'));
+  })).toBe(true);
 }
 
 async function setByKeyboard(page) {
@@ -41,6 +47,77 @@ async function setByKeyboard(page) {
   await page.keyboard.press('ArrowLeft');
   await page.keyboard.press('Tab');
   await expect(page.locator('[data-lp-check]')).toBeFocused();
+}
+
+for (const lang of ['en', 'fr']) for (const scale of ['default', 'wide', 'edge']) {
+  test(`numbered axis fits before and after Check, including text spacing (${lang}, ${scale})`, async ({ page }) => {
+    const content = structuredClone(examples[lang]);
+    if (scale !== 'default') {
+      content.ratio = 1000;
+      content.questions.forEach(question => { question.answer = scale === 'wide' ? 1e12 : 5e6; });
+    }
+    const expected = scale !== 'default'
+      ? (lang === 'en' ? ['1', '1K', '1M', '1B', '1T'] : ['1', '1\u00a0k', '1\u00a0M', '1\u00a0G', '1\u00a0T']).slice(0, scale === 'wide' ? 5 : 4)
+      : lang === 'en' ? ['1', '10', '100', '1K', '10K', '100K'] : ['1', '10', '100', '1\u00a0k', '10\u00a0k', '100\u00a0k'];
+    for (const [width, spacing] of [[1280, false], [320, false], [320, true]]) {
+      await page.setViewportSize({ width, height: 900 });
+      await openContent(page, content, lang);
+      await page.addStyleTag({ content: 'body { margin: 0; padding: 1rem; }' });
+      await page.evaluate(() => document.fonts.ready);
+      if (spacing) await page.addStyleTag({ content: '.lp, .lp * { line-height: 1.5 !important; letter-spacing: .12em !important; word-spacing: .16em !important; } .lp p { margin-bottom: 2em !important; }' });
+      const fits = async checked => {
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+        for (const question of await page.locator('[data-lp-question]').all()) {
+          const labels = question.locator('.lp-estimate-magnitude-axis-label');
+          await expect(labels).toHaveText(expected);
+          expect(await labels.count()).toBeLessThanOrEqual(6);
+          for (const label of await labels.all()) await expect(label).toHaveAttribute('aria-hidden', 'true');
+          expect(await question.evaluate((element, checked) => {
+            const card = element.closest('[data-lp-pattern]').getBoundingClientRect();
+            const scale = element.querySelector('.lp-estimate-magnitude-scale').getBoundingClientRect();
+            const axis = [...element.querySelectorAll('.lp-estimate-magnitude-axis-label')];
+            const labels = axis.map(label => {
+              const range = document.createRange();
+              range.selectNodeContents(label);
+              return range.getBoundingClientRect();
+            });
+            const inside = bounds => bounds.left >= card.left && bounds.right <= card.right;
+            if (!labels.every(inside)) return false;
+            if (labels.some((bounds, index) => index && bounds.left < labels[index - 1].right)) return false;
+            const major = element.querySelector('.lp-estimate-magnitude-tick-major');
+            const minor = element.querySelector('.lp-estimate-magnitude-tick:not(.lp-estimate-magnitude-tick-major)');
+            if (major.getBoundingClientRect().height <= minor.getBoundingClientRect().height) return false;
+            const line = element.querySelector('[data-lp-line]').getBoundingClientRect();
+            if (labels.some(bounds => bounds.top <= line.top + line.height / 2)) return false;
+            const ticks = [...element.querySelectorAll('.lp-estimate-magnitude-tick-major')];
+            if (labels.some((bounds, index) => {
+              const label = axis[index];
+              if (index === 0) return Math.abs(bounds.left - line.left) > 1;
+              if (label.style.left === '100%') return Math.abs(bounds.right - line.right) > 1;
+              const tick = ticks[ticks.length <= 6 ? index : index * 3].getBoundingClientRect();
+              return Math.abs((bounds.left + bounds.right) / 2 - tick.left) > 1;
+            })) return false;
+            if (axis.some(label => getComputedStyle(label).fontSize !== getComputedStyle(element.querySelector('[data-lp-value]')).fontSize)) return false;
+            if (labels.some(bounds => bounds.bottom > scale.bottom)) return false;
+            if (checked) {
+              const answer = element.querySelector('[data-lp-answer]');
+              if (answer.textContent !== '' || answer.children.length) return false;
+              const diamond = answer.getBoundingClientRect();
+              const at = Number(answer.style.getPropertyValue('--lp-estimate-magnitude-at')) / 100;
+              if (Math.abs(diamond.left + diamond.width / 2 - (line.left + line.width * at)) > 1) return false;
+              if (Math.abs(diamond.top + diamond.height / 2 - (line.top + line.height / 2)) > 1) return false;
+            }
+            return true;
+          }, checked)).toBe(true);
+        }
+      };
+      await fits(false);
+      for (const band of await page.getByRole('slider').all()) await band.press('End');
+      await page.locator('[data-lp-check]').click();
+      await expect(page.locator('[data-lp-try-again]')).toBeFocused();
+      await fits(true);
+    }
+  });
 }
 
 for (const lang of ['en', 'fr']) {
@@ -162,13 +239,7 @@ for (const lang of ['en', 'fr']) {
     await page.keyboard.press('Enter');
     await expect(page.locator('[data-lp-try-again]')).toBeFocused();
     await fits();
-    for (const answer of await page.locator('[data-lp-answer]').all()) {
-      expect(await answer.evaluate(element => {
-        const range = document.createRange();
-        range.selectNodeContents(element);
-        return range.getClientRects().length;
-      })).toBe(1);
-    }
+    await expect(page.locator('[data-lp-answer]')).toHaveText(['', '', '']);
   });
 
   for (const ratio of [10, 100, 1000]) {
@@ -200,8 +271,10 @@ for (const lang of ['en', 'fr']) for (const ratio of [10, 100, 1000]) {
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       expect(await page.locator('[data-lp-pattern]').evaluate(root => {
         const card = root.getBoundingClientRect();
-        return [...root.querySelectorAll('[data-lp-value], [data-lp-answer]:not([hidden])')].every(label => {
-          const bounds = label.getBoundingClientRect();
+        return [...root.querySelectorAll('[data-lp-value]')].every(label => {
+          const range = document.createRange();
+          range.selectNodeContents(label);
+          const bounds = range.getBoundingClientRect();
           return bounds.left >= card.left && bounds.right <= card.right;
         });
       })).toBe(true);
@@ -223,14 +296,7 @@ for (const lang of ['en', 'fr']) for (const ratio of [10, 100, 1000]) {
     await page.locator('[data-lp-check]').click();
     await expect(page.locator('[data-lp-try-again]')).toBeFocused();
     await fits();
-    for (const answer of await page.locator('[data-lp-answer]').all()) {
-      await expect(answer).toHaveText(lang === 'en' ? '1,000,000,000,000' : /^1[\u00a0\u202f]000[\u00a0\u202f]000[\u00a0\u202f]000[\u00a0\u202f]000$/);
-      expect(await answer.evaluate(element => {
-        const range = document.createRange();
-        range.selectNodeContents(element);
-        return range.getClientRects().length;
-      })).toBe(1);
-    }
+    await expect(page.locator('[data-lp-answer]')).toHaveText(['', '', '']);
   });
 }
 
@@ -247,17 +313,18 @@ for (const lang of ['en', 'fr']) {
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       expect(await page.locator('[data-lp-pattern]').evaluate(root => {
         const card = root.getBoundingClientRect();
-        return [...root.querySelectorAll('[data-lp-value], [data-lp-answer]')].every(label => {
-          const bounds = label.getBoundingClientRect();
+        return [...root.querySelectorAll('[data-lp-value]')].every(label => {
+          const range = document.createRange();
+          range.selectNodeContents(label);
+          const bounds = range.getBoundingClientRect();
           return bounds.left >= card.left && bounds.right <= card.right;
         });
       })).toBe(true);
       for (const answer of await page.locator('[data-lp-answer]').all()) {
         const distance = await answer.evaluate(element => {
           const track = element.parentElement.getBoundingClientRect();
-          const label = element.getBoundingClientRect();
-          const diamond = getComputedStyle(element, '::before');
-          const centre = label.left + parseFloat(diamond.left) + parseFloat(diamond.width) / 2 + new DOMMatrix(diamond.transform).m41;
+          const diamond = element.getBoundingClientRect();
+          const centre = diamond.left + diamond.width / 2;
           // 1e12 is 80% of the logarithmic track from 1 to 1e15.
           return Math.abs(centre - (track.left + track.width * .8));
         });

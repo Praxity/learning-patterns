@@ -48,7 +48,7 @@ Follows the shared baseline in the root README.
 - Feedback uses words and icons as well as colour. One status region announces validation, the summary or the reset once. Slider changes use their value semantics.
 - Check moves focus to Try again through the shared lock helper. Try again restores the existing controls and focuses the first band after layout.
 - Forced colours preserve tracks, bands, answer markers and focus outlines. There is no animation; shared reveal scrolling respects reduced motion.
-- CSS keeps labels inside the track as it resizes. Range labels use the midpoint of the band's low and high positions; answer labels use the answer's position. Labels shift toward the track's middle near either end, while each answer diamond stays centred on its value.
+- The logarithmic scale has longer ticks at powers of ten and shorter ticks at five times each power. Up to six powers are all labelled; longer scales label only 1, 1K, 1M, 1B and 1T when present, with Canadian French equivalents. Axis numbers use the normal small text size and sit centred on their ticks, except the first sits flush left and labels beyond 90% sit flush right. Range labels use the band's midpoint and shift inward near either end. After checking, a diamond marks the true value on the line; the feedback below gives its number and unit.
 
 ## Content fields
 
