@@ -149,6 +149,34 @@ test('render anchors range labels at the band midpoint', () => {
   for (const [, style] of labels) assert.equal(style, '--lp-estimate-magnitude-at:50;text-align:start');
 });
 
+test('render labels powers of ten in each language and hides the axis from screen readers', () => {
+  for (const [lang, expected] of [
+    ['en', ['1', '10', '100', '1K', '10K', '100K']],
+    ['fr', ['1', '10', '100', '1\u00a0k', '10\u00a0k', '100\u00a0k']]
+  ]) {
+    const output = render(content, strings[lang], { id: 'axis', lang });
+    const labels = [...output.matchAll(/class="lp-estimate-magnitude-axis-label" aria-hidden="true" style="[^"]+">(.*?)<\/span>/g)];
+    assert.deepEqual(labels.map(match => match[1].replaceAll('<wbr>', '')), [...expected, ...expected, ...expected]);
+    assert.equal((output.match(/lp-estimate-magnitude-tick-major/g) || []).length, 18);
+  }
+});
+
+test('render thins the axis to every second or third power on longer scales', () => {
+  for (const [answer, expected] of [
+    [1e3, ['1', '100', '10K', '1M']],
+    [1e8, ['1', '100', '10K', '1M', '100M', '10B']],
+    [1e12, ['1', '1K', '1M', '1B', '1T', '1000T']]
+  ]) {
+    const value = { ...clone(), ratio: 1000 };
+    value.questions.forEach(question => { question.answer = answer; });
+    const output = render(value, strings.en, { id: 'wide', lang: 'en' });
+    const labels = [...output.matchAll(/class="lp-estimate-magnitude-axis-label"[^>]*>([^<]+)<\/span>/g)];
+    assert.deepEqual(labels.map(match => match[1]), [...expected, ...expected, ...expected]);
+    assert.equal(labels[0][0].includes('--lp-estimate-magnitude-at:0'), true);
+    if (answer === 1e12) assert.ok(labels[5][0].includes('--lp-estimate-magnitude-at:100'));
+  }
+});
+
 test('formatting replaces placeholders once and localizes numbers and ratios', () => {
   assert.equal(format('{value} {x}', { value: '{x}', x: 'answer' }), '{x} answer');
   assert.equal(numberText(1.5, 'fr'), '1,5');

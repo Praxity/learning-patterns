@@ -43,6 +43,63 @@ async function setByKeyboard(page) {
   await expect(page.locator('[data-lp-check]')).toBeFocused();
 }
 
+for (const lang of ['en', 'fr']) for (const wide of [false, true]) {
+  test(`numbered axis fits before and after Check, including text spacing (${lang}, ${wide ? '1 to 1e15' : 'default'})`, async ({ page }) => {
+    const content = structuredClone(examples[lang]);
+    if (wide) {
+      content.ratio = 1000;
+      content.questions.forEach(question => { question.answer = 1e12; });
+    }
+    const expected = wide
+      ? lang === 'en' ? ['1', '1K', '1M', '1B', '1T', '1000T'] : ['1', '1\u00a0k', '1\u00a0M', '1\u00a0Md', '1\u00a0Bn', '1000\u00a0Bn']
+      : lang === 'en' ? ['1', '10', '100', '1K', '10K', '100K'] : ['1', '10', '100', '1\u00a0k', '10\u00a0k', '100\u00a0k'];
+    for (const [width, spacing] of [[1280, false], [320, false], [320, true]]) {
+      await page.setViewportSize({ width, height: 900 });
+      await openContent(page, content, lang);
+      await page.addStyleTag({ content: 'body { margin: 0; padding: 1rem; }' });
+      await page.evaluate(() => document.fonts.ready);
+      if (spacing) await page.addStyleTag({ content: '.lp, .lp * { line-height: 1.5 !important; letter-spacing: .12em !important; word-spacing: .16em !important; } .lp p { margin-bottom: 2em !important; }' });
+      const fits = async checked => {
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+        for (const question of await page.locator('[data-lp-question]').all()) {
+          const labels = question.locator('.lp-estimate-magnitude-axis-label');
+          await expect(labels).toHaveText(expected);
+          expect(await labels.count()).toBeLessThanOrEqual(6);
+          for (const label of await labels.all()) await expect(label).toHaveAttribute('aria-hidden', 'true');
+          expect(await question.evaluate((element, checked) => {
+            const card = element.closest('[data-lp-pattern]').getBoundingClientRect();
+            const scale = element.querySelector('.lp-estimate-magnitude-scale').getBoundingClientRect();
+            const labels = [...element.querySelectorAll('.lp-estimate-magnitude-axis-label')].map(label => label.getBoundingClientRect());
+            const inside = bounds => bounds.left >= card.left && bounds.right <= card.right;
+            if (!labels.every(inside)) return false;
+            if (labels.some((bounds, index) => index && bounds.left < labels[index - 1].right)) return false;
+            const major = element.querySelector('.lp-estimate-magnitude-tick-major');
+            const minor = element.querySelector('.lp-estimate-magnitude-tick:not(.lp-estimate-magnitude-tick-major)');
+            if (major.getBoundingClientRect().height <= minor.getBoundingClientRect().height) return false;
+            const line = element.querySelector('[data-lp-line]').getBoundingClientRect();
+            if (labels.some(bounds => bounds.top <= line.top + line.height / 2)) return false;
+            if (checked) {
+              const range = document.createRange();
+              range.selectNodeContents(element.querySelector('[data-lp-answer]'));
+              const answer = range.getBoundingClientRect();
+              if (!inside(answer) || answer.bottom > scale.bottom) return false;
+              if (labels.some(bounds => answer.top < bounds.bottom)) return false;
+            }
+            return true;
+          }, checked)).toBe(true);
+        }
+      };
+      await fits(false);
+      const heights = await page.locator('.lp-estimate-magnitude-scale').evaluateAll(elements => elements.map(element => element.getBoundingClientRect().height));
+      for (const band of await page.getByRole('slider').all()) await band.press('End');
+      await page.locator('[data-lp-check]').click();
+      await expect(page.locator('[data-lp-try-again]')).toBeFocused();
+      await fits(true);
+      expect(await page.locator('.lp-estimate-magnitude-scale').evaluateAll(elements => elements.map(element => element.getBoundingClientRect().height))).toEqual(heights);
+    }
+  });
+}
+
 for (const lang of ['en', 'fr']) {
   const instructions = lang === 'en' ? {
     10: 'Slide each range to hold your estimate. Each range is limited to ten times its low end.',
@@ -139,6 +196,10 @@ for (const lang of ['en', 'fr']) {
     await page.setViewportSize({ width: 320, height: 900 });
     await page.emulateMedia({ reducedMotion: 'reduce', ...(browserName === 'chromium' ? { forcedColors: 'active' } : {}) });
     await open(page, lang);
+    if (browserName === 'chromium') {
+      const canvasText = await page.locator('[data-lp-pattern]').evaluate(root => getComputedStyle(root).color);
+      for (const label of await page.locator('.lp-estimate-magnitude-axis-label').all()) await expect(label).toHaveCSS('color', canvasText);
+    }
     const fits = async () => {
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       expect(await page.locator('[data-lp-pattern]').evaluate(root => root.scrollWidth <= root.clientWidth)).toBe(true);
