@@ -182,7 +182,15 @@ export function enhance(root, { content, strings, state, ask }) {
       }
     }
     if (target.closest('[data-lp-bank-toggle]')) { showAll = !showAll; updateBank(); }
-    if (target.closest('[data-lp-result] a')) fallback.hidden = false;
+    const link = target.closest('[data-lp-result] a');
+    if (link) {
+      fallback.hidden = false;
+      const entryLink = required(`#${CSS.escape((link.getAttribute('href') ?? '').slice(1))} a`);
+      // Safari leaves focus on the page for an unfocusable fragment target; VoiceOver, 2026-10-29.
+      // A modified click opens another tab or window, so this page keeps its place.
+      const plain = event.button === 0 && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey && !event.defaultPrevented;
+      if (plain) focusAfterLayout(entryLink, () => {}, lifetime.signal);
+    }
   };
   input.addEventListener('input', onInput); input.addEventListener('keydown', onKey);
   input.addEventListener('compositionstart', onCompositionStart); input.addEventListener('compositionend', onCompositionEnd);

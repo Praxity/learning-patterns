@@ -313,15 +313,30 @@ test('bank storage failures preserve the previous bank and report the failed cha
   await expect(faq(page).locator('[data-lp-add]')).toBeFocused();
 });
 
-test('section results reveal and link to the authored outline without moving focus on update', async ({ page }) => {
+for (const activation of ['click', 'Enter']) test(`section results reveal and link to the authored outline without moving focus on update (${activation})`, async ({ page }) => {
   await open(page); await auto(page,'How do I refuse extra work',sections(page));
   const root=sections(page), link=root.locator('[data-lp-result] a');
   await expect(link).toHaveText('Set boundaries');
   await expect(link).toHaveAttribute('href','#example-sections-section-boundaries');
   await expect(root.getByRole('textbox')).toBeFocused();
-  await link.click(); await expect(root.locator('[data-lp-fallback]')).toBeVisible();
+  await expect(root.locator('[data-lp-fallback]')).toBeHidden();
+  if (activation === 'click') await link.click();
+  else { await link.focus(); await link.press('Enter'); }
+  await page.clock.runFor(50);
+  await expect(root.locator('[data-lp-fallback]')).toBeVisible();
   await expect(page.locator('#example-sections-section-boundaries')).toBeVisible();
+  await expect(root.locator('#example-sections-section-boundaries a')).toBeFocused();
+  await expect(page).toHaveURL(/#example-sections-section-boundaries$/);
   await axe(page);
+});
+
+test('a modified click on a section result leaves focus in this page alone', async ({ page }) => {
+  await open(page); await auto(page,'How do I refuse extra work',sections(page));
+  const root=sections(page), link=root.locator('[data-lp-result] a');
+  await link.focus();
+  await link.click({ modifiers: ['ControlOrMeta'] });
+  await page.clock.runFor(50);
+  await expect(root.locator('#example-sections-section-boundaries a')).not.toBeFocused();
 });
 
 for (const mode of ['missing','throws','invalid']) test(`failed lookup exposes full FAQ and outline (${mode})`,async ({page})=>{
