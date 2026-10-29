@@ -330,6 +330,15 @@ for (const activation of ['click', 'Enter']) test(`section results reveal and li
   await axe(page);
 });
 
+test('a modified click on a section result leaves focus in this page alone', async ({ page }) => {
+  await open(page); await auto(page,'How do I refuse extra work',sections(page));
+  const root=sections(page), link=root.locator('[data-lp-result] a');
+  await link.focus();
+  await link.click({ modifiers: ['ControlOrMeta'] });
+  await page.clock.runFor(50);
+  await expect(root.locator('#example-sections-section-boundaries a')).not.toBeFocused();
+});
+
 for (const mode of ['missing','throws','invalid']) test(`failed lookup exposes full FAQ and outline (${mode})`,async ({page})=>{
   await open(page,{mode});
   if(mode!=='missing') {await auto(page); await auto(page,'How do I refuse extra work',sections(page)); await page.clock.runFor(50);}
