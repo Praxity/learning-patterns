@@ -59,19 +59,47 @@ for (const keyboard of [false, true]) test(`complete check and new set using ${k
   await expect(page.locator('[data-lp-result]')).toHaveText('1 set, 2 of 3 facts placed right.');
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['2 of 3 right in this set. So far: 1 set, 2 of 3 facts placed right.']);
   const before = await facts.locator('legend').allTextContents();
-  // A new set must reuse the server controls and preserve the running count.
-  await page.evaluate(() => { window.lpOriginalRadio = document.querySelector('input'); });
+  // Safari needs fresh fieldsets to discard the previous facts' accessible names.
+  const oldFacts = await facts.elementHandles();
   await expect(page.getByRole('button')).toHaveCount(1);
   if (keyboard) await page.keyboard.press('Enter'); else await page.locator('[data-lp-next]').click();
   // The first answer of the new set takes focus, not the whole question group (NVDA read it all at once).
   await expect(page.locator('[data-lp-fact]').first().getByRole('radio').first()).toBeFocused();
   await expect(check).toBeVisible();
   await expect(page.locator('input:checked, input:disabled, [data-lp-mark]')).toHaveCount(0);
-  expect(await page.evaluate(() => window.lpOriginalRadio === document.querySelector('input'))).toBe(true);
+  for (const fact of oldFacts) expect(await fact.evaluate(el => el.isConnected)).toBe(false);
   expect(await page.evaluate(() => [window.lpSaved.completed, window.lpSaved.placed])).toEqual([1, 2]);
   expect(await page.evaluate(() => window.lpSaved.last)).toBe(9);
   expect(await facts.locator('legend').allTextContents()).not.toEqual(before);
+  const saved = await page.evaluate(() => window.lpSaved);
+  for (const [i, part] of saved.order.entries()) await expect(facts.nth(i).locator('legend')).toHaveText(english.cases[9][part]);
   await expect(page.locator('[role="status"]')).toHaveText('');
+  await check.click();
+  await expect(page.locator('[data-lp-fact][aria-describedby]')).toHaveCount(3);
+  await choose(page, saved.order, keyboard);
+  await expect(page.locator('[data-lp-fact][aria-describedby]')).toHaveCount(0);
+  await check.click();
+  await expect(page.locator('[data-lp-mark="correct"]')).toHaveCount(3);
+  await expectChoiceMarks(page);
+  await expect(page.locator('[data-lp-fact] input:disabled')).toHaveCount(9);
+  await expect(page.locator('[data-lp-result]')).toHaveText('2 sets, 5 of 6 facts placed right.');
+  const checked = await page.evaluate(() => window.lpSaved);
+  await page.evaluate(async ({ saved, content }) => {
+    window.lpInstances[0].destroy();
+    const { enhance } = await import('/patterns/prolific-questions/enhance.js');
+    const { strings } = await import('/patterns/prolific-questions/strings.js');
+    window.lpInstances[0] = enhance(document.querySelector('[data-lp-pattern]'), {
+      content, strings: strings.en, state: { read: () => saved, write: value => { window.lpSaved = value; } }
+    });
+  }, { saved: checked, content: english });
+  expect(await page.evaluate(() => window.lpSaved)).toEqual(checked);
+  for (const [i, part] of checked.order.entries()) await expect(facts.nth(i).locator('legend')).toHaveText(english.cases[9][part]);
+  await expect(page.locator('[data-lp-mark="correct"]')).toHaveCount(3);
+  await expect(page.locator('[data-lp-fact] input:disabled')).toHaveCount(9);
+  await expect(page.locator('[data-lp-result]')).toHaveText('2 sets, 5 of 6 facts placed right.');
+  await page.evaluate(() => window.lpInstances[0].destroy());
+  await expect(page.locator('input:checked, input:disabled, [data-lp-mark], [data-lp-fact][aria-describedby]')).toHaveCount(0);
+  await expect(page.locator('[data-lp-fallback]')).toBeVisible();
 });
 
 test('Check freezes every radio before returning to the event loop', async ({ page }) => {

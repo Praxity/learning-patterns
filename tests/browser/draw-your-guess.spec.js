@@ -131,7 +131,10 @@ test('out-of-order guesses keep a gap in the line; Home and End reach boundaries
   const sliders = page.getByRole('slider');
   await sliders.nth(1).focus(); await page.keyboard.press('Home');
   await expect(sliders.nth(1)).toHaveValue('0'); await expect(page.locator('[data-lp-guess]')).toHaveAttribute('points', '');
+  await expect(sliders.nth(1)).toBeFocused();
   await sliders.first().focus(); await page.keyboard.press('End'); await expect(sliders.first()).toHaveValue('150');
+  await expect(sliders.first()).toBeFocused();
+  await expect(sliders.last()).toHaveAttribute('aria-valuetext', 'July, not set');
   expect((await page.locator('[data-lp-guess]').getAttribute('points')).split(' ')).toHaveLength(3);
 });
 
