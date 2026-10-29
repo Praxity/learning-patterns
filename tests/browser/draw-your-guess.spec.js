@@ -138,6 +138,20 @@ test('out-of-order guesses keep a gap in the line; Home and End reach boundaries
   expect((await page.locator('[data-lp-guess]').getAttribute('points')).split(' ')).toHaveLength(3);
 });
 
+test('the pattern itself sets Home and End, so they work when the browser default never runs', async ({ page }) => {
+  await open(page);
+  const june = page.getByRole('slider').nth(2);
+  // A synthetic keydown runs listeners but no default action, as when Safari with VoiceOver skipped End (VO run 2).
+  const press = (/** @type {string} */ key, shiftKey = false) => june.evaluate((input, init) => input.dispatchEvent(new KeyboardEvent('keydown', { ...init, bubbles: true, cancelable: true })), { key, shiftKey });
+  await press('End', true);
+  await expect(june).toHaveAttribute('aria-valuetext', 'June, not set');
+  await press('End');
+  await expect(june).toHaveValue('150');
+  await expect(june).not.toHaveAttribute('aria-valuetext', 'June, not set');
+  await press('Home');
+  await expect(june).toHaveValue('0');
+});
+
 test('without JavaScript the answer disclosure contains all values and the source', async ({ browser, baseURL }) => {
   const context = await browser.newContext({ javaScriptEnabled: false, baseURL });
   try {
