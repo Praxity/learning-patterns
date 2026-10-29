@@ -110,7 +110,15 @@ export function enhance(root, { content, strings, state }) {
     if (announce) { reveal(result); status.textContent = text(outcome.summary); }
     else result.hidden = false;
   }
-  inputs.forEach((input, i) => input.addEventListener('input', () => set(i, Number(input.value)), { signal: lifetime.signal }));
+  inputs.forEach((input, i) => {
+    input.addEventListener('input', () => set(i, Number(input.value)), { signal: lifetime.signal });
+    input.addEventListener('keydown', event => {
+      if (shown || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+      if (event.key !== 'Home' && event.key !== 'End') return;
+      event.preventDefault();
+      set(i, event.key === 'Home' ? 0 : content.top);
+    }, { signal: lifetime.signal });
+  });
   /** A tap sets a point without dragging. Pointer focus lets arrow keys continue from it.
    * @param {PointerEvent} event */
   function at(event) {

@@ -131,8 +131,25 @@ test('out-of-order guesses keep a gap in the line; Home and End reach boundaries
   const sliders = page.getByRole('slider');
   await sliders.nth(1).focus(); await page.keyboard.press('Home');
   await expect(sliders.nth(1)).toHaveValue('0'); await expect(page.locator('[data-lp-guess]')).toHaveAttribute('points', '');
+  await expect(sliders.nth(1)).toBeFocused();
   await sliders.first().focus(); await page.keyboard.press('End'); await expect(sliders.first()).toHaveValue('150');
+  await expect(sliders.first()).toBeFocused();
+  await expect(sliders.last()).toHaveAttribute('aria-valuetext', 'July, not set');
   expect((await page.locator('[data-lp-guess]').getAttribute('points')).split(' ')).toHaveLength(3);
+});
+
+test('the pattern itself sets Home and End, so they work when the browser default never runs', async ({ page }) => {
+  await open(page);
+  const june = page.getByRole('slider').nth(2);
+  // A synthetic keydown runs listeners but no default action, as when Safari with VoiceOver skipped End (VO run 2).
+  const press = (/** @type {string} */ key, shiftKey = false) => june.evaluate((input, init) => input.dispatchEvent(new KeyboardEvent('keydown', { ...init, bubbles: true, cancelable: true })), { key, shiftKey });
+  await press('End', true);
+  await expect(june).toHaveAttribute('aria-valuetext', 'June, not set');
+  await press('End');
+  await expect(june).toHaveValue('150');
+  await expect(june).not.toHaveAttribute('aria-valuetext', 'June, not set');
+  await press('Home');
+  await expect(june).toHaveValue('0');
 });
 
 test('without JavaScript the answer disclosure contains all values and the source', async ({ browser, baseURL }) => {

@@ -63,10 +63,22 @@ export function enhance(root, { content, strings, state }) {
     next.hidden = true; check.hidden = false;
     clearError();
   }
-  function paintFacts() {
+  /** @param {boolean} [replace] */
+  function paintFacts(replace = false) {
     current.order.forEach((part, i) => {
+      const previous = facts[i];
+      if (replace) {
+        const fact = /** @type {HTMLElement} */ (previous.cloneNode(true));
+        const legend = fact.querySelector('[data-lp-fact-text]');
+        if (!legend) throw new Error('Invalid prolific-questions facts markup');
+        facts[i] = fact;
+        legends[i] = legend;
+        rows[i] = [...fact.querySelectorAll('.lp-choice')].map(row => /** @type {HTMLElement} */ (row));
+        inputs[i] = [...fact.querySelectorAll('input')];
+      }
       legends[i].textContent = display(content.cases[current.last][part]);
       inputs[i].forEach((input, slot) => { input.checked = current.picks[i] === slot; });
+      if (replace) previous.replaceWith(facts[i]);
     });
   }
   /** @param {boolean} announce */
@@ -119,7 +131,8 @@ export function enhance(root, { content, strings, state }) {
     if (!current.checked) return;
     clearResult();
     current = { ...current, ...deal(content.cases.length, current), order: shuffle(content.parts.map((_, i) => i)), picks: content.parts.map(() => null), checked: false };
-    paintFacts(); save();
+    // Replace fieldsets because Safari kept the old legend as the group name in VoiceOver run 2.
+    paintFacts(true); save();
     // A new set replaces the old one. Focus its first answer: focusing the whole question made NVDA read every
     // fact and option in one 1,000-character utterance. Then bring the first fact into view, since Firefox scrolls
     // a focused control only to the nearest edge and can leave the fact it belongs to above the viewport.

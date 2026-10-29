@@ -33,7 +33,7 @@ Practice follows the worked example, because novices need a few similar cases be
 3. Read the marks and running count. A wrong choice also reveals the correct part.
 4. Select "New set" to continue. Every case appears once before any repeats, including across saved sessions. Consecutive sets always use different cases.
 
-Checking freezes only the current answers. New set remains available, with no pass score or completion gate. It clears the answers and marks for the next case without rebuilding the DOM, preserving the running count.
+Checking freezes only the current answers. New set remains available, with no pass score or completion gate. It clears the answers and marks for the next case, preserving the running count.
 
 ## Evidence
 
