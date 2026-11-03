@@ -112,7 +112,7 @@ export function enhance(root, { content, strings, state, ask }) {
     Promise.resolve().then(() => ask.config()).then(config => {
       if (destroyed) return;
       model = config.model ?? (config.provider === 'clef' ? '@cf/cloudflare/clef' : config.provider);
-      notice.innerHTML = renderDataNotice(config, root.lang, `${notice.id}-text`);
+      notice.innerHTML = renderDataNotice(config, root.lang, `${notice.id}-text`, 'reply');
       notice.hidden = false; input.setAttribute('aria-describedby', `${notice.id}-text`);
       send.disabled = false;
     }).catch(() => { if (!destroyed) { useFallback(); send.disabled = false; } });

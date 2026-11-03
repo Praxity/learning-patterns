@@ -425,7 +425,7 @@ test('configured data notice and shared client clearance belong only to suggesti
     window.lpInstances[0] = enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en, state, ask });
   }, examples.en);
   await expect(page.locator('[data-lp-suggest]')).toBeEnabled();
-  await expect(page.locator('[data-lp-notice]')).toHaveText('Your answer is sent to a decision model to give instant feedback.');
+  await expect(page.locator('[data-lp-notice]')).toHaveText('When you ask for a suggestion, your entry is sent to a decision model to choose a question or a support message.');
   await expect(page.locator('[data-lp-challenge]')).toBeHidden();
   await page.getByRole('textbox').fill('My reflection'); await page.locator('[data-lp-save]').click();
   expect(await page.evaluate(() => window.lpNetworkCalls)).toEqual(['/api/patterns/config']);

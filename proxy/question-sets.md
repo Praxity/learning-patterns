@@ -41,8 +41,8 @@ Canary samples are outside this format.
     "defaultFeedback": "revise",
     "selfCheck": { "en": "Did you name a date?", "fr": "Avez-vous donné une date?" },
     "dataNotice": {
-      "en": "Your scenario answer goes to the listed providers. This runtime does not store it.",
-      "fr": "Votre réponse au scénario est envoyée aux fournisseurs indiqués. Ce runtime ne la conserve pas."
+      "en": "Your answer is sent to a decision model to give instant feedback.",
+      "fr": "Votre réponse est envoyée à un modèle de décision pour vous donner une rétroaction immédiate."
     }
   }]
 }

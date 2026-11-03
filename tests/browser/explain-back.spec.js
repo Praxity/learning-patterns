@@ -298,7 +298,7 @@ test('failed configuration selects the fallback without sending an answer', asyn
   await expect(page.locator('[role="status"]')).toBeEmpty();
 });
 
-test('shared client renders the configured provider notice and completes inline clearance', async ({ page }) => {
+test('shared client renders the configured data notice and completes inline clearance', async ({ page }) => {
   await open(page);
   await page.evaluate(async content => {
     window.lpInstances[0].destroy();

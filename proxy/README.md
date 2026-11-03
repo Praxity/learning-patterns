@@ -125,7 +125,13 @@ Where the learner asks a question rather than answering one, as in Instant cours
 
 > Your question is sent to a decision model to find where the course answers it.
 
-The notice tells the learner what happens to their text at the moment they send it. It names no provider and makes no storage promise. Put those in the course introduction or the terms of participation: which provider receives the text, where it is processed, what you keep and for how long, and the provider's retention and training terms. `providerName` in `/config` gives the provider for that text. [Perplexity's privacy and security documentation](https://docs.perplexity.ai/docs/resources/privacy-security) makes zero retention conditional on eligibility and a written agreement, so confirm that provider's retention and training terms before you describe them. Before sending learner text in a client course, arrange consent wording and a data agreement with the chosen provider.
+Conversation and journal get their own wording, because the learner sends a reply or a journal entry, not an answer:
+
+> Your reply is sent to a decision model to choose how the conversation goes on.
+
+> When you ask for a suggestion, your entry is sent to a decision model to choose a question or a support message.
+
+The notice tells the learner what happens to their text at the moment they send it. It names no provider and makes no storage promise. Put those in the course introduction or the terms of participation: which provider receives the text, where it is processed, what you keep and for how long, and the provider's retention and training terms. Name every provider the deployment can switch to, because the notice reads the same for all of them. `providerName` in `/config` names the one in use. [Perplexity's privacy and security documentation](https://docs.perplexity.ai/docs/resources/privacy-security) makes zero retention conditional on eligibility and a written agreement, so confirm that provider's retention and training terms before you describe them. Before sending learner text in a client course, arrange consent wording and a data agreement with the chosen provider.
 
 The proxy sends the answer and authored context to the provider. Except for `13-journal`, it keeps an HMAC-SHA-256 key of the decision model, state and questions, validated decision model answers and response metadata for 30 days. Journal results are never cached or shared between in-flight requests. The cache uses `CACHE_KEY_SECRET`, separate from the IP salt. It stores salted IP and network hashes and daily call and spend counters. It stores neither submitted text nor raw provider responses, and writes no application logs. Extra provider fields are discarded; text in a numeric answer or an unknown choice fails validation before caching. Hosting and decision model providers have their own data policies.
 

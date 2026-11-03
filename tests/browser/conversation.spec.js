@@ -401,7 +401,7 @@ test('configured model chooses its own gate and public data notice', async ({ pa
       const ask = Object.assign(async () => ({ branch: { choice: 'pause', confidence: gate } }), { config: async () => ({ provider, model, siteKey: '', ...noticeConfig(provider) }) });
       window.lpInstances[0] = enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en, ask });
     }, { content: examples.en, model, gate: confidenceGate(model) });
-    await expect(page.locator('[data-lp-notice]')).toHaveText('Your answer is sent to a decision model to give instant feedback.');
+    await expect(page.locator('[data-lp-notice]')).toHaveText('Your reply is sent to a decision model to choose how the conversation goes on.');
     await submit(page);
     await expect(page.locator('[data-lp-michel]').last()).toHaveText(examples.en.branches.pause.line);
   }
@@ -426,7 +426,7 @@ test('shared client requests clearance only on submission and renders it inline'
     window.lpInstances[0] = enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en, ask });
   }, examples.en);
   await expect(page.locator('[data-lp-send]')).toBeEnabled();
-  await expect(page.locator('[data-lp-notice]')).toHaveText('Your answer is sent to a decision model to give instant feedback.');
+  await expect(page.locator('[data-lp-notice]')).toHaveText('Your reply is sent to a decision model to choose how the conversation goes on.');
   await expect(page.locator('[data-lp-challenge]')).toBeHidden();
   expect(await page.evaluate(() => window.lpNetworkCalls)).toEqual(['/api/patterns/config']);
   await submit(page);

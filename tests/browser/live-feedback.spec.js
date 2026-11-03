@@ -462,7 +462,7 @@ for (const lang of ['en', 'fr']) {
   });
 }
 
-test('configured Perplexity notice comes from the shared ask client; refused calls fall back', async ({ page }) => {
+test('configured data notice comes from the shared ask client; refused calls fall back', async ({ page }) => {
   await open(page);
   await page.evaluate(async content => {
     window.lpInstances[0].destroy();

@@ -107,7 +107,7 @@ The proxy owns both catalogues and the Choice questions. The browser sends only 
 
 Each block asks one Choice question with a 500-character cap. Each reserves at most 8,192 input tokens, including catalogue, escaped UTF-8 state and 1,024 framing tokens. Request and cost-guard tests cover these bounds and failed calls.
 
-Copy this folder, `lib/` and both proxy decision modules, preserving relative imports. Include `lib/base.css` before `pattern.css`. For live checks, set up the [proxy](../../proxy/README.md). Keep server catalogues and gates with it. Check the provider's data terms before using its notice.
+Copy this folder, `lib/` and both proxy decision modules, preserving relative imports. Include `lib/base.css` before `pattern.css`. For live checks, set up the [proxy](../../proxy/README.md). Keep server catalogues and gates with it. Check the provider's data terms, and name the provider in the course introduction or terms of participation.
 
 ```js
 import { render } from './patterns/course-lookup/render.js';
