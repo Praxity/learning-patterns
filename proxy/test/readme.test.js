@@ -7,9 +7,9 @@ const privateProse = /\bsupplied\b|\bthe brief\b|codex-runs|\b[A-Z]:[\\/]|—/i;
 test('proxy README is public prose and contains the exact data notice', async () => {
   const readme = await readFile(new URL('../README.md', import.meta.url), 'utf8');
   assert.doesNotMatch(readme, privateProse);
-  assert.ok(readme.includes("Your answer is sent to Perplexity to choose which feedback to show. Praxity doesn't keep it. Perplexity's terms apply."));
+  assert.ok(readme.includes('Your answer is sent to a decision model to give instant feedback.'));
   assert.ok(readme.includes('https://docs.perplexity.ai/docs/resources/privacy-security'));
-  assert.ok(readme.includes('confirm that provider\'s retention and training terms before using this notice'));
+  assert.ok(readme.includes('confirm that provider\'s retention and training terms before you describe them'));
   for (const planted of ['The supplied text.', 'As the brief asks.', 'C:/private/file', 'D:\\private\\file', 'codex-runs', 'Text — text']) assert.match(planted, privateProse);
 });
 

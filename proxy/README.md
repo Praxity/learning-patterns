@@ -119,13 +119,13 @@ For local UI work, `JEV_MOCK=1` returns fake answers and bypasses clearance and 
 
 Place this text next to the answer box:
 
-> Your answer is sent to Perplexity to choose which feedback to show. Praxity doesn't keep it. Perplexity's terms apply.
+> Your answer is sent to a decision model to give instant feedback.
 
 Where the learner asks a question rather than answering one, as in Instant course lookup, `/config` also publishes this wording:
 
-> Your question is sent to Perplexity to choose which information to show. Praxity doesn't keep it. Perplexity's terms apply.
+> Your question is sent to a decision model to find where the course answers it.
 
-[Perplexity's privacy and security documentation](https://docs.perplexity.ai/docs/resources/privacy-security) makes zero retention conditional on eligibility and a written agreement. The notice promises only that Praxity does not keep submitted text; it makes no promise about the provider's retention or training. Self-hosters must adapt the Praxity statement to their own storage policy and confirm that provider's retention and training terms before using this notice. Before sending learner text in a client course, arrange consent wording and a data agreement with the chosen provider.
+The notice tells the learner what happens to their text at the moment they send it. It names no provider and makes no storage promise. Put those in the course introduction or the terms of participation: which provider receives the text, where it is processed, what you keep and for how long, and the provider's retention and training terms. `providerName` in `/config` gives the provider for that text. [Perplexity's privacy and security documentation](https://docs.perplexity.ai/docs/resources/privacy-security) makes zero retention conditional on eligibility and a written agreement, so confirm that provider's retention and training terms before you describe them. Before sending learner text in a client course, arrange consent wording and a data agreement with the chosen provider.
 
 The proxy sends the answer and authored context to the provider. Except for `13-journal`, it keeps an HMAC-SHA-256 key of the decision model, state and questions, validated decision model answers and response metadata for 30 days. Journal results are never cached or shared between in-flight requests. The cache uses `CACHE_KEY_SECRET`, separate from the IP salt. It stores salted IP and network hashes and daily call and spend counters. It stores neither submitted text nor raw provider responses, and writes no application logs. Extra provider fields are discarded; text in a numeric answer or an unknown choice fails validation before caching. Hosting and decision model providers have their own data policies.
 
