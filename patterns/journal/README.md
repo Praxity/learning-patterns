@@ -25,13 +25,10 @@ The distress check was tested only on agent-written answers. It shows an authore
 
 ## How it works
 
-1. Write about your week under today’s date.
-2. Select "Save" to keep the entry in this tab. Saving never asks for a suggestion.
-3. Select "Get a suggestion" for one optional question, a completion message or a support message.
+1. The learner writes about their week under today's date and selects "Save". The entry stays in the browser tab, and saving sends nothing.
+2. "Get a suggestion" sends the entry to the decision model, which picks one follow-up question, a completion message or a support message.
 
-Editing during a request discards the suggestion. Select "Get a suggestion" again for the revised entry.
-
-Without the decision model, all four questions open with support text below. Without JavaScript, you can write and read the questions and support text, but cannot save.
+If the learner edits the entry while a suggestion loads, the suggestion is dropped and they can ask again. Without the decision model, all four questions open, with the support text below them. Without JavaScript, the learner can write and read the questions but can't save.
 
 ## Evidence
 
@@ -49,7 +46,7 @@ Meets the shared baseline in the root README.
 - Native questions open immediately. Support text and questions remain available without the decision model or JavaScript.
 - A failed suggestion opens the questions. If the suggestion button has focus, focus moves to the questions' disclosure before the button hides.
 - Blocked storage reports that the entry was not saved and keeps the text available to copy.
-- English and Québec French share the same fields. French uses vous.
+- English and Québec French share the same fields.
 
 ## Content fields
 

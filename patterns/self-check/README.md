@@ -21,11 +21,10 @@ The pattern does not judge the learner's text.
 
 ## How it works
 
-1. Write your answer and select "Check my answer". Email tasks also show a recipient and subject.
-2. Tick each part your answer includes. A count updates as you tick.
-3. Select "Show feedback" to compare your answer with the model. Numbered marks connect the model to the checklist.
-4. Read "Included" or "To add" beside each part, with a hint for each part to add.
-5. Edit your answer or ticks and submit again. Select "Start over" to clear them.
+1. The learner writes an answer and selects "Check my answer". Email tasks also show a recipient and subject.
+2. They tick each part of the checklist their answer includes.
+3. "Show feedback" shows the model answer, numbered to match the checklist, and marks each part "Included" or "To add", with a hint for each part to add.
+4. They can edit the answer or the ticks and check again. "Start over" clears both.
 
 ## Evidence
 

@@ -21,11 +21,11 @@ It gives no score.
 
 ## How it works
 
-1. Read Michel’s opening line, write your reply and select "Say it", or open "Or choose a reply".
-2. Read Michel’s response. Reply once more to finish the conversation.
-3. Read the review of both replies. Select "Start over" to try another path.
+1. Michel opens. The learner types a reply and selects "Say it", or picks one from "Or choose a reply".
+2. Michel responds. The learner replies once more, which ends the conversation.
+3. A review comments on both replies. "Start over" tries another path.
 
-Unclear or unrelated replies get guidance and open the five reply choices. Michel does not answer, and the round stays available. A pause shows a note that you return ten minutes later. Some endings include stage notes.
+If the model can't place a reply, or the reply is off topic, Michel doesn't respond. The learner gets a line of guidance and the five reply choices, and tries the same turn again. A reply that asks for a break skips ahead: "Ten minutes later, you're back with Michel." Some endings add a stage note, such as "Michel leaves the meeting."
 
 ## Evidence
 
@@ -43,7 +43,7 @@ Meets the shared baseline in the root README.
 - Unsure and off-script lines use the single status region without moving focus. Disclosures open immediately.
 - Reply buttons have visible focus. Speech bubbles differ in position and speaker label, with borders in forced colours.
 - Without the decision model, five reply buttons replace the reply box and support every path. Without JavaScript, nested disclosures show all 25 paths, stage notes and reviews.
-- English and Québec French use identical fields. The French conversation uses vous.
+- English and Québec French use identical fields.
 
 ## Content fields
 

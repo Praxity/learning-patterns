@@ -21,11 +21,11 @@ It gives no grade.
 
 ## How it works
 
-1. Read the three lesson sections, then select "I'm ready to explain it".
-2. Explain stonewalling and taking a time-out to a new manager in two sentences. Select "Check my explanation". Verification appears if needed.
-3. Read the idea count and feedback for each idea: "Found", "To add" or "Not sure".
-4. Select "Read the text again" or a feedback link to revisit the lesson. Your draft and result stay available. Return to your explanation, revise it and check again.
-5. When all three ideas are found, the model answer opens. If automatic checking is unavailable, use the checklist and compare with the model answer.
+1. The learner reads a three-part lesson, then selects "I'm ready to explain it", which hides the lesson.
+2. They explain the idea in two sentences, as if to a new manager, and select "Check my explanation".
+3. Each key idea is marked "Found", "To add" or "Not sure", with a count of ideas found.
+4. "Read the text again" or a feedback link brings the lesson back. The draft stays, so the learner can revise and check again.
+5. The model answer appears once all three ideas are found. If automatic checking is unavailable, the learner ticks the ideas themselves and compares with the model answer.
 
 ## Evidence
 

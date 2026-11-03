@@ -21,11 +21,10 @@ Learners judge their own changes, so use another method to grade answers.
 
 ## How it works
 
-1. Write an answer and select "Save my first answer". It stays as you wrote it, with the date you saved it.
-2. At the end of the course, answer the same question and select "Compare".
-3. Read your first answer below your new one. Tick the improvements you notice. The counter shows your ticks.
-4. Select "Try again" to rewrite your new answer. Your first answer and ticks stay saved.
-5. Select "Start over" to clear both answers and your ticks.
+1. Early in the course, the learner writes an answer and saves it. It's kept as written, with the date.
+2. At the end of the course, they answer the same question and select "Compare".
+3. Their first answer appears below the new one. They tick the improvements they notice, and a counter adds them up.
+4. "Try again" lets them rewrite the new answer and keeps the first answer and the ticks. "Start over" clears everything.
 
 ## Evidence
 

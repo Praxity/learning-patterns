@@ -25,11 +25,11 @@ Set points for right, wrong and unknown answers. Losing points for wrong answers
 
 ## How it works
 
-1. Read the scoring rule and choose an answer for each question. Choose "I don't know" when you are unsure.
-2. Select "Check my answers". Fill in any answers you left blank.
-3. See a mark beside each chosen answer. Wrong and unknown answers also show the correct answer and an explanation.
-4. Read your score. Follow the review links to questions you got wrong or answered with "I don't know".
-5. Select "Start over" to clear your answers and try again.
+1. The learner answers each question or chooses "I don't know". The scoring rule sits above the questions.
+2. "Check my answers" asks them to fill in any they left blank.
+3. Each answer gets a mark. Wrong answers and "I don't know" also show the correct answer and an explanation.
+4. The score appears, with links back to the questions they got wrong or didn't know.
+5. "Start over" clears everything.
 
 ## Write this in .prax
 

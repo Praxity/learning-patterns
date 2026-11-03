@@ -26,11 +26,10 @@ Write the question, unit, known points and real values for the points to guess, 
 
 ## How it works
 
-1. Read the context and known points.
-2. Tap a month's column to set its point, or drag across the columns. With a keyboard, tab to each month and use the arrow keys. Home and End reach the bottom and top of the scale.
-3. Select "Show the real line" after setting every point.
-4. Compare your dashed line and circles with the solid real line and squares. Read the explanation and summary.
-5. Select "Try again" to clear your guesses.
+1. The learner reads a short context and sees the known points on the chart.
+2. They guess a point for each remaining month by tapping its column or dragging across the columns. On a keyboard, they tab to each month and use the arrow keys, Home and End.
+3. Once every month has a point, "Show the real line" draws the real data over their guess, with an explanation and a summary.
+4. "Try again" clears the guesses.
 
 ## Evidence
 

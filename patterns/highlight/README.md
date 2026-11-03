@@ -21,10 +21,10 @@ Learners select whole pieces, so use another pattern for selecting individual wo
 
 ## How it works
 
-1. Read the passage and the question, if there is one.
-2. Mark key ideas or text that answers the question. The counter shows your marks and the limit. Select marked text again to unmark it.
-3. Select "Check". Read feedback beside your marks and any text you missed.
-4. Read how many you found. Select "Start over" to try again.
+1. The learner reads a passage, and a question if there is one.
+2. They mark the key ideas, or the text that answers the question, up to a set number of marks. Selecting a mark again removes it.
+3. "Check" puts feedback beside each mark, shows key text they missed, and says how many they found.
+4. "Start over" clears the marks.
 
 ## Evidence
 

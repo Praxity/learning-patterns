@@ -25,23 +25,19 @@ For catalogues with more than about 30 entries, first narrow the candidates with
 
 ## How it works
 
-1. Type at least 10 characters, excluding spaces at the start and end. A pause checks changed text. A final question mark or Enter checks it immediately.
-2. Read the closest authored answer, or follow a link to the section. Two close matches can appear together.
-3. If there is no match, choose "Add to the question bank". Your question appears as "Waiting for an answer". You can remove it.
+1. The learner types a question of at least 10 characters. Lookup runs when they pause typing, or straight away on Enter or a final question mark.
+2. The closest authored answer appears, or a link to the course section that covers it. When two match about equally well, both appear.
+3. When nothing matches, the learner can add the question to the question bank, where it shows as "Waiting for an answer".
 
-The wait is 2.5 times the median of the last nine inter-key gaps, between 400 and 900 ms. It defaults to 700 ms until three gaps are available. A silent "Looking…" line appears only after a request takes 300 ms. Results stay silent. A polite status region announces a changed match once, without moving focus.
+Lookup sends only the question to the decision model, and the server stores none of it. Automatic lookup stops after 30 checks per page load, and daily limits on the server can stop it sooner. Enter still works after that.
 
-Editing cancels the older request and discards stale results. Each instance has at most one active request. All instances share 30 automatic checks per page session. Enter still works after the cap. Reloading resets it. Proxy limits can stop checks sooner.
+Without JavaScript, or when lookup fails, the page lists every FAQ answer and links the course outline. The question bank still works when lookup fails.
 
-### Question bank and data
+### Question bank
 
-The shared data notice explains the decision service. The offline demo uses fixed matches and sends no text. Live lookup sends the question to the decision model through the proxy. The proxy stores no question text.
+The demo keeps up to 100 added questions in the browser tab until it's closed. It stores nothing on a server and notifies no one. Three sample entries show answered questions: two answered by an instructor, one by another learner.
 
-The question bank keeps added questions in this tab. Reloading keeps them; closing the tab clears them. Each language and instance has its own bank. Three authored examples show two instructor replies and one reply from another learner. Those examples remain available through "Show all". Only added learner questions are stored. The demo stores no bank entries on a server and sends no notifications. A failed save shows an error and keeps the previous bank. The bank holds up to 100 added questions. It shows the latest ten questions, including authored examples when there are fewer than ten newer questions. "Show all" reveals the complete bank; "Show latest 10" collapses it again.
-
-A real course should send questions to its forum or instructor queue. Ask for consent before sending. For example, "Send this question to the course forum? Other learners and the instructor can read it." Decide who can answer and remove questions, and state how long they remain.
-
-Without JavaScript, the full FAQ appears as native disclosures. The outline is a linked list. If lookup fails, the same list appears. The bank stays available when lookup fails.
+In a real course, send questions to the course forum or the instructor's queue, and ask the learner first. For example: "Send this question to the course forum? Other learners and the instructor can read it." Decide who answers and removes questions, and say how long they stay.
 
 ## Evidence
 
@@ -66,7 +62,7 @@ Meets the shared baseline in the root README.
 - Native FAQ disclosures and outline links work without JavaScript. Failed checks reveal the same content.
 - Activating a section result reveals the outline and focuses that entry's link after layout, while keeping the URL fragment.
 - No animation, colour-only feedback or focus movement on results. Adding a question focuses its text in the bank. Removing a question moves focus to the next removal button or the question field. If lookup fails while a lookup control has focus, focus moves to the message "Lookup is unavailable. Browse the list below." before the controls hide. Focus reads the message, so the status region stays empty, and the next Tab reaches the first fallback disclosure or outline link. If focus is elsewhere, the status region announces the message once.
-- English and Québec French use the same controls. French uses vous.
+- English and Québec French use the same controls.
 - Browser checks cover axe, keyboard use, narrow reflow, text spacing, reduced motion and forced colours. Screen reader listening requires a separate human check.
 
 ## Content fields
