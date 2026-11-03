@@ -71,7 +71,7 @@ export function enhance(root, { content, strings, state, ask }) {
     suggest.disabled = true;
     Promise.resolve().then(() => ask.config()).then(config => {
       if (destroyed) return;
-      notice.innerHTML = renderDataNotice(config, root.lang, `${notice.id}-text`);
+      notice.innerHTML = renderDataNotice(config, root.lang, `${notice.id}-text`, 'entry');
       notice.hidden = false; suggest.setAttribute('aria-describedby', `${notice.id}-text`); suggest.disabled = false;
     }).catch(() => { if (!destroyed) useFallback(); });
   } else useFallback();

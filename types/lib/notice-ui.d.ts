@@ -1,5 +1,5 @@
-/** @param {import('./data-notice.js').NoticeConfig} config @param {string} lang @param {string} id @param {'answer' | 'question'} [subject] */
-export function renderDataNotice(config: import("./data-notice.js").NoticeConfig, lang: string, id: string, subject?: "answer" | "question"): string;
+/** @param {import('./data-notice.js').NoticeConfig} config @param {string} lang @param {string} id @param {'answer' | 'question' | 'reply' | 'entry'} [subject] */
+export function renderDataNotice(config: import("./data-notice.js").NoticeConfig, lang: string, id: string, subject?: "answer" | "question" | "reply" | "entry"): string;
 /** @param {CapReason} reason @param {string} lang */
 export function renderCapNotice(reason: CapReason, lang: string): string;
 /** @param {unknown} error @param {HTMLElement} root @param {HTMLElement} fallback @param {HTMLElement} status */
