@@ -21,18 +21,13 @@ It gives no grade.
 
 ## How it works
 
-1. Write at least 20 characters, excluding spaces at the start and end. A typing pause checks changed text with Perplexity Decider v1.1.
-2. Read the checklist. Done items move to the top; the other items give hints for revision. Each group keeps criterion order.
-3. Revise your plan. A short count is announced only when the number of done items changes.
-4. When all four items are done, "Well done!" appears and automatic checks pause. The box stays editable. Your next edit resumes checks with the usual wait. "Well done!" hides if a later check counts fewer done items or the text falls below 20 characters.
+1. The learner writes a plan. Once it's 20 characters or longer, each pause in typing checks it.
+2. A checklist of four criteria updates after each check. Met criteria move to the top with a green check. Unmet criteria, and any the model isn't sure about, show a hint.
+3. When all four are met, "Well done!" appears and checking stops until the next edit.
 
-The wait is 2.5 times the median of the last nine inter-key gaps, between 400 and 900 ms. It defaults to 700 ms until three gaps are available. Question marks and Enter keep this wait for plans.
+A met criterion stays met while the last sentence is unfinished, so a half-typed sentence can't undo it.
 
-All four items start with open dashed circles. Uncertain decisions keep the hint and circle. Done items have green checkmarks. They stay done while the last sentence is unfinished. A final period, exclamation mark, question mark or newline allows them to change.
-
-The quiet "Checking…" line appears during requests. Typing always stays available. Editing cancels the pending request and discards stale results. Unchanged text skips the check.
-
-All instances share 40 automatic checks per page session. At the limit, a calm message and native self-checks let you finish. Reloading resets the allowance. If "Well done!" shows when the limit is reached, it stays until your next edit opens the self-checks. A failed or refused check also opens the self-checks and announces "Automatic checking is unavailable. Tick the items in your plan." once, including on the last allowed check. Without JavaScript, the prompt, answer box and self-checks appear immediately.
+Automatic checks stop after 40 per page load, shared by every instance on the page. From then on, or when a check fails, the learner ticks the criteria themselves. Without JavaScript, the learner gets the prompt, the answer box and the tick list.
 
 ## Evidence
 
@@ -53,7 +48,7 @@ Meets the shared baseline in the root README.
 - Checkmarks and open dashed circles show state through shape as well as colour. Each list item also has a screen-reader prefix, "Done:" or "To add:". Native fallback checkboxes expose their checked state.
 - Reordering uses a 200 ms transform transition. Reduced motion moves items instantly.
 - Native checkboxes work without JavaScript and after a failed check.
-- English and Québec French share fields and controls. French uses vous.
+- English and Québec French share fields and controls.
 - Browser checks cover keyboard use, axe, narrow reflow, text spacing, reduced motion and forced colours. Screen reader listening requires a separate human check.
 
 ## Content fields

@@ -28,12 +28,12 @@ Practice follows the worked example, because novices need a few similar cases be
 
 ## How it works
 
-1. Read the worked example and definitions.
-2. Choose a part for each shuffled fact, then select "Check".
-3. Read the marks and running count. A wrong choice also reveals the correct part.
-4. Select "New set" to continue. Every case appears once before any repeats, including across saved sessions. Consecutive sets always use different cases.
+1. The learner reads a worked example and the definitions.
+2. They choose a part for each fact, shown in random order, and select "Check".
+3. Each choice gets a mark, and a wrong choice also shows the correct part. A running count keeps the score.
+4. "New set" brings another case and keeps the count. Every case appears once before any repeats, even after a reload when the host saves state, and the same case never comes up twice in a row.
 
-Checking freezes only the current answers. New set remains available, with no pass score or completion gate. It clears the answers and marks for the next case, preserving the running count.
+There is no pass mark and nothing to complete.
 
 ## Evidence
 

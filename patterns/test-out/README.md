@@ -25,12 +25,11 @@ The host course handles navigation and completion records.
 
 ## How it works
 
-1. Read the course outline and select "Start the check".
-2. Answer each question. The counter shows the question number and section. Select "Next" to continue or "Back" to revisit an answer.
-3. After the last question, select "Check my answers".
-4. Read your course plan. Each section says "Skip" or "Take it".
-5. Open "Review answers" to see your marks, correct answers and explanations for missed questions.
-6. Select "Start over" to clear your answers and return to the outline.
+1. The learner reads the course outline and selects "Start the check".
+2. They answer one question at a time, moving with "Next" and "Back". A counter shows the question number and its section.
+3. "Check my answers" gives a course plan that marks each section "Skip" or "Take it".
+4. "Review answers" shows the marks, with correct answers and explanations for missed questions.
+5. "Start over" clears the answers and returns to the outline.
 
 ## Evidence
 

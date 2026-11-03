@@ -23,10 +23,10 @@ Choosing a date sends no reminder. Arrange one through your course host if neede
 
 ## How it works
 
-1. Choose when to test yourself: in 2 days, 1 week, 2 weeks or 1 month. Each choice shows its date. The default is 1 week. Choose "Another date" to enter your own date.
-2. Select "Front" to preview questions or "Back" to preview answers.
-3. Select "Print the sheet". Questions print first, then answers.
-4. On your chosen date, write answers from memory. Check the back and revisit what you missed.
+1. The learner picks when to test themselves: in 2 days, 1 week, 2 weeks, 1 month, or another date. Each option shows its date, and 1 week is the default.
+2. "Front" and "Back" preview the questions and the answers.
+3. "Print the sheet" prints the questions first, then the answers.
+4. On the chosen date, the learner writes answers from memory, then checks them against the back.
 
 ## Write this in .prax
 

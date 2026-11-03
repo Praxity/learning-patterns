@@ -22,12 +22,12 @@ Use another interaction for quantities below one or when learners need an exact 
 
 ## How it works
 
-1. Read the context and three to five questions.
-2. Move each band with the arrow keys, Home or End. You can also tap the track or drag the band.
-3. Select "Check my ranges" to see each real answer on its track, with its source and "Caught" or "Missed" feedback.
-4. Read how many answers your ranges caught. Select "Try again" to reset all ranges.
+1. The learner reads a short context and three to five questions with numeric answers.
+2. For each question, they place a range on a logarithmic scale by dragging it, tapping the track, or using the arrow keys, Home and End.
+3. "Check my ranges" marks each real answer on its track, says "Caught" or "Missed", gives the source, and counts how many ranges caught their answer.
+4. "Try again" resets the ranges.
 
-By default, every band spans ten times its low end, such as 50 to 500. Authors can set the ratio to 10, 100 or 1,000. The ratio stays fixed while learners move their bands. A width control is later work for courses that also want to practise choosing how wide a range should be.
+Every range has the same width. By default its high end is ten times its low end, such as 50 to 500. Authors can set the ratio to 10, 100 or 1,000. Learners move ranges but can't resize them.
 
 ## Evidence
 

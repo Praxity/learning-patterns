@@ -21,12 +21,10 @@ A person must judge whether each option expresses the chosen misconception and w
 
 ## How it works
 
-1. Answer from memory. Select "Check my answer" to see the right answer.
-2. Choose "Yes" or "Not quite" to say whether your answer was right. This choice has no score.
-3. Write the requested wrong options. Choose the mistaken idea behind each, or choose "Something else" and describe it.
-4. Select "Compare with the author's". Fix any fields with errors.
-5. Compare your question with the author's. Each wrong option names its mistaken idea. A check mark shows a matching label. The summary counts matching and extra labels.
-6. Select "Start over" to clear your work.
+1. The learner answers a question from memory, selects "Check my answer" to see the right answer, then says whether theirs was right. That choice isn't scored.
+2. They write the requested wrong options and name the mistaken idea behind each, from a list, or choose "Something else" and describe it.
+3. "Compare with the author's" puts the author's wrong options next to theirs. A check mark shows each label that matches, and a summary counts matching and extra labels.
+4. "Start over" clears their work.
 
 ## Evidence
 
