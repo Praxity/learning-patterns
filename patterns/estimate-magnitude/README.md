@@ -27,7 +27,7 @@ Use another interaction for quantities below one or when learners need an exact 
 3. "Check my ranges" marks each real answer on its track, says "Caught" or "Missed", gives the source, and counts how many ranges caught their answer.
 4. "Try again" resets the ranges.
 
-Every range has the same fixed width: its high end is ten times its low end by default, such as 50 to 500. Authors can set the ratio to 10, 100 or 1,000. Learners move ranges but can't resize them.
+Every range has the same width. By default its high end is ten times its low end, such as 50 to 500. Authors can set the ratio to 10, 100 or 1,000. Learners move ranges but can't resize them.
 
 ## Evidence
 

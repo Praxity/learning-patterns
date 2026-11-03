@@ -23,7 +23,7 @@ The pattern does not judge the learner's text.
 
 1. The learner writes an answer and selects "Check my answer". Email tasks also show a recipient and subject.
 2. They tick each part of the checklist their answer includes.
-3. "Show feedback" shows the model answer, numbered to match the checklist, and marks each part "Included" or "To add", with a hint for each part to add.
+3. "Show feedback" shows the model answer, numbered to match the checklist, and marks each part "Included" or "To add" from their ticks, with a hint for each part to add.
 4. They can edit the answer or the ticks and check again. "Start over" clears both.
 
 ## Evidence

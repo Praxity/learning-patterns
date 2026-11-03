@@ -26,7 +26,7 @@ Set points for right, wrong and unknown answers. Losing points for wrong answers
 ## How it works
 
 1. The learner answers each question or chooses "I don't know". The scoring rule sits above the questions.
-2. "Check my answers" asks them to fill in any they left blank.
+2. If any are blank, "Check my answers" asks them to finish.
 3. Each answer gets a mark. Wrong answers and "I don't know" also show the correct answer and an explanation.
 4. The score appears, with links back to the questions they got wrong or didn't know.
 5. "Start over" clears everything.

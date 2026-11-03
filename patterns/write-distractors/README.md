@@ -22,7 +22,7 @@ A person must judge whether each option expresses the chosen misconception and w
 ## How it works
 
 1. The learner answers a question from memory, selects "Check my answer" to see the right answer, then says whether theirs was right. That choice isn't scored.
-2. They write the requested wrong options and name the mistaken idea behind each, from a list or as "Something else".
+2. They write the requested wrong options and name the mistaken idea behind each, from a list, or choose "Something else" and describe it.
 3. "Compare with the author's" puts the author's wrong options next to theirs. A check mark shows each label that matches, and a summary counts matching and extra labels.
 4. "Start over" clears their work.
 

@@ -22,7 +22,7 @@ It gives no grade.
 ## How it works
 
 1. The learner reads a three-part lesson, then selects "I'm ready to explain it", which hides the lesson.
-2. They explain the idea in two sentences, as if to a new manager, and select "Check my explanation".
+2. They explain the lesson in two sentences, as if to a new manager, and select "Check my explanation".
 3. Each key idea is marked "Found", "To add" or "Not sure", with a count of ideas found.
 4. "Read the text again" or a feedback link brings the lesson back. The draft stays, so the learner can revise and check again.
 5. The model answer appears once all three ideas are found. If automatic checking is unavailable, the learner ticks the ideas themselves and compares with the model answer.

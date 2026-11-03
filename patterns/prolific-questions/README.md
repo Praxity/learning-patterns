@@ -31,7 +31,7 @@ Practice follows the worked example, because novices need a few similar cases be
 1. The learner reads a worked example and the definitions.
 2. They choose a part for each fact, shown in random order, and select "Check".
 3. Each choice gets a mark, and a wrong choice also shows the correct part. A running count keeps the score.
-4. "New set" brings another case and keeps the count. Every case appears once before any repeats, even across sessions, and the same case never comes up twice in a row.
+4. "New set" brings another case and keeps the count. Every case appears once before any repeats, even after a reload when the host saves state, and the same case never comes up twice in a row.
 
 There is no pass mark and nothing to complete.
 

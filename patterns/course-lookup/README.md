@@ -26,12 +26,12 @@ For catalogues with more than about 30 entries, first narrow the candidates with
 ## How it works
 
 1. The learner types a question of at least 10 characters. Lookup runs when they pause typing, or straight away on Enter or a final question mark.
-2. The closest authored answer appears, or a link to the course section that covers it. When two match about equally well, both appear.
+2. An FAQ lookup shows the closest authored answer. A section lookup links the closest course section. When two match about equally well, both appear.
 3. When nothing matches, the learner can add the question to the question bank, where it shows as "Waiting for an answer".
 
-Lookup sends only the question to the decision model, and the server stores none of it. Automatic lookup stops after 30 checks per page load, and daily limits on the server can stop it sooner. Enter still works after that.
+Lookup sends only the question to the decision model, and the Praxity proxy stores none of it. The offline demo uses fixed matches and sends nothing. Automatic lookup stops after 30 checks per page load, shared by every lookup on the page. After that, Enter still looks up. A daily server limit stops lookup and shows the full list.
 
-Without JavaScript, or when lookup fails, the page lists every FAQ answer and links the course outline. The question bank still works when lookup fails.
+Without JavaScript, or when lookup fails, the page shows that lookup's full FAQ or outline. The question bank still works when lookup fails.
 
 ### Question bank
 

@@ -29,7 +29,7 @@ The host course handles navigation and completion records.
 2. They answer one question at a time, moving with "Next" and "Back". A counter shows the question number and its section.
 3. "Check my answers" gives a course plan that marks each section "Skip" or "Take it".
 4. "Review answers" shows the marks, with correct answers and explanations for missed questions.
-5. "Start over" returns to the outline.
+5. "Start over" clears the answers and returns to the outline.
 
 ## Evidence
 

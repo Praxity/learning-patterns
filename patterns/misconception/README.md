@@ -22,7 +22,7 @@ It gives no grade.
 ## How it works
 
 1. The learner writes an answer and selects "Check my answer".
-2. Each key idea in the answer gets a green check. Each listed misconception in it is named, with a correction.
+2. Each check gives one result: a green check for the key idea, or the one listed misconception it found, named with a correction.
 3. When the model isn't sure, the learner sees the possible match and checks it themselves. An answer that matches nothing gets a prompt to compare it with the model answer.
 4. The model answer opens with every result. The learner can revise and check again.
 5. If automatic checking is unavailable, the button opens the model answer and a misconception checklist instead. The learner ticks the beliefs in their answer and uses the corrections to revise.

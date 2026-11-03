@@ -22,12 +22,12 @@ It gives no grade.
 ## How it works
 
 1. The learner writes a plan. Once it's 20 characters or longer, each pause in typing checks it.
-2. A checklist of four criteria updates after each check. Met criteria move to the top with a green check. The rest show a hint, and so do criteria the model isn't sure about.
+2. A checklist of four criteria updates after each check. Met criteria move to the top with a green check. Unmet criteria, and any the model isn't sure about, show a hint.
 3. When all four are met, "Well done!" appears and checking stops until the next edit.
 
-A check waits for a pause that fits the learner's typing speed, between 0.4 and 0.9 seconds. A met criterion stays met while the last sentence is unfinished, so a half-typed sentence can't undo it.
+A met criterion stays met while the last sentence is unfinished, so a half-typed sentence can't undo it.
 
-Automatic checks stop after 40 per page load. From then on, or when a check fails, the learner ticks the criteria themselves. Without JavaScript, the learner gets the prompt, the answer box and the tick list.
+Automatic checks stop after 40 per page load, shared by every instance on the page. From then on, or when a check fails, the learner ticks the criteria themselves. Without JavaScript, the learner gets the prompt, the answer box and the tick list.
 
 ## Evidence
 

@@ -25,7 +25,7 @@ It gives no score.
 2. Michel responds. The learner replies once more, which ends the conversation.
 3. A review comments on both replies. "Start over" tries another path.
 
-If the model can't place a reply, or the reply is off topic, Michel doesn't respond. The learner gets a line of guidance and the five reply choices, and tries the same turn again. A reply that asks for a break skips ahead: "Ten minutes later, you're back with Michel." Some endings add a stage note, such as "Michel leaves the meeting."
+If the model can't place a reply, or the reply is off topic, Michel doesn't respond. The learner gets a line of guidance and the five reply choices, and tries the same turn again. If the first reply asks for a break, Michel agrees and a note reads "Ten minutes later, you're back with Michel." Some endings add a stage note, such as "Michel leaves the meeting."
 
 ## Evidence
 

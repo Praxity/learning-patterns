@@ -21,7 +21,7 @@ Ratings record what learners say they remembered. They do not verify recall or w
 
 ## How it works
 
-1. After each section, the learner answers its question from memory, then selects "I have my answer" to compare with the author's answer.
+1. After each section, the learner answers its question in their head, then selects "I have my answer" to compare with the author's answer.
 2. They choose "I remembered" or "I forgot", which sets their next review date. They can change the choice.
 3. A progress count shows how many sections they've done.
 
