@@ -18,7 +18,6 @@
 .lp-conversation-composer:has(textarea:focus) { outline: 3px solid var(--lp-focus); outline-offset: 2px; }
 .lp-conversation-input.lp-input { padding: 14px 16px; border: 0; border-radius: 0; }
 .lp-conversation textarea.lp-conversation-input:focus { outline: none; }
-.lp-conversation-input::placeholder { color: var(--lp-ink-2); opacity: 1; }
 /* The foot's side padding matches the textarea's text inset, so the error icon and the button line up with the typed text. */
 .lp-conversation-foot { display: flex; gap: 12px; flex-wrap: wrap; justify-content: flex-end; align-items: center; padding: 10px 16px; border-block-start: 1px solid var(--lp-rule); }
 .lp-conversation-foot .lp-error-text { margin-inline-end: auto; }

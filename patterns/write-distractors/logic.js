@@ -86,7 +86,7 @@ function isOption(value) {
 }
 
 /** Field errors use codes so every learner-facing message lives in strings.js.
- * Length is checked before normalization, matching HTML maxlength.
+ * Length is checked before normalization so whitespace consumes the option limit.
  * @param {Content} content @param {LearnerOption[]} options
  * @returns {{ ok: false, errors: FieldError[] } | { ok: true, options: LearnerOption[] }}
  */

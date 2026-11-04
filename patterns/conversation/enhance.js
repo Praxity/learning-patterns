@@ -1,4 +1,4 @@
-import { start, turn, feedback, validateContent, validateState } from './logic.js';
+import { start, turn, feedback, validateContent, validateState, REPLY_LIMIT } from './logic.js';
 import { renderMichel, renderChoices, renderDebrief } from './render.js';
 import { escapeHtml as html, frenchTypography } from '../../lib/html.js';
 import { renderDataNotice, showCapNotice } from '../../lib/notice-ui.js';
@@ -73,7 +73,9 @@ export function enhance(root, { content, strings, state, ask }) {
   const useFallback = () => {
     const moveFocus = !capped && composer.contains(root.ownerDocument.activeElement);
     automatic = false;
-    notice.hidden = true; input.removeAttribute('aria-describedby');
+    notice.hidden = true;
+    if (error.hidden) input.removeAttribute('aria-describedby');
+    else input.setAttribute('aria-describedby', error.id);
     refresh();
     if (moveFocus) {
       composer.hidden = false; offline.tabIndex = -1;
@@ -107,13 +109,13 @@ export function enhance(root, { content, strings, state, ask }) {
   // Firefox may restore a form value after reload; only the validated host draft wins.
   input.value = saved?.draft ?? '';
   refresh();
+  let configReady = Promise.resolve();
   if (ask) {
-    send.disabled = true;
-    Promise.resolve().then(() => ask.config()).then(config => {
+    configReady = Promise.resolve().then(() => ask.config()).then(config => {
       if (destroyed) return;
       model = config.model ?? (config.provider === 'clef' ? '@cf/cloudflare/clef' : config.provider);
       notice.innerHTML = renderDataNotice(config, root.lang, `${notice.id}-text`, 'reply');
-      notice.hidden = false; input.setAttribute('aria-describedby', `${notice.id}-text`);
+      notice.hidden = false; input.setAttribute('aria-describedby', `${error.hidden ? '' : `${error.id} `}${notice.id}-text`);
       send.disabled = false;
     }).catch(() => { if (!destroyed) { useFallback(); send.disabled = false; } });
   }
@@ -126,7 +128,9 @@ export function enhance(root, { content, strings, state, ask }) {
   const onSend = async () => {
     if (!ask || !automatic || pending.active || send.disabled || conversation.end) return;
     const draft = input.value.trim();
-    if (!draft) {
+    if (!draft || input.value.length > REPLY_LIMIT) {
+      const text = (!draft ? strings.empty : strings.tooLong).replaceAll('{max}', REPLY_LIMIT.toLocaleString(root.lang === 'fr' ? 'fr-CA' : 'en-CA'));
+      error.textContent = frenchTypography(text, root.lang);
       error.hidden = false; input.setAttribute('aria-invalid', 'true');
       input.setAttribute('aria-describedby', `${error.id}${notice.hidden ? '' : ` ${notice.id}-text`}`);
       // Focus and description announce the error once.
@@ -135,6 +139,9 @@ export function enhance(root, { content, strings, state, ask }) {
     const mine = generation;
     pending.start();
     try {
+      await configReady;
+      if (destroyed) return;
+      if (!automatic || mine !== generation || input.value.trim() !== draft) return;
       const answers = await ask('03-branch', { node: conversation.node, reply: draft }, { challengeSlot, signal: AbortSignal.any([lifetime.signal, request.signal]) });
       if (destroyed || mine !== generation || input.value.trim() !== draft) return;
       take(feedback(answers, model), draft);

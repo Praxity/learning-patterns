@@ -359,3 +359,5 @@ select.lp-input[aria-invalid="true"] { padding-inline-end: 39px; }
   .lp :is([tabindex="-1"], input[type="radio"], input[type="checkbox"]):not(.lp-choice > input):focus-visible { outline-color: Highlight; }
   .lp-choice:has(input:focus-visible) { outline-color: Highlight; }
 }
+
+.lp-input::placeholder { color: var(--lp-ink-2); opacity: 1; }

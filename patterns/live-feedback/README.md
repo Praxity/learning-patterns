@@ -39,6 +39,8 @@ Perplexity Decider v1.1 scored 11/12 on authored test answers using the original
 
 ## Accessibility
 
+The field keeps the full draft. After a typing pause, an oversized answer shows a linked length error and is not sent for checking. The sentence starter stays visible as a hint.
+
 Daily proxy caps show and announce the reason and midnight UTC reset once, keep focus in place and leave the fallback usable. Checks then stop until reload.
 
 Meets the shared baseline in the root README.

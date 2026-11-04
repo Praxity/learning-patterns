@@ -1,4 +1,4 @@
-import { feedback, validateContent, validateState } from './logic.js';
+import { feedback, validateContent, validateState, ANSWER_LIMIT } from './logic.js';
 import { escapeHtml as html, frenchTypography } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
 import { renderDataNotice, showCapNotice } from '../../lib/notice-ui.js';
@@ -61,7 +61,7 @@ export function enhance(root, { content, strings, state, ask }) {
   };
   const onReady = () => showStep(true, taskHeading);
   const onReadAgain = () => showStep(false, /** @type {HTMLElement} */ (headings[0]));
-  let destroyed = false, capped = false;
+  let destroyed = false, capped = false, automatic = Boolean(ask);
   const pending = pendingCheck(check, status, frenchTypography(strings.checking, root.lang));
   const saved = state ? validateState(state.read()) : null;
   if (saved) { answer.value = saved.answer; for (const box of boxes) box.checked = saved.ticked.includes(box.value); }
@@ -69,22 +69,25 @@ export function enhance(root, { content, strings, state, ask }) {
   const save = () => state?.write({ answer: answer.value, ticked: boxes.filter(box => box.checked).map(box => box.value) });
   /** @returns {boolean} Whether focus moved into the fallback, whose legend is the message, so it needs no status. */
   const useFallback = () => {
+    automatic = false;
     const moveFocus = !capped && root.ownerDocument.activeElement === check;
     result.hidden = true; result.replaceChildren(); fallback.hidden = false;
     model.hidden = false; model.open = true; notice.hidden = true;
-    answer.removeAttribute('aria-describedby');
+    if (error.hidden) answer.removeAttribute('aria-describedby');
+    else answer.setAttribute('aria-describedby', error.id);
     // Hide the focused button only once focus has reached the first idea, so focus never falls to the page body.
     if (moveFocus) { cancelFocus(); cancelFocus = focusAfterLayout(boxes[0], () => { check.hidden = true; }, lifetime.signal); }
     else check.hidden = !capped;
     return moveFocus;
   };
+  let configReady = Promise.resolve();
   if (ask) {
     fallback.hidden = true; model.hidden = true; model.open = false;
-    check.hidden = false; check.disabled = true;
-    Promise.resolve().then(() => ask.config()).then(config => {
+    check.hidden = false;
+    configReady = Promise.resolve().then(() => ask.config()).then(config => {
       if (destroyed) return;
       notice.innerHTML = renderDataNotice(config, root.lang, `${notice.id}-text`);
-      notice.hidden = false; answer.setAttribute('aria-describedby', `${notice.id}-text`);
+      notice.hidden = false; answer.setAttribute('aria-describedby', `${error.hidden ? '' : `${error.id} `}${notice.id}-text`);
       check.disabled = false;
     }).catch(() => { if (!destroyed) useFallback(); });
   }
@@ -97,13 +100,19 @@ export function enhance(root, { content, strings, state, ask }) {
   const onCheck = async () => {
     if (!ask || pending.active || check.disabled || check.hidden || check.getAttribute('aria-disabled') === 'true') return;
     const draft = answer.value.trim();
-    if (!draft) {
+    if (!draft || answer.value.length > ANSWER_LIMIT) {
+      const text = (!draft ? strings.empty : strings.tooLong).replaceAll('{max}', ANSWER_LIMIT.toLocaleString(root.lang === 'fr' ? 'fr-CA' : 'en-CA'));
+      error.textContent = frenchTypography(text, root.lang);
       error.hidden = false; answer.setAttribute('aria-invalid', 'true');
       answer.setAttribute('aria-describedby', `${error.id}${notice.hidden ? '' : ` ${notice.id}-text`}`);
-      answer.focus(); status.textContent = frenchTypography(strings.empty, root.lang); return;
+      answer.focus(); status.textContent = frenchTypography(text, root.lang); return;
     }
     pending.start();
     try {
+      await configReady;
+      if (destroyed) return;
+      if (!automatic) return;
+      if (answer.value.trim() !== draft) return;
       const answers = await ask('07-explain-back', { answer: draft }, { challengeSlot, signal: lifetime.signal });
       if (destroyed) return;
       // A judgment belongs to the submitted draft. Discard it if the learner has edited.

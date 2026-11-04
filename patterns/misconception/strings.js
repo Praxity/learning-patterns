@@ -1,5 +1,6 @@
 export const strings = {
   en: {
+    tooLong: 'Your answer must be {max} characters or fewer.',
     placeholder: 'Type your answer here…', check: 'Check my answer',
     empty: 'Write an answer first.', checking: 'Checking your answer…',
     found: 'Key idea found', misconception: 'Known misconception', unsure: 'Not sure', noMatch: 'No match',
@@ -7,6 +8,7 @@ export const strings = {
     fallback: "Automatic checking is unavailable. Tick the misconceptions in your answer."
   },
   fr: {
+    tooLong: 'Votre réponse doit contenir {max} caractères ou moins.',
     placeholder: 'Écrivez votre réponse ici…', check: 'Vérifier ma réponse',
     empty: "Écrivez d'abord une réponse.", checking: 'Vérification de votre réponse…',
     found: 'Idée clé trouvée', misconception: 'Idée fausse connue', unsure: 'Pas certain', noMatch: 'Aucune correspondance',

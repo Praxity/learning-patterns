@@ -132,7 +132,7 @@ for (const lang of ['en', 'fr']) {
     await expect(page.locator('[data-lp-pattern]')).toHaveAttribute('lang', lang);
     await expect(page.locator('.lp-explain-back-lesson h2')).toHaveText(examples[lang].ideas.map(idea => idea.heading));
     await expect(page.locator('.lp-box > h2')).toHaveText(examples[lang].task);
-    await expect(page.getByRole('textbox')).toHaveAttribute('maxlength', '1500');
+    await expect(page.getByRole('textbox')).not.toHaveAttribute('maxlength');
     await expect(page.locator('[data-lp-notice]')).toContainText(lang === 'fr' ? 'Votre réponse reste' : 'Your answer stays');
     await expect(page.locator('[data-lp-result]')).toBeHidden();
     await expect(page.locator('[data-lp-fallback]')).toBeHidden();

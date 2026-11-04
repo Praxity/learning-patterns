@@ -53,6 +53,8 @@ In 44 authored live checks, all 32 single-answer or unanswered cases matched the
 
 ## Accessibility
 
+The field keeps the full question. After a typing pause or Enter, an oversized question shows a linked length error and is not sent for lookup.
+
 Daily proxy caps show and announce the reason and midnight UTC reset once, keep focus in place and leave the fallback usable. Checks then stop until reload.
 
 Meets the shared baseline in the root README.

@@ -1,5 +1,6 @@
 export namespace strings {
     namespace en {
+        let tooLong: string;
         let reply: string;
         let placeholder: string;
         let send: string;
@@ -14,6 +15,8 @@ export namespace strings {
         let next: string;
     }
     namespace fr {
+        let tooLong_1: string;
+        export { tooLong_1 as tooLong };
         let reply_1: string;
         export { reply_1 as reply };
         let placeholder_1: string;

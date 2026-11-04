@@ -42,8 +42,8 @@ test('oversized saved answers restore intact as drafts without completed checks'
 });
 
 test('answer limit errors have authored English and French copy without an HTML truncation limit', () => {
-  assert.equal(strings.en.longAnswer, 'Keep your answer to {max} characters or fewer.');
-  assert.equal(strings.fr.longAnswer, 'Limitez votre réponse à {max} caractères.');
+  assert.equal(strings.en.longAnswer, 'Your answer must be {max} characters or fewer.');
+  assert.equal(strings.fr.longAnswer, 'Votre réponse doit contenir {max} caractères ou moins.');
   for (const lang of ['en', 'fr']) {
     const output = render(lang === 'en' ? content : fr, strings[lang], { id: 'limit', lang });
     const answer = output.match(/<textarea[^>]*data-lp-answer[^>]*>/)[0];
@@ -218,8 +218,7 @@ test('render escapes text and attributes, prefixes IDs, supplies field associati
   assert.equal((a.match(/role="status"/g) || []).length, 1);
   assert.match(a, /role="status" aria-atomic="true"><\/p>/);
   assert.equal((a.match(/<fieldset/g) || []).length, 2);
-  assert.equal((a.match(/maxlength="300"/g) || []).length, 2);
-  assert.equal((a.match(/maxlength="120"/g) || []).length, 2);
+  assert.doesNotMatch(a, /maxlength=/);
   assert.ok(a.includes('<details')); assert.ok(a.includes('data-lp-flow hidden'));
   assert.match(a, /data-lp-clear hidden/);
   assert.ok(!a.includes('data-lp-selected'));

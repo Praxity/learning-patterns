@@ -1,4 +1,4 @@
-import { feedback, validateContent, validateState } from './logic.js';
+import { feedback, validateContent, validateState, ANSWER_LIMIT } from './logic.js';
 import { escapeHtml as html, frenchTypography } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
 import { renderDataNotice, showCapNotice } from '../../lib/notice-ui.js';
@@ -39,21 +39,22 @@ export function enhance(root, { content, strings, state, ask }) {
   const save = () => state?.write({ answer: answer.value, ticked: boxes.filter(box => box.checked).map(box => box.value) });
   const offline = () => {
     automatic = false; notice.hidden = true;
-    answer.removeAttribute('aria-describedby');
+    if (error.hidden) answer.removeAttribute('aria-describedby');
+    else answer.setAttribute('aria-describedby', error.id);
   };
   const showFallback = () => {
     offline(); result.hidden = true; result.replaceChildren(); fallback.hidden = false;
     model.hidden = false; model.open = true;
   };
   fallback.hidden = true; model.hidden = true; model.open = false; check.hidden = false;
+  let configReady = Promise.resolve();
   if (ask) {
-    check.disabled = true;
-    Promise.resolve().then(() => ask.config()).then(config => {
+    configReady = Promise.resolve().then(() => ask.config()).then(config => {
       if (destroyed) return;
       // Choice gates are model-specific; older host clients may provide only the provider.
       modelId = config.model ?? (config.provider === 'clef' ? '@cf/cloudflare/clef' : config.provider);
       notice.innerHTML = renderDataNotice(config, root.lang, `${notice.id}-text`);
-      notice.hidden = false; answer.setAttribute('aria-describedby', `${notice.id}-text`);
+      notice.hidden = false; answer.setAttribute('aria-describedby', `${error.hidden ? '' : `${error.id} `}${notice.id}-text`);
       check.disabled = false;
     }).catch(() => { if (!destroyed) { offline(); check.disabled = false; } });
   }
@@ -66,14 +67,20 @@ export function enhance(root, { content, strings, state, ask }) {
   const onCheck = async () => {
     if (pending.active || check.disabled || check.hidden) return;
     const draft = answer.value.trim();
-    if (!draft) {
+    if (!draft || answer.value.length > ANSWER_LIMIT) {
+      const text = (!draft ? strings.empty : strings.tooLong).replaceAll('{max}', ANSWER_LIMIT.toLocaleString(root.lang === 'fr' ? 'fr-CA' : 'en-CA'));
+      error.textContent = frenchTypography(text, root.lang);
       error.hidden = false; answer.setAttribute('aria-invalid', 'true');
       answer.setAttribute('aria-describedby', `${error.id}${notice.hidden ? '' : ` ${notice.id}-text`}`);
-      answer.focus(); status.textContent = frenchTypography(strings.empty, root.lang); return;
+      answer.focus(); status.textContent = frenchTypography(text, root.lang); return;
     }
     if (!automatic || !ask) { showFallback(); status.textContent = frenchTypography(strings.fallback, root.lang); return; }
     pending.start();
     try {
+      await configReady;
+      if (destroyed) return;
+      if (!automatic) { showFallback(); status.textContent = frenchTypography(strings.fallback, root.lang); return; }
+      if (answer.value.trim() !== draft) return;
       const answers = await ask('06-misconceptions', { answer: draft }, { challengeSlot, signal: lifetime.signal });
       if (destroyed || answer.value.trim() !== draft) return;
       const outcome = feedback(content, answers, modelId);

@@ -1,6 +1,6 @@
 import { escapeHtml as html } from '../../lib/html.js';
 import { icons } from '../../lib/course-lookup-icons.js';
-import { validateContent, QUESTION_LIMIT } from './logic.js';
+import { validateContent } from './logic.js';
 
 /** @param {import('./logic.js').Content} content @param {import('./strings.js').Strings} strings
  * @param {{ id: string, lang: string }} options @returns {string}
@@ -12,7 +12,8 @@ export function render(content, strings, { id, lang }) {
   return `<section class="lp lp-course-lookup" data-lp-pattern="course-lookup" data-lp-kind="${content.kind}" lang="${html(lang)}">
   <h2 class="lp-stem" id="${html(`${id}-prompt`)}">${html(content.prompt, lang).replaceAll('{course}', () => `<em>${html(content.course ?? '', lang)}</em>`)}</h2>
   <div data-lp-controls hidden class="lp-stack">
-    <textarea class="lp-input" rows="2" maxlength="${QUESTION_LIMIT}" id="${html(`${id}-question`)}" aria-labelledby="${html(`${id}-prompt`)}" placeholder="${html(strings.placeholder, lang)}"></textarea>
+    <textarea class="lp-input" rows="2" id="${html(`${id}-question`)}" aria-labelledby="${html(`${id}-prompt`)}"></textarea>
+  <p class="lp-error-text" id="${html(`${id}-error`)}" data-lp-error hidden></p>
     <p class="lp-small" data-lp-checking hidden>${html(strings.checking, lang)}</p>
     <p class="lp-small" data-lp-paused hidden>${html(strings.paused, lang)}</p>
     <div data-lp-notice id="${html(`${id}-notice`)}" hidden></div>

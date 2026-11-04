@@ -1,5 +1,6 @@
 export namespace strings {
     namespace en {
+        let tooLong: string;
         let placeholder: string;
         let checking: string;
         let noMatch: string;
@@ -26,6 +27,8 @@ export namespace strings {
         let sectionFound: string;
     }
     namespace fr {
+        let tooLong_1: string;
+        export { tooLong_1 as tooLong };
         let placeholder_1: string;
         export { placeholder_1 as placeholder };
         let checking_1: string;

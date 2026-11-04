@@ -25,10 +25,11 @@ async function compareAnswers(page, lang = 'en') {
 }
 
 for (const width of [1280, 390]) {
-  test(`question to textarea is 12px at ${width}px`, async ({ page }) => {
+  test(`question and visible hint use shared field gaps at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await open(page, 'journal');
-    expect(await gap(page.locator('.lp-stem'), page.locator('textarea.lp-input'))).toBeCloseTo(12, 1);
+    expect(await gap(page.locator('.lp-stem'), page.locator('#example-starter'))).toBeCloseTo(4, 1);
+    expect(await gap(page.locator('#example-starter'), page.locator('textarea.lp-input'))).toBeCloseTo(8, 1);
     expect(await gap(page.locator('textarea.lp-input'), page.locator('.lp-actions'))).toBeCloseTo(24, 1);
   });
 

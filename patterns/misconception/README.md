@@ -33,6 +33,8 @@ Refutation texts produced an average learning benefit of 0.41 standard deviation
 
 ## Accessibility
 
+Text fields keep the full draft, including text over the limit. Checking or saving shows a linked length error instead of cutting text. Limits come from the existing logic constants. The automatic action stays enabled while model configuration loads. An early press waits for configuration, then checks or uses the existing fallback.
+
 Daily proxy caps show and announce the reason and midnight UTC reset once, keep focus in place and leave the fallback usable.
 
 The question labels the three-line answer box. Submitting announces feedback once through one status region, without moving focus. While a check runs, the button keeps its label and focus, and pressing it again sends nothing. "Checking your answer…" appears beside it, and the status region says it once if the check takes more than a second. Icons accompany text; colour alone conveys no meaning. Native disclosures and checkboxes support keyboards. Shared styles support reduced motion, forced colours and narrow layouts. Without JavaScript, the answer box, open model answer and checklist appear immediately. English and Québec French share the content structure.
