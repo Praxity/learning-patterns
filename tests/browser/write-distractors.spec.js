@@ -416,13 +416,13 @@ for (const lang of ['en', 'fr']) {
     await page.locator('[data-lp-compare]').click();
     await expectChoiceMarks(page);
     const message = lang === 'en' ? "Your labels match 1 of the author's 4 mistaken ideas. You added 1 of your own."
-      : "Idées fausses en commun avec l'auteur : 1 sur 4. Autres idées fausses : 1.";
+      : "Idées fausses en commun avec l’auteur : 1 sur 4. Autres idées fausses : 1.";
     await expect(page.locator('[data-lp-summary]')).toHaveText(message);
     await expect(page.locator('[role="status"]')).toHaveText(message);
     expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([message]);
     expect(await page.locator('[data-lp-summary]').evaluate(el => getComputedStyle(el).fontWeight)).toBe('600');
     await expect(page.locator('[data-lp-result]')).not.toContainText(lang === 'en' ? 'Compared' : 'comparées');
-    await expect(page.locator('[data-lp-result] [data-lp-preview] h3')).toHaveText(lang === 'en' ? ['Your question', "The author's question"] : ['Votre question', "La question de l'auteur"]);
+    await expect(page.locator('[data-lp-result] [data-lp-preview] h3')).toHaveText(lang === 'en' ? ['Your question', "The author's question"] : ['Votre question', "La question de l’auteur"]);
     await expect(page.locator('[data-lp-result] [data-lp-preview="author"] .lp-small')).toHaveText(content.misconceptions.map(item => `${lang === 'en' ? 'Mistaken idea:' : 'Idée fausse :'} ${item.label}`));
     await expect(page.locator('[data-lp-result] [data-lp-preview="yours"] .lp-small')).toHaveText([`${lang === 'en' ? 'Mistaken idea:' : 'Idée fausse :'} ${content.misconceptions[1].label}`, `${lang === 'en' ? 'Mistaken idea:' : 'Idée fausse :'} Breaks disrupt focus`]);
     await expect(page.locator('[data-lp-result] [data-lp-untargeted], [data-lp-result] [data-lp-yours]')).toHaveCount(0);
@@ -456,7 +456,7 @@ for (const lang of ['en', 'fr']) {
       }
       await page.locator('[data-lp-compare]').click();
       const message = lang === 'en' ? `Your labels match ${fixture.author} of the author's ${fixture.total} ${fixture.total === 1 ? 'mistaken idea' : 'mistaken ideas'}. You added ${fixture.own} of your own.`
-        : `${fixture.total === 1 ? 'Idée fausse' : 'Idées fausses'} en commun avec l'auteur : ${fixture.author} sur ${fixture.total}. Autres idées fausses : ${fixture.own}.`;
+        : `${fixture.total === 1 ? 'Idée fausse' : 'Idées fausses'} en commun avec l’auteur : ${fixture.author} sur ${fixture.total}. Autres idées fausses : ${fixture.own}.`;
       await expect(page.locator('[data-lp-summary]')).toHaveText(message);
       expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([message]);
       const rows = page.locator('[data-lp-result] [data-lp-preview="yours"] li').filter({ has: page.locator('.lp-small') });
@@ -535,7 +535,7 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
       await expect(author.nth(index + 1)).toContainText(content.misconceptions.find(target => target.id === item.misconception).label);
     }
     const yours = page.locator('[data-lp-preview="yours"] li');
-    await expect(yours.nth(1)).toContainText(lang === 'en' ? 'Same mistaken idea as the author' : "Même idée fausse que l'auteur");
+    await expect(yours.nth(1)).toContainText(lang === 'en' ? 'Same mistaken idea as the author' : "Même idée fausse que l’auteur");
     await expect(yours.nth(2)).not.toHaveAttribute('data-lp-mark');
     await expect(yours.nth(2).locator('.lp-small')).toHaveText(lang === 'en' ? 'Mistaken idea: Breaks disrupt focus' : 'Idée fausse : Breaks disrupt focus');
     await expect(page.locator('[data-lp-clear]')).toHaveAccessibleName(lang === 'en' ? 'Start over' : 'Recommencer');
@@ -543,7 +543,7 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     await expect(yours.locator('.lp-choice-key[aria-hidden="true"]')).toHaveCount(3);
     await expect(page.locator('[data-lp-summary]')).toHaveText(lang === 'en'
       ? "Your labels match 1 of the author's 4 mistaken ideas. You added 1 of your own."
-      : "Idées fausses en commun avec l'auteur : 1 sur 4. Autres idées fausses : 1.");
+      : "Idées fausses en commun avec l’auteur : 1 sur 4. Autres idées fausses : 1.");
   });
 
   test(`native no-JavaScript baseline (${lang})`, async ({ browser }) => {

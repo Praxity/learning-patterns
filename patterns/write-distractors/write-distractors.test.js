@@ -248,7 +248,7 @@ test('render uses the shared frame, text roles, sectioned fields and quiet Start
 test('render merges repeated instructions and names builders by their answer keys', () => {
   for (const [lang, authored, answer, legends] of [
     ['en', content, 'Write your answer first.', ['Wrong option B', 'Wrong option C']],
-    ['fr', fr, "Rédigez d'abord votre réponse.", ['Mauvaise réponse B', 'Mauvaise réponse C']]
+    ['fr', fr, "Rédigez d’abord votre réponse.", ['Mauvaise réponse B', 'Mauvaise réponse C']]
   ]) {
     const output = render(authored, strings[lang], { id: 'copy', lang });
     assert.ok(!output.includes('lp-scene-label'));
@@ -263,7 +263,7 @@ test('render merges repeated instructions and names builders by their answer key
 test('render writes counts two to five in words in both languages and rejects higher counts', () => {
   for (const [lang, authored, headings] of [
     ['en', content, ['Write one wrong option. Name the mistaken idea behind it.', ...['two', 'three', 'four', 'five'].map(n => `Write ${n} wrong options. Name the mistaken idea behind each.`)]],
-    ['fr', fr, ["Rédigez une mauvaise réponse. Nommez l'idée fausse derrière celle-ci.", ...['deux', 'trois', 'quatre', 'cinq'].map(n => `Rédigez ${n} mauvaises réponses. Nommez l'idée fausse derrière chacune.`)]]
+    ['fr', fr, ["Rédigez une mauvaise réponse. Nommez l’idée fausse derrière celle-ci.", ...['deux', 'trois', 'quatre', 'cinq'].map(n => `Rédigez ${n} mauvaises réponses. Nommez l’idée fausse derrière chacune.`)]]
   ]) {
     for (const [index, count] of [1, 2, 3, 4, 5].entries()) {
       const output = render({ ...authored, count }, strings[lang], { id: 'count', lang });

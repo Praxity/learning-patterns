@@ -13,15 +13,18 @@ Reflect on practising assertiveness this week. Save your entry in your tab or as
 
 ## Use it when
 
-Use it for weekly course reflections. Each suggestion asks about the first missing detail: a situation, your response, a next step or when to try it.
+- Use it for weekly course reflections. Each suggestion asks about the first missing detail: a situation, your response, a next step or when to try it.
 
 ## Avoid it when
 
-There is no score or checklist.
+- When you need to detect distress or alert someone, use a support process with people responsible for responding. This pattern cannot do that reliably.
+- When learners need a checklist for an answer, use [Check your own answer](../self-check/README.md).
 
-## Setting it up
+## Before you use it
 
-The distress check was tested only on agent-written answers. It shows an authored support message instead of a question. It does not diagnose, contact anyone or send alerts. Replace the message with your real support details. Test the decision model with your own examples before use with learners.
+It needs a server running a model. Without the decision model, all four questions open, with the support text below them.
+
+The distress check is unreliable and contacts no one. Put your real support details in the support text, and offer help to every learner, flagged or not. Test the model with your own examples first.
 
 ## How it works
 
@@ -108,6 +111,15 @@ The shared client calls `ask('13-journal', { answer }, { challengeSlot, signal }
 ## Adapt it with your agent
 
 > Adapt the optional questions for [audience]. Keep the assertiveness reflection, four criterion IDs and their order. Keep authored questions and no scores. Use these real support details: [details]. Write English and Québec French together, using vous.
+
+## Related patterns
+
+- [Check your own answer](../self-check/README.md)
+- [Your first answer replayed](../first-answer/README.md)
+
+## Help improve this pattern
+
+Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Journal%20entry%20with%20a%20nudge). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/journal/README.md).
 
 ## Licence
 

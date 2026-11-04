@@ -179,7 +179,7 @@ for (const lang of ['en', 'fr']) test(`completion shows and announces once while
   await axe(page);
 });
 
-for (const lang of ['en', 'fr']) test(`a count drop after completion hides Well done and announces the count once (${lang})`, async ({ page }) => {
+for (const lang of ['en', 'fr']) test(`a count drop after completion hides the completion message and announces the count once (${lang})`, async ({ page }) => {
   await open(page, { lang });
   await page.evaluate(() => { window.lpValues = [1, 1, 1, 1]; });
   await auto(page);
@@ -196,7 +196,7 @@ for (const lang of ['en', 'fr']) test(`a count drop after completion hides Well 
   expect(await announced(page)).toEqual([completeOf(lang), summaryOf(lang, 3), completeOf(lang)]);
 });
 
-for (const lang of ['en', 'fr']) test(`cutting a complete plan below 20 characters hides Well done until it completes again (${lang})`, async ({ page }) => {
+for (const lang of ['en', 'fr']) test(`cutting a complete plan below 20 characters hides the completion message until it completes again (${lang})`, async ({ page }) => {
   await open(page, { lang });
   await page.evaluate(() => { window.lpValues = [1, 1, 1, 1]; });
   await auto(page);
@@ -360,7 +360,7 @@ test('completion on check 40 stays shown; the next edit opens the self-check wit
   expect(await calls(page)).toBe(40);
 });
 
-test('a failed check after completion hides Well done and opens the fallback', async ({ page }) => {
+test('a failed check after completion hides the completion message and opens the fallback', async ({ page }) => {
   await open(page, { mode: 'pending' });
   await auto(page);
   await page.evaluate(() => {
@@ -399,7 +399,7 @@ test('slow requests keep typing available, abort on edit and discard stale succe
   await page.evaluate(() => { window.lpTestCalls[3].resolve(Object.fromEntries(['three_actions', 'observable', 'when', 'commitments'].map(key => [key, { noul: 0 }]))); });
   await expect(page.locator('[data-lp-mark="todo"]')).toHaveCount(4);
   await expect(page.locator('[data-lp-checking]')).toBeHidden();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Well done! 4 of 4 done', '0 of 4 done']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Your plan includes all four items. 4 of 4 done', '0 of 4 done']);
 });
 
 for (const lang of ['en', 'fr']) {

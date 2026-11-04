@@ -125,7 +125,7 @@ test('no-JavaScript markup contains every real value, explanation and source, an
 test('French render retains accents, French punctuation and translated fallback', () => {
   const markup = render(french, strings.fr, { id: 'fr', lang: 'fr-CA' });
   assert.ok(markup.includes('lang="fr-CA"')); assert.ok(markup.includes('Prévoyez'));
-  assert.ok(markup.includes('Contexte\u202f:')); assert.ok(markup.includes('juillet\u202f?'));
+  assert.ok(markup.includes('Contexte\u00a0:')); assert.ok(markup.includes('juillet\u202f?'));
   assert.ok(markup.includes('décembre')); assert.ok(markup.includes("Journal des appels au soutien informatique, de décembre à juillet"));
 });
 

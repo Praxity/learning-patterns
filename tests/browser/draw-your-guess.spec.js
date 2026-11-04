@@ -47,7 +47,7 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([frenchTypography(content.feedback.fellThenFlat, lang)]);
     await expect(page.locator('[data-lp-comparison] li')).toHaveCount(4);
     expect((await page.locator('[data-lp-real]').getAttribute('points')).split(' ')).toHaveLength(8);
-    await expect(sliders.first()).toHaveAttribute('aria-valuetext', lang === 'en' ? 'April: your guess 115, real 95 calls a day' : 'avril\u202f: votre estimation 115, valeur réelle 95 appels par jour');
+    await expect(sliders.first()).toHaveAttribute('aria-valuetext', lang === 'en' ? 'April: your guess 115, real 95 calls a day' : 'avril\u00a0: votre estimation 115, valeur réelle 95 appels par jour');
     // Record focus at the instant Try again is hidden, before any later focus can mask a gap.
     await page.evaluate(() => {
       const again = document.querySelector('[data-lp-try-again]');
@@ -262,8 +262,8 @@ for (const lang of ['fr-CA', 'fr-invalid_tag']) test(`French real values retain 
   await open(page, '/draw-your-guess/fr.html');
   await expect(page.getByRole('group', { name: frenchTypography(content.question, lang) })).toHaveAttribute('aria-describedby', 'fractional-help');
   await keyboardGuess(page); await page.keyboard.press('Enter');
-  await expect(page.getByRole('slider').first()).toHaveAttribute('aria-valuetext', 'avril\u202f: votre estimation 115, valeur réelle 95,5555 appels par jour');
-  await expect(page.getByRole('slider').nth(1)).toHaveAttribute('aria-valuetext', 'mai\u202f: votre estimation 115, valeur réelle 0,0004 appels par jour');
-  await expect(page.locator('[data-lp-comparison] li').first()).toHaveText('avril\u202f: votre estimation 115, valeur réelle 95,5555 appels par jour');
-  await expect(page.locator('[data-lp-comparison] li').nth(1)).toHaveText('mai\u202f: votre estimation 115, valeur réelle 0,0004 appels par jour');
+  await expect(page.getByRole('slider').first()).toHaveAttribute('aria-valuetext', 'avril\u00a0: votre estimation 115, valeur réelle 95,5555 appels par jour');
+  await expect(page.getByRole('slider').nth(1)).toHaveAttribute('aria-valuetext', 'mai\u00a0: votre estimation 115, valeur réelle 0,0004 appels par jour');
+  await expect(page.locator('[data-lp-comparison] li').first()).toHaveText('avril\u00a0: votre estimation 115, valeur réelle 95,5555 appels par jour');
+  await expect(page.locator('[data-lp-comparison] li').nth(1)).toHaveText('mai\u00a0: votre estimation 115, valeur réelle 0,0004 appels par jour');
 });

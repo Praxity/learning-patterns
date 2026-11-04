@@ -144,7 +144,7 @@ test('French results keep singular wording for one answer and zero cumulative pl
   await open(page, 'fr');
   await choose(page, [2, 1, 0]);
   await page.locator('[data-lp-check]').click();
-  await expect(page.locator('[role="status"]')).toHaveText("1 bonne réponse sur 3 dans cette série. Jusqu'ici\u202f: 1 série, 1 fait bien classé sur 3.");
+  await expect(page.locator('[role="status"]')).toHaveText("1 bonne réponse sur 3 dans cette série. Jusqu’ici\u00a0: 1 série, 1 fait bien classé sur 3.");
   await page.reload(); await page.waitForFunction(() => window.lpReady);
   await choose(page, [0, 1, 2]);
   await page.locator('[data-lp-check]').click();
@@ -188,7 +188,7 @@ for (const lang of ['en', 'fr']) {
     for (const fact of content.cases.flat()) await expect(fallback).toContainText(frenchTypography(fact, lang));
     for (const part of content.parts) await expect(fallback).toContainText(part.label);
     await expect(fallback).not.toContainText(frenchTypography(content.context, lang));
-    await expect(page.locator('.lp-context')).toHaveText(`${lang === 'en' ? 'Context:' : 'Contexte\u202f:'} ${frenchTypography(content.context, lang)}`);
+    await expect(page.locator('.lp-context')).toHaveText(`${lang === 'en' ? 'Context:' : 'Contexte\u00a0:'} ${frenchTypography(content.context, lang)}`);
     await context.close();
   });
 

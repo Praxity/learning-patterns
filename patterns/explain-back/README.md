@@ -13,11 +13,18 @@ Explain a lesson in your own words and check which key ideas you included.
 
 ## Use it when
 
-Use it after a short reading. This example checks three ideas: stonewalling, announcing a pause and returning to the conversation. The feedback helps you revise your explanation.
+- Use it after a short reading. This example checks three ideas: stonewalling, announcing a pause and returning to the conversation. The feedback helps you revise your explanation.
 
 ## Avoid it when
 
-It gives no grade.
+- When the reading is long or has more than three key ideas, use [Questions inside the reading](../review-prompts/README.md).
+- When you need a grade, use an assessment. This pattern helps learners revise.
+
+## Before you use it
+
+It needs a server running a model. If automatic checking is unavailable, the explanation step offers the checklist and model answer.
+
+Write a short lesson, three checklist statements, hints and a model answer. Changing the key ideas also means changing and testing what the model checks.
 
 ## How it works
 
@@ -102,6 +109,15 @@ The shared `ask(block, fields, { challengeSlot, signal? })` client returns typed
 ## Adapt it with your agent
 
 > Adapt this example for [audience]. Keep unexplained withdrawal, announcing a pause, and agreeing when to return and following through. Keep the fields and idea order. Write useful feedback for each result. Write English and Québec French together, using vous. Preserve authored feedback, the self-check, lesson focus links, proxy gates, data notice and on-demand verification. Evaluate any changed proxy questions against authored sample labels before use.
+
+## Related patterns
+
+- [Questions inside the reading](../review-prompts/README.md)
+- [Check your own answer](../self-check/README.md)
+
+## Help improve this pattern
+
+Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Explain%20what%20you%20learned). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/explain-back/README.md).
 
 ## Licence
 

@@ -134,7 +134,7 @@ test('render stages select the two placements; only both has the course skip', (
 test('journal scene, day headings and dated cards render in both languages and every placement', () => {
   for (const [lang, journal, day, end, note] of [
     ['en', 'Your journal', 'Day one', 'End of the course', 'It stays as you wrote it.'],
-    ['fr', 'Votre journal', 'Premier jour', 'Fin du cours', "Elle reste telle que vous l'avez écrite."]
+    ['fr', 'Votre journal', 'Premier jour', 'Fin du cours', "Elle reste telle que vous l’avez écrite."]
   ]) for (const stage of ['first', 'end', 'both']) {
     const markup = render(content, strings[lang], { id: 'journal', lang, stage });
     assert.match(markup, /<header class="lp-scene">/);

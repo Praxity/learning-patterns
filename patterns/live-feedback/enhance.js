@@ -76,7 +76,7 @@ export function enhance(root, { content, strings, state, ask }) {
     answer.setAttribute('aria-describedby', answer.id.replace(/-answer$/, '-starter'));
   };
   const useLimit = () => {
-    // Keep "Well done!" until the learner edits a plan that completed on the last allowed check.
+    // Keep the completion message until the learner edits a plan that completed on the last allowed check.
     if (complete && answer.value.trim() === lastChecked) return;
     useFallback(); paused.hidden = false; fallbackText.textContent = frenchTypography(strings.selfCheck, root.lang);
   };
@@ -138,7 +138,7 @@ export function enhance(root, { content, strings, state, ask }) {
       if (!destroyed) {
         if (showCapNotice(error, root, fallback, status)) useFallback();
         else if (my === seq) {
-          // The failed draft was never assessed, so an earlier "Well done!" must not keep the limit from opening self-checks.
+          // The failed draft was never assessed, so an earlier completion message must not keep the limit from opening self-checks.
           complete = false; completion.hidden = true;
           if (session.checks >= AUTO_CHECK_LIMIT) stopAtLimit(); else useFallback();
           status.textContent = frenchTypography(strings.fallback, root.lang);

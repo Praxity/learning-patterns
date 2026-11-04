@@ -24,7 +24,7 @@
   --lp-focus: var(--lp-accent);
   --lp-font-body: "Source Sans 3", "Source Sans Pro", system-ui, -apple-system, "Segoe UI", sans-serif;
   --lp-font-heading: var(--lp-font-body);
-  --lp-type-small: .9375rem;
+  --lp-type-small: 1rem;
   --lp-type-body: 1.0625rem;
   --lp-type-h3: 1.3125rem;
   --lp-radius-box: 16px;
@@ -140,7 +140,7 @@ select.lp-input { appearance: none; padding-inline-end: 40px; background: var(--
 .lp-input[aria-invalid="true"] { border: 2px solid var(--lp-error-ink); padding: 10px 13px; }
 /* The error border takes 1px of the end padding; the label still clears the drawn arrow. */
 select.lp-input[aria-invalid="true"] { padding-inline-end: 39px; }
-.lp-error-text { display: flex; gap: 8px; align-items: flex-start; color: var(--lp-error-ink); font-size: var(--lp-type-small); font-weight: 600; }
+.lp-error-text { display: flex; gap: 8px; align-items: flex-start; color: var(--lp-error-ink); font-size: var(--lp-type-body); font-weight: 600; }
 
 /* Choice rows, after Tally: a light row, a letter key for single choice, a square for
    multiple choice. The native input stays in the row for keyboards and screen readers. */
@@ -320,11 +320,13 @@ select.lp-input[aria-invalid="true"] { padding-inline-end: 39px; }
   position: absolute !important;
   inline-size: 1px;
   block-size: 1px;
-  margin: -1px;
+  margin: 0;
   padding: 0;
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 /* Revealed answers and feedback open at once, with no rise (AGENTS.md, Motion). The class stays as a hook. */

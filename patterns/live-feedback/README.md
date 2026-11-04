@@ -13,17 +13,24 @@ Write three actions to become more assertive at work. A checklist updates when y
 
 ## Use it when
 
-Use it for short action plans, outline-like writing assignments, and generally to give learners immediate feedback on responses that can be classified. This example checks for three different actions a colleague could see or hear, a time or situation, and your own commitments. The feedback helps you revise.
+- Use it for short action plans, outline-like writing assignments, and generally to give learners immediate feedback on responses that can be classified. This example checks for three different actions a colleague could see or hear, a time or situation, and your own commitments. The feedback helps you revise.
 
 ## Avoid it when
 
-It gives no grade.
+- When responses cannot be checked against a few clear criteria, use feedback from a person. For a learner-led checklist, use [Check your own answer](../self-check/README.md).
+- When you need a grade, use an assessment. This pattern helps learners revise.
+
+## Before you use it
+
+It needs a server running a model. Without one, learners tick the checklist themselves.
+
+Write the task, four checklist statements and revision hints. Changing the criteria also means changing and testing what the model checks.
 
 ## How it works
 
 1. The learner writes a plan. Once it's 20 characters or longer, each pause in typing checks it.
 2. A checklist of four criteria updates after each check. Met criteria move to the top with a green check. Unmet criteria, and any the model isn't sure about, show a hint.
-3. When all four are met, "Well done!" appears and checking stops until the next edit.
+3. When all four are met, "Your plan includes all four items." appears and checking stops until the next edit.
 
 A met criterion stays met while the last sentence is unfinished, so a half-typed sentence can't undo it.
 
@@ -45,8 +52,8 @@ Daily proxy caps show and announce the reason and midnight UTC reset once, keep 
 
 Meets the shared baseline in the root README.
 
-- The list and checking line stay silent. The polite status region announces a changed count once. Reaching all four items announces "Well done! 4 of 4 done" once, and later checks that stay at four announce nothing. Focus stays in place.
-- The box never locks, so typing after "Well done!" keeps every character.
+- The list and checking line stay silent. The polite status region announces a changed count once. Reaching all four items announces "Your plan includes all four items. 4 of 4 done" once, and later checks that stay at four announce nothing. Focus stays in place.
+- The box never locks, so typing after "Your plan includes all four items." keeps every character.
 - Checkmarks and open dashed circles show state through shape as well as colour. Each list item also has a screen-reader prefix, "Done:" or "To add:". Native fallback checkboxes expose their checked state.
 - Reordering uses a 200 ms transform transition. Reduced motion moves items instantly.
 - Native checkboxes work without JavaScript and after a failed check.
@@ -81,7 +88,7 @@ Authored text is capped at 120 characters for titles and labels, 400 for questio
 
 `lib/typing-pause.js` owns the adaptive wait. Live feedback uses `typingPause({ minChars: MIN_CHARS, questionMark: false })`, with `key(time)`, `wait()` and `delay(text, checked, enter = false)`. Delay returns milliseconds or `null` when no check is due. Live feedback does not request an immediate check on Enter.
 
-Pass `state: { read, write }` to save drafts and checklist ticks. Check results are not saved. Repeated enhancement returns the same instance. `destroy()` removes listeners and the "Well done!" line, cancels checks and restores the native checklist, keeping the draft and ticks. Re-enhancement keeps the remaining automatic allowance.
+Pass `state: { read, write }` to save drafts and checklist ticks. Check results are not saved. Repeated enhancement returns the same instance. `destroy()` removes listeners and the "Your plan includes all four items." line, cancels checks and restores the native checklist, keeping the draft and ticks. Re-enhancement keeps the remaining automatic allowance.
 
 Stored drafts restore intact even above the send limit. The host owns its total storage budget; the send limit still applies before every proxy request. Self-check ticks survive restoration. Automated judgments are not restored.
 
@@ -106,6 +113,15 @@ The shared client calls `ask('02-live', { answer }, { challengeSlot, signal })` 
 ## Adapt it with your agent
 
 > Adapt the action plan for [audience]. Keep three different observable actions, at least one time or situation, and the learner’s own commitments. Keep the four criterion IDs, fields and authored feedback. Write English and Québec French together, using vous. Preserve the pause, unfinished-sentence rule, page allowance, completion pause, announcements, data notice and self-check. Evaluate any changed proxy questions before use.
+
+## Related patterns
+
+- [Check your own answer](../self-check/README.md)
+- [Explain what you learned](../explain-back/README.md)
+
+## Help improve this pattern
+
+Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Feedback%20while%20you%20type). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/live-feedback/README.md).
 
 ## Licence
 
