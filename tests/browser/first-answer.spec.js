@@ -99,7 +99,7 @@ async function mount(page, stages, value = undefined, mode = '') {
 
 for (const [lang, journal, day, end, note] of [
   ['en', 'Your journal', 'Day one', 'End of the course', 'It stays as you wrote it.'],
-  ['fr', 'Votre journal', 'Premier jour', 'Fin du cours', "Elle reste telle que vous l'avez écrite."]
+  ['fr', 'Votre journal', 'Premier jour', 'Fin du cours', "Elle reste telle que vous l’avez écrite."]
 ]) {
   test(`journal scene, dated entry and course timeline (${lang})`, async ({ page }) => {
     await open(page, `/first-answer/${lang}.html`);
@@ -192,7 +192,7 @@ test('restoring now locks the comparison silently and reset clears the lock', as
 
 for (const [lang, legend, announcement, retry] of [
   ['en', 'What improved in your new answer?', 'Compare your answers. Tick the improvements.', 'Try again'],
-  ['fr', "Qu'est-ce qui s'est amélioré dans votre nouvelle réponse ?", "Comparez vos réponses. Cochez les améliorations.", 'Réessayer']
+  ['fr', "Qu’est-ce qui s’est amélioré dans votre nouvelle réponse ?", "Comparez vos réponses. Cochez les améliorations.", 'Réessayer']
 ]) {
   test(`comparison uses the improvement question and quiet icon actions (${lang})`, async ({ page }) => {
     await open(page, `/first-answer/${lang}.html`); await saveFirst(page); await page.locator('[data-lp-skip]').click(); await compare(page);
@@ -283,16 +283,16 @@ test('comparing twice preserves first and checks, replaces only now, and repeats
 
 test('2000 characters accepted; programmatically overlong text refused without writing', async ({ page }) => {
   await mount(page, ['both']);
-  await expect(page.locator('[data-lp-first-input]')).toHaveAttribute('maxlength', '2000');
+  await expect(page.locator('[data-lp-first-input]')).not.toHaveAttribute('maxlength');
   await page.locator('[data-lp-first-input]').evaluate(el => { el.value = 'x'.repeat(2001); });
   await page.locator('[data-lp-save-first]').click();
-  await expect(page.locator('[data-lp-first-error]')).toHaveText('Keep your answer to 2000 characters or fewer.');
+  await expect(page.locator('[data-lp-first-error]')).toHaveText('Your answer must be 2,000 characters or fewer.');
   expect(await page.evaluate(() => window.lpWrites)).toBe(0);
   await page.locator('[data-lp-first-input]').fill('x'.repeat(2000)); await page.locator('[data-lp-save-first]').click();
   expect((await page.evaluate(() => window.lpSaved)).first.text.length).toBe(2000);
 });
 
-for (const [lang, savedNote, summary] of [['en', 'It stays as you wrote it.', 'You ticked 1 of 3 improvements.'], ['fr', "Elle reste telle que vous l'avez écrite.", 'Améliorations cochées : 1 sur 3.']]) {
+for (const [lang, savedNote, summary] of [['en', 'It stays as you wrote it.', 'You ticked 1 of 3 improvements.'], ['fr', "Elle reste telle que vous l’avez écrite.", 'Améliorations cochées : 1 sur 3.']]) {
   test(`restore valid state silently with localized dates (${lang})`, async ({ page }) => {
     await page.addInitScript(value => { window.lpSeed = value; }, seed);
     await open(page, `/first-answer/${lang}.html`);
@@ -436,7 +436,7 @@ for (const lang of ['en', 'fr']) {
   test(`no JavaScript keeps prompt, first textarea and saving note (${lang})`, async ({ browser }) => {
     const context = await browser.newContext({ javaScriptEnabled: false }); const page = await context.newPage();
     await page.goto(`/first-answer/${lang}.html`);
-    await expect(page.getByRole('textbox')).toHaveCount(1); await expect(page.getByRole('textbox')).toHaveAttribute('maxlength', '2000');
+    await expect(page.getByRole('textbox')).toHaveCount(1); await expect(page.getByRole('textbox')).not.toHaveAttribute('maxlength');
     await page.getByRole('textbox').fill('My offline draft');
     await expect(page.locator('[data-lp-fallback]')).toHaveText(lang === 'en' ? 'Saving your answer needs JavaScript.' : 'JavaScript est nécessaire pour enregistrer votre réponse.');
     await expect(page.getByRole('button')).toHaveCount(0); await expect(page.locator('[role="status"]')).toBeEmpty();
@@ -486,7 +486,7 @@ test('one activity box uses shared text, choice, readonly and quiet button style
       readonlyBackground: css('[data-lp-now-input]').backgroundColor
     };
   });
-  expect(styles).toMatchObject({ stepBorder: '0px', sectionBorder: '1px', fieldsetBorder: '0px', stemSize: '19px', dateSize: '15px', headingWeight: '600', readonlyBackground: 'rgb(247, 248, 250)' });
+  expect(styles).toMatchObject({ stepBorder: '0px', sectionBorder: '1px', fieldsetBorder: '0px', stemSize: '19px', dateSize: '16px', headingWeight: '600', readonlyBackground: 'rgb(247, 248, 250)' });
   expect(styles.stemFont).toContain('Source Sans 3');
   await page.getByRole('checkbox').first().check();
   const choice = page.locator('.lp-choice').first();

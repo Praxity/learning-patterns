@@ -53,7 +53,7 @@ test('draft and native ticks restore, judgments and invalid state do not', () =>
   const draft = { answer: 'My answer', ticked: ['rereading'] };
   assert.deepEqual(validateState(draft), draft);
   assert.notEqual(validateState(draft).ticked, draft.ticked);
-  for (const value of [null, {}, { answer: 'x', ticked: ['unknown'] }, { answer: 'x', ticked: ['rereading', 'rereading'] }, { answer: 'x'.repeat(ANSWER_LIMIT + 1), ticked: [] }]) assert.equal(validateState(value), null);
+  for (const value of [null, {}, { answer: 'x', ticked: ['unknown'] }, { answer: 'x', ticked: ['rereading', 'rereading'] }]) assert.equal(validateState(value), null);
 });
 
 test('server HTML is escaped, prefixed, bilingual and usable without JavaScript', async () => {

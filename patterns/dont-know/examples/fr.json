@@ -2,24 +2,24 @@
   "title": "Les bases des finances personnelles",
   "questions": [
     {
-      "id": "q1", "text": "À quoi sert un fonds d'urgence ?",
+      "id": "q1", "text": "À quoi sert un fonds d’urgence ?",
       "options": [
         { "id": "unexpected-expenses", "text": "Couvrir les dépenses imprévues" },
         { "id": "planned-holidays", "text": "Payer des vacances prévues" },
         { "id": "before-payday", "text": "Acheter des choses avant le jour de paie" }
       ],
       "correct": "unexpected-expenses",
-      "explanation": "Un fonds d'urgence couvre les dépenses imprévues, comme une réparation urgente."
+      "explanation": "Un fonds d’urgence couvre les dépenses imprévues, comme une réparation urgente."
     },
     {
       "id": "q2", "text": "Que se passe-t-il généralement si vous payez seulement le minimum de votre carte de crédit chaque mois ?",
       "options": [
-        { "id": "no-interest", "text": "Vous évitez tous les frais d'intérêt" },
-        { "id": "longer-more-interest", "text": "Vous mettez plus de temps à rembourser et payez plus d'intérêts" },
+        { "id": "no-interest", "text": "Vous évitez tous les frais d’intérêt" },
+        { "id": "longer-more-interest", "text": "Vous mettez plus de temps à rembourser et payez plus d’intérêts" },
         { "id": "balance-disappears", "text": "Le solde restant disparaît" }
       ],
       "correct": "longer-more-interest",
-      "explanation": "Payer seulement le minimum signifie généralement un remboursement plus long et plus d'intérêts."
+      "explanation": "Payer seulement le minimum signifie généralement un remboursement plus long et plus d’intérêts."
     },
     {
       "id": "q3", "text": "Comment les intérêts composés font-ils croître votre épargne ?",

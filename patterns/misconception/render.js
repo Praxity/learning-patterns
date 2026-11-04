@@ -1,6 +1,6 @@
 import { escapeHtml as html } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
-import { validateContent, ANSWER_LIMIT } from './logic.js';
+import { validateContent } from './logic.js';
 
 /** @param {import('./logic.js').Content} content @param {import('./strings.js').Strings} strings
  * @param {{ id: string, lang: string }} options @returns {string}
@@ -9,7 +9,7 @@ export function render(content, strings, { id, lang }) {
   validateContent(content);
   return `<section class="lp lp-misconception" data-lp-pattern="misconception" lang="${html(lang)}">
   <h2 class="lp-stem" id="${html(`${id}-question`)}">${html(content.question, lang)}</h2>
-  <textarea class="lp-input" id="${html(`${id}-answer`)}" aria-labelledby="${html(`${id}-question`)}" rows="3" maxlength="${ANSWER_LIMIT}" placeholder="${html(strings.placeholder, lang)}"></textarea>
+  <textarea class="lp-input" id="${html(`${id}-answer`)}" aria-labelledby="${html(`${id}-question`)}" rows="3"></textarea>
   <p class="lp-error-text" id="${html(`${id}-error`)}" data-lp-error hidden>${icons['alert-circle']}<span>${html(strings.empty, lang)}</span></p>
   <div data-lp-notice id="${html(`${id}-notice`)}" hidden></div>
   <div class="lp-actions"><button class="lp-button" type="button" data-lp-check hidden>${html(strings.check, lang)}</button></div>

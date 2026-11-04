@@ -1,6 +1,6 @@
 ---
 title: Prolific questions
-title_fr: Des questions pour continuer à s'exercer
+title_fr: Des questions pour continuer à s’exercer
 summary: Answer a multi-part knowledge check on a scenario, example or set of statements, then take another set whenever you want.
 section: question
 ai: no
@@ -18,13 +18,11 @@ Answer several questions about one case, check your answers, then take another s
 
 ## Avoid it when
 
-Use a scored assessment when learners need a pass decision. This activity keeps a running count of sets and correct answers.
+- When learners need a pass decision, use an assessment. For a short check that decides which refresher sections to skip, use [Pre-test to skip sections](../test-out/README.md).
 
-## Setting it up
+## Before you use it
 
-Name the parts and define each in one line. Write a worked example and at least eight complete cases, with one fact for each part in the same order. Each fact names its person so it makes sense when shuffled. The sample practises the WHO's International Classification of Functioning model.
-
-Practice follows the worked example, because novices need a few similar cases before variety helps. All facts and answers are authored.
+Name the parts and define each in one line. Write a worked example and at least eight complete cases, with one fact for each part in the same order. Name the person in each fact so it makes sense when shuffled.
 
 ## How it works
 
@@ -106,6 +104,15 @@ const instance = enhance(document.querySelector('[data-lp-pattern]'), { content,
 ## Adapt it with your agent
 
 > Adapt prolific-questions to [topic] for [audience]. Keep `{ title, context, question, parts: [{ label, definition }], workedExample: [], cases: [[]] }`. Write a complete worked example and at least eight complete cases, each with one fact per part in part order. Use 160 characters or fewer per definition. Name the person in every fact. Write English and Canadian French together, using vous. Preserve the worked example first, shuffled facts, fair dealing, local marks, running count, saved state, no-JS answers and narrow-screen layout.
+
+## Related patterns
+
+- [Pre-test to skip sections](../test-out/README.md)
+- ["I don't know" as an answer](../dont-know/README.md)
+
+## Help improve this pattern
+
+Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Prolific%20questions). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/prolific-questions/README.md).
 
 ## Licence
 

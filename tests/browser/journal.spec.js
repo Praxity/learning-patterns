@@ -94,14 +94,15 @@ for (const lang of ['en', 'fr']) {
     await open(page, lang); await observe(page);
     await expect(page.locator('[data-lp-pattern]')).toHaveAttribute('lang', lang);
     await expect(page.getByRole('textbox')).toHaveAccessibleName(frenchTypography(examples[lang].prompt, lang).replace(/\s+/g, ' '));
-    await expect(page.getByRole('textbox')).toHaveAttribute('maxlength', '1500');
-    await expect(page.getByRole('textbox')).toHaveAttribute('placeholder', strings[lang].placeholder);
+    await expect(page.getByRole('textbox')).not.toHaveAttribute('maxlength');
+    await expect(page.getByRole('textbox')).not.toHaveAttribute('placeholder');
+    await expect(page.locator('#example-starter')).toHaveText(strings[lang].placeholder);
     await expect(page.locator('.lp-scene-label, label')).toHaveCount(0);
     const today = await page.evaluate(() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; });
     await expect(page.locator('[data-lp-date]')).toHaveAttribute('datetime', today);
     await expect(page.locator('[data-lp-notice]')).toContainText(lang === 'fr' ? 'Votre entrée reste dans cet onglet et s’efface quand vous le fermez.' : 'Your entry stays in this tab and clears when you close it.');
     expect(await page.locator('[data-lp-notice]').evaluate(el => el.previousElementSibling.matches('[data-lp-suggest]'))).toBe(true);
-    await expect(page.getByRole('textbox')).not.toHaveAttribute('aria-describedby');
+    await expect(page.getByRole('textbox')).toHaveAttribute('aria-describedby', 'example-starter');
     await expect(page.locator('[data-lp-save]')).not.toHaveAttribute('aria-describedby');
     await expect(page.locator('[data-lp-suggest]')).toHaveAttribute('aria-describedby', 'example-notice-text');
     await expect(page.locator('[data-lp-result]')).toBeHidden();
@@ -137,7 +138,7 @@ for (const lang of ['en', 'fr']) {
         await expect(page.locator('[data-lp-result] .lp-icon')).toHaveAttribute('aria-hidden', 'true');
         await expect(page.locator('[data-lp-result]')).toHaveClass(/lp-met/);
         await expect(page.locator('[data-lp-result]')).toHaveText(lang === 'fr'
-          ? "Très bien. Vous avez nommé un moment, ce que vous avez fait et une prochaine étape en précisant quand vous l'essaierez."
+          ? "Très bien. Vous avez nommé un moment, ce que vous avez fait et une prochaine étape en précisant quand vous l’essaierez."
           : "Great. You've named a moment, what you did, and a next step with a when.");
       }
       await expect(page.locator('[data-lp-questions]')).toBeHidden();
@@ -460,7 +461,8 @@ test('two instances have unique prefixed IDs and independent results and stored 
 test('index preview uses the authored journal prompt and correct placeholder', async ({ page }) => {
   await page.goto('/index.html');
   await expect(page.locator('.lp-journal .lp-stem')).toHaveText(examples.en.prompt);
-  await expect(page.locator('.lp-journal textarea')).toHaveAttribute('placeholder', 'This week, I…');
+  await expect(page.locator('.lp-journal textarea')).not.toHaveAttribute('placeholder');
+  await expect(page.locator('.lp-journal [id$="-starter"]')).toHaveText('This week, I…');
 });
 
 test('without JavaScript the dated writing page, questions and authored support stay available', async ({ browser, baseURL }) => {

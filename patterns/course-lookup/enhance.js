@@ -1,4 +1,4 @@
-import { lookup, validateContent, validateState, AUTO_CHECK_LIMIT, BANK_LIMIT } from './logic.js';
+import { lookup, validateContent, validateState, QUESTION_LIMIT, AUTO_CHECK_LIMIT, BANK_LIMIT } from './logic.js';
 import { typingPause } from '../../lib/typing-pause.js';
 import { renderDataNotice, showCapNotice } from '../../lib/notice-ui.js';
 import { escapeHtml as html, frenchTypography } from '../../lib/html.js';
@@ -37,6 +37,20 @@ export function enhance(root, { content, strings, state, ask }) {
   const challengeSlot = required('[data-lp-challenge]');
   const session = sessions.get(root.ownerDocument) ?? { checks: 0, notify: new Set() };
   sessions.set(root.ownerDocument, session);
+  const error = required('[data-lp-error]');
+  const checkLength = () => {
+    const wasShown = !error.hidden;
+    const tooLong = input.value.length > QUESTION_LIMIT;
+    error.textContent = tooLong ? frenchTypography(strings.tooLong.replaceAll('{max}', QUESTION_LIMIT.toLocaleString(root.lang === 'fr' ? 'fr-CA' : 'en-CA')), root.lang) : '';
+    error.hidden = !tooLong;
+    if (tooLong) { result.hidden = true; result.replaceChildren(); }
+    const descriptions = [tooLong ? error.id : '', !notice.hidden ? `${notice.id}-text` : ''].filter(Boolean).join(' ');
+    if (descriptions) input.setAttribute('aria-describedby', descriptions);
+    else input.removeAttribute('aria-describedby');
+    if (tooLong) { input.setAttribute('aria-invalid', 'true'); if (!wasShown) status.textContent = error.textContent; }
+    else { input.removeAttribute('aria-invalid'); if (wasShown) status.textContent = ''; }
+    return !tooLong;
+  };
   const timing = typingPause();
   const storage = state ?? browserState({ pattern: 'course-lookup', lang: root.lang, id: input.id });
   /** @type {string[]} */
@@ -93,6 +107,7 @@ export function enhance(root, { content, strings, state, ask }) {
   const run = async (manual = false) => {
     if (!ready || !ask || destroyed || composing) return;
     clearTimeout(timer); timer = undefined;
+    if (!checkLength()) return;
     const question = input.value.trim();
     if (timing.delay(question, lastChecked, manual) === null || pending) return;
     if (!manual && session.checks >= AUTO_CHECK_LIMIT) { updateCap(); return; }
@@ -138,6 +153,7 @@ export function enhance(root, { content, strings, state, ask }) {
     else if (delay !== null) timer = setTimeout(() => { void run(); }, delay);
   };
   const onInput = () => {
+    checkLength();
     if (composing) return;
     const next = input.value.trim();
     if (input.isConnected && next !== draft) {
@@ -200,7 +216,7 @@ export function enhance(root, { content, strings, state, ask }) {
       if (destroyed) return;
       if (config.provider !== 'perplexity' && config.provider !== 'mock') { useFallback(); return; }
       notice.innerHTML = renderDataNotice(config, root.lang, `${notice.id}-text`, 'question'); notice.hidden = false;
-      input.setAttribute('aria-describedby', `${notice.id}-text`);
+      input.setAttribute('aria-describedby', `${error.hidden ? '' : `${error.id} `}${notice.id}-text`);
       controls.hidden = false; fallback.hidden = true; ready = true; updateCap();
     }).catch(() => { if (!destroyed) useFallback(); });
   } else useFallback();

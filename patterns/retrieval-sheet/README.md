@@ -13,13 +13,17 @@ Print questions on the front and answers on the back. Choose a date to answer fr
 
 ## Use it when
 
-Use it for a short module with a few ideas or actions worth recalling. Keep questions focused and answers short.
-
-Learners can use the sheet without internet. Print it or save a PDF while connected. A SCORM package prints from its course files without fetching anything.
+- Use it for a short module with a few ideas or actions worth recalling. Keep questions focused and answers short.
+- Learners need to practise away from the screen, even without internet.
 
 ## Avoid it when
 
-Choosing a date sends no reminder. Arrange one through your course host if needed.
+- When learners need an automatic reminder, arrange one through your course. Choosing a date sends none.
+- When learners need to practise on screen within the reading, use [Questions inside the reading](../review-prompts/README.md).
+
+## Before you use it
+
+Write up to eight focused questions and short answers. Check print preview and double-sided settings after editing.
 
 ## How it works
 
@@ -144,7 +148,7 @@ Saving a date sends no reminder. Printing does not show that the learner used th
 
 ## Use it
 
-Copy `patterns/retrieval-sheet/` and `lib/`, keeping their relative paths. Link `lib/base.css`, then `patterns/retrieval-sheet/pattern.css`. Use a unique id prefix per instance. Render on the server, then enhance in the browser.
+Copy `patterns/retrieval-sheet/` and `lib/`, keeping their relative paths. Link `lib/base.css`, then `patterns/retrieval-sheet/pattern.css`. Use a unique id prefix per instance. Render on the server, then enhance in the browser. A SCORM package prints from its course files without fetching anything.
 
 ```js
 import { render } from './patterns/retrieval-sheet/render.js';
@@ -166,6 +170,14 @@ const instance = enhance(document.querySelector('[data-lp-pattern="retrieval-she
 ## Adapt it with your agent
 
 > Write a retrieval sheet for [topic] and [audience]. Keep `{ title, questions: [{ id, question, answer }] }` with stable, unique ids. Write focused questions and short answers. Preserve the spacing radio group, the "Another date" field, Front and Back tabs above the preview, writing space, no-JavaScript view and two-sided printing. Write English and Québec French together, using vous. Authors write every message. Preserve render, enhancement, state, CSS tokens and accessibility. Update examples and tests. Check A4 and Letter print previews. Show both languages for review.
+
+## Related patterns
+
+- [Questions inside the reading](../review-prompts/README.md)
+
+## Help improve this pattern
+
+Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Printable%20retrieval%20sheet). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/retrieval-sheet/README.md).
 
 ## Licence
 

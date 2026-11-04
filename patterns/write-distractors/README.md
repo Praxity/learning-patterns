@@ -13,11 +13,16 @@ Answer from memory, then write wrong options and name the mistaken idea behind e
 
 ## Use it when
 
-Use it when learners know enough to answer from memory and explain common mistakes. Authors can review their wrong options for use in quizzes.
+- Use it when learners know enough to answer from memory and explain common mistakes. Authors can review their wrong options for use in quizzes.
 
 ## Avoid it when
 
-A person must judge whether each option expresses the chosen misconception and would tempt a learner. Matching labels cannot do that.
+- When learners cannot yet answer from memory or explain common mistakes, use [Spot the misconception](../misconception/README.md) for a supported study question.
+- When nobody can review whether the wrong options would tempt a learner, use [Check your own answer](../self-check/README.md).
+
+## Before you use it
+
+Write the correct answer, misconception labels and plausible wrong options for comparison. Choose how many wrong options learners write, from one to five. Plan for a person to review learners' options before using them in a quiz.
 
 ## How it works
 
@@ -35,6 +40,8 @@ Linking each wrong option to a named misconception follows diagnostic test desig
 This pattern shows the right answer but does not explain why each misconception is wrong. Writing wrong options has not been tested as a learning activity.
 
 ## Accessibility
+
+Wrong-option and custom-label fields also keep oversized drafts. Compare shows linked errors with the existing limits; option lengths still count before trimming.
 
 Follows the shared baseline in the root README.
 
@@ -96,6 +103,8 @@ The host decides how to collect submissions. The pattern uses no localStorage an
 
 Override `--lp-*` tokens for colours, radius, fonts and focus. Defaults are in the root README.
 
+Oversized wrong options and mistaken-idea descriptions restore intact as editable drafts, with comparison results cleared. Drafts have no storage ceiling; the host owns its total storage budget. Submission limits still apply.
+
 ## Use it
 
 Copy this folder and `lib/`, keeping their relative paths. Link `lib/base.css`, then `patterns/write-distractors/pattern.css`. Render on your server with a unique id prefix for each instance.
@@ -123,6 +132,15 @@ instance.destroy();
 ## Adapt it with your agent
 
 Give your agent this README, the examples and your correct answer. Ask for misconception labels and plausible wrong options to review. Keep feedback authored in `strings.js`. Check labels against real learner errors. If you change the content contract, run logic, schema, type, budget and browser checks.
+
+## Related patterns
+
+- [Spot the misconception](../misconception/README.md)
+- [Check your own answer](../self-check/README.md)
+
+## Help improve this pattern
+
+Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Write%20the%20wrong%20options). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/write-distractors/README.md).
 
 ## Licence
 

@@ -108,7 +108,7 @@ test('shared English and French instructions refer to answers with stable keys',
   const keys = ['to', 'subject', 'answer', 'check', 'empty', 'question', 'tick', 'meter', 'show', 'resultAll', 'resultOne', 'resultMany', 'mine', 'model', 'legend', 'included', 'notIncluded', 'whole', 'restart', 'cleared', 'checkOwn', 'summary'];
   const expected = {
     en: { answer: 'Your answer', empty: 'Write your answer first.', tick: 'Tick each part your answer includes.', resultMany: 'Use the hints to add missing parts.', mine: 'Your answer', whole: 'Whole answer', checkOwn: 'Check for these parts.' },
-    fr: { answer: 'Votre réponse', empty: "Écrivez d'abord votre réponse.", tick: 'Cochez chaque élément présent dans votre réponse.', resultMany: 'Ajoutez les éléments manquants à l\'aide des conseils.', mine: 'Votre réponse', whole: "Toute la réponse", checkOwn: 'Vérifiez ces éléments dans votre réponse.' }
+    fr: { answer: 'Votre réponse', empty: "Écrivez d’abord votre réponse.", tick: 'Cochez chaque élément présent dans votre réponse.', resultMany: 'Ajoutez les éléments manquants à l’aide des conseils.', mine: 'Votre réponse', whole: "Toute la réponse", checkOwn: 'Vérifiez ces éléments dans votre réponse.' }
   };
   for (const lang of ['en', 'fr']) {
     assert.deepEqual(Object.keys(strings[lang]), keys);

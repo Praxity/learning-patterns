@@ -13,11 +13,16 @@ Answer questions between reading sections, compare with the answers and see when
 
 ## Use it when
 
-Use it for short readings with facts or actions learners need to recall later. Give each section one focused question and a short answer.
+- Use it for short readings with facts or actions learners need to recall later. Give each section one focused question and a short answer.
 
 ## Avoid it when
 
-Ratings record what learners say they remembered. They do not verify recall or workplace performance.
+- When you need to verify recall or workplace performance, use an assessment. Ratings here record what learners say they remembered.
+- When learners need a paper copy for later practice, use [Printable retrieval sheet](../retrieval-sheet/README.md).
+
+## Before you use it
+
+Give each reading section one focused question and a short answer. Choose the review gaps. The pattern sends no reminders, so arrange them through your course if needed.
 
 ## How it works
 
@@ -117,6 +122,16 @@ const instance = enhance(document.querySelector('[data-lp-pattern]'), { content,
 ## Adapt it with your agent
 
 > Rewrite this article for [topic] and [audience]. Keep `{ title, parts: [{ id, heading, paragraphs, question, answer }], reviewDays: { remembered, forgot } }`. Write a short title, a focused question and a concise answer per part. Use stable unique ids. Keep the recall button and answer focus, native disclosures without JavaScript, h2 title, h3 section headings, silent progress, editable self-ratings and calendar-day scheduling. Include no score. Keep English and Québec French together; use vous in French. Authors write every message. Follow the pattern contract, including state, accessibility and CSS tokens. Update examples and tests. Show both languages for review. Explain how the host will arrange reminders.
+
+## Related patterns
+
+- [Printable retrieval sheet](../retrieval-sheet/README.md)
+- [Explain what you learned](../explain-back/README.md)
+- [Highlight the key passage](../highlight/README.md)
+
+## Help improve this pattern
+
+Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Questions%20inside%20the%20reading). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/review-prompts/README.md).
 
 ## Licence
 

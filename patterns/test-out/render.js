@@ -31,7 +31,7 @@ export function render(content, strings, { id, lang }) {
     </div>
     <div class="lp-test-out-questions" data-lp-questions>
       ${questions.map((q, index) => `<div class="lp-test-out-panel lp-section lp-stack" data-lp-panel="question" data-lp-section="${q.section}">
-        <h3 class="lp-label" tabindex="-1" data-lp-panel-heading>${html(format(strings.question, { number: index + 1, total: questions.length, section: content.sections.find(s => s.id === q.section)?.title ?? '' }))}</h3>
+        <h3 class="lp-label" tabindex="-1" data-lp-panel-heading>${html(format(strings.question, { number: index + 1, total: questions.length, section: content.sections.find(s => s.id === q.section)?.title ?? '' }), lang)}</h3>
         <fieldset class="lp-choices" id="${html(`${id}-question-${q.id}`)}" tabindex="-1" data-lp-question="${html(q.id)}">
           <legend class="lp-stem">${html(q.text, lang)}</legend>
           ${q.options.map((o, n) => `<label class="lp-choice" for="${html(`${id}-question-${q.id}-option-${n}`)}"><input type="radio" id="${html(`${id}-question-${q.id}-option-${n}`)}" name="${html(`${id}-question-${q.id}`)}" value="${html(o.id)}"><span>${html(o.text, lang)}</span></label>`).join('\n          ')}

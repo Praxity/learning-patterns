@@ -13,11 +13,18 @@ Explain a lesson in your own words and check which key ideas you included.
 
 ## Use it when
 
-Use it after a short reading. This example checks three ideas: stonewalling, announcing a pause and returning to the conversation. The feedback helps you revise your explanation.
+- Use it after a short reading. This example checks three ideas: stonewalling, announcing a pause and returning to the conversation. The feedback helps you revise your explanation.
 
 ## Avoid it when
 
-It gives no grade.
+- When the reading is long or has more than three key ideas, use [Questions inside the reading](../review-prompts/README.md).
+- When you need a grade, use an assessment. This pattern helps learners revise.
+
+## Before you use it
+
+It needs a server running a model. If automatic checking is unavailable, the explanation step offers the checklist and model answer.
+
+Write a short lesson, three checklist statements, hints and a model answer. Changing the key ideas also means changing and testing what the model checks.
 
 ## How it works
 
@@ -32,6 +39,8 @@ It gives no grade.
 Prompts to explain connections in learning material produced an average benefit of 0.55 standard deviations across 69 effect sizes ([Bisra et al., 2018](https://doi.org/10.1007/s10648-018-9434-x)). Explaining an idea to a new manager also draws on research about learning by teaching ([Fiorella and Mayer, 2016](https://doi.org/10.1007/s10648-015-9348-9)). These studies support asking learners to explain in their own words, but did not test this pattern. Research on explanatory feedback informs the hints and links to missing ideas ([Van der Kleij et al., 2015](https://doi.org/10.3102/0034654314564881)). With JavaScript, reading and explaining are separate steps. Learners can return to the reading at any time. The decision model was tested only on agent-written answers. The two-sentence task, missing-idea checks and passage links have not been tested with learners.
 
 ## Accessibility
+
+Text fields keep the full draft, including text over the limit. Checking or saving shows a linked length error instead of cutting text. Limits come from the existing logic constants. The automatic action stays enabled while model configuration loads. An early press waits for configuration, then checks or uses the existing fallback.
 
 Daily proxy caps show and announce the reason and midnight UTC reset once, keep focus in place and leave the fallback usable.
 
@@ -77,6 +86,8 @@ Authored text is capped at 120 characters for titles and labels, 400 for questio
 
 Pass `state: { read, write }` to save drafts and checklist ticks. Restoring either opens the explanation step. Check results stay available between steps but are not saved. Editing during a check discards its result. Repeated enhancement returns the same instance. `destroy()` removes listeners, cancels checks and restores the server markup with both steps and the native fallback visible.
 
+Stored drafts restore intact even above the send limit. The host owns its total storage budget; the send limit still applies before every proxy request. Self-check ticks survive restoration. Automated judgments are not restored.
+
 ## Use it
 
 Copy this folder, `lib/` and `proxy/logic/`, preserving relative paths. Include `lib/base.css`, then `pattern.css`. Each instance needs a unique id prefix. Serve the proxy on the page's own origin.
@@ -98,6 +109,15 @@ The shared `ask(block, fields, { challengeSlot, signal? })` client returns typed
 ## Adapt it with your agent
 
 > Adapt this example for [audience]. Keep unexplained withdrawal, announcing a pause, and agreeing when to return and following through. Keep the fields and idea order. Write useful feedback for each result. Write English and Québec French together, using vous. Preserve authored feedback, the self-check, lesson focus links, proxy gates, data notice and on-demand verification. Evaluate any changed proxy questions against authored sample labels before use.
+
+## Related patterns
+
+- [Questions inside the reading](../review-prompts/README.md)
+- [Check your own answer](../self-check/README.md)
+
+## Help improve this pattern
+
+Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Explain%20what%20you%20learned). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/explain-back/README.md).
 
 ## Licence
 

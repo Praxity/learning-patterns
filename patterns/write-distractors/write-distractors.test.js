@@ -42,8 +42,8 @@ test('oversized saved answers restore intact as drafts without completed checks'
 });
 
 test('answer limit errors have authored English and French copy without an HTML truncation limit', () => {
-  assert.equal(strings.en.longAnswer, 'Keep your answer to {max} characters or fewer.');
-  assert.equal(strings.fr.longAnswer, 'Limitez votre réponse à {max} caractères.');
+  assert.equal(strings.en.longAnswer, 'Your answer must be {max} characters or fewer.');
+  assert.equal(strings.fr.longAnswer, 'Votre réponse doit contenir {max} caractères ou moins.');
   for (const lang of ['en', 'fr']) {
     const output = render(lang === 'en' ? content : fr, strings[lang], { id: 'limit', lang });
     const answer = output.match(/<textarea[^>]*data-lp-answer[^>]*>/)[0];
@@ -181,7 +181,7 @@ test('state copies drafts, rejects bad shapes and requires a valid shown submiss
   const saved = { answer: 'No, pauses help.', hadIt: false, options: [option('A'), option('B', 'other', 'Focus')], shown: true };
   const copy = validateState(content, saved);
   assert.deepEqual(copy, saved); assert.notEqual(copy.options, saved.options); assert.notEqual(copy.options[0], saved.options[0]);
-  for (const value of [null, [], {}, { ...saved, shown: 'yes' }, { ...saved, options: [] }, { ...saved, options: [null, option()] }, { options: [option('A', 'unknown'), option()], shown: false }, { options: [option('x'.repeat(301)), option()], shown: false }, { options: [option('A', 'other', 'x'.repeat(121)), option()], shown: false }, { ...draft, shown: true }, { ...saved, extra: 1 }, { options: [{ ...option('A'), extra: 1 }, option('B')], shown: false }]) {
+  for (const value of [null, [], {}, { ...saved, shown: 'yes' }, { ...saved, options: [] }, { ...saved, options: [null, option()] }, { options: [option('A', 'unknown'), option()], shown: false }, { ...draft, shown: true }, { ...saved, extra: 1 }, { options: [{ ...option('A'), extra: 1 }, option('B')], shown: false }]) {
     assert.equal(validateState(content, value), null);
   }
 });
@@ -218,8 +218,7 @@ test('render escapes text and attributes, prefixes IDs, supplies field associati
   assert.equal((a.match(/role="status"/g) || []).length, 1);
   assert.match(a, /role="status" aria-atomic="true"><\/p>/);
   assert.equal((a.match(/<fieldset/g) || []).length, 2);
-  assert.equal((a.match(/maxlength="300"/g) || []).length, 2);
-  assert.equal((a.match(/maxlength="120"/g) || []).length, 2);
+  assert.doesNotMatch(a, /maxlength=/);
   assert.ok(a.includes('<details')); assert.ok(a.includes('data-lp-flow hidden'));
   assert.match(a, /data-lp-clear hidden/);
   assert.ok(!a.includes('data-lp-selected'));
@@ -249,7 +248,7 @@ test('render uses the shared frame, text roles, sectioned fields and quiet Start
 test('render merges repeated instructions and names builders by their answer keys', () => {
   for (const [lang, authored, answer, legends] of [
     ['en', content, 'Write your answer first.', ['Wrong option B', 'Wrong option C']],
-    ['fr', fr, "Rédigez d'abord votre réponse.", ['Mauvaise réponse B', 'Mauvaise réponse C']]
+    ['fr', fr, "Rédigez d’abord votre réponse.", ['Mauvaise réponse B', 'Mauvaise réponse C']]
   ]) {
     const output = render(authored, strings[lang], { id: 'copy', lang });
     assert.ok(!output.includes('lp-scene-label'));
@@ -264,7 +263,7 @@ test('render merges repeated instructions and names builders by their answer key
 test('render writes counts two to five in words in both languages and rejects higher counts', () => {
   for (const [lang, authored, headings] of [
     ['en', content, ['Write one wrong option. Name the mistaken idea behind it.', ...['two', 'three', 'four', 'five'].map(n => `Write ${n} wrong options. Name the mistaken idea behind each.`)]],
-    ['fr', fr, ["Rédigez une mauvaise réponse. Nommez l'idée fausse derrière celle-ci.", ...['deux', 'trois', 'quatre', 'cinq'].map(n => `Rédigez ${n} mauvaises réponses. Nommez l'idée fausse derrière chacune.`)]]
+    ['fr', fr, ["Rédigez une mauvaise réponse. Nommez l’idée fausse derrière celle-ci.", ...['deux', 'trois', 'quatre', 'cinq'].map(n => `Rédigez ${n} mauvaises réponses. Nommez l’idée fausse derrière chacune.`)]]
   ]) {
     for (const [index, count] of [1, 2, 3, 4, 5].entries()) {
       const output = render({ ...authored, count }, strings[lang], { id: 'count', lang });

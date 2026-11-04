@@ -14,7 +14,6 @@
 .lp-self-check-composer-label { padding: 12px 16px 0; }
 .lp-self-check-composer-body.lp-input { margin: 0; padding: 6px 16px 14px; min-block-size: 9.5rem; border: 0; border-radius: 0; font-size: 1.125rem; }
 .lp-self-check textarea.lp-input.lp-self-check-composer-body:focus { outline: none; }
-.lp-self-check-composer-body::placeholder { color: var(--lp-ink-2); opacity: 1; }
 .lp-self-check-composer-body[aria-invalid="true"] { border: 2px solid var(--lp-error-ink); padding: 4px 14px 12px; }
 .lp-self-check-composer-foot { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: flex-end; padding: 10px 12px; border-block-start: 1px solid var(--lp-rule); }
 .lp-self-check-composer-foot .lp-error-text { margin-inline-end: auto; }

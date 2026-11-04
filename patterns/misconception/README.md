@@ -1,6 +1,6 @@
 ---
 title: Spot the misconception
-title_fr: Repérez l'idée fausse
+title_fr: Repérez l’idée fausse
 summary: Answer a study question and compare feedback with a model answer.
 section: question
 ai: yes
@@ -13,11 +13,19 @@ Answer a study question. Compare your reasoning with the feedback and model answ
 
 ## Use it when
 
-Use it when a short answer can reveal a mistaken belief. This example asks whether rereading notes prepares you for a test. The proxy checks four study misconceptions. Feedback helps you revise your reasoning.
+- Use it when a short answer can reveal a mistaken belief. This example asks whether rereading notes prepares you for a test. The proxy checks four study misconceptions. Feedback helps you revise your reasoning.
 
 ## Avoid it when
 
-It gives no grade.
+- When your topic has different misconceptions and you cannot change and test what the model checks, use [Check your own answer](../self-check/README.md).
+- When learners can explain common mistakes themselves, use [Write the wrong options](../write-distractors/README.md).
+- When you need a grade, use an assessment. This pattern helps learners revise.
+
+## Before you use it
+
+It needs a server running a model. If automatic checking is unavailable, the button opens the model answer and a misconception checklist instead.
+
+Write a model answer and corrections for the four study misconceptions. Changing the topic also means changing and testing what the model checks.
 
 ## How it works
 
@@ -32,6 +40,8 @@ It gives no grade.
 Refutation texts produced an average learning benefit of 0.41 standard deviations across 44 comparisons involving 3,869 participants ([Schroeder and Kucera, 2022](https://doi.org/10.1007/s10648-021-09656-z)). This supports naming a mistaken idea and explaining the correction. A separate review found larger average effects for explanatory computer feedback than for right-or-wrong feedback ([Van der Kleij et al., 2015](https://doi.org/10.3102/0034654314564881)). The decision model selects authored explanations and was tested only on agent-written answers. Its identification of misconceptions and the learning benefits of this feedback have not been tested with learners.
 
 ## Accessibility
+
+Text fields keep the full draft, including text over the limit. Checking or saving shows a linked length error instead of cutting text. Limits come from the existing logic constants. The automatic action stays enabled while model configuration loads. An early press waits for configuration, then checks or uses the existing fallback.
 
 The fallback legend names the checklist. Its short instruction sits outside the legend and describes the fieldset through `aria-describedby`.
 
@@ -76,6 +86,8 @@ The pure module imports identities, answer length and the decision model's confi
 
 Pass `state: { read, write }` to save drafts and checklist ticks. Check results are not saved. Editing during a check discards its result. Repeated enhancement returns the same instance. `destroy()` removes listeners, cancels checks and restores the native fallback.
 
+Stored drafts restore intact even above the send limit. The host owns its total storage budget; the send limit still applies before every proxy request. Self-check ticks survive restoration. Automated judgments are not restored.
+
 ## Use it
 
 Copy this folder, `lib/` and the two proxy logic modules, preserving relative paths. Include `lib/base.css`, then `pattern.css`. Give each instance a unique id prefix. Serve the proxy on the page's origin.
@@ -99,6 +111,15 @@ This pattern collects and stores no answers. A host may collect unmatched answer
 ## Adapt it with your agent
 
 > Adapt this example for [audience]. Keep familiarity versus recall and the four beliefs about rereading, highlighting, cramming and watching. Keep the fields and belief order. Explain each correction and what to do instead. Give uncertain results a comparison prompt. Write English and Québec French together, using vous and « guillemets » with non-breaking spaces. Preserve authored feedback, the data notice, proxy gates, on-demand verification and offline self-check. Evaluate any changed proxy questions before use.
+
+## Related patterns
+
+- [Check your own answer](../self-check/README.md)
+- [Write the wrong options](../write-distractors/README.md)
+
+## Help improve this pattern
+
+Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Spot%20the%20misconception). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/misconception/README.md).
 
 ## Licence
 

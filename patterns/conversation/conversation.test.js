@@ -70,7 +70,7 @@ test('model choices use proxy-owned inclusive gates; off-script always keeps the
 test('saved conversation accepts coherent history and rejects planted invalid state', () => {
   const valid = { conversation: turn(content, start(), 'acknowledge', 'My reply').state, draft: 'Next reply' };
   assert.deepEqual(validateState(valid), valid);
-  for (const value of [null, {}, { ...valid, draft: 'x'.repeat(1201) }, { ...valid, conversation: { ...valid.conversation, round: 2 } }, { ...valid, conversation: { ...valid.conversation, node: 'pause' } }, { ...valid, conversation: { ...valid.conversation, end: true } }, { ...valid, conversation: { ...valid.conversation, history: [{ branch: 'unknown', reply: 'x' }] } }]) assert.equal(validateState(value), null);
+  for (const value of [null, {}, { ...valid, conversation: { ...valid.conversation, round: 2 } }, { ...valid, conversation: { ...valid.conversation, node: 'pause' } }, { ...valid, conversation: { ...valid.conversation, end: true } }, { ...valid, conversation: { ...valid.conversation, history: [{ branch: 'unknown', reply: 'x' }] } }]) assert.equal(validateState(value), null);
 });
 
 test('schema guard rejects missing, extra, empty and misidentified authored fields', () => {

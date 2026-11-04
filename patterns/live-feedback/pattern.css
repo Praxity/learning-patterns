@@ -11,7 +11,6 @@
    takes the text's font so 1lh matches the text line, not the 13px control font. */
 .lp-live-feedback-tick { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 12px; align-items: start; align-content: center; min-block-size: 44px; cursor: pointer; }
 .lp-live-feedback-tick input { font: inherit; inline-size: 22px; block-size: 22px; margin: calc((1lh - 22px) / 2) 0 0; accent-color: var(--lp-success-ink); }
-.lp-live-feedback .lp-input::placeholder { color: var(--lp-ink-2); opacity: 1; }
 .lp-live-feedback [data-lp-challenge] { min-inline-size: 0; }
 @media (prefers-reduced-motion: reduce) {
   .lp-live-feedback-item { transition: none; }

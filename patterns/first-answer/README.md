@@ -13,11 +13,16 @@ Save an answer at the start of a course. Answer again at the end, then compare w
 
 ## Use it when
 
-Use it when learners can answer the same question at the start and end of a course. Keep the question and self-check criteria the same.
+- Use it when learners can answer the same question at the start and end of a course. Keep the question and self-check criteria the same.
 
 ## Avoid it when
 
-Learners judge their own changes, so use another method to grade answers.
+- When you need to grade answers or measure learning gains, use an assessment. Learners judge their own changes here.
+- When learners need feedback on one answer now, use [Check your own answer](../self-check/README.md).
+
+## Before you use it
+
+Ask your developer to save the first answer between visits. Without that, the answer is lost when the learner leaves the page.
 
 ## How it works
 
@@ -35,6 +40,8 @@ Keeping the first answer as written avoids relying on memory. After a study skil
 Learners tend to rate their own work generously ([Dunlosky and Rawson, 2012](https://doi.org/10.1016/j.learninstruc.2011.08.003)). Ticks record changes they notice, not measured gains. Bringing back a first answer at the end of a course has not been tested directly.
 
 ## Accessibility
+
+Text fields keep the full draft, including text over the limit. Checking or saving shows a linked length error instead of cutting text. Limits come from the existing logic constants.
 
 Follows the shared baseline in the root README.
 
@@ -115,6 +122,15 @@ const instance = enhance(document.querySelector('[data-lp-pattern="first-answer"
 ## Adapt it with your agent
 
 > Adapt the first-answer examples to [topic] for [audience]. Use the same prompt at both course placements. Keep `{ prompt, checks: [{ id, label }] }` and stable, unique ids. Write checks for changes learners can see in their answers. Write English and Québec French together, using vous. Preserve the first answer, state, stages, accessibility and CSS tokens. A model may only choose authored messages. Update examples and tests. Show both languages for review.
+
+## Related patterns
+
+- [Check your own answer](../self-check/README.md)
+- [Journal entry with a nudge](../journal/README.md)
+
+## Help improve this pattern
+
+Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Your%20first%20answer%20replayed). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/first-answer/README.md).
 
 ## Licence
 

@@ -25,10 +25,11 @@ async function compareAnswers(page, lang = 'en') {
 }
 
 for (const width of [1280, 390]) {
-  test(`question to textarea is 12px at ${width}px`, async ({ page }) => {
+  test(`question and visible hint use shared field gaps at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await open(page, 'journal');
-    expect(await gap(page.locator('.lp-stem'), page.locator('textarea.lp-input'))).toBeCloseTo(12, 1);
+    expect(await gap(page.locator('.lp-stem'), page.locator('#example-starter'))).toBeCloseTo(4, 1);
+    expect(await gap(page.locator('#example-starter'), page.locator('textarea.lp-input'))).toBeCloseTo(8, 1);
     expect(await gap(page.locator('textarea.lp-input'), page.locator('.lp-actions'))).toBeCloseTo(24, 1);
   });
 
@@ -231,9 +232,9 @@ for (const width of [1280, 390]) {
     await page.setViewportSize({ width, height: 900 });
     await open(page, role === 'stem' ? 'journal' : 'first-answer');
     const label = page.locator(role === 'stem' ? '.lp-stem' : '[data-lp-first-editor] .lp-label');
-    // Hosts can supply a hint in the rendered field group without pattern-specific CSS.
-    await label.evaluate(el => el.insertAdjacentHTML('afterend', '<p class="lp-small" data-spacing-hint>Give one example.</p>'));
-    const hint = page.locator('[data-spacing-hint]');
+    // The journal renders its own starter hint; elsewhere a host can supply one without pattern-specific CSS.
+    if (role === 'label') await label.evaluate(el => el.insertAdjacentHTML('afterend', '<p class="lp-small" data-spacing-hint>Give one example.</p>'));
+    const hint = page.locator(role === 'stem' ? '.lp-stem + .lp-small' : '[data-spacing-hint]');
     const field = page.locator(role === 'stem' ? 'textarea' : '[data-lp-first-input]');
     expect(await gap(label, hint)).toBeCloseTo(4, 1);
     expect(await gap(hint, field)).toBeCloseTo(8, 1);

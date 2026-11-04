@@ -18,7 +18,7 @@ export function optionKey(index: number): string;
  */
 export function validateContent(content: unknown): asserts content is Content;
 /** Field errors use codes so every learner-facing message lives in strings.js.
- * Length is checked before normalization, matching HTML maxlength.
+ * Length is checked before normalization so whitespace consumes the option limit.
  * @param {Content} content @param {LearnerOption[]} options
  * @returns {{ ok: false, errors: FieldError[] } | { ok: true, options: LearnerOption[] }}
  */
@@ -51,7 +51,8 @@ export function coverageMessage(content: Content, options: LearnerOption[]): {
     untargeted: string[];
 };
 /** Accept incomplete drafts; shown results must pass submission validation.
- * Oversized answers keep their full text and options but return to the answer step.
+ * Drafts have no storage ceiling; the host owns its total storage budget.
+ * Oversized options lose comparison results. Oversized answers keep their full text and options but return to the answer step.
  * @param {Content} content @param {unknown} value @returns {LearnerState | null}
  */
 export function validateState(content: Content, value: unknown): LearnerState | null;

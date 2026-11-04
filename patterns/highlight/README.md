@@ -13,11 +13,16 @@ Mark key ideas or text that answers a question. Then compare your marks with the
 
 ## Use it when
 
-Use it to find key ideas or evidence for a question. Keep passages short and split them into meaningful pieces.
+- Use it to find key ideas or evidence for a question. Keep passages short and split them into meaningful pieces.
 
 ## Avoid it when
 
-Learners select whole pieces, so use another pattern for selecting individual words. Searching visible text does not test recall.
+- When learners must select individual words, use a word-selection activity. This pattern selects whole pieces of text.
+- When you want recall without visible text, use [Questions inside the reading](../review-prompts/README.md).
+
+## Before you use it
+
+Split a short passage into meaningful pieces. Mark the key ideas or evidence for one question, set the number of marks allowed, and explain tempting but incorrect selections.
 
 ## How it works
 
@@ -113,6 +118,15 @@ const instance = enhance(document.querySelector('[data-lp-pattern="highlight"]')
 ## Adapt it with your agent
 
 > Adapt the highlight examples to [topic] for [audience]. Keep `{ mode, title, question?, maxMarks?, paragraphs: [[{ id, text, key?, note? }]] }`. Choose key ideas or evidence for one focused question. Split the passage into meaningful pieces. Keep ids unique and at least one target. Explain selected non-targets in notes. Write English and Québec French together, using vous. Preserve the plain passage, native answer, keyboard controls, local feedback, state, escaping and CSS tokens. Do not claim that searching visible text tests recall. Update examples and tests. Show both languages for review.
+
+## Related patterns
+
+- [Questions inside the reading](../review-prompts/README.md)
+- [Explain what you learned](../explain-back/README.md)
+
+## Help improve this pattern
+
+Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Highlight%20the%20key%20passage). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/highlight/README.md).
 
 ## Licence
 

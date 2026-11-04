@@ -1,5 +1,5 @@
 import { frenchTypography } from '../../lib/html.js';
-import { feedback, validateContent, validateState, MIN_CHARS, AUTO_CHECK_LIMIT } from './logic.js';
+import { feedback, validateContent, validateState, MIN_CHARS, ANSWER_LIMIT, AUTO_CHECK_LIMIT } from './logic.js';
 import { typingPause } from '../../lib/typing-pause.js';
 import { icons } from '../../lib/icons.js';
 import { renderDataNotice, showCapNotice } from '../../lib/notice-ui.js';
@@ -41,6 +41,22 @@ export function enhance(root, { content, strings, state, ask }) {
   if (boxes.length !== content.criteria.length || rows.length !== content.criteria.length) throw new Error('Invalid live-feedback criteria markup');
   const session = sessions.get(root.ownerDocument) ?? { checks: 0, stop: new Set() };
   sessions.set(root.ownerDocument, session);
+  const error = required('[data-lp-error]');
+  const checkLength = () => {
+    const wasShown = !error.hidden;
+    const tooLong = answer.value.length > ANSWER_LIMIT;
+    error.textContent = tooLong ? frenchTypography(strings.tooLong.replaceAll('{max}', ANSWER_LIMIT.toLocaleString(root.lang === 'fr' ? 'fr-CA' : 'en-CA')), root.lang) : '';
+    error.hidden = !tooLong;
+    if (tooLong && !wasShown) {
+      previous = []; count = 0; complete = false; completion.hidden = true;
+      updateItems(content.criteria.map(item => ({ id: item.id, mark: 'todo', text: item.todo })));
+    }
+    const descriptions = [answer.id.replace(/-answer$/, '-starter'), tooLong ? error.id : '', !notice.hidden ? `${notice.id}-text` : ''].filter(Boolean).join(' ');
+    answer.setAttribute('aria-describedby', descriptions);
+    if (tooLong) { answer.setAttribute('aria-invalid', 'true'); if (!wasShown) status.textContent = error.textContent; }
+    else { answer.removeAttribute('aria-invalid'); if (wasShown) status.textContent = ''; }
+    return !tooLong;
+  };
   const timing = typingPause({ minChars: MIN_CHARS, questionMark: false });
   let destroyed = false, ready = false, complete = false, seq = 0, lastChecked = '', count = 0;
   /** @type {ReturnType<typeof setTimeout> | undefined} */
@@ -57,10 +73,10 @@ export function enhance(root, { content, strings, state, ask }) {
     cancel(); complete = false; completion.hidden = true; ready = false;
     list.hidden = true; fallback.hidden = false; fallbackText.textContent = frenchTypography(strings.fallback, root.lang);
     paused.hidden = true; notice.hidden = true;
-    answer.removeAttribute('aria-describedby');
+    answer.setAttribute('aria-describedby', answer.id.replace(/-answer$/, '-starter'));
   };
   const useLimit = () => {
-    // Keep "Well done!" until the learner edits a plan that completed on the last allowed check.
+    // Keep the completion message until the learner edits a plan that completed on the last allowed check.
     if (complete && answer.value.trim() === lastChecked) return;
     useFallback(); paused.hidden = false; fallbackText.textContent = frenchTypography(strings.selfCheck, root.lang);
   };
@@ -97,6 +113,7 @@ export function enhance(root, { content, strings, state, ask }) {
   const run = async () => {
     if (!ready || !ask || destroyed || pending) return;
     clearTimeout(timer); timer = undefined;
+    if (!checkLength()) { complete = false; completion.hidden = true; return; }
     const raw = answer.value, draft = raw.trim();
     if (timing.delay(raw, lastChecked) === null) return;
     if (session.checks >= AUTO_CHECK_LIMIT) { stopAtLimit(); return; }
@@ -121,7 +138,7 @@ export function enhance(root, { content, strings, state, ask }) {
       if (!destroyed) {
         if (showCapNotice(error, root, fallback, status)) useFallback();
         else if (my === seq) {
-          // The failed draft was never assessed, so an earlier "Well done!" must not keep the limit from opening self-checks.
+          // The failed draft was never assessed, so an earlier completion message must not keep the limit from opening self-checks.
           complete = false; completion.hidden = true;
           if (session.checks >= AUTO_CHECK_LIMIT) stopAtLimit(); else useFallback();
           status.textContent = frenchTypography(strings.fallback, root.lang);
@@ -141,6 +158,7 @@ export function enhance(root, { content, strings, state, ask }) {
     if (delay !== null) timer = setTimeout(() => { void run(); }, delay);
   };
   const onInput = () => {
+    checkLength();
     // Text too short to check cannot hold a complete plan; reaching four again is a new completion.
     if (answer.value.trim().length < MIN_CHARS) { complete = false; completion.hidden = true; }
     cancel(); save(); schedule();
@@ -156,7 +174,7 @@ export function enhance(root, { content, strings, state, ask }) {
       if (session.checks >= AUTO_CHECK_LIMIT) { useLimit(); return; }
       if (config.provider !== 'perplexity' && config.provider !== 'mock') { useFallback(); return; }
       notice.innerHTML = renderDataNotice(config, root.lang, `${notice.id}-text`);
-      notice.hidden = false; answer.setAttribute('aria-describedby', `${notice.id}-text`);
+      notice.hidden = false; answer.setAttribute('aria-describedby', `${answer.id.replace(/-answer$/, '-starter')} ${error.hidden ? '' : `${error.id} `}${notice.id}-text`);
       fallback.hidden = true; list.hidden = false;
       ready = true; schedule();
     }).catch(() => { if (!destroyed) useFallback(); });

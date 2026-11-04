@@ -8,8 +8,8 @@ const french = JSON.parse(await readFile(new URL('../../patterns/self-check/exam
 
 for (const [model, evidence, expected, marked] of [
   ['Question?', 'Question', 'Question\u202f?', 'Question'],
-  ['1 234 567 euros : oui!', '234', '1\u202f234\u202f567 euros\u202f: oui\u202f!', '234'],
-  ['Question   ? «oui»', 'Question   ', 'Question\u202f? «\u202foui\u202f»', 'Question\u202f'],
+  ['1 234 567 euros : oui!', '234', '1\u202f234\u202f567 euros\u00a0: oui\u202f!', '234'],
+  ['Question   ? «oui»', 'Question   ', 'Question ? « oui »', 'Question '],
   ['Voir www.example.test/search?q=1 et `"yes!"`.', 'example.test', 'Voir www.example.test/search?q=1 et `"yes!"`.', 'example.test']
 ]) test(`model typography survives evidence boundaries: ${model}`, async ({ page }) => {
   await open(page, '/self-check/fr.html');
@@ -181,7 +181,7 @@ async function open(page, path = '/self-check/en.html') {
 
 for (const [lang, answerLabel, empty, check, show, whole, summary, restart] of [
   ['en', 'Your answer', 'Write your answer first.', 'Check my answer', 'Show feedback', 'Whole answer', 'You ticked 1 of 2 parts.', 'Start over'],
-  ['fr', 'Votre réponse', "Écrivez d'abord votre réponse.", 'Vérifier ma réponse', 'Afficher la rétroaction', "Toute la réponse", 'Éléments cochés : 1 sur 2.', 'Recommencer']
+  ['fr', 'Votre réponse', "Écrivez d’abord votre réponse.", 'Vérifier ma réponse', 'Afficher la rétroaction', "Toute la réponse", 'Éléments cochés : 1 sur 2.', 'Recommencer']
 ]) test(`general answer without email context supports the complete journey (${lang})`, async ({ page }) => {
   await open(page, `/self-check/${lang}.html`);
   const content = lang === 'en'

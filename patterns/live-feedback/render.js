@@ -1,6 +1,6 @@
 import { escapeHtml as html } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
-import { validateContent, ANSWER_LIMIT } from './logic.js';
+import { validateContent } from './logic.js';
 
 /** @param {import('./logic.js').Content} content @param {import('./strings.js').Strings} strings
  * @param {{ id: string, lang: string }} options @returns {string}
@@ -9,7 +9,9 @@ export function render(content, strings, { id, lang }) {
   validateContent(content);
   return `<section class="lp lp-live-feedback" data-lp-pattern="live-feedback" lang="${html(lang)}">
   <h2 class="lp-stem" id="${html(`${id}-prompt`)}">${html(content.prompt, lang)}</h2>
-  <textarea class="lp-input" id="${html(`${id}-answer`)}" aria-labelledby="${html(`${id}-prompt`)}" rows="5" maxlength="${ANSWER_LIMIT}" placeholder="${html(strings.placeholder, lang)}"></textarea>
+  <p class="lp-small" id="${html(`${id}-starter`)}">${html(strings.placeholder, lang)}</p>
+  <textarea class="lp-input" id="${html(`${id}-answer`)}" aria-labelledby="${html(`${id}-prompt`)}" aria-describedby="${html(`${id}-starter`)}" rows="5"></textarea>
+  <p class="lp-error-text" id="${html(`${id}-error`)}" data-lp-error hidden></p>
   <div data-lp-notice id="${html(`${id}-notice`)}" hidden></div>
   <div class="lp-section" data-lp-list aria-live="off" hidden>
     <p class="lp-run-in" data-lp-summary>${html(strings.checklist, lang)}</p>

@@ -50,7 +50,7 @@ for (const lang of ['en', 'fr']) {
     await open(page, lang);
     await expect(page.getByRole('textbox')).toHaveAccessibleName(examples[lang].question);
     await expect(page.getByRole('textbox')).toHaveAttribute('rows', '3');
-    await expect(page.getByRole('textbox')).toHaveAttribute('maxlength', '1500');
+    await expect(page.getByRole('textbox')).not.toHaveAttribute('maxlength');
     await expect(page.locator('[data-lp-pattern]')).toHaveAttribute('lang', lang);
     await expect(page.locator('[data-lp-notice]')).toContainText(lang === 'fr' ? 'Votre réponse reste' : 'Your answer stays');
     for (const selector of ['[data-lp-result]', '[data-lp-model]', '[data-lp-fallback]', '[data-lp-challenge]']) await expect(page.locator(selector)).toBeHidden();

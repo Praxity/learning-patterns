@@ -1,7 +1,7 @@
 import { escapeHtml as html } from '../../lib/html.js';
 import { icons } from '../../lib/write-distractors-icons.js';
 import { renderChoiceMark } from '../../lib/choice-mark.js';
-import { validateContent, targetOf, optionKey, MAX_OPTION, MAX_CUSTOM, OTHER } from './logic.js';
+import { validateContent, targetOf, optionKey, OTHER } from './logic.js';
 
 /** Render keyed rows for both the native fallback and the enhanced comparison.
  * @param {import('./logic.js').Content} content
@@ -44,7 +44,7 @@ export function render(content, strings, { id, lang }) {
   <fieldset class="lp-write-distractors-option" data-lp-option>
     <legend class="lp-run-in" id="${fieldId('legend')}">${html(strings.option.replaceAll('{key}', optionKey(index + 1)), lang)}</legend>
     <div>
-    <textarea class="lp-input" id="${fieldId('text')}" data-lp-text rows="3" maxlength="${MAX_OPTION}" aria-labelledby="${fieldId('legend')}" aria-describedby="${fieldId('text-error')}"></textarea>
+    <textarea class="lp-input" id="${fieldId('text')}" data-lp-text rows="3" aria-labelledby="${fieldId('legend')}" aria-describedby="${fieldId('text-error')}"></textarea>
     <p class="lp-error-text" id="${fieldId('text-error')}" data-lp-text-error hidden></p>
     </div>
     <div>
@@ -58,7 +58,7 @@ export function render(content, strings, { id, lang }) {
     </div>
     <div data-lp-custom-wrap hidden>
       <label class="lp-label" for="${fieldId('custom')}">${html(strings.custom, lang)}</label>
-      <input class="lp-input" id="${fieldId('custom')}" data-lp-custom type="text" maxlength="${MAX_CUSTOM}" aria-describedby="${fieldId('custom-error')}">
+      <input class="lp-input" id="${fieldId('custom')}" data-lp-custom type="text" aria-describedby="${fieldId('custom-error')}">
       <p class="lp-error-text" id="${fieldId('custom-error')}" data-lp-custom-error hidden></p>
     </div>
   </fieldset>

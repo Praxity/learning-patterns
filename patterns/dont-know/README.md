@@ -13,15 +13,15 @@ Answer a quiz with an "I don't know" option. See your score, explanations and qu
 
 ## Use it when
 
-Use it for short practice quizzes where learners need a way to say they are unsure.
+- Use it for short practice quizzes where learners need a way to say they are unsure.
 
 ## Avoid it when
 
-Test the scoring with your learners before using it for assessment.
+- When you need a graded result and haven't tested the scoring with learners, use a quiz without penalties. Penalties may discourage guessing.
 
-## Setting it up
+## Before you use it
 
-Set points for right, wrong and unknown answers. Losing points for wrong answers may discourage guessing.
+Set points for right, wrong and unknown answers. Write the correct answer and an explanation for each question.
 
 ## How it works
 
@@ -172,6 +172,15 @@ const instance = enhance(document.querySelector('[data-lp-pattern]'), { content,
 ## Adapt it with your agent
 
 > Rewrite the dont-know examples for [topic] and [audience]. Keep `{ title, questions: [{ id, text, options: [{ id, text }], correct, explanation }], points: { right, wrong, unknown } }`. Use descriptive unique option ids and valid correct-option references. Reserve `dont-know` for the uncertainty option. Explain wrong and unknown answers. Keep English and Québec French together; use vous in French. A model may only choose authored messages. Follow the pattern contract, including state, accessibility and CSS tokens. Update tests and show both languages for review. Keep the limits on untested scoring and penalties.
+
+## Related patterns
+
+- [Prolific questions](../prolific-questions/README.md)
+- [Pre-test to skip sections](../test-out/README.md)
+
+## Help improve this pattern
+
+Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=%22I%20don%27t%20know%22%20as%20an%20answer). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/dont-know/README.md).
 
 ## Licence
 

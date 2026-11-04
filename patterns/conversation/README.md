@@ -13,11 +13,17 @@ You changed a work plan without asking Michel. Practise answering him in two rou
 
 ## Use it when
 
-Use it to practise a difficult workplace conversation. You can acknowledge the impact, defend the change, attack, withdraw or ask for a pause. Michel responds to each choice. The review explains the effects of your two replies.
+- Use it to practise a difficult workplace conversation. You can acknowledge the impact, defend the change, attack, withdraw or ask for a pause. Michel responds to each choice. The review explains the effects of your two replies.
 
 ## Avoid it when
 
-It gives no score.
+- When you need a score for conversation skills, use an assessed role-play. This pattern gives feedback without a score.
+
+## Before you use it
+
+It needs a server running a model. Without the decision model, five reply buttons replace the reply box and support every path.
+
+Review all replies and endings for your audience. Changing the scenario also means changing and testing what the model checks.
 
 ## How it works
 
@@ -32,6 +38,8 @@ If the model can't place a reply, or the reply is off topic, Michel doesn't resp
 In a randomized study of 120 healthcare professionals, practising branching conversations with feedback improved three of four motivational interviewing measures more than further study of the material ([Reger et al., 2020](https://doi.org/10.1001/jamanetworkopen.2020.17348)). This supports conversation practice with consequences and feedback, but did not test this pattern. The content adapts the Gottman Institute's examples of repair attempts and the four horsemen from couple relationships to a workplace exchange ([Wilde, 2012](https://www.gottman.com/blog/manage-conflict-repair-and-de-escalate/); [Gottman Institute, 2013](https://www.gottman.com/blog/the-four-horsemen-the-antidotes/)). The decision model was tested only on agent-written answers. This two-round conversation and its effects on workplace conversations have not been tested with learners.
 
 ## Accessibility
+
+Text fields keep the full draft, including text over the limit. Checking or saving shows a linked length error instead of cutting text. Limits come from the existing logic constants. The automatic action stays enabled while model configuration loads. An early press waits for configuration, then checks or uses the existing fallback.
 
 Daily proxy caps show and announce the reason and midnight UTC reset once, keep focus in place and leave the fallback usable.
 
@@ -82,6 +90,8 @@ Authored text is capped at 120 characters for titles and labels, 400 for questio
 
 Pass `state: { read, write }` to save the draft and conversation. Invalid saved state is ignored. Editing during a check discards its result; restarting cancels requests. Repeated enhancement returns the same instance. `destroy()` removes listeners, cancels requests and restores the static script.
 
+Stored drafts restore intact even above the send limit, with valid conversation history. The host owns its total storage budget; sent replies and history entries still obey the reply limit.
+
 ## Use it
 
 Copy this folder, `lib/` and `proxy/logic/03-contract.js`, preserving relative paths. Include `lib/base.css`, then `pattern.css`. Give each instance a unique id prefix.
@@ -102,6 +112,15 @@ The shared client calls `ask('03-branch', { node, reply }, { challengeSlot, sign
 ## Adapt it with your agent
 
 > Adapt the example replies and reviews for [audience]. Keep the work-plan scenario, five branch IDs, two rounds, Michel’s opening and first lines, and all 25 endings. Write one plain review sentence per response and keep example replies under 1,200 characters. Write English and Québec French together, using vous. Keep authored dialogue and no scores.
+
+## Related patterns
+
+- [Journal entry with a nudge](../journal/README.md)
+- [Check your own answer](../self-check/README.md)
+
+## Help improve this pattern
+
+Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Scenario%20talk-through). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/conversation/README.md).
 
 ## Licence
 

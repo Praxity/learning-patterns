@@ -1,0 +1,35 @@
+name: Pattern feedback
+description: Share what happened when you tried a learning pattern.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        These issues are public. Get participants' informed consent before sharing research findings. Do not include personal learner data or sensitive course information, including in screenshots or linked files.
+
+        Based on the [GOV.UK Design System research template](https://design-system.service.gov.uk/community/share-research-findings/).
+  - type: input
+    id: pattern
+    attributes:
+      label: Pattern
+      description: Which learning pattern did you try?
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What helped learners or got in their way? Share specific observations and any measures you used.
+    validations:
+      required: true
+  - type: textarea
+    id: how-you-ran-it
+    attributes:
+      label: How did you run it?
+      description: Describe the course, date, number of learners and how you gathered findings. Include any access needs or assistive technologies you tested with, without identifying learners.
+    validations:
+      required: true
+  - type: textarea
+    id: links
+    attributes:
+      label: Links and more information
+      description: Add links to examples, screenshots or research reports that you have permission to share publicly.
