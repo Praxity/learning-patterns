@@ -1,4 +1,4 @@
-import { focusQuestion, questionLinks } from '../../lib/question-errors.js';
+import { clearQuestionLink, focusQuestion, questionLinks } from '../../lib/question-errors.js';
 import { DONT_KNOW, displayPoints, format, score, validateContent, validateState } from './logic.js';
 import { escapeHtml as html, frenchTypography } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
@@ -142,7 +142,7 @@ export function enhance(root, { content, strings, state }) {
     if (saved.shown) show(false);
   }
   for (const question of questions) for (const radio of question.radios) listen(radio, 'change', () => {
-    clearQuestionError(question); error.hidden = true; clearResults(); save();
+    clearQuestionError(question); clearQuestionLink(error, question.fieldset); clearResults(); save();
   });
   listen(check, 'click', () => {
     if (shown) return;

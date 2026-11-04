@@ -40,7 +40,7 @@ export function render(content, strings, { id, lang }) {
       <fieldset class="lp-choices" aria-describedby="${html(`${id}-hint`)}">
         <legend class="lp-run-in" id="${html(`${id}-ticks`)}">${html(strings.question, lang)}</legend>
         <p class="lp-small" id="${html(`${id}-hint`)}">${html(strings.tick, lang)}</p>
-        <div class="lp-self-check-meter" data-lp-meter role="status" aria-atomic="true">${ring(0, content.parts.length)}<span>${html(strings.meter.replaceAll('{count}', '0').replaceAll('{total}', String(content.parts.length)), lang)}</span></div>
+        <div class="lp-self-check-meter" data-lp-meter>${ring(0, content.parts.length)}<span>${html(strings.meter.replaceAll('{count}', '0').replaceAll('{total}', String(content.parts.length)), lang)}</span></div>
         ${content.parts.map((part, index) => `<label class="lp-choice" for="${html(`${id}-part-${index}`)}"><input type="checkbox" id="${html(`${id}-part-${index}`)}" value="${html(part.id)}"><span>${html(part.label, lang)}</span></label>`).join('\n        ')}
       </fieldset>
       <div class="lp-actions lp-self-check-step-actions">

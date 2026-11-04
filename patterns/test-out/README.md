@@ -41,7 +41,7 @@ One or two multiple-choice answers give little evidence; a guess can be right. C
 
 ## Accessibility
 
-Check lists every unanswered question beside the action. Each link opens its panel, scrolls its legend into view and focuses its first option. Next still focuses the panel heading. Answer explanations are plain body text under the options.
+Check lists every unanswered question beside the action. Each focus button opens its panel, scrolls its legend into view only when needed and focuses its first option. Answering one clears only its own error and button. Next still focuses the panel heading. Answer explanations are plain body text under the options.
 
 Follows the shared baseline in the root README.
 

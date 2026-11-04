@@ -11,3 +11,8 @@ export function questionLinks(summary: HTMLElement, questions: {
     text: string;
     focus(): void;
 }[]): void;
+/** Remove only the answered question's entry; keep the other errors available.
+ * @param {HTMLElement} summary
+ * @param {HTMLElement} fieldset
+ */
+export function clearQuestionLink(summary: HTMLElement, fieldset: HTMLElement): void;

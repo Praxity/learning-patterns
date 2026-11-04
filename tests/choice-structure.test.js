@@ -15,7 +15,8 @@ for (const name of ['misconception', 'self-check', 'dont-know', 'test-out']) {
         assert.match(markup, /<fieldset[^>]*aria-describedby="quiz-hint"/);
       } else if (name === 'self-check') {
         assert.ok(!legends[0].includes('data-lp-meter'));
-        assert.match(markup, /data-lp-meter[^>]*role="status"/);
+        assert.doesNotMatch(markup, /data-lp-meter[^>]*role="status"/);
+        assert.equal((markup.match(/role="status"/g) || []).length, 1);
         assert.match(markup, /<fieldset[^>]*aria-describedby="quiz-hint"/);
       } else {
         assert.match(markup, /<p data-lp-explanation hidden>/);
@@ -28,4 +29,21 @@ for (const name of ['misconception', 'self-check', 'dont-know', 'test-out']) {
       }
     });
   }
+}
+
+test('question caption stays in the regular body face', async () => {
+  const css = await readFile(new URL('../patterns/dont-know/pattern.css', import.meta.url), 'utf8');
+  assert.match(css, /\.lp-dont-know-question-number\s*\{[^}]*font-weight: 400;[^}]*font-family: var\(--lp-font-body\)/);
+});
+
+for (const lang of ['en', 'fr']) {
+  test(`prolific unanswered messages include a decorative alert icon (${lang})`, async () => {
+    const { render } = await import('../patterns/prolific-questions/render.js');
+    const { strings } = await import('../patterns/prolific-questions/strings.js');
+    const content = JSON.parse(await readFile(new URL(`../patterns/prolific-questions/examples/${lang}.json`, import.meta.url)));
+    const markup = render(content, strings[lang], { id: 'facts', lang });
+    const errors = [...markup.matchAll(/<p[^>]*data-lp-question-error[^>]*>(.*?)<\/p>/gs)];
+    assert.equal(errors.length, 3);
+    for (const [, message] of errors) assert.match(message, /<svg[^>]*aria-hidden="true"/);
+  });
 }

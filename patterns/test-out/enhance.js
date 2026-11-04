@@ -1,4 +1,4 @@
-import { focusQuestion, questionLinks } from '../../lib/question-errors.js';
+import { clearQuestionLink, focusQuestion, questionLinks } from '../../lib/question-errors.js';
 import { format, score, validateContent, validateState } from './logic.js';
 import { escapeHtml as html, frenchTypography } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
@@ -173,7 +173,7 @@ export function enhance(root, { content, strings, state }) {
   if (start) listen(start, 'click', () => { move(1, true); save(); });
   for (const [index, question] of questions.entries()) {
     for (const radio of question.radios) listen(radio, 'change', () => {
-      clearQuestionError(question); error.hidden = true; error.replaceChildren(); save();
+      clearQuestionError(question); clearQuestionLink(error, question.fieldset); save();
     });
     listen(question.back, 'click', () => { move(index, true); save(); });
     listen(question.next, 'click', () => {
@@ -186,7 +186,7 @@ export function enhance(root, { content, strings, state }) {
             message.hidden = false;
             for (const radio of radios) { radio.setAttribute('aria-describedby', message.id); radio.setAttribute('aria-invalid', 'true'); }
           }
-          error.textContent = frenchTypography(strings.choose, root.lang); error.hidden = false;
+          error.innerHTML = `<p class="lp-error-text">${icons['alert-circle']}<span>${html(strings.choose, root.lang)}</span></p>`; error.hidden = false;
           const focus = (/** @type {typeof questions[number]} */ target) => {
             move(questions.indexOf(target) + 1, false); focusQuestion(target.fieldset); save();
           };

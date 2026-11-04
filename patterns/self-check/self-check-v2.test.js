@@ -58,7 +58,7 @@ test('composer renders escaped context, a labelled answer, and accessible checkl
   assert.ok(markup.includes('Your answer'));
   assert.ok(markup.includes('data-lp-meter'));
   assert.ok(markup.includes('Tick each part your answer includes.'));
-  assert.equal((markup.match(/role="status"/g) || []).length, 2);
+  assert.equal((markup.match(/role="status"/g) || []).length, 1);
 });
 
 test('optional authored placeholder is escaped and never becomes the learner answer', () => {

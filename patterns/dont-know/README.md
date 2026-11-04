@@ -99,7 +99,7 @@ This scoring rule and its effect on test anxiety have not been tested. Keep wron
 
 ## Accessibility
 
-Question numbers are captions inside each legend. "I don't know" is last, after an "or" divider. Each unanswered question has a link beside Check. The link scrolls its legend into view before focusing its first option. Explanations are plain body text under the options.
+Question numbers are captions inside each legend. "I don't know" is last, after an "or" divider. Each unanswered question has a focus button beside Check. Answering it removes only its own error and button. The button scrolls its legend into view only when needed before focusing its first option. Explanations are plain body text under the options.
 
 Follows the shared baseline in the root README.
 

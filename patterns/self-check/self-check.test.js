@@ -143,7 +143,7 @@ test('render escapes all plain text and attribute values and prefixes every id',
   const ids = [...(a + b).matchAll(/\bid="([^"]+)"/g)].map(match => match[1]);
   assert.equal(new Set(ids).size, ids.length);
   assert.ok(ids.every(id => id.startsWith('a-') || id.startsWith('b-')));
-  assert.equal((a.match(/role="status"/g) || []).length, 2);
+  assert.equal((a.match(/role="status"/g) || []).length, 1);
   assert.ok(a.includes('rows="5"'));
   assert.ok(a.includes('placeholder="Hi Sam,\n\nType your message here…"'));
   for (const part of content.parts) assert.ok(a.includes(part.missed));

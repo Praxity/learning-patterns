@@ -26,7 +26,7 @@ export function render(content, strings, { id, lang }) {
         <fieldset class="lp-choices lp-prolific-questions-fact" id="${html(`${id}-fact-${i}`)}" style="--lp-prolific-questions-parts: ${content.parts.length}" data-lp-fact>
           <legend data-lp-fact-text>${html(content.cases[0][i], lang)}</legend>
           ${content.parts.map((part, slot) => `<label class="lp-choice" for="${html(`${id}-fact-${i}-${slot}`)}"><input type="radio" id="${html(`${id}-fact-${i}-${slot}`)}" name="${html(`${id}-fact-${i}`)}" value="${slot}"><span>${html(part.label, lang)}</span></label>`).join('')}
-          <p class="lp-error-text" id="${html(`${id}-fact-${i}-error`)}" data-lp-question-error hidden>${html(strings.choose, lang)}</p>
+          <p class="lp-error-text" id="${html(`${id}-fact-${i}-error`)}" data-lp-question-error hidden>${icons['alert-circle']}<span>${html(strings.choose, lang)}</span></p>
         </fieldset>`).join('')}
       </div>
       <div id="${html(`${id}-error`)}" data-lp-error hidden><p class="lp-error-text">${icons['alert-circle']}<span data-lp-error-text></span></p></div>

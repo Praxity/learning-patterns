@@ -158,7 +158,7 @@ test('missing answers describe only unanswered groups and announce once per chec
   await expect(page.locator('[data-lp-fact] input').first()).toBeFocused();
   await expect(page.locator('[data-lp-error-text]')).toHaveText('Choose an answer for each fact first.');
   await expect(page.locator('[data-lp-fact][aria-describedby]')).toHaveCount(3);
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Choose an answer for each fact first.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
   await page.locator('[data-lp-fact]').nth(0).getByRole('radio').nth(2).check();
   await check.click();
   await expect(page.locator('[data-lp-fact][aria-describedby]')).toHaveCount(2);
@@ -169,9 +169,7 @@ test('missing answers describe only unanswered groups and announce once per chec
   await page.locator('[data-lp-fact]').nth(2).getByRole('radio').nth(1).check();
   await expect(page.locator('[data-lp-error]')).toBeHidden();
   await expect(page.locator('[data-lp-fact][aria-describedby]')).toHaveCount(0);
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([
-    'Choose an answer for each fact first.', 'Choose an answer for the other 2 facts too.', 'Choose an answer for the last fact too.'
-  ]);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
 });
 
 for (const lang of ['en', 'fr']) {

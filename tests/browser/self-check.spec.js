@@ -237,7 +237,7 @@ async function observeStatus(page) {
   });
 }
 
-test('message scene, live meter and annotated comparison use authored content', async ({ page }) => {
+test('message scene, non-live meter and annotated comparison use authored content', async ({ page }) => {
   await open(page); await observeStatus(page);
   await expect(page.getByRole('textbox')).toHaveAccessibleName('Your answer');
   await expect(page.locator('.lp-self-check-composer')).toContainText('Sam, your manager');
@@ -490,6 +490,8 @@ for (const shown of [false, true]) {
     await expect(page.getByRole('checkbox').nth(1)).toBeChecked(); await expect(page.locator('[data-lp-ticks]')).toBeVisible();
     await expect(page.locator('[data-lp-restart]')).toBeVisible();
     await expect(page.locator('.lp-visually-hidden[role="status"]')).toHaveText('');
+    await expect(page.locator('[role="status"]')).toHaveCount(1);
+    await expect(page.locator('[role="status"]')).toHaveText('');
     if (shown) await expect(page.locator('[data-lp-result]')).toContainText('You ticked 1 of 6 parts.');
     else await expect(page.locator('[data-lp-result]')).toBeHidden();
   });
