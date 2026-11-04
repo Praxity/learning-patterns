@@ -150,7 +150,7 @@ test('chunks flow like the source paragraphs across inline boundaries', async ({
   // Removing enhancement exposes the source layout without changing text or paragraph styles.
   const layout = () => paragraphs.evaluateAll(elements => elements.map(paragraph => {
     const bounds = paragraph.getBoundingClientRect();
-    return { height: bounds.height, chunks: [...paragraph.querySelectorAll('[data-lp-chunk]')].map(chunk => {
+    return { height: Math.round(bounds.height * 100) / 100, chunks: [...paragraph.querySelectorAll('[data-lp-chunk]')].map(chunk => {
       const range = document.createRange(); range.selectNodeContents(chunk);
       // Vertical page shifts can change Firefox's fractional coordinates by less than 0.01px.
       return [...range.getClientRects()].map(rect => [rect.left - bounds.left, rect.top - bounds.top, rect.width, rect.height].map(value => Math.round(value * 100) / 100));
