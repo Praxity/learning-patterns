@@ -179,7 +179,7 @@ for (const [lang, answerLabel, empty, check, show, whole, summary, restart] of [
     document.querySelector('main').innerHTML = render(content, strings[lang], { id: 'general', lang });
     enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings[lang] });
   }, { content, lang });
-  await expect(page.locator('h2.lp-heading')).toHaveText(content.task);
+  await expect(page.locator('h2.lp-stem')).toHaveText(content.task);
   await expect(page.locator('.lp-self-check-meta-list, .lp-self-check-recipient, .lp-self-check-avatar, .lp-scene-icon')).toHaveCount(0);
   const answer = page.getByRole('textbox', { name: answerLabel, exact: true });
   await expect(answer).not.toHaveAttribute('placeholder');
