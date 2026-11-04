@@ -38,7 +38,8 @@ for (const pattern of ['dont-know', 'test-out', 'prolific-questions']) {
         await links.nth(i).click();
         const target = page.locator(`[id="${targets[i]}"]`);
         await expect(target.locator('input').first()).toBeFocused();
-        expect((await target.locator('legend').boundingBox()).y).toBeGreaterThanOrEqual(0);
+        // Sub-pixel rounding can leave the legend a fraction of a pixel above the viewport.
+        expect((await target.locator('legend').boundingBox()).y).toBeGreaterThanOrEqual(-1);
         const events = await page.evaluate(() => window.questionFocus);
         if (i > 0) expect(events.at(-1)).toBe('option');
       }
