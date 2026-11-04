@@ -24,7 +24,7 @@ Explain a lesson in your own words and check which key ideas you included.
 
 It needs a server running a model. If automatic checking is unavailable, the explanation step offers the checklist and model answer.
 
-Write a short lesson, three checklist statements, hints and a model answer. Changing the key ideas also means changing and testing what the model checks.
+Write a short lesson, three checklist statements, hints and a model answer, then update and test the model checks for those ideas.
 
 ## How it works
 
@@ -40,19 +40,9 @@ Prompts to explain connections in learning material produced an average benefit 
 
 ## Accessibility
 
-Text fields keep the full draft, including text over the limit. Checking or saving shows a linked length error instead of cutting text. Limits come from the existing logic constants. The automatic action stays enabled while model configuration loads. An early press waits for configuration, then checks or uses the existing fallback.
-
-Daily proxy caps show and announce the reason and midnight UTC reset once, keep focus in place and leave the fallback usable.
-
 Meets the shared baseline in the root README.
 
-- Results appear on submit and announce one summary without moving focus.
-- While a check runs, "Check my explanation" keeps its label and focus, and pressing it again sends nothing. "Checking your explanation…" appears beside it. If the check takes more than a second, the status region says it once.
-- If automatic checking fails while "Check my explanation" has focus, focus moves to the first idea in the checklist before the button hides. The checklist's legend is the message, so the screen reader reads it once as focus enters the group, and the status region stays empty. If focus is elsewhere, the status region announces the message once.
-- Switching steps reveals the new step, waits for browser layout, focuses its heading, then hides the previous step. Feedback links open the reading step and focus the matching lesson heading. "Read the text again" stays available after a check.
-- Each row has an icon and a word as well as colour. "To add" is orange; "Not sure" is neutral.
-- Without JavaScript, the lesson, answer box, native checklist and model answer appear together. JavaScript adds the step controls. If automatic checking is unavailable, the explanation step offers the checklist and model answer.
-- English and Québec French have the same fields and controls.
+Write three clear checklist statements, a hint for each and a model answer. Without JavaScript, learners see the lesson, answer box, checklist and model answer together.
 
 ## Content fields
 
@@ -73,7 +63,6 @@ Text must be nonempty. The schema and validator reject unknown fields and requir
 ## Logic
 
 Authored text is capped at 120 characters for titles and labels, 400 for questions and prompts, 300 for options, and 1,500 for answers, explanations and passage text. The schema gives each field's limit; `validateContent` enforces it.
-
 
 `logic.js` is pure and imports the gate, idea identities and answer limit from `proxy/logic/`. Keep those browser-safe modules when copying the pattern.
 
@@ -105,6 +94,20 @@ enhance(document.querySelector('[data-lp-pattern="explain-back"]'), { content, s
 ```
 
 The shared `ask(block, fields, { challengeSlot, signal? })` client returns typed answers. Its cached `config()` supplies the English and French data notice. Turnstile loads after a clearance refusal and retries once with the solved token. `AskError.type` is `offline`, `refused`, `busy`, `budget` or `invalid`. Any failure, missing `ask` or failed configuration opens the self-check. The demo uses fixed answers and sends no text.
+
+### Accessibility details
+
+Text fields keep the full draft, including text over the limit. Checking or saving shows a linked length error instead of cutting text. Limits come from the existing logic constants. The automatic action stays enabled while model configuration loads. An early press waits for configuration, then checks or uses the existing fallback.
+
+Daily proxy caps show and announce the reason and midnight UTC reset once, keep focus in place and leave the fallback usable.
+
+- Results appear on submit and announce one summary without moving focus.
+- While a check runs, "Check my explanation" keeps its label and focus, and pressing it again sends nothing. "Checking your explanation…" appears beside it. If the check takes more than a second, the status region says it once.
+- If automatic checking fails while "Check my explanation" has focus, focus moves to the first idea in the checklist before the button hides. The checklist's legend is the message, so the screen reader reads it once as focus enters the group, and the status region stays empty. If focus is elsewhere, the status region announces the message once.
+- Switching steps reveals the new step, waits for browser layout, focuses its heading, then hides the previous step. Feedback links open the reading step and focus the matching lesson heading. "Read the text again" stays available after a check.
+- Each row has an icon and a word as well as colour. "To add" is orange; "Not sure" is neutral.
+- Without JavaScript, the lesson, answer box, native checklist and model answer appear together. JavaScript adds the step controls. If automatic checking is unavailable, the explanation step offers the checklist and model answer.
+- English and Québec French have the same fields and controls.
 
 ## Adapt it with your agent
 

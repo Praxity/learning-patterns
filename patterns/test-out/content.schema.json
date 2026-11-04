@@ -31,7 +31,7 @@
           "correct": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 120 },
           "explanation": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 1500 },
           "options": {
-            "type": "array", "minItems": 2, "x-uniqueBy": "id",
+            "type": "array", "minItems": 2, "maxItems": 7, "x-uniqueBy": "id",
             "items": {
               "type": "object", "required": ["id", "text"], "additionalProperties": false,
               "properties": {

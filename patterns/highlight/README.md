@@ -41,13 +41,11 @@ This pattern asks learners to find key ideas or answer a question, then compare 
 
 Follows the shared baseline in the root README.
 
-- Each chunk is an inline span with a button role and its own tab stop. Tab and Shift+Tab follow passage order. Space or Enter toggles a mark, including in screen-reader browse mode.
-- Arrow shortcuts work when the screen reader passes them to the page. Left or Up moves back; Right or Down moves forward. They wrap at the ends. Home and End jump to the first and last chunks. Each chunk exposes its pressed state and links to keyboard instructions.
-- Checked chunks stay readable and navigable, with feedback beside correct marks, missed targets and other selections.
-- At the limit, selecting another chunk shows and announces a message below the passage. Removing a mark clears it.
-- Found targets have green highlights and solid underlines; missed targets have grey dashed underlines and no highlight. Other selections stay yellow, with an "Incorrect" mark and the author's note in a neutral pill. The marks read "Correct", "Correct answer" for a missed target, and "Incorrect" (French "Correct", "Bonne réponse", "Incorrect"). Icons and words identify outcomes, including in forced colours.
-- Check announces the target count. If Check has focus when it hides, focus moves to Start over. Reset focuses the first chunk silently.
-- Known screen reader behaviour: when NVDA reads line by line and a chunk wraps onto the next line, it says "toggle button, not pressed" again at the start of that line. NVDA does the same for any link that wraps. The chunks stay inline so the passage reads as paragraphs.
+Split the passage into meaningful pieces and explain each selection. Without JavaScript, learners can read the passage and open the targets and authored notes.
+
+### Known issues
+
+when NVDA reads line by line and a chunk wraps onto the next line, it says "toggle button, not pressed" again at the start of that line. NVDA does the same for any link that wraps. The chunks stay inline so the passage reads as paragraphs.
 
 ## Content fields
 
@@ -72,7 +70,6 @@ Text fields must contain non-whitespace text. Unknown fields and duplicate ids a
 ## Logic
 
 Authored text is capped at 120 characters for titles and labels, 400 for questions and prompts, 300 for options, and 1,500 for answers, explanations and passage text. The schema gives each field's limit; `validateContent` enforces it.
-
 
 `logic.js`, `strings.js` and `content.schema.json` have no DOM dependencies. Praxity Studio can use them with its own interface.
 
@@ -114,6 +111,15 @@ const instance = enhance(document.querySelector('[data-lp-pattern="highlight"]')
   content, strings: strings.en
 });
 ```
+
+### Accessibility details
+
+- Each chunk is an inline span with a button role and its own tab stop. Tab and Shift+Tab follow passage order. Space or Enter toggles a mark, including in screen-reader browse mode.
+- Arrow shortcuts work when the screen reader passes them to the page. Left or Up moves back; Right or Down moves forward. They wrap at the ends. Home and End jump to the first and last chunks. Each chunk exposes its pressed state and links to keyboard instructions.
+- Checked chunks stay readable and navigable, with feedback beside correct marks, missed targets and other selections.
+- At the limit, selecting another chunk shows and announces a message below the passage. Removing a mark clears it.
+- Found targets have green highlights and solid underlines; missed targets have grey dashed underlines and no highlight. Other selections stay yellow, with an "Incorrect" mark and the author's note in a neutral pill. The marks read "Correct", "Correct answer" for a missed target, and "Incorrect" (French "Correct", "Bonne réponse", "Incorrect"). Icons and words identify outcomes, including in forced colours.
+- Check announces the target count. If Check has focus when it hides, focus moves to Start over. Reset focuses the first chunk silently.
 
 ## Adapt it with your agent
 

@@ -20,7 +20,7 @@ function matches(value, rule) {
     return !rule['x-optionReference'] || value.options.some(option => option.id === value.correct);
   }
   if (rule.type === 'array') {
-    if (!Array.isArray(value) || value.length < rule.minItems) return false;
+    if (!Array.isArray(value) || value.length < rule.minItems || (rule.maxItems !== undefined && value.length > rule.maxItems)) return false;
     if (rule['x-uniqueBy'] && new Set(value.map(item => item?.id)).size !== value.length) return false;
     return value.every(item => matches(item, rule.items));
   }
@@ -79,6 +79,7 @@ test('content validator and schema agree, with planted violations for every guar
   bad({ ...content, questions: [q, q] }, 'id');
   bad(question({ ...q, correct: 'missing' }), 'correct');
   for (const value of [[], null, 'options', undefined]) bad(question({ ...q, options: value }), 'options');
+  bad(question({ ...q, options: Array.from({ length: 8 }, (_, i) => ({ id: 'option-' + i, text: 'Option ' + i })), correct: 'option-0' }), 'options');
   bad(question({ ...q, options: [null] }), 'options[0]');
   for (const field of ['id', 'text']) for (const value of ['', null, 3, undefined]) bad(question({ ...q, options: [{ ...option, [field]: value }] }), field);
   for (const id of ['bad id', DONT_KNOW]) bad(question({ ...q, options: [{ ...option, id }] }), 'id');
@@ -217,4 +218,16 @@ test('one-third rewards validate and only their display is rounded', () => {
   assert.equal(result.total, 1);
   assert.equal(displayPoints(result.points, false, 'en'), '0.33');
   assert.equal(displayPoints(result.points, false, 'fr'), '0,33');
+});
+
+test('authored options accept seven and reject eight in the validator and schema', async () => {
+  const schema = JSON.parse(await readFile(new URL('./content.schema.json', import.meta.url)));
+  assert.equal(schema.properties.questions.items.properties.options.maxItems, 7);
+  const value = structuredClone(content);
+  const q = value.questions[0];
+  q.options = Array.from({ length: 7 }, (_, i) => ({ id: 'option-' + i, text: 'Option ' + i }));
+  q.correct = 'option-0';
+  assert.doesNotThrow(() => validateContent(value));
+  q.options.push({ id: 'option-7', text: 'Eighth option' });
+  assert.throws(() => validateContent(value), /questions\[0\]\.options/);
 });

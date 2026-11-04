@@ -29,9 +29,7 @@ Name the parts and define each in one line. Write a worked example and at least 
 1. The learner reads a worked example and the definitions.
 2. They choose a part for each fact, shown in random order, and select "Check".
 3. Each choice gets a mark, and a wrong choice also shows the correct part. A running count keeps the score.
-4. "New set" brings another case and keeps the count. Every case appears once before any repeats, even after a reload when the host saves state, and the same case never comes up twice in a row.
-
-There is no pass mark and nothing to complete.
+4. "New set" brings another case and keeps the count.
 
 ## Evidence
 
@@ -41,17 +39,9 @@ The running count records correct placements, without a mastery claim. This patt
 
 ## Accessibility
 
-Check lists a focus button for each unanswered fact. Answering one clears only its own error and button. Each button, and the first missing answer on Check, scrolls the fact's legend into view only when needed before focusing its first option. Each unanswered fact has its own linked message.
-
 Follows the shared baseline in the root README.
 
-- Native radio groups have a legend for each fact. Arrow keys change the selected part; Tab moves between groups and actions.
-- Missing-answer errors describe unanswered groups. Focus on the first unanswered option reads the error once; the status region stays empty.
-- Check moves focus to New set before hiding the action. New set focuses the first answer of the new set after layout settles, inside its fact's group, and scrolls that fact into view. Whether a screen reader also repeats the question depends on the reader and its settings. Restoring checked answers leaves focus where it is.
-- One status region announces each result. Marks use words, icons and borders. New set clears the old announcement; the focused first answer and its fact introduce the new set.
-- Choices stack in narrow containers. Forced colours retain native radios. Reveals are immediate, with shared reduced-motion support.
-
-Without JavaScript, the worked example and source context remain readable. A native "Answers" disclosure lists every case with its part labels. Practice controls stay hidden.
+Give each fact and answer part a clear label. Without JavaScript, learners can read the worked example and source context, then open the answers for every case.
 
 ## Content fields
 
@@ -71,6 +61,8 @@ All text is plain text and escaped at render time. English and Canadian French e
 `validateContent` rejects unknown fields, blank text, duplicate labels and incomplete cases. The schema's `x-uniqueBy` and `x-lengthFrom` annotations describe cross-field rules enforced by `validateContent`; ordinary JSON Schema validators do not enforce them. Authors ensure facts name their person and match the intended part.
 
 ## Logic
+
+Every case appears once before any repeats, even after a reload when the host saves state, and the same case never comes up twice in a row. There is no pass mark and nothing to complete.
 
 `logic.js` and `strings.js` have no DOM code or runtime dependencies.
 
@@ -100,6 +92,18 @@ import content from './patterns/prolific-questions/examples/en.json' with { type
 document.querySelector('main').innerHTML = render(content, strings.en, { id: 'practice', lang: 'en' });
 const instance = enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en });
 ```
+
+### Accessibility details
+
+Check lists a focus button for each unanswered fact. Answering one clears only its own error and button. Each button, and the first missing answer on Check, scrolls the fact's legend into view only when needed before focusing its first option. Each unanswered fact has its own linked message.
+
+- Native radio groups have a legend for each fact. Arrow keys change the selected part; Tab moves between groups and actions.
+- Missing-answer errors describe unanswered groups. Focus on the first unanswered option reads the error once; the status region stays empty.
+- Check moves focus to New set before hiding the action. New set focuses the first answer of the new set after layout settles, inside its fact's group, and scrolls that fact into view. Whether a screen reader also repeats the question depends on the reader and its settings. Restoring checked answers leaves focus where it is.
+- One status region announces each result. Marks use words, icons and borders. New set clears the old announcement; the focused first answer and its fact introduce the new set.
+- Choices stack in narrow containers. Forced colours retain native radios. Reveals are immediate, with shared reduced-motion support.
+
+Without JavaScript, the worked example and source context remain readable. A native "Answers" disclosure lists every case with its part labels. Practice controls stay hidden.
 
 ## Adapt it with your agent
 

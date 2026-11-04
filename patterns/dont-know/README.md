@@ -6,6 +6,7 @@ section: question
 ai: no
 offline: yes
 learners: not tried
+also_called: certainty-based marking
 ---
 # "I don't know" as an answer
 
@@ -99,13 +100,9 @@ This scoring rule and its effect on test anxiety have not been tested. Keep wron
 
 ## Accessibility
 
-Question numbers are captions inside each legend. "I don't know" is last, after an "or" divider. Each unanswered question has a focus button beside Check. Answering it removes only its own error and button. The button scrolls its legend into view only when needed before focusing its first option. Explanations are plain body text under the options.
-
 Follows the shared baseline in the root README.
 
-- Each unanswered question has one error message linked to its group. Its options expose an invalid state. Focus moves to the first unanswered option.
-- Submission focuses the score to announce it once. The status region stays silent. Review links focus the question they name.
-- Start over focuses the first option. Saved results restore without moving focus or making an announcement.
+Write a label for every option and explain the correct answer. Without JavaScript, learners can choose answers and open the answers and explanations, but get no calculated score.
 
 ## Content fields
 
@@ -117,7 +114,7 @@ Content is plain text. Rendering escapes HTML characters.
 | `questions` | At least one question, in display order. |
 | `questions[].id` | Unique question id using letters, digits, underscores or hyphens. |
 | `questions[].text` | Question text shown as the fieldset legend. |
-| `questions[].options` | At least one option. Ids must be unique within the question. |
+| `questions[].options` | One to seven authored options. Ids must be unique within the question. |
 | `questions[].options[].id` | Id using letters, digits, underscores or hyphens. `dont-know` is reserved. |
 | `questions[].options[].text` | Option label. |
 | `questions[].correct` | Id of an option in this question. |
@@ -128,8 +125,9 @@ Content is plain text. Rendering escapes HTML characters.
 
 ## Logic
 
-Authored text is capped at 120 characters for titles and labels, 400 for questions and prompts, 300 for options, and 1,500 for answers, explanations and passage text. The schema gives each field's limit; `validateContent` enforces it.
+Each question accepts at most seven authored options; "I don't know" is added separately.
 
+Authored text is capped at 120 characters for titles and labels, 400 for questions and prompts, 300 for options, and 1,500 for answers, explanations and passage text. The schema gives each field's limit; `validateContent` enforces it.
 
 `logic.js` has no DOM code. Hosts can build their own interface.
 
@@ -168,6 +166,14 @@ const content = {
 document.querySelector('main').innerHTML = render(content, strings.en, { id: 'practice', lang: 'en' });
 const instance = enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en });
 ```
+
+### Accessibility details
+
+Question numbers are captions inside each legend. "I don't know" is last, after an "or" divider. Each unanswered question has a focus button beside Check. Answering it removes only its own error and button. The button scrolls its legend into view only when needed before focusing its first option. Explanations are plain body text under the options.
+
+- Each unanswered question has one error message linked to its group. Its options expose an invalid state. Focus moves to the first unanswered option.
+- Submission focuses the score to announce it once. The status region stays silent. Review links focus the question they name.
+- Start over focuses the first option. Saved results restore without moving focus or making an announcement.
 
 ## Adapt it with your agent
 

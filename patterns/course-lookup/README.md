@@ -22,9 +22,7 @@ Ask about Assertive at work. The decision model picks an authored answer or a se
 
 ## Before you use it
 
-It needs a server running a model. Without JavaScript, or when lookup fails, the page shows that lookup's full FAQ or outline.
-
-Write the answers or section summaries. The server keeps its own copy, so update and test it when the course changes. Added questions stay in the learner's tab and reach no one. Decide who answers them.
+It needs a server running a model. Without JavaScript, or when lookup fails, the page shows that lookup's full FAQ or outline. Write the answers or section summaries, and arrange for your developer to update and test the server copy when the course changes.
 
 ## How it works
 
@@ -32,15 +30,7 @@ Write the answers or section summaries. The server keeps its own copy, so update
 2. An FAQ lookup shows the closest authored answer. A section lookup links the closest course section. When two match about equally well, both appear.
 3. When nothing matches, the learner can add the question to the question bank, where it shows as "Waiting for an answer".
 
-Lookup sends only the question to the decision model, and the Praxity proxy stores none of it. The offline demo uses fixed matches and sends nothing. Automatic lookup stops after 30 checks per page load, shared by every lookup on the page. After that, Enter still looks up. A daily server limit stops lookup and shows the full list.
-
 Without JavaScript, or when lookup fails, the page shows that lookup's full FAQ or outline. The question bank still works when lookup fails.
-
-### Question bank
-
-The demo keeps up to 100 added questions in the browser tab until it's closed. It stores nothing on a server and notifies no one. Three sample entries show answered questions: two answered by an instructor, one by another learner.
-
-In a real course, send questions to the course forum or the instructor's queue, and ask the learner first. For example: "Send this question to the course forum? Other learners and the instructor can read it." Decide who answers and removes questions, and say how long they stay.
 
 ## Evidence
 
@@ -56,19 +46,9 @@ In 44 authored live checks, all 32 single-answer or unanswered cases matched the
 
 ## Accessibility
 
-The field keeps the full question. After a typing pause or Enter, an oversized question shows a linked length error and is not sent for lookup.
-
-Daily proxy caps show and announce the reason and midnight UTC reset once, keep focus in place and leave the fallback usable. Checks then stop until reload.
-
 Meets the shared baseline in the root README.
 
-- Results and the delayed progress line use `aria-live="off"`. One empty `role="status"` region announces a new result. Typing produces no announcements.
-- Enter starts a check. Shift+Enter adds a line break. Composition input finishes before lookup. Links and bank buttons use native keyboard behaviour.
-- Native FAQ disclosures and outline links work without JavaScript. Failed checks reveal the same content.
-- Activating a section result reveals the outline and focuses that entry's link after layout, while keeping the URL fragment.
-- No animation, colour-only feedback or focus movement on results. Adding a question focuses its text in the bank. Removing a question moves focus to the next removal button or the question field. If lookup fails while a lookup control has focus, focus moves to the message "Lookup is unavailable. Browse the list below." before the controls hide. Focus reads the message, so the status region stays empty, and the next Tab reaches the first fallback disclosure or outline link. If focus is elsewhere, the status region announces the message once.
-- English and Québec French use the same controls.
-- Browser checks cover axe, keyboard use, narrow reflow, text spacing, reduced motion and forced colours. Screen reader listening requires a separate human check.
+Write complete answers or section summaries and clear link names. Without JavaScript, learners can browse the full FAQ or outline, but cannot add questions.
 
 ## Content fields
 
@@ -88,8 +68,9 @@ All text is escaped. Unknown fields, wrong IDs and empty text fail validation. K
 
 ## Logic
 
-Authored text is capped at 120 characters for titles and labels, 400 for questions and prompts, 300 for options, and 1,500 for answers, explanations and passage text. The schema gives each field's limit; `validateContent` enforces it.
+Lookup sends only the question to the decision model, and the Praxity proxy stores none of it. The offline demo uses fixed matches and sends nothing. Automatic lookup stops after 30 checks per page load, shared by every lookup on the page. After that, Enter still looks up. A daily server limit stops lookup and shows the full list.
 
+Authored text is capped at 120 characters for titles and labels, 400 for questions and prompts, 300 for options, and 1,500 for answers, explanations and passage text. The schema gives each field's limit; `validateContent` enforces it.
 
 The proxy owns both catalogues and the Choice questions. The browser sends only the question to `20-faq` or `21-sections`. Both use Perplexity Decider v1.1. The best entry must reach 0.35 probability and the decision's confidence must reach 0.35. A second entry appears if its probability also reaches 0.35 and is within 0.20 of the best. A winning or tied `none` suppresses matches. These are selection probabilities, not evidence that an answer is correct.
 
@@ -103,6 +84,12 @@ The proxy owns both catalogues and the Choice questions. The browser sends only 
 `proxy/logic/20-faq.js` and `21-sections.js` own the catalogue IDs and match gates, shared by browser and proxy. `lib/typing-pause.js` exports `typingPause({ minChars = 10, questionMark = true } = {})`, with `key(time)`, `wait()` and `delay(text, checked, enter = false)`. Delay returns milliseconds or `null` when no check is due. [Feedback while you type](../live-feedback/README.md) shares this module, with a 20-character minimum and no question-mark shortcut.
 
 `enhance(root, { content, strings, ask, state })` returns `{ destroy() }`. Repeated calls return the same instance. Optional `state: { read, write }` replaces session storage. Use a separate state adapter for each instance. Invalid saved values are ignored. `destroy()` cancels work, removes listeners and restores server markup. The page allowance survives re-enhancement.
+
+### Question bank
+
+The demo keeps up to 100 added questions in the browser tab until it's closed. It stores nothing on a server and notifies no one. Three sample entries show answered questions: two answered by an instructor, one by another learner.
+
+In a real course, send questions to the course forum or the instructor's queue, and ask the learner first. For example: "Send this question to the course forum? Other learners and the instructor can read it." Decide who answers and removes questions, and say how long they stay.
 
 ## Use it
 
@@ -126,6 +113,21 @@ enhance(document.querySelector('[data-lp-pattern="course-lookup"]'), {
 ```
 
 The default `browserState` adapter uses sessionStorage with the key `lp:course-lookup:<lang>:<question-field-id>`. Give each instance a stable, unique prefix so its bank survives reloads. Use a separate prefix for each course.
+
+### Accessibility details
+
+Browser checks cover axe, keyboard use, narrow reflow, text spacing, reduced motion and forced colours.
+
+The field keeps the full question. After a typing pause or Enter, an oversized question shows a linked length error and is not sent for lookup.
+
+Daily proxy caps show and announce the reason and midnight UTC reset once, keep focus in place and leave the fallback usable. Checks then stop until reload.
+
+- Results and the delayed progress line use `aria-live="off"`. One empty `role="status"` region announces a new result. Typing produces no announcements.
+- Enter starts a check. Shift+Enter adds a line break. Composition input finishes before lookup. Links and bank buttons use native keyboard behaviour.
+- Native FAQ disclosures and outline links work without JavaScript. Failed checks reveal the same content.
+- Activating a section result reveals the outline and focuses that entry's link after layout, while keeping the URL fragment.
+- No animation, colour-only feedback or focus movement on results. Adding a question focuses its text in the bank. Removing a question moves focus to the next removal button or the question field. If lookup fails while a lookup control has focus, focus moves to the message "Lookup is unavailable. Browse the list below." before the controls hide. Focus reads the message, so the status region stays empty, and the next Tab reaches the first fallback disclosure or outline link. If focus is elsewhere, the status region announces the message once.
+- English and Québec French use the same controls.
 
 ## Adapt it with your agent
 

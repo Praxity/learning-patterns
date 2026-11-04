@@ -40,7 +40,7 @@ export function validateContent(content) {
     text(q.id, `${path}.id`);
     if (!/^[a-zA-Z0-9_-]+$/.test(q.id) || ids.has(q.id)) throw new Error(`Invalid ${path}.id`);
     ids.add(q.id);
-    if (!Array.isArray(q.options) || q.options.length === 0) throw new Error(`Invalid ${path}.options`);
+    if (!Array.isArray(q.options) || q.options.length === 0 || q.options.length > 7) throw new Error(`Invalid ${path}.options`);
     const optionIds = new Set();
     q.options.forEach((option, n) => {
       const optionPath = `${path}.options[${n}]`;

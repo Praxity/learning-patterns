@@ -32,7 +32,7 @@ function scalar(name, key, value) {
 /**
  * @param {string} name pattern folder name, used in error messages
  * @param {string} readme the README text
- * @returns {{ title: { en: string, fr: string }, summary: string, section: string, ai: boolean, offline: boolean, learners: string }}
+ * @returns {{ title: { en: string, fr: string }, summary: string, section: string, ai: boolean, offline: boolean, learners: string, also_called?: string }}
  */
 export function readMeta(name, readme) {
   const match = /^---\r?\n([\s\S]*?)\r?\n---\r?\n/.exec(readme);
@@ -50,7 +50,7 @@ export function readMeta(name, readme) {
     if (allowed && !allowed.includes(value)) throw new Error(`${name}/README.md: ${key} must be one of ${allowed.join(', ')}`);
   }
   for (const key of Object.keys(fields)) {
-    if (!(key in REQUIRED)) throw new Error(`${name}/README.md: unknown front matter key ${key}`);
+    if (!(key in REQUIRED) && key !== 'also_called') throw new Error(`${name}/README.md: unknown front matter key ${key}`);
   }
   return {
     title: { en: fields.title, fr: fields.title_fr },
@@ -58,6 +58,7 @@ export function readMeta(name, readme) {
     section: fields.section,
     ai: fields.ai === 'yes',
     offline: fields.offline === 'yes',
-    learners: fields.learners
+    learners: fields.learners,
+    ...(fields.also_called ? { also_called: fields.also_called } : {})
   };
 }

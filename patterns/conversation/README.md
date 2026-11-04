@@ -21,9 +21,7 @@ You changed a work plan without asking Michel. Practise answering him in two rou
 
 ## Before you use it
 
-It needs a server running a model. Without the decision model, five reply buttons replace the reply box and support every path.
-
-Review all replies and endings for your audience. Changing the scenario also means changing and testing what the model checks.
+It needs a server running a model. Without the decision model, five reply buttons replace the reply box and support every path. Review all replies and endings for your audience, and arrange to update and test the model checks when the scenario changes.
 
 ## How it works
 
@@ -31,7 +29,7 @@ Review all replies and endings for your audience. Changing the scenario also mea
 2. Michel responds. The learner replies once more, which ends the conversation.
 3. A review comments on both replies. "Start over" tries another path.
 
-If the model can't place a reply, or the reply is off topic, Michel doesn't respond. The learner gets a line of guidance and the five reply choices, and tries the same turn again. If the first reply asks for a break, Michel agrees and a note reads "Ten minutes later, you're back with Michel." Some endings add a stage note, such as "Michel leaves the meeting."
+If the model can't place a reply, or the reply is off topic, Michel doesn't respond. The learner gets a line of guidance and the five reply choices, and tries the same turn again.
 
 ## Evidence
 
@@ -39,19 +37,9 @@ In a randomized study of 120 healthcare professionals, practising branching conv
 
 ## Accessibility
 
-Text fields keep the full draft, including text over the limit. Checking or saving shows a linked length error instead of cutting text. Limits come from the existing logic constants. The automatic action stays enabled while model configuration loads. An early press waits for configuration, then checks or uses the existing fallback.
-
-Daily proxy caps show and announce the reason and midnight UTC reset once, keep focus in place and leave the fallback usable.
-
 Meets the shared baseline in the root README.
 
-- Each completed turn moves focus to Michel’s new line, including the final line. The reply controls hide or change only after focus arrives, so focus never falls to the page body. Focus announces the line once; the status region stays empty. Tab reaches the reply box, or "Start over" at the end.
-- While a reply is sending, "Say it" keeps its label and focus, and pressing it again sends nothing. "Sending…" appears beside it. If the reply takes more than a second, the status region says "Sending…" once.
-- If automatic checking fails while the reply box or "Say it" has focus, focus moves to the message "Automatic checking is unavailable. Choose a reply to continue." before the reply box hides. Focus reads the message, so the status region stays empty, and the next Tab reaches the first reply. If focus is elsewhere, the status region announces the message once.
-- Unsure and off-script lines use the single status region without moving focus. Disclosures open immediately.
-- Reply buttons have visible focus. Speech bubbles differ in position and speaker label, with borders in forced colours.
-- Without the decision model, five reply buttons replace the reply box and support every path. Without JavaScript, nested disclosures show all 25 paths, stage notes and reviews.
-- English and Québec French use identical fields.
+Review the reply choices, stage notes and endings for your audience. Without JavaScript, learners can open every conversation path and read its review.
 
 ## Content fields
 
@@ -74,8 +62,9 @@ The schema and validator reject unknown fields, missing branch IDs and blank tex
 
 ## Logic
 
-Authored text is capped at 120 characters for titles and labels, 400 for questions and prompts, 300 for options, and 1,500 for answers, explanations and passage text. Avatar `person.initial` is at most two characters; example replies stay capped at 1,200. The schema gives each field's limit; `validateContent` enforces it.
+If the first reply asks for a break, Michel agrees and a note reads "Ten minutes later, you're back with Michel." Some endings add a stage note, such as "Michel leaves the meeting."
 
+Authored text is capped at 120 characters for titles and labels, 400 for questions and prompts, 300 for options, and 1,500 for answers, explanations and passage text. Avatar `person.initial` is at most two characters; example replies stay capped at 1,200. The schema gives each field's limit; `validateContent` enforces it.
 
 `logic.js` imports branch identities, the two-round limit, reply limit and decision model's confidence gate from the browser-safe `proxy/logic/03-contract.js`. That module owns the gate.
 
@@ -108,6 +97,20 @@ enhance(document.querySelector('[data-lp-pattern="conversation"]'), { content, s
 ```
 
 The shared client calls `ask('03-branch', { node, reply }, { challengeSlot, signal })`. Its `config()` supplies the decision model and bilingual data notice below the reply box. Turnstile appears inline after a clearance refusal. Missing `ask`, failed configuration, invalid answers or a failed request opens the reply choices. The demo uses a fixed classification and sends no text.
+
+### Accessibility details
+
+Text fields keep the full draft, including text over the limit. Checking or saving shows a linked length error instead of cutting text. Limits come from the existing logic constants. The automatic action stays enabled while model configuration loads. An early press waits for configuration, then checks or uses the existing fallback.
+
+Daily proxy caps show and announce the reason and midnight UTC reset once, keep focus in place and leave the fallback usable.
+
+- Each completed turn moves focus to Michel’s new line, including the final line. The reply controls hide or change only after focus arrives, so focus never falls to the page body. Focus announces the line once; the status region stays empty. Tab reaches the reply box, or "Start over" at the end.
+- While a reply is sending, "Say it" keeps its label and focus, and pressing it again sends nothing. "Sending…" appears beside it. If the reply takes more than a second, the status region says "Sending…" once.
+- If automatic checking fails while the reply box or "Say it" has focus, focus moves to the message "Automatic checking is unavailable. Choose a reply to continue." before the reply box hides. Focus reads the message, so the status region stays empty, and the next Tab reaches the first reply. If focus is elsewhere, the status region announces the message once.
+- Unsure and off-script lines use the single status region without moving focus. Disclosures open immediately.
+- Reply buttons have visible focus. Speech bubbles differ in position and speaker label, with borders in forced colours.
+- Without the decision model, five reply buttons replace the reply box and support every path. Without JavaScript, nested disclosures show all 25 paths, stage notes and reviews.
+- English and Québec French use identical fields.
 
 ## Adapt it with your agent
 
