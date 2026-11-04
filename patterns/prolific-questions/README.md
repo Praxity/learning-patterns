@@ -1,6 +1,6 @@
 ---
 title: Prolific questions
-title_fr: Des questions pour continuer à s'exercer
+title_fr: Des questions pour continuer à s’exercer
 summary: Answer a multi-part knowledge check on a scenario, example or set of statements, then take another set whenever you want.
 section: question
 ai: no

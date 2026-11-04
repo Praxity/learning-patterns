@@ -324,6 +324,7 @@ select.lp-input[aria-invalid="true"] { padding-inline-end: 39px; }
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+  -webkit-user-select: none;
   user-select: none;
 }
 

@@ -1,6 +1,6 @@
 ---
 title: Spot the misconception
-title_fr: Repérez l'idée fausse
+title_fr: Repérez l’idée fausse
 summary: Answer a study question and compare feedback with a model answer.
 section: question
 ai: yes
