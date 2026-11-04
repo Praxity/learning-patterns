@@ -22,7 +22,7 @@ Ask about Assertive at work. The decision model picks an authored answer or a se
 
 ## Before you use it
 
-It needs a server running a model. Without JavaScript, or when lookup fails, the page shows that lookup's full FAQ or outline. Write the answers or section summaries, and arrange for your developer to update and test the server copy when the course changes.
+It needs a server running a model. Without JavaScript, or when lookup fails, the page shows that lookup's full FAQ or outline. Lookup sends only the question to the model, and the Praxity proxy stores none of it. Write the answers or section summaries, and arrange for your developer to update and test the server copy when the course changes. The demo keeps added questions in the browser tab; in a real course, send them to your forum or instructor queue, and ask the learner first.
 
 ## How it works
 

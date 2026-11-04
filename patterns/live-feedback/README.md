@@ -32,7 +32,7 @@ Write the task, four checklist statements and revision hints. Changing the crite
 2. A checklist of four criteria updates after each check. Met criteria move to the top with a green check. Unmet criteria, and any the model isn't sure about, show a hint.
 3. When all four are met, "Your plan includes all four items." appears and checking stops until the next edit.
 
-From the automatic check limit onward, or when a check fails, the learner ticks the criteria themselves. Without JavaScript, the learner gets the prompt, the answer box and the tick list.
+After 40 automatic checks on a page, or when a check fails, the learner ticks the criteria themselves. Without JavaScript, the learner gets the prompt, the answer box and the tick list.
 
 ## Evidence
 

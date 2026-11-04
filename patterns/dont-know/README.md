@@ -6,7 +6,6 @@ section: question
 ai: no
 offline: yes
 learners: not tried
-also_called: certainty-based marking
 ---
 # "I don't know" as an answer
 
@@ -114,7 +113,7 @@ Content is plain text. Rendering escapes HTML characters.
 | `questions` | At least one question, in display order. |
 | `questions[].id` | Unique question id using letters, digits, underscores or hyphens. |
 | `questions[].text` | Question text shown as the fieldset legend. |
-| `questions[].options` | One to seven authored options. Ids must be unique within the question. |
+| `questions[].options` | One to six authored options. Ids must be unique within the question. |
 | `questions[].options[].id` | Id using letters, digits, underscores or hyphens. `dont-know` is reserved. |
 | `questions[].options[].text` | Option label. |
 | `questions[].correct` | Id of an option in this question. |
@@ -125,7 +124,7 @@ Content is plain text. Rendering escapes HTML characters.
 
 ## Logic
 
-Each question accepts at most seven authored options; "I don't know" is added separately.
+Each question accepts at most six authored options. "I don't know" makes seven choices.
 
 Authored text is capped at 120 characters for titles and labels, 400 for questions and prompts, 300 for options, and 1,500 for answers, explanations and passage text. The schema gives each field's limit; `validateContent` enforces it.
 

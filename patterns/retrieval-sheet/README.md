@@ -82,7 +82,7 @@ Use remains uncertain. Students tend to study when deadlines push them ([Hartwig
 
 Follows the shared baseline in the root README.
 
-Leave enough space for handwritten answers and check printer margins and double-sided settings. Without JavaScript, both sides show in order with the server's date, and learners can use the browser's Print command.
+Printed questions leave space for handwritten answers. Check printer margins and double-sided settings. Without JavaScript, both sides show in order with the server's date, and learners can use the browser's Print command.
 
 ### Known issues
 

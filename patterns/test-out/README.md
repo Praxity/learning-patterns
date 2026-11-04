@@ -6,7 +6,6 @@ section: course
 ai: no
 offline: yes
 learners: not tried
-also_called: pre-test
 ---
 # Pre-test to skip sections
 
@@ -34,7 +33,7 @@ Write one or two questions per section. Decide whether passing can skip sections
 
 ## Evidence
 
-Instruction that helps beginners can hinder learners who already know the material. This is the expertise reversal effect ([Kalyuga et al., 2003](https://doi.org/10.1207/S15326985EP3801_4)). A pre-test can estimate what learners know before instruction. In experiments, a rapid test correlated up to 0.92 with longer tests and helped choose instruction ([Kalyuga and Sweller, 2004](https://doi.org/10.1037/0022-0663.96.3.558)).
+Instruction that helps beginners can hinder learners who already know the material. This is the expertise reversal effect ([Kalyuga et al., 2003](https://doi.org/10.1207/S15326985EP3801_4)). Short tests can estimate what learners know. In experiments, a rapid test correlated up to 0.92 with longer tests and helped choose instruction ([Kalyuga and Sweller, 2004](https://doi.org/10.1037/0022-0663.96.3.558)).
 
 A correct advanced answer can also credit the knowledge it builds on. This follows knowledge space theory, the basis of ALEKS ([Doignon and Falmagne, 1985](https://doi.org/10.1016/S0020-7373(85)80031-6)), and Math Academy's diagnostic ([Math Academy](https://mathacademy.com/how-our-ai-works)). Mastery learning programs require evidence of mastery before learners move on. They improved exam performance in a meta-analysis of 108 evaluations ([Kulik, Kulik and Bangert-Drowns, 1990](https://doi.org/10.3102/00346543060002265)).
 

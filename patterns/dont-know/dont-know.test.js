@@ -220,14 +220,14 @@ test('one-third rewards validate and only their display is rounded', () => {
   assert.equal(displayPoints(result.points, false, 'fr'), '0,33');
 });
 
-test('authored options accept seven and reject eight in the validator and schema', async () => {
+test('authored options accept six and reject seven in the validator and schema', async () => {
   const schema = JSON.parse(await readFile(new URL('./content.schema.json', import.meta.url)));
-  assert.equal(schema.properties.questions.items.properties.options.maxItems, 7);
+  assert.equal(schema.properties.questions.items.properties.options.maxItems, 6);
   const value = structuredClone(content);
   const q = value.questions[0];
-  q.options = Array.from({ length: 7 }, (_, i) => ({ id: 'option-' + i, text: 'Option ' + i }));
+  q.options = Array.from({ length: 6 }, (_, i) => ({ id: 'option-' + i, text: 'Option ' + i }));
   q.correct = 'option-0';
   assert.doesNotThrow(() => validateContent(value));
-  q.options.push({ id: 'option-7', text: 'Eighth option' });
+  q.options.push({ id: 'option-6', text: 'Seventh option' });
   assert.throws(() => validateContent(value), /questions\[0\]\.options/);
 });

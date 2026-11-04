@@ -22,7 +22,9 @@ Reflect on practising assertiveness this week. Save your entry in your tab or as
 
 ## Before you use it
 
-It needs a server running a model. Without the decision model, all four questions open, with the support text below them. Replace the support text with real help for every learner and test the model with your own examples; its distress check is unreliable and contacts no one.
+It needs a server running a model. Without the decision model, all four questions open, with the support text below them. The entry stays in the browser tab, and saving sends nothing.
+
+The distress check is unreliable and contacts no one. Replace the support text with real help for every learner, and test the model with your own examples.
 
 ## How it works
 

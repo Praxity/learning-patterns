@@ -45,7 +45,7 @@ Split the passage into meaningful pieces and explain each selection. Without Jav
 
 ### Known issues
 
-when NVDA reads line by line and a chunk wraps onto the next line, it says "toggle button, not pressed" again at the start of that line. NVDA does the same for any link that wraps. The chunks stay inline so the passage reads as paragraphs.
+When NVDA reads line by line and a chunk wraps onto the next line, it says "toggle button, not pressed" again at the start of that line. NVDA does the same for any link that wraps. The chunks stay inline so the passage reads as paragraphs.
 
 ## Content fields
 

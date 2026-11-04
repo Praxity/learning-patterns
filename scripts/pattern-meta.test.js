@@ -26,11 +26,6 @@ test('reads titles, summary, section and facets', () => {
   });
 });
 
-test('reads optional comma-separated aliases without changing metadata without aliases', () => {
-  assert.equal(readMeta('x', valid).also_called, undefined);
-  assert.equal(readMeta('x', valid.replace('section: question', 'also_called: placement test, pre-test\nsection: question')).also_called, 'placement test, pre-test');
-});
-
 test('refuses missing front matter, missing keys, bad values and unknown keys', () => {
   assert.throws(() => readMeta('x', '# Title\n'), /x\/README.md: missing front matter/);
   assert.throws(() => readMeta('x', valid.replace('summary: Write an answer, tick the parts it includes, then compare.\n', '')), /needs summary/);
@@ -98,7 +93,7 @@ function checkReadmeStructure(readme, name = 'pattern') {
   assert.ok(fallback.length <= 1 && fallback.every(text => !/^(?:\s*\d+[.)]\s|\s*[-*+]\s|\s*#|\s*>|\s*\|)/m.test(text)), 'How it works allows at most one fallback paragraph');
   const accessibility = readme.split(/^## Accessibility\r?$/m)[1].split(/^## /m)[0].split(/^### Known issues\r?$/m)[0];
   assert.doesNotMatch(accessibility, /`|\b[A-Za-z_$][\w.$]*\s*\(/, 'Accessibility contains code');
-  assert.doesNotMatch(readme, /still to come|separate human check|requires a separate human|remain separate/i, 'README contains stale screen reader wording');
+  assert.doesNotMatch(readme, /still to come|separate human check|requires a separate human|checks remain separate/i, 'README contains stale screen reader wording');
   // READMEs are public. They never mention how they were written or where files sit on a machine.
   assert.doesNotMatch(prose, INTERNAL, 'README contains internal phrasing');
   assert.doesNotMatch(prose, /—/, 'README contains an em dash');
@@ -148,7 +143,7 @@ test('README structure guard catches missing, reordered and technical sections',
   }
   assert.doesNotThrow(() => checkReadmeStructure(readme.replace('1. You read the question.', '1. One.\n2. Two.\n\nWithout JavaScript, read the answers.')));
   assert.doesNotThrow(() => checkReadmeStructure(readme.replace('## Accessibility\n\nPlain text.', '## Accessibility\n\nPlain text.\n\n### Known issues\n\nThe reader repeats `button`.')));
-  for (const phrase of ['still to come', 'separate human check', 'requires a separate human', 'remain separate']) {
+  for (const phrase of ['still to come', 'separate human check', 'requires a separate human', 'checks remain separate']) {
     assert.throws(() => checkReadmeStructure(readme.replace('## Accessibility\n\nPlain text.', `## Accessibility\n\nScreen reader checks ${phrase}.`)), /stale screen reader wording/);
   }
   for (const phrase of ['The supplied research notes say so.', 'See demo 21.', 'A worker wrote this.', 'Logs are in D:/tmp/x.', 'As the brief asks.', 'Short \u2014 long.']) {
@@ -169,7 +164,7 @@ test('every pattern README has the shared structure and plain learner steps', as
 
 test('the root README lists every pattern folder', async () => {
   const readme = await readFile(new URL('../README.md', import.meta.url), 'utf8');
-  assert.doesNotMatch(readme, /still to come|separate human check|requires a separate human|remain separate/i, 'README contains stale screen reader wording');
+  assert.doesNotMatch(readme, /still to come|separate human check|requires a separate human|checks remain separate/i, 'README contains stale screen reader wording');
   for (const entry of await readdir(new URL('../patterns/', import.meta.url), { withFileTypes: true })) {
     if (entry.isDirectory()) assert.ok(readme.includes(`](patterns/${entry.name}/README.md)`), `README.md does not list ${entry.name}`);
   }
