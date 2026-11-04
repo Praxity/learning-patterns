@@ -130,6 +130,7 @@ for (const width of [1280, 390]) {
       expect(await gap(end.locator('h3'), end.locator('label:not(.lp-choice)'))).toBeCloseTo(12, 1);
       expect(await gap(end.locator('label:not(.lp-choice)'), end.locator('textarea'))).toBeCloseTo(8, 1);
       await page.locator('[data-lp-restart]').click();
+      await page.getByRole('button', { name: 'Delete', exact: true }).click();
     }
   });
 
