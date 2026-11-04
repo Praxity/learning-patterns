@@ -16,6 +16,10 @@ export namespace strings {
         let tryAgain: string;
         let restart: string;
         let cleared: string;
+        let confirmDeleteBoth: string;
+        let confirmDeleteOne: string;
+        let deleteAnswer: string;
+        let keepAnswer: string;
         let noScript: string;
         let empty: string;
         let tooLong: string;
@@ -56,6 +60,14 @@ export namespace strings {
         export { restart_1 as restart };
         let cleared_1: string;
         export { cleared_1 as cleared };
+        let confirmDeleteBoth_1: string;
+        export { confirmDeleteBoth_1 as confirmDeleteBoth };
+        let confirmDeleteOne_1: string;
+        export { confirmDeleteOne_1 as confirmDeleteOne };
+        let deleteAnswer_1: string;
+        export { deleteAnswer_1 as deleteAnswer };
+        let keepAnswer_1: string;
+        export { keepAnswer_1 as keepAnswer };
         let noScript_1: string;
         export { noScript_1 as noScript };
         let empty_1: string;

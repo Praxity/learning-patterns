@@ -29,7 +29,7 @@ Ask your developer to save the first answer between visits. Without that, the an
 1. Early in the course, the learner writes an answer and saves it. It's kept as written, with the date.
 2. At the end of the course, they answer the same question and select "Compare".
 3. Their first answer appears below the new one. They tick the improvements they notice, and a counter adds them up.
-4. "Try again" lets them rewrite the new answer and keeps the first answer and the ticks. "Start over" clears everything.
+4. "Try again" lets them rewrite the new answer and keeps the first answer and the ticks. "Start over" asks "Delete both answers?", or "Delete your answer?" when only one is saved. "Delete" clears everything; "Keep" cancels.
 
 ## Evidence
 
@@ -49,6 +49,7 @@ Follows the shared baseline in the root README.
 - Blank or long answers get errors linked to the text box. Saving focuses Skip in the demo, or the saved entry in a first-only placement.
 - Compare focuses the revealed Day one heading before the saved answer and improvement checks.
 - Try again silently focuses the current-answer field. Reset focuses the first-answer field, or the current-answer field in an end-only placement.
+- Start over focuses an inline confirmation question, followed by Delete and Keep. Keep or Escape closes it and returns focus to Start over without an announcement. Delete announces the reset and focuses the answer field.
 - Storage problems show visible messages. Valid entries restore silently.
 
 ## Content fields
