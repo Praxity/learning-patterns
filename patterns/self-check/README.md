@@ -13,11 +13,16 @@ Write an answer, tick the parts it includes, then compare with a model. Hints he
 
 ## Use it when
 
-Use it when learners can check their answers against a short list of clear parts. It works offline and can help you compare self-checking with automated feedback.
+- Use it when learners can check their answers against a short list of clear parts. It works offline and can help you compare self-checking with automated feedback.
 
 ## Avoid it when
 
-The pattern does not judge the learner's text.
+- When you need automatic feedback on a short action plan, use [Feedback while you type](../live-feedback/README.md).
+- When you need a grade, use an assessment. Checklist ticks record the learner's own judgment.
+
+## Before you use it
+
+Write the task, a short checklist, a hint for each missing part and a model answer. Make each checklist statement clear enough for learners to judge their own work.
 
 ## How it works
 
@@ -107,6 +112,15 @@ For an email task, add `context: { to: 'Sam', initials: 'S', subject: 'Report' }
 Copy this prompt and fill in your topic and audience.
 
 > Rewrite the self-check examples for [topic] and [audience]. Ask for an answer learners could use at work. Keep `{ task, parts: [{ id, label, missed, evidence }], model }`. Email tasks may add `context: { to, initials, subject }` and an optional `placeholder`. Use unique part ids. Evidence must occur exactly once in the model, or be null for a whole-answer part. Write clear part labels and specific hints. Keep English and Québec French together; use vous in French. A model may only choose authored messages. Follow the pattern contract, including state, accessibility and CSS tokens. Update examples and tests. Show both languages for review.
+
+## Related patterns
+
+- [Feedback while you type](../live-feedback/README.md)
+- [Explain what you learned](../explain-back/README.md)
+
+## Help improve this pattern
+
+Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Check%20your%20own%20answer). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/self-check/README.md).
 
 ## Licence
 

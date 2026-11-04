@@ -19,13 +19,13 @@ Split a fixed total across two to six options by moving dividers on one bar. Com
 
 ## Avoid it when
 
-Use separate questions when the values do not share one total. Supply enough context for a learner to make an informed estimate.
+- When values do not share one total, use separate questions. For estimates of independent quantities, use [Estimate magnitude](../estimate-magnitude/README.md).
 
-## Setting it up
+## Before you use it
 
-Write two to six options and the real split, with its source. Choose the total, unit, step and largest gap that counts as close. The total can be 100%, 10 points or a 40-hour week. The example's figures are made up.
+Write two to six options and the real split, with its source. Choose the total, unit, step and largest gap that counts as close. Supply enough context for an informed estimate.
 
-Write the option-column heading for your topic, such as "Cause" or "Work". English labels are lowercased in the summary; start them with a common noun and avoid acronyms or proper names that need their original capitals. French summaries quote labels as authored.
+Write a heading for the options. English summaries lowercase option labels, so start them with common nouns and avoid acronyms or proper names that need capitals. French summaries keep labels as written.
 
 ## How it works
 
@@ -106,6 +106,15 @@ Pattern colour tokens `--lp-split-by-proportion-a` through `--lp-split-by-propor
 ## Adapt it with your agent
 
 > Adapt the examples to [topic] for [audience]. Keep the content fields and two to six options. Cite the source of the real split. Choose a total, unit, step and close threshold that fit the task. Keep every real share nonnegative and the sum equal to the total. Write English and Canadian French together using vous. Preserve divider pushing, tap and keyboard access, the no-JavaScript answer table, one status region, saved state and reflow.
+
+## Related patterns
+
+- [Estimate magnitude](../estimate-magnitude/README.md)
+- [Draw your guess](../draw-your-guess/README.md)
+
+## Help improve this pattern
+
+Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Split%20by%20proportion). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/split-by-proportion/README.md).
 
 ## Licence
 

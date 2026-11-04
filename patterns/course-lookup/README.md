@@ -13,15 +13,18 @@ Ask about Assertive at work. The decision model picks an authored answer or a se
 
 ## Use it when
 
-Use it across a course with a small, stable catalogue. The demo has eight FAQ entries and six course sections.
+- Use it across a course with a small, stable catalogue. The demo has eight FAQ entries and six course sections.
 
 ## Avoid it when
 
-## Setting it up
+- When you need to search a large or changing catalogue, use a course search tool. This example relies on a small, fixed catalogue.
+- When learners need to recall an answer before seeing it, use [Questions inside the reading](../review-prompts/README.md).
 
-Both shapes use the same renderer and enhancer, configured with `kind: 'faq' | 'sections'`.
+## Before you use it
 
-For catalogues with more than about 30 entries, first narrow the candidates with embeddings. Check the chosen candidates against the learner's question before showing them.
+It needs a server running a model. Without JavaScript, or when lookup fails, the page shows that lookup's full FAQ or outline.
+
+Write and check the answers or section summaries. Changing the course also means changing and testing the model's catalogue. Added questions stay in the browser tab and notify no one; decide who will answer them in your course.
 
 ## How it works
 
@@ -101,6 +104,8 @@ The proxy owns both catalogues and the Choice questions. The browser sends only 
 
 ## Use it
 
+Both shapes use the same renderer and enhancer, configured with `kind: 'faq' | 'sections'`. For catalogues with more than about 30 entries, first narrow the candidates with embeddings. Check the chosen candidates against the learner's question before showing them.
+
 Each block asks one Choice question with a 500-character cap. Each reserves at most 8,192 input tokens, including catalogue, escaped UTF-8 state and 1,024 framing tokens. Request and cost-guard tests cover these bounds and failed calls.
 
 Copy this folder, `lib/` and both proxy decision modules, preserving relative imports. Include `lib/base.css` before `pattern.css`. For live checks, set up the [proxy](../../proxy/README.md). Keep server catalogues and gates with it. Check the provider's data terms, and name the provider in the course introduction or terms of participation.
@@ -123,6 +128,15 @@ The default `browserState` adapter uses sessionStorage with the key `lp:course-l
 ## Adapt it with your agent
 
 > Replace the FAQ and outline for [course]. Keep one shared renderer and enhancer, server-owned Choice catalogues, authored answers and a browser-only bank. Write English and Québec French together, using vous. Calibrate the questions and gates before using live lookup with learners.
+
+## Related patterns
+
+- [Questions inside the reading](../review-prompts/README.md)
+- [Feedback while you type](../live-feedback/README.md)
+
+## Help improve this pattern
+
+Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Instant%20course%20lookup). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/course-lookup/README.md).
 
 ## Licence
 

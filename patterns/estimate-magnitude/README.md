@@ -18,7 +18,12 @@ Slide a range until it holds your estimate, then see which answers your ranges c
 
 ## Avoid it when
 
-Use another interaction for quantities below one or when learners need an exact answer.
+- When quantities are below one or answers must be exact, use a numeric question with a checked answer.
+- When learners need to predict a trend, use [Draw your guess](../draw-your-guess/README.md). For shares of one total, use [Split by proportion](../split-by-proportion/README.md).
+
+## Before you use it
+
+Write three to five questions, with answers and sources. Give enough context to reason toward each answer. Choose how wide the ranges should be: the high end can be 10, 100 or 1,000 times the low end.
 
 ## How it works
 
@@ -106,6 +111,15 @@ const instance = enhance(document.querySelector('[data-lp-pattern="estimate-magn
 ## Adapt it with your agent
 
 > Adapt the Estimate magnitude examples for [topic] and [audience]. Keep `{ title, context, ratio, questions: [{ question, unit, answer, source }] }`, with optional `ratio` defaulting to 10. Write three to five questions with quantities from 1 through 1e12, using context a newcomer can reason from. Supply each real answer and source. Keep the fixed-ratio bands, logarithmic stops, keyboard and pointer controls, sources, no-JS answers, state and Try again. Write English and Québec French together, using vous. Update examples and tests. Show both languages for review.
+
+## Related patterns
+
+- [Draw your guess](../draw-your-guess/README.md)
+- [Split by proportion](../split-by-proportion/README.md)
+
+## Help improve this pattern
+
+Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Estimate%20magnitude). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/estimate-magnitude/README.md).
 
 ## Licence
 

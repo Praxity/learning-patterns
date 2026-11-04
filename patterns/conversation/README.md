@@ -13,11 +13,17 @@ You changed a work plan without asking Michel. Practise answering him in two rou
 
 ## Use it when
 
-Use it to practise a difficult workplace conversation. You can acknowledge the impact, defend the change, attack, withdraw or ask for a pause. Michel responds to each choice. The review explains the effects of your two replies.
+- Use it to practise a difficult workplace conversation. You can acknowledge the impact, defend the change, attack, withdraw or ask for a pause. Michel responds to each choice. The review explains the effects of your two replies.
 
 ## Avoid it when
 
-It gives no score.
+- When you need a score for conversation skills, use an assessed role-play. This pattern gives feedback without a score.
+
+## Before you use it
+
+It needs a server running a model. Without the decision model, five reply buttons replace the reply box and support every path.
+
+Review all replies and endings for your audience. Changing the scenario also means changing and testing what the model checks.
 
 ## How it works
 
@@ -102,6 +108,15 @@ The shared client calls `ask('03-branch', { node, reply }, { challengeSlot, sign
 ## Adapt it with your agent
 
 > Adapt the example replies and reviews for [audience]. Keep the work-plan scenario, five branch IDs, two rounds, Michel’s opening and first lines, and all 25 endings. Write one plain review sentence per response and keep example replies under 1,200 characters. Write English and Québec French together, using vous. Keep authored dialogue and no scores.
+
+## Related patterns
+
+- [Journal entry with a nudge](../journal/README.md)
+- [Check your own answer](../self-check/README.md)
+
+## Help improve this pattern
+
+Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Scenario%20talk-through). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/conversation/README.md).
 
 ## Licence
 

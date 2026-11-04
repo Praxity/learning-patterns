@@ -13,11 +13,18 @@ Write three actions to become more assertive at work. A checklist updates when y
 
 ## Use it when
 
-Use it for short action plans, outline-like writing assignments, and generally to give learners immediate feedback on responses that can be classified. This example checks for three different actions a colleague could see or hear, a time or situation, and your own commitments. The feedback helps you revise.
+- Use it for short action plans, outline-like writing assignments, and generally to give learners immediate feedback on responses that can be classified. This example checks for three different actions a colleague could see or hear, a time or situation, and your own commitments. The feedback helps you revise.
 
 ## Avoid it when
 
-It gives no grade.
+- When responses cannot be checked against a few clear criteria, use feedback from a person. For a learner-led checklist, use [Check your own answer](../self-check/README.md).
+- When you need a grade, use an assessment. This pattern helps learners revise.
+
+## Before you use it
+
+It needs a server running a model. Request or configuration failures open the self-check.
+
+Write the task, four checklist statements and revision hints. Changing the criteria also means changing and testing what the model checks.
 
 ## How it works
 
@@ -102,6 +109,15 @@ The shared client calls `ask('02-live', { answer }, { challengeSlot, signal })` 
 ## Adapt it with your agent
 
 > Adapt the action plan for [audience]. Keep three different observable actions, at least one time or situation, and the learner’s own commitments. Keep the four criterion IDs, fields and authored feedback. Write English and Québec French together, using vous. Preserve the pause, unfinished-sentence rule, page allowance, completion pause, announcements, data notice and self-check. Evaluate any changed proxy questions before use.
+
+## Related patterns
+
+- [Check your own answer](../self-check/README.md)
+- [Explain what you learned](../explain-back/README.md)
+
+## Help improve this pattern
+
+Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Feedback%20while%20you%20type). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/live-feedback/README.md).
 
 ## Licence
 
