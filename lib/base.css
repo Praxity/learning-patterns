@@ -86,7 +86,8 @@
 .lp :where(.lp-small:not([hidden])) + :where(.lp-input),
 .lp :where(.lp-small:not([hidden])) + :where([hidden]) + :where(.lp-input) { margin-block-start: var(--lp-gap-label); }
 .lp :where(.lp-input:not([hidden]), .lp-choices:not([hidden])) + :where(.lp-small, .lp-error-text),
-.lp :where(.lp-input:not([hidden]), .lp-choices:not([hidden])) + :where([hidden]) + :where(.lp-small, .lp-error-text) { margin-block-start: var(--lp-gap-label); }
+.lp :where(.lp-input:not([hidden]), .lp-choices:not([hidden])) + :where([hidden]) + :where(.lp-small, .lp-error-text),
+.lp :where(.lp-input:not([hidden]), .lp-choices:not([hidden])) + :where([hidden]) + :where([hidden]) + :where(.lp-small, .lp-error-text) { margin-block-start: var(--lp-gap-label); }
 
 /* Text roles */
 .lp-stem { font-family: var(--lp-font-heading); font-size: var(--lp-type-h3); font-weight: 600; line-height: 1.3; letter-spacing: -.005em; }
