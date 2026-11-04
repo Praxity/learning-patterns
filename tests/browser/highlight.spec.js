@@ -76,11 +76,11 @@ const punctuation = {
 };
 const formattedPunctuation = [
   'Pourquoi partir\u202f?',
-  'Voici\u202f: une pause\u202f; revenez\u202f!',
-  'Elle dit «\u202fje reviens\u202f».',
-  'Déjà\u00a0: «\u00a0oui\u00a0» et pourquoi\u00a0?',
-  'Déjà\u202f: «\u202foui\u202f» et pourquoi\u202f?',
-  'Elle dit\u202f: «\u202f<oui> & "merci"\u202f»!'
+  'Voici\u00a0: une pause\u202f; revenez\u202f!',
+  'Elle dit « je reviens ».',
+  'Déjà : « oui » et pourquoi ?',
+  'Déjà : « oui » et pourquoi ?',
+  'Elle dit : « <oui> & "merci" » !'
 ];
 
 for (const lang of ['fr', 'fr-CA']) {
@@ -258,7 +258,7 @@ test('pointer toggles preserve server passage nodes, count marks and use a warm 
 
 for (const [lang, content, singular, plural] of [
   ['en', english, 'You can mark one passage. Unmark it to choose another.', 'You can mark up to 2 passages. Unmark one to choose another.'],
-  ['fr', french, "Vous pouvez marquer un passage. Enlevez sa marque pour en choisir un autre.", "Vous pouvez marquer jusqu'à 2 passages. Enlevez une marque pour en choisir un autre."]
+  ['fr', french, "Vous pouvez marquer un passage. Enlevez sa marque pour en choisir un autre.", "Vous pouvez marquer jusqu’à 2 passages. Enlevez une marque pour en choisir un autre."]
 ]) {
   for (const max of [1, 2]) {
     test(`mark cap refuses pointer and keyboard additions, announces once and clears on removal (${lang}, ${max})`, async ({ page }) => {

@@ -25,7 +25,7 @@ for (const lang of ['en', 'fr']) test(`step focus follows layout and precedes hi
       });
     });
   });
-  const ready = page.getByRole('button', { name: lang === 'en' ? "I'm ready to explain it" : "Passer à l'explication", exact: true });
+  const ready = page.getByRole('button', { name: lang === 'en' ? "I'm ready to explain it" : "Passer à l’explication", exact: true });
   const readAgain = page.getByRole('button', { name: lang === 'en' ? 'Read the text again' : 'Relire le texte', exact: true });
   await ready.click();
   await expect(page.locator('#example-task')).toBeFocused();
@@ -98,7 +98,7 @@ async function open(page, lang = 'en', values = [1, 1, 0], mode = 'ok', reading 
   await page.goto(`/explain-back/${lang}.html`);
   await page.waitForFunction(() => window.lpReady);
   if (mode !== 'missing') await expect(page.locator('[data-lp-check]')).toBeEnabled();
-  const ready = page.getByRole('button', { name: lang === 'fr' ? "Passer \u00e0 l'explication" : "I'm ready to explain it" });
+  const ready = page.getByRole('button', { name: lang === 'fr' ? "Passer \u00e0 l’explication" : "I'm ready to explain it" });
   if (!reading && await ready.isVisible()) {
     await ready.click();
     await expect(page.locator('#example-task')).toBeFocused();
@@ -125,7 +125,7 @@ for (const lang of ['en', 'fr']) {
     page.on('request', request => requests.push(request.url()));
     await open(page, lang, [1, 1, 0], 'ok', true);
     await expect(page.locator('.lp-box')).toBeHidden();
-    const ready = page.getByRole('button', { name: lang === 'fr' ? "Passer \u00e0 l'explication" : "I'm ready to explain it" });
+    const ready = page.getByRole('button', { name: lang === 'fr' ? "Passer \u00e0 l’explication" : "I'm ready to explain it" });
     await ready.focus(); await page.keyboard.press('Enter');
     await expect(page.locator('#example-task')).toBeFocused();
     await expect(page.locator('.lp-explain-back-lesson')).toBeHidden();
@@ -148,7 +148,7 @@ for (const lang of ['en', 'fr']) {
     await expect(page.locator('[data-lp-mark="correct"]')).toHaveCount(3);
     await expect(page.locator('[data-lp-model]')).toHaveAttribute('open', '');
     await expect(page.locator('[data-lp-model] p')).toHaveText(examples[lang].model);
-    expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([lang === 'fr' ? 'Idées clés\u202f: 3 sur 3' : '3 of 3 key ideas']);
+    expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([lang === 'fr' ? 'Idées clés\u00a0: 3 sur 3' : '3 of 3 key ideas']);
     expect(await page.evaluate(() => window.lpTestCalls)).toEqual([{ block: '07-explain-back', fields: { answer: 'My explanation' }, slot: true }]);
     await axe(page);
   });

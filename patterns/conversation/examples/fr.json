@@ -25,7 +25,7 @@
         "pause": "D’accord. Dix minutes."
       },
       "move": "Vous avez défendu le changement",
-      "debrief": "Rejeter la faute sur quelqu'un d'autre ne règle pas le travail supplémentaire de Michel."
+      "debrief": "Rejeter la faute sur quelqu’un d’autre ne règle pas le travail supplémentaire de Michel."
     },
     "attack": {
       "line": "J’essaie de parler du plan. Peut-on en discuter sans s’attaquer l’un à l’autre ?",
@@ -37,7 +37,7 @@
         "pause": "Oui. À quinze heures."
       },
       "move": "Vous avez attaqué Michel",
-      "debrief": "Attaquer Michel rend l'entente sur le plan plus difficile."
+      "debrief": "Attaquer Michel rend l’entente sur le plan plus difficile."
     },
     "withdraw": {
       "line": "Il faut encore régler le plan. Acceptez-vous de revenir à cette conversation ?",
@@ -49,7 +49,7 @@
         "pause": "D’accord. Après le dîner, alors."
       },
       "move": "Vous avez fermé la conversation",
-      "debrief": "Quitter la discussion sans convenir d'un retour laisse le problème en suspens."
+      "debrief": "Quitter la discussion sans convenir d’un retour laisse le problème en suspens."
     },
     "pause": {
       "line": "D’accord. Prenons dix minutes, puis revenons pour nous entendre sur le plan.",

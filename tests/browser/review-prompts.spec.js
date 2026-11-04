@@ -73,7 +73,7 @@ test('article metadata uses authored text in French and progress restores withou
   await page.addInitScript(() => { window.lpSeed = { results: { stonewalling: { result: 'forgot', reviewOn: '2026-10-07' } } }; });
   await open(page, '/review-prompts/fr.html');
   const root = page.locator('[data-lp-pattern]');
-  await expect(root.getByRole('heading', { level: 2 })).toHaveText("L'évitement");
+  await expect(root.getByRole('heading', { level: 2 })).toHaveText("L’évitement");
   await expect(root.locator('header > .lp-small').first()).toHaveText('1 min de lecture');
   await expect(root.locator('[data-lp-progress]')).toHaveText('Questions revues : 1 sur 1');
   await expect(root.getByRole('status')).toHaveText('');
@@ -293,11 +293,11 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
 test('French root, answer and date use French strings and fr-CA formatting', async ({ page }) => {
   await open(page, '/review-prompts/fr.html'); await observe(page);
   await expect(page.locator('[data-lp-pattern]')).toHaveAttribute('lang', 'fr');
-  await part(page).getByRole('button', { name: "J'ai ma réponse", exact: true }).click();
+  await part(page).getByRole('button', { name: "J’ai ma réponse", exact: true }).click();
   await expect(part(page).getByRole('region', { name: 'Réponse' })).toBeFocused();
   await expect(part(page).locator('[data-lp-answer]')).toHaveText(french.parts[0].answer);
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
-  await part(page).getByRole('button', { name: "Je m'en souvenais" }).click();
+  await part(page).getByRole('button', { name: "Je m’en souvenais" }).click();
   await expect(part(page).locator('[data-lp-review]')).toHaveText('Révisez de nouveau le vendredi 9 octobre 2026');
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Révisez de nouveau le vendredi 9 octobre 2026']);
 });

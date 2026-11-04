@@ -1,14 +1,14 @@
 {
   "title": "Prévoyez les appels au soutien informatique",
   "context": "En mars, le soutien informatique recevait 120 appels par jour, dont 45 pour réinitialiser un mot de passe. Le 1er avril, une page a été mise en ligne pour que le personnel puisse le faire sans aide.",
-  "question": "Combien d'appels par jour prévoyez-vous d'avril à juillet ?",
+  "question": "Combien d’appels par jour prévoyez-vous d’avril à juillet ?",
   "unit": "appels par jour",
   "top": 150,
   "step": 5,
   "changeLabel": "Réinitialisation en ligne",
   "realLabel": "Appels réels",
   "resultTitle": "Appels par jour après la mise en ligne de la page",
-  "explanationLabel": "Pourquoi la courbe s'est stabilisée :",
+  "explanationLabel": "Pourquoi la courbe s’est stabilisée :",
   "explanation": "La plupart des membres du personnel ont trouvé la page en un mois. Les appels pour un mot de passe sont donc passés de 45 par jour à environ 4. Les 75 autres appels par jour concernaient des problèmes que la page ne pouvait pas régler.",
   "source": "Journal des appels au soutien informatique, de décembre à juillet",
   "known": [
