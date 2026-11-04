@@ -41,9 +41,13 @@ Learners tend to rate their own work generously ([Dunlosky and Rawson, 2012](htt
 
 ## Accessibility
 
-Text fields keep the full draft, including text over the limit. Checking or saving shows a linked length error instead of cutting text. Limits come from the existing logic constants.
-
 Follows the shared baseline in the root README.
+
+Write a clear prompt and labels for the improvements learners should look for. Without JavaScript, learners see the prompt, a first-answer box and a note about saving, but cannot save or compare answers.
+
+### Accessibility details
+
+Text fields keep the full draft, including text over the limit. Checking or saving shows a linked length error instead of cutting text. Limits come from the existing logic constants.
 
 - Saved entries show the date and time in the placement's language. First and current answers have separate labels.
 - Blank or long answers get errors linked to the text box. Saving focuses Skip in the demo, or the saved entry in a first-only placement.
@@ -68,7 +72,6 @@ Strings must be nonempty. `validateContent` rejects unknown fields and duplicate
 ## Logic
 
 Authored text is capped at 120 characters for titles and labels, 400 for questions and prompts, 300 for options, and 1,500 for answers, explanations and passage text. The schema gives each field's limit; `validateContent` enforces it.
-
 
 `logic.js` has no DOM code. Hosts can use it with their own interface.
 

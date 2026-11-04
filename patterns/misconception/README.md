@@ -41,15 +41,9 @@ Refutation texts produced an average learning benefit of 0.41 standard deviation
 
 ## Accessibility
 
-Text fields keep the full draft, including text over the limit. Checking or saving shows a linked length error instead of cutting text. Limits come from the existing logic constants. The automatic action stays enabled while model configuration loads. An early press waits for configuration, then checks or uses the existing fallback.
+Meets the shared baseline in the root README.
 
-The fallback legend names the checklist. Its short instruction sits outside the legend and describes the fieldset through `aria-describedby`.
-
-Daily proxy caps show and announce the reason and midnight UTC reset once, keep focus in place and leave the fallback usable.
-
-The question labels the three-line answer box. Submitting announces feedback once through one status region, without moving focus. While a check runs, the button keeps its label and focus, and pressing it again sends nothing. "Checking your answer…" appears beside it, and the status region says it once if the check takes more than a second. Icons accompany text; colour alone conveys no meaning. Native disclosures and checkboxes support keyboards. Shared styles support reduced motion, forced colours and narrow layouts. Without JavaScript, the answer box, open model answer and checklist appear immediately. English and Québec French share the content structure.
-
-The browser tests cover all results, fallback, axe, keyboard use, 320 px reflow, text spacing and lifecycle in three engines. Human screen-reader checks remain separate.
+Write a clear question, corrections and a model answer. Without JavaScript, learners can write an answer, read the model answer and tick the misconception checklist.
 
 ## Content fields
 
@@ -107,6 +101,18 @@ enhance(document.querySelector('[data-lp-pattern="misconception"]'), { content, 
 The shared `ask(block, fields, { challengeSlot, signal? })` client returns typed answers. Its cached `config()` supplies the provider, decision model, bilingual data notice and public verification key. The notice appears under the answer box. Turnstile loads after a clearance refusal. Missing `ask`, failed configuration or a failed check opens the self-check. The demo uses fixed feedback and sends no text.
 
 This pattern collects and stores no answers. A host may collect unmatched answers for review with explicit consent, separate storage and a retention policy. The learner page shows no review inbox, raw decision model output or request timing.
+
+### Accessibility details
+
+The browser tests cover all results, fallback, axe, keyboard use, 320 px reflow, text spacing and lifecycle in three engines.
+
+Text fields keep the full draft, including text over the limit. Checking or saving shows a linked length error instead of cutting text. Limits come from the existing logic constants. The automatic action stays enabled while model configuration loads. An early press waits for configuration, then checks or uses the existing fallback.
+
+The fallback legend names the checklist. Its short instruction sits outside the legend and describes the fieldset through `aria-describedby`.
+
+Daily proxy caps show and announce the reason and midnight UTC reset once, keep focus in place and leave the fallback usable.
+
+The question labels the three-line answer box. Submitting announces feedback once through one status region, without moving focus. While a check runs, the button keeps its label and focus, and pressing it again sends nothing. "Checking your answer…" appears beside it, and the status region says it once if the check takes more than a second. Icons accompany text; colour alone conveys no meaning. Native disclosures and checkboxes support keyboards. Shared styles support reduced motion, forced colours and narrow layouts. Without JavaScript, the answer box, open model answer and checklist appear immediately. English and Québec French share the content structure.
 
 ## Adapt it with your agent
 

@@ -41,14 +41,9 @@ This pattern shows the right answer but does not explain why each misconception 
 
 ## Accessibility
 
-Wrong-option and custom-label fields also keep oversized drafts. Compare shows linked errors with the existing limits; option lengths still count before trimming.
-
 Follows the shared baseline in the root README.
 
-- Each wrong option has a fieldset. Its legend names the option's letter and labels its answer field. Error messages name options by that letter. Other fields have visible labels. Errors link to their fields.
-- Checking announces the right answer and keeps focus on Check my answer. Choosing Yes or Not quite focuses the next heading.
-- An invalid comparison focuses the first error and announces how many fields need fixing. A valid comparison keeps focus on the submit button and announces the matching-label count.
-- After comparison, each wrong option shows a summary you can read but cannot edit. It includes the full misconception label. Start over focuses Your answer.
+Write clear labels for the mistaken ideas and explain your wrong options. Without JavaScript, learners can write an answer and open the right answer and the author's question, but cannot compare their own wrong options.
 
 ## Content fields
 
@@ -128,6 +123,15 @@ const instance = enhance(document.querySelector('[data-lp-pattern="write-distrac
 // Remove listeners and restore the native details when the host removes the interaction.
 instance.destroy();
 ```
+
+### Accessibility details
+
+Wrong-option and custom-label fields also keep oversized drafts. Compare shows linked errors with the existing limits; option lengths still count before trimming.
+
+- Each wrong option has a fieldset. Its legend names the option's letter and labels its answer field. Error messages name options by that letter. Other fields have visible labels. Errors link to their fields.
+- Checking announces the right answer and keeps focus on Check my answer. Choosing Yes or Not quite focuses the next heading.
+- An invalid comparison focuses the first error and announces how many fields need fixing. A valid comparison keeps focus on the submit button and announces the matching-label count.
+- After comparison, each wrong option shows a summary you can read but cannot edit. It includes the full misconception label. Start over focuses Your answer.
 
 ## Adapt it with your agent
 
