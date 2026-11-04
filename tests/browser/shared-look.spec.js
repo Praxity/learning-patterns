@@ -162,8 +162,8 @@ for (const name of ['draw-your-guess', 'estimate-magnitude', 'prolific-questions
         await page.emulateMedia({ forcedColors: forced });
         const layout = await page.locator('[data-lp-pattern]').evaluate((root, name) => {
           const context = root.querySelector('.lp-context');
-          const lead = root.querySelector(':scope > .lp-heading') || question.querySelector('h2') || question;
           const question = root.querySelector(name === 'self-check' ? 'h2.lp-stem' : 'legend.lp-stem');
+          const lead = root.querySelector(':scope > .lp-heading') || question.querySelector('h2') || question;
           const field = root.querySelector(name === 'self-check' ? 'textarea' : 'fieldset');
           return {
             headingColor: getComputedStyle(question.querySelector('h2') || question).color,
