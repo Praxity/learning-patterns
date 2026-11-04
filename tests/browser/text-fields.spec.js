@@ -27,7 +27,11 @@ async function mount(page, name, lang, delayed = false, failConfig = false) {
     } });
     window.textInstance = enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings[lang], ask });
   }, { name, lang, content, delayed, failConfig });
-  if (name === 'explain-back') await page.getByRole('button', { name: lang === 'en' ? "I'm ready to explain it" : "Passer à l'explication", exact: true }).click();
+  if (name === 'explain-back') {
+    await page.getByRole('button', { name: lang === 'en' ? "I'm ready to explain it" : "Passer à l'explication", exact: true }).click();
+    // Focus reaches the task heading after layout; typing before then is lost in Firefox.
+    await expect(page.locator('#field-task')).toBeFocused();
+  }
 }
 
 for (const lang of ['en', 'fr']) {
