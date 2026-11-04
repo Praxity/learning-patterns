@@ -18,11 +18,11 @@ Answer from memory, then write wrong options and name the mistaken idea behind e
 ## Avoid it when
 
 - When learners cannot yet answer from memory or explain common mistakes, use [Spot the misconception](../misconception/README.md) for a supported study question.
-- When nobody can review whether the wrong options would tempt a learner, use [Check your own answer](../self-check/README.md). Matching labels alone cannot judge an option.
+- When nobody can review whether the wrong options would tempt a learner, use [Check your own answer](../self-check/README.md).
 
 ## Before you use it
 
-Write the correct answer, misconception labels and plausible wrong options for comparison. Plan for a person to review learners' options before using them in a quiz.
+Write the correct answer, misconception labels and plausible wrong options for comparison. Choose how many wrong options learners write, from one to five. Plan for a person to review learners' options before using them in a quiz.
 
 ## How it works
 

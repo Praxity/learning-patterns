@@ -17,11 +17,11 @@ Answer a short check to see which course sections you can skip and which to take
 
 ## Avoid it when
 
-- When the course needs proof that learners saw every section, keep all sections required. A correct answer is not proof of attendance.
+- When the course needs proof that learners saw every section, turn skipping off or leave the pre-test out. A correct answer is not proof of attendance.
 
 ## Before you use it
 
-Write one or two questions per section. Advanced questions must test any prerequisite knowledge they credit. Arrange course navigation and completion records separately.
+Write one or two questions per section. Decide whether passing can skip sections. Your course handles navigation and completion records.
 
 ## How it works
 

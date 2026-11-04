@@ -22,7 +22,7 @@ Save an answer at the start of a course. Answer again at the end, then compare w
 
 ## Before you use it
 
-Use the same question and improvement checklist at the start and end. Arrange for the course to keep the first answer until the learner returns; without that, answers last only while the activity is open.
+Ask your developer to save the first answer between visits. Without that, the answer is lost when the learner leaves the page.
 
 ## How it works
 

@@ -17,7 +17,7 @@ Answer a quiz with an "I don't know" option. See your score, explanations and qu
 
 ## Avoid it when
 
-- When you need an assessment result, test the scoring with your learners first. Penalties may discourage guessing.
+- When you need a graded result and haven't tested the scoring with learners, use a quiz without penalties. Penalties may discourage guessing.
 
 ## Before you use it
 

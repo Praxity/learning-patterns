@@ -24,7 +24,7 @@ Reflect on practising assertiveness this week. Save your entry in your tab or as
 
 It needs a server running a model. Without the decision model, all four questions open, with the support text below them.
 
-The distress check is unreliable and was tested only on agent-written answers. It does not diagnose, contact anyone or send alerts. Replace the support text with your real details and offer help whether or not distress is flagged. Test the model with your own examples before use with learners.
+The distress check is unreliable and contacts no one. Put your real support details in the support text, and offer help to every learner, flagged or not. Test the model with your own examples first.
 
 ## How it works
 

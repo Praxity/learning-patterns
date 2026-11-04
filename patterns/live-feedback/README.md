@@ -22,7 +22,7 @@ Write three actions to become more assertive at work. A checklist updates when y
 
 ## Before you use it
 
-It needs a server running a model. Request or configuration failures open the self-check.
+It needs a server running a model. Without one, learners tick the checklist themselves.
 
 Write the task, four checklist statements and revision hints. Changing the criteria also means changing and testing what the model checks.
 

@@ -22,7 +22,7 @@ Answer questions between reading sections, compare with the answers and see when
 
 ## Before you use it
 
-Give each reading section one focused question and a short answer. Choose the review gaps and arrange reminders through your course if needed; the pattern sends none.
+Give each reading section one focused question and a short answer. Choose the review gaps. The pattern sends no reminders, so arrange them through your course if needed.
 
 ## How it works
 

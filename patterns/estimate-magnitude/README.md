@@ -23,7 +23,7 @@ Slide a range until it holds your estimate, then see which answers your ranges c
 
 ## Before you use it
 
-Write three to five questions, with answers and sources. Give enough context to reason toward each answer. Choose how wide the ranges should be: the high end can be 10, 100 or 1,000 times the low end.
+Write three to five questions, with answers and sources. Give enough context to reason toward each answer. Choose how wide the ranges are. The high end can be 10, 100 or 1,000 times the low end.
 
 ## How it works
 

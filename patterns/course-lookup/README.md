@@ -24,7 +24,7 @@ Ask about Assertive at work. The decision model picks an authored answer or a se
 
 It needs a server running a model. Without JavaScript, or when lookup fails, the page shows that lookup's full FAQ or outline.
 
-Write and check the answers or section summaries. Changing the course also means changing and testing the model's catalogue. Added questions stay in the browser tab and notify no one; decide who will answer them in your course.
+Write the answers or section summaries. The server keeps its own copy, so update and test it when the course changes. Added questions stay in the learner's tab and reach no one. Decide who answers them.
 
 ## How it works
 

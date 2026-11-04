@@ -14,7 +14,7 @@ Print questions on the front and answers on the back. Choose a date to answer fr
 ## Use it when
 
 - Use it for a short module with a few ideas or actions worth recalling. Keep questions focused and answers short.
-- Learners can use the sheet without internet. Print it or save a PDF while connected. A SCORM package prints from its course files without fetching anything.
+- Learners need to practise away from the screen, even without internet.
 
 ## Avoid it when
 
@@ -23,7 +23,7 @@ Print questions on the front and answers on the back. Choose a date to answer fr
 
 ## Before you use it
 
-Write up to eight focused questions and short answers. Check print preview and double-sided settings after editing. Arrange a reminder if learners need one.
+Write up to eight focused questions and short answers. Check print preview and double-sided settings after editing.
 
 ## How it works
 
@@ -148,7 +148,7 @@ Saving a date sends no reminder. Printing does not show that the learner used th
 
 ## Use it
 
-Copy `patterns/retrieval-sheet/` and `lib/`, keeping their relative paths. Link `lib/base.css`, then `patterns/retrieval-sheet/pattern.css`. Use a unique id prefix per instance. Render on the server, then enhance in the browser.
+Copy `patterns/retrieval-sheet/` and `lib/`, keeping their relative paths. Link `lib/base.css`, then `patterns/retrieval-sheet/pattern.css`. Use a unique id prefix per instance. Render on the server, then enhance in the browser. A SCORM package prints from its course files without fetching anything.
 
 ```js
 import { render } from './patterns/retrieval-sheet/render.js';

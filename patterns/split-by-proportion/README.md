@@ -23,9 +23,9 @@ Split a fixed total across two to six options by moving dividers on one bar. Com
 
 ## Before you use it
 
-Write two to six options and the real split, with its source. Choose the total, unit, step and largest gap that counts as close. Supply enough context for an informed estimate.
+Write two to six options, a heading for them, and the real split with its source. Give enough context for an informed estimate. Choose the total, unit, step and how far off still counts as close.
 
-Write a heading for the options. English summaries lowercase option labels, so start them with common nouns and avoid acronyms or proper names that need capitals. French summaries keep labels as written.
+English summaries lowercase option labels, so avoid names and acronyms in them.
 
 ## How it works
 

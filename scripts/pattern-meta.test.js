@@ -75,15 +75,15 @@ function checkReadmeStructure(readme, name = 'pattern') {
     assert.ok(content, `${heading} is empty`);
     if (heading === 'Use it when' || heading === 'Avoid it when') {
       const items = content.split(/\r?\n/);
-      assert.ok(items.length <= 4 && items.every(item => /^- \S/.test(item)), `${heading} needs one to four bullets`);
+      assert.ok(items.length <= 4 && items.every(item => /^- \S/.test(item)), `${heading} needs one to four single-line bullets`);
     }
   }
-  const avoid = prose.split('## Avoid it when')[1].split(/^## /m)[0].trim();
+  const avoid = prose.split('## Avoid it when')[1].split(/^## /m)[0].trim().split(/\r?\n/);
   // An explicit If/When clause distinguishes a use condition from a property, without parsing English.
-  assert.match(avoid, /^(?:- )?(?:If|When)\s+[^\r\n]+[.!?](?:\s|$)/m, 'Avoid it when needs a condition starting with If or When');
+  assert.ok(avoid.every(item => /^- (?:If|When)\s+\S[^\r\n]*[.!?]$/.test(item)), 'Each Avoid it when bullet must be a condition starting with If or When');
   if (meta.ai) {
     const before = prose.split('## Before you use it')[1].split(/^## /m)[0].trim();
-    assert.match(before, /\bserver\b/i, 'AI setup must mention a server');
+    assert.match(before, /^It needs a server running a model\.\s+\S/, 'AI setup must open with the server requirement and a fallback');
   }
   const how = readme.split(/^## How it works\r?$/m)[1].split(/^## /m)[0];
   assert.doesNotMatch(how, /`|\b[A-Za-z_$][\w.$]*\s*\(/, 'How it works contains code');
@@ -113,16 +113,18 @@ test('README structure guard catches missing, reordered and technical sections',
     assert.throws(() => checkReadmeStructure(readme.replace(`## ${heading}\n\n${heading === 'Avoid it when' ? '- When you need a grade, use an assessment.' : heading === 'Use it when' ? '- Plain text.' : 'Plain text.'}`, `## ${heading}\n`)), /is empty/);
   }
   for (const content of ['Plain text.', '- One.\n- Two.\n- Three.\n- Four.\n- Five.']) {
-    assert.throws(() => checkReadmeStructure(readme.replace('- Plain text.', content)), /needs one to four bullets/);
+    assert.throws(() => checkReadmeStructure(readme.replace('- Plain text.', content)), /needs one to four single-line bullets/);
   }
+  assert.throws(() => checkReadmeStructure(readme.replace('- When you need a grade, use an assessment.', '- When you need a grade, use an assessment.\n- It gives no grade.')), /Each Avoid it when bullet/);
   const condition = 'When you need a grade, use an assessment.';
   for (const property of ['It gives no grade.', 'The pattern does not judge text.', 'Sometimes the model is unavailable.']) {
-    assert.throws(() => checkReadmeStructure(readme.replace(condition, property)), /needs a condition/);
+    assert.throws(() => checkReadmeStructure(readme.replace(condition, property)), /Each Avoid it when bullet/);
   }
   assert.doesNotThrow(() => checkReadmeStructure(readme.replace(condition, 'If you need a grade, use an assessment.')));
   const ai = readme.replace('ai: no', 'ai: yes');
-  assert.throws(() => checkReadmeStructure(ai), /must mention a server/);
-  assert.doesNotThrow(() => checkReadmeStructure(ai.replace('## Before you use it\n\nPlain text.', '## Before you use it\n\nIt needs a server running a model.')));
+  assert.throws(() => checkReadmeStructure(ai), /server requirement/);
+  assert.throws(() => checkReadmeStructure(ai.replace('## Before you use it\n\nPlain text.', '## Before you use it\n\nIt needs a server running a model.')), /server requirement/);
+  assert.doesNotThrow(() => checkReadmeStructure(ai.replace('## Before you use it\n\nPlain text.', '## Before you use it\n\nIt needs a server running a model. Without one, learners see a checklist.')));
   assert.throws(() => checkReadmeStructure(readme.replace('## Evidence', '## Temporary').replace('## Logic', '## Evidence').replace('## Temporary', '## Logic')));
   assert.doesNotThrow(() => checkReadmeStructure(readme.replaceAll('\n', '\r\n')));
   for (const code of ['`answer`', 'readingMinutes(content)', 'scheduleReview (date)']) {
@@ -179,7 +181,9 @@ test('pattern alternatives exist, appear in Related patterns and feedback links 
     const readme = await readFile(new URL(`${name}/README.md`, root), 'utf8');
     checkPatternLinks(readme, folders);
     const help = readme.split('## Help improve this pattern')[1].split(/^## /m)[0];
-    const feedback = new URL(/\]\((https:\/\/github\.com\/Praxity\/learning-patterns\/issues\/new[^)]+)\)/.exec(help)[1]);
+    const found = /\]\((https:\/\/github\.com\/Praxity\/learning-patterns\/issues\/new[^)]+)\)/.exec(help);
+    assert.ok(found, `${name}: feedback link`);
+    const feedback = new URL(found[1]);
     assert.equal(feedback.searchParams.get('template'), 'pattern-feedback.yml', name);
     assert.equal(feedback.searchParams.get('pattern'), readMeta(name, readme).title.en, name);
     assert.ok(help.includes(`https://github.com/Praxity/learning-patterns/edit/main/patterns/${name}/README.md`), name);
