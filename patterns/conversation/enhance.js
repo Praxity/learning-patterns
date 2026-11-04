@@ -116,8 +116,7 @@ export function enhance(root, { content, strings, state, ask }) {
       model = config.model ?? (config.provider === 'clef' ? '@cf/cloudflare/clef' : config.provider);
       notice.innerHTML = renderDataNotice(config, root.lang, `${notice.id}-text`, 'reply');
       notice.hidden = false; input.setAttribute('aria-describedby', `${error.hidden ? '' : `${error.id} `}${notice.id}-text`);
-      send.disabled = false;
-    }).catch(() => { if (!destroyed) { useFallback(); send.disabled = false; } });
+    }).catch(() => { if (!destroyed) useFallback(); });
   }
   const onInput = () => {
     error.hidden = true; input.removeAttribute('aria-invalid');
@@ -126,11 +125,13 @@ export function enhance(root, { content, strings, state, ask }) {
     save();
   };
   const onSend = async () => {
-    if (!ask || !automatic || pending.active || send.disabled || conversation.end) return;
+    if (!ask || !automatic || pending.active || conversation.end) return;
     const draft = input.value.trim();
     if (!draft || input.value.length > REPLY_LIMIT) {
       const text = (!draft ? strings.empty : strings.tooLong).replaceAll('{max}', REPLY_LIMIT.toLocaleString(root.lang === 'fr' ? 'fr-CA' : 'en-CA'));
-      error.textContent = frenchTypography(text, root.lang);
+      const errorText = error.querySelector('span');
+      if (!errorText) throw new Error('Missing error text');
+      errorText.textContent = frenchTypography(text, root.lang);
       error.hidden = false; input.setAttribute('aria-invalid', 'true');
       input.setAttribute('aria-describedby', `${error.id}${notice.hidden ? '' : ` ${notice.id}-text`}`);
       // Focus and description announce the error once.

@@ -181,7 +181,7 @@ test('state copies drafts, rejects bad shapes and requires a valid shown submiss
   const saved = { answer: 'No, pauses help.', hadIt: false, options: [option('A'), option('B', 'other', 'Focus')], shown: true };
   const copy = validateState(content, saved);
   assert.deepEqual(copy, saved); assert.notEqual(copy.options, saved.options); assert.notEqual(copy.options[0], saved.options[0]);
-  for (const value of [null, [], {}, { ...saved, shown: 'yes' }, { ...saved, options: [] }, { ...saved, options: [null, option()] }, { options: [option('A', 'unknown'), option()], shown: false }, { options: [option('x'.repeat(301)), option()], shown: false }, { options: [option('A', 'other', 'x'.repeat(121)), option()], shown: false }, { ...draft, shown: true }, { ...saved, extra: 1 }, { options: [{ ...option('A'), extra: 1 }, option('B')], shown: false }]) {
+  for (const value of [null, [], {}, { ...saved, shown: 'yes' }, { ...saved, options: [] }, { ...saved, options: [null, option()] }, { options: [option('A', 'unknown'), option()], shown: false }, { ...draft, shown: true }, { ...saved, extra: 1 }, { options: [{ ...option('A'), extra: 1 }, option('B')], shown: false }]) {
     assert.equal(validateState(content, value), null);
   }
 });

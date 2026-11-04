@@ -38,7 +38,7 @@ export function enhance(root, { content, strings, state, ask }) {
   const taskHeading = /** @type {HTMLElement} */ (required(`#${CSS.escape(answer.getAttribute('aria-labelledby') ?? '')}`));
   const originalAttributes = [answer, check, error, notice, challengeSlot, result, fallback, model, status, lesson, explaining, taskHeading]
     .map(element => ({ element, attributes: [...element.attributes].map(attribute => [attribute.name, attribute.value]) }));
-  const originalContents = [check, notice, challengeSlot, result, status].map(element => ({ element, markup: element.innerHTML }));
+  const originalContents = [check, error, notice, challengeSlot, result, status].map(element => ({ element, markup: element.innerHTML }));
   const ready = root.ownerDocument.createElement('button');
   ready.type = 'button'; ready.className = 'lp-button'; ready.textContent = frenchTypography(strings.ready, root.lang);
   const readAgain = root.ownerDocument.createElement('button');
@@ -88,7 +88,6 @@ export function enhance(root, { content, strings, state, ask }) {
       if (destroyed) return;
       notice.innerHTML = renderDataNotice(config, root.lang, `${notice.id}-text`);
       notice.hidden = false; answer.setAttribute('aria-describedby', `${error.hidden ? '' : `${error.id} `}${notice.id}-text`);
-      check.disabled = false;
     }).catch(() => { if (!destroyed) useFallback(); });
   }
   const onInput = () => {
@@ -98,11 +97,13 @@ export function enhance(root, { content, strings, state, ask }) {
     save();
   };
   const onCheck = async () => {
-    if (!ask || pending.active || check.disabled || check.hidden || check.getAttribute('aria-disabled') === 'true') return;
+    if (!ask || pending.active || check.hidden || check.getAttribute('aria-disabled') === 'true') return;
     const draft = answer.value.trim();
     if (!draft || answer.value.length > ANSWER_LIMIT) {
       const text = (!draft ? strings.empty : strings.tooLong).replaceAll('{max}', ANSWER_LIMIT.toLocaleString(root.lang === 'fr' ? 'fr-CA' : 'en-CA'));
-      error.textContent = frenchTypography(text, root.lang);
+      const errorText = error.querySelector('span');
+      if (!errorText) throw new Error('Missing error text');
+      errorText.textContent = frenchTypography(text, root.lang);
       error.hidden = false; answer.setAttribute('aria-invalid', 'true');
       answer.setAttribute('aria-describedby', `${error.id}${notice.hidden ? '' : ` ${notice.id}-text`}`);
       answer.focus(); status.textContent = frenchTypography(text, root.lang); return;

@@ -76,6 +76,8 @@ The pure module imports identities, answer length and the decision model's confi
 
 Pass `state: { read, write }` to save drafts and checklist ticks. Check results are not saved. Editing during a check discards its result. Repeated enhancement returns the same instance. `destroy()` removes listeners, cancels checks and restores the native fallback.
 
+Stored drafts restore intact even above the send limit. The host owns its total storage budget; the send limit still applies before every proxy request. Self-check ticks survive restoration. Automated judgments are not restored.
+
 ## Use it
 
 Copy this folder, `lib/` and the two proxy logic modules, preserving relative paths. Include `lib/base.css`, then `pattern.css`. Give each instance a unique id prefix. Serve the proxy on the page's origin.

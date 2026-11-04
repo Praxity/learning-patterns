@@ -115,7 +115,7 @@ export function enhance(root, { content, strings, state, ask }) {
     try {
       await configReady;
       if (destroyed) return;
-      if (!automatic) return;
+      if (!automatic) { if (edited()) discard(); else status.textContent = frenchTypography(strings.fallback, root.lang); return; }
       if (edited()) { discard(); return; }
       const answers = await ask('13-journal', { answer: answer.text.trim() }, { challengeSlot, signal: lifetime.signal });
       if (destroyed) return;

@@ -43,14 +43,18 @@ export function enhance(root, { content, strings, state, ask }) {
   sessions.set(root.ownerDocument, session);
   const error = required('[data-lp-error]');
   const checkLength = () => {
+    const wasShown = !error.hidden;
     const tooLong = answer.value.length > ANSWER_LIMIT;
     error.textContent = tooLong ? frenchTypography(strings.tooLong.replaceAll('{max}', ANSWER_LIMIT.toLocaleString(root.lang === 'fr' ? 'fr-CA' : 'en-CA')), root.lang) : '';
     error.hidden = !tooLong;
-    const descriptions = [answer.id.replace(/-answer$/, '-starter'), !notice.hidden ? `${notice.id}-text` : '', tooLong ? error.id : ''].filter(Boolean).join(' ');
-    if (descriptions) answer.setAttribute('aria-describedby', descriptions);
-    else answer.setAttribute('aria-describedby', answer.id.replace(/-answer$/, '-starter'));
-    if (tooLong) { answer.setAttribute('aria-invalid', 'true'); status.textContent = error.textContent; }
-    else answer.removeAttribute('aria-invalid');
+    if (tooLong && !wasShown) {
+      previous = []; count = 0; complete = false; completion.hidden = true;
+      updateItems(content.criteria.map(item => ({ id: item.id, mark: 'todo', text: item.todo })));
+    }
+    const descriptions = [answer.id.replace(/-answer$/, '-starter'), tooLong ? error.id : '', !notice.hidden ? `${notice.id}-text` : ''].filter(Boolean).join(' ');
+    answer.setAttribute('aria-describedby', descriptions);
+    if (tooLong) { answer.setAttribute('aria-invalid', 'true'); if (!wasShown) status.textContent = error.textContent; }
+    else { answer.removeAttribute('aria-invalid'); if (wasShown) status.textContent = ''; }
     return !tooLong;
   };
   const timing = typingPause({ minChars: MIN_CHARS, questionMark: false });
@@ -154,7 +158,7 @@ export function enhance(root, { content, strings, state, ask }) {
     if (delay !== null) timer = setTimeout(() => { void run(); }, delay);
   };
   const onInput = () => {
-    if (!error.hidden) checkLength();
+    checkLength();
     // Text too short to check cannot hold a complete plan; reaching four again is a new completion.
     if (answer.value.trim().length < MIN_CHARS) { complete = false; completion.hidden = true; }
     cancel(); save(); schedule();
@@ -170,7 +174,7 @@ export function enhance(root, { content, strings, state, ask }) {
       if (session.checks >= AUTO_CHECK_LIMIT) { useLimit(); return; }
       if (config.provider !== 'perplexity' && config.provider !== 'mock') { useFallback(); return; }
       notice.innerHTML = renderDataNotice(config, root.lang, `${notice.id}-text`);
-      notice.hidden = false; answer.setAttribute('aria-describedby', `${answer.id.replace(/-answer$/, '-starter')} ${notice.id}-text`);
+      notice.hidden = false; answer.setAttribute('aria-describedby', `${answer.id.replace(/-answer$/, '-starter')} ${error.hidden ? '' : `${error.id} `}${notice.id}-text`);
       fallback.hidden = true; list.hidden = false;
       ready = true; schedule();
     }).catch(() => { if (!destroyed) useFallback(); });

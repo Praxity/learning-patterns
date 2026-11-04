@@ -84,6 +84,8 @@ Authored text is capped at 120 characters for titles and labels, 400 for questio
 
 Pass `state: { read, write }` to save the draft and conversation. Invalid saved state is ignored. Editing during a check discards its result; restarting cancels requests. Repeated enhancement returns the same instance. `destroy()` removes listeners, cancels requests and restores the static script.
 
+Stored drafts restore intact even above the send limit, with valid conversation history. The host owns its total storage budget; sent replies and history entries still obey the reply limit.
+
 ## Use it
 
 Copy this folder, `lib/` and `proxy/logic/03-contract.js`, preserving relative paths. Include `lib/base.css`, then `pattern.css`. Give each instance a unique id prefix.

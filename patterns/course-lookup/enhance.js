@@ -39,14 +39,16 @@ export function enhance(root, { content, strings, state, ask }) {
   sessions.set(root.ownerDocument, session);
   const error = required('[data-lp-error]');
   const checkLength = () => {
+    const wasShown = !error.hidden;
     const tooLong = input.value.length > QUESTION_LIMIT;
     error.textContent = tooLong ? frenchTypography(strings.tooLong.replaceAll('{max}', QUESTION_LIMIT.toLocaleString(root.lang === 'fr' ? 'fr-CA' : 'en-CA')), root.lang) : '';
     error.hidden = !tooLong;
-    const descriptions = [!notice.hidden ? `${notice.id}-text` : '', tooLong ? error.id : ''].filter(Boolean).join(' ');
+    if (tooLong) { result.hidden = true; result.replaceChildren(); }
+    const descriptions = [tooLong ? error.id : '', !notice.hidden ? `${notice.id}-text` : ''].filter(Boolean).join(' ');
     if (descriptions) input.setAttribute('aria-describedby', descriptions);
     else input.removeAttribute('aria-describedby');
-    if (tooLong) { input.setAttribute('aria-invalid', 'true'); status.textContent = error.textContent; }
-    else input.removeAttribute('aria-invalid');
+    if (tooLong) { input.setAttribute('aria-invalid', 'true'); if (!wasShown) status.textContent = error.textContent; }
+    else { input.removeAttribute('aria-invalid'); if (wasShown) status.textContent = ''; }
     return !tooLong;
   };
   const timing = typingPause();
@@ -151,7 +153,7 @@ export function enhance(root, { content, strings, state, ask }) {
     else if (delay !== null) timer = setTimeout(() => { void run(); }, delay);
   };
   const onInput = () => {
-    if (!error.hidden) checkLength();
+    checkLength();
     if (composing) return;
     const next = input.value.trim();
     if (input.isConnected && next !== draft) {
@@ -214,7 +216,7 @@ export function enhance(root, { content, strings, state, ask }) {
       if (destroyed) return;
       if (config.provider !== 'perplexity' && config.provider !== 'mock') { useFallback(); return; }
       notice.innerHTML = renderDataNotice(config, root.lang, `${notice.id}-text`, 'question'); notice.hidden = false;
-      input.setAttribute('aria-describedby', `${notice.id}-text`);
+      input.setAttribute('aria-describedby', `${error.hidden ? '' : `${error.id} `}${notice.id}-text`);
       controls.hidden = false; fallback.hidden = true; ready = true; updateCap();
     }).catch(() => { if (!destroyed) useFallback(); });
   } else useFallback();

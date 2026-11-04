@@ -360,4 +360,4 @@ select.lp-input[aria-invalid="true"] { padding-inline-end: 39px; }
   .lp-choice:has(input:focus-visible) { outline-color: Highlight; }
 }
 
-.lp-input::placeholder { color: var(--lp-ink-2); opacity: 1; }
+.lp .lp-input::placeholder { color: var(--lp-ink-2); opacity: 1; }

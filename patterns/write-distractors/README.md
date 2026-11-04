@@ -98,6 +98,8 @@ The host decides how to collect submissions. The pattern uses no localStorage an
 
 Override `--lp-*` tokens for colours, radius, fonts and focus. Defaults are in the root README.
 
+Oversized wrong options and mistaken-idea descriptions restore intact as editable drafts, with comparison results cleared. Drafts have no storage ceiling; the host owns its total storage budget. Submission limits still apply.
+
 ## Use it
 
 Copy this folder and `lib/`, keeping their relative paths. Link `lib/base.css`, then `patterns/write-distractors/pattern.css`. Render on your server with a unique id prefix for each instance.

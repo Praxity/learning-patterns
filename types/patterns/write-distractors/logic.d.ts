@@ -51,7 +51,8 @@ export function coverageMessage(content: Content, options: LearnerOption[]): {
     untargeted: string[];
 };
 /** Accept incomplete drafts; shown results must pass submission validation.
- * Oversized answers keep their full text and options but return to the answer step.
+ * Drafts have no storage ceiling; the host owns its total storage budget.
+ * Oversized options lose comparison results. Oversized answers keep their full text and options but return to the answer step.
  * @param {Content} content @param {unknown} value @returns {LearnerState | null}
  */
 export function validateState(content: Content, value: unknown): LearnerState | null;

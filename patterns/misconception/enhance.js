@@ -55,8 +55,7 @@ export function enhance(root, { content, strings, state, ask }) {
       modelId = config.model ?? (config.provider === 'clef' ? '@cf/cloudflare/clef' : config.provider);
       notice.innerHTML = renderDataNotice(config, root.lang, `${notice.id}-text`);
       notice.hidden = false; answer.setAttribute('aria-describedby', `${error.hidden ? '' : `${error.id} `}${notice.id}-text`);
-      check.disabled = false;
-    }).catch(() => { if (!destroyed) { offline(); check.disabled = false; } });
+    }).catch(() => { if (!destroyed) offline(); });
   }
   const onInput = () => {
     error.hidden = true; answer.removeAttribute('aria-invalid');
@@ -65,11 +64,13 @@ export function enhance(root, { content, strings, state, ask }) {
     save();
   };
   const onCheck = async () => {
-    if (pending.active || check.disabled || check.hidden) return;
+    if (pending.active || check.hidden) return;
     const draft = answer.value.trim();
     if (!draft || answer.value.length > ANSWER_LIMIT) {
       const text = (!draft ? strings.empty : strings.tooLong).replaceAll('{max}', ANSWER_LIMIT.toLocaleString(root.lang === 'fr' ? 'fr-CA' : 'en-CA'));
-      error.textContent = frenchTypography(text, root.lang);
+      const errorText = error.querySelector('span');
+      if (!errorText) throw new Error('Missing error text');
+      errorText.textContent = frenchTypography(text, root.lang);
       error.hidden = false; answer.setAttribute('aria-invalid', 'true');
       answer.setAttribute('aria-describedby', `${error.id}${notice.hidden ? '' : ` ${notice.id}-text`}`);
       answer.focus(); status.textContent = frenchTypography(text, root.lang); return;

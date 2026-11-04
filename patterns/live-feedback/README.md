@@ -83,6 +83,8 @@ Authored text is capped at 120 characters for titles and labels, 400 for questio
 
 Pass `state: { read, write }` to save drafts and checklist ticks. Check results are not saved. Repeated enhancement returns the same instance. `destroy()` removes listeners and the "Well done!" line, cancels checks and restores the native checklist, keeping the draft and ticks. Re-enhancement keeps the remaining automatic allowance.
 
+Stored drafts restore intact even above the send limit. The host owns its total storage budget; the send limit still applies before every proxy request. Self-check ticks survive restoration. Automated judgments are not restored.
+
 ## Use it
 
 Copy this folder, `lib/` and `proxy/logic/`, preserving relative paths. Include `lib/base.css` and then `pattern.css`. Give each instance a unique id prefix. Serve the proxy on the page's own origin.
