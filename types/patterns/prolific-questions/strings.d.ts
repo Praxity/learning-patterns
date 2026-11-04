@@ -7,6 +7,7 @@ export namespace strings {
         export let answers: string;
         let _case: string;
         export { _case as case };
+        export let choose: string;
         export let empty: string;
         export let last: string;
         export let remaining: string;
@@ -33,6 +34,8 @@ export namespace strings {
         export { answers_1 as answers };
         let _case_1: string;
         export { _case_1 as case };
+        let choose_1: string;
+        export { choose_1 as choose };
         let empty_1: string;
         export { empty_1 as empty };
         let last_1: string;

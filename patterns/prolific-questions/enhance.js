@@ -1,3 +1,4 @@
+import { clearQuestionLink, focusQuestion, questionLinks } from '../../lib/question-errors.js';
 import { deal, shuffle, score, feedback, validateContent, validateState } from './logic.js';
 import { frenchTypography } from '../../lib/html.js';
 import { markChoice, clearChoice } from '../../lib/choice-mark.js';
@@ -27,7 +28,7 @@ export function enhance(root, { content, strings, state }) {
   const fallback = required('[data-lp-fallback]');
   const result = required('[data-lp-result]');
   const error = required('[data-lp-error]');
-  const errorText = required('[data-lp-error] > span');
+  const errorText = required('[data-lp-error-text]');
   const status = required('[role="status"]');
   const facts = [...root.querySelectorAll('[data-lp-fact]')].map(element => /** @type {HTMLElement} */ (element));
   const legends = facts.map(fact => {
@@ -54,7 +55,13 @@ export function enhance(root, { content, strings, state }) {
   const display = text => frenchTypography(text, root.lang);
   function clearError() {
     error.hidden = true;
-    facts.forEach(fact => fact.removeAttribute('aria-describedby'));
+    error.querySelector('ul')?.remove();
+    facts.forEach(fact => {
+      fact.removeAttribute('aria-describedby');
+      const message = fact.querySelector('[data-lp-question-error]');
+      if (message instanceof HTMLElement) message.hidden = true;
+      fact.querySelectorAll('input').forEach(input => input.removeAttribute('aria-invalid'));
+    });
   }
   function clearResult() {
     cancelFocus(); unlock(); unlock = () => {};
@@ -109,7 +116,14 @@ export function enhance(root, { content, strings, state }) {
       const input = group.find(input => input.checked);
       return input ? Number(input.value) : null;
     });
-    if (!score(current.order, current.picks).unanswered.length) clearError();
+    facts.forEach((fact, i) => {
+      if (current.picks[i] === null) return;
+      fact.removeAttribute('aria-describedby');
+      const message = fact.querySelector('[data-lp-question-error]');
+      if (message instanceof HTMLElement) message.hidden = true;
+      inputs[i].forEach(input => input.removeAttribute('aria-invalid'));
+      clearQuestionLink(error, fact);
+    });
     save();
   }
   function onCheck() {
@@ -120,8 +134,15 @@ export function enhance(root, { content, strings, state }) {
       const count = outcome.unanswered.length;
       const message = count === outcome.total ? strings.empty : count === 1 ? strings.last : strings.remaining.replace('{count}', String(count));
       errorText.textContent = display(message); error.hidden = false;
-      outcome.unanswered.forEach(i => facts[i].setAttribute('aria-describedby', error.id));
-      status.textContent = display(message);
+      outcome.unanswered.forEach(i => {
+        const message = facts[i].querySelector('[data-lp-question-error]');
+        if (!(message instanceof HTMLElement)) throw new Error('Missing fact error');
+        message.hidden = false; facts[i].setAttribute('aria-describedby', message.id);
+        inputs[i].forEach(input => input.setAttribute('aria-invalid', 'true'));
+      });
+      questionLinks(error, outcome.unanswered.map(i => ({ fieldset: facts[i], text: legends[i].textContent ?? '', focus: () => focusQuestion(facts[i]) })));
+      focusQuestion(facts[outcome.unanswered[0]]);
+      status.textContent = '';
       return;
     }
     current.checked = true; current.completed++; current.placed += outcome.right;
@@ -133,10 +154,8 @@ export function enhance(root, { content, strings, state }) {
     current = { ...current, ...deal(content.cases.length, current), order: shuffle(content.parts.map((_, i) => i)), picks: content.parts.map(() => null), checked: false };
     // Replace fieldsets because Safari kept the old legend as the group name in VoiceOver run 2.
     paintFacts(true); save();
-    // A new set replaces the old one. Focus its first answer: focusing the whole question made NVDA read every
-    // fact and option in one 1,000-character utterance. Then bring the first fact into view, since Firefox scrolls
-    // a focused control only to the nearest edge and can leave the fact it belongs to above the viewport.
-    cancelFocus = focusAfterLayout(inputs[0][0], () => legends[0].scrollIntoView({ block: 'nearest' }), lifetime.signal);
+    // Wait for the replacement fieldsets before scrolling and focusing the first question.
+    cancelFocus = focusAfterLayout(inputs[0][0], () => {}, lifetime.signal, () => focusQuestion(facts[0]));
     status.textContent = '';
   }
   paintFacts(); practice.hidden = false; fallback.hidden = true;

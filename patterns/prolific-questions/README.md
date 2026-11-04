@@ -41,10 +41,12 @@ The running count records correct placements, without a mastery claim. This patt
 
 ## Accessibility
 
+Check lists a focus button for each unanswered fact. Answering one clears only its own error and button. Each button, and the first missing answer on Check, scrolls the fact's legend into view only when needed before focusing its first option. Each unanswered fact has its own linked message.
+
 Follows the shared baseline in the root README.
 
 - Native radio groups have a legend for each fact. Arrow keys change the selected part; Tab moves between groups and actions.
-- Missing-answer errors describe unanswered groups and announce once, keeping focus on Check.
+- Missing-answer errors describe unanswered groups. Focus on the first unanswered option reads the error once; the status region stays empty.
 - Check moves focus to New set before hiding the action. New set focuses the first answer of the new set after layout settles, inside its fact's group, and scrolls that fact into view. Whether a screen reader also repeats the question depends on the reader and its settings. Restoring checked answers leaves focus where it is.
 - One status region announces each result. Marks use words, icons and borders. New set clears the old announcement; the focused first answer and its fact introduce the new set.
 - Choices stack in narrow containers. Forced colours retain native radios. Reveals are immediate, with shared reduced-motion support.

@@ -1,3 +1,4 @@
+import { clearQuestionLink, focusQuestion, questionLinks } from '../../lib/question-errors.js';
 import { format, score, validateContent, validateState } from './logic.js';
 import { escapeHtml as html, frenchTypography } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
@@ -31,6 +32,7 @@ export function enhance(root, { content, strings, state }) {
   const fallback = /** @type {HTMLElement} */ (required(root, '[data-lp-fallback]'));
   const result = /** @type {HTMLElement} */ (required(root, '[data-lp-result]'));
   const restart = /** @type {HTMLButtonElement} */ (required(root, '[data-lp-restart]'));
+  const error = /** @type {HTMLElement} */ (required(root, '[data-lp-error]'));
   const status = /** @type {HTMLElement} */ (required(root, '[role="status"]'));
   const outline = [...root.querySelectorAll('[data-lp-section-status]')].map(el => /** @type {HTMLElement} */ (el));
   if (outline.length !== content.sections.length || outline.some((el, i) => el.dataset.lpSectionStatus !== String(content.sections[i].id))) throw new Error('Invalid test-out outline markup');
@@ -85,6 +87,7 @@ export function enhance(root, { content, strings, state }) {
     for (const radio of radios) { radio.removeAttribute('aria-describedby'); radio.removeAttribute('aria-invalid'); }
   }
   function clearErrors() {
+    error.hidden = true; error.replaceChildren();
     for (const question of questions) clearQuestionError(question);
   }
   /** Switch real panels; hidden panels have no focusable controls. Restore is silent.
@@ -170,12 +173,27 @@ export function enhance(root, { content, strings, state }) {
   if (start) listen(start, 'click', () => { move(1, true); save(); });
   for (const [index, question] of questions.entries()) {
     for (const radio of question.radios) listen(radio, 'change', () => {
-      clearQuestionError(question); save();
+      clearQuestionError(question); clearQuestionLink(error, question.fieldset); save();
     });
     listen(question.back, 'click', () => { move(index, true); save(); });
     listen(question.next, 'click', () => {
       if (shown) return;
       clearErrors();
+      if (index === questions.length - 1) {
+        const missing = questions.filter(({ radios }) => !radios.some(radio => radio.checked));
+        if (missing.length) {
+          for (const { radios, message } of missing) {
+            message.hidden = false;
+            for (const radio of radios) { radio.setAttribute('aria-describedby', message.id); radio.setAttribute('aria-invalid', 'true'); }
+          }
+          error.innerHTML = `<p class="lp-error-text">${icons['alert-circle']}<span>${html(strings.choose, root.lang)}</span></p>`; error.hidden = false;
+          const focus = (/** @type {typeof questions[number]} */ target) => {
+            move(questions.indexOf(target) + 1, false); focusQuestion(target.fieldset); save();
+          };
+          questionLinks(error, missing.map(target => ({ fieldset: target.fieldset, text: frenchTypography(target.q.text, root.lang), focus: () => focus(target) })));
+          focus(missing[0]); return;
+        }
+      }
       const { fieldset, radios, message } = question;
       if (!radios.some(radio => radio.checked)) {
         // Each radio carries the message; describing the fieldset too made VoiceOver read it twice.
@@ -184,12 +202,7 @@ export function enhance(root, { content, strings, state }) {
         announce(strings.choose); save(); return;
       }
       if (index < questions.length - 1) move(index + 2, true);
-      else {
-        // A host may restore a later question with earlier answers missing.
-        const unanswered = questions.findIndex(({ radios }) => !radios.some(radio => radio.checked));
-        if (unanswered !== -1) { move(unanswered + 1, true); save(); return; }
-        show(true);
-      }
+      else show(true);
       save();
     });
   }

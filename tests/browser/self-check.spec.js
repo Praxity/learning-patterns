@@ -113,8 +113,9 @@ for (const [lang, placeholder, instruction] of [
     await expect(page.getByRole('textbox')).toHaveAttribute('aria-invalid', 'true');
     await page.getByRole('textbox').fill('Draft');
     await page.locator('[data-lp-check]').click();
-    await expect(page.locator('[data-lp-ticks] legend')).toContainText(instruction);
-    await expect(page.locator('[data-lp-ticks] .lp-small')).toHaveCount(0);
+    await expect(page.locator('[data-lp-ticks] legend')).not.toContainText(instruction);
+    await expect(page.locator('[data-lp-ticks] [id$="-hint"]')).toHaveText(instruction);
+    await expect(page.locator('[data-lp-ticks] .lp-small')).toHaveCount(1);
   });
 }
 
@@ -215,7 +216,7 @@ for (const [lang, answerLabel, empty, check, show, whole, summary, restart] of [
   await expect(page.locator('.lp-self-check-pane').first().locator('figcaption')).toHaveText(answerLabel);
   await expect(page.locator('.lp-self-check-pane').first().locator('p')).toHaveText(content.model);
   await expect(page.locator('.lp-self-check-legend')).toContainText(whole);
-  await expect(page.getByRole('status')).toHaveText(summary);
+  await expect(page.locator('.lp-visually-hidden[role="status"]')).toHaveText(summary);
   await scan();
   await page.getByRole('button', { name: restart, exact: true }).click();
   await expect(answer).toHaveValue('');
@@ -232,11 +233,11 @@ async function observeStatus(page) {
     window.lpAnnouncements = [];
     new MutationObserver(records => {
       for (const record of records) window.lpAnnouncements.push(record.target.textContent);
-    }).observe(document.querySelector('[role="status"]'), { childList: true, characterData: true, subtree: true });
+    }).observe(document.querySelector('.lp-visually-hidden[role="status"]'), { childList: true, characterData: true, subtree: true });
   });
 }
 
-test('message scene, live meter and annotated comparison use authored content', async ({ page }) => {
+test('message scene, non-live meter and annotated comparison use authored content', async ({ page }) => {
   await open(page); await observeStatus(page);
   await expect(page.getByRole('textbox')).toHaveAccessibleName('Your answer');
   await expect(page.locator('.lp-self-check-composer')).toContainText('Sam, your manager');
@@ -488,6 +489,8 @@ for (const shown of [false, true]) {
     await open(page); await expect(page.getByRole('textbox')).toHaveValue('Saved answer');
     await expect(page.getByRole('checkbox').nth(1)).toBeChecked(); await expect(page.locator('[data-lp-ticks]')).toBeVisible();
     await expect(page.locator('[data-lp-restart]')).toBeVisible();
+    await expect(page.locator('.lp-visually-hidden[role="status"]')).toHaveText('');
+    await expect(page.locator('[role="status"]')).toHaveCount(1);
     await expect(page.locator('[role="status"]')).toHaveText('');
     if (shown) await expect(page.locator('[data-lp-result]')).toContainText('You ticked 1 of 6 parts.');
     else await expect(page.locator('[data-lp-result]')).toBeHidden();
@@ -497,7 +500,7 @@ for (const shown of [false, true]) {
 test('invalid saved state is ignored', async ({ page }) => {
   await page.addInitScript(() => { window.lpSeed = { answer: 'Invalid', ticked: ['unknown'], shown: true }; });
   await open(page); await expect(page.getByRole('textbox')).toHaveValue('');
-  await expect(page.locator('[data-lp-ticks]')).toBeHidden(); await expect(page.locator('[role="status"]')).toHaveText('');
+  await expect(page.locator('[data-lp-ticks]')).toBeHidden(); await expect(page.locator('.lp-visually-hidden[role="status"]')).toHaveText('');
   await expect(page.locator('[data-lp-restart]')).toBeHidden();
 });
 
@@ -519,7 +522,7 @@ test('two instances have unique IDs and independent controls', async ({ page }) 
   await roots.first().getByRole('textbox').fill('First draft'); await roots.first().locator('[data-lp-check]').click();
   await roots.first().getByRole('checkbox').first().check(); await roots.first().locator('[data-lp-show]').click();
   await expect(roots.nth(1).getByRole('textbox')).toHaveValue(''); await expect(roots.nth(1).locator('[data-lp-ticks]')).toBeHidden();
-  await expect(roots.nth(1).locator('[role="status"]')).toHaveText('');
+  await expect(roots.nth(1).locator('.lp-visually-hidden[role="status"]')).toHaveText('');
 });
 
 test('destroy is safe to repeat after another enhancement', async ({ page }) => {

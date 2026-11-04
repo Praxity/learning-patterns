@@ -92,7 +92,11 @@ for (const lang of ['en', 'fr']) {
       await expect(page.locator('[data-lp-fallback]')).toBeHidden();
       await submit(page);
       await expect(page.locator('[data-lp-fallback] legend')).toContainText(strings[lang].common);
-      await expect(page.locator('[data-lp-fallback] legend')).toContainText(strings[lang].fallback);
+      // The hint sits outside the legend and describes the group.
+      await expect(page.locator('[data-lp-fallback] legend')).not.toContainText(strings[lang].fallback);
+      const hint = page.locator('[data-lp-fallback] fieldset > p.lp-small');
+      await expect(hint).toContainText(strings[lang].fallback);
+      await expect(page.locator('[data-lp-fallback] fieldset')).toHaveAttribute('aria-describedby', await hint.getAttribute('id'));
       await expect(page.getByRole('checkbox')).toHaveCount(4);
       await page.getByRole('checkbox').first().check();
       await expect(page.getByRole('checkbox').first()).toBeChecked();

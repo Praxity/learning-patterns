@@ -36,7 +36,7 @@ export function render(content, strings, { id, lang }) {
           <legend class="lp-stem">${html(q.text, lang)}</legend>
           ${q.options.map((o, n) => `<label class="lp-choice" for="${html(`${id}-question-${q.id}-option-${n}`)}"><input type="radio" id="${html(`${id}-question-${q.id}-option-${n}`)}" name="${html(`${id}-question-${q.id}`)}" value="${html(o.id)}"><span>${html(o.text, lang)}</span></label>`).join('\n          ')}
           <p class="lp-error-text" id="${html(`${id}-question-${q.id}-error`)}" data-lp-question-error hidden>${icons['alert-circle']}<span>${html(strings.choose, lang)}</span></p>
-          <p class="lp-outcome-detail lp-small" data-lp-explanation hidden>${html(q.explanation, lang)}</p>
+          <p data-lp-explanation hidden>${html(q.explanation, lang)}</p>
         </fieldset>
         <div class="lp-actions lp-test-out-navigation" data-lp-navigation hidden>
           <button class="lp-button lp-button-quiet" type="button" data-lp-back>${icons['arrow-back-up']}${html(strings.back, lang)}</button>
@@ -45,6 +45,7 @@ export function render(content, strings, { id, lang }) {
       </div>`).join('')}
     </div>
   </div>
+  <div data-lp-error hidden></div>
   <p class="lp-small lp-section" data-lp-policy>${html(strings.policy, lang)}</p>
   <details class="lp-details lp-section" data-lp-fallback>
     <summary>${html(strings.answers, lang)}</summary>
