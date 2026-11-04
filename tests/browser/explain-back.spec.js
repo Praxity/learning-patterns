@@ -255,7 +255,7 @@ for (const lang of ['en', 'fr']) test(`pending check keeps focus and its label, 
   await expect(check).toBeFocused();
   expect(await page.evaluate(() => window.lpStateChanges)).toEqual([]);
   await expect(note).toHaveCount(0);
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([frenchTypography(strings[lang].checking, lang), lang === 'fr' ? 'Idées clés : 3 sur 3' : '3 of 3 key ideas']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([frenchTypography(strings[lang].checking, lang), lang === 'fr' ? 'Idées clés : 3 sur 3' : '3 of 3 key ideas']);
   expect(await page.evaluate(() => window.lpStatusTimes[0] - window.lpPressed)).toBeGreaterThanOrEqual(900);
 });
 
