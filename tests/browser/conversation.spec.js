@@ -73,7 +73,7 @@ for (const lang of ['en', 'fr']) {
     await open(page, lang); await observe(page);
     await expect(page.locator('[data-lp-michel]')).toHaveText(examples[lang].opening);
     await expect(page.getByRole('textbox')).toHaveAccessibleName(strings[lang].reply.replace('{name}', examples[lang].person.name));
-    await expect(page.getByRole('textbox')).toHaveAttribute('maxlength', '1200');
+    await expect(page.getByRole('textbox')).not.toHaveAttribute('maxlength');
     await expect(page.locator('[data-lp-notice]')).toContainText(lang === 'fr' ? 'Votre réponse reste' : 'Your answer stays');
     await expect(page.locator('[data-lp-script]')).toBeHidden();
     await expect(page.locator('[data-lp-debrief]')).toBeHidden();

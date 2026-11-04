@@ -12,7 +12,7 @@ const example = JSON.parse(await readFile(new URL('./examples/en.json', import.m
 
 test('lookup notes precede the data notice directly after the field', () => {
   const markup = render(example, strings.en, { id: 'spacing', lang: 'en' });
-  assert.match(markup, /<\/textarea>\s*<p[^>]*data-lp-checking[^>]*>[^<]*<\/p>\s*<p[^>]*data-lp-paused[^>]*>[^<]*<\/p>\s*<div data-lp-notice/);
+  assert.match(markup, /<\/textarea>\s*<p[^>]*data-lp-error[^>]*><\/p>\s*<p[^>]*data-lp-checking[^>]*>[^<]*<\/p>\s*<p[^>]*data-lp-paused[^>]*>[^<]*<\/p>\s*<div data-lp-notice/);
 });
 const answer = (scores, ids = ENTRY_IDS, confidence = 1) => {
   const probabilities = Object.fromEntries([...ids, 'none'].map(id => [id, scores[id] ?? 0]));

@@ -39,6 +39,8 @@ In a randomized study of 120 healthcare professionals, practising branching conv
 
 ## Accessibility
 
+Text fields keep the full draft, including text over the limit. Checking or saving shows a linked length error instead of cutting text. Limits come from the existing logic constants. The automatic action stays enabled while model configuration loads. An early press waits for configuration, then checks or uses the existing fallback.
+
 Daily proxy caps show and announce the reason and midnight UTC reset once, keep focus in place and leave the fallback usable.
 
 Meets the shared baseline in the root README.
@@ -87,6 +89,8 @@ Authored text is capped at 120 characters for titles and labels, 400 for questio
 | `BRANCHES`, `REPLY_LIMIT` | The proxy-owned branch identities and maximum reply length. |
 
 Pass `state: { read, write }` to save the draft and conversation. Invalid saved state is ignored. Editing during a check discards its result; restarting cancels requests. Repeated enhancement returns the same instance. `destroy()` removes listeners, cancels requests and restores the static script.
+
+Stored drafts restore intact even above the send limit, with valid conversation history. The host owns its total storage budget; sent replies and history entries still obey the reply limit.
 
 ## Use it
 

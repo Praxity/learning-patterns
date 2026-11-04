@@ -1,6 +1,6 @@
 import { escapeHtml as html } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
-import { MAX_LENGTH, validateContent } from './logic.js';
+import { validateContent } from './logic.js';
 
 /** @param {import('./logic.js').Content} content
  * @param {import('./strings.js').Strings} strings
@@ -15,7 +15,7 @@ export function render(content, strings, { id, lang, stage = 'both' }) {
   /** @param {'first' | 'now'} name @param {string} label */
   const input = (name, label) => `<div>
     <label class="lp-label" for="${key(name)}">${html(label, lang)}</label>
-    <textarea class="lp-input lp-first-answer-page" id="${key(name)}" data-lp-${name}-input rows="5" maxlength="${MAX_LENGTH}"></textarea>
+    <textarea class="lp-input lp-first-answer-page" id="${key(name)}" data-lp-${name}-input rows="5"></textarea>
     <p class="lp-error-text" id="${key(`${name}-error`)}" data-lp-${name}-error hidden></p>
   </div>`;
   const first = `<section class="lp-stack lp-first-answer-step" data-lp-first-step aria-labelledby="${key('start')}">

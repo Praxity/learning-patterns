@@ -1,5 +1,6 @@
 export const strings = {
   en: {
+    tooLong: 'Your answer must be {max} characters or fewer.',
     placeholder: 'I will…', checking: 'Checking…',
     summary: '{count} of {total} done', checklist: 'Your plan', done: 'Done:', todo: 'To add:',
     complete: 'Your plan includes all four items.',
@@ -8,6 +9,7 @@ export const strings = {
     fallback: "Automatic checking is unavailable. Tick the items in your plan."
   },
   fr: {
+    tooLong: 'Votre réponse doit contenir {max} caractères ou moins.',
     placeholder: 'Je vais…', checking: 'Vérification…',
     summary: '{count} éléments sur {total} complétés', checklist: 'Votre plan', done: 'Fait :', todo: 'À ajouter :',
     complete: 'Votre plan comprend les quatre éléments.',

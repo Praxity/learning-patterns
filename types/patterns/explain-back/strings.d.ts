@@ -1,5 +1,6 @@
 export namespace strings {
     namespace en {
+        let tooLong: string;
         let ready: string;
         let readAgain: string;
         let placeholder: string;
@@ -15,6 +16,8 @@ export namespace strings {
         let fallback: string;
     }
     namespace fr {
+        let tooLong_1: string;
+        export { tooLong_1 as tooLong };
         let ready_1: string;
         export { ready_1 as ready };
         let readAgain_1: string;

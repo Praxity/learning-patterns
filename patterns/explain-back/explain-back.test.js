@@ -45,7 +45,7 @@ test('saved drafts and ticks validate through the interface', () => {
   const saved = { answer: 'Draft', ticked: ['pause'] };
   assert.deepEqual(validateState(saved), saved);
   assert.notEqual(validateState(saved).ticked, saved.ticked);
-  for (const value of [null, {}, { answer: 'x', ticked: ['unknown'] }, { answer: 'x', ticked: ['pause', 'pause'] }, { answer: 'x'.repeat(1501), ticked: [] }]) assert.equal(validateState(value), null);
+  for (const value of [null, {}, { answer: 'x', ticked: ['unknown'] }, { answer: 'x', ticked: ['pause', 'pause'] }]) assert.equal(validateState(value), null);
 });
 
 test('server HTML is escaped, prefixed, bilingual and usable without JavaScript', async () => {

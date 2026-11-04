@@ -41,6 +41,8 @@ Refutation texts produced an average learning benefit of 0.41 standard deviation
 
 ## Accessibility
 
+Text fields keep the full draft, including text over the limit. Checking or saving shows a linked length error instead of cutting text. Limits come from the existing logic constants. The automatic action stays enabled while model configuration loads. An early press waits for configuration, then checks or uses the existing fallback.
+
 Daily proxy caps show and announce the reason and midnight UTC reset once, keep focus in place and leave the fallback usable.
 
 The question labels the three-line answer box. Submitting announces feedback once through one status region, without moving focus. While a check runs, the button keeps its label and focus, and pressing it again sends nothing. "Checking your answer…" appears beside it, and the status region says it once if the check takes more than a second. Icons accompany text; colour alone conveys no meaning. Native disclosures and checkboxes support keyboards. Shared styles support reduced motion, forced colours and narrow layouts. Without JavaScript, the answer box, open model answer and checklist appear immediately. English and Québec French share the content structure.
@@ -81,6 +83,8 @@ The pure module imports identities, answer length and the decision model's confi
 `answers` is `{ misconception: { choice, confidence } }`. A no-match label uses the comparison prompt at every confidence. Known beliefs and the key idea use the configured decision model's gate. Only authored strings reach the learner.
 
 Pass `state: { read, write }` to save drafts and checklist ticks. Check results are not saved. Editing during a check discards its result. Repeated enhancement returns the same instance. `destroy()` removes listeners, cancels checks and restores the native fallback.
+
+Stored drafts restore intact even above the send limit. The host owns its total storage budget; the send limit still applies before every proxy request. Self-check ticks survive restoration. Automated judgments are not restored.
 
 ## Use it
 

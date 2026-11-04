@@ -49,7 +49,7 @@ test('content and state guards reject planted violations', () => {
   }
   const saved = { answer: 'Draft', ticked: ['when'] };
   assert.deepEqual(validateState(saved), saved);
-  for (const value of [null, {}, { answer: 'x', ticked: ['unknown'] }, { answer: 'x', ticked: ['when', 'when'] }, { answer: 'x'.repeat(ANSWER_LIMIT + 1), ticked: [] }]) assert.equal(validateState(value), null);
+  for (const value of [null, {}, { answer: 'x', ticked: ['unknown'] }, { answer: 'x', ticked: ['when', 'when'] }]) assert.equal(validateState(value), null);
 });
 
 test('bilingual native markup escapes content and prefixes every id', async () => {

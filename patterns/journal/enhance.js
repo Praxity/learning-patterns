@@ -67,21 +67,21 @@ export function enhance(root, { content, strings, state, ask }) {
   };
   function showQuestions() { result.hidden = true; result.textContent = ''; result.classList.remove('lp-met'); questions.hidden = false; questions.open = true; }
   actions.hidden = false; noScript.hidden = true; questions.hidden = true; questions.open = false; support.hidden = true;
+  let configReady = Promise.resolve();
   if (ask) {
-    suggest.disabled = true;
-    Promise.resolve().then(() => ask.config()).then(config => {
+    configReady = Promise.resolve().then(() => ask.config()).then(config => {
       if (destroyed) return;
       notice.innerHTML = renderDataNotice(config, root.lang, `${notice.id}-text`, 'entry');
       notice.hidden = false; suggest.setAttribute('aria-describedby', `${notice.id}-text`); suggest.disabled = false;
     }).catch(() => { if (!destroyed) useFallback(); });
   } else useFallback();
-  const clearError = () => { error.hidden = true; entry.removeAttribute('aria-invalid'); entry.removeAttribute('aria-describedby'); };
+  const clearError = () => { error.hidden = true; entry.removeAttribute('aria-invalid'); entry.setAttribute('aria-describedby', entry.id.replace(/-entry$/, '-starter')); };
   const readEntry = () => {
     const answer = validateAnswer(entry.value);
     if (!answer.ok) {
-      const text = strings[answer.error].replaceAll('{max}', String(ANSWER_LIMIT));
+      const text = strings[answer.error].replaceAll('{max}', ANSWER_LIMIT.toLocaleString(root.lang === 'fr' ? 'fr-CA' : 'en-CA'));
       error.textContent = frenchTypography(text, root.lang); error.hidden = false; entry.setAttribute('aria-invalid', 'true');
-      entry.setAttribute('aria-describedby', error.id); entry.focus(); status.textContent = frenchTypography(text, root.lang);
+      entry.setAttribute('aria-describedby', `${entry.id.replace(/-entry$/, '-starter')} ${error.id}`); entry.focus(); status.textContent = frenchTypography(text, root.lang);
     }
     return answer;
   };
@@ -113,6 +113,10 @@ export function enhance(root, { content, strings, state, ask }) {
     const edited = () => revision !== submittedRevision || entry.value !== answer.text;
     const discard = () => { changed.textContent = frenchTypography(content.changed, root.lang); changed.hidden = false; status.textContent = frenchTypography(content.changed, root.lang); };
     try {
+      await configReady;
+      if (destroyed) return;
+      if (!automatic) { if (edited()) discard(); else status.textContent = frenchTypography(strings.fallback, root.lang); return; }
+      if (edited()) { discard(); return; }
       const answers = await ask('13-journal', { answer: answer.text.trim() }, { challengeSlot, signal: lifetime.signal });
       if (destroyed) return;
       if (edited()) { discard(); return; }

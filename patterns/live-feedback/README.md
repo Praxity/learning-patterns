@@ -46,6 +46,8 @@ Perplexity Decider v1.1 scored 11/12 on authored test answers using the original
 
 ## Accessibility
 
+The field keeps the full draft. After a typing pause, an oversized answer shows a linked length error and is not sent for checking. The sentence starter stays visible as a hint.
+
 Daily proxy caps show and announce the reason and midnight UTC reset once, keep focus in place and leave the fallback usable. Checks then stop until reload.
 
 Meets the shared baseline in the root README.
@@ -87,6 +89,8 @@ Authored text is capped at 120 characters for titles and labels, 400 for questio
 `lib/typing-pause.js` owns the adaptive wait. Live feedback uses `typingPause({ minChars: MIN_CHARS, questionMark: false })`, with `key(time)`, `wait()` and `delay(text, checked, enter = false)`. Delay returns milliseconds or `null` when no check is due. Live feedback does not request an immediate check on Enter.
 
 Pass `state: { read, write }` to save drafts and checklist ticks. Check results are not saved. Repeated enhancement returns the same instance. `destroy()` removes listeners and the "Your plan includes all four items." line, cancels checks and restores the native checklist, keeping the draft and ticks. Re-enhancement keeps the remaining automatic allowance.
+
+Stored drafts restore intact even above the send limit. The host owns its total storage budget; the send limit still applies before every proxy request. Self-check ticks survive restoration. Automated judgments are not restored.
 
 ## Use it
 
