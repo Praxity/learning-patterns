@@ -8,7 +8,7 @@ export const strings = {
   },
   fr: {
     placeholder: 'Écrivez votre réponse ici…', check: 'Vérifier ma réponse',
-    empty: "Écrivez d'abord une réponse.", checking: 'Vérification de votre réponse…',
+    empty: "Écrivez d’abord une réponse.", checking: 'Vérification de votre réponse…',
     found: 'Idée clé trouvée', misconception: 'Idée fausse connue', unsure: 'Pas certain', noMatch: 'Aucune correspondance',
     model: 'Un modèle de réponse', common: 'Idées fausses courantes',
     fallback: "La vérification automatique est indisponible. Cochez les idées fausses dans votre réponse."

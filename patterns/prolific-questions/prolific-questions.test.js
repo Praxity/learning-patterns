@@ -182,19 +182,19 @@ test('render escapes content, UI, ids and language and keeps instances independe
 test('French feedback pluralizes current answers and cumulative placements independently', () => {
   assert.deepEqual(feedback(strings.fr, { right: 1, total: 3, completed: 1, placed: 1 }), {
     summary: '1 série, 1 fait bien classé sur 3.',
-    announcement: "1 bonne réponse sur 3 dans cette série. Jusqu'ici: 1 série, 1 fait bien classé sur 3."
+    announcement: "1 bonne réponse sur 3 dans cette série. Jusqu’ici: 1 série, 1 fait bien classé sur 3."
   });
   assert.deepEqual(feedback(strings.fr, { right: 0, total: 3, completed: 1, placed: 0 }), {
     summary: '1 série, 0 fait bien classé sur 3.',
-    announcement: "0 bonne réponse sur 3 dans cette série. Jusqu'ici: 1 série, 0 fait bien classé sur 3."
+    announcement: "0 bonne réponse sur 3 dans cette série. Jusqu’ici: 1 série, 0 fait bien classé sur 3."
   });
   assert.deepEqual(feedback(strings.fr, { right: 0, total: 3, completed: 2, placed: 1 }), {
     summary: '2 séries, 1 fait bien classé sur 6.',
-    announcement: "0 bonne réponse sur 3 dans cette série. Jusqu'ici: 2 séries, 1 fait bien classé sur 6."
+    announcement: "0 bonne réponse sur 3 dans cette série. Jusqu’ici: 2 séries, 1 fait bien classé sur 6."
   });
   assert.deepEqual(feedback(strings.fr, { right: 2, total: 3, completed: 2, placed: 3 }), {
     summary: '2 séries, 3 faits bien classés sur 6.',
-    announcement: "2 bonnes réponses sur 3 dans cette série. Jusqu'ici: 2 séries, 3 faits bien classés sur 6."
+    announcement: "2 bonnes réponses sur 3 dans cette série. Jusqu’ici: 2 séries, 3 faits bien classés sur 6."
   });
   assert.deepEqual(feedback(strings.en, { right: 1, total: 3, completed: 1, placed: 1 }), {
     summary: '1 set, 1 of 3 facts placed right.',
@@ -225,7 +225,7 @@ test('worked example comes first, no-JS answers contain every fact and label wit
     for (const part of example.parts) assert.ok(fallback.includes(escapeHtml(part.label, lang)));
     assert.ok(!fallback.includes(escapeHtml(example.context, lang)));
     assert.equal(markup.split(escapeHtml(example.context, lang)).length - 1, 1);
-    if (lang === 'fr') assert.match(markup, /Contexte\u202f:/);
+    if (lang === 'fr') assert.match(markup, /Contexte\u00a0:/);
   }
   assert.deepEqual(Object.keys(strings.en), Object.keys(strings.fr));
 });

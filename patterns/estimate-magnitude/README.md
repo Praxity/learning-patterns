@@ -1,6 +1,6 @@
 ---
 title: Estimate magnitude
-title_fr: Estimez l'ordre de grandeur
+title_fr: Estimez l’ordre de grandeur
 summary: Slide a range until it holds your estimate, then see which answers your ranges caught.
 section: question
 ai: no

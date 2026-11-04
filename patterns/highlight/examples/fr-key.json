@@ -1,6 +1,6 @@
 {
   "mode": "key",
-  "title": "Qu'est-ce que l'évitement?",
+  "title": "Qu’est-ce que l’évitement?",
   "paragraphs": [
     [
       {
@@ -17,7 +17,7 @@
       },
       {
         "id": "horsemen",
-        "text": "Les quatre cavaliers sont la critique, la défensive, le mépris et l'évitement.",
+        "text": "Les quatre cavaliers sont la critique, la défensive, le mépris et l’évitement.",
         "key": true
       }
     ],
@@ -28,14 +28,14 @@
       },
       {
         "id": "harm",
-        "text": "Le blâme, le mépris et l'évitement minent la confiance et perturbent le travail.",
+        "text": "Le blâme, le mépris et l’évitement minent la confiance et perturbent le travail.",
         "key": true
       }
     ],
     [
       {
         "id": "withdraw",
-        "text": "L'évitement signifie se retirer d'une conversation.",
+        "text": "L’évitement signifie se retirer d’une conversation.",
         "key": true
       },
       {
@@ -45,11 +45,11 @@
       {
         "id": "overwhelmed",
         "text": "Cela arrive souvent quand la situation vous dépasse.",
-        "note": "Ce passage explique quand l'évitement survient. Les idées clés décrivent le comportement et son effet sur l'autre personne."
+        "note": "Ce passage explique quand l’évitement survient. Les idées clés décrivent le comportement et son effet sur l’autre personne."
       },
       {
         "id": "unseen",
-        "text": "L'autre personne ne le voit pas."
+        "text": "L’autre personne ne le voit pas."
       },
       {
         "id": "ignored",

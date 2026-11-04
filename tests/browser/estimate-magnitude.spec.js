@@ -27,7 +27,7 @@ async function openContent(page, content, lang = 'en') {
   await page.goto('/estimate-magnitude/fixture.html');
   await expect(page.locator('[data-lp-check]')).toBeVisible();
   expect(await page.evaluate(async () => {
-    const faces = await Promise.all([400, 600].map(weight => document.fonts.load(`${weight} 15px "Source Sans 3"`)));
+    const faces = await Promise.all([400, 600].map(weight => document.fonts.load(`${weight} 16px "Source Sans 3"`)));
     await document.fonts.ready;
     return faces.every(loaded => loaded.length && loaded.every(face => face.status === 'loaded'));
   })).toBe(true);

@@ -201,8 +201,8 @@ test('French render uses French text and nonbreaking punctuation', () => {
   const output = render(fr, strings.fr, { id: 'fr', lang: 'fr-CA' });
   assert.match(output, /lang="fr-CA"/);
   assert.ok(output.includes('Vérifier ma répartition'));
-  assert.ok(output.includes('Contexte\u202f:'));
-  assert.ok(output.includes('35\u202f%'));
+  assert.ok(output.includes('Contexte\u00a0:'));
+  assert.ok(output.includes('35\u00a0%'));
   assert.ok(output.includes('cause\u202f?'));
   assert.ok(output.includes('Registre des demandes de soutien du mois dernier.'));
   assert.ok(output.includes('elle a traité 400 demandes.'));

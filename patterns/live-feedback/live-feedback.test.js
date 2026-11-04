@@ -54,8 +54,8 @@ test('content and state guards reject planted violations', () => {
 
 test('bilingual native markup escapes content and prefixes every id', async () => {
   assert.deepEqual(Object.keys(strings.en), Object.keys(strings.fr));
-  assert.equal(strings.en.complete, 'Well done!');
-  assert.equal(strings.fr.complete, 'Bien joué !');
+  assert.equal(strings.en.complete, 'Your plan includes all four items.');
+  assert.equal(strings.fr.complete, 'Votre plan comprend les quatre éléments.');
   for (const lang of ['en', 'fr']) {
     const example = JSON.parse(await readFile(new URL(`./examples/${lang}.json`, import.meta.url)));
     const markup = render({ ...example, prompt: '<script>bad</script>' }, strings[lang], { id: 'one', lang });

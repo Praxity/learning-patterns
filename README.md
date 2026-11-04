@@ -54,9 +54,11 @@ With Node 22, run `npm ci` and `npm run demo`, then `node scripts/serve-demo.mjs
 | `--lp-warning-ink`, `--lp-warning-soft` | `#a24a07`, `#fdf1e4` | Missed or to add |
 | `--lp-focus` | the accent | Focus ring |
 | `--lp-font-body`, `--lp-font-heading` | Source Sans 3, then system sans | All text |
-| `--lp-type-small`, `--lp-type-body`, `--lp-type-h3` | 15, 17 and 21 px | Type sizes |
+| `--lp-type-small`, `--lp-type-body`, `--lp-type-h3` | 16, 17 and 21 px | Type sizes |
 | `--lp-radius-box`, `--lp-radius-control` | 16 and 10 px | Corners |
 | `--lp-shadow` | a soft two-layer shadow | Cards only |
+
+When re-theming `--lp-accent`, keep `--lp-focus` at a contrast ratio of at least 3:1 against `--lp-paper`. Set `--lp-focus` separately if needed.
 
 Fonts are not bundled. Load Source Sans 3 yourself, or set the font tokens to your own.
 
@@ -73,7 +75,7 @@ Every pattern follows this shared baseline. The [browser tests](tests/browser/) 
 - Every pattern has a working version without JavaScript. Its README describes which steps remain available.
 - English and French content, labels and feedback have checks in both languages.
 
-Automated checks cover only part of accessibility. NVDA passes in Chrome and Firefox and a VoiceOver pass in WebKit on macOS cover the eight patterns without AI. A VoiceOver pass in Safari is still to come.
+Automated checks cover only part of accessibility. We tested the patterns with NVDA in Chrome and Firefox and VoiceOver in Safari on macOS, using prepared model answers for AI patterns. Test your adapted content with the screen readers and browsers your learners use.
 
 ## Licence
 

@@ -99,7 +99,7 @@ async function mount(page, stages, value = undefined, mode = '') {
 
 for (const [lang, journal, day, end, note] of [
   ['en', 'Your journal', 'Day one', 'End of the course', 'It stays as you wrote it.'],
-  ['fr', 'Votre journal', 'Premier jour', 'Fin du cours', "Elle reste telle que vous l'avez écrite."]
+  ['fr', 'Votre journal', 'Premier jour', 'Fin du cours', "Elle reste telle que vous l’avez écrite."]
 ]) {
   test(`journal scene, dated entry and course timeline (${lang})`, async ({ page }) => {
     await open(page, `/first-answer/${lang}.html`);
@@ -192,7 +192,7 @@ test('restoring now locks the comparison silently and reset clears the lock', as
 
 for (const [lang, legend, announcement, retry] of [
   ['en', 'What improved in your new answer?', 'Compare your answers. Tick the improvements.', 'Try again'],
-  ['fr', "Qu'est-ce qui s'est amélioré dans votre nouvelle réponse ?", "Comparez vos réponses. Cochez les améliorations.", 'Réessayer']
+  ['fr', "Qu’est-ce qui s’est amélioré dans votre nouvelle réponse ?", "Comparez vos réponses. Cochez les améliorations.", 'Réessayer']
 ]) {
   test(`comparison uses the improvement question and quiet icon actions (${lang})`, async ({ page }) => {
     await open(page, `/first-answer/${lang}.html`); await saveFirst(page); await page.locator('[data-lp-skip]').click(); await compare(page);
@@ -292,7 +292,7 @@ test('2000 characters accepted; programmatically overlong text refused without w
   expect((await page.evaluate(() => window.lpSaved)).first.text.length).toBe(2000);
 });
 
-for (const [lang, savedNote, summary] of [['en', 'It stays as you wrote it.', 'You ticked 1 of 3 improvements.'], ['fr', "Elle reste telle que vous l'avez écrite.", 'Améliorations cochées : 1 sur 3.']]) {
+for (const [lang, savedNote, summary] of [['en', 'It stays as you wrote it.', 'You ticked 1 of 3 improvements.'], ['fr', "Elle reste telle que vous l’avez écrite.", 'Améliorations cochées : 1 sur 3.']]) {
   test(`restore valid state silently with localized dates (${lang})`, async ({ page }) => {
     await page.addInitScript(value => { window.lpSeed = value; }, seed);
     await open(page, `/first-answer/${lang}.html`);
@@ -486,7 +486,7 @@ test('one activity box uses shared text, choice, readonly and quiet button style
       readonlyBackground: css('[data-lp-now-input]').backgroundColor
     };
   });
-  expect(styles).toMatchObject({ stepBorder: '0px', sectionBorder: '1px', fieldsetBorder: '0px', stemSize: '19px', dateSize: '15px', headingWeight: '600', readonlyBackground: 'rgb(247, 248, 250)' });
+  expect(styles).toMatchObject({ stepBorder: '0px', sectionBorder: '1px', fieldsetBorder: '0px', stemSize: '19px', dateSize: '16px', headingWeight: '600', readonlyBackground: 'rgb(247, 248, 250)' });
   expect(styles.stemFont).toContain('Source Sans 3');
   await page.getByRole('checkbox').first().check();
   const choice = page.locator('.lp-choice').first();

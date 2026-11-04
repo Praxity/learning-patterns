@@ -40,8 +40,8 @@ export const strings = {
     answers: 'Réponses',
     backInstruction: 'Vérifiez vos réponses. Revoyez ce que vous avez manqué.',
     print: 'Imprimer la feuille',
-    printHint: "Les questions s'impriment avant les réponses. Pour une feuille recto verso, choisissez le retournement sur le bord long dans les réglages d'impression.",
-    printing: "La boîte de dialogue d'impression est ouverte."
+    printHint: "Les questions s’impriment avant les réponses. Pour une feuille recto verso, choisissez le retournement sur le bord long dans les réglages d’impression.",
+    printing: "La boîte de dialogue d’impression est ouverte."
   }
 };
 /** @typedef {typeof strings.en} Strings */

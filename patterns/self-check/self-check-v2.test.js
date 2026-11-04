@@ -88,5 +88,5 @@ test('result guidance adds a next step without repeating the count summary', () 
   assert.equal(strings.en.resultAll, 'Compare your wording with the model answer.');
   assert.equal(strings.en.resultMany, 'Use the hints to add missing parts.');
   assert.equal(strings.fr.resultAll, 'Comparez votre formulation avec la réponse modèle.');
-  assert.equal(strings.fr.resultMany, 'Ajoutez les éléments manquants à l\'aide des conseils.');
+  assert.equal(strings.fr.resultMany, 'Ajoutez les éléments manquants à l’aide des conseils.');
 });
