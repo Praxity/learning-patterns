@@ -43,14 +43,13 @@ This sequence has not been tested as a whole. Ticks record only the learner's ow
 
 ## Accessibility
 
-The checklist legend asks which parts the answer includes. Its short instruction describes the fieldset through `aria-describedby`. The tick count is non-live text outside the legend. Saved counts restore silently; the single status region announces submitted feedback.
-
 Follows the shared baseline in the root README.
 
-- An empty answer gets an error linked to its text box. Checking moves focus to the first checklist item.
-- Native checkbox labels supply their names and support clicking. Firefox may also announce "clickable" on these labels.
-- Numbered marks connect the model to the checklist. Each part has a visible status and each missed part has a hint.
-- Feedback announces how many parts the learner ticked. Start over focuses the answer field.
+Write clear checklist labels, hints for missed parts and a model answer. Without JavaScript, learners can write an answer and open all hints and the model answer.
+
+### Known issues
+
+Native checkbox labels supply their names and support clicking. Firefox may also announce "clickable" on these labels.
 
 ## Content fields
 
@@ -111,6 +110,14 @@ const instance = enhance(document.querySelector('[data-lp-pattern]'), { content,
 ```
 
 For an email task, add `context: { to: 'Sam', initials: 'S', subject: 'Report' }`. Use `context.placeholder` for a prompt in the empty field. Both example files show email tasks.
+
+### Accessibility details
+
+The checklist legend asks which parts the answer includes. Its short instruction describes the fieldset through `aria-describedby`. The tick count is non-live text outside the legend. Saved counts restore silently; the single status region announces submitted feedback.
+
+- An empty answer gets an error linked to its text box. Checking moves focus to the first checklist item.
+- Numbered marks connect the model to the checklist. Each part has a visible status and each missed part has a hint.
+- Feedback announces how many parts the learner ticked. Start over focuses the answer field.
 
 ## Adapt it with your agent
 

@@ -23,7 +23,7 @@ Slide a range until it holds your estimate, then see which answers your ranges c
 
 ## Before you use it
 
-Write three to five questions, with answers and sources. Give enough context to reason toward each answer. Choose how wide the ranges are. The high end can be 10, 100 or 1,000 times the low end.
+Write three to five questions, with answers and sources. Give enough context to reason toward each answer. Choose ranges whose high end is 10, 100 or 1,000 times the low end.
 
 ## How it works
 
@@ -31,8 +31,6 @@ Write three to five questions, with answers and sources. Give enough context to 
 2. For each question, they place a range on a logarithmic scale by dragging it, tapping the track, or using the arrow keys, Home and End.
 3. "Check my ranges" marks each real answer on its track, says "Caught" or "Missed", gives the source, and counts how many ranges caught their answer.
 4. "Try again" resets the ranges.
-
-Every range has the same width. By default its high end is ten times its low end, such as 50 to 500. Authors can set the ratio to 10, 100 or 1,000. Learners move ranges but can't resize them.
 
 ## Evidence
 
@@ -46,14 +44,7 @@ The sample figures and records are made up. The quantities can be reasoned towar
 
 Follows the shared baseline in the root README.
 
-- Each question has a fieldset and legend. The legend names the group. Its band is a button with slider semantics and its own short name, "Range for question 1", so screen readers say the question once and lists of controls tell the bands apart.
-- Arrow keys move one stop. Home and End select the first and last bands. Track taps provide an alternative to dragging.
-- `aria-valuetext` gives both bounds and the unit. After checking, it also gives the answer and whether it was caught or missed.
-- Each range must be deliberately set before checking, so the middle starting position is not a hint. Missing ranges get linked errors; focus stays on Check.
-- Feedback uses words and icons as well as colour. One status region announces validation, the summary or the reset once. Slider changes use their value semantics.
-- Check moves focus to Try again through the shared lock helper. Try again restores the existing controls and focuses the first band after layout.
-- Forced colours preserve tracks, bands, answer markers and focus outlines. There is no animation; shared reveal scrolling respects reduced motion.
-- The logarithmic scale has longer ticks at powers of ten and shorter ticks at five times each power. Up to six powers are all labelled; longer scales label only 1, 1K, 1M, 1B and 1T when present, with Canadian French equivalents. Axis numbers use the normal small text size and sit centred on their ticks, except the first sits flush left and labels beyond 90% sit flush right. Range labels use the band's midpoint and shift inward near either end. After checking, a diamond marks the true value on the line; the feedback below gives its number and unit.
+Give each question a clear unit and a source for its answer. Without JavaScript, learners can read the questions and open the answers, units and sources, but cannot move ranges.
 
 ## Content fields
 
@@ -73,6 +64,8 @@ Content is plain text. Rendering escapes HTML characters. Keep English and Québ
 Required strings must contain visible text. Unknown fields are rejected. Choose quantities a newcomer can reason toward from the context, such as staff numbers or working days.
 
 ## Logic
+
+Every range has the same width. By default its high end is ten times its low end, such as 50 to 500. Authors can set the ratio to 10, 100 or 1,000. Learners move ranges but can't resize them.
 
 `logic.js` contains pure validation, scale generation and scoring. Studio can import it without a DOM.
 
@@ -109,6 +102,17 @@ import content from './patterns/estimate-magnitude/examples/en.json' with { type
 const markup = render(content, strings.en, { id: 'office', lang: 'en' });
 const instance = enhance(document.querySelector('[data-lp-pattern="estimate-magnitude"]'), { content, strings: strings.en });
 ```
+
+### Accessibility details
+
+- Each question has a fieldset and legend. The legend names the group. Its band is a button with slider semantics and its own short name, "Range for question 1", so screen readers say the question once and lists of controls tell the bands apart.
+- Arrow keys move one stop. Home and End select the first and last bands. Track taps provide an alternative to dragging.
+- `aria-valuetext` gives both bounds and the unit. After checking, it also gives the answer and whether it was caught or missed.
+- Each range must be deliberately set before checking, so the middle starting position is not a hint. Missing ranges get linked errors; focus stays on Check.
+- Feedback uses words and icons as well as colour. One status region announces validation, the summary or the reset once. Slider changes use their value semantics.
+- Check moves focus to Try again through the shared lock helper. Try again restores the existing controls and focuses the first band after layout.
+- Forced colours preserve tracks, bands, answer markers and focus outlines. There is no animation; shared reveal scrolling respects reduced motion.
+- The logarithmic scale has longer ticks at powers of ten and shorter ticks at five times each power. Up to six powers are all labelled; longer scales label only 1, 1K, 1M, 1B and 1T when present, with Canadian French equivalents. Axis numbers use the normal small text size and sit centred on their ticks, except the first sits flush left and labels beyond 90% sit flush right. Range labels use the band's midpoint and shift inward near either end. After checking, a diamond marks the true value on the line; the feedback below gives its number and unit.
 
 ## Adapt it with your agent
 

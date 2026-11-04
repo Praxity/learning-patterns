@@ -39,12 +39,7 @@ This sequence has not been tested with learners. The example's figures are made 
 
 Follows the shared baseline in the root README.
 
-- Each month to guess has a named native range input. Its value text says whether it is set and, after checking, gives the guess and real value with the unit.
-- The focused month has a 3 px ring around its column. Tapping offers an alternative to dragging.
-- Known points and the final comparison also have visually hidden text. Squares and a solid line distinguish real values from circles and a dashed guess line, including in forced colours.
-- One status region announces validation errors, the final summary and reset. Native sliders announce their own changes; the status region does not repeat them.
-- Checking locks the response and moves focus to Try again. Try again restores focus to the first month after layout. Saved state restores silently.
-- The chart scales with the available width. Reveals are immediate; the shared reveal helper respects reduced motion when scrolling.
+Name each point and unit, and explain the real trend in words. Without JavaScript, learners can read the context and known line, then open all real values, the explanation and source.
 
 ## Content fields
 
@@ -109,6 +104,15 @@ import content from './patterns/draw-your-guess/examples/en.json' with { type: '
 document.querySelector('main').innerHTML = render(content, strings.en, { id: 'prediction', lang: 'en' });
 const instance = enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en });
 ```
+
+### Accessibility details
+
+- Each month to guess has a named native range input. Its value text says whether it is set and, after checking, gives the guess and real value with the unit.
+- The focused month has a 3 px ring around its column. Tapping offers an alternative to dragging.
+- Known points and the final comparison also have visually hidden text. Squares and a solid line distinguish real values from circles and a dashed guess line, including in forced colours.
+- One status region announces validation errors, the final summary and reset. Native sliders announce their own changes; the status region does not repeat them.
+- Checking locks the response and moves focus to Try again. Try again restores focus to the first month after layout. Saved state restores silently.
+- The chart scales with the available width. Reveals are immediate; the shared reveal helper respects reduced motion when scrolling.
 
 ## Adapt it with your agent
 

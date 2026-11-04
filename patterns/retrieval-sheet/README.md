@@ -82,13 +82,11 @@ Use remains uncertain. Students tend to study when deadlines push them ([Hartwig
 
 Follows the shared baseline in the root README.
 
-- Front and Back tabs share one tab stop. Left and Right arrows change sides; Home selects Front and End selects Back. Selection updates the tabs and panel before moving focus.
-- A fieldset names the five spacing choices. Each radio's name includes its date, after a comma. Native radios support Tab and arrow keys, with a visible selected row and keyboard focus.
-- "Another date" reveals a field labelled "Date" and announces the date in it. Date changes and printing announce once and keep focus.
-- A newly invalid date announces its error once through the status region. The field gets the error as its description when focus leaves it, so it isn't read twice. Repeated invalid edits stay silent. A valid date, even the same one as before, announces once. A year typed digit by digit changes nothing until it has four digits.
-- Tab selection identifies the active side without another status announcement.
-- NVDA speaks a newly selected tab twice after Arrow, Home or End changes sides in Chrome and Firefox. The W3C ARIA Authoring Practices example also does this. Tabs still activate on focus; requiring Enter or Space would add a step for everyone.
-- Printed questions leave space for handwritten answers. Check printer margins and double-sided settings by hand.
+Printed questions leave space for handwritten answers. Check printer margins and double-sided settings. Without JavaScript, both sides show in order with the server's date, and learners can use the browser's Print command.
+
+### Known issues
+
+NVDA speaks a newly selected tab twice after Arrow, Home or End changes sides in Chrome and Firefox. The W3C ARIA Authoring Practices example also does this. Tabs still activate on focus; requiring Enter or Space would add a step for everyone.
 
 ## Content fields
 
@@ -166,6 +164,15 @@ const instance = enhance(document.querySelector('[data-lp-pattern="retrieval-she
   content, strings: strings.en
 });
 ```
+
+### Accessibility details
+
+- Front and Back tabs share one tab stop. Left and Right arrows change sides; Home selects Front and End selects Back. Selection updates the tabs and panel before moving focus.
+- A fieldset names the five spacing choices. Each radio's name includes its date, after a comma. Native radios support Tab and arrow keys, with a visible selected row and keyboard focus.
+- "Another date" reveals a field labelled "Date" and announces the date in it. Date changes and printing announce once and keep focus.
+- A newly invalid date announces its error once through the status region. The field gets the error as its description when focus leaves it, so it isn't read twice. Repeated invalid edits stay silent. A valid date, even the same one as before, announces once. A year typed digit by digit changes nothing until it has four digits.
+- Tab selection identifies the active side without another status announcement.
+- Printed questions leave space for handwritten answers. Check printer margins and double-sided settings by hand.
 
 ## Adapt it with your agent
 

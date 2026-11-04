@@ -229,3 +229,15 @@ test('a question must offer at least two choices', () => {
   value.questions[0].options = value.questions[0].options.filter(o => o.id === value.questions[0].correct);
   assert.throws(() => validateContent(value), /options/);
 });
+
+test('authored options accept seven and reject eight in the validator and schema', async () => {
+  const schema = JSON.parse(await readFile(new URL('./content.schema.json', import.meta.url)));
+  assert.equal(schema.properties.questions.items.properties.options.maxItems, 7);
+  const value = structuredClone(content);
+  const q = value.questions[0];
+  q.options = Array.from({ length: 7 }, (_, i) => ({ id: 'option-' + i, text: 'Option ' + i }));
+  q.correct = 'option-0';
+  assert.doesNotThrow(() => validateContent(value));
+  q.options.push({ id: 'option-7', text: 'Eighth option' });
+  assert.throws(() => validateContent(value), /questions\[0\]\.options/);
+});

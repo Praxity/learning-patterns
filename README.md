@@ -64,6 +64,8 @@ Fonts are not bundled. Load Source Sans 3 yourself, or set the font tokens to yo
 
 ## Accessibility baseline
 
+Our accessibility target is WCAG 2.2 AA and EN 301 549.
+
 Every pattern follows this shared baseline. The [browser tests](tests/browser/) run in Chromium, WebKit and Firefox, as set in the [Playwright configuration](playwright.config.js).
 
 - Automated axe checks cover WCAG 2.2 AA rules, including the WCAG 2.0 and 2.1 rules, at the interaction's tested stages.

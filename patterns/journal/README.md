@@ -22,16 +22,16 @@ Reflect on practising assertiveness this week. Save your entry in your tab or as
 
 ## Before you use it
 
-It needs a server running a model. Without the decision model, all four questions open, with the support text below them.
+It needs a server running a model. Without the decision model, all four questions open, with the support text below them. The entry stays in the browser tab, and saving sends nothing.
 
-The distress check is unreliable and contacts no one. Put your real support details in the support text, and offer help to every learner, flagged or not. Test the model with your own examples first.
+The distress check is unreliable and contacts no one. Replace the support text with real help for every learner, and test the model with your own examples.
 
 ## How it works
 
-1. The learner writes about their week under today's date and selects "Save". The entry stays in the browser tab, and saving sends nothing.
+1. The learner writes about their week under today's date and selects "Save".
 2. "Get a suggestion" sends the entry to the decision model, which picks one follow-up question, a completion message or a support message.
 
-If the learner edits the entry while a suggestion loads, the suggestion is dropped and they can ask again. Without the decision model, all four questions open, with the support text below them. Without JavaScript, the learner can write and read the questions but can't save.
+Without the decision model, all four questions open, with the support text below them. Without JavaScript, the learner can write and read the questions but can't save.
 
 ## Evidence
 
@@ -39,19 +39,9 @@ A review of 29 studies in health professions identified guidance and a supportiv
 
 ## Accessibility
 
-Text fields keep the full draft, including text over the limit. Checking or saving shows a linked length error instead of cutting text. Limits come from the existing logic constants. The sentence starter stays visible as a hint. The automatic action stays enabled while model configuration loads. An early press waits for configuration, then checks or uses the existing fallback.
-
-Daily proxy caps show and announce the reason and midnight UTC reset once, keep focus in place and leave the fallback usable.
-
 Meets the shared baseline in the root README.
 
-- The prompt labels the large writing area. Today’s date uses the page language.
-- Each submitted result or save message uses one status region. Suggestions keep focus on the action; typing does not announce or request feedback.
-- While a suggestion is pending, "Get a suggestion" keeps its label, and pressing it again sends nothing. "Reading…" appears beside it. If the suggestion takes more than a second, the status region says "Reading…" once.
-- Native questions open immediately. Support text and questions remain available without the decision model or JavaScript.
-- A failed suggestion opens the questions. If the suggestion button has focus, focus moves to the questions' disclosure before the button hides.
-- Blocked storage reports that the entry was not saved and keeps the text available to copy.
-- English and Québec French share the same fields.
+Write a clear prompt and replace the support text with real help for your learners. Without JavaScript, learners can write and read the follow-up questions and support text, but cannot save.
 
 ## Content fields
 
@@ -70,6 +60,8 @@ All fields are escaped plain text.
 The proxy checks an assertiveness reflection. To change the task, change and evaluate its criteria too. Unknown fields, blank text and incorrect question order are rejected.
 
 ## Logic
+
+The entry stays in the browser tab, and saving sends nothing. If the learner edits the entry while a suggestion loads, the suggestion is dropped and they can ask again.
 
 Authored text is capped at 120 characters for titles and labels, 400 for questions and prompts, 300 for options, and 1,500 for answers, explanations and passage text. The schema gives each field's limit; `validateContent` enforces it.
 
@@ -107,6 +99,20 @@ enhance(document.querySelector('[data-lp-pattern="journal"]'), { content, string
 ```
 
 The shared client calls `ask('13-journal', { answer }, { challengeSlot, signal })`. Its data notice appears under "Get a suggestion". Turnstile appears inline when a request needs clearance. The proxy never caches entries. Missing `ask`, failed configuration, invalid answers or failed requests open the authored questions. The demo sends no entry text and uses fixed answers. Its adapter writes to sessionStorage only on Save; closing the tab clears the entry.
+
+### Accessibility details
+
+Text fields keep the full draft, including text over the limit. Checking or saving shows a linked length error instead of cutting text. Limits come from the existing logic constants. The sentence starter stays visible as a hint. The automatic action stays enabled while model configuration loads. An early press waits for configuration, then checks or uses the existing fallback.
+
+Daily proxy caps show and announce the reason and midnight UTC reset once, keep focus in place and leave the fallback usable.
+
+- The prompt labels the large writing area. Today’s date uses the page language.
+- Each submitted result or save message uses one status region. Suggestions keep focus on the action; typing does not announce or request feedback.
+- While a suggestion is pending, "Get a suggestion" keeps its label, and pressing it again sends nothing. "Reading…" appears beside it. If the suggestion takes more than a second, the status region says "Reading…" once.
+- Native questions open immediately. Support text and questions remain available without the decision model or JavaScript.
+- A failed suggestion opens the questions. If the suggestion button has focus, focus moves to the questions' disclosure before the button hides.
+- Blocked storage reports that the entry was not saved and keeps the text available to copy.
+- English and Québec French share the same fields.
 
 ## Adapt it with your agent
 

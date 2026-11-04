@@ -81,7 +81,7 @@ export function validateContent(content) {
     identity(q.id, ids, `${path}.id`);
     for (const field of ['text', 'correct', 'explanation']) text(q[field], `${path}.${field}`);
     if (!sectionId(q.section) || !sections.has(q.section)) throw new Error(`Invalid ${path}.section`);
-    if (!Array.isArray(q.options) || q.options.length < 2) throw new Error(`Invalid ${path}.options`);
+    if (!Array.isArray(q.options) || q.options.length < 2 || q.options.length > 7) throw new Error(`Invalid ${path}.options`);
     const optionIds = new Set();
     for (const [n, o] of q.options.entries()) {
       const optionPath = `${path}.options[${n}]`;

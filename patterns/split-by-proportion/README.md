@@ -39,11 +39,9 @@ This pattern makes a learner's estimate visible before revealing the answer. It 
 
 ## Accessibility
 
-Follows the shared baseline in the root README. Every divider is a native, labelled range input. Its value text names the adjacent options and every option a push changes. Slider changes use that native announcement alone; check and reset use one status region. Pointer tapping provides an alternative to dragging. Letters, outlines, names and numbers accompany colour. The key names the options; letters and values sit above and below the joined result bar. The hidden table is the text equivalent for screen readers. Focus moves through the shared locking and layout helpers. Saved results restore silently.
+Follows the shared baseline in the root README.
 
-The layout wraps at 320px. Forced colours retain segment boundaries, letters and the focus ring. Reveals are immediate; the shared reveal helper respects reduced motion when scrolling.
-
-Without JavaScript, the question, context and option labels remain visible so learners can form an estimate. Learners can open "Compare with the real split" for a table of all real values and the source. Interactive controls and starting shares stay hidden.
+Name every option and give the real values and source. Without JavaScript, learners can read the question and labels, then open a table of real values and the source.
 
 ## Content fields
 
@@ -104,6 +102,14 @@ const instance = enhance(document.querySelector('[data-lp-pattern]'), { content,
 ```
 
 Pattern colour tokens `--lp-split-by-proportion-a` through `--lp-split-by-proportion-f` provide six brand colours without requiring host brand variables. Rose and purple are slightly lighter to keep at least 8.4:1 contrast with the default ink. Keep ink text contrast and segment outlines when overriding them.
+
+### Accessibility details
+
+Every divider is a native, labelled range input. Its value text names the adjacent options and every option a push changes. Slider changes use that native announcement alone; check and reset use one status region. Pointer tapping provides an alternative to dragging. Letters, outlines, names and numbers accompany colour. The key names the options; letters and values sit above and below the joined result bar. The hidden table is the text equivalent for screen readers. Focus moves through the shared locking and layout helpers. Saved results restore silently.
+
+The layout wraps at 320px. Forced colours retain segment boundaries, letters and the focus ring. Reveals are immediate; the shared reveal helper respects reduced motion when scrolling.
+
+Without JavaScript, the question, context and option labels remain visible so learners can form an estimate. Learners can open "Compare with the real split" for a table of all real values and the source. Interactive controls and starting shares stay hidden.
 
 ## Adapt it with your agent
 

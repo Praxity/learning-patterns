@@ -41,14 +41,9 @@ One or two multiple-choice answers give little evidence; a guess can be right. C
 
 ## Accessibility
 
-Check lists every unanswered question beside the action. Each focus button opens its panel, scrolls its legend into view only when needed and focuses its first option. Answering one clears only its own error and button. Next still focuses the panel heading. Answer explanations are plain body text under the options.
-
 Follows the shared baseline in the root README.
 
-- Each question has a fieldset, legend and labelled options. Missing-answer errors link to each option, so screen readers read them once.
-- Panel changes focus the heading to announce progress once. Next validation keeps focus on the action button; Check focuses the first unanswered option.
-- Results announce the skip summary. Section statuses and answer marks use words and icons.
-- Review answers uses a native disclosure. Reset focuses the outline heading. Saved state restores silently.
+Write a label for every option and an explanation for each answer. Without JavaScript, learners can read the outline, answer the questions and open the answers, but get no calculated course plan.
 
 ## Content fields
 
@@ -66,7 +61,7 @@ Authors write plain text. Rendering escapes HTML characters. Keep English and Qu
 | `questions[].id` | Unique string id using letters, digits, underscores or hyphens. |
 | `questions[].section` | Existing numeric section id. |
 | `questions[].text` | Fieldset legend. |
-| `questions[].options` | At least two choices. |
+| `questions[].options` | Two to seven choices. |
 | `questions[].options[].id` | Unique within the question. Letters, digits, underscores or hyphens. |
 | `questions[].options[].text` | Choice label. |
 | `questions[].correct` | Id of the correct option. |
@@ -75,6 +70,8 @@ Authors write plain text. Rendering escapes HTML characters. Keep English and Qu
 `validateContent` rejects unknown fields, blank text, duplicate ids, bad references and cyclic prerequisites. The schema describes local fields. Its `x-uniqueBy`, `x-acyclicReferences`, `x-sectionReference`, `x-sectionQuestions` and `x-optionReference` annotations need `validateContent`. Ordinary schema validators do not enforce them.
 
 ## Logic
+
+Each question accepts at most seven authored options.
 
 Authored text is capped at 120 characters for titles and labels, 400 for questions and prompts, 300 for options, and 1,500 for answers, explanations and passage text. The schema gives each field's limit; `validateContent` enforces it.
 
@@ -113,6 +110,15 @@ import content from './patterns/test-out/examples/en.json' with { type: 'json' }
 document.querySelector('main').innerHTML = render(content, strings.en, { id: 'placement', lang: 'en' });
 const instance = enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en });
 ```
+
+### Accessibility details
+
+Check lists every unanswered question beside the action. Each focus button opens its panel, scrolls its legend into view only when needed and focuses its first option. Answering one clears only its own error and button. Next still focuses the panel heading. Answer explanations are plain body text under the options.
+
+- Each question has a fieldset, legend and labelled options. Missing-answer errors link to each option, so screen readers read them once.
+- Panel changes focus the heading to announce progress once. Next validation keeps focus on the action button; Check focuses the first unanswered option.
+- Results announce the skip summary. Section statuses and answer marks use words and icons.
+- Review answers uses a native disclosure. Reset focuses the outline heading. Saved state restores silently.
 
 ## Adapt it with your agent
 

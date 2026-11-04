@@ -42,10 +42,7 @@ Students who overrate their recall stop studying too soon ([Dunlosky and Rawson,
 
 Follows the shared baseline in the root README.
 
-- The article title and section headings form the reading's heading structure. "I have my answer" reveals a region labelled "Answer" and focuses it.
-- Rating buttons keep their visible labels. The chosen rating has a pressed state.
-- Each rating announces its review date and keeps focus on the chosen button. Revealing answers and updating progress stay silent.
-- Without JavaScript, "Show the answer" opens a native disclosure.
+Give each section a clear heading, question and answer. Without JavaScript, learners can read the article and open each answer, but cannot set review dates.
 
 ## Content fields
 
@@ -118,6 +115,13 @@ const content = {
 document.querySelector('main').innerHTML = render(content, strings.en, { id: 'reading', lang: 'en' });
 const instance = enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en });
 ```
+
+### Accessibility details
+
+- The article title and section headings form the reading's heading structure. "I have my answer" reveals a region labelled "Answer" and focuses it.
+- Rating buttons keep their visible labels. The chosen rating has a pressed state.
+- Each rating announces its review date and keeps focus on the chosen button. Revealing answers and updating progress stay silent.
+- Without JavaScript, "Show the answer" opens a native disclosure.
 
 ## Adapt it with your agent
 

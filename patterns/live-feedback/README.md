@@ -32,9 +32,7 @@ Write the task, four checklist statements and revision hints. Changing the crite
 2. A checklist of four criteria updates after each check. Met criteria move to the top with a green check. Unmet criteria, and any the model isn't sure about, show a hint.
 3. When all four are met, "Your plan includes all four items." appears and checking stops until the next edit.
 
-A met criterion stays met while the last sentence is unfinished, so a half-typed sentence can't undo it.
-
-Automatic checks stop after 40 per page load, shared by every instance on the page. From then on, or when a check fails, the learner ticks the criteria themselves. Without JavaScript, the learner gets the prompt, the answer box and the tick list.
+After 40 automatic checks on a page, or when a check fails, the learner ticks the criteria themselves. Without JavaScript, the learner gets the prompt, the answer box and the tick list.
 
 ## Evidence
 
@@ -46,19 +44,9 @@ Perplexity Decider v1.1 scored 11/12 on authored test answers using the original
 
 ## Accessibility
 
-The field keeps the full draft. After a typing pause, an oversized answer shows a linked length error and is not sent for checking. The sentence starter stays visible as a hint.
-
-Daily proxy caps show and announce the reason and midnight UTC reset once, keep focus in place and leave the fallback usable. Checks then stop until reload.
-
 Meets the shared baseline in the root README.
 
-- The list and checking line stay silent. The polite status region announces a changed count once. Reaching all four items announces "Your plan includes all four items. 4 of 4 done" once, and later checks that stay at four announce nothing. Focus stays in place.
-- The box never locks, so typing after "Your plan includes all four items." keeps every character.
-- Checkmarks and open dashed circles show state through shape as well as colour. Each list item also has a screen-reader prefix, "Done:" or "To add:". Native fallback checkboxes expose their checked state.
-- Reordering uses a 200 ms transform transition. Reduced motion moves items instantly.
-- Native checkboxes work without JavaScript and after a failed check.
-- English and Québec French share fields and controls.
-- Browser checks cover keyboard use, axe, narrow reflow, text spacing, reduced motion and forced colours. Screen reader listening requires a separate human check.
+Write four clear criteria with a hint for each. Without JavaScript, learners can write an answer and tick the criteria themselves.
 
 ## Content fields
 
@@ -73,6 +61,10 @@ Meets the shared baseline in the root README.
 All fields are escaped plain text. Unknown fields, empty strings and incorrect criterion IDs are rejected. Preserve what the proxy questions check. To change the topic, change and evaluate those questions too.
 
 ## Logic
+
+A met criterion stays met while the last sentence is unfinished, so a half-typed sentence can't undo it.
+
+Automatic checks stop after 40 per page load, shared by every instance on the page.
 
 Authored text is capped at 120 characters for titles and labels, 400 for questions and prompts, 300 for options, and 1,500 for answers, explanations and passage text. The schema gives each field's limit; `validateContent` enforces it.
 
@@ -109,6 +101,21 @@ enhance(document.querySelector('[data-lp-pattern="live-feedback"]'), {
 ```
 
 The shared client calls `ask('02-live', { answer }, { challengeSlot, signal })` and reads `/config` for the data notice. Verification appears after a clearance refusal. Request or configuration failures open the self-check. Use Perplexity; other live providers select the self-check. The demo uses fixed feedback and sends no text.
+
+### Accessibility details
+
+Browser checks cover axe, keyboard use, narrow reflow, text spacing, reduced motion and forced colours.
+
+The field keeps the full draft. After a typing pause, an oversized answer shows a linked length error and is not sent for checking. The sentence starter stays visible as a hint.
+
+Daily proxy caps show and announce the reason and midnight UTC reset once, keep focus in place and leave the fallback usable. Checks then stop until reload.
+
+- The list and checking line stay silent. The polite status region announces a changed count once. Reaching all four items announces "Your plan includes all four items. 4 of 4 done" once, and later checks that stay at four announce nothing. Focus stays in place.
+- The box never locks, so typing after "Your plan includes all four items." keeps every character.
+- Checkmarks and open dashed circles show state through shape as well as colour. Each list item also has a screen-reader prefix, "Done:" or "To add:". Native fallback checkboxes expose their checked state.
+- Reordering uses a 200 ms transform transition. Reduced motion moves items instantly.
+- Native checkboxes work without JavaScript and after a failed check.
+- English and Québec French share fields and controls.
 
 ## Adapt it with your agent
 
