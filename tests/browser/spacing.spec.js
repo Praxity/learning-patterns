@@ -77,7 +77,8 @@ for (const width of [1280, 390]) {
     await expect(ticks).toBeVisible();
     await expect(ticks).toHaveCSS('border-top-width', '1px');
     const choices = ticks.locator('.lp-choice');
-    expect(await gap(ticks.locator('legend'), choices.first())).toBeCloseTo(12, 1);
+    expect(await gap(ticks.locator('legend'), ticks.locator('[id$="-hint"]'))).toBeCloseTo(12, 1);
+    expect(await gap(ticks.locator('[data-lp-meter]'), choices.first())).toBeCloseTo(10, 1);
     if (width === 1280) {
       const a = await choices.nth(0).boundingBox(), b = await choices.nth(1).boundingBox();
       expect(b.x).toBeGreaterThan(a.x);

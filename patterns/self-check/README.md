@@ -43,6 +43,8 @@ This sequence has not been tested as a whole. Ticks record only the learner's ow
 
 ## Accessibility
 
+The checklist legend asks which parts the answer includes. Its short instruction describes the fieldset through `aria-describedby`. The tick count is non-live text outside the legend. Saved counts restore silently; the single status region announces submitted feedback.
+
 Follows the shared baseline in the root README.
 
 - An empty answer gets an error linked to its text box. Checking moves focus to the first checklist item.

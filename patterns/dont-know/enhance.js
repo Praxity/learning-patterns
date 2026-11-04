@@ -1,3 +1,4 @@
+import { clearQuestionLink, focusQuestion, questionLinks } from '../../lib/question-errors.js';
 import { DONT_KNOW, displayPoints, format, score, validateContent, validateState } from './logic.js';
 import { escapeHtml as html, frenchTypography } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
@@ -141,7 +142,7 @@ export function enhance(root, { content, strings, state }) {
     if (saved.shown) show(false);
   }
   for (const question of questions) for (const radio of question.radios) listen(radio, 'change', () => {
-    clearQuestionError(question); error.hidden = true; clearResults(); save();
+    clearQuestionError(question); clearQuestionLink(error, question.fieldset); clearResults(); save();
   });
   listen(check, 'click', () => {
     if (shown) return;
@@ -150,13 +151,14 @@ export function enhance(root, { content, strings, state }) {
     if (outcome.unanswered.length) {
       clearResults();
       const message = outcome.unanswered.length === 1 ? strings.unansweredOne : format(strings.unanswered, { count: outcome.unanswered.length });
-      error.innerHTML = `${icons['alert-circle']}<span>${html(message, root.lang)}</span>`; error.hidden = false;
+      error.innerHTML = `<p class="lp-error-text">${icons['alert-circle']}<span>${html(message, root.lang)}</span></p>`; error.hidden = false;
       const missing = questions.filter(({ q }) => outcome.unanswered.includes(q.id));
       for (const { fieldset, radios, message } of missing) {
         message.hidden = false; fieldset.setAttribute('aria-describedby', message.id);
         for (const radio of radios) radio.setAttribute('aria-invalid', 'true');
       }
-      missing[0]?.radios[0]?.focus(); save(); return;
+      questionLinks(error, missing.map(({ q, fieldset }) => ({ fieldset, text: frenchTypography(q.text, root.lang), focus: () => focusQuestion(fieldset) })));
+      focusQuestion(missing[0].fieldset); save(); return;
     }
     show(true); save();
   });

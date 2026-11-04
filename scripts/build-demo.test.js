@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { readdir, readFile } from 'node:fs/promises';
+import { access, readdir, readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { readMeta } from './pattern-meta.mjs';
 
@@ -38,4 +38,19 @@ test('demo builds keep AI pages offline by default and use the shared client whe
   } finally {
     build();
   }
+});
+
+test('every relative module import in the demo resolves to a copied file', async () => {
+  build();
+  const dist = new URL('../demo-dist/', import.meta.url);
+  const missing = [];
+  for (const entry of await readdir(dist, { recursive: true })) {
+    if (!/\.(?:m?js|html)$/.test(entry)) continue;
+    const file = new URL(entry.replaceAll('\\', '/'), dist);
+    const text = await readFile(file, 'utf8');
+    for (const [, path] of text.matchAll(/(?:from|import)\s*\(?\s*['"](\.{1,2}\/[^'"]+)['"]/g)) {
+      await access(new URL(path, file)).catch(() => missing.push(`${entry} -> ${path}`));
+    }
+  }
+  assert.deepEqual(missing, []);
 });

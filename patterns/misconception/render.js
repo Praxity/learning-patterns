@@ -19,8 +19,9 @@ export function render(content, strings, { id, lang }) {
     <summary>${html(strings.model, lang)}</summary><p>${html(content.model, lang)}</p>
   </details>
   <div class="lp-section" data-lp-fallback>
-    <fieldset class="lp-choices">
-      <legend><span class="lp-run-in">${html(strings.common, lang)}</span><br><span class="lp-small">${html(strings.fallback, lang)}</span></legend>
+    <fieldset class="lp-choices" aria-describedby="${html(`${id}-hint`)}">
+      <legend class="lp-run-in">${html(strings.common, lang)}</legend>
+      <p class="lp-small" id="${html(`${id}-hint`)}">${html(strings.fallback, lang)}</p>
       <div class="lp-choices">${content.misconceptions.map(item => `<label class="lp-choice" for="${html(`${id}-tick-${item.id}`)}"><input type="checkbox" id="${html(`${id}-tick-${item.id}`)}" value="${html(item.id)}"><span><span class="lp-run-in">${html(item.label, lang)}</span><br>${html(item.why, lang)}</span></label>`).join('\n')}</div>
     </fieldset>
   </div>

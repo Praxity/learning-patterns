@@ -29,7 +29,7 @@ export function enhance(root, { content, strings, state }) {
   const fieldset = /** @type {HTMLFieldSetElement} */ (required('[data-lp-ticks]'));
   const result = /** @type {HTMLElement} */ (required('[data-lp-result]'));
   const restart = /** @type {HTMLButtonElement} */ (required('[data-lp-restart]'));
-  const status = /** @type {HTMLElement} */ (required('[role="status"]'));
+  const status = /** @type {HTMLElement} */ (required('.lp-visually-hidden[role="status"]'));
   const boxes = [...fieldset.querySelectorAll('input')];
   if (boxes.length !== content.parts.length) throw new Error('Invalid self-check parts markup');
   let shown = false;
