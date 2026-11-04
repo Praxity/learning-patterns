@@ -25,10 +25,10 @@ export const strings = {
   fr: {
     keyInstruction: 'Surlignez les idées clés.',
     evidenceInstruction: 'Surlignez le texte qui répond à cette question. {question}',
-    controls: 'Cliquez ou touchez un passage pour le marquer ou enlever sa marque. Utilisez Tab ou Maj+Tab pour changer de passage, et Espace ou Entrée pour marquer ou enlever la marque. Les flèches, Début et Fin fonctionnent aussi si votre lecteur d\'écran les transmet à la page.',
+    controls: 'Cliquez ou touchez un passage pour le marquer ou enlever sa marque. Utilisez Tab ou Maj+Tab pour changer de passage, et Espace ou Entrée pour marquer ou enlever la marque. Les flèches, Début et Fin fonctionnent aussi si votre lecteur d’écran les transmet à la page.',
     count: 'Passages marqués : {n} sur {max}',
     limitOne: "Vous pouvez marquer un passage. Enlevez sa marque pour en choisir un autre.",
-    limitMany: "Vous pouvez marquer jusqu'à {n} passages. Enlevez une marque pour en choisir un autre.",
+    limitMany: "Vous pouvez marquer jusqu’à {n} passages. Enlevez une marque pour en choisir un autre.",
     check: 'Vérifier',
     restart: 'Recommencer',
     answer: 'Réponse',

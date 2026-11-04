@@ -10,7 +10,7 @@ export const strings = {
   },
   fr: {
     context: 'Contexte :',
-    help: "Touchez la colonne d'un mois pour placer son point, ou faites glisser le pointeur sur les colonnes. Au clavier, passez à un mois avec la touche Tab et utilisez les flèches.",
+    help: "Touchez la colonne d’un mois pour placer son point, ou faites glisser le pointeur sur les colonnes. Au clavier, passez à un mois avec la touche Tab et utilisez les flèches.",
     guess: 'Votre estimation', check: 'Voir la courbe réelle', again: 'Réessayer', cleared: 'Estimations effacées. Recommencez.',
     notSet: '{name}, aucune estimation', value: '{name}, {value} {unit}',
     compared: '{name} : votre estimation {guess}, valeur réelle {real} {unit}',

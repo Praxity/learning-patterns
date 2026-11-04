@@ -197,7 +197,7 @@ for (const lang of ['en', 'fr']) {
     expect(await values(page)).toEqual([0, 0, 0]);
     await page.locator('[data-lp-check]').click();
     await expectResultBar(page, [0, 0, 0, 100], [35, 20, 15, 30], lang);
-    await expect(page.locator('[data-lp-summary]')).toContainText(lang === 'en' ? 'how-to questions' : frenchTypography("« Questions d'utilisation »", lang));
+    await expect(page.locator('[data-lp-summary]')).toContainText(lang === 'en' ? 'how-to questions' : frenchTypography("« Questions d’utilisation »", lang));
     await expect(page.getByRole('status')).toHaveText(await page.locator('[data-lp-summary]').textContent());
     expect(await page.evaluate(() => window.announcements.length)).toBe(1);
   });

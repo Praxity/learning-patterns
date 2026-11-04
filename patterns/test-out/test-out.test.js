@@ -157,7 +157,7 @@ test('advanced answer explanations describe answers only', () => {
 
 test('server counters carry section titles in both languages', () => {
   assert.match(render(content, strings.en, { id: 'en', lang: 'en' }), /data-lp-panel-heading>Question 1 of 3: Writing an agenda<\/h3>/);
-  assert.match(render(french, strings.fr, { id: 'fr', lang: 'fr' }), /data-lp-panel-heading>Question 1 sur 3 : Préparer un ordre du jour<\/h3>/);
+  assert.match(render(french, { ...strings.fr, question: 'Question {number} sur {total} : {section}' }, { id: 'fr', lang: 'fr' }), /data-lp-panel-heading>Question 1 sur 3 : Préparer un ordre du jour<\/h3>/);
 });
 
 test('server questions have no progress bar', () => {

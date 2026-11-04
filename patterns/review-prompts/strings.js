@@ -12,11 +12,11 @@ export const strings = {
   fr: {
     readingTime: '{n} min de lecture',
     progress: 'Questions revues : {count} sur {total}',
-    commit: "J'ai ma réponse",
+    commit: "J’ai ma réponse",
     answer: 'Réponse',
     show: 'Afficher la réponse',
-    remembered: "Je m'en souvenais",
-    forgot: "J'ai oublié",
+    remembered: "Je m’en souvenais",
+    forgot: "J’ai oublié",
     nextReview: 'Révisez de nouveau le {date}'
   }
 };

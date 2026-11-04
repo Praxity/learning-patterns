@@ -7,6 +7,17 @@ const HOST = 'h1, h2, h3 { font-family: Georgia, serif; } html { font-synthesis:
 // Conversation's role is scenario content: it changes what a good reply is.
 const HEADER_EXCEPTIONS = { conversation: '.lp-scene-sub' };
 
+test('shared small text, errors and hidden text use the accessibility defaults', async ({ page }) => {
+  await open(page, '/test-out/en.html');
+  await expect(page.locator('[data-lp-intro]')).toHaveCSS('font-size', '16px');
+  const error = page.locator('[data-lp-question-error]').first();
+  await error.evaluate(el => { el.hidden = false; });
+  await expect(error).toHaveCSS('font-size', '17px');
+  const status = page.locator('[role="status"]');
+  await expect(status).toHaveCSS('margin', '0px');
+  await expect(status).toHaveCSS('user-select', 'none');
+});
+
 async function checkHeader(page, name) {
   const scene = page.locator('[data-lp-pattern] .lp-scene');
   await expect(scene.locator('.lp-scene-title')).toHaveCount(1);

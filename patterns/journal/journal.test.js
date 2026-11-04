@@ -31,7 +31,7 @@ test('the proxy returns a complete decision and journal content owns its wording
 test('complete feedback uses authored bilingual content', async () => {
   for (const [lang, text] of [
     ['en', "Great. You've named a moment, what you did, and a next step with a when."],
-    ['fr', "Très bien. Vous avez nommé un moment, ce que vous avez fait et une prochaine étape en précisant quand vous l'essaierez."]
+    ['fr', "Très bien. Vous avez nommé un moment, ce que vous avez fait et une prochaine étape en précisant quand vous l’essaierez."]
   ]) {
     const example = JSON.parse(await readFile(new URL(`./examples/${lang}.json`, import.meta.url)));
     assert.deepEqual(feedback(example, answers()), { kind: 'complete', text });

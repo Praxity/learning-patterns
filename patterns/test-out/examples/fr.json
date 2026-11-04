@@ -8,7 +8,7 @@
   ],
   "questions": [
     {
-      "id": "agenda", "section": 1, "text": "Que devraient apprendre les participants en lisant l'ordre du jour avant une réunion ?",
+      "id": "agenda", "section": 1, "text": "Que devraient apprendre les participants en lisant l’ordre du jour avant une réunion ?",
       "options": [
         { "id": "attendees", "text": "Seulement les personnes qui participeront" },
         { "id": "outcomes", "text": "Les sujets, les objectifs et le temps prévu pour chaque point" },
@@ -20,7 +20,7 @@
       "id": "discussion", "section": 3, "text": "Une personne parle beaucoup plus que les autres. Que devriez-vous faire si vous animez la réunion ?",
       "options": [
         { "id": "invite", "text": "Faire une pause et inviter les autres à parler" },
-        { "id": "wait", "text": "La laisser parler jusqu'à la fin de la réunion" },
+        { "id": "wait", "text": "La laisser parler jusqu’à la fin de la réunion" },
         { "id": "delegate", "text": "Demander à la personne qui prend les notes de décider pour tout le monde" }
       ],
       "correct": "invite", "explanation": "Invitez les autres à parler pour que tout le monde puisse contribuer."
@@ -30,7 +30,7 @@
       "options": [
         { "id": "equal-time", "text": "Que chaque personne a parlé aussi longtemps que les autres" },
         { "id": "actions", "text": "Les décisions, qui fera chaque tâche et pour quand" },
-        { "id": "next-meeting", "text": "Qu'une autre réunion est déjà prévue" }
+        { "id": "next-meeting", "text": "Qu’une autre réunion est déjà prévue" }
       ],
       "correct": "actions", "explanation": "Confirmez les décisions, qui fera chaque tâche et pour quand."
     }
