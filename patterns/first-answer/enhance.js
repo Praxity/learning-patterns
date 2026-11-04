@@ -59,7 +59,8 @@ export function enhance(root, { content, strings, state }) {
   keepAnswer.textContent = frenchTypography(strings.keepAnswer, root.lang);
   actions.append(deleteAnswer, keepAnswer);
   confirmation.append(question, actions);
-  restart.after(confirmation);
+  deleteAnswer.setAttribute('aria-describedby', question.id);
+  keepAnswer.setAttribute('aria-describedby', question.id);
   const problem = required('[data-lp-storage-error]');
   const status = required('[role="status"]');
   const boxes = end ? [...end.result.querySelectorAll('input')] : [];
@@ -129,6 +130,8 @@ export function enhance(root, { content, strings, state }) {
       if (restoreDraft) end.input.value = record.now?.text ?? '';
     }
     restart.hidden = !confirmation.hidden || (!record.first && !record.now && !blocked);
+    // Saved answers can change while the question is open, so its wording follows each paint.
+    if (!confirmation.hidden) question.textContent = frenchTypography(blocked || (record.first && record.now) ? strings.confirmDeleteBoth : strings.confirmDeleteOne, root.lang);
   }
 
   // Reread before writes so two course placements cannot overwrite a saved first.
@@ -202,7 +205,7 @@ export function enhance(root, { content, strings, state }) {
     restart.focus();
   }
   listen(restart, 'click', () => {
-    question.textContent = frenchTypography(blocked || (record.first && record.now) ? strings.confirmDeleteBoth : strings.confirmDeleteOne, root.lang);
+    readHost();
     confirmation.hidden = false;
     paint();
     question.focus();
@@ -223,6 +226,7 @@ export function enhance(root, { content, strings, state }) {
     (stage === 'end' && end ? end.input : firstInput).focus();
   });
 
+  restart.after(confirmation);
   readHost();
   if (record.first || record.now) endOpen = stage !== 'first';
   paint(true); fallback.hidden = true;

@@ -641,3 +641,18 @@ test('two confirmations have unique ids and close independently', async ({ page 
   expect(await page.evaluate(() => window.lpSaved)).toEqual(seed);
   expect(await page.evaluate(() => window.lpWrites)).toBe(0);
 });
+
+test('confirmation wording follows answers saved while it is open, and Escape works from the question', async ({ page }) => {
+  const firstOnly = { ...seed, now: null, checks };
+  await mount(page, ['end'], firstOnly);
+  await page.locator('[data-lp-restart]').click();
+  const question = page.locator('.lp-first-answer-confirm-question');
+  await expect(question).toHaveText("Delete your answer? This can't be undone.");
+  await expect(page.getByRole('button', { name: 'Delete', exact: true })).toHaveAttribute('aria-describedby', await question.getAttribute('id'));
+  await compare(page);
+  await expect(question).toHaveText("Delete both answers? This can't be undone.");
+  await question.focus();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('[data-lp-restart-confirmation]')).toBeHidden();
+  await expect(page.locator('[data-lp-restart]')).toBeFocused();
+});
