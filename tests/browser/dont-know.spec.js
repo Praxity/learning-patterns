@@ -25,6 +25,23 @@ for (const [lang, expected] of [['en', 'Score 0.33 out of 1.'], ['fr', 'Score de
   });
 }
 
+for (const lang of ['en', 'fr']) test(`"or" is centred on the letter keys (${lang})`, async ({ page }) => {
+  await open(page, `/dont-know/${lang}.html`);
+  for (const width of [1280, 320]) {
+    await page.setViewportSize({ width, height: 900 });
+    const offset = await page.locator('.lp-dont-know-choice-divider').first().evaluate(divider => {
+      const range = document.createRange();
+      range.selectNodeContents(divider);
+      const text = range.getBoundingClientRect();
+      const key = divider.nextElementSibling.getBoundingClientRect();
+      const keyStyle = getComputedStyle(divider.nextElementSibling, '::before');
+      const keyLeft = key.left + parseFloat(getComputedStyle(divider.nextElementSibling).borderLeftWidth) + parseFloat(getComputedStyle(divider.nextElementSibling).paddingLeft);
+      return text.left + text.width / 2 - (keyLeft + parseFloat(keyStyle.width) / 2);
+    });
+    expect(Math.abs(offset)).toBeLessThanOrEqual(1);
+  }
+});
+
 test('shared scene spans the card and centres its tile on the title', async ({ page }) => {
   await open(page);
   await expect(page.locator('.lp-scene-title')).toHaveText(english.title);

@@ -1,6 +1,6 @@
 import { validateTextLengths } from '../../lib/text-limits.js';
 /** @typedef {{ id: string, label: string, missed: string, evidence: string | null }} Part */
-/** @typedef {{ task: string, context?: { to: string, initials: string, subject: string, placeholder?: string }, parts: Part[], model: string }} Content */
+/** @typedef {{ scenario?: string, task: string, context?: { to: string, initials: string, subject: string, placeholder?: string }, parts: Part[], model: string }} Content */
 /** @typedef {{ text: string, partIndex: number | null, included: boolean }} Segment */
 /** @typedef {{ answer: string, ticked: string[], shown: boolean }} LearnerState */
 
@@ -22,13 +22,15 @@ function fields(value, fields, path) {
  */
 export function validateContent(content) {
   validateTextLengths(content, {
+    scenario: 1000,
     task: 400,
     model: 1500,
     parts: [{"id": 120, "label": 120, "missed": 1500, "evidence": 1500}],
     context: {"to": 120, "initials": 120, "subject": 120, "placeholder": 120},
   });
   if (!object(content)) throw new Error('Invalid content');
-  fields(content, ['task', 'context', 'parts', 'model'], 'content');
+  fields(content, ['scenario', 'task', 'context', 'parts', 'model'], 'content');
+  if (Object.hasOwn(content, 'scenario') && (typeof content.scenario !== 'string' || content.scenario.length === 0)) throw new Error('Invalid scenario');
   for (const field of ['task', 'model']) {
     if (typeof content[field] !== 'string' || content[field].length === 0) throw new Error(`Invalid ${field}`);
   }

@@ -1,6 +1,5 @@
 export namespace strings {
     namespace en {
-        let context: string;
         let help: string;
         let guess: string;
         let check: string;
@@ -16,8 +15,6 @@ export namespace strings {
         let source: string;
     }
     namespace fr {
-        let context_1: string;
-        export { context_1 as context };
         let help_1: string;
         export { help_1 as help };
         let guess_1: string;

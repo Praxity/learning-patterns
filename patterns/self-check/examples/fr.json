@@ -5,7 +5,8 @@
     "subject": "Rapport client",
     "placeholder": "Bonjour Sam,\n\nÉcrivez votre message ici…"
   },
-  "task": "Votre rapport client est attendu vendredi. Les données de vente sont arrivées avec trois jours de retard. Il vous faut jusqu’à mardi pour le terminer. Écrivez à votre gestionnaire pour demander plus de temps.",
+  "scenario": "Votre rapport client est attendu vendredi. Les données de vente sont arrivées avec trois jours de retard. Il vous faut jusqu’à mardi pour le terminer.",
+  "task": "Écrivez à votre gestionnaire pour demander plus de temps.",
   "parts": [
     {
       "id": "work_deadline",

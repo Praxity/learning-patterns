@@ -186,7 +186,7 @@ for (const lang of ['en', 'fr']) {
     for (const fact of content.cases.flat()) await expect(fallback).toContainText(frenchTypography(fact, lang));
     for (const part of content.parts) await expect(fallback).toContainText(part.label);
     await expect(fallback).not.toContainText(frenchTypography(content.context, lang));
-    await expect(page.locator('.lp-context')).toHaveText(`${lang === 'en' ? 'Context:' : 'Contexte\u00a0:'} ${frenchTypography(content.context, lang)}`);
+    await expect(page.locator('.lp-context')).toHaveText(frenchTypography(content.context, lang));
     await context.close();
   });
 

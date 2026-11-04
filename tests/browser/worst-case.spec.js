@@ -67,7 +67,7 @@ test('a pasted file name in a question breaks instead of widening the column', a
 });
 
 // The tile centres on the text block up to two title lines; past that it stays level with the first two.
-for (const [name, field] of [['dont-know', 'title'], ['first-answer', 'prompt'], ['highlight', 'title'], ['retrieval-sheet', 'title'], ['self-check', 'task'], ['test-out', 'title'], ['write-distractors', 'question']]) {
+for (const [name, field] of [['dont-know', 'title'], ['first-answer', 'prompt'], ['highlight', 'title'], ['retrieval-sheet', 'title'], ['test-out', 'title'], ['write-distractors', 'question']]) {
   test(`a long ${name} title keeps the scene tile level with its first lines`, async ({ page }) => {
     const content = await example(name);
     content[field] = 'Notions financières de base pour les nouveaux employés : régimes de retraite, épargne d’urgence et cotisations';

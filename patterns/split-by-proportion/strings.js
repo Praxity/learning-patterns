@@ -1,6 +1,5 @@
 export const strings = {
   en: {
-    context: 'Context:',
     help: 'Drag a divider or tap the bar. A divider pushes any others in its way. With a keyboard, tab to a divider and use the arrow keys, Home or End. The bar always adds up to {total}.',
     divider: 'Divider between {left} and {right}',
     check: 'Check my split',
@@ -17,7 +16,6 @@ export const strings = {
     cleared: 'Split reset to the starting shares.'
   },
   fr: {
-    context: 'Contexte :',
     help: 'Faites glisser un séparateur ou touchez la barre. Un séparateur pousse les autres sur son passage. Au clavier, utilisez Tab pour atteindre un séparateur, puis les flèches, Début ou Fin. Le total reste toujours à {total}.',
     divider: 'Séparateur entre {left} et {right}',
     check: 'Vérifier ma répartition',

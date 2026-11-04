@@ -63,6 +63,7 @@ test('content validator and schema agree on shared valid and planted invalid fie
   for (const field of ['task', 'model']) {
     for (const value of ['', 3, null, undefined]) bad({ ...content, [field]: value }, field);
   }
+  for (const value of ['', 3, null]) bad({ ...content, scenario: value }, 'scenario');
   for (const value of [[], 'parts', null]) bad({ ...content, parts: value }, 'parts');
   for (const field of ['id', 'label', 'missed']) {
     for (const value of ['', 3, undefined]) bad({ ...content, parts: [{ ...content.parts[0], [field]: value }] }, field);
@@ -95,10 +96,18 @@ test('context may be absent but supplied context must be complete', () => {
   }
 });
 
+test('scenario renders as plain text before the task heading, and is optional', () => {
+  const markup = render({ ...content, scenario: 'The <data> arrived late.' }, strings.en, { id: 'scene', lang: 'en' });
+  assert.match(markup, /<section[^>]*>\s*<p class="lp-context">The &lt;data&gt; arrived late\.<\/p>\s*<h2 class="lp-stem">/);
+  const without = structuredClone(content);
+  delete without.scenario;
+  assert.doesNotMatch(render(without, strings.en, { id: 'plain', lang: 'en' }), /lp-context/);
+});
+
 test('render without context keeps the escaped task and labelled answer without recipient chrome', () => {
   const value = { task: 'Explain <why>.', model: 'Late data.', parts: [{ id: 'reason', label: 'Reason', missed: 'Explain the delay.', evidence: 'Late data.' }] };
   const markup = render(value, strings.en, { id: 'general', lang: 'en' });
-  assert.match(markup, /lp-scene-title">Explain &lt;why&gt;\.<\/p>/);
+  assert.match(markup, /lp-stem">Explain &lt;why&gt;\.<\/h2>/);
   assert.match(markup, /<label[^>]*for="general-answer">Your answer<\/label>/);
   assert.match(markup, /<textarea[^>]*id="general-answer"[^>]*><\/textarea>/);
   assert.doesNotMatch(markup, /lp-self-check-meta|lp-self-check-recipient|lp-self-check-avatar|lp-scene-icon|placeholder=/);

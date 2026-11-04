@@ -5,7 +5,8 @@
     "subject": "Client report",
     "placeholder": "Hi Sam,\n\nType your message here…"
   },
-  "task": "Your client report is due Friday. The sales data arrived three days late. You need until Tuesday to finish. Write to your manager to ask for more time.",
+  "scenario": "Your client report is due Friday. The sales data arrived three days late. You need until Tuesday to finish.",
+  "task": "Write to your manager to ask for more time.",
   "parts": [
     {
       "id": "work_deadline",

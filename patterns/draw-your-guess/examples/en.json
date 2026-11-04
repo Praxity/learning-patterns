@@ -1,5 +1,4 @@
 {
-  "title": "Predict calls to the help desk",
   "context": "In March the IT help desk took 120 calls a day, 45 of them to reset a password. On 1 April a page went live that lets staff reset their own.",
   "question": "How many calls a day do you expect from April to July?",
   "unit": "calls a day",

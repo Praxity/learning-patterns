@@ -3,7 +3,6 @@
   "title": "Draw your guess content",
   "type": "object",
   "required": [
-    "title",
     "context",
     "question",
     "unit",

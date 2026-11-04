@@ -49,9 +49,9 @@ All text is plain text and escaped on render. Keep English and Canadian French e
 
 | Field | Meaning |
 | --- | --- |
-| `title` | Scene title, at most 120 characters. |
+| `title` | Optional, up to 120 characters. Not shown; accepted so older content still validates. |
 | `context` | Situation, at most 1,500 characters. |
-| `question` | Task legend, at most 400 characters. |
+| `question` | Card heading inside the task legend, at most 400 characters. |
 | `resultTitle` | Heading above the comparison, at most 120 characters. |
 | `optionHeading` | Required option-column heading for both tables, at most 60 characters. |
 | `source` | Source of the real split, at most 1,500 characters. |
@@ -86,6 +86,8 @@ Divider arrays contain one fewer value than options. Use validated content and v
 Optional host `state: { read, write }` stores `{ dividers, touched, shown }`. Moves, check and Try again write state. Invalid saved values are ignored. State errors propagate. Repeated enhancement returns the same instance; `destroy()` removes listeners, cancels pending focus, unlocks controls and restores the no-JavaScript answer disclosure without rebuilding the DOM.
 
 ## Use it
+
+The plain context comes before the question heading.
 
 Copy `patterns/split-by-proportion/` and `lib/`, keeping relative paths. Link `lib/base.css` before `patterns/split-by-proportion/pattern.css`. Use a unique id prefix per instance.
 

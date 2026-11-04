@@ -1,5 +1,4 @@
 {
-  "title": "Estimez les causes des demandes de soutien",
   "context": "Vous venez de rejoindre l’équipe de soutien. Le mois dernier, elle a traité 400 demandes.",
   "question": "Quelle part de ces 400 demandes correspond à chaque cause?",
   "resultTitle": "Les causes des 400 demandes du mois dernier",

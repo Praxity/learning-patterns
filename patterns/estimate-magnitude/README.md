@@ -52,7 +52,7 @@ Content is plain text. Rendering escapes HTML characters. Keep English and Québ
 
 | Field | Meaning |
 | --- | --- |
-| `title` | Task name in the scene header, up to 120 characters. |
+| `title` | Up to 120 characters. Shown only when the card has more than one question. |
 | `context` | What learners know before estimating, up to 1,500 characters. |
 | `ratio` | Optional high-to-low ratio for every band: 10, 100 or 1,000. Defaults to 10. |
 | `questions` | Three to five questions in display order. |
@@ -87,6 +87,8 @@ Optional `state: { read, write }` stores `{ ranges, touched, shown }`. Range ind
 Repeated enhancement returns the same instance. `destroy()` removes listeners, cancels pending focus, unlocks controls, clears results and restores the native answer disclosure.
 
 ## Use it
+
+The title heading comes before the plain context and question legends.
 
 Copy `patterns/estimate-magnitude/` and `lib/`, keeping relative paths. Link `lib/base.css`, then `patterns/estimate-magnitude/pattern.css`. Give each instance a unique id prefix.
 

@@ -3,7 +3,7 @@ import { validateTextLengths } from '../../lib/text-limits.js';
 // Authors set the known points, real values, scale and step.
 /** @typedef {{ label: string, name: string, value: number }} Point */
 /** @typedef {'changedDirection' | 'fell' | 'rose' | 'flat' | 'fellThenFlat' | 'roseThenFlat'} Trend */
-/** @typedef {{ title: string, context: string, question: string, unit: string, known: Point[], future: Point[], top: number, step: number, changeLabel: string, realLabel: string, resultTitle: string, explanationLabel: string, explanation: string, source: string, feedback: Record<Trend, string> }} Content */
+/** @typedef {{ title?: string, context: string, question: string, unit: string, known: Point[], future: Point[], top: number, step: number, changeLabel: string, realLabel: string, resultTitle: string, explanationLabel: string, explanation: string, source: string, feedback: Record<Trend, string> }} Content */
 /** @typedef {{ guesses: (number | null)[], shown: boolean }} LearnerState */
 
 export const trends = /** @type {const} */ (['changedDirection', 'fell', 'rose', 'flat', 'fellThenFlat', 'roseThenFlat']);
@@ -11,10 +11,10 @@ export const trends = /** @type {const} */ (['changedDirection', 'fell', 'rose',
 /** @param {unknown} value @returns {value is Record<string, unknown>} */
 function object(value) { return value !== null && typeof value === 'object' && !Array.isArray(value); }
 
-/** @param {Record<string, unknown>} value @param {string[]} keys @param {string} path */
-function fields(value, keys, path) {
+/** @param {Record<string, unknown>} value @param {string[]} keys @param {string} path @param {string[]} [required] */
+function fields(value, keys, path, required = keys) {
   for (const key of Object.keys(value)) if (!keys.includes(key)) throw new Error(`Invalid ${path}.${key}`);
-  for (const key of keys) if (!Object.hasOwn(value, key)) throw new Error(`Invalid ${path}.${key}`);
+  for (const key of required) if (!Object.hasOwn(value, key)) throw new Error(`Invalid ${path}.${key}`);
 }
 
 /** @param {unknown} content @returns {asserts content is Content} */
@@ -22,13 +22,14 @@ export function validateContent(content) {
   if (!object(content)) throw new Error('Invalid content');
   const labels = ['title', 'unit', 'changeLabel', 'realLabel', 'resultTitle', 'explanationLabel'];
   const text = [...labels, 'context', 'question', 'explanation', 'source'];
-  fields(content, [...text, 'known', 'future', 'top', 'step', 'feedback'], 'content');
+  const keys = [...text, 'known', 'future', 'top', 'step', 'feedback'];
+  fields(content, keys, 'content', keys.filter(key => key !== 'title'));
   validateTextLengths(content, {
     ...Object.fromEntries(labels.map(key => [key, 120])), context: 1500, question: 400,
     explanation: 1500, source: 1500, known: [{ label: 120, name: 120 }],
     future: [{ label: 120, name: 120 }], feedback: { '*': 1500 }
   });
-  for (const key of text) if (typeof content[key] !== 'string' || !content[key].trim()) throw new Error(`Invalid ${key}`);
+  for (const key of text.filter(key => key !== 'title' || Object.hasOwn(content, key))) if (typeof content[key] !== 'string' || !content[key].trim()) throw new Error(`Invalid ${key}`);
   for (const key of ['top', 'step']) if (!Number.isSafeInteger(content[key]) || Number(content[key]) <= 0) throw new Error(`Invalid ${key}`);
   const top = Number(content.top), step = Number(content.step);
   if (step > top || top % step !== 0) throw new Error('Invalid step: must divide top');

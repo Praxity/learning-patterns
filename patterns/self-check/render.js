@@ -13,10 +13,8 @@ export function render(content, strings, { id, lang }) {
   const errorId = html(`${id}-error`);
   const context = content.context;
   return `<section class="lp lp-self-check" data-lp-pattern="self-check" lang="${html(lang)}">
-  <header class="lp-scene">
-    ${context ? `<span class="lp-scene-icon">${icons.mail}</span>` : ''}
-    <div><p class="lp-scene-title">${html(content.task, lang)}</p></div>
-  </header>
+  ${content.scenario ? `<p class="lp-context">${html(content.scenario, lang)}</p>
+  ` : ''}<h2 class="lp-stem">${html(content.task, lang)}</h2>
   <div class="lp-self-check-composer">
     ${context ? `<div class="lp-self-check-meta-list">
     <p class="lp-self-check-meta"><span class="lp-self-check-meta-key">${html(strings.to, lang)}</span><span class="lp-self-check-recipient"><span class="lp-self-check-avatar" aria-hidden="true">${html(context.initials, lang)}</span>${html(context.to, lang)}</span></p>

@@ -26,7 +26,7 @@ export type Option = {
     share: number;
 };
 export type Content = {
-    title: string;
+    title?: string;
     context: string;
     question: string;
     resultTitle: string;

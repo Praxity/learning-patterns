@@ -14,11 +14,10 @@ export function render(content, strings, { id, lang }) {
   const tick = Math.ceil(content.top / 3 / content.step) * content.step;
   const ticks = [...Array.from({ length: Math.ceil(content.top / tick) }, (_, i) => i * tick), content.top];
   const position = /** @param {number} i @param {number} value */ (i, value) => `inset-inline-start:${x(i, n) * 100}%;inset-block-start:${y(value, content.top) * 100}%`;
-  return `<section class="lp lp-draw-your-guess" data-lp-pattern="draw-your-guess" lang="${html(lang)}" aria-labelledby="${identifier('title')}">
-  <header class="lp-scene"><span class="lp-scene-icon">${icons.presentation}</span><div><h2 class="lp-scene-title" id="${identifier('title')}">${text(content.title)}</h2></div></header>
-  <p><strong>${text(strings.context)}</strong> ${text(content.context)}</p>
+  return `<section class="lp lp-draw-your-guess" data-lp-pattern="draw-your-guess" lang="${html(lang)}">
+  <p class="lp-context">${text(content.context)}</p>
   <fieldset class="${cls}fieldset">
-    <legend class="lp-stem">${text(content.question)}</legend>
+    <legend class="lp-stem"><h2 class="lp-heading">${text(content.question)}</h2></legend>
     <p class="lp-small" id="${identifier('help')}" data-lp-help hidden>${text(strings.help)}</p>
     <ul class="lp-visually-hidden">${content.known.map(p => `<li>${text(format(strings.value, { name: p.name, value: numbers.format(p.value), unit: content.unit }))}</li>`).join('')}</ul>
     <div class="${cls}chart" data-lp-chart>

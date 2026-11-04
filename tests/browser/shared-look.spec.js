@@ -51,7 +51,7 @@ async function open(page, path, host = false) {
 }
 
 for (const lang of ['en', 'fr']) test(`scene headers hold one title, with the named conversation role exception (${lang})`, async ({ page }) => {
-  for (const name of ['conversation', 'dont-know', 'first-answer', 'highlight', 'retrieval-sheet', 'self-check', 'test-out', 'write-distractors']) {
+  for (const name of ['conversation', 'dont-know', 'first-answer', 'highlight', 'retrieval-sheet', 'test-out', 'write-distractors']) {
     await open(page, `/${name}/${lang}.html`);
     await checkHeader(page, name);
     if (name === 'conversation') await expect(page.locator('.lp-scene-sub')).toHaveText(lang === 'en' ? 'Your colleague' : 'Votre collègue');
@@ -147,4 +147,126 @@ test('a checkbox outside a choice row gets the 3px focus ring', async ({ page })
   const bare = page.locator('[data-bare]');
   await expect(bare).toBeFocused();
   expect(await bare.evaluate(el => { const css = getComputedStyle(el); return [css.outlineWidth, css.outlineStyle, css.outlineColor]; })).toEqual(['3px', 'solid', 'rgb(44, 85, 201)']);
+});
+
+
+const multi = ['estimate-magnitude', 'prolific-questions'];
+
+for (const name of ['draw-your-guess', 'estimate-magnitude', 'prolific-questions', 'self-check', 'split-by-proportion']) {
+  for (const lang of ['en', 'fr']) test(`scenario context precedes a larger question without a scene (${name}, ${lang})`, async ({ page, browserName }) => {
+    await open(page, `/${name}/${lang}.html`, true);
+    await expect(page.locator('.lp-scene')).toHaveCount(0);
+    for (const width of [1280, 320]) {
+      await page.setViewportSize({ width, height: 900 });
+      for (const forced of browserName === 'chromium' ? ['none', 'active'] : ['none']) {
+        await page.emulateMedia({ forcedColors: forced });
+        const layout = await page.locator('[data-lp-pattern]').evaluate((root, name) => {
+          const context = root.querySelector('.lp-context');
+          const question = root.querySelector(name === 'self-check' ? 'h2.lp-stem' : 'legend.lp-stem');
+          const lead = root.querySelector(':scope > .lp-heading') || question.querySelector('h2') || question;
+          const field = root.querySelector(name === 'self-check' ? 'textarea' : 'fieldset');
+          return {
+            headingColor: getComputedStyle(question.querySelector('h2') || question).color,
+            canvasText: (() => {
+              const probe = document.createElement('span');
+              probe.style.color = 'CanvasText';
+              root.append(probe);
+              const color = getComputedStyle(probe).color;
+              probe.remove();
+              return color;
+            })(),
+            questionSize: parseFloat(getComputedStyle(question.querySelector('h2') || question).fontSize),
+            leadSize: parseFloat(getComputedStyle(lead).fontSize),
+            contextSize: parseFloat(getComputedStyle(context.querySelector('p') || context).fontSize),
+            contextWeight: getComputedStyle(context).fontWeight,
+            composerGap: name === 'self-check' ? root.querySelector('.lp-self-check-composer').getBoundingClientRect().top - question.getBoundingClientRect().bottom : null,
+            contextBottom: context.getBoundingClientRect().bottom,
+            fieldTop: field.getBoundingClientRect().top,
+            firstTop: root.firstElementChild.getBoundingClientRect().top - root.getBoundingClientRect().top,
+            padding: parseFloat(getComputedStyle(root).paddingTop) + parseFloat(getComputedStyle(root).borderTopWidth),
+            overflow: document.documentElement.scrollWidth > innerWidth
+          };
+        }, name);
+        if (forced === 'active') expect(layout.headingColor).toBe(layout.canvasText);
+        // A title over several questions is the largest text; its questions step down to 19px.
+        expect(layout.leadSize).toBe(21);
+        expect(layout.questionSize).toBe(multi.includes(name) ? 19 : 21);
+        expect(layout.questionSize).toBeGreaterThan(layout.contextSize);
+        expect(layout.contextWeight).toBe('400');
+        if (name === 'self-check') expect(layout.composerGap).toBeCloseTo(12, 0);
+        expect(layout.contextBottom).toBeLessThanOrEqual(layout.fieldTop);
+        expect(layout.firstTop).toBeCloseTo(layout.padding, 0);
+        expect(layout.overflow).toBe(false);
+      }
+    }
+  });
+}
+
+async function expectQuestionLargest(page, name) {
+  const sizes = await page.locator('[data-lp-pattern]').evaluate((root, name) => {
+    const question = root.querySelector(name === 'self-check' ? 'h2.lp-stem' : 'legend.lp-stem');
+    const lead = root.querySelector(':scope > .lp-heading') || question.querySelector('h2') || question;
+    const questionSize = parseFloat(getComputedStyle(lead).fontSize);
+    const larger = [...root.querySelectorAll('*')].filter(element => {
+      if (element.closest('.lp-visually-hidden') || getComputedStyle(element).visibility !== 'visible') return false;
+      return [...element.childNodes].some(node => {
+        if (node.nodeType !== Node.TEXT_NODE || !node.textContent.trim()) return false;
+        const range = document.createRange();
+        range.selectNode(node);
+        return [...range.getClientRects()].some(rect => rect.width > 0 && rect.height > 0);
+      }) && parseFloat(getComputedStyle(element).fontSize) > questionSize;
+    }).map(element => element.textContent.trim());
+    return { questionSize, larger };
+  }, name);
+  expect(sizes.questionSize).toBe(21);
+  expect(sizes.larger).toEqual([]);
+}
+
+for (const name of ['draw-your-guess', 'estimate-magnitude', 'prolific-questions', 'self-check', 'split-by-proportion']) {
+  for (const lang of ['en', 'fr']) test(`top heading stays largest after Check (${name}, ${lang})`, async ({ page }) => {
+    await open(page, `/${name}/${lang}.html`, true);
+    if (name === 'self-check') {
+      await page.getByRole('textbox').fill('My draft');
+    } else if (name === 'prolific-questions') {
+      for (const fact of await page.locator('[data-lp-fact]').all()) await fact.getByRole('radio').first().check();
+    } else {
+      for (const slider of await page.getByRole('slider').all()) {
+        await slider.focus();
+        await page.keyboard.press('Home');
+        await page.keyboard.press('ArrowRight');
+      }
+    }
+    await page.locator('[data-lp-check]').click();
+    if (name === 'self-check') await page.locator('[data-lp-show]').click();
+    await expect(page.locator('[data-lp-result]')).toBeVisible();
+    for (const width of [1280, 320]) {
+      await page.setViewportSize({ width, height: 900 });
+      await expectQuestionLargest(page, name);
+    }
+  });
+}
+
+for (const lang of ['en', 'fr']) test(`question stays largest with the no-JS answer open (split-by-proportion, ${lang})`, async ({ browser, baseURL }) => {
+  const context = await browser.newContext({ baseURL, javaScriptEnabled: false });
+  try {
+    const page = await context.newPage();
+    await page.goto(`/split-by-proportion/${lang}.html`);
+    await page.locator('[data-lp-fallback] summary').click();
+    await expect(page.locator('[data-lp-fallback] h3')).toBeVisible();
+    for (const width of [1280, 320]) {
+      await page.setViewportSize({ width, height: 900 });
+      await expectQuestionLargest(page, 'split-by-proportion');
+    }
+  } finally {
+    await context.close();
+  }
+});
+
+for (const name of ['draw-your-guess', 'split-by-proportion']) test(`legend heading keeps stem type under host heading rules (${name})`, async ({ page }) => {
+  await open(page, `/${name}/en.html`, true);
+  await page.addStyleTag({ content: '.lp h2 { font-size: 2rem; margin-top: 2em; letter-spacing: .2em; }' });
+  const heading = page.locator('legend.lp-stem > h2.lp-heading');
+  await expect(heading).toHaveCSS('font-size', '21px');
+  await expect(heading).toHaveCSS('margin-top', '0px');
+  expect(await heading.evaluate(el => getComputedStyle(el).letterSpacing)).toBe(await heading.locator('..').evaluate(el => getComputedStyle(el).letterSpacing));
 });

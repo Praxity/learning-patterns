@@ -49,7 +49,7 @@ All text is plain text and escaped at render time. English and Canadian French e
 
 | Field | Meaning |
 | --- | --- |
-| `title` | Scene title, up to 120 characters. |
+| `title` | Up to 120 characters. Shown only when the card has more than one question. |
 | `context` | Context and source, up to 1,500 characters. |
 | `question` | The multi-part question, up to 400 characters. |
 | `parts` | At least two parts, in answer-key order. |
@@ -80,6 +80,8 @@ Optional `state: { read, write }` stores `{ deck, last, order, picks, checked, c
 Repeated enhancement returns the same instance. `destroy()` removes listeners, cancels pending focus, clears marks, restores controls and shows the native answers. Destroying an old instance again leaves any newer instance alone.
 
 ## Use it
+
+The title heading comes before the plain context and question legends.
 
 Copy `patterns/prolific-questions/` and `lib/`, preserving relative paths. Link `lib/base.css`, then `patterns/prolific-questions/pattern.css`. Give each instance a unique id prefix.
 

@@ -1,7 +1,7 @@
 import { validateTextLengths } from '../../lib/text-limits.js';
 
 /** @typedef {{ label: string, share: number }} Option */
-/** @typedef {{ title: string, context: string, question: string, resultTitle: string, optionHeading: string, source: string, total: number, unit: string, unitOne?: string, step: number, close: number, options: Option[] }} Content */
+/** @typedef {{ title?: string, context: string, question: string, resultTitle: string, optionHeading: string, source: string, total: number, unit: string, unitOne?: string, step: number, close: number, options: Option[] }} Content */
 /** @typedef {{ dividers: number[], touched: boolean, shown: boolean }} LearnerState */
 
 /** @param {unknown} value @returns {value is Record<string, unknown>} */
@@ -17,7 +17,7 @@ export function validateContent(content) {
   const keys = ['title', 'context', 'question', 'resultTitle', 'optionHeading', 'source', 'total', 'unit', 'unitOne', 'step', 'close', 'options'];
   for (const key of Object.keys(content)) if (!keys.includes(key)) throw new Error(`Invalid ${key}`);
   validateTextLengths(content, { title: 120, context: 1500, question: 400, resultTitle: 120, optionHeading: 60, source: 1500, unit: 40, unitOne: 40, options: [{ label: 300 }] });
-  for (const key of ['title', 'context', 'question', 'resultTitle', 'optionHeading', 'source', 'unit']) {
+  for (const key of ['context', 'question', 'resultTitle', 'optionHeading', 'source', 'unit', ...(Object.hasOwn(content, 'title') ? ['title'] : [])]) {
     if (typeof content[key] !== 'string' || !content[key].trim()) throw new Error(`Invalid ${key}`);
   }
   if ('unitOne' in content && (typeof content.unitOne !== 'string' || !content.unitOne.trim())) throw new Error('Invalid unitOne');
