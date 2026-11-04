@@ -13,11 +13,16 @@ Answer from memory, then write wrong options and name the mistaken idea behind e
 
 ## Use it when
 
-Use it when learners know enough to answer from memory and explain common mistakes. Authors can review their wrong options for use in quizzes.
+- Use it when learners know enough to answer from memory and explain common mistakes. Authors can review their wrong options for use in quizzes.
 
 ## Avoid it when
 
-A person must judge whether each option expresses the chosen misconception and would tempt a learner. Matching labels cannot do that.
+- When learners cannot yet answer from memory or explain common mistakes, use [Spot the misconception](../misconception/README.md) for a supported study question.
+- When nobody can review whether the wrong options would tempt a learner, use [Check your own answer](../self-check/README.md).
+
+## Before you use it
+
+Write the correct answer, misconception labels and plausible wrong options for comparison. Choose how many wrong options learners write, from one to five. Plan for a person to review learners' options before using them in a quiz.
 
 ## How it works
 
@@ -123,6 +128,15 @@ instance.destroy();
 ## Adapt it with your agent
 
 Give your agent this README, the examples and your correct answer. Ask for misconception labels and plausible wrong options to review. Keep feedback authored in `strings.js`. Check labels against real learner errors. If you change the content contract, run logic, schema, type, budget and browser checks.
+
+## Related patterns
+
+- [Spot the misconception](../misconception/README.md)
+- [Check your own answer](../self-check/README.md)
+
+## Help improve this pattern
+
+Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Write%20the%20wrong%20options). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/write-distractors/README.md).
 
 ## Licence
 

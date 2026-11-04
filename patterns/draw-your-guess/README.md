@@ -18,11 +18,11 @@ Set the next few points of a line chart, then see the real line over your guess.
 
 ## Avoid it when
 
-Use another interaction when exact numeric accuracy matters more than the shape of the trend. This pattern compares the direction of the guess and gives authored feedback, without a numeric grade.
+- When exact numbers matter more than the shape of a trend, use a numeric question with a checked answer. For estimating the size of a quantity, use [Estimate magnitude](../estimate-magnitude/README.md).
 
-## Setting it up
+## Before you use it
 
-Write the question, unit, known points and real values for the points to guess, with their source. Use three to six known points and three to six points to guess. Set the scale's top and step, then explain why the real line has its shape. Write one comparison message for each possible guess trend.
+Write the question, unit, three to six known points and three to six points to guess. Supply the real values and their source. Choose the scale's top and step, explain the real trend, and write feedback for each possible guess trend.
 
 ## How it works
 
@@ -111,6 +111,15 @@ const instance = enhance(document.querySelector('[data-lp-pattern]'), { content,
 ## Adapt it with your agent
 
 > Adapt the draw-your-guess examples for [topic] and [audience]. Keep the content fields above, with three to six known points and three to six future points. Provide a source and enough context to make a prediction. Write all six feedback messages about the real trend. Keep English and Canadian French together, using vous in French. Preserve keyboard and pointer input, state, the native answer disclosure, one summary announcement and reflow. Update examples and tests.
+
+## Related patterns
+
+- [Estimate magnitude](../estimate-magnitude/README.md)
+- [Split by proportion](../split-by-proportion/README.md)
+
+## Help improve this pattern
+
+Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Draw%20your%20guess). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/draw-your-guess/README.md).
 
 ## Licence
 

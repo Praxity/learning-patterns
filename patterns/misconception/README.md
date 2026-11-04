@@ -13,11 +13,19 @@ Answer a study question. Compare your reasoning with the feedback and model answ
 
 ## Use it when
 
-Use it when a short answer can reveal a mistaken belief. This example asks whether rereading notes prepares you for a test. The proxy checks four study misconceptions. Feedback helps you revise your reasoning.
+- Use it when a short answer can reveal a mistaken belief. This example asks whether rereading notes prepares you for a test. The proxy checks four study misconceptions. Feedback helps you revise your reasoning.
 
 ## Avoid it when
 
-It gives no grade.
+- When your topic has different misconceptions and you cannot change and test what the model checks, use [Check your own answer](../self-check/README.md).
+- When learners can explain common mistakes themselves, use [Write the wrong options](../write-distractors/README.md).
+- When you need a grade, use an assessment. This pattern helps learners revise.
+
+## Before you use it
+
+It needs a server running a model. If automatic checking is unavailable, the button opens the model answer and a misconception checklist instead.
+
+Write a model answer and corrections for the four study misconceptions. Changing the topic also means changing and testing what the model checks.
 
 ## How it works
 
@@ -97,6 +105,15 @@ This pattern collects and stores no answers. A host may collect unmatched answer
 ## Adapt it with your agent
 
 > Adapt this example for [audience]. Keep familiarity versus recall and the four beliefs about rereading, highlighting, cramming and watching. Keep the fields and belief order. Explain each correction and what to do instead. Give uncertain results a comparison prompt. Write English and Québec French together, using vous and « guillemets » with non-breaking spaces. Preserve authored feedback, the data notice, proxy gates, on-demand verification and offline self-check. Evaluate any changed proxy questions before use.
+
+## Related patterns
+
+- [Check your own answer](../self-check/README.md)
+- [Write the wrong options](../write-distractors/README.md)
+
+## Help improve this pattern
+
+Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Spot%20the%20misconception). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/misconception/README.md).
 
 ## Licence
 

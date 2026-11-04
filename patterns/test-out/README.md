@@ -13,15 +13,15 @@ Answer a short check to see which course sections you can skip and which to take
 
 ## Use it when
 
-Use it for a small refresher where one or two questions can justify skipping a section. Advanced questions must test any prerequisite knowledge they credit.
+- Use it for a small refresher where one or two questions can justify skipping a section. Advanced questions must test any prerequisite knowledge they credit.
 
 ## Avoid it when
 
-Keep all sections required when the course needs proof that learners saw each one.
+- When the course needs proof that learners saw every section, turn skipping off or leave the pre-test out. A correct answer is not proof of attendance.
 
-## Setting it up
+## Before you use it
 
-The host course handles navigation and completion records.
+Write one or two questions per section. Decide whether passing can skip sections. Your course handles navigation and completion records.
 
 ## How it works
 
@@ -115,6 +115,15 @@ const instance = enhance(document.querySelector('[data-lp-pattern]'), { content,
 ## Adapt it with your agent
 
 > Adapt the test-out examples to [topic] for [audience]. Keep `{ title, allowTestOut, sections: [{ id, title, requires }], questions: [{ id, section, text, options: [{ id, text }], correct, explanation }] }`. Use three or four sections with one or two questions each. Advanced questions must test the prerequisites they credit. Keep ids and references valid, with no prerequisite cycles. Write English and Québec French together, using vous. Preserve native questions and answers, state, local marks, one summary announcement and reflow. Do not claim that one or two answers prove mastery. Ask the author whether skipping is allowed.
+
+## Related patterns
+
+- ["I don't know" as an answer](../dont-know/README.md)
+- [Prolific questions](../prolific-questions/README.md)
+
+## Help improve this pattern
+
+Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Pre-test%20to%20skip%20sections). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/test-out/README.md).
 
 ## Licence
 
