@@ -75,8 +75,8 @@ for (const [lang, title, label, number] of [
     await pick(page); await page.locator('[data-lp-check]').click();
     const panels = page.locator('[data-lp-explanation]:visible');
     await expect(panels).toHaveCount(2);
-    await expect(panels).toHaveClass(['lp-quote lp-dont-know-explanation', 'lp-quote lp-dont-know-explanation']);
-    await expect(panels.locator('svg[aria-hidden="true"][focusable="false"]')).toHaveCount(2);
+    await expect(panels).toHaveClass(['', '']);
+    await expect(panels.locator('svg')).toHaveCount(0);
     const ring = page.locator('.lp-dont-know-score-ring');
     await expect(ring).toHaveAttribute('aria-hidden', 'true');
     await expect(ring).toHaveAttribute('focusable', 'false');
@@ -127,11 +127,11 @@ test('keyboard journey associates each unanswered error, focuses first missing r
   for (let n = 0; n < 3; n++) await page.keyboard.press('Tab');
   await expect(check).toBeFocused(); await page.keyboard.press('Enter');
   await expect(questions.nth(1).locator('input').first()).toBeFocused();
-  await expect(page.locator('[data-lp-error]')).toHaveText("2 questions need answers. Choose an answer or \"I don't know\".");
+  await expect(page.locator('[data-lp-error] > p')).toHaveText("2 questions need answers. Choose an answer or \"I don't know\".");
   for (let n = 1; n < 3; n++) {
     const fieldset = questions.nth(n);
     const id = await fieldset.getAttribute('aria-describedby');
-    await expect(page.locator(`[id="${id}"]`)).toHaveText('Choose an answer');
+    await expect(page.locator(`[id="${id}"]`)).toHaveText('Choose an answer or "I don\'t know"');
     for (const radio of await fieldset.locator('input').all()) await expect(radio).not.toHaveAttribute('aria-describedby');
     await expect(fieldset.locator('[data-lp-question-error] svg[aria-hidden="true"]')).toHaveCount(1);
   }
@@ -497,7 +497,7 @@ test('one unanswered question uses the singular message in English and French', 
     await open(page, `/dont-know/${lang}.html`);
     await pick(page, mixed.slice(0, 2));
     await page.locator('[data-lp-check]').click();
-    await expect(page.locator('[data-lp-error]')).toHaveText(text);
+    await expect(page.locator('[data-lp-error] > p')).toHaveText(text);
   }
 });
 

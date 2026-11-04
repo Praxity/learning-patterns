@@ -17,6 +17,7 @@ export namespace strings {
         let check: string;
         let unansweredOne: string;
         let unanswered: string;
+        let or: string;
         let choose: string;
         let summary: string;
         let countRightOne: string;
@@ -70,6 +71,8 @@ export namespace strings {
         export { unansweredOne_1 as unansweredOne };
         let unanswered_1: string;
         export { unanswered_1 as unanswered };
+        let or_1: string;
+        export { or_1 as or };
         let choose_1: string;
         export { choose_1 as choose };
         let summary_1: string;

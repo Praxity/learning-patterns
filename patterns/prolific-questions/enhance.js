@@ -1,3 +1,4 @@
+import { focusQuestion, questionLinks } from '../../lib/question-errors.js';
 import { deal, shuffle, score, feedback, validateContent, validateState } from './logic.js';
 import { frenchTypography } from '../../lib/html.js';
 import { markChoice, clearChoice } from '../../lib/choice-mark.js';
@@ -27,7 +28,7 @@ export function enhance(root, { content, strings, state }) {
   const fallback = required('[data-lp-fallback]');
   const result = required('[data-lp-result]');
   const error = required('[data-lp-error]');
-  const errorText = required('[data-lp-error] > span');
+  const errorText = required('[data-lp-error-text]');
   const status = required('[role="status"]');
   const facts = [...root.querySelectorAll('[data-lp-fact]')].map(element => /** @type {HTMLElement} */ (element));
   const legends = facts.map(fact => {
@@ -54,7 +55,13 @@ export function enhance(root, { content, strings, state }) {
   const display = text => frenchTypography(text, root.lang);
   function clearError() {
     error.hidden = true;
-    facts.forEach(fact => fact.removeAttribute('aria-describedby'));
+    error.querySelector('ul')?.remove();
+    facts.forEach(fact => {
+      fact.removeAttribute('aria-describedby');
+      const message = fact.querySelector('[data-lp-question-error]');
+      if (message instanceof HTMLElement) message.hidden = true;
+      fact.querySelectorAll('input').forEach(input => input.removeAttribute('aria-invalid'));
+    });
   }
   function clearResult() {
     cancelFocus(); unlock(); unlock = () => {};
@@ -109,7 +116,7 @@ export function enhance(root, { content, strings, state }) {
       const input = group.find(input => input.checked);
       return input ? Number(input.value) : null;
     });
-    if (!score(current.order, current.picks).unanswered.length) clearError();
+    clearError();
     save();
   }
   function onCheck() {
@@ -120,7 +127,14 @@ export function enhance(root, { content, strings, state }) {
       const count = outcome.unanswered.length;
       const message = count === outcome.total ? strings.empty : count === 1 ? strings.last : strings.remaining.replace('{count}', String(count));
       errorText.textContent = display(message); error.hidden = false;
-      outcome.unanswered.forEach(i => facts[i].setAttribute('aria-describedby', error.id));
+      outcome.unanswered.forEach(i => {
+        const message = facts[i].querySelector('[data-lp-question-error]');
+        if (!(message instanceof HTMLElement)) throw new Error('Missing fact error');
+        message.hidden = false; facts[i].setAttribute('aria-describedby', message.id);
+        inputs[i].forEach(input => input.setAttribute('aria-invalid', 'true'));
+      });
+      questionLinks(error, outcome.unanswered.map(i => ({ fieldset: facts[i], text: legends[i].textContent ?? '', focus: () => focusQuestion(facts[i]) })));
+      focusQuestion(facts[outcome.unanswered[0]]);
       status.textContent = display(message);
       return;
     }

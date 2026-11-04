@@ -43,6 +43,8 @@ The running count records correct placements, without a mastery claim. This patt
 
 ## Accessibility
 
+Check links to each unanswered fact. Each link, and the first missing answer on Check, scrolls the fact's legend into view before focusing its first option. Each unanswered fact has its own linked message.
+
 Follows the shared baseline in the root README.
 
 - Native radio groups have a legend for each fact. Arrow keys change the selected part; Tab moves between groups and actions.

@@ -167,8 +167,8 @@ test('quiz scene renders escaped authored titles, bilingual question numbers and
     assert.ok(output.includes(title.replaceAll("'", '&#39;')));
     assert.ok(output.includes(number));
     assert.equal((output.match(/class="lp-small lp-dont-know-question-number"/g) || []).length, 3);
-    assert.equal((output.match(/class="lp-quote lp-dont-know-explanation"/g) || []).length, 3);
-    assert.match(output, /data-lp-explanation hidden><svg[^>]+aria-hidden="true"/);
+    assert.equal((output.match(/<p data-lp-explanation hidden>/g) || []).length, 3);
+    assert.doesNotMatch(output, /data-lp-explanation hidden><svg/);
   }
 });
 

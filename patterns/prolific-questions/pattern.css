@@ -8,8 +8,8 @@
 .lp-prolific-questions-fact { margin-block-start: var(--lp-gap-flow); }
 .lp-prolific-questions-fact > legend { margin-block-end: var(--lp-gap-label); font-weight: 600; }
 /* Short slot names on one row, without the A, B, C keys of an answer list. */
-.lp-prolific-questions-fact { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); }
-.lp-prolific-questions-fact > legend { grid-column: 1 / -1; }
+.lp-prolific-questions-fact { grid-template-columns: repeat(var(--lp-prolific-questions-parts), minmax(0, 1fr)); }
+.lp-prolific-questions-fact > legend, .lp-prolific-questions-fact > [data-lp-question-error] { grid-column: 1 / -1; }
 .lp-prolific-questions-fact .lp-choice { display: flex; flex-direction: column; gap: var(--lp-gap-hint); align-items: flex-start; justify-content: center; padding: 10px 12px; }
 .lp-prolific-questions-fact .lp-choice > * { align-self: auto; }
 .lp-prolific-questions-fact .lp-choice:has(input:checked), .lp-prolific-questions-fact .lp-choice[data-lp-mark] { padding: 9px 11px; }
@@ -23,7 +23,7 @@
 }
 /* Stacked on narrow screens, with the mark at the row's end to save height. */
 @container (max-width: 24rem) {
-  .lp-prolific-questions-fact { grid-auto-flow: row; }
+  .lp-prolific-questions-fact { grid-template-columns: minmax(0, 1fr); }
   .lp-prolific-questions-fact .lp-choice { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; }
 }
 /* Forced colours show the native radio beside the slot name, with the mark on its own line. */

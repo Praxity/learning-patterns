@@ -30,17 +30,16 @@ export function render(content, strings, { id, lang }) {
   </header>
   <p>${html(scoring, lang)}</p>
   ${content.questions.map((q, n) => `<div class="lp-section">
-  <p class="lp-small lp-dont-know-question-number">${html(format(strings.questionNumber, { number: n + 1, total: content.questions.length }), lang)}</p>
   <fieldset class="lp-choices" id="${html(`${id}-question-${n}`)}" tabindex="-1" data-lp-question="${html(q.id)}">
-    <legend class="lp-stem">${html(q.text, lang)}</legend>
-    ${[...q.options, { id: DONT_KNOW, text: strings.unknown }].map((o, index) => `<label class="lp-choice" for="${html(`${id}-question-${n}-option-${index}`)}"><input type="radio" id="${html(`${id}-question-${n}-option-${index}`)}" name="${html(`${id}-question-${n}`)}" value="${html(o.id)}"><span>${html(o.text, lang)}</span></label>`).join('\n    ')}
+    <legend class="lp-stem"><span class="lp-small lp-dont-know-question-number">${html(format(strings.questionNumber, { number: n + 1, total: content.questions.length }), lang)}</span><span class="lp-visually-hidden">, </span>${html(q.text, lang)}</legend>
+    ${[...q.options, { id: DONT_KNOW, text: strings.unknown }].map((o, index) => `${o.id === DONT_KNOW ? `<div class="lp-dont-know-choice-divider">${html(strings.or, lang)}</div>` : ''}<label class="lp-choice" for="${html(`${id}-question-${n}-option-${index}`)}"><input type="radio" id="${html(`${id}-question-${n}-option-${index}`)}" name="${html(`${id}-question-${n}`)}" value="${html(o.id)}"><span>${html(o.text, lang)}</span></label>`).join('\n    ')}
     <p class="lp-error-text" id="${html(`${id}-question-${n}-error`)}" data-lp-question-error hidden>${icons['alert-circle']}<span>${html(strings.choose, lang)}</span></p>
-    <p class="lp-quote lp-dont-know-explanation" data-lp-explanation hidden>${icons['info-circle']}<span>${html(q.explanation, lang)}</span></p>
+    <p data-lp-explanation hidden>${html(q.explanation, lang)}</p>
   </fieldset>
   </div>`).join('\n  ')}
   <div data-lp-flow hidden>
     <div class="lp-actions"><button class="lp-button" type="button" data-lp-check>${html(strings.check, lang)}</button></div>
-    <p class="lp-error-text" data-lp-error hidden></p>
+    <div data-lp-error hidden></div>
     <div class="lp-section" data-lp-result hidden></div>
     <div class="lp-actions"><button class="lp-button lp-button-quiet" type="button" data-lp-restart hidden>${icons.refresh}${html(strings.restart, lang)}</button></div>
   </div>

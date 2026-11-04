@@ -99,6 +99,8 @@ This scoring rule and its effect on test anxiety have not been tested. Keep wron
 
 ## Accessibility
 
+Question numbers are captions inside each legend. "I don't know" is last, after an "or" divider. Each unanswered question has a link beside Check. The link scrolls its legend into view before focusing its first option. Explanations are plain body text under the options.
+
 Follows the shared baseline in the root README.
 
 - Each unanswered question has one error message linked to its group. Its options expose an invalid state. Focus moves to the first unanswered option.

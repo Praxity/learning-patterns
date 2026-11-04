@@ -38,6 +38,8 @@ This sequence has not been tested as a whole. Ticks record only the learner's ow
 
 ## Accessibility
 
+The checklist legend asks which parts the answer includes. Its short instruction describes the fieldset through `aria-describedby`. The live tick count has its own status region outside the legend.
+
 Follows the shared baseline in the root README.
 
 - An empty answer gets an error linked to its text box. Checking moves focus to the first checklist item.
