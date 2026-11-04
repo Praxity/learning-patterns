@@ -58,7 +58,8 @@ Content is plain text. Rendering escapes HTML characters.
 
 | Field | Meaning |
 | --- | --- |
-| `task` | The writing task. |
+| `scenario` | Optional situation, shown as plain text above the task. |
+| `task` | The writing task, shown as the heading. Keep it to one instruction. |
 | `context` | Optional email context. Omit it to hide recipient and subject fields. |
 | `context.to` | Email recipient, required with context. |
 | `context.initials` | Decorative recipient initials, required with context. |
@@ -92,7 +93,7 @@ Pass `state: { read, write }` to save `{ answer, ticked, shown }`. Invalid saved
 
 ## Use it
 
-The task heading comes first. The email context and answer field sit inside one composer.
+The optional scenario comes first, then the task heading. The email context and answer field sit inside one composer.
 
 Copy `patterns/self-check/` and `lib/`, keeping their relative paths. Link `lib/base.css`, then `patterns/self-check/pattern.css`. Use a unique id prefix per instance. The example combines both calls; render HTML on the server before calling `enhance` in the browser.
 
@@ -115,7 +116,7 @@ For an email task, add `context: { to: 'Sam', initials: 'S', subject: 'Report' }
 
 Copy this prompt and fill in your topic and audience.
 
-> Rewrite the self-check examples for [topic] and [audience]. Ask for an answer learners could use at work. Keep `{ task, parts: [{ id, label, missed, evidence }], model }`. Email tasks may add `context: { to, initials, subject }` and an optional `placeholder`. Use unique part ids. Evidence must occur exactly once in the model, or be null for a whole-answer part. Write clear part labels and specific hints. Keep English and Québec French together; use vous in French. A model may only choose authored messages. Follow the pattern contract, including state, accessibility and CSS tokens. Update examples and tests. Show both languages for review.
+> Rewrite the self-check examples for [topic] and [audience]. Ask for an answer learners could use at work. Keep `{ scenario, task, parts: [{ id, label, missed, evidence }], model }`, with the situation in `scenario` and one instruction in `task`. Email tasks may add `context: { to, initials, subject }` and an optional `placeholder`. Use unique part ids. Evidence must occur exactly once in the model, or be null for a whole-answer part. Write clear part labels and specific hints. Keep English and Québec French together; use vous in French. A model may only choose authored messages. Follow the pattern contract, including state, accessibility and CSS tokens. Update examples and tests. Show both languages for review.
 
 ## Related patterns
 

@@ -31,6 +31,7 @@ export type Part = {
     evidence: string | null;
 };
 export type Content = {
+    scenario?: string;
     task: string;
     context?: {
         to: string;

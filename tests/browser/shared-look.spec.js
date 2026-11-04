@@ -150,6 +150,8 @@ test('a checkbox outside a choice row gets the 3px focus ring', async ({ page })
 });
 
 
+const multi = ['estimate-magnitude', 'prolific-questions'];
+
 for (const name of ['draw-your-guess', 'estimate-magnitude', 'prolific-questions', 'self-check', 'split-by-proportion']) {
   for (const lang of ['en', 'fr']) test(`scenario context precedes a larger question without a scene (${name}, ${lang})`, async ({ page, browserName }) => {
     await open(page, `/${name}/${lang}.html`, true);
@@ -159,7 +161,8 @@ for (const name of ['draw-your-guess', 'estimate-magnitude', 'prolific-questions
       for (const forced of browserName === 'chromium' ? ['none', 'active'] : ['none']) {
         await page.emulateMedia({ forcedColors: forced });
         const layout = await page.locator('[data-lp-pattern]').evaluate((root, name) => {
-          const context = root.querySelector(name === 'self-check' ? '.lp-self-check-meta-list' : '.lp-context');
+          const context = root.querySelector('.lp-context');
+          const lead = root.querySelector(':scope > .lp-heading') || question.querySelector('h2') || question;
           const question = root.querySelector(name === 'self-check' ? 'h2.lp-stem' : 'legend.lp-stem');
           const field = root.querySelector(name === 'self-check' ? 'textarea' : 'fieldset');
           return {
@@ -173,6 +176,7 @@ for (const name of ['draw-your-guess', 'estimate-magnitude', 'prolific-questions
               return color;
             })(),
             questionSize: parseFloat(getComputedStyle(question.querySelector('h2') || question).fontSize),
+            leadSize: parseFloat(getComputedStyle(lead).fontSize),
             contextSize: parseFloat(getComputedStyle(context.querySelector('p') || context).fontSize),
             contextWeight: getComputedStyle(context).fontWeight,
             composerGap: name === 'self-check' ? root.querySelector('.lp-self-check-composer').getBoundingClientRect().top - question.getBoundingClientRect().bottom : null,
@@ -184,7 +188,9 @@ for (const name of ['draw-your-guess', 'estimate-magnitude', 'prolific-questions
           };
         }, name);
         if (forced === 'active') expect(layout.headingColor).toBe(layout.canvasText);
-        expect(layout.questionSize).toBe(21);
+        // A title over several questions is the largest text; its questions step down to 19px.
+        expect(layout.leadSize).toBe(21);
+        expect(layout.questionSize).toBe(multi.includes(name) ? 19 : 21);
         expect(layout.questionSize).toBeGreaterThan(layout.contextSize);
         expect(layout.contextWeight).toBe('400');
         if (name === 'self-check') expect(layout.composerGap).toBeCloseTo(12, 0);
@@ -199,7 +205,8 @@ for (const name of ['draw-your-guess', 'estimate-magnitude', 'prolific-questions
 async function expectQuestionLargest(page, name) {
   const sizes = await page.locator('[data-lp-pattern]').evaluate((root, name) => {
     const question = root.querySelector(name === 'self-check' ? 'h2.lp-stem' : 'legend.lp-stem');
-    const questionSize = parseFloat(getComputedStyle(question.querySelector('h2') || question).fontSize);
+    const lead = root.querySelector(':scope > .lp-heading') || question.querySelector('h2') || question;
+    const questionSize = parseFloat(getComputedStyle(lead).fontSize);
     const larger = [...root.querySelectorAll('*')].filter(element => {
       if (element.closest('.lp-visually-hidden') || getComputedStyle(element).visibility !== 'visible') return false;
       return [...element.childNodes].some(node => {
@@ -216,7 +223,7 @@ async function expectQuestionLargest(page, name) {
 }
 
 for (const name of ['draw-your-guess', 'estimate-magnitude', 'prolific-questions', 'self-check', 'split-by-proportion']) {
-  for (const lang of ['en', 'fr']) test(`question stays largest after Check (${name}, ${lang})`, async ({ page }) => {
+  for (const lang of ['en', 'fr']) test(`top heading stays largest after Check (${name}, ${lang})`, async ({ page }) => {
     await open(page, `/${name}/${lang}.html`, true);
     if (name === 'self-check') {
       await page.getByRole('textbox').fill('My draft');
