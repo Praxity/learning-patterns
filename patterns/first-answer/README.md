@@ -29,7 +29,7 @@ Ask your developer to save the first answer between visits. Without that, the an
 1. Early in the course, the learner writes an answer and saves it. It's kept as written, with the date.
 2. At the end of the course, they answer the same question and select "Compare".
 3. Their first answer appears below the new one. They tick the improvements they notice, and a counter adds them up.
-4. "Try again" lets them rewrite the new answer and keeps the first answer and the ticks. "Start over" clears everything.
+4. "Try again" lets them rewrite the new answer and keeps the first answer and the ticks. "Start over" asks before deleting saved answers. "Delete" clears everything. "Keep" keeps the answers.
 
 ## Evidence
 
@@ -49,6 +49,7 @@ Follows the shared baseline in the root README.
 - Blank or long answers get errors linked to the text box. Saving focuses Skip in the demo, or the saved entry in a first-only placement.
 - Compare focuses the revealed Day one heading before the saved answer and improvement checks.
 - Try again silently focuses the current-answer field. Reset focuses the first-answer field, or the current-answer field in an end-only placement.
+- Start over focuses an inline confirmation question, followed by Delete and Keep. Keep or Escape closes it and returns focus to Start over without an announcement. Delete announces the reset and focuses the answer field.
 - Storage problems show visible messages. Valid entries restore silently.
 
 ## Content fields
@@ -99,6 +100,19 @@ State is `{ first: { text, savedAt } | null, now: { text, savedAt } | null, chec
 State needs a boolean for each check. Saved answers must be trimmed, nonempty and within the limit, with valid ISO timestamps. Malformed or unreadable state shows a warning and blocks writes until reset. Failed writes keep the previous record and show an error. Valid state restores silently. A saved now answer restores the locked comparison, even if the learner left while rewriting.
 
 Repeated `enhance` calls preserve server elements and return the same instance. `destroy()` removes listeners and restores the no-JavaScript view. Placements sharing an adapter reread it before each action, so a stale placement cannot overwrite a newer answer. The host handles concurrent writes across tabs or devices.
+
+### Strings
+
+`strings.en` and `strings.fr` have matching keys. Override both languages together.
+
+| Key | English | French |
+| --- | --- | --- |
+| `confirmDeleteBoth` | Delete both answers? This can't be undone. | Supprimer les deux réponses ? Cette action est irréversible. |
+| `confirmDeleteOne` | Delete your answer? This can't be undone. | Supprimer votre réponse ? Cette action est irréversible. |
+| `deleteAnswer` | Delete | Supprimer |
+| `keepAnswer` | Keep | Conserver |
+
+The confirmation uses the singular when exactly one answer is saved. Unreadable records use the two-answer question because their contents are unknown. French text uses the shared typography formatter.
 
 ## Use it
 

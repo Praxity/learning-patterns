@@ -183,7 +183,7 @@ test('restoring now locks the comparison silently and reset clears the lock', as
   await expect(page.locator('[data-lp-compare]')).toBeHidden();
   await expect(page.locator('[data-lp-try-again]')).toBeVisible();
   await expect(page.locator('[role="status"]')).toBeEmpty();
-  await page.locator('[data-lp-restart]').click();
+  await page.locator('[data-lp-restart]').click(); await page.getByRole('button', { name: 'Delete', exact: true }).click();
   await saveFirst(page); await page.locator('[data-lp-skip]').click();
   await expect(page.locator('[data-lp-now-input]')).toBeEditable();
   await expect(page.locator('[data-lp-compare]')).toBeVisible();
@@ -244,6 +244,8 @@ test('keyboard journey links blank errors and announces successful submissions o
   await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-compare]')).toBeFocused(); await page.keyboard.press('Enter');
   for (let i = 0; i < 5; i++) await page.keyboard.press('Tab');
   await expect(page.locator('[data-lp-restart]')).toBeFocused(); await page.keyboard.press('Enter');
+  await expect(page.locator('.lp-first-answer-confirm-question')).toBeFocused();
+  await page.keyboard.press('Tab'); await expect(page.getByRole('button', { name: 'Delete', exact: true })).toBeFocused(); await page.keyboard.press('Enter');
   await expect(first).toBeFocused(); await expect(first).toHaveValue('');
   await expect(page.locator('[data-lp-restart]')).toBeHidden(); await expect(page.locator('[data-lp-result]')).toBeHidden();
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ first: null, now: null, checks });
@@ -319,7 +321,7 @@ for (const value of [{}, 'not JSON', { ...seed, checks: { ...checks, view: 'yes'
     expect(await page.evaluate(() => window.lpSaved)).toEqual(value);
     await expect(page.locator('[role="status"]')).toBeEmpty();
     await scan(page);
-    await page.locator('[data-lp-restart]').click(); await expect(page.locator('[data-lp-first-input]')).toBeFocused();
+    await page.locator('[data-lp-restart]').click(); await page.getByRole('button', { name: 'Delete', exact: true }).click(); await expect(page.locator('[data-lp-first-input]')).toBeFocused();
     await expect(page.locator('[data-lp-storage-error]')).toBeHidden(); await saveFirst(page);
     expect((await page.evaluate(() => window.lpSaved)).first.text).toBe('Stop interrupting me.');
   });
@@ -330,7 +332,7 @@ test('thrown host reads block writes; a deliberate reset recovers', async ({ pag
   expect(await page.evaluate(() => window.lpWrites)).toBe(0); expect(await page.evaluate(() => window.lpSaved)).toEqual(seed);
   await expect(page.locator('[data-lp-storage-error]')).toBeVisible();
   await page.evaluate(() => { window.lpFailRead = false; });
-  await page.locator('[data-lp-restart]').click(); await saveFirst(page);
+  await page.locator('[data-lp-restart]').click(); await page.getByRole('button', { name: 'Delete', exact: true }).click(); await saveFirst(page);
   expect((await page.evaluate(() => window.lpSaved)).first.text).toBe('Stop interrupting me.');
 });
 
@@ -347,10 +349,12 @@ test('failed save, compare, checkbox and reset preserve record and expose visibl
   const compared = await page.evaluate(() => window.lpSaved);
   await page.evaluate(() => { window.lpFailWrite = true; }); await page.getByRole('checkbox').first().click();
   await expect(page.getByRole('checkbox').first()).not.toBeChecked(); expect(await page.evaluate(() => window.lpSaved)).toEqual(compared);
-  await page.locator('[data-lp-restart]').click(); expect(await page.evaluate(() => window.lpSaved)).toEqual(compared);
+  await page.locator('[data-lp-restart]').click(); await page.getByRole('button', { name: 'Delete', exact: true }).click(); expect(await page.evaluate(() => window.lpSaved)).toEqual(compared);
+  await expect(page.locator('[data-lp-restart-confirmation]')).toBeHidden();
+  await expect(page.locator('[data-lp-restart]')).toBeFocused();
   await expect(page.locator('[data-lp-panel-first]')).toHaveText(compared.first.text);
   await expect(page.locator('[data-lp-now-input]')).toHaveValue(compared.now.text);
-  await page.evaluate(() => { window.lpFailWrite = false; }); await page.locator('[data-lp-restart]').click();
+  await page.evaluate(() => { window.lpFailWrite = false; }); await page.locator('[data-lp-restart]').click(); await page.getByRole('button', { name: 'Delete', exact: true }).click();
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ first: null, now: null, checks });
 });
 
@@ -363,7 +367,7 @@ test('end only allows a current answer with no saved first; reset focuses curren
   await expect(page.locator('[data-lp-panel-first-date]')).toBeEmpty(); await expect(page.getByRole('checkbox')).toHaveCount(3); await scan(page);
   await expect(page.locator('[data-lp-panel-note]')).toBeHidden();
   await expect(page.locator('[data-lp-panel-first-card] .lp-first-answer-date')).toBeHidden();
-  await page.getByRole('checkbox').nth(2).check(); await page.locator('[data-lp-restart]').click();
+  await page.getByRole('checkbox').nth(2).check(); await page.locator('[data-lp-restart]').click(); await page.getByRole('button', { name: 'Delete', exact: true }).click();
   await expect(page.locator('[data-lp-now-input]')).toBeFocused(); await expect(page.locator('[data-lp-now-input]')).toHaveValue('');
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Compare your answers. Tick the improvements.', 'Started over.']);
 });
@@ -382,7 +386,7 @@ test('stale instances cannot replace the first answer; reread preserves latest c
   await roots.nth(1).locator('[data-lp-first-input]').fill('Overwrite'); await roots.nth(1).locator('[data-lp-save-first]').click();
   expect((await page.evaluate(() => window.lpSaved)).first.text).toBe('Stop interrupting me.');
   await compare(roots.nth(1)); await roots.nth(1).getByRole('checkbox').nth(2).check();
-  await roots.nth(0).locator('[data-lp-restart]').click();
+  await roots.nth(0).locator('[data-lp-restart]').click(); await roots.nth(0).getByRole('button', { name: 'Delete', exact: true }).click();
   await roots.nth(1).locator('[data-lp-try-again]').click();
   await roots.nth(1).locator('[data-lp-now-input]').fill('After reset'); await roots.nth(1).locator('[data-lp-compare]').click();
   expect(await page.evaluate(() => window.lpSaved)).toMatchObject({ first: null, now: { text: 'After reset' }, checks });
@@ -394,19 +398,26 @@ test('enhance twice keeps nodes and one listener; destroy restores baseline and 
   expect(await page.evaluate(() => { window.lpTextarea = document.querySelector('[data-lp-first-input]'); return window.lpEnhance() === window.lpInstances[0]; })).toBe(true);
   await saveFirst(page); expect(await page.evaluate(() => window.lpWrites)).toBe(1);
   expect(await page.evaluate(() => window.lpTextarea === document.querySelector('[data-lp-first-input]'))).toBe(true);
+  await page.locator('[data-lp-restart]').click();
+  await expect(page.locator('.lp-first-answer-confirm-question')).toBeFocused();
   await page.evaluate(() => { window.lpInstances[0].destroy(); window.lpInstances[0].destroy(); });
+  await expect(page.locator('[data-lp-restart-confirmation]')).toHaveCount(0);
   await expect(page.locator('[data-lp-fallback]')).toBeVisible(); await expect(page.locator('[data-lp-first-input]')).toBeVisible();
   await expect(page.locator('[data-lp-save-first]')).toBeHidden(); await expect(page.locator('[data-lp-end-step]')).toBeHidden();
   await page.locator('[data-lp-save-first]').evaluate(el => { el.click(); }); expect(await page.evaluate(() => window.lpWrites)).toBe(1);
   await page.evaluate(() => { window.lpInstances = [window.lpEnhance()]; });
   await expect(page.locator('[data-lp-first-quote]')).toHaveText('Stop interrupting me.');
+  await page.locator('[data-lp-restart]').click();
+  await expect(page.locator('[data-lp-restart-confirmation]')).toHaveCount(1);
+  await expect(page.locator('.lp-first-answer-confirm-question')).toBeFocused();
+  expect(await page.evaluate(() => window.lpWrites)).toBe(1);
 });
 
 test('no state adapter supports the complete interaction in memory', async ({ page }) => {
   await mount(page, ['both'], undefined, 'none'); await saveFirst(page); await page.locator('[data-lp-skip]').click(); await compare(page);
   await expect(page.locator('[data-lp-panel-first]')).toHaveText('Stop interrupting me.');
   await expect(page.locator('[data-lp-result]')).toBeVisible();
-  await page.locator('[data-lp-restart]').click(); await expect(page.locator('[data-lp-first-input]')).toHaveValue('');
+  await page.locator('[data-lp-restart]').click(); await page.getByRole('button', { name: 'Delete', exact: true }).click(); await expect(page.locator('[data-lp-first-input]')).toHaveValue('');
 });
 
 test('host becoming unreadable after load blocks comparison and retains saved first', async ({ page }) => {
@@ -466,6 +477,7 @@ for (const lang of ['en', 'fr']) {
     };
     await fits(); await saveFirst(page); await fits(); await page.locator('[data-lp-skip]').click(); await fits(); await compare(page); await fits();
     await expect(page.locator('[data-lp-now-input]')).toHaveAttribute('readonly', '');
+    await page.locator('[data-lp-restart]').click(); await fits(); await scan(page);
   });
 }
 
@@ -528,6 +540,13 @@ test('Chromium forced colours keeps focus rings, borders and quiet link actions'
     await page.locator(selector).focus();
     expect(await page.locator(selector).evaluate(el => [getComputedStyle(el).color, getComputedStyle(el).outlineColor, getComputedStyle(el).outlineWidth])).toEqual([colors.LinkText, colors.Highlight, '3px']);
   }
+  await page.locator('[data-lp-restart]').click();
+  expect(await page.locator('.lp-first-answer-confirm-question').evaluate(el => [getComputedStyle(el).outlineWidth, getComputedStyle(el).outlineColor])).toEqual(['3px', colors.Highlight]);
+  for (const name of ['Delete', 'Keep']) {
+    const button = page.getByRole('button', { name, exact: true });
+    await button.focus();
+    expect(await button.evaluate(el => [getComputedStyle(el).color, getComputedStyle(el).borderColor, getComputedStyle(el).outlineColor])).toEqual([colors.ButtonText, colors.ButtonText, colors.Highlight]);
+  }
 });
 
 test('at the end of the course the first answer shows once, under the new answer', async ({ page }) => {
@@ -538,4 +557,87 @@ test('at the end of the course the first answer shows once, under the new answer
   await expect(page.locator('[data-lp-first-step]')).toBeHidden();
   await compare(page);
   await expect(page.getByText('Stop interrupting me.', { exact: true }).filter({ visible: true })).toHaveCount(1);
+});
+
+for (const cancel of ['Keep', 'Escape']) {
+  test(`Start over asks before deleting; ${cancel} preserves state and returns focus`, async ({ page }) => {
+    await mount(page, ['both'], seed); await observe(page);
+    await page.locator('[data-lp-restart]').click();
+    const question = page.locator('.lp-first-answer-confirm-question');
+    await expect(question).toHaveText("Delete both answers? This can't be undone.");
+    await expect(question).toBeFocused();
+    await expect(page.locator('[data-lp-restart]')).toBeHidden();
+    expect(await page.evaluate(() => window.lpSaved)).toEqual(seed);
+    expect(await page.evaluate(() => window.lpWrites)).toBe(0);
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('button', { name: 'Delete', exact: true })).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('button', { name: 'Keep', exact: true })).toBeFocused();
+    await page.keyboard.press(cancel === 'Escape' ? 'Escape' : 'Enter');
+    await expect(page.locator('[data-lp-restart-confirmation]')).toBeHidden();
+    await expect(page.locator('[data-lp-restart]')).toBeFocused();
+    expect(await page.evaluate(() => window.lpSaved)).toEqual(seed);
+    expect(await page.evaluate(() => window.lpWrites)).toBe(0);
+    expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
+  });
+}
+
+test('Delete clears saved answers, announces the reset and focuses the first field', async ({ page }) => {
+  await mount(page, ['both'], seed); await observe(page);
+  await page.locator('[data-lp-restart]').click();
+  await page.getByRole('button', { name: 'Delete', exact: true }).click();
+  expect(await page.evaluate(() => window.lpSaved)).toEqual({ first: null, now: null, checks });
+  expect(await page.evaluate(() => window.lpWrites)).toBe(1);
+  await expect(page.locator('[role="status"]')).toHaveText('Started over.');
+  await expect(page.locator('[data-lp-first-input]')).toBeFocused();
+  await expect(page.locator('[data-lp-restart-confirmation]')).toBeHidden();
+});
+
+for (const [stage, value, mode, text] of [
+  ['first', { ...seed, now: null, checks }, '', "Delete your answer? This can't be undone."],
+  ['end', { ...seed, first: null }, '', "Delete your answer? This can't be undone."],
+  ['both', {}, '', "Delete both answers? This can't be undone."],
+  ['both', seed, 'read', "Delete both answers? This can't be undone."]
+]) {
+  test(`confirmation wording for ${stage} with ${mode || JSON.stringify(value)}`, async ({ page }) => {
+    await mount(page, [stage], value, mode);
+    await page.locator('[data-lp-restart]').click();
+    await expect(page.locator('.lp-first-answer-confirm-question')).toHaveText(text);
+    expect(await page.evaluate(() => window.lpSaved)).toEqual(value);
+    expect(await page.evaluate(() => window.lpWrites)).toBe(0);
+  });
+}
+
+for (const [lang, one, both, remove, keep] of [
+  ['en', "Delete your answer? This can't be undone.", "Delete both answers? This can't be undone.", 'Delete', 'Keep'],
+  ['fr', 'Supprimer votre réponse\u202f? Cette action est irréversible.', 'Supprimer les deux réponses\u202f? Cette action est irréversible.', 'Supprimer', 'Conserver']
+]) {
+  test(`confirmation uses authored strings and shared buttons (${lang})`, async ({ page }) => {
+    await open(page, `/first-answer/${lang}.html`); await saveFirst(page);
+    await page.locator('[data-lp-restart]').click();
+    await expect(page.locator('.lp-first-answer-confirm-question')).toHaveText(one);
+    await expect(page.getByRole('button', { name: remove, exact: true })).toHaveClass('lp-button');
+    await expect(page.getByRole('button', { name: keep, exact: true })).toHaveClass('lp-button lp-button-secondary');
+    await scan(page);
+    await page.getByRole('button', { name: keep, exact: true }).click();
+    await page.locator('[data-lp-skip]').click(); await compare(page);
+    await page.locator('[data-lp-restart]').click();
+    await expect(page.locator('.lp-first-answer-confirm-question')).toHaveText(both);
+    await page.getByRole('button', { name: remove, exact: true }).click();
+    await expect(page.locator('[role="status"]')).toHaveText(lang === 'en' ? 'Started over.' : 'Vous avez recommencé.');
+  });
+}
+
+test('two confirmations have unique ids and close independently', async ({ page }) => {
+  await mount(page, ['first', 'end'], seed);
+  const roots = page.locator('[data-lp-pattern]');
+  await roots.nth(0).locator('[data-lp-restart]').click();
+  await roots.nth(1).locator('[data-lp-restart]').click();
+  const ids = await page.locator('[id]').evaluateAll(elements => elements.map(el => el.id));
+  expect(new Set(ids).size).toBe(ids.length);
+  await roots.nth(1).getByRole('button', { name: 'Keep', exact: true }).click();
+  await expect(roots.nth(0).locator('[data-lp-restart-confirmation]')).toBeVisible();
+  await expect(roots.nth(1).locator('[data-lp-restart]')).toBeFocused();
+  expect(await page.evaluate(() => window.lpSaved)).toEqual(seed);
+  expect(await page.evaluate(() => window.lpWrites)).toBe(0);
 });

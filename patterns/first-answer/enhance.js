@@ -39,6 +39,27 @@ export function enhance(root, { content, strings, state }) {
   const endFallback = stage === 'end' ? required('[data-lp-end-fallback]') : null;
   const fallback = required('[data-lp-fallback]');
   const restart = required('[data-lp-restart]');
+  const confirmation = root.ownerDocument.createElement('div');
+  confirmation.className = 'lp-stack';
+  confirmation.hidden = true;
+  confirmation.dataset.lpRestartConfirmation = '';
+  const question = root.ownerDocument.createElement('p');
+  question.id = `${firstInput.id}-restart-question`;
+  question.className = 'lp-first-answer-confirm-question';
+  question.tabIndex = -1;
+  const actions = root.ownerDocument.createElement('div');
+  actions.className = 'lp-actions';
+  const deleteAnswer = root.ownerDocument.createElement('button');
+  deleteAnswer.type = 'button';
+  deleteAnswer.className = 'lp-button';
+  deleteAnswer.textContent = frenchTypography(strings.deleteAnswer, root.lang);
+  const keepAnswer = root.ownerDocument.createElement('button');
+  keepAnswer.type = 'button';
+  keepAnswer.className = 'lp-button lp-button-secondary';
+  keepAnswer.textContent = frenchTypography(strings.keepAnswer, root.lang);
+  actions.append(deleteAnswer, keepAnswer);
+  confirmation.append(question, actions);
+  restart.after(confirmation);
   const problem = required('[data-lp-storage-error]');
   const status = required('[role="status"]');
   const boxes = end ? [...end.result.querySelectorAll('input')] : [];
@@ -54,7 +75,7 @@ export function enhance(root, { content, strings, state }) {
   let destroyed = false;
   /** @type {(() => void)[]} */
   const removals = [];
-  /** @param {HTMLElement} target @param {string} event @param {() => void} handler */
+  /** @param {HTMLElement} target @param {string} event @param {(event: Event) => void} handler */
   function listen(target, event, handler) {
     target.addEventListener(event, handler);
     removals.push(() => target.removeEventListener(event, handler));
@@ -107,7 +128,7 @@ export function enhance(root, { content, strings, state }) {
       end.summary.textContent = frenchTypography(strings.summary.replaceAll('{count}', String(boxes.filter(box => box.checked).length)).replaceAll('{total}', String(content.checks.length)), root.lang);
       if (restoreDraft) end.input.value = record.now?.text ?? '';
     }
-    restart.hidden = !record.first && !record.now && !blocked;
+    restart.hidden = !confirmation.hidden || (!record.first && !record.now && !blocked);
   }
 
   // Reread before writes so two course placements cannot overwrite a saved first.
@@ -175,8 +196,26 @@ export function enhance(root, { content, strings, state }) {
       paint();
     });
   }
+  function keep() {
+    confirmation.hidden = true;
+    paint();
+    restart.focus();
+  }
   listen(restart, 'click', () => {
-    if (!persist(emptyState(content), strings.cleared)) return;
+    question.textContent = frenchTypography(blocked || (record.first && record.now) ? strings.confirmDeleteBoth : strings.confirmDeleteOne, root.lang);
+    confirmation.hidden = false;
+    paint();
+    question.focus();
+  });
+  listen(keepAnswer, 'click', keep);
+  listen(confirmation, 'keydown', event => {
+    if (/** @type {KeyboardEvent} */ (event).key !== 'Escape') return;
+    event.preventDefault();
+    keep();
+  });
+  listen(deleteAnswer, 'click', () => {
+    confirmation.hidden = true;
+    if (!persist(emptyState(content), strings.cleared)) { restart.focus(); return; }
     blocked = false; endOpen = stage === 'end'; editing = false;
     firstInput.value = ''; fieldError(firstInput, firstError, '');
     if (end) { end.input.value = ''; fieldError(end.input, end.error, ''); }
@@ -193,6 +232,7 @@ export function enhance(root, { content, strings, state }) {
       if (destroyed) return;
       destroyed = true;
       for (const remove of removals) remove();
+      confirmation.remove();
       fallback.hidden = false; if (endFallback) endFallback.hidden = false;
       if (first) {
         first.step.hidden = false; first.editor.hidden = false; first.saved.hidden = true;
