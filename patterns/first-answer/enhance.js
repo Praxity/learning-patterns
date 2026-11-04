@@ -201,8 +201,9 @@ export function enhance(root, { content, strings, state }) {
   }
   function keep() {
     confirmation.hidden = true;
-    paint();
-    restart.focus();
+    // Another placement may have cleared the shared answers; then Start over stays hidden.
+    readHost(); paint();
+    (restart.hidden ? (stage === 'end' && end ? end.input : firstInput) : restart).focus();
   }
   listen(restart, 'click', () => {
     readHost();
@@ -226,7 +227,8 @@ export function enhance(root, { content, strings, state }) {
     (stage === 'end' && end ? end.input : firstInput).focus();
   });
 
-  restart.after(confirmation);
+  // Below the button row, so the question gets the full width instead of sitting beside Try again.
+  (restart.closest('.lp-actions') ?? restart).after(confirmation);
   readHost();
   if (record.first || record.now) endOpen = stage !== 'first';
   paint(true); fallback.hidden = true;

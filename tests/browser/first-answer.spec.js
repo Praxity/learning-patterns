@@ -656,3 +656,15 @@ test('confirmation wording follows answers saved while it is open, and Escape wo
   await expect(page.locator('[data-lp-restart-confirmation]')).toBeHidden();
   await expect(page.locator('[data-lp-restart]')).toBeFocused();
 });
+
+test('confirmation sits below the button row, and Keep focuses the field when another placement cleared the answers', async ({ page }) => {
+  await mount(page, ['first', 'end'], seed);
+  const roots = page.locator('[data-lp-pattern]');
+  await roots.nth(0).locator('[data-lp-restart]').click();
+  expect(await roots.nth(0).locator('[data-lp-restart-confirmation]').evaluate(el => el.parentElement.classList.contains('lp-actions'))).toBe(false);
+  await roots.nth(1).locator('[data-lp-restart]').click();
+  await roots.nth(1).getByRole('button', { name: 'Delete', exact: true }).click();
+  await roots.nth(0).getByRole('button', { name: 'Keep', exact: true }).click();
+  await expect(roots.nth(0).locator('[data-lp-restart]')).toBeHidden();
+  await expect(roots.nth(0).locator('[data-lp-first-input]')).toBeFocused();
+});
