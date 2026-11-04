@@ -51,7 +51,7 @@ All text is plain text and escaped on render. Keep English and Canadian French e
 
 | Field | Meaning |
 | --- | --- |
-| `title` | Optional, up to 120 characters. Shown only when the card has more than one question. |
+| `title` | Optional, up to 120 characters. Not shown; accepted so older content still validates. |
 | `context` | Situation, at most 1,500 characters. |
 | `question` | Card heading inside the task legend, at most 400 characters. |
 | `resultTitle` | Heading above the comparison, at most 120 characters. |

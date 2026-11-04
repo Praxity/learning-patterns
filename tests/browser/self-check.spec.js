@@ -224,6 +224,7 @@ async function observeStatus(page) {
 test('message scene, non-live meter and annotated comparison use authored content', async ({ page }) => {
   await open(page); await observeStatus(page);
   await expect(page.getByRole('textbox')).toHaveAccessibleName('Your answer');
+  await expect(page.locator('.lp-self-check-composer .lp-self-check-meta-list')).toHaveCount(1);
   await expect(page.locator('.lp-self-check-composer')).toContainText('Sam, your manager');
   await expect(page.locator('.lp-self-check-composer')).toContainText('Client report');
   await ticks(page);

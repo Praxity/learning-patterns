@@ -52,7 +52,7 @@ All text is plain text. Rendering escapes HTML characters. Keep English and Cana
 
 | Field | Meaning |
 | --- | --- |
-| `title` | Optional, up to 120 characters. Shown only when the card has more than one question. |
+| `title` | Optional, up to 120 characters. Not shown; accepted so older content still validates. |
 | `context` | The situation before the question. |
 | `question` | The card heading inside the fieldset legend. |
 | `unit` | Unit used in slider descriptions and the fallback table. |

@@ -13,12 +13,12 @@ export function render(content, strings, { id, lang }) {
   const errorId = html(`${id}-error`);
   const context = content.context;
   return `<section class="lp lp-self-check" data-lp-pattern="self-check" lang="${html(lang)}">
+  <h2 class="lp-stem">${html(content.task, lang)}</h2>
+  <div class="lp-self-check-composer">
     ${context ? `<div class="lp-self-check-meta-list">
     <p class="lp-self-check-meta"><span class="lp-self-check-meta-key">${html(strings.to, lang)}</span><span class="lp-self-check-recipient"><span class="lp-self-check-avatar" aria-hidden="true">${html(context.initials, lang)}</span>${html(context.to, lang)}</span></p>
     <p class="lp-self-check-meta"><span class="lp-self-check-meta-key">${html(strings.subject, lang)}</span><span>${html(context.subject, lang)}</span></p>
     </div>` : ''}
-  <h2 class="lp-heading">${html(content.task, lang)}</h2>
-  <div class="lp-self-check-composer">
     <label class="lp-label lp-self-check-composer-label" for="${answerId}">${html(strings.answer, lang)}</label>
     <textarea class="lp-input lp-self-check-composer-body" id="${answerId}" rows="5"${context?.placeholder === undefined ? '' : ` placeholder="${html(context.placeholder, lang)}"`}></textarea>
     <div class="lp-self-check-composer-foot">

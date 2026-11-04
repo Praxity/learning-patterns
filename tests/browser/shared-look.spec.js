@@ -160,12 +160,22 @@ for (const name of ['draw-your-guess', 'estimate-magnitude', 'prolific-questions
         await page.emulateMedia({ forcedColors: forced });
         const layout = await page.locator('[data-lp-pattern]').evaluate((root, name) => {
           const context = root.querySelector(name === 'self-check' ? '.lp-self-check-meta-list' : '.lp-context');
-          const question = root.querySelector(name === 'self-check' ? 'h2.lp-heading' : 'legend.lp-stem');
+          const question = root.querySelector(name === 'self-check' ? 'h2.lp-stem' : 'legend.lp-stem');
           const field = root.querySelector(name === 'self-check' ? 'textarea' : 'fieldset');
           return {
+            headingColor: getComputedStyle(question.querySelector('h2') || question).color,
+            canvasText: (() => {
+              const probe = document.createElement('span');
+              probe.style.color = 'CanvasText';
+              root.append(probe);
+              const color = getComputedStyle(probe).color;
+              probe.remove();
+              return color;
+            })(),
             questionSize: parseFloat(getComputedStyle(question.querySelector('h2') || question).fontSize),
             contextSize: parseFloat(getComputedStyle(context.querySelector('p') || context).fontSize),
             contextWeight: getComputedStyle(context).fontWeight,
+            composerGap: name === 'self-check' ? root.querySelector('.lp-self-check-composer').getBoundingClientRect().top - question.getBoundingClientRect().bottom : null,
             contextBottom: context.getBoundingClientRect().bottom,
             fieldTop: field.getBoundingClientRect().top,
             firstTop: root.firstElementChild.getBoundingClientRect().top - root.getBoundingClientRect().top,
@@ -173,8 +183,11 @@ for (const name of ['draw-your-guess', 'estimate-magnitude', 'prolific-questions
             overflow: document.documentElement.scrollWidth > innerWidth
           };
         }, name);
+        if (forced === 'active') expect(layout.headingColor).toBe(layout.canvasText);
+        expect(layout.questionSize).toBe(21);
         expect(layout.questionSize).toBeGreaterThan(layout.contextSize);
         expect(layout.contextWeight).toBe('400');
+        if (name === 'self-check') expect(layout.composerGap).toBeCloseTo(12, 0);
         expect(layout.contextBottom).toBeLessThanOrEqual(layout.fieldTop);
         expect(layout.firstTop).toBeCloseTo(layout.padding, 0);
         expect(layout.overflow).toBe(false);
@@ -182,3 +195,71 @@ for (const name of ['draw-your-guess', 'estimate-magnitude', 'prolific-questions
     }
   });
 }
+
+async function expectQuestionLargest(page, name) {
+  const sizes = await page.locator('[data-lp-pattern]').evaluate((root, name) => {
+    const question = root.querySelector(name === 'self-check' ? 'h2.lp-stem' : 'legend.lp-stem');
+    const questionSize = parseFloat(getComputedStyle(question.querySelector('h2') || question).fontSize);
+    const larger = [...root.querySelectorAll('*')].filter(element => {
+      if (element.closest('.lp-visually-hidden') || getComputedStyle(element).visibility !== 'visible') return false;
+      return [...element.childNodes].some(node => {
+        if (node.nodeType !== Node.TEXT_NODE || !node.textContent.trim()) return false;
+        const range = document.createRange();
+        range.selectNode(node);
+        return [...range.getClientRects()].some(rect => rect.width > 0 && rect.height > 0);
+      }) && parseFloat(getComputedStyle(element).fontSize) > questionSize;
+    }).map(element => element.textContent.trim());
+    return { questionSize, larger };
+  }, name);
+  expect(sizes.questionSize).toBe(21);
+  expect(sizes.larger).toEqual([]);
+}
+
+for (const name of ['draw-your-guess', 'estimate-magnitude', 'prolific-questions', 'self-check', 'split-by-proportion']) {
+  for (const lang of ['en', 'fr']) test(`question stays largest after Check (${name}, ${lang})`, async ({ page }) => {
+    await open(page, `/${name}/${lang}.html`, true);
+    if (name === 'self-check') {
+      await page.getByRole('textbox').fill('My draft');
+    } else if (name === 'prolific-questions') {
+      for (const fact of await page.locator('[data-lp-fact]').all()) await fact.getByRole('radio').first().check();
+    } else {
+      for (const slider of await page.getByRole('slider').all()) {
+        await slider.focus();
+        await page.keyboard.press('Home');
+        await page.keyboard.press('ArrowRight');
+      }
+    }
+    await page.locator('[data-lp-check]').click();
+    if (name === 'self-check') await page.locator('[data-lp-show]').click();
+    await expect(page.locator('[data-lp-result]')).toBeVisible();
+    for (const width of [1280, 320]) {
+      await page.setViewportSize({ width, height: 900 });
+      await expectQuestionLargest(page, name);
+    }
+  });
+}
+
+for (const lang of ['en', 'fr']) test(`question stays largest with the no-JS answer open (split-by-proportion, ${lang})`, async ({ browser, baseURL }) => {
+  const context = await browser.newContext({ baseURL, javaScriptEnabled: false });
+  try {
+    const page = await context.newPage();
+    await page.goto(`/split-by-proportion/${lang}.html`);
+    await page.locator('[data-lp-fallback] summary').click();
+    await expect(page.locator('[data-lp-fallback] h3')).toBeVisible();
+    for (const width of [1280, 320]) {
+      await page.setViewportSize({ width, height: 900 });
+      await expectQuestionLargest(page, 'split-by-proportion');
+    }
+  } finally {
+    await context.close();
+  }
+});
+
+for (const name of ['draw-your-guess', 'split-by-proportion']) test(`legend heading keeps stem type under host heading rules (${name})`, async ({ page }) => {
+  await open(page, `/${name}/en.html`, true);
+  await page.addStyleTag({ content: '.lp h2 { font-size: 2rem; margin-top: 2em; letter-spacing: .2em; }' });
+  const heading = page.locator('legend.lp-stem > h2.lp-heading');
+  await expect(heading).toHaveCSS('font-size', '21px');
+  await expect(heading).toHaveCSS('margin-top', '0px');
+  expect(await heading.evaluate(el => getComputedStyle(el).letterSpacing)).toBe(await heading.locator('..').evaluate(el => getComputedStyle(el).letterSpacing));
+});

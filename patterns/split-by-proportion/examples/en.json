@@ -1,5 +1,4 @@
 {
-  "title": "Estimate where support tickets come from",
   "context": "You've just joined the support team. Last month it closed 400 tickets.",
   "question": "What share of those 400 tickets came from each cause?",
   "resultTitle": "Where last month's 400 tickets came from",

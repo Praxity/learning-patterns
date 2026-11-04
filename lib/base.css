@@ -91,8 +91,9 @@
 .lp :where(.lp-input:not([hidden]), .lp-choices:not([hidden])) + :where([hidden]) + :where([hidden]) + :where(.lp-small, .lp-error-text) { margin-block-start: var(--lp-gap-label); }
 
 /* Text roles */
-.lp-heading { font-size: var(--lp-type-title); font-weight: 600; line-height: 1.35; letter-spacing: -.005em; }
-.lp-stem > .lp-heading { margin: 0; }
+.lp-scene-title, .lp-heading { font-size: var(--lp-type-title); font-weight: 600; line-height: 1.35; letter-spacing: -.005em; }
+.lp .lp-heading { margin: 0; }
+.lp-stem > .lp-heading { font: inherit; letter-spacing: inherit; }
 .lp-stem { font-family: var(--lp-font-heading); font-size: var(--lp-type-h3); font-weight: 600; line-height: 1.3; letter-spacing: -.005em; }
 .lp-label { display: block; font-size: var(--lp-type-small); font-weight: 600; color: var(--lp-ink-2); }
 .lp-small { color: var(--lp-ink-2); font-size: var(--lp-type-small); line-height: 1.45; }
@@ -109,11 +110,11 @@
 .lp-scene-icon { display: flex; flex: none; flex-direction: column; align-self: stretch; color: var(--lp-accent-ink); }
 .lp-scene-icon::before, .lp-scene-icon::after { content: ""; flex: 1 1 0; }
 /* Centred on the first two title lines: the title's 2px top margin and one .lp-scene-title line
-   (1.1875rem at line-height 1.35), less half the 40px tile. */
-.lp-scene-icon::before { max-block-size: calc(2px + 1.35 * 1.1875rem - 20px); }
+   (the title size at line-height 1.35), less half the 40px tile. */
+.lp-scene-icon::before { max-block-size: calc(2px + 1.35 * var(--lp-type-title) - 20px); }
 .lp-scene-icon .lp-icon { inline-size: 40px; block-size: 40px; padding: 9px; border-radius: var(--lp-radius-control); background: var(--lp-accent-soft); }
 .lp-scene-label { color: var(--lp-ink-2); font-size: var(--lp-type-small); font-weight: 600; line-height: 1.3; }
-.lp-scene-title { margin-block-start: 2px; font-size: var(--lp-type-title); font-weight: 600; line-height: 1.35; letter-spacing: -.005em; }
+.lp-scene-title { margin-block-start: 2px; }
 .lp-scene-sub { margin-block-start: 4px; color: var(--lp-ink-2); font-size: var(--lp-type-small); line-height: 1.45; }
 
 /* A section inside the card: space and a hairline, never another card. */

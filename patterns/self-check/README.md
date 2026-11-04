@@ -92,7 +92,7 @@ Pass `state: { read, write }` to save `{ answer, ticked, shown }`. Invalid saved
 
 ## Use it
 
-The context facts come before the task heading and answer field.
+The task heading comes first. The email context and answer field sit inside one composer.
 
 Copy `patterns/self-check/` and `lib/`, keeping their relative paths. Link `lib/base.css`, then `patterns/self-check/pattern.css`. Use a unique id prefix per instance. The example combines both calls; render HTML on the server before calling `enhance` in the browser.
 
