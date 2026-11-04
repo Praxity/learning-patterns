@@ -1,6 +1,6 @@
 import { escapeHtml as html } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
-import { validateContent, ANSWER_LIMIT } from './logic.js';
+import { validateContent } from './logic.js';
 
 /** @param {import('./logic.js').Content} content @param {import('./strings.js').Strings} strings
  * @param {{ id: string, lang: string, date?: Date }} options @returns {string}
@@ -12,7 +12,8 @@ export function render(content, strings, { id, lang, date = new Date() }) {
   return `<section class="lp lp-journal" data-lp-pattern="journal" lang="${html(lang)}">
     <p class="lp-small lp-journal-date">${icons.calendar}<time datetime="${html(today, lang)}" data-lp-date>${html(dated, lang)}</time></p>
     <h2 class="lp-stem" id="${html(`${id}-prompt`)}">${html(content.prompt, lang)}</h2>
-    <textarea class="lp-input lp-journal-page" id="${html(`${id}-entry`)}" aria-labelledby="${html(`${id}-prompt`)}" rows="8" maxlength="${ANSWER_LIMIT}" placeholder="${html(strings.placeholder, lang)}"></textarea>
+    <p class="lp-small" id="${html(`${id}-starter`)}">${html(strings.placeholder, lang)}</p>
+  <textarea class="lp-input lp-journal-page" id="${html(`${id}-entry`)}" aria-labelledby="${html(`${id}-prompt`)}" aria-describedby="${html(`${id}-starter`)}" rows="8"></textarea>
     <p class="lp-error-text" id="${html(`${id}-error`)}" data-lp-error hidden></p>
     <div class="lp-actions lp-journal-actions" data-lp-actions hidden>
       <div class="lp-journal-action">

@@ -1,5 +1,6 @@
 export const strings = {
   en: {
+    tooLong: 'Your reply must be {max} characters or fewer.',
     reply: 'Your reply to {name}', placeholder: 'Type what you would say…',
     send: 'Say it', sending: 'Sending…', choose: 'Or choose a reply', you: 'You',
     empty: 'Write a reply first, or choose one.', debrief: 'Conversation review',
@@ -7,6 +8,7 @@ export const strings = {
     script: 'Choose a reply to read the conversation', next: 'Your next reply'
   },
   fr: {
+    tooLong: 'Votre réponse doit contenir {max} caractères ou moins.',
     reply: 'Votre réponse à {name}', placeholder: 'Écrivez ce que vous diriez…',
     send: 'Répondre', sending: 'Envoi…', choose: 'Ou choisissez une réponse', you: 'Vous',
     empty: 'Écrivez une réponse ou choisissez-en une.', debrief: 'Retour sur la conversation',

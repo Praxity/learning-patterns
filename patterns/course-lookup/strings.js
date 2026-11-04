@@ -1,5 +1,6 @@
 export const strings = {
   en: {
+    tooLong: 'Your question must be {max} characters or fewer.',
     placeholder: 'Enter your question here…',
     checking: 'Looking…',
     noMatch: 'No answer yet',
@@ -26,6 +27,7 @@ export const strings = {
     sectionFound: 'Section found: {title}'
   },
   fr: {
+    tooLong: 'Votre question doit contenir {max} caractères ou moins.',
     placeholder: 'Entrez votre question ici…',
     checking: 'Recherche…',
     noMatch: 'Pas encore de réponse',

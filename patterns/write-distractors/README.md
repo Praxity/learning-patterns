@@ -41,6 +41,8 @@ This pattern shows the right answer but does not explain why each misconception 
 
 ## Accessibility
 
+Wrong-option and custom-label fields also keep oversized drafts. Compare shows linked errors with the existing limits; option lengths still count before trimming.
+
 Follows the shared baseline in the root README.
 
 - Each wrong option has a fieldset. Its legend names the option's letter and labels its answer field. Error messages name options by that letter. Other fields have visible labels. Errors link to their fields.
@@ -100,6 +102,8 @@ A saved draft with `hadIt: null` returns to the answer step, even if previously 
 The host decides how to collect submissions. The pattern uses no localStorage and keeps no suggestion list.
 
 Override `--lp-*` tokens for colours, radius, fonts and focus. Defaults are in the root README.
+
+Oversized wrong options and mistaken-idea descriptions restore intact as editable drafts, with comparison results cleared. Drafts have no storage ceiling; the host owns its total storage budget. Submission limits still apply.
 
 ## Use it
 

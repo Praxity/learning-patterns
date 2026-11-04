@@ -60,8 +60,9 @@ export function feedback(answers, model = '') {
 }
 
 /** Restore only a coherent two-round conversation. @param {unknown} value @returns {LearnerState | null} */
+// Drafts have no send limit; the host owns its total storage budget, as in write-distractors W00.
 export function validateState(value) {
-  if (!object(value) || typeof value.draft !== 'string' || value.draft.length > REPLY_LIMIT || !object(value.conversation)) return null;
+  if (!object(value) || typeof value.draft !== 'string' || !object(value.conversation)) return null;
   const saved = value.conversation;
   if (!Array.isArray(saved.history) || saved.history.length > ROUNDS) return null;
   /** @type {Move[]} */

@@ -76,7 +76,7 @@ for (const lang of ['en', 'fr']) {
     await open(page, lang, false);
     const answer = page.locator('[data-lp-answer]');
     const check = page.locator('[data-lp-check]');
-    const message = lang === 'en' ? 'Keep your answer to 2000 characters or fewer.' : 'Limitez votre réponse à 2000 caractères.';
+    const message = lang === 'en' ? 'Your answer must be 2,000 characters or fewer.' : 'Votre réponse doit contenir 2 000 caractères ou moins.';
     await expect(answer).not.toHaveAttribute('maxlength');
     for (const text of ['x'.repeat(2001), '😀'.repeat(1000) + 'x']) {
       await answer.fill(text);
@@ -374,12 +374,12 @@ test('controls reveal in place, custom field toggles without a live Targets line
   await expect(page.locator('[data-lp-flow]')).toBeVisible();
   await expect(page.locator('[data-lp-fallback]')).toBeHidden();
   await expect(page.locator('fieldset')).toHaveCount(2);
-  await expect(page.locator('[data-lp-text]').first()).toHaveAttribute('maxlength', '300');
+  await expect(page.locator('[data-lp-text]').first()).not.toHaveAttribute('maxlength');
   const row = page.locator('fieldset').first();
   await expect(row.locator('input')).toBeHidden();
   await row.locator('select').selectOption('other');
   await expect(row.locator('input')).toBeVisible();
-  await expect(row.locator('input')).toHaveAttribute('maxlength', '120');
+  await expect(row.locator('input')).not.toHaveAttribute('maxlength');
   await row.locator('input').fill('My tag');
   await row.locator('select').selectOption('phone');
   await expect(row.locator('input')).toBeHidden();
@@ -718,13 +718,15 @@ test('missing and mismatched markup throws, state adapter failures propagate', a
   }, english)).rejects.toThrow('Host read failed');
 });
 
-test('injected length violations are caught even beyond HTML maxlength', async ({ page }) => {
+test('oversized option and label drafts survive comparison errors', async ({ page }) => {
   await open(page); await fill(page, true);
-  await page.locator('[data-lp-text]').first().evaluate(el => { el.value = 'x'.repeat(301); });
-  await page.locator('input').nth(1).evaluate(el => { el.value = 'y'.repeat(121); });
+  await page.locator('[data-lp-text]').first().fill('x'.repeat(301));
+  await page.locator('input').nth(1).fill('y'.repeat(121));
   await page.locator('[data-lp-compare]').click();
   await expect(page.locator('[data-lp-text-error]').first()).toContainText('300');
   await expect(page.locator('[data-lp-custom-error]').nth(1)).toContainText('120');
+  await expect(page.locator('[data-lp-text]').first()).toHaveValue('x'.repeat(301));
+  await expect(page.locator('input').nth(1)).toHaveValue('y'.repeat(121));
   await expect(page.locator('[role="status"]')).toHaveText('2 fields need attention.');
 });
 

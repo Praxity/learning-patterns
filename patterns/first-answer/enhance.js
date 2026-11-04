@@ -75,7 +75,7 @@ export function enhance(root, { content, strings, state }) {
   /** @param {HTMLTextAreaElement} input @param {HTMLElement} error */
   function answer(input, error) {
     const result = validateAnswer(input.value);
-    fieldError(input, error, result.ok ? '' : strings[result.error].replaceAll('{max}', String(MAX_LENGTH)));
+    fieldError(input, error, result.ok ? '' : strings[result.error].replaceAll('{max}', MAX_LENGTH.toLocaleString(root.lang === 'fr' ? 'fr-CA' : 'en-CA')));
     return result;
   }
 

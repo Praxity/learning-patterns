@@ -1,6 +1,6 @@
 import { escapeHtml as html } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
-import { validateContent, ANSWER_LIMIT } from './logic.js';
+import { validateContent } from './logic.js';
 
 /** @param {import('./logic.js').Content} content @param {import('./strings.js').Strings} strings
  * @param {{ id: string, lang: string }} options @returns {string}
@@ -12,7 +12,7 @@ export function render(content, strings, { id, lang }) {
   <div class="lp-box">
     <h2 class="lp-stem" id="${html(`${id}-task`)}">${html(content.task, lang)}</h2>
     <div class="lp-stack lp-explain-back-composer">
-      <textarea class="lp-input" id="${html(`${id}-answer`)}" aria-labelledby="${html(`${id}-task`)}" rows="4" maxlength="${ANSWER_LIMIT}" placeholder="${html(strings.placeholder, lang)}"></textarea>
+      <textarea class="lp-input" id="${html(`${id}-answer`)}" aria-labelledby="${html(`${id}-task`)}" rows="4"></textarea>
       <p class="lp-error-text" id="${html(`${id}-error`)}" data-lp-error hidden>${icons['alert-circle']}<span>${html(strings.empty, lang)}</span></p>
       <div data-lp-notice id="${html(`${id}-notice`)}" hidden></div>
     </div>

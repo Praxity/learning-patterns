@@ -144,7 +144,7 @@ export function enhance(root, { content, strings, state }) {
     if (checkedAnswer) return;
     const checked = validateAnswer(answer.value);
     if (!checked.ok) {
-      const message = strings[checked.error].replaceAll('{max}', String(MAX_ANSWER));
+      const message = strings[checked.error].replaceAll('{max}', MAX_ANSWER.toLocaleString(root.lang === 'fr' ? 'fr-CA' : 'en-CA'));
       answerError.innerHTML = `${icons['alert-circle']}<span>${html(message, root.lang)}</span>`;
       answerError.hidden = false;
       answer.setAttribute('aria-invalid', 'true'); answer.setAttribute('aria-describedby', answerError.id);

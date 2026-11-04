@@ -58,7 +58,8 @@ export function feedback(content, answers, model = '') {
 }
 
 /** @param {unknown} value @returns {LearnerState | null} */
+// Drafts have no send limit; the host owns its total storage budget, as in write-distractors W00.
 export function validateState(value) {
-  if (!object(value) || typeof value.answer !== 'string' || value.answer.length > ANSWER_LIMIT || !Array.isArray(value.ticked) || value.ticked.some(id => typeof id !== 'string' || !MISCONCEPTION_KEYS.includes(id)) || new Set(value.ticked).size !== value.ticked.length) return null;
+  if (!object(value) || typeof value.answer !== 'string' || !Array.isArray(value.ticked) || value.ticked.some(id => typeof id !== 'string' || !MISCONCEPTION_KEYS.includes(id)) || new Set(value.ticked).size !== value.ticked.length) return null;
   return { answer: value.answer, ticked: [...value.ticked] };
 }

@@ -1,6 +1,6 @@
 import { icons } from '../../lib/conversation-icons.js';
 import { escapeHtml as html } from '../../lib/html.js';
-import { BRANCHES, REPLY_LIMIT, validateContent } from './logic.js';
+import { BRANCHES, validateContent } from './logic.js';
 
 /** @param {import('./logic.js').Content} content @param {string} line @param {string} id @param {string} [lang] */
 export function renderMichel(content, line, id, lang = 'en') {
@@ -28,7 +28,7 @@ export function render(content, strings, { id, lang }) {
       <div data-lp-composer hidden>
         <div class="lp-conversation-composer">
           <label class="lp-visually-hidden" for="${html(`${id}-reply`)}">${html(strings.reply.replace('{name}', content.person.name), lang)}</label>
-          <textarea class="lp-input lp-conversation-input" id="${html(`${id}-reply`)}" rows="3" maxlength="${REPLY_LIMIT}" placeholder="${html(strings.placeholder, lang)}"></textarea>
+          <textarea class="lp-input lp-conversation-input" id="${html(`${id}-reply`)}" rows="3"></textarea>
           <div class="lp-conversation-foot"><p class="lp-error-text" id="${html(`${id}-error`)}" data-lp-error hidden>${icons['alert-circle']}<span>${html(strings.empty, lang)}</span></p><button class="lp-button" type="button" data-lp-send>${html(strings.send, lang)}</button></div>
         </div>
         <div data-lp-notice id="${html(`${id}-notice`)}" hidden></div>

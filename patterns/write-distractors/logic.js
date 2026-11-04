@@ -86,7 +86,7 @@ function isOption(value) {
 }
 
 /** Field errors use codes so every learner-facing message lives in strings.js.
- * Length is checked before normalization, matching HTML maxlength.
+ * Length is checked before normalization so whitespace consumes the option limit.
  * @param {Content} content @param {LearnerOption[]} options
  * @returns {{ ok: false, errors: FieldError[] } | { ok: true, options: LearnerOption[] }}
  */
@@ -164,7 +164,8 @@ export function coverageMessage(content, options) {
 }
 
 /** Accept incomplete drafts; shown results must pass submission validation.
- * Oversized answers keep their full text and options but return to the answer step.
+ * Drafts have no storage ceiling; the host owns its total storage budget.
+ * Oversized options lose comparison results. Oversized answers keep their full text and options but return to the answer step.
  * @param {Content} content @param {unknown} value @returns {LearnerState | null}
  */
 export function validateState(content, value) {
@@ -175,15 +176,16 @@ export function validateState(content, value) {
     || (value.hadIt !== null && typeof value.hadIt !== 'boolean')
     || (value.hadIt !== null && !value.answer.trim()) || (value.shown && value.hadIt === null))) return null;
   const known = new Set(['', OTHER, ...content.misconceptions.map(item => item.id)]);
-  if (!value.options.every(item => isOption(item) && item.text.length <= MAX_OPTION && item.custom.length <= MAX_CUSTOM && known.has(item.misconception))) return null;
+  if (!value.options.every(item => isOption(item) && known.has(item.misconception))) return null;
   const options = /** @type {LearnerOption[]} */ (value.options);
-  if (value.shown && !validateOptions(content, options).ok) return null;
+  const oversizedOptions = options.some(item => item.text.length > MAX_OPTION || item.custom.length > MAX_CUSTOM);
+  if (value.shown && !oversizedOptions && !validateOptions(content, options).ok) return null;
   const answer = legacy ? '' : /** @type {string} */ (value.answer);
   const checked = validateAnswer(answer);
   const resetAnswer = legacy || (!checked.ok && checked.error === 'longAnswer');
   return {
     answer,
     hadIt: resetAnswer ? null : /** @type {boolean | null} */ (value.hadIt),
-    options: options.map(item => ({ ...item })), shown: resetAnswer ? false : value.shown
+    options: options.map(item => ({ ...item })), shown: resetAnswer || oversizedOptions ? false : value.shown
   };
 }

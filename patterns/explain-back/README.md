@@ -40,6 +40,8 @@ Prompts to explain connections in learning material produced an average benefit 
 
 ## Accessibility
 
+Text fields keep the full draft, including text over the limit. Checking or saving shows a linked length error instead of cutting text. Limits come from the existing logic constants. The automatic action stays enabled while model configuration loads. An early press waits for configuration, then checks or uses the existing fallback.
+
 Daily proxy caps show and announce the reason and midnight UTC reset once, keep focus in place and leave the fallback usable.
 
 Meets the shared baseline in the root README.
@@ -83,6 +85,8 @@ Authored text is capped at 120 characters for titles and labels, 400 for questio
 | `ANSWER_LIMIT` | The proxy-owned maximum answer length. |
 
 Pass `state: { read, write }` to save drafts and checklist ticks. Restoring either opens the explanation step. Check results stay available between steps but are not saved. Editing during a check discards its result. Repeated enhancement returns the same instance. `destroy()` removes listeners, cancels checks and restores the server markup with both steps and the native fallback visible.
+
+Stored drafts restore intact even above the send limit. The host owns its total storage budget; the send limit still applies before every proxy request. Self-check ticks survive restoration. Automated judgments are not restored.
 
 ## Use it
 

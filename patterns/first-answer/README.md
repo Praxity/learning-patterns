@@ -41,6 +41,8 @@ Learners tend to rate their own work generously ([Dunlosky and Rawson, 2012](htt
 
 ## Accessibility
 
+Text fields keep the full draft, including text over the limit. Checking or saving shows a linked length error instead of cutting text. Limits come from the existing logic constants.
+
 Follows the shared baseline in the root README.
 
 - Saved entries show the date and time in the placement's language. First and current answers have separate labels.

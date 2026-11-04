@@ -283,10 +283,10 @@ test('comparing twice preserves first and checks, replaces only now, and repeats
 
 test('2000 characters accepted; programmatically overlong text refused without writing', async ({ page }) => {
   await mount(page, ['both']);
-  await expect(page.locator('[data-lp-first-input]')).toHaveAttribute('maxlength', '2000');
+  await expect(page.locator('[data-lp-first-input]')).not.toHaveAttribute('maxlength');
   await page.locator('[data-lp-first-input]').evaluate(el => { el.value = 'x'.repeat(2001); });
   await page.locator('[data-lp-save-first]').click();
-  await expect(page.locator('[data-lp-first-error]')).toHaveText('Keep your answer to 2000 characters or fewer.');
+  await expect(page.locator('[data-lp-first-error]')).toHaveText('Your answer must be 2,000 characters or fewer.');
   expect(await page.evaluate(() => window.lpWrites)).toBe(0);
   await page.locator('[data-lp-first-input]').fill('x'.repeat(2000)); await page.locator('[data-lp-save-first]').click();
   expect((await page.evaluate(() => window.lpSaved)).first.text.length).toBe(2000);
@@ -436,7 +436,7 @@ for (const lang of ['en', 'fr']) {
   test(`no JavaScript keeps prompt, first textarea and saving note (${lang})`, async ({ browser }) => {
     const context = await browser.newContext({ javaScriptEnabled: false }); const page = await context.newPage();
     await page.goto(`/first-answer/${lang}.html`);
-    await expect(page.getByRole('textbox')).toHaveCount(1); await expect(page.getByRole('textbox')).toHaveAttribute('maxlength', '2000');
+    await expect(page.getByRole('textbox')).toHaveCount(1); await expect(page.getByRole('textbox')).not.toHaveAttribute('maxlength');
     await page.getByRole('textbox').fill('My offline draft');
     await expect(page.locator('[data-lp-fallback]')).toHaveText(lang === 'en' ? 'Saving your answer needs JavaScript.' : 'JavaScript est nécessaire pour enregistrer votre réponse.');
     await expect(page.getByRole('button')).toHaveCount(0); await expect(page.locator('[role="status"]')).toBeEmpty();
