@@ -20,10 +20,9 @@ export function render(content, strings, { id, lang }) {
     return `<span style="inline-size:${v / content.total * 100}%"${v === 0 ? ' hidden' : ''}><span class="lp-split-by-proportion-label">${below ? value + letter : letter + value}</span></span>`;
   }).join('')}</div>`;
   return `<section class="lp lp-split-by-proportion" data-lp-pattern="split-by-proportion" lang="${html(lang)}">
-  <header class="lp-scene"><span class="lp-scene-icon">${icons.presentation}</span><div><h2 class="lp-scene-title">${h(content.title)}</h2></div></header>
-  <div><p><strong>${h(strings.context)}</strong> ${h(content.context)}</p></div>
+  <p class="lp-context">${h(content.context)}</p>
   <fieldset class="lp-split-by-proportion-estimate" aria-describedby="${html(`${id}-help`)}">
-    <legend class="lp-stem">${h(content.question)}</legend>
+    <legend class="lp-stem"><h2 class="lp-heading">${h(content.question)}</h2></legend>
     <p class="lp-small" id="${html(`${id}-help`)}" data-lp-help hidden>${h(format(strings.help, { total: quantity(content.total, content, lang) }))}</p>
     <div data-lp-interaction hidden>
     <div class="lp-split-by-proportion-split" data-lp-split>

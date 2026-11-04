@@ -25,7 +25,7 @@ export function validateState(content: Content, value: unknown): LearnerState | 
 export function format(template: string, values: Record<string, string | number>): string;
 /** @typedef {{ label: string, name: string, value: number }} Point */
 /** @typedef {'changedDirection' | 'fell' | 'rose' | 'flat' | 'fellThenFlat' | 'roseThenFlat'} Trend */
-/** @typedef {{ title: string, context: string, question: string, unit: string, known: Point[], future: Point[], top: number, step: number, changeLabel: string, realLabel: string, resultTitle: string, explanationLabel: string, explanation: string, source: string, feedback: Record<Trend, string> }} Content */
+/** @typedef {{ title?: string, context: string, question: string, unit: string, known: Point[], future: Point[], top: number, step: number, changeLabel: string, realLabel: string, resultTitle: string, explanationLabel: string, explanation: string, source: string, feedback: Record<Trend, string> }} Content */
 /** @typedef {{ guesses: (number | null)[], shown: boolean }} LearnerState */
 export const trends: readonly ["changedDirection", "fell", "rose", "flat", "fellThenFlat", "roseThenFlat"];
 export type Point = {
@@ -35,7 +35,7 @@ export type Point = {
 };
 export type Trend = "changedDirection" | "fell" | "rose" | "flat" | "fellThenFlat" | "roseThenFlat";
 export type Content = {
-    title: string;
+    title?: string;
     context: string;
     question: string;
     unit: string;

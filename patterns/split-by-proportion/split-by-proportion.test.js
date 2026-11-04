@@ -116,7 +116,7 @@ test('format substitutes only own properties and preserves unknown placeholders'
 
 test('content rejects planted violations and names each field', () => {
   for (const value of [null, [], 1, 'content']) assert.throws(() => validateContent(value), /content/);
-  for (const field of ['title', 'context', 'question', 'resultTitle', 'optionHeading', 'source', 'unit', 'total', 'step', 'close', 'options']) {
+  for (const field of ['context', 'question', 'resultTitle', 'optionHeading', 'source', 'unit', 'total', 'step', 'close', 'options']) {
     const content = structuredClone(en); delete content[field];
     assert.throws(() => validateContent(content), new RegExp(field));
   }
@@ -201,7 +201,7 @@ test('French render uses French text and nonbreaking punctuation', () => {
   const output = render(fr, strings.fr, { id: 'fr', lang: 'fr-CA' });
   assert.match(output, /lang="fr-CA"/);
   assert.ok(output.includes('Vérifier ma répartition'));
-  assert.ok(output.includes('Contexte\u00a0:'));
+  assert.ok(!output.includes('Contexte\u00a0:'));
   assert.ok(output.includes('35\u00a0%'));
   assert.ok(output.includes('cause\u202f?'));
   assert.ok(output.includes('Registre des demandes de soutien du mois dernier.'));

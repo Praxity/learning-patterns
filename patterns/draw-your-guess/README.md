@@ -52,9 +52,9 @@ All text is plain text. Rendering escapes HTML characters. Keep English and Cana
 
 | Field | Meaning |
 | --- | --- |
-| `title` | One scene title. |
+| `title` | Optional, up to 120 characters. Shown only when the card has more than one question. |
 | `context` | The situation before the question. |
-| `question` | The fieldset legend. |
+| `question` | The card heading inside the fieldset legend. |
 | `unit` | Unit used in slider descriptions and the fallback table. |
 | `known`, `future` | Three to six points each, in display order. Future points hold the real answers. |
 | `known[].label`, `future[].label` | Short axis label. |
@@ -94,6 +94,8 @@ Without JavaScript, learners see the context and known line. Open "Show the real
 Optional `state: { read, write }` stores `{ guesses: (number | null)[], shown: boolean }`. Invalid saved values are ignored. Input, check and Try again write state; host errors propagate. Repeated enhancement returns the same instance. `destroy()` removes listeners, cancels focus moves, unlocks controls and restores the native answer disclosure. Try again resets the existing DOM.
 
 ## Use it
+
+The plain context comes before the question heading.
 
 Copy `patterns/draw-your-guess/` and `lib/`, keeping their relative paths. Link `lib/base.css`, then `patterns/draw-your-guess/pattern.css`. Use a unique id prefix for each instance.
 

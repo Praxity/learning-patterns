@@ -98,7 +98,7 @@ test('context may be absent but supplied context must be complete', () => {
 test('render without context keeps the escaped task and labelled answer without recipient chrome', () => {
   const value = { task: 'Explain <why>.', model: 'Late data.', parts: [{ id: 'reason', label: 'Reason', missed: 'Explain the delay.', evidence: 'Late data.' }] };
   const markup = render(value, strings.en, { id: 'general', lang: 'en' });
-  assert.match(markup, /lp-scene-title">Explain &lt;why&gt;\.<\/p>/);
+  assert.match(markup, /lp-heading">Explain &lt;why&gt;\.<\/h2>/);
   assert.match(markup, /<label[^>]*for="general-answer">Your answer<\/label>/);
   assert.match(markup, /<textarea[^>]*id="general-answer"[^>]*><\/textarea>/);
   assert.doesNotMatch(markup, /lp-self-check-meta|lp-self-check-recipient|lp-self-check-avatar|lp-scene-icon|placeholder=/);

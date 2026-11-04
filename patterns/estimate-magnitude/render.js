@@ -45,8 +45,8 @@ export function render(content, strings, { id, lang }) {
   const at = (positionOf(low, stops) + positionOf(high, stops)) / 2;
   const range = format(strings.range, { low: numberText(low, lang), high: numberText(high, lang) });
   return `<section class="lp lp-estimate-magnitude" data-lp-pattern="estimate-magnitude" lang="${html(lang)}">
-  <header class="lp-scene"><span class="lp-scene-icon">${icons['file-text']}</span><div><h2 class="lp-scene-title">${html(content.title, lang)}</h2></div></header>
-  <div class="lp-context"><p><strong>${html(strings.context, lang)}</strong> ${html(content.context, lang)}</p></div>
+  <h2 class="lp-heading">${html(content.title, lang)}</h2>
+  <p class="lp-context">${html(content.context, lang)}</p>
   <div data-lp-interaction>
     <p class="lp-small" data-lp-instructions hidden>${html(format(strings.instructions, { ratio: ratio === 10 ? strings.ten : numberText(ratio, lang) }), lang)}</p>
     ${content.questions.map((question, index) => `<fieldset class="lp-stack lp-estimate-magnitude-question" data-lp-question>

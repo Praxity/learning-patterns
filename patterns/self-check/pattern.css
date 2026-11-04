@@ -1,6 +1,6 @@
 ﻿/* Shared controls, colours and reveal motion come from lib/base.css. */
 .lp-self-check { overflow: hidden; }
-.lp-self-check > * + * { margin-block-start: 0; }
+.lp-self-check > * + * { margin-block-start: var(--lp-gap-flow); }
 .lp-self-check-composer { margin: 0 0 24px; border: 1px solid var(--lp-line); border-radius: var(--lp-radius-control); }
 .lp-self-check-composer:focus-within { outline: 3px solid var(--lp-focus); outline-offset: 2px; }
 .lp-self-check-meta-list { display: grid; grid-template-columns: max-content minmax(0, 1fr); column-gap: 12px; }

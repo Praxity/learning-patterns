@@ -1,0 +1,44 @@
+﻿import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+
+for (const name of ['draw-your-guess', 'estimate-magnitude', 'prolific-questions', 'self-check', 'split-by-proportion']) {
+  const { render } = await import(`../patterns/${name}/render.js`);
+  const { strings } = await import(`../patterns/${name}/strings.js`);
+  const { validateContent } = await import(`../patterns/${name}/logic.js`);
+  const example = JSON.parse(await readFile(new URL(`../patterns/${name}/examples/en.json`, import.meta.url)));
+  test(`${name}: scenario context precedes the question without a scene bar`, () => {
+    const content = { ...example };
+    if (name === 'self-check') {
+      content.task = 'Write a reply.';
+      content.context = { to: 'Sam', initials: 'S', subject: 'Report' };
+    } else {
+      content.context = 'A short situation.';
+      content.title = 'A card title.';
+      content.question = 'What would you choose?';
+      if (name === 'estimate-magnitude') delete content.question;
+    }
+    const output = render(content, strings.en, { id: 'scenario', lang: 'en' });
+    assert.doesNotMatch(output, /lp-scene|Context:|Contexte/);
+    if (name === 'self-check') {
+      assert.ok(output.includes('<h2 class="lp-heading">Write a reply.</h2>'));
+      assert.ok(output.indexOf('Report</span>') < output.indexOf('<h2'));
+    } else {
+      assert.ok(output.includes('<p class="lp-context">A short situation.</p>'));
+      assert.ok(output.indexOf('A short situation.</p>') < output.indexOf('<fieldset'));
+      assert.doesNotMatch(output, /<legend[^>]*>[^]*A short situation\./);
+      if (['draw-your-guess', 'split-by-proportion'].includes(name)) {
+        assert.ok(output.includes('>What would you choose?</h2></legend>'));
+        assert.ok(!output.includes('A card title.'));
+      } else assert.ok(output.includes('<h2 class="lp-heading">A card title.</h2>'));
+    }
+  });
+  if (['draw-your-guess', 'split-by-proportion'].includes(name)) test(`${name}: legacy title is optional but validated when supplied`, async () => {
+    const content = { ...example }; delete content.title;
+    assert.doesNotThrow(() => validateContent(content));
+    assert.doesNotThrow(() => render(content, strings.en, { id: 'scenario', lang: 'en' }));
+    for (const title of [null, '', ' ', 1, 'x'.repeat(121)]) assert.throws(() => validateContent({ ...content, title }), /title/);
+    const schema = JSON.parse(await readFile(new URL(`../patterns/${name}/content.schema.json`, import.meta.url)));
+    assert.ok(!schema.required.includes('title'));
+  });
+}

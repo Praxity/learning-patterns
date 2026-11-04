@@ -225,7 +225,7 @@ test('worked example comes first, no-JS answers contain every fact and label wit
     for (const part of example.parts) assert.ok(fallback.includes(escapeHtml(part.label, lang)));
     assert.ok(!fallback.includes(escapeHtml(example.context, lang)));
     assert.equal(markup.split(escapeHtml(example.context, lang)).length - 1, 1);
-    if (lang === 'fr') assert.match(markup, /Contexte\u00a0:/);
+    if (lang === 'fr') assert.doesNotMatch(markup, /Contexte\u00a0:/);
   }
   assert.deepEqual(Object.keys(strings.en), Object.keys(strings.fr));
 });

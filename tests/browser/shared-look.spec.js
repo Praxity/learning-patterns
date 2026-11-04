@@ -51,7 +51,7 @@ async function open(page, path, host = false) {
 }
 
 for (const lang of ['en', 'fr']) test(`scene headers hold one title, with the named conversation role exception (${lang})`, async ({ page }) => {
-  for (const name of ['conversation', 'dont-know', 'first-answer', 'highlight', 'retrieval-sheet', 'self-check', 'test-out', 'write-distractors']) {
+  for (const name of ['conversation', 'dont-know', 'first-answer', 'highlight', 'retrieval-sheet', 'test-out', 'write-distractors']) {
     await open(page, `/${name}/${lang}.html`);
     await checkHeader(page, name);
     if (name === 'conversation') await expect(page.locator('.lp-scene-sub')).toHaveText(lang === 'en' ? 'Your colleague' : 'Votre collègue');
@@ -148,3 +148,37 @@ test('a checkbox outside a choice row gets the 3px focus ring', async ({ page })
   await expect(bare).toBeFocused();
   expect(await bare.evaluate(el => { const css = getComputedStyle(el); return [css.outlineWidth, css.outlineStyle, css.outlineColor]; })).toEqual(['3px', 'solid', 'rgb(44, 85, 201)']);
 });
+
+
+for (const name of ['draw-your-guess', 'estimate-magnitude', 'prolific-questions', 'self-check', 'split-by-proportion']) {
+  for (const lang of ['en', 'fr']) test(`scenario context precedes a larger question without a scene (${name}, ${lang})`, async ({ page, browserName }) => {
+    await open(page, `/${name}/${lang}.html`, true);
+    await expect(page.locator('.lp-scene')).toHaveCount(0);
+    for (const width of [1280, 320]) {
+      await page.setViewportSize({ width, height: 900 });
+      for (const forced of browserName === 'chromium' ? ['none', 'active'] : ['none']) {
+        await page.emulateMedia({ forcedColors: forced });
+        const layout = await page.locator('[data-lp-pattern]').evaluate((root, name) => {
+          const context = root.querySelector(name === 'self-check' ? '.lp-self-check-meta-list' : '.lp-context');
+          const question = root.querySelector(name === 'self-check' ? 'h2.lp-heading' : 'legend.lp-stem');
+          const field = root.querySelector(name === 'self-check' ? 'textarea' : 'fieldset');
+          return {
+            questionSize: parseFloat(getComputedStyle(question.querySelector('h2') || question).fontSize),
+            contextSize: parseFloat(getComputedStyle(context.querySelector('p') || context).fontSize),
+            contextWeight: getComputedStyle(context).fontWeight,
+            contextBottom: context.getBoundingClientRect().bottom,
+            fieldTop: field.getBoundingClientRect().top,
+            firstTop: root.firstElementChild.getBoundingClientRect().top - root.getBoundingClientRect().top,
+            padding: parseFloat(getComputedStyle(root).paddingTop) + parseFloat(getComputedStyle(root).borderTopWidth),
+            overflow: document.documentElement.scrollWidth > innerWidth
+          };
+        }, name);
+        expect(layout.questionSize).toBeGreaterThan(layout.contextSize);
+        expect(layout.contextWeight).toBe('400');
+        expect(layout.contextBottom).toBeLessThanOrEqual(layout.fieldTop);
+        expect(layout.firstTop).toBeCloseTo(layout.padding, 0);
+        expect(layout.overflow).toBe(false);
+      }
+    }
+  });
+}

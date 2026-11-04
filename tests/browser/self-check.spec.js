@@ -56,22 +56,6 @@ for (const [lang, content] of [['en', english], ['fr', french]]) test(`every che
   await box.focus(); await page.keyboard.press('Space'); await expect(box).not.toBeChecked();
 });
 
-test('shared scene spans the card and centres its tile on the task', async ({ page }) => {
-  await open(page);
-  await expect(page.locator('.lp-scene-label')).toHaveCount(0);
-  await expect(page.locator('.lp-scene-title')).toHaveText(english.task);
-  for (const width of [1280, 390, 320]) {
-    await page.setViewportSize({ width, height: 900 });
-    const geometry = await page.locator('.lp-scene').evaluate(el => {
-      const scene = el.getBoundingClientRect(), card = el.parentElement.getBoundingClientRect();
-      const tile = el.querySelector('.lp-scene-icon svg').getBoundingClientRect(), text = el.querySelector('div').getBoundingClientRect();
-      // Centred on the text up to two title lines, then level with the first two (lib/base.css).
-      const title = el.querySelector('.lp-scene-title'), centre = Math.min(text.height / 2, title.getBoundingClientRect().top - text.top + parseFloat(getComputedStyle(title).lineHeight));
-      return [scene.left - card.left, card.right - scene.right, tile.top + tile.height / 2 - text.top - centre];
-    });
-    for (const difference of geometry) expect(Math.abs(difference)).toBeLessThanOrEqual(1);
-  }
-});
 
 for (const [lang, placeholder, instruction] of [
   ['en', 'Hi Sam,\n\nType your message here…', 'Tick each part your answer includes.'],
@@ -82,7 +66,7 @@ for (const [lang, placeholder, instruction] of [
     await page.evaluate(() => document.fonts.ready);
     for (const width of [1280, 390, 320]) {
       await page.setViewportSize({ width, height: 900 });
-      const geometry = await page.locator('.lp-self-check-composer').evaluate(el => {
+      const geometry = await page.locator('.lp-self-check-meta-list').evaluate(el => {
         const keys = [...el.querySelectorAll('.lp-self-check-meta-key')];
         const widths = keys.map(key => key.getBoundingClientRect().width);
         const textWidths = keys.map(key => { const range = document.createRange(); range.selectNodeContents(key); return range.getBoundingClientRect().width; });
@@ -195,7 +179,7 @@ for (const [lang, answerLabel, empty, check, show, whole, summary, restart] of [
     document.querySelector('main').innerHTML = render(content, strings[lang], { id: 'general', lang });
     enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings[lang] });
   }, { content, lang });
-  await expect(page.locator('.lp-scene-title')).toHaveText(content.task);
+  await expect(page.locator('h2.lp-heading')).toHaveText(content.task);
   await expect(page.locator('.lp-self-check-meta-list, .lp-self-check-recipient, .lp-self-check-avatar, .lp-scene-icon')).toHaveCount(0);
   const answer = page.getByRole('textbox', { name: answerLabel, exact: true });
   await expect(answer).not.toHaveAttribute('placeholder');

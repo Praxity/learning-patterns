@@ -3,7 +3,7 @@ import { validateTextLengths } from '../../lib/text-limits.js';
 // Authors set the known points, real values, scale and step.
 /** @typedef {{ label: string, name: string, value: number }} Point */
 /** @typedef {'changedDirection' | 'fell' | 'rose' | 'flat' | 'fellThenFlat' | 'roseThenFlat'} Trend */
-/** @typedef {{ title: string, context: string, question: string, unit: string, known: Point[], future: Point[], top: number, step: number, changeLabel: string, realLabel: string, resultTitle: string, explanationLabel: string, explanation: string, source: string, feedback: Record<Trend, string> }} Content */
+/** @typedef {{ title?: string, context: string, question: string, unit: string, known: Point[], future: Point[], top: number, step: number, changeLabel: string, realLabel: string, resultTitle: string, explanationLabel: string, explanation: string, source: string, feedback: Record<Trend, string> }} Content */
 /** @typedef {{ guesses: (number | null)[], shown: boolean }} LearnerState */
 
 export const trends = /** @type {const} */ (['changedDirection', 'fell', 'rose', 'flat', 'fellThenFlat', 'roseThenFlat']);
@@ -14,7 +14,7 @@ function object(value) { return value !== null && typeof value === 'object' && !
 /** @param {Record<string, unknown>} value @param {string[]} keys @param {string} path */
 function fields(value, keys, path) {
   for (const key of Object.keys(value)) if (!keys.includes(key)) throw new Error(`Invalid ${path}.${key}`);
-  for (const key of keys) if (!Object.hasOwn(value, key)) throw new Error(`Invalid ${path}.${key}`);
+  for (const key of keys) if (key !== 'title' && !Object.hasOwn(value, key)) throw new Error(`Invalid ${path}.${key}`);
 }
 
 /** @param {unknown} content @returns {asserts content is Content} */
@@ -28,7 +28,7 @@ export function validateContent(content) {
     explanation: 1500, source: 1500, known: [{ label: 120, name: 120 }],
     future: [{ label: 120, name: 120 }], feedback: { '*': 1500 }
   });
-  for (const key of text) if (typeof content[key] !== 'string' || !content[key].trim()) throw new Error(`Invalid ${key}`);
+  for (const key of text.filter(key => key !== 'title' || Object.hasOwn(content, key))) if (typeof content[key] !== 'string' || !content[key].trim()) throw new Error(`Invalid ${key}`);
   for (const key of ['top', 'step']) if (!Number.isSafeInteger(content[key]) || Number(content[key]) <= 0) throw new Error(`Invalid ${key}`);
   const top = Number(content.top), step = Number(content.step);
   if (step > top || top % step !== 0) throw new Error('Invalid step: must divide top');

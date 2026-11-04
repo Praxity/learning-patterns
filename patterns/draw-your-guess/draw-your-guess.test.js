@@ -15,7 +15,7 @@ function matches(value, rule, root = value) {
   if (rule.type === 'object') return value !== null && typeof value === 'object' && !Array.isArray(value)
     && rule.required.every(key => Object.hasOwn(value, key))
     && Object.keys(value).every(key => Object.hasOwn(rule.properties, key))
-    && Object.entries(rule.properties).every(([key, child]) => matches(value[key], child, root));
+    && Object.entries(rule.properties).every(([key, child]) => !Object.hasOwn(value, key) || matches(value[key], child, root));
   if (rule.type === 'array') return Array.isArray(value) && value.length >= rule.minItems && value.length <= rule.maxItems && value.every(item => matches(item, rule.items, root));
   if (rule.type === 'string') return typeof value === 'string' && [...value].length >= rule.minLength && [...value].length <= rule.maxLength && new RegExp(rule.pattern).test(value);
   return typeof value === 'number' && Number.isFinite(value)
@@ -124,8 +124,8 @@ test('no-JavaScript markup contains every real value, explanation and source, an
 
 test('French render retains accents, French punctuation and translated fallback', () => {
   const markup = render(french, strings.fr, { id: 'fr', lang: 'fr-CA' });
-  assert.ok(markup.includes('lang="fr-CA"')); assert.ok(markup.includes('Prévoyez'));
-  assert.ok(markup.includes('Contexte\u00a0:')); assert.ok(markup.includes('juillet\u202f?'));
+  assert.ok(markup.includes('lang="fr-CA"')); assert.ok(!markup.includes('Prévoyez'));
+  assert.ok(!markup.includes('Contexte\u00a0:')); assert.ok(markup.includes('juillet\u202f?'));
   assert.ok(markup.includes('décembre')); assert.ok(markup.includes("Journal des appels au soutien informatique, de décembre à juillet"));
 });
 
