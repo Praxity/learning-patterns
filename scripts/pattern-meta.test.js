@@ -93,6 +93,9 @@ function checkReadmeStructure(readme, name = 'pattern') {
   assert.ok(fallback.length <= 1 && fallback.every(text => !/^(?:\s*\d+[.)]\s|\s*[-*+]\s|\s*#|\s*>|\s*\|)/m.test(text)), 'How it works allows at most one fallback paragraph');
   const accessibility = readme.split(/^## Accessibility\r?$/m)[1].split(/^## /m)[0].split(/^### Known issues\r?$/m)[0];
   assert.doesNotMatch(accessibility, /`|\b[A-Za-z_$][\w.$]*\s*\(/, 'Accessibility contains code');
+  const useIt = prose.split(/^## Use it\r?$/m)[1].split(/^## /m)[0];
+  const details = prose.match(/^### Accessibility details\r?$/gm) ?? [];
+  assert.ok(details.length === 0 || (details.length === 1 && /^### Accessibility details\r?$/m.test(useIt)), 'Accessibility details belongs under Use it');
   assert.doesNotMatch(readme, /still to come|separate human check|requires a separate human|checks remain separate/i, 'README contains stale screen reader wording');
   // READMEs are public. They never mention how they were written or where files sit on a machine.
   assert.doesNotMatch(prose, INTERNAL, 'README contains internal phrasing');
@@ -143,6 +146,8 @@ test('README structure guard catches missing, reordered and technical sections',
   }
   assert.doesNotThrow(() => checkReadmeStructure(readme.replace('1. You read the question.', '1. One.\n2. Two.\n\nWithout JavaScript, read the answers.')));
   assert.doesNotThrow(() => checkReadmeStructure(readme.replace('## Accessibility\n\nPlain text.', '## Accessibility\n\nPlain text.\n\n### Known issues\n\nThe reader repeats `button`.')));
+  assert.throws(() => checkReadmeStructure(readme.replace('## Accessibility\n\nPlain text.', '## Accessibility\n\nPlain text.\n\n### Accessibility details\n\nMore.')), /under Use it/);
+  assert.doesNotThrow(() => checkReadmeStructure(readme.replace('## Use it\n\nPlain text.', '## Use it\n\nPlain text.\n\n### Accessibility details\n\nMore.')));
   for (const phrase of ['still to come', 'separate human check', 'requires a separate human', 'checks remain separate']) {
     assert.throws(() => checkReadmeStructure(readme.replace('## Accessibility\n\nPlain text.', `## Accessibility\n\nScreen reader checks ${phrase}.`)), /stale screen reader wording/);
   }
