@@ -138,6 +138,15 @@ test('two-part content uses two columns without inline styles and stacks in narr
   for (const selector of ['.lp-prolific-questions-worked', '.lp-prolific-questions-fact']) {
     expect(await page.locator(selector).first().evaluate(el => new Set([...el.children].filter(child => child.getClientRects().length).map(child => Math.round(child.getBoundingClientRect().left))).size)).toBe(1);
   }
+  // Stacked rows keep each slot name beside its key, not pushed to the far edge.
+  for (const choice of await page.locator('.lp-prolific-questions-fact .lp-choice').all()) {
+    const keyGap = await choice.evaluate(label => {
+      const style = getComputedStyle(label), key = getComputedStyle(label, '::before');
+      const keyEnd = label.getBoundingClientRect().left + parseFloat(style.borderLeftWidth) + parseFloat(style.paddingLeft) + parseFloat(key.width);
+      return label.querySelector(':scope > span').getBoundingClientRect().left - keyEnd;
+    });
+    expect(keyGap).toBeLessThanOrEqual(16);
+  }
 });
 
 test('French results keep singular wording for one answer and zero cumulative placements', async ({ page }) => {

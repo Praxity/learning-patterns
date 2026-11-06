@@ -45,17 +45,6 @@ Follows the shared baseline in the root README.
 
 Write a clear prompt and labels for the improvements learners should look for. Without JavaScript, learners see the prompt, a first-answer box and a note about saving, but cannot save or compare answers.
 
-### Accessibility details
-
-Text fields keep the full draft, including text over the limit. Checking or saving shows a linked length error instead of cutting text. Limits come from the existing logic constants.
-
-- Saved entries show the date and time in the placement's language. First and current answers have separate labels.
-- Blank or long answers get errors linked to the text box. Saving focuses Skip in the demo, or the saved entry in a first-only placement.
-- Compare focuses the revealed Day one heading before the saved answer and improvement checks.
-- Try again silently focuses the current-answer field. Reset focuses the first-answer field, or the current-answer field in an end-only placement.
-- Start over focuses an inline confirmation question, followed by Delete and Keep. Keep or Escape closes it and returns focus to Start over without an announcement. Delete announces the reset and focuses the answer field.
-- Storage problems show visible messages. Valid entries restore silently.
-
 ## Content fields
 
 Authors write plain text. Rendering escapes HTML characters.
@@ -122,6 +111,17 @@ const instance = enhance(document.querySelector('[data-lp-pattern="first-answer"
   content, strings: strings.en, state: hostState
 });
 ```
+
+### Accessibility details
+
+Text fields keep the full draft, including text over the limit. Checking or saving shows a linked length error instead of cutting text. Limits come from the existing logic constants.
+
+- Saved entries show the date and time in the placement's language. First and current answers have separate labels.
+- Blank or long answers get errors linked to the text box. Saving focuses Skip in the demo, or the saved entry in a first-only placement.
+- Compare focuses the revealed Day one heading before the saved answer and improvement checks.
+- Try again silently focuses the current-answer field. Reset focuses the first-answer field, or the current-answer field in an end-only placement.
+- Start over focuses an inline confirmation question, followed by Delete and Keep. Keep or Escape closes it and returns focus to Start over without an announcement. Delete announces the reset and focuses the answer field.
+- Storage problems show visible messages. Valid entries restore silently.
 
 ## Adapt it with your agent
 
