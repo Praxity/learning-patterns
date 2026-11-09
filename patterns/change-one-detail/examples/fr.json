@@ -18,8 +18,8 @@
       "explanation": "Cette personne a vu le nom et les chiffres de carte de quelqu’un d’autre. Ce sont des renseignements personnels montrés à la mauvaise personne, donc le message va à la sécurité."
     },
     {
-      "from": "des frais de 40 $",
-      "to": "des frais de 400 $",
+      "from": "40 $",
+      "to": "400 $",
       "correct": "billing",
       "explanation": "Un montant plus élevé reste des frais sur la facture de la personne qui écrit, donc le message va à la facturation."
     }

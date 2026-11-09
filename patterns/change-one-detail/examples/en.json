@@ -18,8 +18,8 @@
       "explanation": "The customer saw another person's name and card digits. Those are personal details shown to the wrong person, so the message goes to security."
     },
     {
-      "from": "a $40 charge",
-      "to": "a $400 charge",
+      "from": "$40",
+      "to": "$400",
       "correct": "billing",
       "explanation": "A larger amount is still a charge on the customer's own bill, so the message goes to billing."
     }
