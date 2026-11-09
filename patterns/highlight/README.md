@@ -31,6 +31,62 @@ Split a short passage into meaningful pieces. Mark the key ideas or evidence for
 3. "Check" puts feedback beside each mark, shows key text they missed, and says how many they found.
 4. "Start over" clears the marks.
 
+## Write this in .prax
+
+Write a title after `::: highlight`, then divide the passage into whole chunks with `::`. Mark the target chunks with `{key}` and add a `note:` for each explanation. The examples below allow two marks. Studio creates the chunk IDs.
+
+Studio supports key and evidence modes. Marks and results stay in page memory, reset on reload and send no score or practice record to the LMS. Author the passage in `.prax` source; the canvas's Read view runs the activity and its Edit view shows the passage without text-edit controls.
+
+Studio's current single-mark interaction differs from this page's demo: with `maxMarks=1`, the learner must unmark a chunk before choosing another. Selecting a new chunk does not move the mark automatically.
+
+Use browser Print or Save as PDF for this activity. Studio's native PDF export and block narration are not supported.
+
+English ([Studio source example](https://github.com/Praxity/studio/blob/389ba9a12a5644f60fac8a750fefa4cac0a6974b/docs/prax-format/examples/highlight/en.prax)):
+
+```prax
+---
+lang: en
+variables:
+  publicFlag: false
+---
+# Reading practice
+::: highlight A useful pause {mode=key maxMarks=2 name=keyPractice}
+question: Why say when you will return?
+:: You need a moment to think.
+note: This explains the pause.
+:: They know when to expect you. {key}
+note: A return time reduces uncertainty.
+:: Agree on a return time. {key}
+note: Agree before leaving.
+:: The wall is blue.
+note: Colour does not explain the return time.
+:::
+```
+
+French ([Studio source example](https://github.com/Praxity/studio/blob/389ba9a12a5644f60fac8a750fefa4cac0a6974b/docs/prax-format/examples/highlight/fr.prax)):
+
+```prax
+---
+lang: fr
+variables:
+  publicFlag: false
+---
+# Lecture et pratique
+::: highlight Une pause utile {mode=key maxMarks=2 name=keyPracticeFr}
+question: Pourquoi préciser l’heure de son retour ?
+:: Vous avez besoin de réfléchir.
+note: Ce détail décrit la pause.
+:: Ils savent quand vous attendre. {key}
+note: Une heure précise réduit l’incertitude.
+:: Convenez d’une heure de retour. {key}
+note: Convenez de l’heure avant de partir.
+:: Le mur est bleu.
+note: La couleur n’explique pas l’heure du retour.
+:::
+```
+
+See the [Studio grammar reference](https://github.com/Praxity/studio/blob/389ba9a12a5644f60fac8a750fefa4cac0a6974b/docs/prax-format/reference/blocks-interactive.md#highlight) for supported settings and output limits. These examples use Studio source revision `389ba9a`.
+
 ## Evidence
 
 Highlighting alone is a weak study strategy. A major review rated it low utility ([Dunlosky et al., 2013](https://doi.org/10.1177/1529100612453266)). A meta-analysis of 36 articles found that marking text yourself improved memory but not comprehension. Text highlighted by an instructor improved both ([Ponce, Mayer and Méndez, 2022](https://doi.org/10.1007/s10648-021-09654-1)). Students often mark too much or choose the wrong text. Short training helps them choose what to mark ([Miyatsu, Nguyen and McDaniel, 2018](https://doi.org/10.1177/1745691617710510); [Leutner, Leopold and den Elzen-Rump, 2007](https://doi.org/10.1027/0044-3409.215.3.174)).
