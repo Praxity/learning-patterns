@@ -31,6 +31,50 @@ Write the correct answer, misconception labels and plausible wrong options for c
 3. "Compare with the author's" puts the author's wrong options next to theirs. A check mark shows each label that matches, and a summary counts matching and extra labels.
 4. "Start over" clears their work.
 
+## Write this in .prax
+
+Write the question after `::: write-distractors` and its correct `answer:` before the first item. Each `::` item names a mistaken idea and pairs it with one `option:` containing a plausible wrong answer. `count` sets how many wrong options the learner writes, from 1 to 5; the default is 2. Studio creates the item IDs.
+
+The learner answers from memory, checks the answer, rates their own answer, then writes wrong options and compares mistaken-idea labels. Matching labels does not grade the quality of the prose. Drafts stay on the device and send no response, score or completion record to the LMS.
+
+Author these fields in the `.prax` source. Browser print includes current writing and revealed content. Native PDF produces a workbook; an explicit author answer sheet adds the correct answer and authored wrong options. Narration reads only the question.
+
+English ([Studio source example](https://github.com/Praxity/studio/blob/389ba9a12a5644f60fac8a750fefa4cac0a6974b/docs/prax-format/examples/write-distractors/en.prax)):
+
+```prax
+---
+lang: en
+---
+# Button names
+
+::: write-distractors What should a button's accessible name tell the user? {count=2}
+answer: The action the button performs.
+:: Appearance replaces purpose
+option: The button's colour.
+:: Position replaces purpose
+option: The button's position on the page.
+:::
+```
+
+French ([Studio source example](https://github.com/Praxity/studio/blob/389ba9a12a5644f60fac8a750fefa4cac0a6974b/docs/prax-format/examples/write-distractors/fr.prax)):
+
+```prax
+---
+lang: fr
+---
+# Le texte des liens
+
+::: write-distractors Que doit indiquer le texte d’un lien vers un formulaire d’inscription ?
+answer: La destination ou le but du lien.
+:: Une consigne vague suffit
+option: Seulement les mots « cliquez ici ».
+:: La couleur suffit à expliquer la destination
+option: Seulement la couleur du lien.
+:::
+```
+
+See the [Studio grammar reference](https://github.com/Praxity/studio/blob/389ba9a12a5644f60fac8a750fefa4cac0a6974b/docs/prax-format/reference/blocks-interactive.md#write-distractors) for supported settings and output limits. These examples use Studio source revision `389ba9a`.
+
 ## Evidence
 
 Giving your own answer helps you remember more than reading one. The average effect was 0.40 standard deviations across 86 studies ([Bertsch et al., 2007](https://doi.org/10.3758/BF03193441)). University students wrote questions about a lecture. A week later, they recalled about as much as students who answered practice questions ([Ebersbach, Feierabend and Nazari, 2020](https://doi.org/10.1002/acp.3639)). Students who wrote multiple-choice questions for peers tended to do better in exams. Those studies show a link, not that writing questions caused better scores ([Hardy et al., 2014](https://doi.org/10.1080/09500693.2014.916831)).
