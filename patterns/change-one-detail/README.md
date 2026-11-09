@@ -42,7 +42,7 @@ Every change starts from the first case, so each version differs from it in one 
 
 ## Evidence
 
-Comparing cases teaches more than studying them one at a time. Across 57 experiments, comparing cases led to more learning than studying cases one after another or singly, and than traditional instruction (d = 0.50). The gain was larger when the principle came after the comparison ([Alfieri, Nokes-Malach and Schunn, 2013](https://doi.org/10.1080/00461520.2013.775712)). This pattern gives the rule after the decisions for that reason. The gain was also larger when learners looked for what cases share, and this pattern asks about a difference. Its versions arrive one after another, and the earlier ones stay on the page so the learner can compare them.
+This pattern comes from research on contrasting cases, where learners compare cases that differ to see which features matter. Comparing cases teaches more than studying them one at a time. Across 57 experiments, comparing cases led to more learning than studying cases one after another or singly, and than traditional instruction (d = 0.50). The gain was larger when the principle came after the comparison ([Alfieri, Nokes-Malach and Schunn, 2013](https://doi.org/10.1080/00461520.2013.775712)). This pattern gives the rule after the decisions for that reason. The gain was also larger when learners looked for what cases share, and this pattern asks about a difference. Its versions arrive one after another, and the earlier ones stay on the page so the learner can compare them.
 
 A case that differs in one detail shows what a rule depends on. Adding a "near miss", an example that differed from a problem's solution in one critical respect, helped people describe that solution more fully, and an unrelated extra example did not ([Gick and Paterson, 1992](https://doi.org/10.1037/h0084333)). Students in grades 7 and 8 learned more from comparing worked algebra examples when the examples differed in a feature that mattered ([Rittle-Johnson and Star, 2009](https://doi.org/10.1037/a0014224)). Both studies used problem solving, not workplace decisions.
 
@@ -68,7 +68,7 @@ Authors write plain text. Rendering escapes HTML characters. Keep English and Ca
 | `question` | The question asked in every round, at most 400 characters. |
 | `options` | Two to four options, the same in every round. |
 | `options[].id` | Unique id using letters, digits, underscores or hyphens. |
-| `options[].text` | Option text, at most 300 characters. |
+| `options[].text` | Option text, at most 300 characters. Leave off a closing period, because feedback adds one after the option ("Correct answer: Security."). |
 | `correct` | Id of the correct option for the first case. |
 | `explanation` | Why that option is correct, at most 600 characters. |
 | `changes` | One to three changes, in the order learners meet them. |

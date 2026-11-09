@@ -122,7 +122,8 @@ export function enhance(root, { content, strings, state }) {
   });
   restart.addEventListener('click', () => {
     reset();
-    reveal(parts[0].section);
+    // Back to the top of the card: the title and context frame the first case.
+    reveal(root);
     parts[0].radios[0].focus({ preventScroll: true });
     status.textContent = text(strings.cleared);
     save();
