@@ -36,7 +36,7 @@ Nearby patterns show a model after the attempt, or once at the start. [Check you
 
 1. The learner reads a short case with every step worked. Each step shows its result and the reason for it.
 2. The next case leaves at least one step to them. Every step is labelled "Done for you" or "Your step", and the case heading says how many steps are theirs.
-3. At their step, they choose a result and select "Check step". Their choice is marked and the reason appears. After a wrong choice the correct result is marked too, so they can always go on to the next step.
+3. At their step, they choose a result and select that step's check button, such as "Check step 3". Their choice is marked and the reason appears. After a wrong choice the correct result is marked too, so they can always go on to the next step.
 4. Each case leaves them more steps. They do every step of the last case, then see how many of their steps they got right.
 5. "Previous case" reopens any earlier case, including the worked one. "Start over" clears their answers.
 
@@ -127,7 +127,7 @@ A worked step that comes after one of the learner's steps would give that answer
 
 - The steps of a case are a list. Each learner step is a native radio group whose legend gives the step number, "Your step" and the question. Worked steps are text: step number, "Done for you", the question, the result and the reason.
 - The accent label marks the learner's steps, and its words say the same without colour. The case heading gives the count, such as "You do 1 of the 3 steps."
-- "Check step" with no choice shows an error linked to each option and moves focus to the first option, which reads the error once.
+- Checking a step with no choice shows an error linked to each option and moves focus to the first option, which reads the error once.
 - After a check, focus moves to the reason under the step. For screen readers that line starts with "Correct." or "Incorrect. Correct answer:" and the correct result. The status region stays empty, so the result is read once, and Tab goes on to the next step or to "Next case".
 - Checking the last step announces the final count once through the status region.
 - "Next case", "Previous case" and "Start over" move focus to the case heading, which holds the case number and how many steps are the learner's.

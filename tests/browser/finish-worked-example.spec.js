@@ -280,7 +280,8 @@ test('a worked step after one of the learner’s waits until that step is checke
   await panel(page, 0).locator('[data-lp-next]').click();
   await expect(panel(page, 1).locator('.lp-finish-worked-example-tag')).toHaveText(['Your step', 'Done for you', 'Done for you']);
   await expect(panel(page, 1).locator('[data-lp-body]:visible')).toHaveCount(0);
-  await expect(step(page, 1, 1)).toHaveText('Step 2, Done for you Did everything arrive?', { useInnerText: true });
+  // Rendered text only: the hidden result must not show.
+  await expect(step(page, 1, 1)).toHaveText(/^Step 2\s*,\s*Done for you\s+Did everything arrive\?$/, { useInnerText: true });
   await expect(panel(page, 1).locator('[data-lp-next]')).toBeHidden();
   await answerStep(page, 1, 0, 0);
   await expect(panel(page, 1).locator('[data-lp-body]:visible')).toHaveCount(2);
@@ -304,7 +305,7 @@ test('without JavaScript every case is readable and each case’s answers open o
       : [frenchTypography('Étape 3 : Payer seulement ce qui est arrivé La facture correspond au bon de commande, donc vous payez 320 $ pour les 8 cartouches arrivées.', 'fr')], { useInnerText: true });
     await page.locator('summary').nth(1).click();
     await expect(page.locator('details').nth(1).locator('li')).toHaveCount(3);
-    expect(await axe(page)).toEqual([]);
+    // axe needs page scripts, so it checks this same markup after destroy() in the last test.
     expect(await overflowing(page)).toEqual({ page: 0, clipped: [] });
   }
   await context.close();
@@ -335,7 +336,8 @@ for (const lang of ['en', 'fr']) for (const textSpacing of [false, true]) {
 
 test('the longest allowed content stays inside the card at 320px', async ({ page }) => {
   const token = 'Q3-Client-Report_Northwind_Industries_Holdings_FINAL_v12_approved-by-legal.xlsx';
-  const fill = (text, limit) => `${token} ${text} `.repeat(10).slice(0, limit).trim();
+  // The name comes first so options stay unique after the cut.
+  const fill = (text, limit) => `${text} ${token} `.repeat(10).slice(0, limit).trim();
   const long = structuredClone(english);
   long.title = fill('title', 120); long.context = fill('context', 300);
   for (const item of long.steps) { item.question = fill('question', 120); item.options = item.options.map((_, n) => fill(`option ${n}`, 80)); }
@@ -427,6 +429,8 @@ test('enhance is idempotent and destroy restores the no-JavaScript view', async 
   await expect(page.locator('button:visible, [data-lp-feedback]:visible, [data-lp-mark], input:checked, input:disabled')).toHaveCount(0);
   await expect(page.locator('.lp-choice:visible')).toHaveCount(11);
   await expect(page.locator('[role="status"]')).toHaveText('');
+  for (const summary of await page.locator('summary').all()) await summary.click();
+  expect(await axe(page)).toEqual([]);
   // Enhancing again reads the saved progress and builds on the same markup.
   await page.evaluate(() => { window.lpInstances = [window.lpEnhance()]; });
   await expect(page.locator('[data-lp-case]:visible')).toHaveCount(1);

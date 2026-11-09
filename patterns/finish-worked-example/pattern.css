@@ -11,9 +11,12 @@
 /* Step number, then whose step it is. The learner's steps carry the accent pill, so a glance down the
    list shows how much of the case is theirs; the words say the same without colour. */
 .lp-finish-worked-example-head { display: flex; flex-wrap: wrap; gap: var(--lp-gap-hint) var(--lp-gap-label); align-items: center; }
-.lp-finish-worked-example-tag { display: inline-flex; gap: 4px; align-items: flex-start; color: var(--lp-ink-2); font-size: var(--lp-type-small); line-height: 1.45; }
+.lp-finish-worked-example-tag { display: inline-flex; gap: 4px; align-items: flex-start; color: var(--lp-ink-2); font-size: var(--lp-type-small); }
 .lp-finish-worked-example-tag[data-lp-yours] { padding: 1px 10px 1px 8px; border: 1px solid transparent; border-radius: calc(.5lh + 2px); color: var(--lp-accent-ink); background: var(--lp-accent-soft); font-weight: 600; }
-.lp-finish-worked-example-step > .lp-run-in, .lp-finish-worked-example-step legend > .lp-run-in { display: block; margin-block-start: var(--lp-gap-hint); }
+/* A step question is a sentence, so it wraps like body text; balancing broke French questions at a hyphen. */
+.lp-finish-worked-example-step > .lp-run-in, .lp-finish-worked-example-step legend > .lp-run-in { display: block; margin-block-start: var(--lp-gap-hint); text-wrap: pretty; }
+/* The worked result sits close under its question, as an answer does. */
+.lp-finish-worked-example-step > [data-lp-body] { margin-block-start: var(--lp-gap-label); }
 .lp-finish-worked-example-step legend { inline-size: 100%; }
 .lp-finish-worked-example-answer { font-weight: 600; }
 .lp-finish-worked-example-answer + p { margin-block-start: var(--lp-gap-hint); }
