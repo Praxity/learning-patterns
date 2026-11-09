@@ -27,7 +27,7 @@ Split a short passage into meaningful pieces. Mark the key ideas or evidence for
 ## How it works
 
 1. The learner reads a passage, and a question if there is one.
-2. They mark the key ideas, or the text that answers the question, up to a set number of marks. Selecting a mark again removes it.
+2. They mark the key ideas, or the text that answers the question, up to a set number of marks. Selecting a mark again removes it. When only one mark is allowed, selecting another chunk moves the mark there.
 3. "Check" puts feedback beside each mark, shows key text they missed, and says how many they found.
 4. "Start over" clears the marks.
 
@@ -117,7 +117,7 @@ const instance = enhance(document.querySelector('[data-lp-pattern="highlight"]')
 - Each chunk is an inline span with a button role and its own tab stop. Tab and Shift+Tab follow passage order. Space or Enter toggles a mark, including in screen-reader browse mode.
 - Arrow shortcuts work when the screen reader passes them to the page. Left or Up moves back; Right or Down moves forward. They wrap at the ends. Home and End jump to the first and last chunks. Each chunk exposes its pressed state and links to keyboard instructions.
 - Checked chunks stay readable and navigable, with feedback beside correct marks, missed targets and other selections.
-- At the limit, selecting another chunk shows and announces a message below the passage. Removing a mark clears it.
+- When one mark is allowed, selecting another chunk moves the mark there. When more are allowed, selecting another chunk at the limit shows and announces a message below the passage, and removing a mark clears it.
 - Found targets have green highlights and solid underlines; missed targets have grey dashed underlines and no highlight. Other selections stay yellow, with an "Incorrect" mark and the author's note in a neutral pill. The marks read "Correct", "Correct answer" for a missed target, and "Incorrect" (French "Correct", "Bonne réponse", "Incorrect"). Icons and words identify outcomes, including in forced colours.
 - Check announces the target count. If Check has focus when it hides, focus moves to Start over. Reset focuses the first chunk silently.
 
