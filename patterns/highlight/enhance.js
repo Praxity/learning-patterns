@@ -67,9 +67,12 @@ export function enhance(root, { content, strings, state }) {
     const id = authored[index].id;
     if (marked.has(id)) {
       marked.delete(id); clearLimit();
+    } else if (max === 1) {
+      // With one mark allowed, choosing another chunk moves the mark, like a radio button.
+      marked.clear(); marked.add(id);
     } else if (marked.size >= max) {
       if (limit.hidden) {
-        const message = (max === 1 ? strings.limitOne : strings.limitMany).replaceAll('{n}', String(max));
+        const message = strings.limitMany.replaceAll('{n}', String(max));
         limit.textContent = frenchTypography(message, root.lang); limit.hidden = false;
         status.textContent = frenchTypography(message, root.lang);
       }

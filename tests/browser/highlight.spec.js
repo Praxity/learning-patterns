@@ -256,11 +256,11 @@ test('pointer toggles preserve server passage nodes, count marks and use a warm 
   expect(await page.evaluate(() => window.lpPassage === document.querySelector('[data-lp-passage]') && window.lpChunk === document.querySelector('[data-lp-chunk]'))).toBe(true);
 });
 
-for (const [lang, content, singular, plural] of [
-  ['en', english, 'You can mark one passage. Unmark it to choose another.', 'You can mark up to 2 passages. Unmark one to choose another.'],
-  ['fr', french, "Vous pouvez marquer un passage. Enlevez sa marque pour en choisir un autre.", "Vous pouvez marquer jusqu’à 2 passages. Enlevez une marque pour en choisir un autre."]
+for (const [lang, content, plural] of [
+  ['en', english, 'You can mark up to 2 passages. Unmark one to choose another.'],
+  ['fr', french, "Vous pouvez marquer jusqu’à 2 passages. Enlevez une marque pour en choisir un autre."]
 ]) {
-  for (const max of [1, 2]) {
+  for (const max of [2]) {
     test(`mark cap refuses pointer and keyboard additions, announces once and clears on removal (${lang}, ${max})`, async ({ page }) => {
       await open(page); await mount(page, { ...content, maxMarks: max }, lang);
       await page.evaluate(() => { window.lpWrites = []; window.lpInstances[0].destroy(); });
@@ -274,7 +274,7 @@ for (const [lang, content, singular, plural] of [
       await expect(page.locator('[data-lp-count]')).toHaveText(lang === 'en' ? `${max} of ${max} marked` : `Passages marqués : ${max} sur ${max}`);
       const writes = await page.evaluate(() => window.lpWrites.length);
       await chunk(page, 'ignored').click(); await chunk(page, 'ignored').focus();
-      const message = max === 1 ? singular : plural;
+      const message = plural;
       await expect(page.locator('[data-lp-limit]')).toHaveText(message);
       await expect(chunk(page, 'ignored')).toBeFocused();
       await page.keyboard.press('Space'); await page.keyboard.press('Enter');
@@ -293,13 +293,35 @@ for (const [lang, content, singular, plural] of [
   }
 }
 
+for (const [lang, content] of [['en', english], ['fr', french]]) {
+  test(`one allowed mark moves to the next chunk chosen by pointer or keyboard, without a limit message (${lang})`, async ({ page }) => {
+    await open(page); await mount(page, content, lang); await observeStatus(page);
+    await chunk(page, 'withdraw').click();
+    await chunk(page, 'ignored').click();
+    await expect(page.locator('[data-lp-chunk][aria-pressed="true"]')).toHaveCount(1);
+    await expect(chunk(page, 'ignored')).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('[data-lp-limit]')).toBeHidden();
+    expect(await page.evaluate(() => window.lpSaved)).toEqual({ marked: ['ignored'], shown: false });
+    await chunk(page, 'actions').focus(); await page.keyboard.press('Space');
+    await expect(chunk(page, 'actions')).toHaveAttribute('aria-pressed', 'true');
+    await expect(chunk(page, 'ignored')).toHaveAttribute('aria-pressed', 'false');
+    await expect(page.locator('[data-lp-count]')).toHaveText(lang === 'en' ? '1 of 1 marked' : 'Passages marqués : 1 sur 1');
+    expect(await page.evaluate(() => window.lpSaved)).toEqual({ marked: ['actions'], shown: false });
+    // Choosing the marked chunk again still removes the mark.
+    await page.keyboard.press('Enter');
+    await expect(page.locator('[data-lp-chunk][aria-pressed="true"]')).toHaveCount(0);
+    expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
+  });
+}
+
 test('mode defaults enforce target count for evidence and target count plus one for key ideas', async ({ page }) => {
   for (const [content, max] of [[english, 1], [englishKey, 5]]) {
     await open(page); await mount(page, content);
     const all = page.locator('[data-lp-chunk]');
     for (let i = 0; i <= max; i++) await all.nth(i).click();
     await expect(page.locator('[data-lp-chunk][aria-pressed="true"]')).toHaveCount(max);
-    await expect(all.nth(max)).toHaveAttribute('aria-pressed', 'false');
+    // One allowed mark moves to the last chunk chosen; several stop at the limit.
+    await expect(all.nth(max)).toHaveAttribute('aria-pressed', String(max === 1));
     await expect(page.locator('[data-lp-count]')).toHaveText(`${max} of ${max} marked`);
   }
 });
@@ -314,13 +336,15 @@ test('over-limit saved state is ignored both before and after grading', async ({
 });
 
 test('limit feedback clears on check and destroy, and missing limit markup fails before enhancement', async ({ page }) => {
-  await open(page); await observeStatus(page);
-  await chunk(page, 'withdraw').click(); await chunk(page, 'ignored').click();
+  await open(page); await mount(page, { ...english, maxMarks: 2 }); await observeStatus(page);
+  await chunk(page, 'withdraw').click(); await chunk(page, 'actions').click(); await chunk(page, 'ignored').click();
+  await expect(page.locator('[data-lp-limit]')).toBeVisible();
   await page.locator('[data-lp-check]').click();
   await expect(page.locator('[data-lp-limit]')).toBeHidden();
   await expect(page.locator('[role="status"]')).toHaveText('You found 0 of 1 passages that answer the question.');
   await page.locator('[data-lp-restart]').click();
-  await chunk(page, 'withdraw').click(); await chunk(page, 'ignored').click();
+  await chunk(page, 'withdraw').click(); await chunk(page, 'actions').click(); await chunk(page, 'ignored').click();
+  await expect(page.locator('[data-lp-limit]')).toBeVisible();
   await page.evaluate(() => window.lpInstances[0].destroy());
   await expect(page.locator('[data-lp-limit]')).toBeHidden(); await expect(page.locator('[role="status"]')).toBeEmpty();
   await page.evaluate(() => document.querySelector('[data-lp-limit]').remove());
