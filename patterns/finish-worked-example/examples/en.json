@@ -1,0 +1,60 @@
+{
+  "title": "Check a supplier invoice before you pay it",
+  "context": "You approve supplier invoices. Check each one against its purchase order and delivery record.",
+  "steps": [
+    {
+      "question": "Does the invoice match the order?",
+      "options": ["It matches", "The price is different", "The quantity is different"]
+    },
+    {
+      "question": "Did everything arrive?",
+      "options": ["Everything arrived", "Some items are missing"]
+    },
+    {
+      "question": "What do you do?",
+      "options": [
+        "Pay the full invoice",
+        "Pay only for what arrived",
+        "Hold it and ask the supplier for a corrected invoice"
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "facts": [
+        { "label": "Purchase order", "text": "20 office chairs at $85 each" },
+        { "label": "Invoice", "text": "20 office chairs at $85 each, total $1,700" },
+        { "label": "Delivery record", "text": "20 office chairs received" }
+      ],
+      "steps": [
+        { "answer": 0, "worked": true, "reason": "Same items, quantity and price as the order. If any of them differed, the supplier would have to correct the invoice first." },
+        { "answer": 0, "worked": true, "reason": "The record shows all 20 chairs. If some were missing, you would pay only for what arrived." },
+        { "answer": 0, "worked": true, "reason": "Both checks passed, so you pay the full $1,700." }
+      ]
+    },
+    {
+      "facts": [
+        { "label": "Purchase order", "text": "10 toner cartridges at $40 each" },
+        { "label": "Invoice", "text": "10 toner cartridges at $40 each, total $400" },
+        { "label": "Delivery record", "text": "8 toner cartridges received" }
+      ],
+      "steps": [
+        { "answer": 0, "worked": true, "reason": "Same items, quantity and price as the order." },
+        { "answer": 1, "worked": true, "reason": "Only 8 of the 10 cartridges arrived." },
+        { "answer": 1, "worked": false, "reason": "The invoice matches the order, so you pay $320 for the 8 cartridges that arrived." }
+      ]
+    },
+    {
+      "facts": [
+        { "label": "Purchase order", "text": "12 standing desks at $220 each" },
+        { "label": "Invoice", "text": "12 standing desks at $240 each, total $2,880" },
+        { "label": "Delivery record", "text": "12 standing desks received" }
+      ],
+      "steps": [
+        { "answer": 1, "worked": false, "reason": "The invoice charges $240 a desk. The order says $220." },
+        { "answer": 0, "worked": false, "reason": "The record shows all 12 desks." },
+        { "answer": 2, "worked": false, "reason": "The price is wrong, so the supplier corrects the invoice before you pay anything." }
+      ]
+    }
+  ]
+}
