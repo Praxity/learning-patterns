@@ -134,14 +134,14 @@ export function bindRadioContract(binding) {
   for (const javaScriptEnabled of [true, false]) {
     test.describe(`${binding.name} radio contract, JS ${javaScriptEnabled}`, () => {
       test.use({ javaScriptEnabled, reducedMotion: 'reduce' });
-      for (const state of binding.cases) test(state.name, async ({ page }) => {
-        const subject = await state.load(page, javaScriptEnabled);
-        for (const expectation of radioGroupContract) {
-          await test.step(`${expectation.id}: ${expectation.outcome} (${expectation.sources.join(', ')})`, async () => {
+      for (const state of binding.cases) {
+        for (const expectation of radioGroupContract) test(`${state.name}: ${expectation.id}`, async ({ page }) => {
+          await test.step(`${expectation.outcome} (${expectation.sources.join(', ')})`, async () => {
+            const subject = await state.load(page, javaScriptEnabled);
             await assertRadioExpectation(expectation.id, page, subject);
           });
-        }
-      });
+        });
+      }
     });
   }
 }

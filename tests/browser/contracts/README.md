@@ -34,7 +34,7 @@ expectations apply to operable choices.
 controls and mutations: missing legend, wrong role, missing checked state, trapped
 Tab, inert arrows, inert Space, changing names and removed focus ring. The three
 static mutations also run with JavaScript disabled. Each rejection must match its
-assertion, so a fixture timeout is not accepted as proof of detection.
+assertion, so an unrelated setup exception is not accepted as proof of detection.
 `tests/radio-contract.test.js` checks the contract data with node:test.
 
 ## Assertions replaced
