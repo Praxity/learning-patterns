@@ -33,21 +33,19 @@ Split a short passage into meaningful pieces. Mark the key ideas or evidence for
 
 ## Write this in .prax
 
-Write a title after `::: highlight`, then divide the passage into whole chunks with `::`. Mark the target chunks with `{key}` and add a `note:` for each explanation. The examples below allow two marks. Studio creates the chunk IDs.
+Write a title after `::: highlight`, then divide the passage into whole chunks with `::`. Mark the target chunks with `{key}` and add a `note:` for each explanation. The examples below allow two marks. Studio creates the chunk IDs. The optional `name` identifies the activity as a target for authored rules; it does not save the marks.
 
 Studio supports key and evidence modes. Marks and results stay in page memory, reset on reload and send no score or practice record to the LMS. Author the passage in `.prax` source; the canvas's Read view runs the activity and its Edit view shows the passage without text-edit controls.
 
-Studio's current single-mark interaction differs from this page's demo: with `maxMarks=1`, the learner must unmark a chunk before choosing another. Selecting a new chunk does not move the mark automatically.
+Studio's current single-mark interaction differs from this library's pattern: with `maxMarks=1`, the learner must unmark a chunk before choosing another. Selecting a new chunk does not move the mark automatically.
 
 Use browser Print or Save as PDF for this activity. Studio's native PDF export and block narration are not supported.
 
-English ([Studio source example](https://github.com/Praxity/studio/blob/389ba9a12a5644f60fac8a750fefa4cac0a6974b/docs/prax-format/examples/highlight/en.prax)):
+English excerpt ([Studio source example](https://github.com/Praxity/studio/blob/389ba9a12a5644f60fac8a750fefa4cac0a6974b/docs/prax-format/examples/highlight/en.prax)):
 
 ```prax
 ---
 lang: en
-variables:
-  publicFlag: false
 ---
 # Reading practice
 ::: highlight A useful pause {mode=key maxMarks=2 name=keyPractice}
@@ -63,13 +61,11 @@ note: Colour does not explain the return time.
 :::
 ```
 
-French ([Studio source example](https://github.com/Praxity/studio/blob/389ba9a12a5644f60fac8a750fefa4cac0a6974b/docs/prax-format/examples/highlight/fr.prax)):
+French excerpt ([Studio source example](https://github.com/Praxity/studio/blob/389ba9a12a5644f60fac8a750fefa4cac0a6974b/docs/prax-format/examples/highlight/fr.prax)):
 
 ```prax
 ---
 lang: fr
-variables:
-  publicFlag: false
 ---
 # Lecture et pratique
 ::: highlight Une pause utile {mode=key maxMarks=2 name=keyPracticeFr}
