@@ -1,0 +1,77 @@
+{
+  "title": "Trois questions rapides sur le partage de votre travail",
+  "context": "Chaque semaine, vous envoyez des courriels, des rapports et des fichiers à vos collègues et à vos clients.",
+  "questions": [
+    {
+      "id": "reply-all",
+      "text": "Vous étiez en Cci et vous sélectionnez Répondre à tous. Qui reçoit votre réponse ?",
+      "options": [
+        {
+          "id": "sender",
+          "text": "Seulement la personne qui a envoyé le courriel",
+          "feedback": "Répondre à tous envoie aussi votre réponse à toutes les personnes des champs À et Cc, qui voient alors que vous étiez en Cci.",
+          "rightWhen": "Répondre, sans « à tous », envoie votre réponse seulement à la personne qui a envoyé le courriel."
+        },
+        {
+          "id": "to-cc",
+          "text": "La personne qui a envoyé le courriel et toutes celles des champs À et Cc",
+          "feedback": "Répondre à tous reprend les champs À et Cc. Toutes ces personnes voient donc que vous étiez en Cci."
+        },
+        {
+          "id": "all-bcc",
+          "text": "Tout le monde, y compris les autres destinataires en Cci",
+          "feedback": "Votre logiciel de courriel ne reçoit jamais les autres adresses en Cci et ne peut donc pas leur répondre. Votre réponse va à la personne qui a envoyé le courriel et à toutes celles des champs À et Cc.",
+          "rightWhen": "Répondre à tous envoie bien votre réponse à toutes les adresses visibles dans le courriel."
+        }
+      ],
+      "correct": "to-cc"
+    },
+    {
+      "id": "percent",
+      "text": "Les ventes de votre équipe ont baissé de 50 % en mars, puis augmenté de 50 % en avril. Comment les ventes d’avril se comparent-elles à celles de février ?",
+      "options": [
+        {
+          "id": "same",
+          "text": "Elles sont égales à celles de février",
+          "feedback": "La hausse est de 50 % du total de mars, qui est plus petit. Elle ne récupère donc que la moitié de la baisse. Les ventes d’avril sont 25 % plus basses que celles de février.",
+          "rightWhen": "Une baisse et une hausse s’annulent quand elles représentent le même montant en dollars."
+        },
+        {
+          "id": "higher",
+          "text": "Elles sont 25 % plus élevées que celles de février",
+          "feedback": "Les ventes de mars valaient la moitié de celles de février. En y ajoutant la moitié des ventes de mars, on arrive aux trois quarts de celles de février, soit 25 % de moins."
+        },
+        {
+          "id": "lower",
+          "text": "Elles sont 25 % plus basses que celles de février",
+          "feedback": "Les ventes de mars valaient la moitié de celles de février. En y ajoutant la moitié des ventes de mars, on arrive aux trois quarts de celles de février."
+        }
+      ],
+      "correct": "lower"
+    },
+    {
+      "id": "redact",
+      "text": "Vous dessinez des rectangles noirs sur les numéros de compte d’un client dans un PDF, vous l’enregistrez et vous l’envoyez. Les numéros sont-ils masqués ?",
+      "options": [
+        {
+          "id": "still-there",
+          "text": "Non, le texte sous les rectangles peut encore être copié ou recherché",
+          "feedback": "Un rectangle dessiné se pose sur le texte et le laisse dans le fichier. Un outil de caviardage supprime le texte. Pour vérifier, recherchez ensuite un numéro."
+        },
+        {
+          "id": "covered",
+          "text": "Oui, les rectangles les recouvrent",
+          "feedback": "Un rectangle dessiné se pose sur le texte et le laisse dans le fichier, où n’importe qui peut le copier ou le rechercher. Un outil de caviardage supprime le texte.",
+          "rightWhen": "Les rectangles masquent bien les numéros sur une page imprimée."
+        },
+        {
+          "id": "saved",
+          "text": "Oui, une fois le fichier enregistré",
+          "feedback": "L’enregistrement conserve les rectangles et le texte qu’ils recouvrent. N’importe qui peut donc encore copier ou rechercher les numéros. Un outil de caviardage supprime le texte.",
+          "rightWhen": "L’enregistrement rend bien la modification définitive après l’utilisation d’un outil de caviardage."
+        }
+      ],
+      "correct": "still-there"
+    }
+  ]
+}

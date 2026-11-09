@@ -1,0 +1,77 @@
+{
+  "title": "Three quick questions about sharing work",
+  "context": "You send emails, reports and files to colleagues and clients every week.",
+  "questions": [
+    {
+      "id": "reply-all",
+      "text": "You were on Bcc and select Reply all. Who gets your reply?",
+      "options": [
+        {
+          "id": "sender",
+          "text": "Only the sender",
+          "feedback": "Reply all also goes to everyone on To and Cc, who then see that you were on Bcc.",
+          "rightWhen": "Reply, without \"all\", goes only to the sender."
+        },
+        {
+          "id": "to-cc",
+          "text": "The sender and everyone on To and Cc",
+          "feedback": "Reply all copies the To and Cc lists, so everyone there sees that you were on Bcc."
+        },
+        {
+          "id": "all-bcc",
+          "text": "Everyone, including the other Bcc recipients",
+          "feedback": "Your email program never receives the other Bcc addresses, so it can't reply to them. Your reply goes to the sender and everyone on To and Cc.",
+          "rightWhen": "Reply all does reach every address you can see on the email."
+        }
+      ],
+      "correct": "to-cc"
+    },
+    {
+      "id": "percent",
+      "text": "Your team's sales fell 50% in March, then rose 50% in April. How do April's sales compare with February's?",
+      "options": [
+        {
+          "id": "same",
+          "text": "The same as February",
+          "feedback": "The rise is 50% of March's smaller total, so it wins back only half of the fall. April is 25% lower than February.",
+          "rightWhen": "A fall and a rise cancel out when they are the same amount in dollars."
+        },
+        {
+          "id": "higher",
+          "text": "25% higher than February",
+          "feedback": "March was half of February. Adding half of March brings April to three quarters of February, which is 25% lower."
+        },
+        {
+          "id": "lower",
+          "text": "25% lower than February",
+          "feedback": "March was half of February. Adding half of March brings April to three quarters of February."
+        }
+      ],
+      "correct": "lower"
+    },
+    {
+      "id": "redact",
+      "text": "You draw black boxes over a client's account numbers in a PDF, save it and send it. Are the numbers hidden?",
+      "options": [
+        {
+          "id": "still-there",
+          "text": "No, the text under the boxes can still be copied or searched",
+          "feedback": "A drawn box sits on top of the text and leaves it in the file. A redaction tool deletes the text. Search for a number afterwards to check."
+        },
+        {
+          "id": "covered",
+          "text": "Yes, the boxes cover them",
+          "feedback": "A drawn box sits on top of the text and leaves it in the file, where anyone can copy or search for it. A redaction tool deletes the text.",
+          "rightWhen": "Boxes do hide the numbers on a printed page."
+        },
+        {
+          "id": "saved",
+          "text": "Yes, once the file is saved",
+          "feedback": "Saving keeps both the boxes and the text under them, so anyone can still copy or search for the numbers. A redaction tool deletes the text.",
+          "rightWhen": "Saving does make the change permanent after you use a redaction tool."
+        }
+      ],
+      "correct": "still-there"
+    }
+  ]
+}
