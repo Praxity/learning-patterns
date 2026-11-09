@@ -124,6 +124,11 @@ for (const [lang, example] of [['en', content], ['fr', french]]) {
     const markup = render(example, strings[lang], { id: 'quiz', lang });
     assert.match(markup, new RegExp(`<section class="lp lp-answer-with-confidence" data-lp-pattern="answer-with-confidence" lang="${lang}">`));
     assert.equal(count(markup, /<input type="radio"/g), 9);
+    // Each option reserves the same hidden room for a mark, whichever option is correct.
+    const spaces = markup.match(/<span class="lp-answer-with-confidence-mark-space" aria-hidden="true">.*?<\/span><\/span><\/label>/g);
+    assert.equal(spaces.length, 9);
+    assert.equal(new Set(spaces).size, 1);
+    for (const word of [strings[lang].markCorrect, strings[lang].markWrong, strings[lang].markAnswer]) assert.ok(spaces[0].includes(`<span>${word}</span>`));
     assert.doesNotMatch(markup, /value="dont-know"|data-lp-dont-know|data-lp-feedback="dont-know"/);
     assert.equal(count(markup, /<button class="lp-button lp-answer-with-confidence-segment"/g), 6);
     assert.equal(count(markup, /role="group" aria-label="/g), 3);
@@ -146,7 +151,7 @@ test('each option has one feedback box; only wrong options with an authored line
   const markup = render(content, strings.en, { id: 'quiz', lang: 'en' });
   assert.equal(count(markup, /data-lp-feedback="/g), 9);
   assert.equal(count(markup, /data-lp-right-when/g), 5);
-  assert.equal(count(markup, /data-lp-result="right"/g), 3);
+  assert.equal(count(markup, /data-lp-outcome="right"/g), 3);
   // Wrong answers name the correct option for screen readers; the row mark shows it to everyone else.
   assert.equal(count(markup, /<p class="lp-visually-hidden">Correct answer: /g), 6);
   for (const key of ['verdictSureRight', 'verdictUnsureRight', 'verdictSureWrong', 'verdictUnsureWrong']) assert.ok(markup.includes(`>${strings.en[key]}<`), key);
@@ -157,7 +162,7 @@ test('"Don\'t know" is a third segment, never an option row', () => {
   assert.equal(count(markup, /<input type="radio"/g), 9);
   assert.doesNotMatch(markup, /value="dont-know"/);
   assert.equal(count(markup, /data-lp-dont-know>Don&#39;t know</g), 3);
-  assert.equal(count(markup, /data-lp-feedback="dont-know" data-lp-result="unknown"/g), 3);
+  assert.equal(count(markup, /data-lp-feedback="dont-know" data-lp-outcome="unknown"/g), 3);
   assert.ok(markup.includes(strings.en.chooseOrDontKnow.replaceAll('"', '&quot;').replaceAll("'", '&#39;')));
 });
 

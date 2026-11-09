@@ -1,3 +1,4 @@
+import { renderChoiceMark } from '../../lib/choice-mark.js';
 import { escapeHtml as html } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
 import { DONT_KNOW, SURE, UNSURE, format, validateContent } from './logic.js';
@@ -10,13 +11,16 @@ export function render(content, strings, { id, lang }) {
   validateContent(content);
   const h = (/** @type {string} */ text) => html(text, lang);
   const many = content.questions.length > 1;
+  // Every option row keeps room for the widest mark, so a mark never rewraps the option text. All rows
+  // reserve the same width, which gives nothing away about the answer.
+  const markSpace = `<span class="lp-answer-with-confidence-mark-space" aria-hidden="true">${renderChoiceMark('correct', strings.markCorrect, lang)}${renderChoiceMark('wrong', strings.markWrong, lang)}${renderChoiceMark('missed', strings.markAnswer, lang)}</span>`;
   /** One feedback box per possible answer. They share one grid cell with the submit control, so the
    * cell is already as tall as the tallest of them and showing one moves nothing.
    * @param {string} answer @param {'right' | 'wrong' | 'unknown'} result
    * @param {[string, string][]} verdicts @param {import('./logic.js').Option} shown
    * @param {import('./logic.js').Option} correct
    */
-  const box = (answer, result, verdicts, shown, correct) => `<div class="lp-outcome lp-answer-with-confidence-feedback" data-lp-feedback="${html(answer)}" data-lp-result="${result}" tabindex="-1">
+  const box = (answer, result, verdicts, shown, correct) => `<div class="lp-outcome lp-answer-with-confidence-feedback" data-lp-feedback="${html(answer)}" data-lp-outcome="${result}" tabindex="-1">
         ${icons[result === 'right' ? 'check' : result === 'wrong' ? 'x' : 'question-mark']}
         <p class="lp-outcome-word lp-answer-with-confidence-verdict ${result === 'right' ? 'lp-met' : result === 'wrong' ? 'lp-missed' : 'lp-neutral'}">${verdicts.map(([certainty, text]) => `<span data-lp-verdict="${certainty}">${h(text)}</span>`).join('')}</p>
         ${result === 'right' ? '' : `<p class="lp-visually-hidden">${h(format(strings.correctAnswer, { option: correct.text }))}</p>`}
@@ -36,7 +40,7 @@ export function render(content, strings, { id, lang }) {
     return `<div class="lp-section" data-lp-question="${html(q.id)}">
     <fieldset class="lp-choices" id="${html(base)}" tabindex="-1">
       <legend class="lp-stem">${many ? `<span class="lp-small lp-answer-with-confidence-question-number">${h(format(strings.questionNumber, { number: n + 1, total: content.questions.length }))}</span><span class="lp-visually-hidden">, </span>` : ''}${h(q.text)}</legend>
-      ${q.options.map((o, index) => `<label class="lp-choice" for="${html(`${base}-option-${index}`)}"><input type="radio" id="${html(`${base}-option-${index}`)}" name="${html(base)}" value="${html(o.id)}"><span>${h(o.text)}</span></label>`).join('\n      ')}
+      ${q.options.map((o, index) => `<label class="lp-choice" for="${html(`${base}-option-${index}`)}"><input type="radio" id="${html(`${base}-option-${index}`)}" name="${html(base)}" value="${html(o.id)}"><span>${h(o.text)}</span>${markSpace}</label>`).join('\n      ')}
     </fieldset>
     <div class="lp-answer-with-confidence-stage" data-lp-stage hidden>
       <div class="lp-answer-with-confidence-submit" role="group" aria-label="${h(many ? format(strings.submitGroupTo, { number: n + 1 }) : strings.submitGroup)}" data-lp-submit>

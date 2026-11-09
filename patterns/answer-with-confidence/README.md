@@ -118,7 +118,7 @@ document.querySelector('main').innerHTML = render(content, strings.en, { id: 'pr
 const instance = enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en });
 ```
 
-The submit control and every possible feedback for a question share one grid cell, so the space is as tall as the tallest of them from the start and showing feedback moves nothing below it. In containers narrower than 34rem the shared answer marks sit under the option text, so the two marked options each grow by a line.
+The submit control and every possible feedback for a question share one grid cell, so the space is as tall as the tallest of them from the start and showing feedback moves nothing below it. Each option also keeps room beside its text for the widest answer mark, so a mark never rewraps an option. In containers narrower than 34rem the shared answer marks sit under the option text instead, so the two marked options each grow by a line.
 
 ### Accessibility details
 

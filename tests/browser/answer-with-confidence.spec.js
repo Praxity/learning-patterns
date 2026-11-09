@@ -50,7 +50,8 @@ async function finish(root) {
   await answer(root, 1, 'lower', 'unsure');
   await answer(root, 2, 'still-there', 'sure');
 }
-const boxes = (page, selector) => page.locator(selector).evaluateAll(els => els.map(el => { const r = el.getBoundingClientRect(); return [Math.round(r.top + scrollY), Math.round(r.height)]; }));
+const boxes = (page, selector) => page.locator(selector).evaluateAll(els => els.map(el => { const r = el.getBoundingClientRect(); return [r.top + scrollY, r.height]; }));
+const near = (actual, expected, label) => actual.forEach((value, i) => expect(Math.abs(value - expected[i]), `${label}: ${value} vs ${expected[i]}`).toBeLessThan(0.5));
 
 for (const [lang, content] of [['en', english], ['fr', french]]) {
   const s = strings[lang], t = value => frenchTypography(value, lang);
@@ -132,7 +133,7 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     await expect(second.locator('fieldset')).toBeFocused();
     await result.locator('[data-lp-restart]').focus(); await page.keyboard.press('Enter');
     await expect(first.locator('input').first()).toBeFocused();
-    await expect(page.locator('input:disabled, input:checked, [data-lp-mark], .lp-choice-mark, [data-lp-feedback]:visible, [data-lp-review] ul')).toHaveCount(0);
+    await expect(page.locator('input:disabled, input:checked, [data-lp-mark], .lp-choice > .lp-choice-mark, [data-lp-feedback]:visible, [data-lp-review] ul')).toHaveCount(0);
     await expect(page.locator('[data-lp-submit]:visible')).toHaveCount(3);
     await expect(result).toBeHidden();
     expect(await page.evaluate(() => window.lpSaved)).toEqual({ answers: {} });
@@ -247,12 +248,12 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
         await expect(question(page, 0).locator('[data-lp-feedback]:visible')).toHaveCount(1);
         const after = await boxes(page, '[data-lp-stage]');
         // The box keeps its height at every width.
-        expect(after.map(([, height]) => height), `${option} ${how}`).toEqual(before.map(([, height]) => height));
-        // Wider than 34rem the marks sit beside the option text, so nothing on the page moves at all.
+        near(after.map(([, height]) => height), before.map(([, height]) => height), `${option} ${how} height`);
+        // Wider than 34rem each option keeps room for its mark, so nothing on the page moves at all.
         // Narrower, the shared marks drop under the text and only those rows grow.
         const grown = await rowHeights() - rowsBefore;
-        if (width >= 1280) expect(grown, `${option} ${how}`).toBe(0);
-        expect(after.map(([top]) => top), `${option} ${how}`).toEqual(before.map(([top]) => top + grown));
+        if (width >= 1280) expect(Math.abs(grown), `${option} ${how}`).toBeLessThan(0.5);
+        near(after.map(([top]) => top), before.map(([top]) => top + grown), `${option} ${how} top`);
         // Fresh question for the next case.
         await answer(page, 1, 'lower', 'sure'); await answer(page, 2, 'still-there', 'sure');
         await page.locator('[data-lp-restart]').click();
@@ -261,7 +262,7 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
       const before = await boxes(page, '[data-lp-stage]');
       await answer(page, 0, null, 'sure');
       await expect(question(page, 0).locator('[data-lp-question-error]')).toBeVisible();
-      if (width >= 390 && !spacing) expect(await boxes(page, '[data-lp-stage]')).toEqual(before);
+      if (width >= 390 && !spacing) near((await boxes(page, '[data-lp-stage]')).flat(), before.flat(), 'error');
     });
   }
 }
@@ -338,7 +339,7 @@ test('saved answers restore silently without certainty; the rest of the set stil
   await expect(question(page, 1).locator('[data-lp-verdict]:visible')).toHaveText([s.verdictRight]);
   await expect(page.locator('input:disabled')).toHaveCount(6);
   await expect(page.locator('input:checked')).toHaveCount(2);
-  await expect(page.locator('.lp-choice-mark')).toHaveCount(3);
+  await expect(page.locator('.lp-choice > .lp-choice-mark')).toHaveCount(3);
   await expect(page.locator('[data-lp-submit]:visible')).toHaveCount(1);
   await expect(page.locator('[data-lp-result]')).toBeHidden();
   await answer(page, 2, 'covered', 'sure');
@@ -454,7 +455,7 @@ test('forced colours keep the segments, the feedback box and focus rings visible
   await page.keyboard.press('Enter');
   const box = question(page, 0).locator('[data-lp-feedback="sender"]');
   await expect(box).toBeFocused();
-  await expect(box).toHaveCSS('border-top-width', '1px');
+  await expect(question(page, 0).locator('[data-lp-stage]')).toHaveCSS('border-top-width', '1px');
   await expect(box).toHaveCSS('outline-width', '3px');
   await expect(question(page, 0).locator('[data-lp-mark]').first()).toHaveCSS('border-style', 'double');
   await answer(page, 1, 'lower', 'sure'); await answer(page, 2, 'still-there', 'sure');
