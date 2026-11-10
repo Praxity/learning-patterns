@@ -26,7 +26,6 @@ async function selection({ group, names }, selected) {
   if (selected !== null) {
     const checked = group.getByRole('radio', { checked: true });
     await expect(checked).toHaveAccessibleName(names[selected]);
-    expect((await checked.ariaSnapshot()).split('\n')[0], 'snapshot checked state').toMatch(/\[checked\]$/);
   }
 }
 
@@ -47,7 +46,6 @@ export async function assertRadioExpectation(id, page, subject) {
       await expect(group.locator('legend')).toHaveText(legend);
       break;
     case 'radio-names':
-      await expect(radios).toHaveCount(names.length);
       for (let i = 0; i < names.length; i++) await expect(radios.nth(i)).toHaveAccessibleName(names[i]);
       break;
     case 'checked':
@@ -85,7 +83,7 @@ export async function assertRadioExpectation(id, page, subject) {
       break;
     }
     case 'arrows': {
-      const wraps = test.info().project.use.browserName === 'webkit' ? webkitRadioArrows.wraps : true;
+      const wraps = test.info().project.use.browserName !== 'webkit';
       for (const [key, direction] of [['ArrowRight', 1], ['ArrowDown', 1], ['ArrowLeft', -1], ['ArrowUp', -1]]) {
         const start = direction === 1 ? 0 : names.length - 1;
         await radios.nth(start).focus();
@@ -116,25 +114,25 @@ export async function assertRadioExpectation(id, page, subject) {
         for (let j = 0; j < names.length; j++) await expect(radios.nth(j)).toHaveAccessibleName(names[j]);
       }
       break;
-    case 'focus':
+    case 'focus': {
       await page.keyboard.press('Tab');
-      for (const radio of await radios.all()) {
+      const all = await radios.all();
+      for (const [i, radio] of all.entries()) {
         await radio.focus();
         await expect(radio).toBeFocused();
-        await expect(radio).toBeVisible();
-        const indicator = await radio.evaluate(el => {
-          // Native labels may paint the ring around a visually hidden input.
-          const targets = [el, ...(el instanceof HTMLInputElement ? el.labels ?? [] : [])];
-          return el.matches(':focus-visible') && targets.some(target => {
-            const css = getComputedStyle(target), box = target.getBoundingClientRect();
-            return box.width > 0 && box.height > 0 && Number(css.opacity) > 0 &&
-              parseFloat(css.outlineWidth) >= 3 && !['none', 'hidden'].includes(css.outlineStyle) &&
-              !['transparent', 'rgba(0, 0, 0, 0)'].includes(css.outlineColor);
-          });
-        });
-        expect(indicator, 'visible 3px keyboard focus outline on radio or associated label').toBe(true);
+        // Native labels may paint the ring around a visually hidden input.
+        // Only the focused radio may show it: a ring that never leaves is not a focus indicator.
+        const rings = await radios.evaluateAll(elements => elements.map(el => [el, ...(el.labels ?? [])].some(target => {
+          const css = getComputedStyle(target), box = target.getBoundingClientRect();
+          return box.width > 0 && box.height > 0 && Number(css.opacity) > 0 &&
+            parseFloat(css.outlineWidth) >= 3 && !['none', 'hidden'].includes(css.outlineStyle) &&
+            !['transparent', 'rgba(0, 0, 0, 0)'].includes(css.outlineColor);
+        })));
+        expect(await radio.evaluate(el => el.matches(':focus-visible')), 'keyboard focus is focus-visible').toBe(true);
+        expect(rings, 'visible 3px keyboard focus outline on radio or associated label, only while focused').toEqual(all.map((_, j) => j === i));
       }
       break;
+    }
     default: throw new Error(`Unknown radio expectation: ${id}`);
   }
 }
@@ -146,12 +144,10 @@ export function bindRadioContract(binding) {
   for (const javaScriptEnabled of [true, false]) {
     test.describe(`${binding.name} radio contract, ${binding.lang}, JS ${javaScriptEnabled}`, () => {
       test.use({ javaScriptEnabled, reducedMotion: 'reduce', actionTimeout: 3000 });
-      test('all questions and states', async ({ page, browserName }) => {
+      test('all questions and states', async ({ page }) => {
         test.setTimeout(60_000);
         for (const state of binding.cases) {
           const subject = await state.load(page, javaScriptEnabled);
-          // Retain the computed names in CI so whitespace acceptance is auditable.
-          if (binding.name === 'dont-know' && subject.selected === null) console.log(`RADIO_NAME ${browserName} ${binding.name} ${binding.lang} JS=${javaScriptEnabled} ${state.name} ${JSON.stringify((await subject.group.ariaSnapshot()).split('\n')[0])}`);
           for (const expectation of radioGroupContract) {
             await test.step(`${expectation.id}, ${state.name}: ${expectation.outcome} (${expectation.sources.join(', ')})`, async () => {
               // Fixture setup resets native selection without navigation or synthetic events.

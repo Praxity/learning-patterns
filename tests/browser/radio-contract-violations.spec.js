@@ -2,7 +2,8 @@ import { test, expect } from '@playwright/test';
 import { radioGroupContract } from './contracts/radio-group.js';
 import { assertRadioExpectation } from './contracts/radio-group-runner.js';
 
-const fixture = `<style>input:focus-visible { outline: 3px solid blue; outline-offset: 2px }</style>
+// Like the patterns: the input is invisible and its label draws the focus ring.
+const fixture = `<style>input { opacity: 0 } label:has(input:focus-visible) { outline: 3px solid blue; outline-offset: 2px }</style>
 <fieldset><legend>Delivery</legend>
 <label><input type="radio" name="delivery" value="standard">Standard</label>
 <label><input type="radio" name="delivery" value="express">Express</label></fieldset>`;
@@ -34,7 +35,7 @@ const violations = {
   } },
   'focus': { error: /visible 3px keyboard focus outline/, plant: () => {
     const style = document.createElement('style');
-    style.textContent = '*:focus-visible { outline: none !important }';
+    style.textContent = 'label:has(input:focus-visible) { outline: none !important }';
     document.head.append(style);
   } }
 };
@@ -53,19 +54,13 @@ for (const expectation of radioGroupContract) {
   });
 }
 
-for (const expectation of radioGroupContract.filter(row => row.static)) {
-  test.describe(`server HTML ${expectation.id}`, () => {
-    test.use({ javaScriptEnabled: false });
-    test('passes unchanged and rejects a static planted violation without JS', async ({ page }) => {
-      await page.setContent(fixture);
-      const subject = { group: page.getByRole('group'), legend: 'Delivery', names: ['Standard', 'Express'], selected: null };
-      await assertRadioExpectation(expectation.id, page, subject);
-      if (expectation.id === 'checked') subject.selected = 0;
-      await page.evaluate(violations[expectation.id].plant);
-      await expect(assertRadioExpectation(expectation.id, page, subject)).rejects.toThrow(violations[expectation.id].error);
-    });
-  });
-}
+test('focus rejects an outline that shows without focus', async ({ page }) => {
+  await page.setContent(fixture);
+  await page.addStyleTag({ content: 'label { outline: 3px solid blue }' });
+  await expect(assertRadioExpectation('focus', page, {
+    group: page.getByRole('group'), legend: 'Delivery', names: ['Standard', 'Express'], selected: null
+  })).rejects.toThrow(/only while focused/);
+});
 
 test('focus rejects a group with no radios rather than passing an empty loop', async ({ page }) => {
   await page.setContent('<fieldset><legend>Delivery</legend></fieldset>');

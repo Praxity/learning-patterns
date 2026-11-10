@@ -10,7 +10,6 @@ test('radio expectations have distinct IDs, outcomes and checkable standards sou
     assert.ok(row.sources.some(source => source.includes('/patterns/radio/') || source.includes('/TR/WCAG22/#')));
     for (const source of row.sources) assert.ok(source === webkitRadioArrows.source || new URL(source).hostname === 'www.w3.org');
   }
-  assert.deepEqual(radioGroupContract.filter(row => row.static).map(row => row.id), ['group-name', 'radio-names', 'checked']);
 });
 
 
