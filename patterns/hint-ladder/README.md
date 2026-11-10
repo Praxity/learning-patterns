@@ -147,6 +147,7 @@ const instance = enhance(document.querySelector('[data-lp-pattern="hint-ladder"]
 
 - ["I don't know" as an answer](../dont-know/README.md) asks several questions about separate facts, takes one answer for each and scores them. This pattern stays on one rule, lets the learner try again with help, and scores nothing.
 - [Check your own answer](../self-check/README.md) gives a hint for each part a written answer missed, all at once and after the learner has marked their own work. This pattern gives hints one at a time, before the answer.
+- [Finish a worked example](../finish-worked-example/README.md) shows the procedure first and hands over its steps case by case. This pattern gives help on request, during the practice that follows.
 - [Questions inside the reading](../review-prompts/README.md) and [Printable retrieval sheet](../retrieval-sheet/README.md) check the same skill later, without help.
 
 ## Help improve this pattern
