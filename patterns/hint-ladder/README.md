@@ -20,7 +20,7 @@ Answer a question, opening hints one at a time if you need them. The worked answ
 ## Avoid it when
 
 - When questions test separate facts, a hint can only be the answer. Use ["I don't know" as an answer](../dont-know/README.md), which takes one answer per question and lets learners say they don't know.
-- When learners have not yet seen the procedure, show it first. The pattern "Finish a worked example" gives worked steps up front and removes them case by case. This pattern suits the practice that follows, where help is there on request.
+- When learners have not yet seen the procedure, show it first. [Finish a worked example](../finish-worked-example/README.md) gives worked steps up front and removes them case by case. This pattern suits the practice that follows, where help is there on request.
 - When each wrong option's reason is all the help you can write, a question that lets learners choose again until they are right is enough. This pattern is worth its extra writing when you have hints that lead toward the answer and a second case to check it.
 
 ## Before you use it

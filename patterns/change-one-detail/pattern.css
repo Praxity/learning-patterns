@@ -1,0 +1,14 @@
+/* Change-one-detail specifics. Link lib/base.css first for shared styles and tokens. */
+.lp-change-one-detail { --lp-change-one-detail-mark: #ffe49a; }
+/* The changed detail in place: the old wording struck through, the new wording under a paper
+   highlighter. Weight and the strike carry the change without colour. */
+.lp-change-one-detail-case del { color: var(--lp-ink-2); text-decoration: line-through; }
+.lp-change-one-detail-case ins { padding: 1px 3px; border-radius: 3px; color: var(--lp-ink); background: var(--lp-change-one-detail-mark); font-weight: 600; text-decoration: none; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+/* The reason belongs to the rows above it, so it sits closer to them than to the next round. */
+.lp-change-one-detail-feedback { margin-block-start: 4px; }
+
+@media (forced-colors: active) {
+  .lp-change-one-detail-case ins { background: none; text-decoration: underline 2px; text-underline-offset: 3px; }
+  /* Underlining keeps the quiet reset distinct when system colours replace button fills. */
+  .lp-change-one-detail .lp-button-quiet { text-decoration: underline; text-underline-offset: 3px; }
+}

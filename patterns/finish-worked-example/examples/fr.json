@@ -1,0 +1,60 @@
+{
+  "title": "Vérifier la facture d’un fournisseur avant de la payer",
+  "context": "Vous approuvez les factures des fournisseurs. Comparez chaque facture avec son bon de commande et son bon de réception.",
+  "steps": [
+    {
+      "question": "La facture correspond-elle au bon de commande ?",
+      "options": ["Elle correspond", "Le prix est différent", "La quantité est différente"]
+    },
+    {
+      "question": "Tout est-il arrivé ?",
+      "options": ["Tout est arrivé", "Il manque des articles"]
+    },
+    {
+      "question": "Que faites-vous ?",
+      "options": [
+        "Payer la facture au complet",
+        "Payer seulement ce qui est arrivé",
+        "Retenir la facture et demander au fournisseur de la corriger"
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "facts": [
+        { "label": "Bon de commande", "text": "20 chaises de bureau à 85 $ chacune" },
+        { "label": "Facture", "text": "20 chaises de bureau à 85 $ chacune, total 1 700 $" },
+        { "label": "Bon de réception", "text": "20 chaises de bureau reçues" }
+      ],
+      "steps": [
+        { "answer": 0, "worked": true, "reason": "Mêmes articles, même quantité et même prix que sur le bon de commande. Votre entreprise retient une facture seulement si elle diffère du bon de commande." },
+        { "answer": 0, "worked": true, "reason": "Le bon de réception indique les 20 chaises. S’il manque des articles et que la facture correspond au bon de commande, votre entreprise paie ce qui est arrivé." },
+        { "answer": 0, "worked": true, "reason": "Les deux vérifications sont réussies, donc vous payez les 1 700 $ au complet." }
+      ]
+    },
+    {
+      "facts": [
+        { "label": "Bon de commande", "text": "10 cartouches de toner à 40 $ chacune" },
+        { "label": "Facture", "text": "10 cartouches de toner à 40 $ chacune, total 400 $" },
+        { "label": "Bon de réception", "text": "8 cartouches de toner reçues" }
+      ],
+      "steps": [
+        { "answer": 0, "worked": true, "reason": "Mêmes articles, même quantité et même prix que sur le bon de commande." },
+        { "answer": 1, "worked": true, "reason": "Seulement 8 des 10 cartouches sont arrivées." },
+        { "answer": 1, "worked": false, "reason": "La facture correspond au bon de commande, donc vous ne la retenez pas. Vous payez 320 $ pour les 8 cartouches arrivées." }
+      ]
+    },
+    {
+      "facts": [
+        { "label": "Bon de commande", "text": "12 bureaux assis-debout à 220 $ chacun" },
+        { "label": "Facture", "text": "12 bureaux assis-debout à 240 $ chacun, total 2 880 $" },
+        { "label": "Bon de réception", "text": "12 bureaux assis-debout reçus" }
+      ],
+      "steps": [
+        { "answer": 1, "worked": false, "reason": "La facture indique 240 $ par bureau. Le bon de commande indique 220 $." },
+        { "answer": 0, "worked": false, "reason": "Le bon de réception indique les 12 bureaux." },
+        { "answer": 2, "worked": false, "reason": "La facture diffère du bon de commande, donc vous la retenez jusqu’à ce que le fournisseur la corrige." }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+/* Finish-worked-example specifics. Link lib/base.css first for shared styles and tokens. */
+/* The case heading carries its own second line: how many of the steps are the learner's. */
+.lp-finish-worked-example-share { display: block; margin-block-start: var(--lp-gap-hint); font-family: var(--lp-font-body); font-weight: 400; letter-spacing: 0; }
+/* The case's facts are labelled lines with no panel: the card is the only box (AGENTS.md, Look).
+   Labels use the lp-label look, and the steps list below is an lp-section, whose rule sets the two apart. */
+.lp-finish-worked-example-facts { display: grid; gap: 6px; margin: var(--lp-gap-flow) 0 0; }
+.lp-finish-worked-example-facts > div { display: grid; grid-template-columns: 10rem minmax(0, 1fr); gap: 12px; align-items: baseline; }
+.lp-finish-worked-example-facts dt { color: var(--lp-ink-2); font-size: var(--lp-type-small); font-weight: 600; }
+.lp-finish-worked-example-facts dd { margin: 0; }
+.lp-finish-worked-example-steps { display: grid; gap: var(--lp-gap-group); padding-inline: 0; list-style: none; }
+/* The list's grid gap spaces the steps; the flow margin an lp-section gives its children would add to it. */
+.lp-finish-worked-example-step { min-inline-size: 0; margin-block-start: 0; }
+/* Step number, then whose step it is. The learner's steps carry the accent pill, so a glance down the
+   list shows how much of the case is theirs; the words say the same without colour. */
+.lp-finish-worked-example-head { display: flex; flex-wrap: wrap; gap: var(--lp-gap-hint) var(--lp-gap-label); align-items: center; }
+.lp-finish-worked-example-tag { display: inline-flex; gap: 4px; align-items: flex-start; color: var(--lp-ink-2); font-size: var(--lp-type-small); }
+.lp-finish-worked-example-tag[data-lp-yours] { padding: 1px 10px 1px 8px; border: 1px solid transparent; border-radius: calc(.5lh + 2px); color: var(--lp-accent-ink); background: var(--lp-accent-soft); font-weight: 600; }
+/* A step question is a sentence, so it wraps like body text; balancing broke French questions at a hyphen. */
+.lp-finish-worked-example-step > .lp-run-in, .lp-finish-worked-example-step legend > .lp-run-in { display: block; margin-block-start: var(--lp-gap-hint); text-wrap: pretty; }
+/* The worked result sits close under its question, as an answer does. */
+.lp-finish-worked-example-step > [data-lp-body] { margin-block-start: var(--lp-gap-label); }
+.lp-finish-worked-example-step legend { inline-size: 100%; }
+.lp-finish-worked-example-answer { font-weight: 600; }
+.lp-finish-worked-example-answer + p { margin-block-start: var(--lp-gap-hint); }
+.lp-finish-worked-example-step > [data-lp-feedback] { margin-block-start: var(--lp-gap-stem); }
+.lp-finish-worked-example-step > .lp-actions { margin-block-start: var(--lp-gap-flow); }
+.lp-finish-worked-example .lp-choice-mark { white-space: normal; }
+.lp-finish-worked-example-case > .lp-details, .lp-finish-worked-example-case > [data-lp-result] { margin-block-start: var(--lp-gap-group); }
+.lp-finish-worked-example-fallback-list { display: grid; gap: var(--lp-gap-flow); padding-inline-start: 24px; }
+.lp-finish-worked-example-fallback-list li > * + * { margin-block-start: var(--lp-gap-hint); }
+/* A case change is a view change, so it eases in and out (AGENTS.md, Motion). */
+.lp-finish-worked-example-enter { animation: lp-finish-worked-example-slide 240ms cubic-bezier(.65, 0, .35, 1); }
+@keyframes lp-finish-worked-example-slide { from { opacity: 0; transform: translateX(var(--lp-finish-worked-example-enter-x, 16px)); } }
+@container (max-width: 30rem) {
+  .lp-finish-worked-example-facts > div { grid-template-columns: minmax(0, 1fr); gap: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lp-finish-worked-example-enter { animation: none; }
+}
+@media (forced-colors: active) {
+  /* The pill's transparent border takes a system colour here, so it keeps an edge. */
+  .lp-finish-worked-example .lp-button-quiet { text-decoration: underline; text-underline-offset: 3px; }
+}

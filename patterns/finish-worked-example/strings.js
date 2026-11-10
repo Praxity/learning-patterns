@@ -1,0 +1,47 @@
+export const strings = {
+  en: {
+    case: 'Case {number} of {total}',
+    shareNone: 'All {total} steps are done for you. Read the reason for each one.',
+    shareSome: 'You do {count} of the {total} steps.',
+    shareAll: 'You do all {total} steps.',
+    step: 'Step {number}',
+    tagWorked: 'Done for you',
+    tagYours: 'Your step',
+    check: 'Check step {number}',
+    choose: 'Choose an answer for this step.',
+    feedbackCorrect: 'Correct.',
+    feedbackWrong: 'Incorrect. Correct answer: {answer}.',
+    next: 'Next case',
+    back: 'Previous case',
+    restart: 'Start over',
+    result: 'You got {right} of your {total} steps right.',
+    answers: 'Answers for case {number}',
+    answerStep: 'Step {number}: {answer}',
+    markCorrect: 'Correct',
+    markWrong: 'Incorrect',
+    markAnswer: 'Correct answer'
+  },
+  fr: {
+    case: 'Cas {number} sur {total}',
+    shareNone: 'Les {total} étapes sont faites pour vous. Lisez la raison de chacune.',
+    shareSome: 'Vous faites {count} des {total} étapes.',
+    shareAll: 'Vous faites les {total} étapes.',
+    step: 'Étape {number}',
+    tagWorked: 'Fait pour vous',
+    tagYours: 'Votre étape',
+    check: 'Vérifier l’étape {number}',
+    choose: 'Choisissez une réponse pour cette étape.',
+    feedbackCorrect: 'Correct.',
+    feedbackWrong: 'Incorrect. Bonne réponse : {answer}.',
+    next: 'Cas suivant',
+    back: 'Cas précédent',
+    restart: 'Recommencer',
+    result: 'Vous avez réussi {right} de vos {total} étapes.',
+    answers: 'Réponses du cas {number}',
+    answerStep: 'Étape {number} : {answer}',
+    markCorrect: 'Correct',
+    markWrong: 'Incorrect',
+    markAnswer: 'Bonne réponse'
+  }
+};
+/** @typedef {typeof strings.en} Strings */
