@@ -41,6 +41,7 @@ With Node 22, run `npm ci` and `npm run demo`, then `node scripts/serve-demo.mjs
 | [Finish a worked example](patterns/finish-worked-example/README.md) | Study one fully worked case, then finish cases that leave more steps to you, until you do the last one alone. |
 | [Build an if-then plan](patterns/if-then-plan/README.md) | Choose a moment and an action to build a one-sentence plan, then add it to your calendar. |
 | [Hint ladder](patterns/hint-ladder/README.md) | Answer a question with hints that open one at a time and a worked answer that waits for a try, then answer a second question without hints. |
+| [Make a mistake and recover](patterns/mistake-recover/README.md) | Approve or hold a request in a practice system, see what an approval costs, take the steps that undo it, then decide a second request with less help. |
 
 ## Look and theme tokens
 

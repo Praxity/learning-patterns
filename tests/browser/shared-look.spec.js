@@ -70,7 +70,7 @@ test('the header guard rejects added subtitles, including beyond the conversatio
   }
 });
 
-for (const name of ['answer-with-confidence', 'change-one-detail', 'dont-know', 'first-answer', 'highlight', 'hint-ladder', 'if-then-plan', 'retrieval-sheet', 'test-out', 'write-distractors']) {
+for (const name of ['answer-with-confidence', 'change-one-detail', 'dont-know', 'first-answer', 'highlight', 'hint-ladder', 'if-then-plan', 'mistake-recover', 'retrieval-sheet', 'test-out', 'write-distractors']) {
   test(`headings inside the pattern keep the body face when the host styles headings (${name})`, async ({ page }) => {
     await open(page, `/${name}/en.html`, true);
     const families = await page.locator('.lp').evaluateAll(roots => roots.flatMap(root => [...root.querySelectorAll('h1, h2, h3, h4, h5, h6, .lp-scene-title, .lp-run-in')].map(el => getComputedStyle(el).fontFamily)));
