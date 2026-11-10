@@ -61,6 +61,18 @@ test('each change names wording that appears exactly once in the case and replac
   assert.throws(() => validateContent(edited(c => { c.changes[0].to = c.changes[0].from; })), /changes\[0\]\.to/);
 });
 
+// The shared limit test cannot lengthen from alone, since it must still appear in the case.
+test('the wording to replace is capped at 120 characters when the case holds it', () => {
+  const long = length => edited(c => {
+    const from = 'x'.repeat(length);
+    c.case = c.case.replace(c.changes[0].from, from);
+    c.changes[0].from = from;
+  });
+  assert.equal(schema.properties.changes.items.properties.from.maxLength, 120);
+  assert.doesNotThrow(() => validateContent(long(120)));
+  assert.throws(() => validateContent(long(121)), /changes\[0\]\.from: maximum 120 characters/);
+});
+
 test('at least one change must move the correct answer', () => {
   assert.throws(() => validateContent(edited(c => { c.changes[0].correct = 'billing'; })), /at least one/);
   assert.doesNotThrow(() => validateContent(edited(c => { c.changes[1].correct = 'ask'; })));
