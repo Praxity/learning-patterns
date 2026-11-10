@@ -30,7 +30,7 @@ export const strings = {
     markVague: 'Trop vague', vagueStatus: 'Trop vague. {reason}',
     planLabel: 'Votre plan',
     dateHint: 'Indiquez une date et une heure. L’entrée de calendrier affichera votre plan {minutes}\u00a0minutes avant.',
-    past: 'Ce moment est passé. Choisissez-en un plus tard.',
+    past: 'Ce moment est déjà passé. Choisissez une date à venir.',
     calendar: 'Ajouter au calendrier',
     downloaded: 'Fichier de calendrier téléchargé. Ouvrez-le pour ajouter votre plan à votre calendrier.',
     fileName: 'plan-si-alors.ics',
