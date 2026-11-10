@@ -1,0 +1,28 @@
+{
+  "title": "Find the shipping deadline",
+  "context": "You answer emails for an online shop that is closed on weekends and public holidays. An order placed after 2 pm counts as received on the next working day, and every order ships by the end of the second working day after it is received.",
+  "question": "A customer ordered at 4 pm on Friday. By the end of which day must the order ship?",
+  "options": [
+    { "id": "monday", "text": "Monday", "feedback": "Monday is the day this order counts as received, not the day it must ship." },
+    { "id": "tuesday", "text": "Tuesday", "feedback": "Tuesday would be right for an order placed before 2 pm on Friday. This one was placed at 4 pm." },
+    { "id": "wednesday", "text": "Wednesday" },
+    { "id": "thursday", "text": "Thursday", "feedback": "Thursday is the third working day after this order counts as received, and the rule allows two." }
+  ],
+  "correct": "wednesday",
+  "hints": [
+    "Start with the day the order counts as received. Was 4 pm before or after the cut-off?",
+    "Work in two steps. First find the day the order counts as received: it was placed after 2 pm, and the shop is closed on Saturday and Sunday. Then count two working days after that day."
+  ],
+  "worked": "The order was placed after 2 pm on Friday, so it counts as received on Monday, the next working day. Tuesday is the first working day after that and Wednesday is the second, so the order must ship by the end of Wednesday.",
+  "followUp": {
+    "question": "Another customer ordered at 10 am on Thursday, and Friday is a public holiday. By the end of which day must this order ship?",
+    "options": [
+      { "id": "friday", "text": "Friday" },
+      { "id": "monday", "text": "Monday" },
+      { "id": "tuesday", "text": "Tuesday" },
+      { "id": "wednesday", "text": "Wednesday" }
+    ],
+    "correct": "tuesday",
+    "explanation": "The order was placed before 2 pm, so it counts as received on Thursday. The shop is closed on Friday and over the weekend, so Monday is the first working day after that and Tuesday is the second."
+  }
+}
