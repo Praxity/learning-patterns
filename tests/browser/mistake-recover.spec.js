@@ -172,7 +172,7 @@ for (const [lang, content, labels] of [
     const page = await context.newPage(); await page.goto(`/mistake-recover/${lang}.html`);
     await expect(item(page, 0)).toBeVisible(); await expect(item(page, 1)).toBeVisible(); await expect(item(page, 2)).toBeHidden();
     await expect(page.locator('button:visible, [data-lp-status]:visible, [data-lp-recover]:visible, [data-lp-result]:visible')).toHaveCount(0);
-    await expect(page.locator('dl dt')).toHaveCount(3 + 4 + 2);
+    await expect(page.locator('dl dt')).toHaveCount(3 + 4 + 3);
     const details = page.locator('details:visible');
     await expect(details).toHaveCount(4);
     await expect(page.locator('details[open]')).toHaveCount(0);
@@ -295,6 +295,32 @@ for (const seed of [{ decisions: [null, 'hold'], steps: [null, null, null] }, { 
     await expect(page.locator('[role="status"]')).toHaveText('');
   });
 }
+
+test('a double activation of a decision or a check makes one transition, one save and one announcement', async ({ page }) => {
+  await open(page);
+  await page.evaluate(async content => {
+    const { render } = await import('/patterns/mistake-recover/render.js');
+    const { enhance } = await import('/patterns/mistake-recover/enhance.js');
+    const { strings } = await import('/patterns/mistake-recover/strings.js');
+    window.lpInstances.forEach(instance => instance.destroy());
+    document.querySelector('main').innerHTML = render(content, strings.en, { id: 'custom', lang: 'en' });
+    window.lpWrites = [];
+    enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en, state: { read: () => undefined, write: value => window.lpWrites.push(value) } });
+  }, english);
+  await observe(page);
+  const writes = () => page.evaluate(() => window.lpWrites);
+  // Two clicks in one task, as a double click or a bouncing key delivers them.
+  const twice = locator => locator.evaluate(button => { button.click(); button.click(); });
+  await twice(item(page, 0).locator('[data-lp-approve]'));
+  expect(await writes()).toEqual([{ decisions: ['approve', null], steps: [null, null, null] }]);
+  await item(page, 0).locator('input[value="cancel"]').check();
+  await twice(item(page, 0).locator('[data-lp-check]'));
+  expect((await writes()).slice(1)).toEqual([{ decisions: ['approve', null], steps: [['cancel'], null, null] }]);
+  await twice(item(page, 1).locator('[data-lp-hold]'));
+  expect((await writes()).slice(2)).toEqual([{ decisions: ['approve', 'hold'], steps: [['cancel'], null, null] }]);
+  await expect(page.locator('[data-lp-mark]')).toHaveCount(3);
+  expect(await announcements(page)).toEqual(['You approved request 1 and held request 2, and stopped the payment for request 1 before it went out.']);
+});
 
 test('the pattern works in memory without a state adapter', async ({ page }) => {
   await mount(page, english);

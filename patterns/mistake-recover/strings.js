@@ -32,8 +32,9 @@ export const strings = {
     approve: 'Approuver',
     hold: 'Mettre en attente',
     status: 'Statut :',
-    pending: 'En attente de votre approbation',
-    stepsLegend: 'Quelles mesures prenez-vous maintenant ?',
+    pending: 'Soumis pour approbation',
+    // A no-break hyphen keeps « prenez‑vous » on one line on a phone.
+    stepsLegend: 'Quelles mesures prenez‑vous maintenant ?',
     stepsHint: 'Choisissez toutes les réponses qui s’appliquent.',
     check: 'Vérifier mes mesures',
     choose: 'Choisissez au moins une mesure',

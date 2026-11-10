@@ -6,14 +6,10 @@
 /* A record is one line per check: the check's name in semibold, then its result. No border or fill,
    because the card is the only box. Tabular figures keep account endings such as 1190 and 1910 the
    same width, so they compare digit by digit. */
-.lp-mistake-recover-record { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px .5em; margin-block-end: 0; font-variant-numeric: tabular-nums; }
-/* Names in one column and results in the next, so values on adjacent lines sit one above the other. */
+.lp-mistake-recover-record { display: grid; grid-template-columns: fit-content(55%) minmax(0, 1fr); gap: 4px .5em; margin-block-end: 0; font-variant-numeric: tabular-nums; }
+/* Names in one column and results in the next at every width, so results on adjacent lines, such
+   as two account endings, sit one above the other. A long name wraps inside its own column. */
 .lp-mistake-recover-record > div { display: contents; }
-@container (max-width: 30rem) {
-  /* On a phone a long name would squeeze its result, so each check wraps as one line of text. */
-  .lp-mistake-recover-record { grid-template-columns: minmax(0, 1fr); }
-  .lp-mistake-recover-record > div { display: flex; flex-wrap: wrap; column-gap: .3em; }
-}
 .lp-mistake-recover-record dt { font-weight: 600; }
 .lp-mistake-recover-record dd { margin: 0; min-inline-size: 0; overflow-wrap: anywhere; }
 .lp-mistake-recover-status { font-variant-numeric: tabular-nums; border-radius: 4px; }

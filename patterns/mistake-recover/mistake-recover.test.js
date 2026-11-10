@@ -38,7 +38,8 @@ function matches(value, rule) {
     }
     return true;
   }
-  return typeof value === 'string' && value.trim().length >= rule.minLength && [...value].length <= rule.maxLength && (!rule.pattern || new RegExp(rule.pattern).test(value));
+  // JSON Schema counts code points and does not trim, so blank text must fail the field's pattern.
+  return typeof value === 'string' && [...value].length >= rule.minLength && [...value].length <= rule.maxLength && (!rule.pattern || new RegExp(rule.pattern, 'u').test(value));
 }
 
 test('the examples share ids, correct steps and stopping steps, and stay short', () => {
@@ -46,15 +47,17 @@ test('the examples share ids, correct steps and stopping steps, and stay short',
   assert.equal(french.title, 'Approuver les paiements aux fournisseurs');
   const shape = example => [...example.requests, example.colleague].map(item => item.steps.map(step => [step.id, step.correct, step.stops ?? false]));
   assert.deepEqual(shape(french), shape(content));
-  assert.deepEqual([...french.requests, french.colleague].map(item => item.checks.length), [3, 4, 2]);
-  assert.deepEqual([...content.requests, content.colleague].map(item => item.checks.length), [3, 4, 2]);
+  assert.deepEqual([...french.requests, french.colleague].map(item => item.checks.length), [3, 4, 3]);
+  assert.deepEqual([...content.requests, content.colleague].map(item => item.checks.length), [3, 4, 3]);
+  // The colleague's record uses request 1's labels in request 1's order, so the line that differs stands out.
+  for (const example of [content, french]) assert.deepEqual(example.colleague.checks.map(check => check.label), example.requests[0].checks.map(check => check.label));
   for (const example of [content, french]) {
     // The setup is at most two sentences.
     assert.equal(example.context.split(/(?<=\.) /).length, 2);
     // Recovery lists differ in length and in where the incorrect step sits, and only Cancel repeats across them.
     const lists = [...example.requests, example.colleague].map(item => item.steps);
     assert.deepEqual(lists.map(steps => steps.length), [4, 3, 4]);
-    assert.deepEqual(lists.map(steps => steps.findIndex(step => !step.correct)), [1, 1, 2]);
+    assert.deepEqual(lists.map(steps => steps.findIndex(step => !step.correct)), [1, 0, 2]);
     const texts = lists.flat().map(step => step.text);
     assert.deepEqual([...new Set(texts.filter((text, n) => texts.indexOf(text) !== n))], [lists[0][0].text]);
   }
@@ -263,6 +266,9 @@ for (const [lang, example] of [['en', content], ['fr', french]]) {
 test('English and French strings have the same keys, and French uses its spacing', () => {
   assert.deepEqual(Object.keys(strings.fr), Object.keys(strings.en));
   for (const lang of ['en', 'fr']) for (const [key, value] of Object.entries(strings[lang])) assert.ok(value.trim(), `${lang}.${key}`);
+  // The status before a decision shares no words with Hold, so holding visibly changes it.
+  assert.doesNotMatch(strings.fr.pending, /attente/i);
+  assert.doesNotMatch(strings.en.pending, /hold/i);
   const output = render(french, strings.fr, { id: 'pay', lang: 'fr' });
   assert.match(output, /Statut :/);
   assert.match(output, /maintenant \?/);

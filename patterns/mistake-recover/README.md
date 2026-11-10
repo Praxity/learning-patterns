@@ -9,7 +9,7 @@ learners: not tried
 ---
 # Make a mistake and recover
 
-Decide a request in a practice system. Approving one with a fault changes its status line and states the cost, and the learner chooses the steps that undo it. A second request has a different fault and gives no prompts. A learner who holds both requests recovers a payment a colleague approved, so everyone practises recovery once.
+Decide a request in a practice system. Approving one with a fault changes its status line and states the cost, and the learner chooses the steps that undo it. A second request has a different fault and gives the values, leaving the comparison to the learner. A learner who holds both requests recovers a payment a colleague approved, so everyone practises recovery once.
 
 ## Use it when
 
@@ -31,7 +31,7 @@ Write two requests and a colleague's payment. Request 1 states each check's resu
 
 For each one, write the status lines: after Hold (requests only), after Approve, after recovery when the stopping step was chosen, and after recovery when it was missed. The line after Approve states the cost.
 
-Write three to five recovery steps for each, with a reason for every step. Exactly one correct step stops the harm. Make each incorrect step one a rushed person would take, and vary where it sits in each list. In a real course, mix in requests that pass every check.
+Write three to five recovery steps for each, with a reason for every step. Exactly one correct step stops the harm. Make each incorrect step one a rushed person would take, and vary where it sits in each list. Both requests on this card need a fault, because the card treats every approval as the mistake. Give learners requests that pass every check in another activity.
 
 ## How it works
 
@@ -50,7 +50,7 @@ Training that lets people make errors and learn from them beat error-avoidant tr
 
 The authors limit these findings. Twenty-one of the 24 studies taught software skills, and the other three used decision tasks on a computer. No study measured performance on the job. They also describe a study in which firefighters who studied other people's errors in incident stories were better at finding problems in new scenarios than trainees who studied success stories. That study used a different method and was left out of the meta-analysis, but it is the closest evidence for the colleague's payment here.
 
-This pattern is a short, scripted case, not exploratory training. It allows one error per request rather than encouraging errors, and it has not been tested. This pattern has not been tried with learners.
+This pattern is a short, scripted case, not exploratory training. It allows one error per request rather than encouraging errors. This pattern has not been tried with learners.
 
 ## Accessibility
 
@@ -133,7 +133,7 @@ const instance = enhance(document.querySelector('[data-lp-pattern="mistake-recov
 
 ## Adapt it with your agent
 
-> Adapt the mistake-recover examples to [process] for [audience]. Keep the content fields. Write a context that states the rule the checks apply, in the record's words. Write request 1 with each check's result in words and one fault, and request 2 with values to compare and a different fault. Write a colleague's payment with a fault, a summary that says who the colleague is and that the learner may act, and its record as check results in words. For each, write the status lines after Hold, after Approve with the cost, and after recovery with and without the stopping step. Write three to five recovery steps with a reason each, exactly one correct step that stops the harm, and incorrect steps a rushed person would take, placed differently in each list. Write English and Québec French together, using vous, with the same step ids. Preserve the order of requests, one check per recovery, the no-JavaScript disclosures, the focus on the status line, one status region, saved state and CSS tokens. Update examples and tests. Show both languages for review.
+> Adapt the mistake-recover examples to [process] for [audience]. Keep the content fields. Write a context that states the rule the checks apply, in the record's words. Write request 1 with each check's result in words and one fault, and request 2 with values to compare and a different fault. Write a colleague's payment with a fault, a summary that says who the colleague is and that the learner may act, and its record as check results in words, with the same labels and order as request 1. For each, write the status lines after Hold, after Approve with the cost, and after recovery with and without the stopping step. Write three to five recovery steps with a reason each, exactly one correct step that stops the harm, and incorrect steps a rushed person would take, placed differently in each list. Write English and Québec French together, using vous, with the same step ids. Preserve the order of requests, one check per recovery, the no-JavaScript disclosures, the focus on the status line, one status region, saved state and CSS tokens. Update examples and tests. Show both languages for review.
 
 ## Related patterns
 
