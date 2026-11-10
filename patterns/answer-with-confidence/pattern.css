@@ -2,25 +2,27 @@
 .lp-answer-with-confidence > .lp-section:first-of-type { border-block-start: 0; padding-block-start: 0; }
 .lp-answer-with-confidence-question-number { display: block; margin-block-end: 6px; font-weight: 400; font-family: var(--lp-font-body); }
 
-/* Room for the widest mark beside every option. Narrow cards put marks under the text instead, so
-   there the two marked rows each grow by a line. */
+/* Room for the widest mark in every option, so a mark never changes a row's height: beside the text,
+   or under it in a narrow card, where the shared rows put marks on their own line. */
 .lp-answer-with-confidence .lp-choice > .lp-answer-with-confidence-mark-space { display: grid; grid-column: 3; grid-row: 1; visibility: hidden; }
 .lp-answer-with-confidence-mark-space > * { grid-area: 1 / 1; }
 .lp-answer-with-confidence .lp-choice > .lp-choice-mark { justify-self: end; }
 @container (max-width: 34rem) {
-  .lp-answer-with-confidence .lp-choice > .lp-answer-with-confidence-mark-space { display: none; }
+  .lp-answer-with-confidence .lp-choice > .lp-answer-with-confidence-mark-space { grid-column: 2 / -1; grid-row: 2; justify-self: start; }
+  .lp-answer-with-confidence-mark-space > * { white-space: normal; }
   .lp-answer-with-confidence .lp-choice > .lp-choice-mark { justify-self: start; }
 }
 
-/* One stable box per question. The submit control and every possible feedback share one grid cell,
-   so the cell is as tall as the tallest of them before the learner answers. Showing the feedback
-   swaps which one is visible and moves nothing. Hidden ones keep their size (visibility, not display). */
-.lp-answer-with-confidence-stage { display: grid; padding: 12px 14px; border-radius: var(--lp-radius-control); background: var(--lp-paper-2); }
+/* One stable space per question, unpainted: no box inside the activity box. The submit control and
+   every possible feedback share one grid cell, so the cell is as tall as the tallest of them before
+   the learner answers. Showing the feedback swaps which one is visible and moves nothing. Hidden ones
+   keep their size (visibility, not display). */
+.lp-answer-with-confidence-stage { display: grid; }
 .lp-answer-with-confidence-stage > * { grid-area: 1 / 1; min-inline-size: 0; }
 .lp-answer-with-confidence-stage[data-lp-answered] > .lp-answer-with-confidence-submit,
 .lp-answer-with-confidence-feedback:not([data-lp-shown]),
 .lp-answer-with-confidence-feedback :is([data-lp-verdict], [data-lp-right-when]):not([data-lp-shown]) { visibility: hidden; }
-.lp-answer-with-confidence-feedback { row-gap: var(--lp-space-2); align-content: start; padding: 0; }
+.lp-answer-with-confidence-feedback { row-gap: var(--lp-space-1); align-content: start; padding: 0; }
 .lp-answer-with-confidence-feedback[data-lp-outcome="right"] > .lp-icon { color: var(--lp-success-ink); }
 .lp-answer-with-confidence-feedback[data-lp-outcome="wrong"] > .lp-icon { color: var(--lp-error-ink); }
 .lp-answer-with-confidence-feedback[data-lp-outcome="unknown"] > .lp-icon { color: var(--lp-ink-2); }
@@ -49,13 +51,15 @@
 }
 
 .lp-answer-with-confidence-review > .lp-small { margin-block-start: var(--lp-gap-hint); }
-.lp-answer-with-confidence-review ul { display: grid; gap: 4px; margin-block-start: var(--lp-gap-label); padding: 0; list-style: none; }
+.lp-answer-with-confidence-review ul { display: grid; padding: 0; list-style: none; }
+/* A summary entry moves focus to its question, so it reads as a link, with no chip on hover. */
+.lp-answer-with-confidence-review .lp-button-quiet, .lp-answer-with-confidence-review .lp-button-quiet:hover { color: var(--lp-accent-ink); background: transparent; font-weight: 400; text-decoration: underline; text-underline-offset: 3px; }
+.lp-answer-with-confidence-review .lp-button-quiet:hover { text-decoration-thickness: 2px; }
 .lp-answer-with-confidence-fallback-list { display: grid; gap: 16px; padding-inline-start: 24px; }
 .lp-answer-with-confidence-fallback-list li > * + * { margin-block-start: 8px; }
 .lp-answer-with-confidence .lp-stem { white-space: pre-line; }
 
 @media (forced-colors: active) {
-  .lp-answer-with-confidence-stage { border: 1px solid CanvasText; padding: 11px 13px; }
   .lp-answer-with-confidence-feedback > .lp-icon { color: CanvasText; }
   /* Underlining keeps the quiet reset distinct when system colours replace button fills. */
   .lp-answer-with-confidence .lp-button-quiet { text-decoration: underline; text-underline-offset: 3px; }

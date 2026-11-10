@@ -10,11 +10,12 @@ import { DONT_KNOW, SURE, UNSURE, format, validateContent } from './logic.js';
 export function render(content, strings, { id, lang }) {
   validateContent(content);
   const h = (/** @type {string} */ text) => html(text, lang);
+  // One question: the context comes first and the question is the card's heading. Several: a titled header.
   const many = content.questions.length > 1;
   // Every option row keeps room for the widest mark, so a mark never rewraps the option text. All rows
   // reserve the same width, which gives nothing away about the answer.
   const markSpace = `<span class="lp-answer-with-confidence-mark-space" aria-hidden="true">${renderChoiceMark('correct', strings.markCorrect, lang)}${renderChoiceMark('wrong', strings.markWrong, lang)}${renderChoiceMark('missed', strings.markAnswer, lang)}</span>`;
-  /** One feedback box per possible answer. They share one grid cell with the submit control, so the
+  /** One feedback block per possible answer. They share one grid cell with the submit control, so the
    * cell is already as tall as the tallest of them and showing one moves nothing.
    * @param {string} answer @param {'right' | 'wrong' | 'unknown'} result
    * @param {[string, string][]} verdicts @param {import('./logic.js').Option} shown
@@ -28,18 +29,18 @@ export function render(content, strings, { id, lang }) {
         ${result === 'wrong' && shown.rightWhen ? `<p data-lp-right-when><strong>${h(strings.rightWhen)}</strong> ${h(shown.rightWhen)}</p>` : ''}
       </div>`;
   return `<section class="lp lp-answer-with-confidence" data-lp-pattern="answer-with-confidence" lang="${html(lang)}">
-  <header class="lp-scene">
+  ${many ? `<header class="lp-scene">
     <span class="lp-scene-icon">${icons['list-check']}</span>
-    <div><h2 class="lp-scene-title">${h(content.title)}</h2></div>
-  </header>
-  ${content.context ? `<p>${h(content.context)}</p>` : ''}
+    <div><h2 class="lp-scene-title">${h(content.title ?? '')}</h2></div>
+  </header>` : ''}
+  ${content.context ? `<p class="lp-context">${h(content.context)}</p>` : ''}
   <p data-lp-intro hidden>${h(strings.intro)}</p>
   ${content.questions.map((q, n) => {
     const base = `${id}-question-${n}`;
     const correct = /** @type {import('./logic.js').Option} */ (q.options.find(o => o.id === q.correct));
     return `<div class="lp-section" data-lp-question="${html(q.id)}">
     <fieldset class="lp-choices" id="${html(base)}" tabindex="-1">
-      <legend class="lp-stem">${many ? `<span class="lp-small lp-answer-with-confidence-question-number">${h(format(strings.questionNumber, { number: n + 1, total: content.questions.length }))}</span><span class="lp-visually-hidden">, </span>` : ''}${h(q.text)}</legend>
+      <legend class="lp-stem">${many ? `<span class="lp-small lp-answer-with-confidence-question-number">${h(format(strings.questionNumber, { number: n + 1, total: content.questions.length }))}</span><span class="lp-visually-hidden">, </span>${h(q.text)}` : `<h2 class="lp-heading">${h(q.text)}</h2>`}</legend>
       ${q.options.map((o, index) => `<label class="lp-choice" for="${html(`${base}-option-${index}`)}"><input type="radio" id="${html(`${base}-option-${index}`)}" name="${html(base)}" value="${html(o.id)}"><span>${h(o.text)}</span>${markSpace}</label>`).join('\n      ')}
     </fieldset>
     <div class="lp-answer-with-confidence-stage" data-lp-stage hidden>

@@ -1,7 +1,7 @@
 import { validateTextLengths } from '../../lib/text-limits.js';
 /** @typedef {{ id: string, text: string, feedback: string, rightWhen?: string }} Option */
 /** @typedef {{ id: string, text: string, options: Option[], correct: string }} Question */
-/** @typedef {{ title: string, context?: string, dontKnow?: boolean, questions: Question[] }} Content */
+/** @typedef {{ title?: string, context?: string, dontKnow?: boolean, questions: Question[] }} Content */
 /** @typedef {'sure' | 'unsure'} Certainty */
 /** @typedef {{ answers: Record<string, string> }} LearnerState */
 
@@ -33,14 +33,16 @@ function identity(value, path) {
 export function validateContent(content) {
   validateTextLengths(content, {
     title: 120, context: 400,
-    questions: [{ id: 120, text: 400, correct: 120, options: [{ id: 120, text: 300, feedback: 400, rightWhen: 300 }] }]
+    questions: [{ id: 120, text: 400, correct: 120, options: [{ id: 120, text: 300, feedback: 300, rightWhen: 200 }] }]
   });
   if (!object(content)) throw new Error('Invalid content');
   fields(content, ['title', 'context', 'dontKnow', 'questions'], 'content');
-  text(content.title, 'title');
+  if (Object.hasOwn(content, 'title')) text(content.title, 'title');
   if (Object.hasOwn(content, 'context')) text(content.context, 'context');
   if (Object.hasOwn(content, 'dontKnow') && typeof content.dontKnow !== 'boolean') throw new Error('Invalid dontKnow');
   if (!Array.isArray(content.questions) || content.questions.length === 0) throw new Error('Invalid questions');
+  // One question is its own heading. Several need a title above them.
+  if (content.questions.length > 1 && !Object.hasOwn(content, 'title')) throw new Error('Invalid title: required with several questions');
   const ids = new Set();
   content.questions.forEach((q, index) => {
     const path = `questions[${index}]`;

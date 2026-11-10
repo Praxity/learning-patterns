@@ -36,7 +36,7 @@ export function validateState(content: Content, value: unknown): LearnerState | 
 export function format(template: string, values: Record<string, string | number>): string;
 /** @typedef {{ id: string, text: string, feedback: string, rightWhen?: string }} Option */
 /** @typedef {{ id: string, text: string, options: Option[], correct: string }} Question */
-/** @typedef {{ title: string, context?: string, dontKnow?: boolean, questions: Question[] }} Content */
+/** @typedef {{ title?: string, context?: string, dontKnow?: boolean, questions: Question[] }} Content */
 /** @typedef {'sure' | 'unsure'} Certainty */
 /** @typedef {{ answers: Record<string, string> }} LearnerState */
 export const DONT_KNOW: "dont-know";
@@ -55,7 +55,7 @@ export type Question = {
     correct: string;
 };
 export type Content = {
-    title: string;
+    title?: string;
     context?: string;
     dontKnow?: boolean;
     questions: Question[];

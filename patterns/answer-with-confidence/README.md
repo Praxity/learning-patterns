@@ -29,7 +29,7 @@ Write two to six options for each question, and one or two sentences of feedback
 
 Where a wrong option is tempting for a good reason, add a line saying when it would be right. Learners see it only after choosing that option and saying they were sure.
 
-Choose questions people tend to answer quickly and get wrong. Keep the feedback for one question about the same length, because the space kept for it is as tall as the longest. Turn on "Don't know" only where a lucky guess would do harm, such as a placement check.
+Choose questions people tend to answer quickly and get wrong. Keep the feedback for one question short and about the same length, because the space kept for it is as tall as the longest. Turn on "Don't know" only where a lucky guess would do harm, such as a placement check.
 
 ## How it works
 
@@ -65,7 +65,7 @@ Content is plain text. Rendering escapes HTML characters.
 
 | Field | Meaning |
 | --- | --- |
-| `title` | Nonblank title in the header, at most 120 characters. |
+| `title` | Title in the header above several questions, at most 120 characters. Required with two or more questions. With one question it is optional and not shown: the context comes first and the question is the card's heading. |
 | `context` | Optional situation under the header, at most 400 characters. |
 | `dontKnow` | Optional. `true` adds a "Don't know" button to the submit control. Off by default. |
 | `questions` | At least one question, in display order. |
@@ -74,11 +74,11 @@ Content is plain text. Rendering escapes HTML characters.
 | `questions[].options` | Two to six options. Ids must be unique within the question. |
 | `questions[].options[].id` | Id using letters, digits, underscores or hyphens. `dont-know` is reserved. |
 | `questions[].options[].text` | Option label, at most 300 characters. |
-| `questions[].options[].feedback` | Shown when the learner chooses this option, at most 400 characters. The correct option's feedback also appears after "Don't know" and without JavaScript. |
-| `questions[].options[].rightWhen` | Optional, wrong options only, at most 300 characters. Says when this option would be right. Shown after "Why it can seem right:" when the learner chose it and was sure. |
+| `questions[].options[].feedback` | Shown when the learner chooses this option, at most 300 characters. The correct option's feedback also appears after "Don't know" and without JavaScript. |
+| `questions[].options[].rightWhen` | Optional, wrong options only, at most 200 characters. Says when this option would be right. Shown after "Why it can seem right:" when the learner chose it and was sure. |
 | `questions[].correct` | Id of an option in this question. |
 
-`validateContent` rejects unknown fields, blank strings, duplicate ids, invalid correct-option references and a `rightWhen` on the correct option. It supplies the cross-field checks that ordinary JSON Schema tools need, recorded as `x-uniqueBy`, `x-optionReference` and `x-wrongOptionsOnly`.
+`validateContent` rejects unknown fields, blank strings, duplicate ids, invalid correct-option references, a `rightWhen` on the correct option and several questions without a title. It supplies the cross-field checks that ordinary JSON Schema tools need, recorded as `x-uniqueBy`, `x-optionReference`, `x-wrongOptionsOnly` and `x-requiredWithSeveral`.
 
 ## Logic
 
@@ -118,7 +118,7 @@ document.querySelector('main').innerHTML = render(content, strings.en, { id: 'pr
 const instance = enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en });
 ```
 
-The submit control and every possible feedback for a question share one grid cell, so the space is as tall as the tallest of them from the start and showing feedback moves nothing below it. Each option also keeps room beside its text for the widest answer mark, so a mark never rewraps an option. In containers narrower than 34rem the shared answer marks sit under the option text instead, so the two marked options each grow by a line.
+The submit control and every possible feedback for a question share one grid cell, so the space is as tall as the tallest of them from the start and showing feedback moves nothing. The space is unpainted: before an answer it is only room under the buttons. Each option also keeps room for the widest answer mark, beside its text or under it in containers narrower than 34rem, so a mark never changes an option's height. The "Choose an answer first." message uses the same space; in a narrow container, where the buttons stack, it can add a line or two.
 
 ### Accessibility details
 
@@ -128,10 +128,10 @@ Every control is a native radio button or button, so nothing needs a screen read
 - The submit control is a group named "Submit your answer to question 2". Its two or three buttons are separate tab stops named by their visible labels. Activating one submits. None has a pressed or selected state.
 - Submitting without an answer shows "Choose an answer first." under the buttons and links it to the question. Focus moves to the first option, which reads the question and the message once. The status region stays silent.
 - Submitting hides the buttons, so focus moves to the feedback that takes their place. A screen reader reads it once: the verdict, such as "Sure, but incorrect", then "Correct answer" with the option's text after a wrong answer, then the feedback and any "Why it can seem right" line. The correct answer is visually hidden there because the option's mark already shows it.
-- After the last question the status region announces the summary sentence and the size of each list. Summary entries are buttons that focus the question they name.
+- After the last question the status region announces the summary sentence and the size of each list. Summary entries are buttons that look like links and focus the question they name.
 - An answered question's options and buttons are disabled. Each marked option's name ends with its mark.
 - Start over focuses the first option and announces "Answers cleared." Saved answers restore without moving focus or announcing.
-- The buttons stack in narrow containers. Forced colours keep the button borders, a border around the feedback and native radios.
+- The buttons stack in narrow containers. Forced colours keep the button borders and native radios.
 
 ## Adapt it with your agent
 

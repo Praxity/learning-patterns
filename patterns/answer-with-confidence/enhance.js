@@ -50,11 +50,12 @@ export function enhance(root, { content, strings, state }) {
   });
   const lifetime = new AbortController();
   let destroyed = false;
+  // Prototype-free, so a question id such as "constructor" or "__proto__" is an ordinary key.
   /** @type {Record<string, string>} */
-  let answers = {};
+  let answers = Object.create(null);
   // Whether the learner was sure lives here only. It is never written through the state adapter.
   /** @type {Record<string, import('./logic.js').Certainty>} */
-  let certainties = {};
+  let certainties = Object.create(null);
   const text = (/** @type {string} */ value) => frenchTypography(value, root.lang);
   const save = () => state?.write({ answers: { ...answers } });
 
@@ -119,8 +120,8 @@ export function enhance(root, { content, strings, state }) {
       item.stage.removeAttribute('data-lp-answered');
       clearError(item);
     }
-    answers = {};
-    certainties = {};
+    answers = Object.create(null);
+    certainties = Object.create(null);
     result.hidden = true;
     summary.textContent = '';
     for (const { panel } of reviews) { panel.hidden = true; panel.querySelector('ul')?.remove(); }
@@ -161,7 +162,7 @@ export function enhance(root, { content, strings, state }) {
   for (const { stage } of questions) stage.hidden = false;
   if (saved) {
     // Restored answers come back without certainty, so they show the plain result and no summary lists.
-    answers = saved.answers;
+    Object.assign(answers, saved.answers);
     for (const item of questions) if (Object.hasOwn(answers, item.q.id)) show(item, false);
     finish(false);
   }

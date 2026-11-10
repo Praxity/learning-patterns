@@ -25,6 +25,7 @@ test('validateContent names the bad field', () => {
   const bad = [
     [c => { c.extra = 1; }, /content\.extra/],
     [c => { c.title = '  '; }, /title/],
+    [c => { delete c.title; }, /title: required with several questions/],
     [c => { c.context = ''; }, /context/],
     [c => { c.dontKnow = 'yes'; }, /dontKnow/],
     [c => { c.questions = []; }, /questions/],
@@ -46,7 +47,9 @@ test('validateContent names the bad field', () => {
 
 test('the schema carries the same limits and cross-field notes as validateContent', () => {
   const question = schema.properties.questions.items, option = question.properties.options.items;
-  assert.deepEqual([option.properties.feedback.maxLength, option.properties.rightWhen.maxLength], [400, 300]);
+  assert.deepEqual([option.properties.feedback.maxLength, option.properties.rightWhen.maxLength], [300, 200]);
+  assert.deepEqual(schema.required, ['questions']);
+  assert.equal(schema.properties.title['x-requiredWithSeveral'], 'questions');
   assert.deepEqual([question.properties.options.minItems, question.properties.options.maxItems], [2, 6]);
   assert.deepEqual(option.required, ['id', 'text', 'feedback']);
   assert.equal(option.properties.rightWhen['x-wrongOptionsOnly'], true);
@@ -164,6 +167,41 @@ test('"Don\'t know" is a third segment, never an option row', () => {
   assert.equal(count(markup, /data-lp-dont-know>Don&#39;t know</g), 3);
   assert.equal(count(markup, /data-lp-feedback="dont-know" data-lp-outcome="unknown"/g), 3);
   assert.ok(markup.includes(strings.en.chooseOrDontKnow.replaceAll('"', '&quot;').replaceAll("'", '&#39;')));
+});
+
+test('one question: context first, the question as the heading, no header and no title needed', () => {
+  const single = edit(c => { c.questions.length = 1; delete c.title; });
+  validateContent(single);
+  for (const title of [null, '', ' ', 1, 'x'.repeat(121)]) assert.throws(() => validateContent({ ...single, title }), /title/);
+  const markup = render({ ...single, title: 'A card title' }, strings.en, { id: 'one', lang: 'en' });
+  assert.doesNotMatch(markup, /lp-scene|A card title/);
+  assert.ok(markup.includes(`<p class="lp-context">${single.context}</p>`));
+  assert.ok(markup.indexOf('lp-context') < markup.indexOf('<fieldset'));
+  assert.ok(markup.includes(`<legend class="lp-stem"><h2 class="lp-heading">${single.questions[0].text}</h2></legend>`));
+  assert.equal(count(markup, /<h2/g), 1);
+  // Several questions: the titled header comes first, then the context, and legends hold no heading.
+  const several = render(content, strings.en, { id: 'quiz', lang: 'en' });
+  assert.ok(several.indexOf('lp-scene-title') < several.indexOf('lp-context'));
+  assert.ok(several.indexOf('lp-context') < several.indexOf('<fieldset'));
+  assert.equal(count(several, /<h2/g), 1);
+  assert.doesNotMatch(several, /<legend[^>]*>(?:(?!<\/legend>)[^])*<h2/);
+});
+
+test('question ids that are Object.prototype names behave like any other id', () => {
+  // JSON.parse makes "__proto__" an own key, as saved state and authored content arrive.
+  const hostile = JSON.parse(JSON.stringify(content).replace('"id":"reply-all"', '"id":"__proto__"').replace('"id":"percent"', '"id":"constructor"').replace('"id":"redact"', '"id":"toString"'));
+  validateContent(hostile);
+  const answers = JSON.parse('{"__proto__":"sender","constructor":"lower","toString":"covered"}');
+  const certainties = JSON.parse('{"__proto__":"sure","constructor":"unsure","toString":"unsure"}');
+  assert.deepEqual(summarize(hostile, answers, certainties), { total: 3, right: ['constructor'], wrong: ['__proto__', 'toString'], unknown: [], unanswered: [], sureWrong: ['__proto__'], unsureRight: ['constructor'] });
+  assert.deepEqual(summarize(hostile, {}).unanswered, ['__proto__', 'constructor', 'toString']);
+  assert.deepEqual(summarize(hostile, answers).sureWrong, []);
+  assert.equal(feedback(hostile, '__proto__', 'sender', SURE).result, 'wrong');
+  const saved = validateState(hostile, { answers });
+  assert.deepEqual(Object.keys(saved.answers), ['__proto__', 'constructor', 'toString']);
+  assert.equal(saved.answers.toString, 'covered');
+  assert.equal(validateState(hostile, JSON.parse('{"answers":{"__proto__":"lower"}}')), null);
+  assert.equal(count(render(hostile, strings.en, { id: 'quiz', lang: 'en' }), /data-lp-question="(?:__proto__|constructor|toString)"/g), 3);
 });
 
 test('one question drops the numbering; hostile text is escaped', () => {

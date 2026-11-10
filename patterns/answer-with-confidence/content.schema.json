@@ -2,10 +2,10 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Answer with confidence content",
   "type": "object",
-  "required": ["title", "questions"],
+  "required": ["questions"],
   "additionalProperties": false,
   "properties": {
-    "title": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "title": { "type": "string", "minLength": 1, "maxLength": 120, "x-requiredWithSeveral": "questions" },
     "context": { "type": "string", "minLength": 1, "maxLength": 400 },
     "dontKnow": { "type": "boolean", "default": false },
     "questions": {
@@ -26,8 +26,8 @@
               "properties": {
                 "id": { "type": "string", "minLength": 1, "pattern": "^[a-zA-Z0-9_-]+$", "not": { "const": "dont-know" }, "maxLength": 120 },
                 "text": { "type": "string", "minLength": 1, "maxLength": 300 },
-                "feedback": { "type": "string", "minLength": 1, "maxLength": 400 },
-                "rightWhen": { "type": "string", "minLength": 1, "maxLength": 300, "x-wrongOptionsOnly": true }
+                "feedback": { "type": "string", "minLength": 1, "maxLength": 300 },
+                "rightWhen": { "type": "string", "minLength": 1, "maxLength": 200, "x-wrongOptionsOnly": true }
               }
             }
           }
