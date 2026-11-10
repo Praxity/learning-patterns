@@ -20,7 +20,27 @@ check group mechanics, while existing workflow tests still check page focus orde
 Reverse entry is checked with a selected option. The APG radio keyboard section
 explicitly notes variation in native reverse entry when nothing is selected; the
 spike does not prescribe a reverse-entry target for that case. There are no
-engine-specific exceptions.
+engine-specific exceptions for reverse Tab entry.
+
+WebKit's native arrow keys stop at the first/last radio. Chromium and Firefox
+retain APG wrapping. The WebKit expectation cites
+[`RadioInputType::handleKeydownEvent`](https://github.com/WebKit/WebKit/blob/67d931686f9e8cd74deeadd0da510cafd8686ba5/Source/WebCore/html/RadioInputType.cpp#L116-L158),
+which traverses nodes in one direction without wrapping. Each arrow press is a
+named step, including the endpoint press, so failures identify the key and index.
+
+A numbered legend's complete authored name is matched with an anchored expression.
+Only whitespace around the caption/comma boundary and between words can vary.
+No word, punctuation or question number is omitted. See the CSS-dependent joining
+note in [AccName 4.3.2](https://www.w3.org/TR/accname-1.2/#computation-steps).
+CI prints the computed group names from `ariaSnapshot` for all unselected
+`dont-know` questions, both languages and scripting modes in every engine.
+
+The bindings register one test per pattern, language and scripting mode: 24 tests
+across three engines. Each test loads six question/selection fixtures and runs all
+eight expectations in named steps. Before each expectation, fixture setup resets
+native checked properties to the declared state without synthetic events or page
+navigation. Assertions have a one-second retry limit and actions a three-second
+limit. Every expectation checks the expected radio count before any loop.
 
 Focus checks use keyboard modality and the computed outline of the radio or its
 associated label. They enforce the repository's 3px focus ring requirement. This

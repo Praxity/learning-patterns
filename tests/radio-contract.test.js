@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { radioGroupContract } from './browser/contracts/radio-group.js';
+import { radioGroupContract, numberedLegendName } from './browser/contracts/radio-group.js';
 
 test('radio expectations have distinct IDs, outcomes and checkable standards sources', () => {
   assert.equal(new Set(radioGroupContract.map(row => row.id)).size, radioGroupContract.length);
@@ -13,3 +13,21 @@ test('radio expectations have distinct IDs, outcomes and checkable standards sou
   assert.deepEqual(radioGroupContract.filter(row => row.static).map(row => row.id), ['group-name', 'radio-names', 'checked']);
 });
 
+
+test('numbered legend names allow layout whitespace and require every authored word', () => {
+  const name = numberedLegendName('Question 1 of 3', 'What is an emergency fund for?');
+  for (const actual of [
+    'Question 1 of 3, What is an emergency fund for?',
+    'Question 1 of 3 , What is an emergency fund for?',
+    'Question 1 of 3  ,  What is an emergency fund for?'
+  ]) assert.match(actual, name);
+  for (const actual of [
+    'Wrong Question 1 of 3 , What is an emergency fund for?',
+    'Question 1 of 3 , What is an emergency fund for? extra',
+    'Question 2 of 3 , What is an emergency fund for?',
+    'Question 1 of 3 , What is an emergency fund for',
+    'What is an emergency fund for?'
+  ]) assert.doesNotMatch(actual, name);
+  assert.match('Question 1 sur 3 , Combien (en $) ?', numberedLegendName('Question 1 sur 3', 'Combien (en $) ?'));
+  assert.doesNotMatch('Question 1 sur 3 , Combien en $ ?', numberedLegendName('Question 1 sur 3', 'Combien (en $) ?'));
+});

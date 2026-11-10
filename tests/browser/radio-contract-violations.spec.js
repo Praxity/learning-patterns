@@ -66,3 +66,10 @@ for (const expectation of radioGroupContract.filter(row => row.static)) {
     });
   });
 }
+
+test('focus rejects a group with no radios rather than passing an empty loop', async ({ page }) => {
+  await page.setContent('<fieldset><legend>Delivery</legend></fieldset>');
+  await expect(assertRadioExpectation('focus', page, {
+    group: page.getByRole('group'), legend: 'Delivery', names: ['Standard', 'Express'], selected: null
+  })).rejects.toThrow(/toHaveCount/);
+});
