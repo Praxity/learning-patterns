@@ -27,6 +27,7 @@ With Node 22, run `npm ci` and `npm run demo`, then `node scripts/serve-demo.mjs
 | [Spot the misconception](patterns/misconception/README.md) | Answer a study question, compare an authored refutation or key idea with a model answer. |
 | [Scenario talk-through](patterns/conversation/README.md) | Reply to an upset colleague, see how the conversation changes, then reflect on your two moves. |
 | ["I don't know" as an answer](patterns/dont-know/README.md) | Multiple choice where "I don't know" scores zero and a wrong answer costs a point, so guesses don't hide gaps. |
+| [Answer with confidence](patterns/answer-with-confidence/README.md) | Answer each question as sure or not sure, read feedback for your answer, then see where your certainty and your results disagreed. |
 | [Questions inside the reading](patterns/review-prompts/README.md) | Short recall questions between sections of text, each with a next review date. |
 | [Printable retrieval sheet](patterns/retrieval-sheet/README.md) | Print questions on the front and answers on the back to test yourself on a chosen date, with no connection needed. |
 | [Highlight the key passage](patterns/highlight/README.md) | Mark the parts of a passage that answer a question, or its key ideas, then compare with the author's choices in place. |
