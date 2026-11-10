@@ -72,3 +72,21 @@ The idea comes from Meta's MIT-licensed
 and [AST-020](https://github.com/meta/astryx/blob/349d3a8e6f0769ce87bce24674cfd0cce6487c64/docs/specs/AST-020/spec.md).
 This is an independent plain JavaScript implementation. No Astryx source code was
 copied. It adds no dependency or general widget framework.
+
+## CI evidence from the first browser run
+
+[Run 42706338771](https://github.com/Praxity/learning-patterns/actions/runs/42706338771)
+at head `07eaa0f` captured these first-question names in Chromium, Firefox and
+WebKit, with JavaScript both enabled and disabled:
+
+- English: `Question 1 of 3 , What is an emergency fund for?`
+- French: `Question 1 sur 3 , ? quoi sert un fonds d?urgence ?`
+
+The extra space before the comma changes no word or meaning for the listener.
+`ci-evidence.json` records every question's captured name by engine, language and
+scripting mode, with the report attachment identifiers. The WebKit trace shows
+that the third ArrowRight press fails the old wrap expectation, after the first
+two presses successfully move focus and selection forward.
+
+The initial run also failed an existing WebKit French slider assertion in
+`split-by-proportion.spec.js`. That pattern is outside this spike's scope.
