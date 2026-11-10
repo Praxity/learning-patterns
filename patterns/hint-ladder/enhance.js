@@ -143,10 +143,13 @@ export function enhance(root, { content, strings, state }) {
     if (progress(content, current).first !== 'open') return;
     const chosen = first.radios.find(radio => radio.checked && !radio.disabled);
     if (!chosen) { showError(first); return; }
+    // Safari does not focus a button on a pointer click, so focus may still be on the option this
+    // check is about to close. Put it on the button first.
+    first.check.focus({ preventScroll: true });
     current = tryFirst(content, current, chosen.value);
     const now = paint();
     if (now.first === 'open') {
-      // Focus stays on the button, so the status region carries this result.
+      // Focus is on the button, so the status region carries this result.
       status.textContent = text(`${strings.markWrong}. ${content.options.find(o => o.id === chosen.value)?.feedback ?? ''}`);
       const reason = reasons[first.radios.indexOf(chosen)];
       if (reason) reveal(reason);

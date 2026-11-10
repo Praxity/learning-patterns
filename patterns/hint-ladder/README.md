@@ -132,7 +132,7 @@ const instance = enhance(document.querySelector('[data-lp-pattern="hint-ladder"]
 - The hint button's name carries its place: "Show hint 1 of 2", then "Show hint 2 of 2", then "Show the worked answer".
 - Opening a hint moves focus to it, so it is read once. The next Tab stop is "Check my answer", and Shift+Tab returns to the options.
 - While the worked answer waits for a checked answer, its button stays focusable, is marked unavailable, and has the visible line "The worked answer opens after you check an answer." as its description.
-- A wrong check keeps focus on "Check my answer". The status region announces "Incorrect." and the reason once. The option is disabled and keeps its mark and reason.
+- A wrong check leaves focus on "Check my answer", and moves it there if the option being closed held it. The status region announces "Incorrect." and the reason once. The option is disabled and keeps its mark and reason.
 - When the first question ends, focus moves to the worked answer. It starts with a visually hidden "Correct." or, when the last wrong option was checked, "Incorrect." and that option's reason. Reading on reaches the second question.
 - Checking the second question moves focus to its explanation, which starts with a visually hidden "Correct." or "Incorrect. Correct answer: …". The status region then announces the closing sentence once.
 - Checking with nothing chosen shows "Choose an answer" in the question group, links it as the group's description and focuses the first option still open.

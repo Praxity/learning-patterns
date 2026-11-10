@@ -159,8 +159,8 @@ test('keyboard journey: error, a wrong try, a hint, the right answer, the questi
 });
 
 for (const [lang, content, labels] of [
-  ['en', english, { check: 'Check my answer', hint: n => `Show hint ${n} of 2`, hintLabel: n => `Hint ${n} of 2`, showWorked: 'Show the worked answer', worked: 'Worked answer', gate: 'The worked answer opens after you check an answer.', wrong: 'Incorrect', answer: 'Correct answer', next: 'Now try one without hints', correct: 'Correct. ', summary: 'You saw the worked answer to the first question after 1 try, then answered the question without hints correctly.', restart: 'Start over', cleared: 'Answers cleared.', choose: 'Choose an answer', show: 'Show the answer', reveal: option => `Correct answer: ${option}.` }],
-  ['fr', french, { check: 'Vérifier ma réponse', hint: n => `Afficher l’indice ${n} sur 2`, hintLabel: n => `Indice ${n} sur 2`, showWorked: 'Afficher la solution détaillée', worked: 'Solution détaillée', gate: 'La solution détaillée s’affiche une fois que vous avez vérifié une réponse.', wrong: 'Incorrect', answer: 'Bonne réponse', next: 'Maintenant, une question sans indice', correct: 'Correct. ', summary: 'Vous avez vu la solution détaillée de la première question après 1 essai, puis vous avez répondu correctement à la question sans indice.', restart: 'Recommencer', cleared: 'Réponses effacées.', choose: 'Choisissez une réponse', show: 'Afficher la réponse', reveal: option => `Bonne réponse : ${option}.` }]
+  ['en', english, { check: 'Check my answer', hint: n => `Show hint ${n} of 2`, hintLabel: n => `Hint ${n} of 2`, showWorked: 'Show the worked answer', worked: 'Worked answer', gate: 'The worked answer opens after you check an answer.', wrong: 'Incorrect', answer: 'Correct answer', next: 'Now try one without hints', correct: 'Correct. ', summary: 'You saw the worked answer to the first question after 1 try with 2 hints, then answered the question without hints correctly.', restart: 'Start over', cleared: 'Answers cleared.', choose: 'Choose an answer', show: 'Show the answer', reveal: option => `Correct answer: ${option}.` }],
+  ['fr', french, { check: 'Vérifier ma réponse', hint: n => `Afficher l’indice ${n} sur 2`, hintLabel: n => `Indice ${n} sur 2`, showWorked: 'Afficher la solution détaillée', worked: 'Solution détaillée', gate: 'La solution détaillée s’affiche une fois que vous avez vérifié une réponse.', wrong: 'Incorrect', answer: 'Bonne réponse', next: 'Maintenant, une question sans indice', correct: 'Correct. ', summary: 'Vous avez vu la solution détaillée de la première question après 1 essai avec 2 indices, puis vous avez répondu correctement à la question sans indice.', restart: 'Recommencer', cleared: 'Réponses effacées.', choose: 'Choisissez une réponse', show: 'Afficher la réponse', reveal: option => `Bonne réponse : ${option}.` }]
 ]) {
   test(`card order, the hint ladder and a worked answer that waits for one try (${lang})`, async ({ page }) => {
     await open(page, `/hint-ladder/${lang}.html`); await observe(page);
@@ -341,7 +341,7 @@ test('when only the correct option is left, the question ends and the worked ans
   await expect(one.locator('[data-lp-check]')).toBeHidden(); await expect(hintButton(page)).toBeHidden();
   expect(await saved(page)).toEqual({ tries: ['monday', 'tuesday', 'thursday'], opened: 0, followUp: null });
   await check(followUp(page), 'monday');
-  await expect(page.locator('[data-lp-summary]')).toHaveText('You saw the worked answer to the first question after 3 tries, then answered the question without hints incorrectly.');
+  await expect(page.locator('[data-lp-summary]')).toHaveText('You saw the worked answer to the first question after 3 tries with no hints, then answered the question without hints incorrectly.');
 });
 
 test('a checked wrong option cannot be chosen or counted again', async ({ page }) => {
@@ -370,6 +370,21 @@ test('a checked wrong option cannot be chosen or counted again', async ({ page }
   // The second question takes one answer: a stray activation of its hidden button changes nothing.
   await followUp(page).locator('[data-lp-check]').evaluate(button => { button.hidden = false; button.disabled = false; button.click(); });
   expect(await saved(page)).toEqual({ tries: ['tuesday', 'wednesday'], opened: 0, followUp: 'tuesday' });
+});
+
+test('a wrong check puts focus on the check button when the checked option held it', async ({ page }) => {
+  await open(page); await observe(page);
+  const one = first(page), tuesday = one.locator('input[value="tuesday"]');
+  await tuesday.focus(); await page.keyboard.press('Space');
+  await expect(tuesday).toBeChecked(); await expect(tuesday).toBeFocused();
+  // Safari does not focus a button on a pointer click. A scripted click activates it the same way,
+  // with focus left on the option that the check is about to close.
+  await one.locator('[data-lp-check]').evaluate(button => button.click());
+  await expect(tuesday).toBeDisabled();
+  await expect(one.locator('[data-lp-check]')).toBeFocused();
+  expect(await announcements(page)).toEqual([plain(`Incorrect. ${english.options[1].feedback}`)]);
+  // The next try works from there: the learner is not left with focus on nothing.
+  expect(await page.evaluate(() => document.activeElement !== document.body)).toBe(true);
 });
 
 for (const width of [1280, 390]) test(`hints, the worked answer and the result come into view at ${width}px`, async ({ page }) => {
@@ -475,7 +490,7 @@ test('three options, one hint and a two-option second question follow the same r
   await expect(row(one, 'wednesday')).toHaveAttribute('data-lp-mark', 'missed');
   await expect(followUp(page).getByRole('radio')).toHaveCount(2);
   await check(followUp(page), 'tuesday');
-  await expect(page.locator('[data-lp-summary]')).toHaveText('You saw the worked answer to the first question after 2 tries, then answered the question without hints correctly.');
+  await expect(page.locator('[data-lp-summary]')).toHaveText('You saw the worked answer to the first question after 2 tries with 1 hint, then answered the question without hints correctly.');
 });
 
 test('three hints count to three before the worked answer', async ({ page }) => {
