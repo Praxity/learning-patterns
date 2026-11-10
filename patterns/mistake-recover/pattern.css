@@ -1,0 +1,29 @@
+/* Make-a-mistake-and-recover specifics. Link lib/base.css first for shared styles and tokens. */
+/* A long unbroken word wraps inside a step. Without these the group's one auto track and its
+   legend both grow to their longest word and widen the page. */
+.lp-mistake-recover .lp-choices { grid-template-columns: minmax(0, 1fr); }
+.lp-mistake-recover .lp-choices > legend { max-inline-size: 100%; }
+/* A record is one line per check: the check's name in semibold, then its result. No border or fill,
+   because the card is the only box. Tabular figures keep account endings such as 1190 and 1910 the
+   same width, so they compare digit by digit. */
+.lp-mistake-recover-record { display: grid; grid-template-columns: fit-content(55%) minmax(0, 1fr); gap: 4px .5em; margin-block-end: 0; font-variant-numeric: tabular-nums; }
+/* Names in one column and results in the next at every width, so results on adjacent lines, such
+   as two account endings, sit one above the other. A long name wraps inside its own column. */
+.lp-mistake-recover-record > div { display: contents; }
+/* A long unbroken name breaks inside its column; otherwise its min-content width widens the track past the card. */
+.lp-mistake-recover-record dt { font-weight: 600; min-inline-size: 0; overflow-wrap: anywhere; }
+.lp-mistake-recover-record dd { margin: 0; min-inline-size: 0; overflow-wrap: anywhere; }
+/* The margin keeps the focus ring on screen when a check scrolls the line to the top. */
+.lp-mistake-recover-status { font-variant-numeric: tabular-nums; border-radius: 4px; scroll-margin-block-start: 16px; }
+.lp-mistake-recover-status:focus-visible { outline-offset: 6px; }
+/* A step's reason sits in its row, under the step text. */
+.lp-mistake-recover-reason { font-size: var(--lp-type-small); line-height: 1.45; }
+/* Without JavaScript the recovery steps are a list inside a disclosure, each with its mark and reason. */
+.lp-mistake-recover-fallback { display: grid; gap: 12px; padding-inline-start: 24px; }
+.lp-mistake-recover-fallback .lp-choice-mark { margin-inline-start: 4px; vertical-align: top; }
+.lp-mistake-recover-fallback li > p + p { margin-block-start: var(--lp-gap-hint); }
+
+@media (forced-colors: active) {
+  /* Underlining keeps the quiet reset distinct when system colours replace button fills. */
+  .lp-mistake-recover .lp-button-quiet { text-decoration: underline; text-underline-offset: 3px; }
+}
