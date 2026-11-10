@@ -1,0 +1,28 @@
+{
+  "title": "Route a customer message",
+  "context": "You answer support email for an online shop. Billing reviews charges, and security handles personal details shown to the wrong person.",
+  "case": "My invoice page shows a bill for Dana Okafor, card ending 4411. That is my name. There is a $40 charge I don't recognize.",
+  "question": "Where do you send this message?",
+  "options": [
+    { "id": "billing", "text": "Billing" },
+    { "id": "security", "text": "Security" },
+    { "id": "ask", "text": "Back to the customer for more detail" }
+  ],
+  "correct": "billing",
+  "explanation": "The bill is the customer's own, so this is a question about a charge. Billing reviews it.",
+  "changes": [
+    {
+      "from": "That is my name.",
+      "to": "That is not my name.",
+      "correct": "security",
+      "explanation": "The customer saw another person's name and card digits. Those are personal details shown to the wrong person, so the message goes to security."
+    },
+    {
+      "from": "$40",
+      "to": "$400",
+      "correct": "billing",
+      "explanation": "A larger amount is still a charge on the customer's own bill, so the message goes to billing."
+    }
+  ],
+  "rule": "A message goes to security when the customer saw someone else's details, and to billing when the charge is on their own bill, whatever the amount."
+}

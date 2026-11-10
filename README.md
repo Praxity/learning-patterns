@@ -36,6 +36,7 @@ With Node 22, run `npm ci` and `npm run demo`, then `node scripts/serve-demo.mjs
 | [Pre-test to skip sections](patterns/test-out/README.md) | A short placement check marks which sections of a course you can skip; passing an advanced section credits the sections it builds on. |
 | [Write the wrong options](patterns/write-distractors/README.md) | Answer a question, write wrong options and the misconception behind each, then compare with the author's. |
 | [Split by proportion](patterns/split-by-proportion/README.md) | Split a fixed total across a few options by dragging the dividers on one bar, then compare your split with the real one. |
+| [Change one detail](patterns/change-one-detail/README.md) | Decide a case, decide again after one stated detail changes, then see which detail the rule turns on. |
 | [Finish a worked example](patterns/finish-worked-example/README.md) | Study one fully worked case, then finish cases that leave more steps to you, until you do the last one alone. |
 
 ## Look and theme tokens

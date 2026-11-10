@@ -31,6 +31,68 @@ Write the task, a short checklist, a hint for each missing part and a model answ
 3. "Show feedback" shows the model answer, numbered to match the checklist, and marks each part "Included" or "To add" from their ticks, with a hint for each part to add.
 4. They can edit the answer or the ticks and check again. "Start over" clears both.
 
+## Write this in .prax
+
+Write a task after `::: self-check`, then a `model:` answer and one or more criteria. Start each criterion with `::`, give it a `missed:` hint, and optionally add `evidence:` that appears exactly once in the model answer. Studio creates the item IDs.
+
+The learner writes an answer and compares it with the criteria and model answer. Studio does not assess their prose or calculate a score. Answers stay on the device by default; `private=false` allows answer reporting. These examples require the learner to show feedback before completing the activity or passing its slide gate.
+
+Author these fields in the `.prax` source. The library demo's optional scenario and email-composer context are not supported by this Studio grammar.
+
+English ([Studio source example](https://github.com/Praxity/studio/blob/389ba9a12a5644f60fac8a750fefa4cac0a6974b/docs/prax-format/examples/self-check/en.prax)):
+
+```prax
+---
+title: Explain a delay
+lang: en
+---
+
+# Practice
+
+::: self-check Explain why the report needs another day. {required deckGate=attempt}
+model: The data arrived late. Could I send the report on Tuesday?
+
+:: Reason for the delay
+missed: Explain what caused the delay.
+evidence: The data arrived late.
+
+:: New delivery date
+missed: Propose a specific delivery date.
+evidence: Tuesday
+
+:: Respectful wording
+missed: Make a clear request without blaming anyone.
+:::
+```
+
+French ([Studio source example](https://github.com/Praxity/studio/blob/389ba9a12a5644f60fac8a750fefa4cac0a6974b/docs/prax-format/examples/self-check/fr.prax)):
+
+```prax
+---
+title: Expliquer un retard
+lang: fr
+---
+
+# Mise en pratique
+
+::: self-check Expliquez pourquoi le rapport exige une journée de plus. {required deckGate=attempt}
+model: Les données sont arrivées en retard. Puis-je vous envoyer le rapport mardi?
+
+:: Raison du retard
+missed: Expliquez ce qui a causé le retard.
+evidence: Les données sont arrivées en retard.
+
+:: Nouvelle date de livraison
+missed: Proposez une date de livraison précise.
+evidence: mardi
+
+:: Formulation respectueuse
+missed: Formulez une demande claire sans blâmer qui que ce soit.
+:::
+```
+
+See the [Studio grammar reference](https://github.com/Praxity/studio/blob/389ba9a12a5644f60fac8a750fefa4cac0a6974b/docs/prax-format/reference/blocks-interactive.md#self-check) for supported settings and output limits. These examples use Studio source revision `389ba9a`.
+
 ## Evidence
 
 Adults checked their recall against a list of key ideas. They judged their learning more accurately and did better on a later test ([Rawson, O'Neil and Dunlosky, 2011](https://doi.org/10.1037/a0024749)). Seeing the correct answer made middle school students less sure of their wrong answers ([Lipko et al., 2009](https://doi.org/10.1037/a0017599)).
