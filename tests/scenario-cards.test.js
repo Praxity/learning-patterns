@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-for (const name of ['draw-your-guess', 'estimate-magnitude', 'if-then-plan', 'prolific-questions', 'self-check', 'split-by-proportion']) {
+for (const name of ['draw-your-guess', 'estimate-magnitude', 'if-then-plan', 'mark-colleague', 'prolific-questions', 'self-check', 'split-by-proportion']) {
   const { render } = await import(`../patterns/${name}/render.js`);
   const { strings } = await import(`../patterns/${name}/strings.js`);
   const { validateContent } = await import(`../patterns/${name}/logic.js`);
@@ -16,7 +16,7 @@ for (const name of ['draw-your-guess', 'estimate-magnitude', 'if-then-plan', 'pr
       content.context = 'A short situation.';
       content.title = 'A card title.';
       content.question = 'What would you choose?';
-      if (['estimate-magnitude', 'if-then-plan'].includes(name)) delete content.question;
+      if (['estimate-magnitude', 'if-then-plan', 'mark-colleague'].includes(name)) delete content.question;
     }
     const output = render(content, strings.en, { id: 'scenario', lang: 'en' });
     assert.doesNotMatch(output, /lp-scene|Context:|Contexte/);

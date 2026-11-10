@@ -1,0 +1,22 @@
+/* Mark a colleague's answer specifics. Link lib/base.css before this file. */
+/* Each email is set apart by a rule, a heading with the mail icon, a small subject line and spacing.
+   No panel: the card is the only box (owner, 2026-11-10). */
+.lp-mark-colleague-from { display: flex; gap: 8px; align-items: flex-start; font-size: var(--lp-type-body); font-weight: 600; line-height: 1.4; }
+.lp-mark-colleague-from .lp-icon { color: var(--lp-ink-2); }
+.lp-mark-colleague .lp-mark-colleague-from + .lp-small { margin-block-start: 2px; }
+/* The body is indented to the heading's text, so the sender line reads as the email's header. */
+.lp-mark-colleague-body { display: grid; gap: var(--lp-gap-label); padding-inline-start: calc(1.15em + 8px); overflow-wrap: anywhere; }
+.lp-mark-colleague .lp-mark-colleague-from + .lp-small { padding-inline-start: calc(1.15em + 8px); }
+.lp-mark-colleague .lp-mark-colleague-body { margin-block-start: var(--lp-gap-stem); }
+.lp-mark-colleague-issues { display: grid; gap: var(--lp-gap-group); padding: 0; list-style: none; }
+.lp-mark-colleague-issues > li { display: grid; gap: var(--lp-gap-hint); }
+/* The grid gap spaces an issue's lines; the shared stem and label margins would double it. */
+.lp-mark-colleague .lp-mark-colleague-issues > li > * { margin: 0; }
+.lp-mark-colleague-mark { display: flex; gap: 6px; align-items: flex-start; font-size: var(--lp-type-small); font-weight: 600; color: var(--lp-ink-2); }
+.lp-mark-colleague-mark[data-lp-raised="true"] { color: var(--lp-success-ink); }
+@container (max-width: 30rem) {
+  .lp-mark-colleague-body, .lp-mark-colleague .lp-mark-colleague-from + .lp-small { padding-inline-start: 0; }
+}
+@media (forced-colors: active) {
+  .lp-mark-colleague-mark, .lp-mark-colleague-mark[data-lp-raised="true"] { color: CanvasText; }
+}

@@ -1,0 +1,34 @@
+{
+  "title": "Give Priya feedback on her reply",
+  "context": "Your team refunds a course within 30 days of purchase and offers course credit after that. Priya, who reports to you, has drafted a reply to a customer and asked you to check it before she sends it.",
+  "colleague": "Priya",
+  "messages": [
+    {
+      "heading": "Email from Alex Moreau, customer",
+      "subject": "Refund request",
+      "body": "Hi, I bought your course 45 days ago. Can I have a refund?\nThanks, Alex"
+    },
+    {
+      "heading": "Priya's draft reply",
+      "subject": "Re: Refund request",
+      "body": "Hi Alex, thanks for getting in touch. I'm sorry, but we can't give you a refund. If you have other questions, please contact our team.\nBest, Priya"
+    }
+  ],
+  "issues": [
+    {
+      "id": "no_reason",
+      "label": "The reason for the refusal",
+      "explanation": "The reply refuses without saying why, so Alex can't tell whether the answer is final and is likely to push back. Ask Priya to say that refunds end 30 days after purchase."
+    },
+    {
+      "id": "no_alternative",
+      "label": "What Alex gets instead of a refund",
+      "explanation": "The reply offers Alex nothing, though the team gives course credit after 30 days. Ask Priya to offer the credit, so Alex has something to accept."
+    },
+    {
+      "id": "vague_next_step",
+      "label": "The last sentence, \"please contact our team\"",
+      "explanation": "Alex has already written to the team, so \"please contact our team\" leads nowhere. Ask Priya to say who Alex should write to, and how."
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Mark a colleague's answer content",
+  "type": "object",
+  "required": ["title", "context", "colleague", "messages", "issues"],
+  "additionalProperties": false,
+  "properties": {
+    "title": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "context": { "type": "string", "minLength": 1, "maxLength": 400 },
+    "colleague": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "messages": {
+      "type": "array", "minItems": 1, "maxItems": 3,
+      "description": "In reading order. The last message is the colleague's work under review.",
+      "items": {
+        "type": "object", "required": ["heading", "body"], "additionalProperties": false,
+        "properties": {
+          "heading": { "type": "string", "minLength": 1, "maxLength": 120 },
+          "subject": { "type": "string", "minLength": 1, "maxLength": 120 },
+          "body": { "type": "string", "minLength": 1, "maxLength": 1500 }
+        }
+      }
+    },
+    "issues": {
+      "type": "array", "minItems": 2, "maxItems": 5, "x-uniqueBy": "id",
+      "items": {
+        "type": "object", "required": ["id", "label", "explanation"], "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "minLength": 1, "maxLength": 120, "pattern": "^[a-zA-Z0-9_-]+$" },
+          "label": { "type": "string", "minLength": 1, "maxLength": 120 },
+          "explanation": { "type": "string", "minLength": 1, "maxLength": 1500 }
+        }
+      }
+    }
+  }
+}

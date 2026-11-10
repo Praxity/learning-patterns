@@ -39,7 +39,8 @@ for (const lang of ['en', 'fr']) {
     ['misconception', 1500, '[data-lp-check]'], ['explain-back', 1500, '[data-lp-check]'],
     ['journal', 1500, '[data-lp-save]'], ['conversation', 1200, '[data-lp-send]'],
     ['live-feedback', 1200, null], ['course-lookup', 500, null],
-    ['first-answer', 2000, '[data-lp-save-first]'], ['write-distractors', 2000, '[data-lp-check]']
+    ['first-answer', 2000, '[data-lp-save-first]'], ['write-distractors', 2000, '[data-lp-check]'],
+    ['mark-colleague', 2000, '[data-lp-check]']
   ]) test(`${name} preserves oversized text and links an error (${lang})`, async ({ page }) => {
     await mount(page, name, lang);
     const input = page.getByRole('textbox').first(), draft = 'x'.repeat(limit + 1);
