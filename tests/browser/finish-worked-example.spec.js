@@ -81,7 +81,7 @@ test('opens on the fully worked case: nothing to answer, every step labelled, on
   await expect(panel(page, 0).locator('[data-lp-case-heading]')).toHaveText('Case 1 of 3. All 3 steps are done for you. Read the reason for each one.');
   await expect(panel(page, 0).locator('dt')).toHaveText(['Purchase order', 'Invoice', 'Delivery record']);
   await expect(panel(page, 0).getByRole('listitem')).toHaveCount(3);
-  await expect(step(page, 0, 0)).toHaveText('Step 1, Done for you Does the invoice match the order? It matches Same items, quantity and price as the order. If any of them differed, the supplier would have to correct the invoice first.');
+  await expect(step(page, 0, 0)).toHaveText('Step 1, Done for you Does the invoice match the order? It matches Same items, quantity and price as the order. Your company holds an invoice only when it differs from the order.');
   await expect(page.getByRole('radio')).toHaveCount(0);
   await expect(page.getByRole('button')).toHaveText(['Next case']);
   await expect(page.locator('details:visible')).toHaveCount(0);
@@ -134,7 +134,7 @@ for (const keyboard of [false, true]) test(`whole journey by ${keyboard ? 'keybo
   }
   const feedback = third.locator('[data-lp-feedback]');
   await expect(feedback).toBeFocused();
-  await expect(feedback).toHaveText('Incorrect. Correct answer: Pay only for what arrived. The invoice matches the order, so you pay $320 for the 8 cartridges that arrived.');
+  await expect(feedback).toHaveText('Incorrect. Correct answer: Pay only for what arrived. The invoice matches the order, so you do not hold it. You pay $320 for the 8 cartridges that arrived.');
   await expect(feedback.locator('.lp-visually-hidden')).toHaveText('Incorrect. Correct answer: Pay only for what arrived.');
   if (keyboard && browserName === 'chromium') expect(await feedback.evaluate(el => getComputedStyle(el).outlineWidth)).toBe('3px');
   await expect(third.locator('.lp-choice').nth(0)).toHaveAttribute('data-lp-mark', 'wrong');
@@ -206,7 +206,7 @@ for (const keyboard of [false, true]) test(`whole journey by ${keyboard ? 'keybo
   await expect(third.locator('[data-lp-feedback]')).toBeHidden();
   await expect(check).toBeVisible();
   await answerStep(page, 1, 2, 1);
-  await expect(third.locator('[data-lp-feedback]')).toHaveText('Correct. The invoice matches the order, so you pay $320 for the 8 cartridges that arrived.');
+  await expect(third.locator('[data-lp-feedback]')).toHaveText('Correct. The invoice matches the order, so you do not hold it. You pay $320 for the 8 cartridges that arrived.');
 });
 
 test('French journey uses French labels, feedback, marks and typography', async ({ page }) => {
@@ -222,7 +222,7 @@ test('French journey uses French labels, feedback, marks and typography', async 
   await panel(page, 1).getByRole('button', { name: 'Vérifier l’étape 3' }).click();
   await expect(step(page, 1, 2).locator('[data-lp-question-error]')).toHaveText('Choisissez une réponse pour cette étape.');
   await answerStep(page, 1, 2, 2);
-  expect(await step(page, 1, 2).locator('[data-lp-feedback]').evaluate(el => el.textContent)).toBe(fr('Incorrect. Bonne réponse : Payer seulement ce qui est arrivé. La facture correspond au bon de commande, donc vous payez 320 $ pour les 8 cartouches arrivées.'));
+  expect(await step(page, 1, 2).locator('[data-lp-feedback]').evaluate(el => el.textContent)).toBe(fr('Incorrect. Bonne réponse : Payer seulement ce qui est arrivé. La facture correspond au bon de commande, donc vous ne la retenez pas. Vous payez 320 $ pour les 8 cartouches arrivées.'));
   await expect(step(page, 1, 2).locator('.lp-choice-mark')).toHaveText(['Bonne réponse', 'Incorrect']);
   await expectChoiceMarks(page);
   await panel(page, 1).getByRole('button', { name: 'Cas suivant' }).click();
@@ -301,8 +301,8 @@ test('without JavaScript every case is readable and each case’s answers open o
     await page.locator('[data-lp-case]').nth(1).getByRole('radio').nth(1).check();
     await page.locator('summary').first().click();
     await expect(page.locator('details').first().locator('li')).toHaveText(lang === 'en'
-      ? ['Step 3: Pay only for what arrived The invoice matches the order, so you pay $320 for the 8 cartridges that arrived.']
-      : [frenchTypography('Étape 3 : Payer seulement ce qui est arrivé La facture correspond au bon de commande, donc vous payez 320 $ pour les 8 cartouches arrivées.', 'fr')], { useInnerText: true });
+      ? ['Step 3: Pay only for what arrived The invoice matches the order, so you do not hold it. You pay $320 for the 8 cartridges that arrived.']
+      : [frenchTypography('Étape 3 : Payer seulement ce qui est arrivé La facture correspond au bon de commande, donc vous ne la retenez pas. Vous payez 320 $ pour les 8 cartouches arrivées.', 'fr')], { useInnerText: true });
     await page.locator('summary').nth(1).click();
     await expect(page.locator('details').nth(1).locator('li')).toHaveCount(3);
     // axe needs page scripts, so it checks this same markup after destroy() in the last test.
@@ -364,13 +364,73 @@ test('at 1280px each fact sits beside its label and the title is the largest tex
     return {
       title: size('h2.lp-heading'), heading: size('[data-lp-case]:not([hidden]) h3'), share: size('[data-lp-case]:not([hidden]) .lp-finish-worked-example-share'),
       question: size('[data-lp-case]:not([hidden]) legend .lp-run-in'), tag: size('[data-lp-case]:not([hidden]) .lp-finish-worked-example-tag'),
-      beside: Math.abs(label.top - value.top) < 2 && value.left > label.right
+      label: size('[data-lp-case]:not([hidden]) dt'),
+      beside: Math.abs(label.top - value.top) < 3 && value.left > label.right
     };
   });
-  expect(layout).toEqual({ title: 21, heading: 19, share: 16, question: 17, tag: 16, beside: true });
+  expect(layout).toEqual({ title: 21, heading: 19, share: 16, question: 17, tag: 16, label: 16, beside: true });
 });
 
-test('forced colours keep the step labels, the facts panel and the marks visible', async ({ page, browserName }) => {
+test('the card is the only box: the facts have no panel and a rule sets the steps apart', async ({ page }) => {
+  await open(page, 'en', AT_CASE_3);
+  const look = await panel(page, 2).evaluate(root => {
+    const facts = getComputedStyle(root.querySelector('.lp-finish-worked-example-facts'));
+    const steps = getComputedStyle(root.querySelector('.lp-finish-worked-example-steps'));
+    // Choice rows and the status pills are shared roles from lib/base.css; nothing else inside the card is filled or bordered.
+    const boxed = [...root.querySelectorAll('*')].filter(el => !el.closest('.lp-choice, .lp-button, .lp-finish-worked-example-tag') && el.getClientRects().length
+      && (getComputedStyle(el).backgroundColor !== 'rgba(0, 0, 0, 0)' || ['Top', 'Right', 'Bottom', 'Left'].filter(side => parseFloat(getComputedStyle(el)[`border${side}Width`]) > 0).length > 1)).map(el => el.className);
+    const [first, second] = [...root.querySelectorAll('[data-lp-step]')].map(el => el.getBoundingClientRect());
+    return { fill: facts.backgroundColor, border: facts.borderTopWidth, padding: facts.paddingLeft, rule: [steps.borderTopWidth, steps.borderTopStyle, steps.paddingTop, steps.paddingLeft], stepGap: Math.round(second.top - first.bottom), boxed };
+  });
+  expect(look).toEqual({ fill: 'rgba(0, 0, 0, 0)', border: '0px', padding: '0px', rule: ['1px', 'solid', '24px', '0px'], stepGap: 24, boxed: [] });
+});
+
+test('missing or mismatched server markup fails loudly through enhance and changes nothing', async ({ page }) => {
+  await open(page);
+  const failures = await page.evaluate(async content => {
+    const { enhance } = await import('/patterns/finish-worked-example/enhance.js');
+    const { render } = await import('/patterns/finish-worked-example/render.js');
+    const { strings } = await import('/patterns/finish-worked-example/strings.js');
+    const planted = {
+      'no status region': root => root.querySelector('[role="status"]').remove(),
+      'no case heading': root => root.querySelector('[data-lp-case-heading]').removeAttribute('data-lp-case-heading'),
+      'no worked result': root => root.querySelector('[data-lp-body]').remove(),
+      'no reason line': root => root.querySelector('[data-lp-feedback]').remove(),
+      'no check button': root => root.querySelector('[data-lp-check]').remove(),
+      'a radio missing from a group': root => root.querySelector('input[type="radio"]').closest('label').remove(),
+      'a radio with the wrong value': root => { root.querySelector('input[type="radio"]').value = '7'; },
+      'a checkbox in a radio group': root => { root.querySelector('input[type="radio"]').type = 'checkbox'; },
+      'a step missing from a case': root => root.querySelector('[data-lp-step]').remove(),
+      'an extra step in a case': root => root.querySelector('[data-lp-step]').after(root.querySelector('[data-lp-step]').cloneNode(true)),
+      'a case missing': root => root.querySelectorAll('[data-lp-case]')[2].remove(),
+      'an extra case': root => root.querySelector('[data-lp-case]').after(root.querySelector('[data-lp-case]').cloneNode(true))
+    };
+    return Object.fromEntries(Object.entries(planted).map(([name, corrupt]) => {
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = render(content, strings.en, { id: 'bad', lang: 'en' });
+      const root = wrapper.firstElementChild;
+      corrupt(root);
+      const before = root.outerHTML;
+      try { enhance(root, { content, strings: strings.en }); return [name, 'no error']; } catch (error) { return [name, `${error.message}${root.outerHTML === before ? '' : ' (markup changed)'}`]; }
+    }));
+  }, english);
+  expect(failures).toEqual({
+    'no status region': 'Missing finish-worked-example markup: [role="status"]',
+    'no case heading': 'Missing finish-worked-example markup: [data-lp-case-heading]',
+    'no worked result': 'Missing finish-worked-example markup: [data-lp-body]',
+    'no reason line': 'Missing finish-worked-example markup: [data-lp-feedback]',
+    'no check button': 'Missing finish-worked-example markup: [data-lp-check]',
+    'a radio missing from a group': 'Invalid finish-worked-example options markup',
+    'a radio with the wrong value': 'Invalid finish-worked-example options markup',
+    'a checkbox in a radio group': 'Invalid finish-worked-example options markup',
+    'a step missing from a case': 'Invalid finish-worked-example steps markup',
+    'an extra step in a case': 'Invalid finish-worked-example steps markup',
+    'a case missing': 'Invalid finish-worked-example cases markup',
+    'an extra case': 'Invalid finish-worked-example cases markup'
+  });
+});
+
+test('forced colours keep the step labels and the marks visible', async ({ page, browserName }) => {
   test.skip(browserName !== 'chromium', 'Forced colours emulation checked in Chromium.');
   await page.emulateMedia({ forcedColors: 'active' });
   await open(page, 'en', AT_CASE_3);
@@ -382,12 +442,10 @@ test('forced colours keep the step labels, the facts panel and the marks visible
     return {
       canvasText,
       tag: getComputedStyle(root.querySelector('.lp-finish-worked-example-tag[data-lp-yours]')).borderTopColor,
-      facts: getComputedStyle(root.querySelector('.lp-finish-worked-example-facts')).borderTopColor,
       marked: [...root.querySelectorAll('[data-lp-mark]')].map(row => getComputedStyle(row).borderTopStyle)
     };
   });
   expect(borders.tag).toBe(borders.canvasText);
-  expect(borders.facts).toBe(borders.canvasText);
   expect(borders.marked).toEqual(['double', 'dashed']);
   await expect(panel(page, 2).locator('.lp-finish-worked-example-tag').first()).toHaveText('Your step');
   expect(await axe(page)).toEqual([]);

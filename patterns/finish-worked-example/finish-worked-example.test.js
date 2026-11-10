@@ -194,9 +194,9 @@ test('render gives a complete page without JavaScript: every case, radio groups 
   assert.match(cases[1], /<p class="lp-finish-worked-example-answer">Some items are missing<\/p>\s*<p>Only 8 of the 10 cartridges arrived\.<\/p>/);
   // The answers the learner has not been shown are only in the disclosure.
   const [visible, answers] = cases[1].split('data-lp-fallback');
-  assert.ok(!visible.includes('you pay $320'));
+  assert.ok(!visible.includes('You pay $320'));
   assert.match(answers, /<summary>Answers for case 2<\/summary>/);
-  assert.match(answers, /Step 3: Pay only for what arrived<\/strong><p>The invoice matches the order, so you pay \$320 for the 8 cartridges that arrived\.<\/p>/);
+  assert.match(answers, /Step 3: Pay only for what arrived<\/strong><p>The invoice matches the order, so you do not hold it\. You pay \$320 for the 8 cartridges that arrived\.<\/p>/);
   assert.ok(!answers.includes('Step 1:'));
   // Controls that need JavaScript start hidden.
   assert.equal((markup.match(/data-lp-step-actions hidden/g) ?? []).length, 4);

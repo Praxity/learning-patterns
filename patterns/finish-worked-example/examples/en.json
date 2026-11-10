@@ -27,8 +27,8 @@
         { "label": "Delivery record", "text": "20 office chairs received" }
       ],
       "steps": [
-        { "answer": 0, "worked": true, "reason": "Same items, quantity and price as the order. If any of them differed, the supplier would have to correct the invoice first." },
-        { "answer": 0, "worked": true, "reason": "The record shows all 20 chairs. If some were missing, you would pay only for what arrived." },
+        { "answer": 0, "worked": true, "reason": "Same items, quantity and price as the order. Your company holds an invoice only when it differs from the order." },
+        { "answer": 0, "worked": true, "reason": "The record shows all 20 chairs. When items are missing and the invoice matches the order, your company pays for what arrived." },
         { "answer": 0, "worked": true, "reason": "Both checks passed, so you pay the full $1,700." }
       ]
     },
@@ -41,7 +41,7 @@
       "steps": [
         { "answer": 0, "worked": true, "reason": "Same items, quantity and price as the order." },
         { "answer": 1, "worked": true, "reason": "Only 8 of the 10 cartridges arrived." },
-        { "answer": 1, "worked": false, "reason": "The invoice matches the order, so you pay $320 for the 8 cartridges that arrived." }
+        { "answer": 1, "worked": false, "reason": "The invoice matches the order, so you do not hold it. You pay $320 for the 8 cartridges that arrived." }
       ]
     },
     {
@@ -53,7 +53,7 @@
       "steps": [
         { "answer": 1, "worked": false, "reason": "The invoice charges $240 a desk. The order says $220." },
         { "answer": 0, "worked": false, "reason": "The record shows all 12 desks." },
-        { "answer": 2, "worked": false, "reason": "The price is wrong, so the supplier corrects the invoice before you pay anything." }
+        { "answer": 2, "worked": false, "reason": "The invoice differs from the order, so you hold it until the supplier corrects it." }
       ]
     }
   ]

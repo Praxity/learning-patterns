@@ -1,13 +1,15 @@
 /* Finish-worked-example specifics. Link lib/base.css first for shared styles and tokens. */
 /* The case heading carries its own second line: how many of the steps are the learner's. */
 .lp-finish-worked-example-share { display: block; margin-block-start: var(--lp-gap-hint); font-family: var(--lp-font-body); font-weight: 400; letter-spacing: 0; }
-/* The case's facts: a quiet panel of labelled lines, never a second card. */
-.lp-finish-worked-example-facts { display: grid; gap: 6px; margin: var(--lp-gap-flow) 0 0; padding: 12px 16px; border: 1px solid transparent; border-radius: 8px; background: var(--lp-paper-2); }
-.lp-finish-worked-example-facts > div { display: grid; grid-template-columns: 10rem minmax(0, 1fr); gap: 12px; }
-.lp-finish-worked-example-facts dt { color: var(--lp-ink-2); font-weight: 600; }
+/* The case's facts are labelled lines with no panel: the card is the only box (AGENTS.md, Look).
+   Labels use the lp-label look, and the steps list below is an lp-section, whose rule sets the two apart. */
+.lp-finish-worked-example-facts { display: grid; gap: 6px; margin: var(--lp-gap-flow) 0 0; }
+.lp-finish-worked-example-facts > div { display: grid; grid-template-columns: 10rem minmax(0, 1fr); gap: 12px; align-items: baseline; }
+.lp-finish-worked-example-facts dt { color: var(--lp-ink-2); font-size: var(--lp-type-small); font-weight: 600; }
 .lp-finish-worked-example-facts dd { margin: 0; }
-.lp-finish-worked-example-steps { display: grid; gap: var(--lp-gap-group); margin: var(--lp-gap-group) 0 0; padding: 0; list-style: none; }
-.lp-finish-worked-example-step { min-inline-size: 0; }
+.lp-finish-worked-example-steps { display: grid; gap: var(--lp-gap-group); padding-inline: 0; list-style: none; }
+/* The list's grid gap spaces the steps; the flow margin an lp-section gives its children would add to it. */
+.lp-finish-worked-example-step { min-inline-size: 0; margin-block-start: 0; }
 /* Step number, then whose step it is. The learner's steps carry the accent pill, so a glance down the
    list shows how much of the case is theirs; the words say the same without colour. */
 .lp-finish-worked-example-head { display: flex; flex-wrap: wrap; gap: var(--lp-gap-hint) var(--lp-gap-label); align-items: center; }
@@ -36,6 +38,6 @@
   .lp-finish-worked-example-enter { animation: none; }
 }
 @media (forced-colors: active) {
-  /* The transparent borders above take a system colour here, so the panel and pill keep an edge. */
+  /* The pill's transparent border takes a system colour here, so it keeps an edge. */
   .lp-finish-worked-example .lp-button-quiet { text-decoration: underline; text-underline-offset: 3px; }
 }

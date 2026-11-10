@@ -28,6 +28,8 @@ Pick a procedure with two to four steps. Write each step as a question with two 
 
 Decide which steps the learner does in each case. The first case is fully worked. Each later case hands over at least one more step and keeps the ones already handed over. The learner does every step of the last case.
 
+State the rule behind each step in the first case's reasons. Then check every wrong option in the later cases: it must be wrong under a rule the first case states, not only under your own practice.
+
 Keep it short. A learner should finish in about two minutes, and the field limits are set for that.
 
 Nearby patterns show a model after the attempt, or once at the start. [Check your own answer](../self-check/README.md) shows a model answer after the learner writes theirs. [Prolific questions](../prolific-questions/README.md) shows one worked example, then whole cases. [Your first answer replayed](../first-answer/README.md) compares two of the learner's own answers, and [Explain what you learned](../explain-back/README.md) checks an explanation of a reading. This pattern starts from the full model and takes it away one step at a time.

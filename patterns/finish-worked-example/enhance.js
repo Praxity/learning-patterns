@@ -27,12 +27,17 @@ export function enhance(root, { content, strings, state }) {
   const display = value => frenchTypography(value, root.lang);
   const status = required(root, '[role="status"]');
   const last = content.cases.length - 1;
-  const cases = [...root.querySelectorAll('[data-lp-case]')].map((panel, c) => {
-    const steps = [...panel.querySelectorAll('[data-lp-step]')].map((item, s) => {
-      if (content.cases[c]?.steps[s]?.worked) return { body: required(item, '[data-lp-body]'), question: null };
+  // Counts are checked before the parts, so an extra or missing case or step is named as that.
+  const panels = [...root.querySelectorAll('[data-lp-case]')];
+  if (panels.length !== content.cases.length) throw new Error('Invalid finish-worked-example cases markup');
+  const cases = panels.map((panel, c) => {
+    const items = [...panel.querySelectorAll('[data-lp-step]')];
+    if (items.length !== content.steps.length) throw new Error('Invalid finish-worked-example steps markup');
+    const steps = items.map((item, s) => {
+      if (content.cases[c].steps[s].worked) return { body: required(item, '[data-lp-body]'), question: null };
       const fieldset = required(item, 'fieldset');
       const radios = [...fieldset.querySelectorAll('input')];
-      if (radios.length !== content.steps[s]?.options.length || radios.some((radio, n) => radio.type !== 'radio' || radio.value !== String(n))) throw new Error('Invalid finish-worked-example options markup');
+      if (radios.length !== content.steps[s].options.length || radios.some((radio, n) => radio.type !== 'radio' || radio.value !== String(n))) throw new Error('Invalid finish-worked-example options markup');
       const rows = radios.map(radio => /** @type {HTMLElement} */ (radio.closest('label')));
       return { body: null, question: {
         item: /** @type {HTMLElement} */ (item), fieldset, radios, rows,
@@ -40,7 +45,6 @@ export function enhance(root, { content, strings, state }) {
         actions: required(item, '[data-lp-step-actions]'), check: required(item, '[data-lp-check]')
       } };
     });
-    if (steps.length !== content.steps.length) throw new Error('Invalid finish-worked-example steps markup');
     return {
       panel: /** @type {HTMLElement} */ (panel), steps,
       heading: required(panel, '[data-lp-case-heading]'), nav: required(panel, '[data-lp-nav]'),
@@ -49,7 +53,6 @@ export function enhance(root, { content, strings, state }) {
       fallback: optional(panel, '[data-lp-fallback]')
     };
   });
-  if (cases.length !== content.cases.length) throw new Error('Invalid finish-worked-example cases markup');
   const lifetime = new AbortController();
   /** @type {(() => void)[]} */
   const unlocks = [];

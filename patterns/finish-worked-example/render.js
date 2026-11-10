@@ -23,7 +23,7 @@ export function render(content, strings, { id, lang }) {
     return `<div class="lp-section lp-finish-worked-example-case" data-lp-case>
     <h3 class="lp-stem" id="${html(`${id}-case-${c}`)}" tabindex="-1" data-lp-case-heading>${t(strings.case, { number: c + 1, total: content.cases.length })}<span class="lp-visually-hidden">. </span><span class="lp-small lp-finish-worked-example-share">${t(share, { count: yours.length, total })}</span></h3>
     <dl class="lp-finish-worked-example-facts">${item.facts.map(fact => `<div><dt>${html(fact.label, lang)}</dt><dd>${html(fact.text, lang)}</dd></div>`).join('')}</dl>
-    <ol class="lp-finish-worked-example-steps" role="list">${item.steps.map((step, s) => {
+    <ol class="lp-section lp-finish-worked-example-steps" role="list">${item.steps.map((step, s) => {
       const label = t(strings.step, { number: s + 1 });
       const question = html(content.steps[s].question, lang);
       const group = html(`${id}-case-${c}-step-${s}`);

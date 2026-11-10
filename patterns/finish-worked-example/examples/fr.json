@@ -27,8 +27,8 @@
         { "label": "Bon de réception", "text": "20 chaises de bureau reçues" }
       ],
       "steps": [
-        { "answer": 0, "worked": true, "reason": "Mêmes articles, même quantité et même prix que sur le bon de commande. Si l’un d’eux différait, le fournisseur devrait d’abord corriger la facture." },
-        { "answer": 0, "worked": true, "reason": "Le bon de réception indique les 20 chaises. S’il en manquait, vous paieriez seulement ce qui est arrivé." },
+        { "answer": 0, "worked": true, "reason": "Mêmes articles, même quantité et même prix que sur le bon de commande. Votre entreprise retient une facture seulement si elle diffère du bon de commande." },
+        { "answer": 0, "worked": true, "reason": "Le bon de réception indique les 20 chaises. S’il manque des articles et que la facture correspond au bon de commande, votre entreprise paie ce qui est arrivé." },
         { "answer": 0, "worked": true, "reason": "Les deux vérifications sont réussies, donc vous payez les 1 700 $ au complet." }
       ]
     },
@@ -41,7 +41,7 @@
       "steps": [
         { "answer": 0, "worked": true, "reason": "Mêmes articles, même quantité et même prix que sur le bon de commande." },
         { "answer": 1, "worked": true, "reason": "Seulement 8 des 10 cartouches sont arrivées." },
-        { "answer": 1, "worked": false, "reason": "La facture correspond au bon de commande, donc vous payez 320 $ pour les 8 cartouches arrivées." }
+        { "answer": 1, "worked": false, "reason": "La facture correspond au bon de commande, donc vous ne la retenez pas. Vous payez 320 $ pour les 8 cartouches arrivées." }
       ]
     },
     {
@@ -53,7 +53,7 @@
       "steps": [
         { "answer": 1, "worked": false, "reason": "La facture indique 240 $ par bureau. Le bon de commande indique 220 $." },
         { "answer": 0, "worked": false, "reason": "Le bon de réception indique les 12 bureaux." },
-        { "answer": 2, "worked": false, "reason": "Le prix est erroné, donc le fournisseur corrige la facture avant que vous payiez quoi que ce soit." }
+        { "answer": 2, "worked": false, "reason": "La facture diffère du bon de commande, donc vous la retenez jusqu’à ce que le fournisseur la corrige." }
       ]
     }
   ]
