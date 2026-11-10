@@ -188,10 +188,16 @@ for (const [lang, content, labels] of [
     await expect(hintButton(root)).toHaveAttribute('aria-disabled', 'true');
     await expect(hintButton(root)).toHaveAttribute('aria-describedby', await gate.getAttribute('id'));
     await expect(gate).toBeVisible(); await expect(gate).toHaveText(labels.gate);
-    await hintButton(root).click();
+    // Playwright waits for an enabled control, and this one reports itself unavailable. A person can
+    // still click it or press Enter on it, so do both.
+    await hintButton(root).click({ force: true });
     await expect(steps(root).nth(2)).toBeHidden(); await expect(two).toBeHidden();
-    expect(await saved(page)).toEqual({ tries: [], opened: 2, followUp: null });
     await hintButton(root).focus(); await expect(hintButton(root)).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(hintButton(root)).toBeFocused();
+    await expect(steps(root).nth(2)).toBeHidden(); await expect(two).toBeHidden();
+    await expect(gate).toBeVisible();
+    expect(await saved(page)).toEqual({ tries: [], opened: 2, followUp: null });
 
     // One checked answer opens it.
     await check(one, 'thursday');

@@ -1,4 +1,8 @@
 /* Hint-ladder specifics. Link lib/base.css first for shared styles and tokens. */
+/* A long unbroken word wraps inside the question. Without these the group's one auto track and its
+   legend both grow to their longest word and widen the page. */
+.lp-hint-ladder .lp-choices { grid-template-columns: minmax(0, 1fr); }
+.lp-hint-ladder .lp-choices > legend { max-inline-size: 100%; }
 /* A wrong option's reason sits in its row, under the option text. */
 .lp-hint-ladder-reason { font-size: var(--lp-type-small); line-height: 1.45; }
 /* The ladder: each open hint is a step under the options, set apart by space, an icon and a label.
