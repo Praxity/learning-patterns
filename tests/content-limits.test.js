@@ -17,7 +17,7 @@ for (const pattern of await readdir(new URL('../patterns/', import.meta.url))) {
       assert.ok(Number.isInteger(node.maxLength), `${pattern}.${path} has a schema limit`);
       const field = path.split('.').at(-1);
       // Identities and evidence also have reference constraints, checked by their pattern tests.
-      if (!['id', 'correct', 'misconception', 'evidence'].includes(field)) {
+      if (!['id', 'correct', 'misconception', 'evidence', 'from'].includes(field)) {
         const boundary = structuredClone(root);
         set(boundary, value + 'x'.repeat(node.maxLength - [...value].length));
         assert.doesNotThrow(() => validateContent(boundary), `${pattern}.${path} accepts its schema limit`);
