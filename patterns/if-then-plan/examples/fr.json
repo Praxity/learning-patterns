@@ -1,0 +1,21 @@
+{
+  "title": "Planifiez votre prochaine rencontre individuelle avec Sam",
+  "context": "Votre prochaine rencontre individuelle avec Sam a lieu jeudi. Essayez de poser plus de questions et de donner moins de conseils.",
+  "when": {
+    "options": [
+      { "id": "problem", "text": "Sam commence à décrire un problème" },
+      { "id": "asks", "text": "Sam me demande quoi faire" },
+      { "id": "spare", "text": "j’ai un moment libre", "vague": "Un moment libre ne viendra peut-être jamais. Choisissez quelque chose que Sam dit ou fait, pour savoir quand agir." },
+      { "id": "quiet", "text": "Sam se tait" }
+    ]
+  },
+  "will": {
+    "options": [
+      { "id": "open", "text": "poser une question ouverte avant de proposer quoi que ce soit" },
+      { "id": "patient", "text": "faire preuve de plus de patience", "vague": "Personne ne peut vous voir ni vous entendre « faire preuve de plus de patience ». Choisissez une chose que vous diriez ou feriez." },
+      { "id": "tried", "text": "demander à Sam ce qui a déjà été essayé" },
+      { "id": "repeat", "text": "reformuler ce que j’ai entendu avant de répondre" }
+    ]
+  },
+  "dateLabel": "Début de votre prochaine rencontre individuelle"
+}

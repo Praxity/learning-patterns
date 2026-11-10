@@ -1,0 +1,73 @@
+export namespace strings {
+    namespace en {
+        let whenStem: string;
+        let willStem: string;
+        let soFar: string;
+        let plan: string;
+        let whenHint: string;
+        let willHint: string;
+        let add: string;
+        let chooseWhen: string;
+        let chooseWill: string;
+        let markVague: string;
+        let vagueStatus: string;
+        let planLabel: string;
+        let dateHint: string;
+        let past: string;
+        let calendar: string;
+        let downloaded: string;
+        let fileName: string;
+        let eventNote: string;
+        let restart: string;
+        let cleared: string;
+        let vagueOptions: string;
+        let noScript: string;
+    }
+    namespace fr {
+        let whenStem_1: string;
+        export { whenStem_1 as whenStem };
+        let willStem_1: string;
+        export { willStem_1 as willStem };
+        let soFar_1: string;
+        export { soFar_1 as soFar };
+        let plan_1: string;
+        export { plan_1 as plan };
+        let whenHint_1: string;
+        export { whenHint_1 as whenHint };
+        let willHint_1: string;
+        export { willHint_1 as willHint };
+        let add_1: string;
+        export { add_1 as add };
+        let chooseWhen_1: string;
+        export { chooseWhen_1 as chooseWhen };
+        let chooseWill_1: string;
+        export { chooseWill_1 as chooseWill };
+        let markVague_1: string;
+        export { markVague_1 as markVague };
+        let vagueStatus_1: string;
+        export { vagueStatus_1 as vagueStatus };
+        let planLabel_1: string;
+        export { planLabel_1 as planLabel };
+        let dateHint_1: string;
+        export { dateHint_1 as dateHint };
+        let past_1: string;
+        export { past_1 as past };
+        let calendar_1: string;
+        export { calendar_1 as calendar };
+        let downloaded_1: string;
+        export { downloaded_1 as downloaded };
+        let fileName_1: string;
+        export { fileName_1 as fileName };
+        let eventNote_1: string;
+        export { eventNote_1 as eventNote };
+        let restart_1: string;
+        export { restart_1 as restart };
+        let cleared_1: string;
+        export { cleared_1 as cleared };
+        let vagueOptions_1: string;
+        export { vagueOptions_1 as vagueOptions };
+        let noScript_1: string;
+        export { noScript_1 as noScript };
+    }
+}
+export type Strings = typeof strings.en;
