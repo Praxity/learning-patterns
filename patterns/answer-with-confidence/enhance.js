@@ -99,8 +99,11 @@ export function enhance(root, { content, strings, state }) {
     const single = new Intl.PluralRules(/^fr(?:-|$)/i.test(root.lang) ? 'fr' : 'en').select(outcome.right.length) === 'one';
     const spoken = [text(format(single ? strings.summaryOne : strings.summaryMany, { right: outcome.right.length, total: outcome.total }))];
     summary.textContent = spoken[0];
+    // One question needs no summary: its feedback already says it all, so only Start over shows.
+    const several = content.questions.length > 1;
+    summary.hidden = !several;
     for (const { key, panel, heading, one, many } of reviews) {
-      const listed = questions.filter(({ q }) => outcome[key].includes(q.id));
+      const listed = several ? questions.filter(({ q }) => outcome[key].includes(q.id)) : [];
       panel.hidden = listed.length === 0;
       if (!listed.length) continue;
       required(panel, '[data-lp-review-hint]').textContent = text(listed.length === 1 ? one : many);
@@ -109,7 +112,7 @@ export function enhance(root, { content, strings, state }) {
     }
     if (!announce) { result.hidden = false; return; }
     reveal(result);
-    status.textContent = spoken.join(' ');
+    if (several) status.textContent = spoken.join(' ');
   }
   function reset() {
     for (const item of questions) {

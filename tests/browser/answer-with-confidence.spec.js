@@ -369,9 +369,9 @@ for (const seed of [{ answers: { 'reply-all': 'lower' } }, { answers: { 'reply-a
   });
 }
 
-test('one question: context, then the question as the card heading, and a one-question summary', async ({ page }) => {
+test('one question: context, then the question as the card heading, and no summary', async ({ page }) => {
   const { title, ...untitled } = english;
-  await mount(page, { ...untitled, questions: english.questions.slice(0, 1) });
+  await mount(page, { ...untitled, questions: english.questions.slice(0, 1) }); await observe(page);
   await expect(page.locator('.lp-answer-with-confidence-question-number, .lp-scene')).toHaveCount(0);
   await expect(page.locator('[data-lp-pattern]').getByRole('heading')).toHaveText([english.questions[0].text]);
   const order = await page.locator('[data-lp-pattern]').evaluate(card => ['.lp-context', '[data-lp-intro]', 'legend h2'].map(selector => card.querySelector(selector).getBoundingClientRect().top));
@@ -380,8 +380,11 @@ test('one question: context, then the question as the card heading, and a one-qu
   await expect(page.locator('legend h2')).toHaveCSS('font-size', '21px');
   await expect(page.getByRole('group', { name: strings.en.submitGroup, exact: true })).toBeVisible();
   await answer(page, 0, 'to-cc', 'unsure');
-  await expect(page.locator('[data-lp-summary]')).toHaveText('You answered 1 of 1 correctly.');
-  await expect(page.locator('[data-lp-review]:visible h3')).toHaveText([strings.en.verdictUnsureRight]);
+  // The feedback is the whole result, so the end shows Start over alone and announces nothing more.
+  await expect(page.locator('[data-lp-feedback="to-cc"]')).toBeFocused();
+  await expect(page.locator('[data-lp-restart]')).toBeVisible();
+  await expect(page.locator('[data-lp-summary]:visible, [data-lp-review]:visible')).toHaveCount(0);
+  expect(await announced(page)).toEqual([]);
   await scan(page);
 });
 

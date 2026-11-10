@@ -39,7 +39,7 @@ Choose questions people tend to answer quickly and get wrong. Keep the feedback 
 4. After the last question, a summary gives the number correct. It lists the questions they were sure of and got wrong, to review first, then the ones they got right without being sure.
 5. "Start over" clears every answer.
 
-Certainty never changes the result. With "Don't know" turned on, a third button submits a question without an answer and shows the correct one.
+Certainty never changes the result. With "Don't know" turned on, a third button submits a question without an answer and shows the correct one. A card with one question shows no summary, only "Start over" under the feedback.
 
 ## Evidence
 
