@@ -233,26 +233,38 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
   });
 
   for (const width of [1280, 390, 320]) for (const spacing of width === 320 ? [false, true] : [false]) {
-    test(`feedback appears in one stable box: no layout shift at ${width}px${spacing ? ' with text spacing' : ''} (${lang})`, async ({ page }) => {
+    test(`feedback appears in one stable box at ${width}px${spacing ? ' with text spacing' : ''} (${lang})`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
       await mount(page, { ...content, dontKnow: true }, { lang });
       if (spacing) await page.addStyleTag({ content: TEXT_SPACING });
       await page.evaluate(() => document.fonts.ready);
-      // Every answer and certainty, including an error first, leaves each box where and as tall as it was.
+      // Every answer and certainty leaves each box as tall as it was, and where it was in a wide card.
       const cases = [['sender', 'sure'], ['sender', 'unsure'], ['to-cc', 'sure'], ['to-cc', 'unsure'], ['all-bcc', 'sure'], [null, 'dont-know']];
       for (const [option, how] of cases) {
         const before = await boxes(page, '[data-lp-stage]');
-        const rowHeights = async () => (await boxes(page, '[data-lp-question] .lp-choice')).slice(0, 3).reduce((sum, [, height]) => sum + height, 0);
+        const rows = question(page, 0).locator('.lp-choice');
+        const rowHeights = () => rows.evaluateAll(els => els.map(el => el.getBoundingClientRect().height));
         const rowsBefore = await rowHeights();
         await answer(page, 0, option, how);
         await expect(question(page, 0).locator('[data-lp-feedback]:visible')).toHaveCount(1);
         const after = await boxes(page, '[data-lp-stage]');
         // The box keeps its height at every width.
         near(after.map(([, height]) => height), before.map(([, height]) => height), `${option} ${how} height`);
-        // Each option keeps room for its mark, beside the text or under it in a narrow card, so no row
-        // grows and nothing on the page moves at any width.
-        expect(Math.abs(await rowHeights() - rowsBefore), `${option} ${how} rows`).toBeLessThan(0.5);
-        near(after.map(([top]) => top), before.map(([top]) => top), `${option} ${how} top`);
+        const rowsAfter = await rowHeights();
+        if (width >= 1280) {
+          // A wide card keeps room for a mark beside each option, so no row grows and nothing moves.
+          near(rowsAfter, rowsBefore, `${option} ${how} rows`);
+          near(after.map(([top]) => top), before.map(([top]) => top), `${option} ${how} top`);
+        } else {
+          // A narrow card puts a mark under the text and keeps no empty line for it: the options that
+          // get a mark grow, and the others keep their height.
+          const marked = await rows.evaluateAll(els => els.map(el => el.hasAttribute('data-lp-mark')));
+          expect(marked, `${option} ${how} marks`).toContain(true);
+          rowsAfter.forEach((height, i) => {
+            if (marked[i]) expect(height - rowsBefore[i], `${option} ${how} marked row ${i}`).toBeGreaterThan(10);
+            else expect(Math.abs(height - rowsBefore[i]), `${option} ${how} unmarked row ${i}`).toBeLessThan(0.5);
+          });
+        }
         // Fresh question for the next case.
         await answer(page, 1, 'lower', 'sure'); await answer(page, 2, 'still-there', 'sure');
         await page.locator('[data-lp-restart]').click();

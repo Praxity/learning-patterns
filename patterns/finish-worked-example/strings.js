@@ -27,7 +27,7 @@ export const strings = {
     shareSome: 'Vous faites {count} des {total} étapes.',
     shareAll: 'Vous faites les {total} étapes.',
     step: 'Étape {number}',
-    tagWorked: 'Fait pour vous',
+    tagWorked: 'Déjà faite',
     tagYours: 'Votre étape',
     check: 'Vérifier l’étape {number}',
     choose: 'Choisissez une réponse pour cette étape.',

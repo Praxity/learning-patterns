@@ -118,7 +118,7 @@ document.querySelector('main').innerHTML = render(content, strings.en, { id: 'pr
 const instance = enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en });
 ```
 
-The submit control and every possible feedback for a question share one grid cell, so the space is as tall as the tallest of them from the start and showing feedback moves nothing. The space is unpainted: before an answer it is only room under the buttons. Each option also keeps room for the widest answer mark, beside its text or under it in containers narrower than 34rem, so a mark never changes an option's height. The "Choose an answer first." message uses the same space; in a narrow container, where the buttons stack, it can add a line or two.
+The submit control and every possible feedback for a question share one grid cell, so the space is as tall as the tallest of them from the start and showing feedback moves nothing. The space is unpainted: before an answer it is only room under the buttons. Each option also keeps room for the widest answer mark beside its text, so a mark never changes an option's height. In containers narrower than 34rem the mark goes under the text and no room is kept for it, so the options that get a mark grow by one line. The "Choose an answer first." message uses the same space; in a narrow container, where the buttons stack, it can add a line or two.
 
 ### Accessibility details
 
