@@ -100,10 +100,14 @@ export function enhance(root, { content, strings, state }) {
    * that held focus are gone. The region speaks only the closing sentence, after the focus move.
    * @param {number} n @param {boolean} decided */
   function settled(n, decided) {
-    const now = paint(), line = items[n].status;
+    const now = paint(), line = items[n].status, view = root.ownerDocument.defaultView;
     line.focus({ preventScroll: true });
     // Keep the line and its marked steps in view; the next payment appears below without scrolling.
-    reveal(line);
+    // When the marked steps run past the bottom, the line goes to the top so as many as fit show under it.
+    const marked = items[n].rows.filter(row => row.dataset.lpMark).at(-1);
+    if (view && marked && marked.getBoundingClientRect().bottom > view.innerHeight) {
+      line.scrollIntoView({ block: 'start', behavior: view.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+    } else reveal(line);
     if (now.stage === 'done' && decided) reveal(result);
     status.textContent = now.stage === 'done' ? total.textContent : '';
     save();

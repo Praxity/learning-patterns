@@ -10,9 +10,11 @@
 /* Names in one column and results in the next at every width, so results on adjacent lines, such
    as two account endings, sit one above the other. A long name wraps inside its own column. */
 .lp-mistake-recover-record > div { display: contents; }
-.lp-mistake-recover-record dt { font-weight: 600; }
+/* A long unbroken name breaks inside its column; otherwise its min-content width widens the track past the card. */
+.lp-mistake-recover-record dt { font-weight: 600; min-inline-size: 0; overflow-wrap: anywhere; }
 .lp-mistake-recover-record dd { margin: 0; min-inline-size: 0; overflow-wrap: anywhere; }
-.lp-mistake-recover-status { font-variant-numeric: tabular-nums; border-radius: 4px; }
+/* The margin keeps the focus ring on screen when a check scrolls the line to the top. */
+.lp-mistake-recover-status { font-variant-numeric: tabular-nums; border-radius: 4px; scroll-margin-block-start: 16px; }
 .lp-mistake-recover-status:focus-visible { outline-offset: 6px; }
 /* A step's reason sits in its row, under the step text. */
 .lp-mistake-recover-reason { font-size: var(--lp-type-small); line-height: 1.45; }
