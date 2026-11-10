@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Answer with confidence content",
+  "type": "object",
+  "required": ["questions"],
+  "additionalProperties": false,
+  "properties": {
+    "title": { "type": "string", "minLength": 1, "maxLength": 120, "x-requiredWithSeveral": "questions" },
+    "context": { "type": "string", "minLength": 1, "maxLength": 400 },
+    "dontKnow": { "type": "boolean", "default": false },
+    "questions": {
+      "type": "array", "minItems": 1, "x-uniqueBy": "id",
+      "items": {
+        "type": "object",
+        "required": ["id", "text", "options", "correct"],
+        "additionalProperties": false,
+        "x-optionReference": "correct",
+        "properties": {
+          "id": { "type": "string", "minLength": 1, "pattern": "^[a-zA-Z0-9_-]+$", "maxLength": 120 },
+          "text": { "type": "string", "minLength": 1, "maxLength": 400 },
+          "correct": { "type": "string", "minLength": 1, "maxLength": 120 },
+          "options": {
+            "type": "array", "minItems": 2, "maxItems": 6, "x-uniqueBy": "id",
+            "items": {
+              "type": "object", "required": ["id", "text", "feedback"], "additionalProperties": false,
+              "properties": {
+                "id": { "type": "string", "minLength": 1, "pattern": "^[a-zA-Z0-9_-]+$", "not": { "const": "dont-know" }, "maxLength": 120 },
+                "text": { "type": "string", "minLength": 1, "maxLength": 300 },
+                "feedback": { "type": "string", "minLength": 1, "maxLength": 300 },
+                "rightWhen": { "type": "string", "minLength": 1, "maxLength": 200, "x-wrongOptionsOnly": true }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -297,7 +297,7 @@ test('pattern relationships scale with a 20px default font', async ({ page }) =>
 for (const lang of ['en', 'fr']) for (const textSpacing of [false, true]) {
   test(`400% reflow preserves fields and choices (${lang}, text spacing ${textSpacing})`, async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 900 });
-    for (const name of ['journal', 'first-answer', 'retrieval-sheet', 'dont-know', 'write-distractors', 'self-check', 'test-out']) {
+    for (const name of ['journal', 'first-answer', 'retrieval-sheet', 'dont-know', 'answer-with-confidence', 'write-distractors', 'self-check', 'test-out']) {
       await open(page, name, lang);
       if (textSpacing) await page.addStyleTag({ content: TEXT_SPACING });
       if (name === 'first-answer') await page.locator('[data-lp-save-first]').click();
