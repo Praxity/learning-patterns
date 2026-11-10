@@ -243,6 +243,47 @@ test('host state restores silently, ignores damaged values and survives destroy 
   await expect(page.locator('[data-lp-fallback]')).toBeVisible();
 });
 
+test('destroy stops saving, and a fresh enhance saves once per event', async ({ page }) => {
+  await open(page);
+  const writes = await page.evaluate(async content => {
+    const { enhance } = await import('/patterns/mark-colleague/enhance.js');
+    const { strings } = await import('/patterns/mark-colleague/strings.js');
+    const root = document.querySelector('[data-lp-pattern]');
+    const field = root.querySelector('textarea');
+    const log = [];
+    const state = { read: () => null, write: value => log.push(value) };
+    window.lpInstances[0].destroy();
+    enhance(root, { content, strings: strings.en, state }).destroy();
+    // A destroyed instance hears nothing.
+    field.value = 'Say why.';
+    field.dispatchEvent(new Event('input'));
+    root.querySelector('[data-lp-check]').click();
+    const afterDestroy = log.length;
+    enhance(root, { content, strings: strings.en, state });
+    field.dispatchEvent(new Event('input'));
+    root.querySelector('[data-lp-check]').click();
+    const tick = root.querySelector('input[value="no_reason"]');
+    tick.checked = true;
+    tick.dispatchEvent(new Event('change'));
+    root.querySelector('[data-lp-show]').click();
+    return { afterDestroy, stages: log.map(value => value.stage), last: log.at(-1) };
+  }, examples.en);
+  expect(writes.afterDestroy).toBe(0);
+  expect(writes.stages).toEqual(['write', 'compare', 'compare', 'done']);
+  expect(writes.last).toEqual({ feedback: 'Say why.', ticked: ['no_reason'], stage: 'done' });
+  await expect(page.locator('[data-lp-summary]')).toHaveText('Your feedback raised 1 of 3 issues.');
+});
+
+for (const [label, feedback] of [['blank', '   '], ['too long', 'x'.repeat(2001)]]) {
+  test(`a finished state with ${label} feedback is not restored as finished`, async ({ page }) => {
+    await page.addInitScript(value => { window.lpSeed = { feedback: value, ticked: ['no_reason'], stage: 'done' }; }, feedback);
+    await open(page);
+    await expect(page.locator('[data-lp-result]')).toBeHidden();
+    await expect(field(page)).toBeEditable();
+    await expect(check(page)).toBeVisible();
+  });
+}
+
 test('a saved checklist restores with its ticks and an open field', async ({ page }) => {
   await page.addInitScript(() => { window.lpSeed = { feedback: 'Say why.', ticked: ['no_reason'], stage: 'compare' }; });
   await open(page);

@@ -15,7 +15,7 @@ Read a colleague's draft, write them feedback, tick the issues your feedback rai
 
 - Learners already know the standard for a piece of work, such as a reply to a customer or a short report, and need practice finding where a colleague's draft falls short.
 - A course on giving feedback needs a realistic draft to comment on before learners comment on a real one.
-- Experienced learners need something to do besides another explanation: reviewing someone else's work as a manager, mentor or peer.
+- Experienced learners would skim another explanation. Reviewing a draft as a manager, mentor or peer gives them a task at their level.
 
 ## Avoid it when
 
@@ -101,8 +101,6 @@ import content from './patterns/mark-colleague/examples/en.json' with { type: 'j
 document.querySelector('main').innerHTML = render(content, strings.en, { id: 'review', lang: 'en' });
 const instance = enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en });
 ```
-
-The emails are set apart by section rules, a heading with a mail icon, a small subject line and spacing. They sit in the card with no panel of their own.
 
 ### Accessibility details
 

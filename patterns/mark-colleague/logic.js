@@ -95,6 +95,8 @@ export function validateState(content, value) {
   if (ticked.some(id => typeof id !== 'string' || !known.has(id)) || new Set(ticked).size !== ticked.length) return null;
   // Ticks exist only once the checklist has been shown.
   if (stage === 'write' && ticked.length) return null;
+  // A finished state locks the field, so it needs feedback a live check would accept. Drafts may be oversized.
+  if (stage === 'done' && !validateFeedback(feedback).ok) return null;
   return { feedback, ticked: [...ticked], stage: /** @type {Stage} */ (stage) };
 }
 

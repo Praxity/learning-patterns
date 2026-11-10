@@ -19,11 +19,11 @@ export const strings = {
   },
   fr: {
     subject: 'Objet : {subject}',
-    prompt: 'Que diriez-vous à {colleague} de modifier, et pourquoi ?',
+    prompt: 'Que demanderiez-vous à {colleague} de modifier, et pourquoi ?',
     check: 'Vérifier ma rétroaction',
     empty: 'Écrivez d’abord votre rétroaction.',
     tooLong: 'Votre rétroaction doit contenir {max} caractères ou moins.',
-    legend: 'Lesquels de ces points votre rétroaction demande-t-elle à {colleague} de modifier ?',
+    legend: 'Cochez les points que votre rétroaction demande à {colleague} de modifier.',
     hint: 'S’il vous en manque un, relisez la réponse et complétez d’abord votre rétroaction.',
     show: 'Afficher les points à corriger',
     raised: 'Relevé',

@@ -94,6 +94,11 @@ test('saved state is copied when valid and rejected when damaged', () => {
   assert.notEqual(restored?.ticked, saved.ticked);
   // A draft longer than the limit is kept, so restoring never loses text; checking reports it.
   assert.deepEqual(validateState(en, { feedback: 'x'.repeat(2001), ticked: [], stage: 'write' })?.feedback.length, 2001);
+  assert.deepEqual(validateState(en, { feedback: 'x'.repeat(2001), ticked: ['no_reason'], stage: 'compare' })?.feedback.length, 2001);
+  // A finished state needs feedback a live check would have accepted.
+  assert.deepEqual(validateState(en, { feedback: 'x'.repeat(2000), ticked: [], stage: 'done' })?.stage, 'done');
+  assert.equal(validateState(en, { feedback: '   ', ticked: ['no_reason'], stage: 'done' }), null);
+  assert.equal(validateState(en, { feedback: 'x'.repeat(2001), ticked: [], stage: 'done' }), null);
   for (const damaged of [
     null, 'text', [], {},
     { feedback: 1, ticked: [], stage: 'write' },
@@ -136,10 +141,25 @@ test('server markup works without JavaScript and keeps the reading order', () =>
   assert.equal(new Set(ids).size, ids.length);
 });
 
+test('authored text with markup characters renders literally', () => {
+  const content = copy();
+  content.title = 'Review <b>this</b> & that';
+  content.colleague = 'Sam <i>';
+  content.messages[1].heading = 'Draft <script>x</script>';
+  content.messages[1].subject = 'Q&A';
+  content.messages[1].body = 'Use <em>this</em> & "that"\nBest, Sam';
+  content.issues[0].label = 'The <b>reason</b>';
+  content.issues[0].explanation = 'Say why & how <br>';
+  const html = render(content, strings.en, { id: 'mc', lang: 'en' });
+  for (const literal of ['Review &lt;b&gt;this&lt;/b&gt; &amp; that', 'tell Sam &lt;i&gt; to change', 'Draft &lt;script&gt;x&lt;/script&gt;', 'Subject: Q&amp;A',
+    '<p>Use &lt;em&gt;this&lt;/em&gt; &amp; &quot;that&quot;</p>', 'The &lt;b&gt;reason&lt;/b&gt;', 'Say why &amp; how &lt;br&gt;']) assert.ok(html.includes(literal), literal);
+  assert.doesNotMatch(html, /<(b|i|em|script|br)>/);
+});
+
 test('French markup uses French strings and typography', () => {
   const html = render(fr, strings.fr, { id: 'mc', lang: 'fr' });
   assert.ok(html.includes('lang="fr"'));
-  assert.ok(html.includes('Que diriez-vous à Priya de modifier, et pourquoi ?'));
+  assert.ok(html.includes('Que demanderiez-vous à Priya de modifier, et pourquoi ?'));
   assert.ok(html.includes('Objet : RE : Demande de remboursement'));
   assert.ok(html.includes('« veuillez communiquer avec notre équipe »'));
 });

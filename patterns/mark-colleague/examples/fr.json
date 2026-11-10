@@ -1,10 +1,10 @@
 {
   "title": "Donnez une rétroaction à Priya sur sa réponse",
-  "context": "Votre équipe rembourse un cours dans les 30 jours suivant l’achat et offre un crédit de cours après ce délai. Priya, qui relève de vous, a rédigé une réponse à une personne cliente et vous demande de la vérifier avant de l’envoyer.",
+  "context": "Votre équipe rembourse un cours dans les 30 jours suivant l’achat et offre un crédit de cours après ce délai. Priya, qui relève de vous, a rédigé une réponse à un client et vous demande de la vérifier avant de l’envoyer.",
   "colleague": "Priya",
   "messages": [
     {
-      "heading": "Courriel de la personne cliente, Alex Moreau",
+      "heading": "Courriel d’Alex Moreau, client",
       "subject": "Demande de remboursement",
       "body": "Bonjour, j’ai acheté votre cours il y a 45 jours. Puis-je obtenir un remboursement ?\nMerci, Alex"
     },
@@ -18,7 +18,7 @@
     {
       "id": "no_reason",
       "label": "La raison du refus",
-      "explanation": "La réponse refuse sans dire pourquoi, donc Alex ne peut pas savoir si la décision est définitive et risque d’insister. Demandez à Priya d’indiquer que les remboursements se terminent 30 jours après l’achat."
+      "explanation": "La réponse refuse sans dire pourquoi, donc Alex ne peut pas savoir si la décision est définitive et risque d’insister. Demandez à Priya d’indiquer que le délai de remboursement est de 30 jours après l’achat."
     },
     {
       "id": "no_alternative",
