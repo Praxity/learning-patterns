@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Mark a colleague's answer content",
+  "title": "Give feedback on a colleague's work content",
   "type": "object",
   "required": ["title", "context", "colleague", "messages", "issues"],
   "additionalProperties": false,
