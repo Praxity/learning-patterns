@@ -217,7 +217,7 @@ test('French journey uses French labels, feedback, marks and typography', async 
   await expect(panel(page, 0).locator('dd').nth(1)).toHaveText(fr('20 chaises de bureau à 85 $ chacune, total 1 700 $'), { useInnerText: true });
   await panel(page, 0).getByRole('button', { name: 'Cas suivant' }).click();
   await expect(panel(page, 1).locator('[data-lp-case-heading]')).toHaveText('Cas 2 sur 3. Vous faites 1 des 3 étapes.');
-  await expect(panel(page, 1).locator('.lp-finish-worked-example-tag')).toHaveText(['Fait pour vous', 'Fait pour vous', 'Votre étape']);
+  await expect(panel(page, 1).locator('.lp-finish-worked-example-tag')).toHaveText(['Déjà faite', 'Déjà faite', 'Votre étape']);
   await expect(panel(page, 1).getByRole('group', { name: /^Étape 3\s*,\s*Votre étape\s*,\s*Que faites-vous\s*\?$/ })).toBeVisible();
   await panel(page, 1).getByRole('button', { name: 'Vérifier l’étape 3' }).click();
   await expect(step(page, 1, 2).locator('[data-lp-question-error]')).toHaveText('Choisissez une réponse pour cette étape.');
