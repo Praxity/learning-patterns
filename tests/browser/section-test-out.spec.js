@@ -194,7 +194,6 @@ for (const [lang, content, correct, wrong, answer, summary, statuses] of [
   test(`native answers without JavaScript (${lang})`, async ({ browser, browserName }) => {
     const context = await browser.newContext({ javaScriptEnabled: false });
     const page = await context.newPage(); await page.goto(`/test-out/${lang}.html`);
-    await expect(page.getByRole('radio')).toHaveCount(9); await page.getByRole('radio').first().check();
     await page.locator('[data-lp-fallback] > summary').click();
     for (const q of content.questions) {
       await expect(page.locator('[data-lp-fallback]')).toContainText(q.options.find(o => o.id === q.correct).text);

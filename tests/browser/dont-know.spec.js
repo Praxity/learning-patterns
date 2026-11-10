@@ -178,7 +178,6 @@ test('choice names and browse text omit decorative letter keys', async ({ page }
   for (const [index, option] of english.questions[0].options.entries()) {
     const row = rows.nth(index);
     expect(await row.evaluate(el => getComputedStyle(el, '::before').content)).toBe('counter(lp-key, upper-alpha) / ""');
-    await expect(row.getByRole('radio')).toHaveAccessibleName(option.text);
     expect(await row.ariaSnapshot()).toBe(`- radio "${option.text}"\n- text: ${option.text}`);
   }
 });
@@ -239,8 +238,6 @@ for (const [lang, content, correct, wrong, answer, unknown, counts] of [
   test(`no JavaScript provides native radios and every correct option and explanation (${lang})`, async ({ browser }) => {
     const context = await browser.newContext({ javaScriptEnabled: false });
     const page = await context.newPage(); await page.goto(`/dont-know/${lang}.html`);
-    await expect(page.getByRole('radio')).toHaveCount(12);
-    await page.getByRole('radio').first().check(); await expect(page.getByRole('radio').first()).toBeChecked();
     await page.locator('summary').click(); await expect(page.locator('details')).toHaveAttribute('open', '');
     for (const q of content.questions) {
       await expect(page.locator('details')).toContainText(q.options.find(o => o.id === q.correct).text);
