@@ -1,0 +1,28 @@
+{
+  "title": "Trouver la date limite d’expédition",
+  "context": "Vous répondez aux courriels d’une boutique en ligne, fermée la fin de semaine et les jours fériés. Une commande passée après 14 h est considérée comme reçue le jour ouvrable suivant, et toute commande est expédiée au plus tard à la fin du deuxième jour ouvrable après sa réception.",
+  "question": "Une cliente a passé une commande vendredi à 16 h. Au plus tard à la fin de quelle journée la commande doit-elle être expédiée ?",
+  "options": [
+    { "id": "monday", "text": "Lundi", "feedback": "Lundi est le jour où cette commande est considérée comme reçue, pas celui où elle doit être expédiée." },
+    { "id": "tuesday", "text": "Mardi", "feedback": "Mardi serait la bonne réponse pour une commande passée vendredi avant 14 h. Celle-ci a été passée à 16 h." },
+    { "id": "wednesday", "text": "Mercredi" },
+    { "id": "thursday", "text": "Jeudi", "feedback": "Jeudi est le troisième jour ouvrable après la réception de cette commande, et la règle en accorde deux." }
+  ],
+  "correct": "wednesday",
+  "hints": [
+    "Commencez par le jour où la commande est considérée comme reçue. Est-ce que 16 h tombe avant ou après l’heure limite ?",
+    "Procédez en deux étapes. Trouvez d’abord le jour où la commande est considérée comme reçue : elle a été passée après 14 h, et la boutique est fermée le samedi et le dimanche. Comptez ensuite deux jours ouvrables après ce jour."
+  ],
+  "worked": "La commande a été passée vendredi après 14 h. Elle est donc considérée comme reçue lundi, le jour ouvrable suivant. Mardi est le premier jour ouvrable après la réception et mercredi est le deuxième. La commande doit donc être expédiée au plus tard mercredi en fin de journée.",
+  "followUp": {
+    "question": "Un autre client a passé une commande jeudi à 10 h, et vendredi est un jour férié. Au plus tard à la fin de quelle journée cette commande doit-elle être expédiée ?",
+    "options": [
+      { "id": "friday", "text": "Vendredi" },
+      { "id": "monday", "text": "Lundi" },
+      { "id": "tuesday", "text": "Mardi" },
+      { "id": "wednesday", "text": "Mercredi" }
+    ],
+    "correct": "tuesday",
+    "explanation": "La commande a été passée avant 14 h. Elle est donc considérée comme reçue jeudi. La boutique est fermée vendredi et la fin de semaine. Lundi est donc le premier jour ouvrable après la réception, et mardi est le deuxième."
+  }
+}

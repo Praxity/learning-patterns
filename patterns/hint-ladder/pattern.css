@@ -1,0 +1,30 @@
+/* Hint-ladder specifics. Link lib/base.css first for shared styles and tokens. */
+/* A long unbroken word wraps inside the question. Without these the group's one auto track and its
+   legend both grow to their longest word and widen the page. */
+.lp-hint-ladder .lp-choices { grid-template-columns: minmax(0, 1fr); }
+.lp-hint-ladder .lp-choices > legend { max-inline-size: 100%; }
+/* A wrong option's reason sits in its row, under the option text. */
+.lp-hint-ladder-reason { font-size: var(--lp-type-small); line-height: 1.45; }
+/* The ladder: each open hint is a step under the options, set apart by space, an icon and a label.
+   No border or fill, because the card is the only box. */
+.lp-hint-ladder-steps { display: grid; gap: var(--lp-gap-flow); padding: 0; list-style: none; }
+.lp-hint-ladder .lp-stack > .lp-hint-ladder-steps { margin-block-start: var(--lp-gap-group); }
+.lp-hint-ladder-steps > li { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 10px; border-radius: 4px; }
+/* One label line tall, so the glyph centres on the label. */
+.lp-hint-ladder-steps > li > .lp-icon { grid-row: 1; block-size: calc(1.4 * var(--lp-type-body)); color: var(--lp-accent-ink); }
+.lp-hint-ladder-steps > li > p { grid-column: 2; }
+.lp-hint-ladder-steps > li > .lp-run-in + p { margin-block-start: var(--lp-gap-hint); }
+.lp-hint-ladder-steps > li:focus-visible { outline-offset: 6px; }
+.lp-hint-ladder .lp-hint-ladder-gate { margin-block-start: var(--lp-gap-label); }
+/* A waiting button does not press. */
+.lp-hint-ladder .lp-button[aria-disabled="true"]:active { transform: none; }
+/* The explanation belongs to the rows above it, so it sits closer to them than to the result. */
+.lp-hint-ladder-feedback { margin-block-start: 4px; }
+/* Without JavaScript the hints are closed disclosures, stacked with no gap between their 44px rows. */
+.lp-hint-ladder-fallback ul { display: grid; gap: 12px; padding-inline-start: 24px; }
+.lp-hint-ladder-fallback li > .lp-run-in + p { margin-block-start: var(--lp-gap-hint); }
+
+@media (forced-colors: active) {
+  /* Underlining keeps the quiet reset distinct when system colours replace button fills. */
+  .lp-hint-ladder .lp-button-quiet { text-decoration: underline; text-underline-offset: 3px; }
+}
