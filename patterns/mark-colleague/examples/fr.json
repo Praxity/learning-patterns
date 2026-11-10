@@ -1,0 +1,34 @@
+{
+  "title": "Donnez une rétroaction à Priya sur sa réponse",
+  "context": "Votre équipe rembourse un cours dans les 30 jours suivant l’achat et offre un crédit de cours après ce délai. Priya, qui relève de vous, a rédigé une réponse à un client et vous demande de la vérifier avant de l’envoyer.",
+  "colleague": "Priya",
+  "messages": [
+    {
+      "heading": "Courriel d’Alex Moreau, client",
+      "subject": "Demande de remboursement",
+      "body": "Bonjour, j’ai acheté votre cours il y a 45 jours. Puis-je obtenir un remboursement ?\nMerci, Alex"
+    },
+    {
+      "heading": "Brouillon de réponse de Priya",
+      "subject": "RE : Demande de remboursement",
+      "body": "Bonjour Alex, merci de nous avoir écrit. Je suis désolée, mais nous ne pouvons pas vous rembourser. Si vous avez d’autres questions, veuillez communiquer avec notre équipe.\nCordialement, Priya"
+    }
+  ],
+  "issues": [
+    {
+      "id": "no_reason",
+      "label": "La raison du refus",
+      "explanation": "La réponse refuse sans dire pourquoi, donc Alex ne peut pas savoir si la décision est définitive et risque d’insister. Demandez à Priya d’indiquer que le délai de remboursement est de 30 jours après l’achat."
+    },
+    {
+      "id": "no_alternative",
+      "label": "Ce qu’Alex obtient au lieu d’un remboursement",
+      "explanation": "La réponse n’offre rien à Alex, alors que l’équipe accorde un crédit de cours après 30 jours. Demandez à Priya d’offrir ce crédit, pour qu’Alex ait quelque chose à accepter."
+    },
+    {
+      "id": "vague_next_step",
+      "label": "La dernière phrase, « veuillez communiquer avec notre équipe »",
+      "explanation": "Alex a déjà écrit à l’équipe, donc « veuillez communiquer avec notre équipe » ne mène nulle part. Demandez à Priya de préciser à qui Alex doit écrire, et comment."
+    }
+  ]
+}

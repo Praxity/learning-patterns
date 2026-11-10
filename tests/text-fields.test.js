@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const names = ['misconception', 'explain-back', 'journal', 'live-feedback', 'conversation', 'course-lookup', 'first-answer', 'write-distractors'];
+const names = ['misconception', 'explain-back', 'journal', 'live-feedback', 'conversation', 'course-lookup', 'first-answer', 'write-distractors', 'mark-colleague'];
 for (const name of names) test(`${name} keeps text unrestricted in server markup`, async () => {
   const { render } = await import(`../patterns/${name}/render.js`);
   const { strings } = await import(`../patterns/${name}/strings.js`);
