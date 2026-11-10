@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Finish a worked example content",
+  "type": "object",
+  "required": ["title", "context", "steps", "cases"],
+  "additionalProperties": false,
+  "properties": {
+    "title": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 120 },
+    "context": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 300 },
+    "steps": {
+      "type": "array", "minItems": 2, "maxItems": 4,
+      "items": {
+        "type": "object", "required": ["question", "options"], "additionalProperties": false,
+        "properties": {
+          "question": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 120 },
+          "options": {
+            "type": "array", "minItems": 2, "maxItems": 4, "uniqueItems": true,
+            "items": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 80 }
+          }
+        }
+      }
+    },
+    "cases": {
+      "type": "array", "minItems": 3, "maxItems": 4, "x-fading": "steps",
+      "items": {
+        "type": "object", "required": ["facts", "steps"], "additionalProperties": false,
+        "properties": {
+          "facts": {
+            "type": "array", "minItems": 1, "maxItems": 4,
+            "items": {
+              "type": "object", "required": ["label", "text"], "additionalProperties": false,
+              "properties": {
+                "label": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 40 },
+                "text": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 120 }
+              }
+            }
+          },
+          "steps": {
+            "type": "array", "minItems": 2, "maxItems": 4, "x-lengthFrom": "steps",
+            "items": {
+              "type": "object", "required": ["answer", "reason", "worked"], "additionalProperties": false,
+              "x-optionIndex": "answer",
+              "properties": {
+                "answer": { "type": "integer", "minimum": 0, "maximum": 3 },
+                "reason": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 200 },
+                "worked": { "type": "boolean" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

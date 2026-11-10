@@ -70,6 +70,8 @@ answer: C’est le trajet d’un astre autour d’un autre.
 :::
 ```
 
+See the [Studio grammar reference](https://github.com/Praxity/studio/blob/389ba9a12a5644f60fac8a750fefa4cac0a6974b/docs/prax-format/reference/blocks-interactive.md#retrieval-sheet) for supported settings and output limits.
+
 ## Evidence
 
 Recalling studied prose improved retention two days and one week later compared with restudying ([Roediger and Karpicke, 2006](https://doi.org/10.1111/j.1467-9280.2006.01693.x)). A meta-analysis found that practice tests beat restudying and other study conditions ([Adesope, Trevisan and Sundararajan, 2017](https://doi.org/10.3102/0034654316689306)). Recall tests, like this sheet, produced larger benefits than recognition tests ([Rowland, 2014](https://doi.org/10.1037/a0037559)).

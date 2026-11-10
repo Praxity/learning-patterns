@@ -33,9 +33,9 @@ Set points for right, wrong and unknown answers. Write the correct answer and an
 
 ## Write this in .prax
 
-In Praxity's `.prax` format, an "I don't know" option is a setting on an ordinary single-answer `choice` question. Studio adds the option itself, so authors do not write it among the answers. Option narration reads it last, and reporting treats it as a neutral "don't know" answer.
+In Praxity's `.prax` format, an "I don't know" option is a setting on an ordinary single-answer `choice` question. Studio adds the option itself, so authors do not write it among the answers. Option narration reads it last, and reporting identifies it as a "don't know" response.
 
-Studio does not use this library's configurable right/wrong/unknown points. An "I don't know" answer counts as answered and earns no points.
+Studio does not use this library's configurable right/wrong/unknown points. An "I don't know" answer counts as answered and earns no points. Ordinary choices can report this response to the LMS; xAPI reports it as unsuccessful.
 
 English, unscored practice (Praxity Studio from commit `c57f57b`, 2026-10-08):
 
@@ -86,6 +86,8 @@ incorrect: An hour is divided into 60 equal minutes.
 ```
 
 Private practice answers stay in the learner's browser and are not sent to the LMS; private questions must be optional, unscored and outside question groups.
+
+See the [Studio grammar reference](https://github.com/Praxity/studio/blob/389ba9a12a5644f60fac8a750fefa4cac0a6974b/docs/prax-format/reference/blocks-assessments.md#choice) for supported settings and output limits.
 
 ## Evidence
 
