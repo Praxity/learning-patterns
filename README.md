@@ -36,6 +36,7 @@ With Node 22, run `npm ci` and `npm run demo`, then `node scripts/serve-demo.mjs
 | [Pre-test to skip sections](patterns/test-out/README.md) | A short placement check marks which sections of a course you can skip; passing an advanced section credits the sections it builds on. |
 | [Write the wrong options](patterns/write-distractors/README.md) | Answer a question, write wrong options and the misconception behind each, then compare with the author's. |
 | [Split by proportion](patterns/split-by-proportion/README.md) | Split a fixed total across a few options by dragging the dividers on one bar, then compare your split with the real one. |
+| [Build an if-then plan](patterns/if-then-plan/README.md) | Choose a moment and an action to build a one-sentence plan, then add it to your calendar. |
 
 ## Look and theme tokens
 

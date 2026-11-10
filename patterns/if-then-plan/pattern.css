@@ -1,0 +1,22 @@
+/* If-then plan specifics. Link lib/base.css before this file. */
+/* The hint belongs to the sentence stem above it, so it sits closer to the stem than to the options. */
+.lp-if-then-plan .lp-choices > legend { margin-block-end: var(--lp-gap-hint); }
+.lp-if-then-plan .lp-choices > legend + .lp-small { margin-block-end: calc(var(--lp-gap-stem) - var(--lp-gap-choice)); }
+/* With script only one step shows, so the second keeps the sentence where the first had it. */
+.lp-if-then-plan [data-lp-steps] > [hidden] + .lp-choices { margin-block-start: 0; }
+/* A vague option the learner tried: tinted and marked with a word and an icon, with its reason
+   under the option text. It is feedback on the plan, so it does not use the Incorrect mark. */
+.lp-if-then-plan .lp-choice[data-lp-vague]:has(input:disabled),
+.lp-if-then-plan .lp-choice[data-lp-vague]:has(input:disabled):hover { border: 2px solid var(--lp-warning-ink); padding: 9px 13px; background: var(--lp-warning-soft); }
+.lp-if-then-plan-mark { color: var(--lp-warning-ink); }
+/* The reason runs under the mark too, so a short reason stays on one line. */
+.lp-if-then-plan .lp-choice > .lp-if-then-plan-reason { grid-column: 2 / -1; }
+/* The finished plan is set apart by space, a rule and type. It has no box of its own. */
+.lp-if-then-plan [data-lp-plan] > .lp-stem { font-size: var(--lp-type-h3); line-height: 1.3; }
+.lp-if-then-plan-start { max-inline-size: 20rem; }
+.lp-if-then-plan-reasons { display: grid; gap: var(--lp-gap-stem); padding: 0; list-style: none; }
+@media (forced-colors: active) {
+  .lp-if-then-plan .lp-choice[data-lp-vague]:has(input:disabled),
+  .lp-if-then-plan .lp-choice[data-lp-vague]:has(input:disabled):hover { border: 3px double CanvasText; }
+  .lp-if-then-plan-mark { color: CanvasText; }
+}

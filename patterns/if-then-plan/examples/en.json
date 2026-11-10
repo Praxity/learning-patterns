@@ -1,0 +1,21 @@
+{
+  "title": "Plan your next one-on-one with Sam",
+  "context": "Your next one-on-one with Sam is Thursday. Try to ask more questions and advise less.",
+  "when": {
+    "options": [
+      { "id": "problem", "text": "Sam starts to describe a problem" },
+      { "id": "asks", "text": "Sam asks me what to do" },
+      { "id": "spare", "text": "I have a spare moment", "vague": "A spare moment may never come. Choose something Sam says or does, so you know when to act." },
+      { "id": "quiet", "text": "Sam goes quiet" }
+    ]
+  },
+  "will": {
+    "options": [
+      { "id": "open", "text": "ask one open question before I suggest anything" },
+      { "id": "patient", "text": "be more patient", "vague": "Nobody can see or hear you \"be more patient\". Choose one thing you would say or do." },
+      { "id": "tried", "text": "ask what Sam has already tried" },
+      { "id": "repeat", "text": "repeat back what I heard before I answer" }
+    ]
+  },
+  "dateLabel": "Start of your next one-on-one"
+}
