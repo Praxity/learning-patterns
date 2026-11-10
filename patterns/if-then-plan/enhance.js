@@ -57,6 +57,7 @@ export function enhance(root, { content, strings, state }) {
   const stage = () => record.when === null ? 'when' : record.will === null ? 'will' : 'done';
   const save = () => state?.write({ ...record });
   const startTime = () => start.value ? new Date(start.value).getTime() : NaN;
+  const startPast = () => start.value !== '' && startError(startTime(), Date.now()) === 'past';
 
   /** @param {import('./logic.js').StepName} name @param {boolean} shown */
   function stepError(name, shown) {
@@ -130,7 +131,7 @@ export function enhance(root, { content, strings, state }) {
   });
   // A past time is reported when the learner leaves the field, not on each keystroke.
   listen(start, 'change', () => {
-    const past = start.value !== '' && startError(startTime(), Date.now()) === 'past';
+    const past = startPast();
     showPast(past);
     if (past) status.textContent = t(strings.past);
   });
@@ -170,6 +171,8 @@ export function enhance(root, { content, strings, state }) {
   start.value = record.start;
   fallback.hidden = true;
   paint();
+  // A restored past time explains the disabled button at once; leaving the unchanged field fires no change event.
+  showPast(startPast());
   const instance = {
     destroy() {
       if (destroyed) return;
@@ -177,8 +180,12 @@ export function enhance(root, { content, strings, state }) {
       for (const remove of removals) remove();
       if (fileUrl) URL.revokeObjectURL(fileUrl);
       clearVague();
-      for (const name of NAMES) { stepError(name, false); steps[name].fieldset.hidden = false; }
+      for (const name of NAMES) {
+        stepError(name, false); steps[name].fieldset.hidden = false;
+        for (const radio of steps[name].radios) radio.checked = false;
+      }
       steps.will.stem.textContent = t(strings.willStem);
+      planText.textContent = ''; start.value = ''; calendar.disabled = true;
       stepsBox.hidden = false; add.hidden = true; result.hidden = true; restart.hidden = true; downloaded.hidden = true;
       showPast(false); fallback.hidden = false; status.textContent = '';
       instances.delete(root);

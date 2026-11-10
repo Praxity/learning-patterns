@@ -279,6 +279,7 @@ test('host state restores silently, ignores damaged values and survives destroy 
   await expect(page.locator('[data-lp-plan-text]')).toHaveText('When Sam asks me what to do, I will ask what Sam has already tried.');
   await expect(page.locator('[data-lp-start]')).toHaveValue('2030-11-12T10:00');
   await expect(page.locator('[data-lp-calendar]')).toBeEnabled();
+  await expect(page.locator('[data-lp-start-error]')).toBeHidden();
   await expect(page.getByRole('status')).toBeEmpty();
   expect(await page.evaluate(() => document.activeElement === document.body)).toBe(true);
   expect(await page.evaluate(() => window.lpEnhance() === window.lpInstances[0])).toBe(true);
@@ -294,6 +295,53 @@ test('host state restores silently, ignores damaged values and survives destroy 
   await expect(add(page)).toBeHidden();
   await expect(page.locator('[data-lp-result]')).toBeHidden();
   await expect(page.locator('[data-lp-fallback]')).toBeVisible();
+});
+
+test('a restored past time shows its linked error at once, without an announcement', async ({ page }) => {
+  await page.addInitScript(() => { window.lpSeed = { when: 'problem', will: 'open', start: '2020-01-01T10:00' }; });
+  await open(page);
+  const field = page.locator('[data-lp-start]');
+  await expect(field).toHaveValue('2020-01-01T10:00');
+  // The button is disabled, so the reason has to be on the page before the learner touches the field.
+  await expect(page.locator('[data-lp-calendar]')).toBeDisabled();
+  await expect(page.locator('[data-lp-start-error]')).toBeVisible();
+  await expect(page.locator('[data-lp-start-error]')).toHaveText(strings.en.past);
+  await expect(field).toHaveAttribute('aria-invalid', 'true');
+  await expect(field).toHaveAttribute('aria-describedby', 'example-start-hint example-start-error');
+  await expect(page.getByRole('status')).toBeEmpty();
+  expect(await page.evaluate(() => document.activeElement === document.body)).toBe(true);
+  await field.fill('2030-11-12T10:00');
+  await expect(page.locator('[data-lp-start-error]')).toBeHidden();
+  await expect(page.locator('[data-lp-calendar]')).toBeEnabled();
+});
+
+test('destroy after a finished plan restores the server render', async ({ page }) => {
+  await open(page);
+  await add(page).click();
+  await option(page, 'spare').check();
+  await add(page).click();
+  await buildPlan(page);
+  await page.locator('[data-lp-start]').fill('2030-11-12T10:00');
+  await Promise.all([page.waitForEvent('download'), page.locator('[data-lp-calendar]').click()]);
+  await expect(page.locator('[data-lp-downloaded]')).toBeVisible();
+  const after = await page.evaluate(async content => {
+    const { render } = await import('/patterns/if-then-plan/render.js');
+    const { strings } = await import('/patterns/if-then-plan/strings.js');
+    const root = document.querySelector('[data-lp-pattern]');
+    window.lpInstances[0].destroy();
+    const fresh = document.createElement('template');
+    fresh.innerHTML = render(content, strings.en, { id: 'example', lang: 'en' });
+    return {
+      markup: root.outerHTML, server: fresh.content.firstElementChild.outerHTML,
+      // Values a serialised tree does not show.
+      checked: root.querySelectorAll('input:checked').length, start: root.querySelector('[data-lp-start]').value,
+      calendarDisabled: root.querySelector('[data-lp-calendar]').disabled
+    };
+  }, examples.en);
+  expect(after.markup).toBe(after.server);
+  expect(after.checked).toBe(0);
+  expect(after.start).toBe('');
+  expect(after.calendarDisabled).toBe(true);
 });
 
 for (const [label, seed] of [

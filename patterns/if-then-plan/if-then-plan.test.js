@@ -114,9 +114,9 @@ test('the calendar file holds the plan in an entry that ends at the chosen time'
     'DTSTART:20261112T145000Z',
     'DTEND:20261112T150000Z',
     'SUMMARY:When Sam goes quiet\\, I will ask what Sam has already tried.',
-    // The fold falls before the second "\n" escape instead of through it.
-    'DESCRIPTION:When Sam goes quiet\\, I will ask what Sam has already tried.\\n',
-    ' \\nYou made this plan in "Plan your next one-on-one with Sam".',
+    // The 75th octet is the backslash of the second escaped line break, so the fold falls inside it.
+    'DESCRIPTION:When Sam goes quiet\\, I will ask what Sam has already tried.\\n\\',
+    ' nYou made this plan in "Plan your next one-on-one with Sam".',
     'BEGIN:VALARM',
     'ACTION:DISPLAY',
     'DESCRIPTION:When Sam goes quiet\\, I will ask what Sam has already tried.',
@@ -137,12 +137,28 @@ test('calendar text is escaped and folded at 75 octets without splitting a chara
   // Decoding each line alone fails if a fold split a multi-byte character.
   const strict = new TextDecoder('utf-8', { fatal: true });
   for (const line of lines) assert.doesNotThrow(() => strict.decode(bytes.encode(line)));
-  for (const line of lines) assert.doesNotMatch(line, /(?<!\\)(?:\\\\)*\\$/, 'no line ends inside an escape');
   const unfolded = file.replaceAll('\r\n ', '').split('\r\n');
   const escaped = plan.replaceAll('\\', '\\\\').replaceAll(';', '\\;').replaceAll(',', '\\,');
   assert.ok(unfolded.includes(`SUMMARY:${escaped}`));
   assert.ok(unfolded.includes(`DESCRIPTION:${escaped}`));
   assert.ok(lines.length > unfolded.length, 'long lines fold');
+  // A fold between the two backslashes of an escaped backslash still unfolds to the same text.
+  const split = calendarFile({ ...event, plan: 'x'.repeat(66) + '\\tail', note: '' });
+  assert.ok(split.includes('\\\r\n \\tail'));
+  assert.ok(split.replaceAll('\r\n ', '').split('\r\n').includes(`SUMMARY:${'x'.repeat(66)}\\\\tail`));
+});
+
+test('line breaks become escaped newlines and other control characters become spaces', () => {
+  for (const plan of ['When Sam\rstarts, I will ask.', 'When Sam\r\nstarts, I will ask.', 'When Sam\nstarts, I will ask.']) {
+    const file = calendarFile({ ...event, plan, note: '' });
+    // Every carriage return left in the file belongs to a line end.
+    assert.ok(!file.replaceAll('\r\n', '').includes('\r'), JSON.stringify(plan));
+    assert.ok(file.split('\r\n').includes('SUMMARY:When Sam\\nstarts\\, I will ask.'), JSON.stringify(plan));
+  }
+  const file = calendarFile({ ...event, plan: 'When\u0000Sam\u001bstarts\u007f\tnow', note: 'Line\u000bone' });
+  assert.doesNotMatch(file.replaceAll('\r\n', ''), /[\u0000-\u0008\u000a-\u001f\u007f]/);
+  assert.ok(file.split('\r\n').includes('SUMMARY:When Sam starts \tnow'));
+  assert.ok(file.split('\r\n').includes('DESCRIPTION:When Sam starts \tnow\\n\\nLine one'));
 });
 
 test('the calendar file refuses a time that is missing or not in the future', () => {

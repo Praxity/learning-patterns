@@ -107,20 +107,22 @@ export function startError(start, now) {
   return start <= now ? 'past' : null;
 }
 
-/** @param {string} value RFC 5545 TEXT escaping. */
-const escapeText = value => value.replace(/[\\;,]/g, '\\$&').replace(/\r?\n/g, '\\n');
+/** RFC 5545 TEXT (section 3.3.11): escape backslash, semicolon and comma, write every line break as
+ * an escaped n, and turn the other control characters, which TEXT does not allow, into spaces.
+ * @param {string} value */
+const escapeText = value => value.replace(/[\\;,]/g, '\\$&').replace(/\r\n|\r|\n/g, '\\n').replace(/[\x00-\x08\x0b-\x1f\x7f]/g, ' ');
 /** UTC date-time, so the entry lands on the same instant whatever zone the calendar is in.
  * @param {number} time */
 const utc = time => new Date(time).toISOString().replace(/[-:]|\.\d{3}/g, '');
 /** Fold at 75 octets without splitting a character, as RFC 5545 section 3.1 requires.
- * A backslash never ends a line, so a reader that unescapes before unfolding still sees whole escapes.
+ * A fold may fall inside an escape; readers unfold before they unescape.
  * @param {string} line */
 function fold(line) {
   let out = '', octets = 0;
   for (const character of line) {
     const point = /** @type {number} */ (character.codePointAt(0));
     const size = point < 0x80 ? 1 : point < 0x800 ? 2 : point < 0x10000 ? 3 : 4;
-    if (octets + size > 75 || (octets === 74 && character === '\\')) { out += '\r\n '; octets = 1; }
+    if (octets + size > 75) { out += '\r\n '; octets = 1; }
     out += character; octets += size;
   }
   return out;
