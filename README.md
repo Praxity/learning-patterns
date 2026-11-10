@@ -42,6 +42,7 @@ With Node 22, run `npm ci` and `npm run demo`, then `node scripts/serve-demo.mjs
 | [Build an if-then plan](patterns/if-then-plan/README.md) | Choose a moment and an action to build a one-sentence plan, then add it to your calendar. |
 | [Give feedback on a colleague's work](patterns/mark-colleague/README.md) | Read a colleague's draft, write them feedback, tick the issues it raised, then read why each one matters. |
 | [Hint ladder](patterns/hint-ladder/README.md) | Answer a question with hints that open one at a time and a worked answer that waits for a try, then answer a second question without hints. |
+| [Make a mistake and recover](patterns/mistake-recover/README.md) | Approve or hold a request in a practice system, see what an approval costs, take the steps that undo it, then decide a second request with less help. |
 
 ## Look and theme tokens
 

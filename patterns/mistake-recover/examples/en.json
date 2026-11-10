@@ -1,0 +1,63 @@
+{
+  "title": "Approve supplier payments",
+  "context": "You approve supplier payments in a practice system, so no real money moves. Approve a payment only when the purchase order matches, the invoice is attached and the bank account matches the supplier file.",
+  "requests": [
+    {
+      "title": "Payment request 1",
+      "summary": "Pay Northwind Print $2,400.",
+      "checks": [
+        { "label": "Purchase order", "value": "Matches" },
+        { "label": "Invoice", "value": "Not attached" },
+        { "label": "Bank account", "value": "Matches the supplier file" }
+      ],
+      "held": "Held until Northwind sends the invoice. Nothing is sent.",
+      "approved": "Approved. Tonight's payment run sends $2,400 to Northwind Print with no invoice attached.",
+      "stopped": "Cancelled. Nothing is sent.",
+      "notStopped": "Still approved. Tonight's payment run sends $2,400 to Northwind Print.",
+      "steps": [
+        { "id": "cancel", "text": "Cancel the payment before tonight's run", "correct": true, "stops": true, "feedback": "Only cancelling keeps this payment out of tonight's payment run." },
+        { "id": "keep", "text": "Keep the approval and attach the invoice when it arrives", "correct": false, "feedback": "Tonight's payment run pays Northwind before the invoice arrives." },
+        { "id": "invoice", "text": "Ask Northwind Print for the invoice", "correct": true, "feedback": "The payment needs the invoice attached before anyone approves it." },
+        { "id": "log", "text": "Log the approval as an error, with the reason", "correct": true, "feedback": "The log shows the team which check was skipped." }
+      ]
+    },
+    {
+      "title": "Payment request 2",
+      "summary": "Pay Lakeside Catering $860.",
+      "checks": [
+        { "label": "Purchase order", "value": "$860" },
+        { "label": "Invoice", "value": "Attached, $860" },
+        { "label": "Bank account on the request", "value": "Ending 1190" },
+        { "label": "Bank account in the supplier file", "value": "Ending 1910" }
+      ],
+      "held": "Held until Lakeside confirms its bank account. Nothing is sent.",
+      "approved": "Approved. Tonight's payment run sends $860 to the account ending 1190, not the account in the supplier file.",
+      "stopped": "Cancelled. Nothing is sent.",
+      "notStopped": "Still approved. Tonight's payment run sends $860 to the account ending 1190.",
+      "steps": [
+        { "id": "update", "text": "Change the supplier file to the account ending 1190", "correct": false, "feedback": "The supplier file is the record you check against. Changing it to match the request removes the check." },
+        { "id": "call", "text": "Call Lakeside on the number in the supplier file", "correct": true, "feedback": "The phone number on the request may belong to whoever changed the account." },
+        { "id": "cancel", "text": "Cancel the payment before tonight's run", "correct": true, "stops": true, "feedback": "Only cancelling keeps this payment out of tonight's payment run." }
+      ]
+    }
+  ],
+  "colleague": {
+    "name": "Dana",
+    "title": "Payment approved by Dana",
+    "summary": "Dana, another approver, approved this payment of $1,150 to Harbour Signs and has left for the day. You can cancel it before tonight's payment run.",
+    "checks": [
+      { "label": "Purchase order", "value": "Matches" },
+      { "label": "Invoice", "value": "Not attached" },
+      { "label": "Bank account", "value": "Matches the supplier file" }
+    ],
+    "approved": "Approved by Dana. Tonight's payment run sends $1,150 to Harbour Signs with no invoice attached.",
+    "stopped": "Cancelled. Nothing is sent.",
+    "notStopped": "Still approved. Tonight's payment run sends $1,150 to Harbour Signs.",
+    "steps": [
+      { "id": "invoice", "text": "Ask Harbour Signs for the invoice", "correct": true, "feedback": "The payment needs the invoice attached before anyone approves it." },
+      { "id": "cancel", "text": "Cancel the payment before tonight's run", "correct": true, "stops": true, "feedback": "Only cancelling keeps this payment out of tonight's payment run." },
+      { "id": "leave", "text": "Leave it. Dana approved it, so it is Dana's call.", "correct": false, "feedback": "You can cancel it, and Dana has left for the day. If you leave it, tonight's payment run sends the money." },
+      { "id": "tell", "text": "Tell Dana the invoice was missing", "correct": true, "feedback": "Dana will know to check for the invoice next time." }
+    ]
+  }
+}

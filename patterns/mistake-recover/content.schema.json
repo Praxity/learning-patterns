@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Make a mistake and recover content",
+  "type": "object",
+  "required": ["title", "context", "requests", "colleague"],
+  "additionalProperties": false,
+  "properties": {
+    "title": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 120 },
+    "context": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 400 },
+    "requests": {
+      "type": "array", "minItems": 2, "maxItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["title", "summary", "checks", "held", "approved", "stopped", "notStopped", "steps"],
+        "additionalProperties": false,
+        "properties": {
+          "title": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 120 },
+          "summary": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 300 },
+          "checks": { "$ref": "#/$defs/checks" },
+          "held": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 300 },
+          "approved": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 300 },
+          "stopped": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 300 },
+          "notStopped": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 300 },
+          "steps": { "$ref": "#/$defs/steps" }
+        }
+      }
+    },
+    "colleague": {
+      "type": "object",
+      "required": ["name", "title", "summary", "checks", "approved", "stopped", "notStopped", "steps"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 60 },
+        "title": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 120 },
+        "summary": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 300 },
+        "checks": { "$ref": "#/$defs/checks" },
+        "approved": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 300 },
+        "stopped": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 300 },
+        "notStopped": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 300 },
+        "steps": { "$ref": "#/$defs/steps" }
+      }
+    }
+  },
+  "$defs": {
+    "checks": {
+      "type": "array", "minItems": 2, "maxItems": 4,
+      "items": {
+        "type": "object", "required": ["label", "value"], "additionalProperties": false,
+        "properties": {
+          "label": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 60 },
+          "value": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 200 }
+        }
+      }
+    },
+    "steps": {
+      "type": "array", "minItems": 3, "maxItems": 5, "x-uniqueBy": "id", "x-oneStoppingStep": true,
+      "items": {
+        "type": "object", "required": ["id", "text", "correct", "feedback"], "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "minLength": 1, "pattern": "^[a-zA-Z0-9_-]+$", "maxLength": 120 },
+          "text": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 200 },
+          "correct": { "type": "boolean" },
+          "stops": { "const": true },
+          "feedback": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 300 }
+        }
+      }
+    }
+  }
+}
