@@ -61,7 +61,8 @@ for (const lang of ['en', 'fr']) {
     await expect(check(page)).toBeHidden();
     await expect(page.locator('[data-lp-restart]')).toBeVisible();
     // Explanations wait for the second check.
-    await expect(page.getByText(t(lang, content.issues[0].explanation))).toHaveCount(0);
+    await expect(page.locator('[data-lp-issues] > li')).toHaveCount(0);
+    await expect(page.getByText(t(lang, content.issues[0].explanation))).toBeHidden();
     await page.keyboard.press('Space');
     await expect(box(page, 'no_reason')).toBeChecked();
     expect(await page.evaluate(() => window.lpSaved)).toEqual({ feedback: FEEDBACK[lang], ticked: ['no_reason'], stage: 'compare' });
@@ -303,7 +304,8 @@ test('forced colours keep the marks and keyboard focus', async ({ page, browserN
   await page.emulateMedia({ forcedColors: 'active' });
   await open(page);
   await field(page).fill('Say why.');
-  await check(page).focus();
+  await page.keyboard.press('Tab');
+  await expect(check(page)).toBeFocused();
   await expect(check(page)).toHaveCSS('outline-style', 'solid');
   await expect(check(page)).toHaveCSS('outline-width', '3px');
   await check(page).click();
