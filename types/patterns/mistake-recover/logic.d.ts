@@ -2,21 +2,21 @@
 export function validateContent(content: unknown): asserts content is Content;
 /** @returns {LearnerState} */
 export function start(): LearnerState;
-/** Where the learner is, and what each payment's status line says. Requests come in order; an
- * approved request is recovered before the next. Holding both opens the colleague's payment.
+/** Where the learner is, and what each payment's status line says. Approving opens the request's
+ * recovery; holding it opens the colleague's payment, so every learner recovers once.
  * @param {Content} content @param {LearnerState} state @returns {Progress} */
 export function progress(content: Content, state: LearnerState): Progress;
-/** Approve or hold the request that is open.
- * @param {Content} content @param {LearnerState} state @param {0 | 1} item @param {Decision} decision @returns {LearnerState} */
-export function decide(content: Content, state: LearnerState, item: 0 | 1, decision: Decision): LearnerState;
+/** Approve or hold the request.
+ * @param {Content} content @param {LearnerState} state @param {Decision} decision @returns {LearnerState} */
+export function decide(content: Content, state: LearnerState, decision: Decision): LearnerState;
 /** Check the recovery steps chosen for the payment that is open. Recovery is checked once.
- * @param {Content} content @param {LearnerState} state @param {0 | 1 | 2} item @param {string[]} ids @returns {LearnerState} */
-export function recover(content: Content, state: LearnerState, item: 0 | 1 | 2, ids: string[]): LearnerState;
+ * @param {Content} content @param {LearnerState} state @param {0 | 1} item @param {string[]} ids @returns {LearnerState} */
+export function recover(content: Content, state: LearnerState, item: 0 | 1, ids: string[]): LearnerState;
 /** Ignore invalid saved values and copy valid state. A value is valid when the learner's own steps
  * could have produced it.
  * @param {Content} content @param {unknown} value @returns {LearnerState | null} */
 export function validateState(content: Content, value: unknown): LearnerState | null;
-/** The closing sentence: each decision, then whether each payment that needed recovery was stopped.
+/** The closing sentence: the decision, then whether the payment it put at risk was stopped.
  * @param {Content} content @param {LearnerState} state @param {SummaryStrings} strings */
 export function summarize(content: Content, state: LearnerState, strings: SummaryStrings): string;
 /** Replace authored placeholders in a single pass so inserted content stays literal.
@@ -57,16 +57,16 @@ export type Colleague = {
 export type Content = {
     title: string;
     context: string;
-    requests: [Request, Request];
+    request: Request;
     colleague: Colleague;
 };
 export type Decision = "approve" | "hold";
 /**
- * `decisions` holds the choice on each request. `steps` holds the step ids checked on request 1,
- * request 2 and the colleague's payment, or null where no recovery was checked.
+ * `decision` holds the choice on the request. `steps` holds the step ids checked on the request and
+ * on the colleague's payment, or null where no recovery was checked.
  */
 export type LearnerState = {
-    decisions: (Decision | null)[];
+    decision: Decision | null;
     steps: (string[] | null)[];
 };
 /**
@@ -75,20 +75,12 @@ export type LearnerState = {
 export type Status = "pending" | "held" | "approved" | "stopped" | "notStopped" | null;
 export type Progress = {
     stage: "decide" | "recover" | "done";
-    item: 0 | 1 | 2 | null;
+    item: 0 | 1 | null;
     statuses: Status[];
 };
 export type SummaryStrings = {
-    heldBoth: string;
-    approvedFirst: string;
-    approvedSecond: string;
-    approvedBoth: string;
-    colleagueStopped: string;
-    colleagueGoes: string;
-    oneStopped: string;
-    oneGoes: string;
-    bothStopped: string;
-    oneOfTwoStopped: string;
-    bothGo: string;
-    summary: string;
+    approvedStopped: string;
+    approvedGoes: string;
+    heldStopped: string;
+    heldGoes: string;
 };

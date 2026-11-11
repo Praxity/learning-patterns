@@ -1,46 +1,25 @@
 {
   "title": "Approuver les paiements aux fournisseurs",
   "context": "Vous approuvez des paiements aux fournisseurs dans un système d’exercice : aucun argent réel ne circule. N’approuvez un paiement que si le bon de commande concorde, que la facture est jointe et que le compte bancaire concorde avec le dossier fournisseur.",
-  "requests": [
-    {
-      "title": "Demande de paiement 1",
-      "summary": "Payer 2 400 $ à Imprimerie Nordvent.",
-      "checks": [
-        { "label": "Bon de commande", "value": "Concorde" },
-        { "label": "Facture", "value": "Non jointe" },
-        { "label": "Compte bancaire", "value": "Concorde avec le dossier fournisseur" }
-      ],
-      "held": "En attente jusqu’à ce que Nordvent envoie la facture. Rien n’est envoyé.",
-      "approved": "Approuvé. Le lot de paiements de ce soir envoie 2 400 $ à Imprimerie Nordvent sans facture jointe.",
-      "stopped": "Annulé. Rien n’est envoyé.",
-      "notStopped": "Toujours approuvé. Le lot de paiements de ce soir envoie 2 400 $ à Imprimerie Nordvent.",
-      "steps": [
-        { "id": "cancel", "text": "Annuler le paiement avant le lot de ce soir", "correct": true, "stops": true, "feedback": "Seule l’annulation retire ce paiement du lot de paiements de ce soir." },
-        { "id": "keep", "text": "Garder l’approbation et joindre la facture à son arrivée", "correct": false, "feedback": "Le lot de paiements de ce soir paie Nordvent avant l’arrivée de la facture." },
-        { "id": "invoice", "text": "Demander la facture à Imprimerie Nordvent", "correct": true, "feedback": "Le paiement a besoin de la facture jointe avant toute approbation." },
-        { "id": "log", "text": "Consigner l’approbation comme une erreur, avec la raison", "correct": true, "feedback": "Le registre montre à l’équipe quelle vérification a été sautée." }
-      ]
-    },
-    {
-      "title": "Demande de paiement 2",
-      "summary": "Payer 860 $ à Traiteur du Lac.",
-      "checks": [
-        { "label": "Bon de commande", "value": "860 $" },
-        { "label": "Facture", "value": "Jointe, 860 $" },
-        { "label": "Compte bancaire sur la demande", "value": "Se termine par 1190" },
-        { "label": "Compte bancaire au dossier fournisseur", "value": "Se termine par 1910" }
-      ],
-      "held": "En attente jusqu’à ce que Traiteur du Lac confirme son compte bancaire. Rien n’est envoyé.",
-      "approved": "Approuvé. Le lot de paiements de ce soir envoie 860 $ au compte se terminant par 1190, qui n’est pas celui du dossier fournisseur.",
-      "stopped": "Annulé. Rien n’est envoyé.",
-      "notStopped": "Toujours approuvé. Le lot de paiements de ce soir envoie 860 $ au compte se terminant par 1190.",
-      "steps": [
-        { "id": "update", "text": "Remplacer le compte du dossier fournisseur par celui qui se termine par 1190", "correct": false, "feedback": "Le dossier fournisseur est la référence de la vérification. Le modifier pour qu’il concorde avec la demande supprime la vérification." },
-        { "id": "call", "text": "Appeler Traiteur du Lac au numéro du dossier fournisseur", "correct": true, "feedback": "Le numéro de téléphone sur la demande pourrait appartenir à la personne qui a changé le compte." },
-        { "id": "cancel", "text": "Annuler le paiement avant le lot de ce soir", "correct": true, "stops": true, "feedback": "Seule l’annulation retire ce paiement du lot de paiements de ce soir." }
-      ]
-    }
-  ],
+  "request": {
+    "title": "Demande de paiement",
+    "summary": "Payer 860 $ à Traiteur du Lac.",
+    "checks": [
+      { "label": "Bon de commande", "value": "860 $" },
+      { "label": "Facture", "value": "Jointe, 860 $" },
+      { "label": "Compte bancaire sur la demande", "value": "Se termine par 1190" },
+      { "label": "Compte bancaire au dossier fournisseur", "value": "Se termine par 1910" }
+    ],
+    "held": "En attente jusqu’à ce que Traiteur du Lac confirme son compte bancaire. Rien n’est envoyé.",
+    "approved": "Approuvé. Le lot de paiements de ce soir envoie 860 $ au compte se terminant par 1190, qui n’est pas celui du dossier fournisseur.",
+    "stopped": "Annulé. Rien n’est envoyé.",
+    "notStopped": "Toujours approuvé. Le lot de paiements de ce soir envoie 860 $ au compte se terminant par 1190.",
+    "steps": [
+      { "id": "update", "text": "Remplacer le compte du dossier fournisseur par celui qui se termine par 1190", "correct": false, "feedback": "Le dossier fournisseur est la référence de la vérification. Le modifier pour qu’il concorde avec la demande supprime la vérification." },
+      { "id": "call", "text": "Appeler Traiteur du Lac au numéro du dossier fournisseur", "correct": true, "feedback": "Le numéro de téléphone sur la demande pourrait appartenir à la personne qui a changé le compte." },
+      { "id": "cancel", "text": "Annuler le paiement avant le lot de ce soir", "correct": true, "stops": true, "feedback": "Seule l’annulation retire ce paiement du lot de paiements de ce soir." }
+    ]
+  },
   "colleague": {
     "name": "Dana",
     "title": "Paiement approuvé par Dana",

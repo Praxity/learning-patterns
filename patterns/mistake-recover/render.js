@@ -10,12 +10,11 @@ import { validateContent } from './logic.js';
 export function render(content, strings, { id, lang }) {
   validateContent(content);
   const h = (/** @type {string} */ text) => html(text, lang);
-  /** One payment: its record, its status line, Approve and Hold, its recovery steps and, for the two
-   * requests, what approving does and how to recover behind closed disclosures for readers without JavaScript.
+  /** One payment: its record, its status line, Approve and Hold, its recovery steps and, for the
+   * request, what approving does and how to recover behind closed disclosures for readers without JavaScript.
    * @param {import('./logic.js').Request | import('./logic.js').Colleague} item @param {number} n */
   const payment = (item, n) => {
-    const key = `${id}-${n === 2 ? 'colleague' : `request-${n}`}`;
-    const request = n < 2;
+    const request = n === 0, key = `${id}-${request ? 'request' : 'colleague'}`;
     return `<section class="lp-section lp-stack" aria-labelledby="${html(`${key}-title`)}" data-lp-item="${n}"${request ? '' : ' data-lp-colleague hidden'}>
     <h3 class="lp-stem" id="${html(`${key}-title`)}">${h(item.title)}</h3>
     <p>${h(item.summary)}</p>
@@ -40,7 +39,7 @@ export function render(content, strings, { id, lang }) {
   return `<section class="lp lp-mistake-recover" data-lp-pattern="mistake-recover" lang="${html(lang)}">
   <h2 class="lp-heading">${h(content.title)}</h2>
   <p class="lp-context">${h(content.context)}</p>
-  ${[...content.requests, content.colleague].map(payment).join('\n  ')}
+  ${[content.request, content.colleague].map(payment).join('\n  ')}
   <div class="lp-section" data-lp-result hidden>
     <p data-lp-summary></p>
     <div class="lp-actions"><button class="lp-button lp-button-quiet" type="button" data-lp-restart>${icons.refresh}${h(strings.restart)}</button></div>
