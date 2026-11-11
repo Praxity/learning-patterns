@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Sort cases by principle content",
+  "type": "object",
+  "required": ["title", "question", "principles", "cases"],
+  "additionalProperties": false,
+  "properties": {
+    "title": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "context": { "type": "string", "minLength": 1, "maxLength": 400 },
+    "question": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "principles": {
+      "type": "array", "minItems": 2, "maxItems": 4, "x-uniqueBy": "id", "x-uniqueNames": true,
+      "items": {
+        "type": "object", "required": ["id", "name", "rule"], "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "minLength": 1, "pattern": "^[a-zA-Z0-9_-]+$", "maxLength": 60 },
+          "name": { "type": "string", "minLength": 1, "maxLength": 60 },
+          "rule": { "type": "string", "minLength": 1, "maxLength": 120 }
+        }
+      }
+    },
+    "cases": {
+      "type": "array", "minItems": 3, "maxItems": 4, "x-everyPrincipleCorrect": true,
+      "items": {
+        "type": "object", "required": ["text", "correct", "lure", "looksLike", "decides"], "additionalProperties": false,
+        "properties": {
+          "text": { "type": "string", "minLength": 1, "maxLength": 300 },
+          "correct": { "type": "string", "minLength": 1, "maxLength": 60, "x-principleReference": true },
+          "lure": { "type": "string", "minLength": 1, "maxLength": 60, "x-principleReference": true, "x-differsFrom": "correct" },
+          "looksLike": { "type": "string", "minLength": 1, "maxLength": 150 },
+          "decides": { "type": "string", "minLength": 1, "maxLength": 150 }
+        }
+      }
+    }
+  }
+}
