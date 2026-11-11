@@ -1,0 +1,73 @@
+export namespace strings {
+    namespace en {
+        let versionA: string;
+        let versionB: string;
+        let sentenceName: string;
+        let neither: string;
+        let progress: string;
+        let chooseOne: string;
+        let check: string;
+        let choose: string;
+        let markCorrect: string;
+        let markWrong: string;
+        let markAnswer: string;
+        let correct: string;
+        let next: string;
+        let finish: string;
+        let summaryA: string;
+        let summaryB: string;
+        let shows: string;
+        let missing: string;
+        let result: string;
+        let answer: string;
+        let restart: string;
+        let cleared: string;
+    }
+    namespace fr {
+        let versionA_1: string;
+        export { versionA_1 as versionA };
+        let versionB_1: string;
+        export { versionB_1 as versionB };
+        let sentenceName_1: string;
+        export { sentenceName_1 as sentenceName };
+        let neither_1: string;
+        export { neither_1 as neither };
+        let progress_1: string;
+        export { progress_1 as progress };
+        let chooseOne_1: string;
+        export { chooseOne_1 as chooseOne };
+        let check_1: string;
+        export { check_1 as check };
+        let choose_1: string;
+        export { choose_1 as choose };
+        let markCorrect_1: string;
+        export { markCorrect_1 as markCorrect };
+        let markWrong_1: string;
+        export { markWrong_1 as markWrong };
+        let markAnswer_1: string;
+        export { markAnswer_1 as markAnswer };
+        let correct_1: string;
+        export { correct_1 as correct };
+        let next_1: string;
+        export { next_1 as next };
+        let finish_1: string;
+        export { finish_1 as finish };
+        let summaryA_1: string;
+        export { summaryA_1 as summaryA };
+        let summaryB_1: string;
+        export { summaryB_1 as summaryB };
+        let shows_1: string;
+        export { shows_1 as shows };
+        let missing_1: string;
+        export { missing_1 as missing };
+        let result_1: string;
+        export { result_1 as result };
+        let answer_1: string;
+        export { answer_1 as answer };
+        let restart_1: string;
+        export { restart_1 as restart };
+        let cleared_1: string;
+        export { cleared_1 as cleared };
+    }
+}
+export type Strings = typeof strings.en;

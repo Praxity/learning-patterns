@@ -1,0 +1,52 @@
+// {version} is a version name; {n}, {right} and {total} are numbers; {answer} is a sentence's name and text, or the Neither label, with its closing punctuation.
+export const strings = {
+  en: {
+    versionA: 'Version A',
+    versionB: 'Version B',
+    sentenceName: '{version}, sentence {n}',
+    neither: 'Neither version does this',
+    progress: 'Question {n} of {total}',
+    chooseOne: 'Choose one.',
+    check: 'Check my answer',
+    choose: 'Choose an answer',
+    markCorrect: 'Correct',
+    markWrong: 'Incorrect',
+    markAnswer: 'Correct answer',
+    correct: 'Correct answer: {answer}',
+    next: 'Next question',
+    finish: 'Show the summary',
+    summaryA: 'What makes Version A better',
+    summaryB: 'What makes Version B better',
+    shows: 'This sentence shows:',
+    missing: 'Missing from both versions',
+    result: 'You answered {right} of {total} questions correctly.',
+    answer: 'Show the answer',
+    restart: 'Start over',
+    cleared: 'Answers cleared.'
+  },
+  fr: {
+    versionA: 'Version A',
+    versionB: 'Version B',
+    sentenceName: '{version}, phrase {n}',
+    neither: 'Aucune des deux versions ne le fait',
+    progress: 'Question {n} sur {total}',
+    chooseOne: 'Choisissez-en une seule.',
+    check: 'Vérifier ma réponse',
+    choose: 'Choisissez une réponse',
+    markCorrect: 'Correct',
+    markWrong: 'Incorrect',
+    markAnswer: 'Bonne réponse',
+    correct: 'Bonne réponse : {answer}',
+    next: 'Question suivante',
+    finish: 'Afficher le résumé',
+    summaryA: 'Ce qui rend la version A meilleure',
+    summaryB: 'Ce qui rend la version B meilleure',
+    shows: 'Cette phrase montre :',
+    missing: 'Absent des deux versions',
+    result: 'Bonnes réponses : {right} sur {total}.',
+    answer: 'Afficher la réponse',
+    restart: 'Recommencer',
+    cleared: 'Réponses effacées.'
+  }
+};
+/** @typedef {typeof strings.en} Strings */
