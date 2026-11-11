@@ -140,7 +140,10 @@ for (const [lang, content] of [['en', en], ['fr', fr]]) {
     assert.deepEqual(buttons.map(match => match[1]), ['a1', 'a2', 'a3', 'b1', 'b2', 'b3', 'neither']);
     const name = lang === 'fr' ? 'Version B, phrase 2\u00a0: ' : 'Version B, sentence 2: ';
     assert.match(buttons[4][2], new RegExp(`^<span class="lp-choice-key" aria-hidden="true">2</span><span><span class="lp-visually-hidden">${name}</span><span class="lp-which-is-better-text">`));
-    assert.equal(buttons[6][2], `<span>${strings[lang].neither}</span>`);
+    // Neither has an empty key, so it reads as the seventh option and its mark lines up with the others.
+    assert.equal(buttons[6][2], `<span class="lp-choice-key" aria-hidden="true"></span><span>${strings[lang].neither}</span>`);
+    // The question's pair shares rows: the heading, then the longer version's sentences.
+    assert.match(output, /<div class="lp-which-is-better-pair" data-lp-rows="4">/);
     assert.match(output, /role="group" aria-labelledby="pair-question" aria-describedby="pair-hint">\s*<p class="lp-visually-hidden" id="pair-hint">[^<]+<\/p>\s*<p class="lp-error-text" id="pair-error" data-lp-error hidden>/);
   });
 }
@@ -155,6 +158,11 @@ test('authored text is escaped, and French typography applies', () => {
   assert.ok(french.includes('Quelle phrase précise ce qui compte comme une commande urgente ?'));
   assert.ok(french.includes('Bonne réponse : Aucune des deux versions ne le fait.'));
   assert.throws(() => render({ ...content, qualities: [] }, strings.en, { id: 'x', lang: 'en' }), /qualities/);
+});
+
+test('the pair keeps one row per sentence of the longer version', () => {
+  const longer = structuredClone(en); longer.versions.b.push('Four.', 'Five.');
+  assert.match(render(longer, strings.en, { id: 'r', lang: 'en' }), /data-lp-rows="6"/);
 });
 
 test('the summary marks the answer sentences and puts each note after its sentence in reading order', () => {
@@ -172,7 +180,11 @@ test('the summary marks the answer sentences and puts each note after its senten
 test('the pattern stylesheet keeps its prefix, the highlighter and forced-colour cues', async () => {
   const css = await readFile(new URL('./pattern.css', import.meta.url), 'utf8');
   assert.match(css, /--lp-which-is-better-mark: #ffe49a/);
-  assert.match(css, /\[aria-pressed="true"\]:not\(\[data-lp-mark\]\) \.lp-which-is-better-text \{[^}]*background: var\(--lp-which-is-better-mark\)/);
+  // The highlighter marks the chosen sentence, then after the check the sentence that shows the quality.
+  assert.match(css, /:is\(\[aria-pressed="true"\]:not\(\[data-lp-mark\]\), \[data-lp-mark="correct"\], \[data-lp-mark="missed"\]\) \.lp-which-is-better-text,\s*\.lp-which-is-better-notes mark \{[^}]*background: var\(--lp-which-is-better-mark\)/);
+  // The summary highlight stays inline, hugging its text; a block one reads as a filled panel.
+  assert.doesNotMatch(css, /\.lp-which-is-better-notes mark \{[^}]*display: block/);
+  assert.match(css, /@container \(max-width: 40rem\)/);
   assert.match(css, /forced-colors: active[^]*\[aria-pressed="true"\]:not\(\[data-lp-mark\]\) \{ border: 2px solid Highlight/);
-  for (const [, name] of css.matchAll(/\.(lp-[a-z-]+)/g)) assert.ok(name.startsWith('lp-which-is-better') || ['lp-choice', 'lp-choice-key', 'lp-choice-mark', 'lp-error-text'].includes(name), name);
+  for (const [, name] of css.matchAll(/\.(lp-[a-z-]+)/g)) assert.ok(name.startsWith('lp-which-is-better') || ['lp-choice', 'lp-choices', 'lp-choice-key', 'lp-choice-mark', 'lp-error-text'].includes(name), name);
 });

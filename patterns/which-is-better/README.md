@@ -37,7 +37,7 @@ For each question, write a reason that says why the right sentence works and why
 
 1. The learner reads the situation and both versions, side by side on a wide screen and one under the other on a phone. Each sentence is a numbered row.
 2. One question at a time, they select a sentence in either version, or "Neither version does this", then select "Check my answer". Selecting another row moves the choice; selecting the chosen row again clears it.
-3. Their choice is marked "Correct" or "Incorrect", the right row is marked "Correct answer" if they didn't choose it, and the reason appears under the rows.
+3. Their choice is marked "Correct" or "Incorrect", the right row is marked "Correct answer" if they didn't choose it, and the reason appears under the rows. The highlighter moves to the sentence that shows the quality, as the summary will show it.
 4. "Next question" opens the next quality. After the last one, "Show the summary" gives the number they got right in one sentence and shows the better version with each answer sentence highlighted and its note beside it. Qualities neither version has are listed under "Missing from both versions".
 5. "Start over", on the summary, clears every answer.
 
