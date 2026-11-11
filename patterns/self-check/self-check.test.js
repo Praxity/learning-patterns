@@ -36,11 +36,11 @@ test('feedback counts unique known ticks and returns labels and missed hints in 
   assert.equal(feedback(content, []).count, 0);
   const result = feedback(content, ['reason', 'reason', 'no_blame']);
   assert.equal(result.count, 2);
-  assert.equal(result.total, 6);
-  assert.deepEqual(result.items[1], { id: 'reason', included: true, label: 'Sales data arrived late', hint: null });
-  assert.deepEqual(result.items[5], { id: 'no_blame', included: true, label: 'Describe the delay without blame', hint: null });
-  assert.deepEqual(result.items[0], { id: 'work_deadline', included: false, label: 'Client report due Friday', hint: 'Say the client report is due Friday.' });
-  assert.equal(feedback(content, content.parts.map(part => part.id)).count, 6);
+  assert.equal(result.total, 4);
+  assert.deepEqual(result.items[0], { id: 'reason', included: true, label: 'Sales data arrived late', hint: null });
+  assert.deepEqual(result.items[3], { id: 'no_blame', included: true, label: 'Describe the delay without blame', hint: null });
+  assert.deepEqual(result.items[1], { id: 'new_date', included: false, label: 'Ask for Tuesday', hint: 'Ask to finish by Tuesday.' });
+  assert.equal(feedback(content, content.parts.map(part => part.id)).count, 4);
   assert.throws(() => feedback(content, ['unknown']), /Unknown part: unknown/);
 });
 
