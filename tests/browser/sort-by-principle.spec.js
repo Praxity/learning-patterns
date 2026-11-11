@@ -316,7 +316,7 @@ test('checking an answer at 1280px changes no row height and no line break', asy
   expect(rule.top).toBeGreaterThanOrEqual(mark.bottom - 1);
 });
 
-test('at 390px Next case brings the new case to the top of the view', async ({ page }) => {
+test('at 390px Next case shows the whole new case, heading to Check, without scrolling', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   for (const lang of ['en', 'fr']) {
     await open(page, lang);
@@ -327,11 +327,28 @@ test('at 390px Next case brings the new case to the top of the view', async ({ p
       await panel(page, c).locator('[data-lp-next]').click();
       const heading = panel(page, c + 1).locator('[data-lp-case-heading]');
       await expect(heading).toBeFocused();
-      await expect.poll(() => heading.evaluate(el => el.getBoundingClientRect().top)).toBeLessThan(844 * 0.1);
-      expect(await heading.evaluate(el => el.getBoundingClientRect().top)).toBeGreaterThanOrEqual(0);
+      // A case that fits where it lands stays put; one that doesn't is scrolled to the top. Either way
+      // the learner sees the heading, the case, every choice and Check.
+      await expect.poll(() => heading.evaluate(el => el.getBoundingClientRect().top)).toBeGreaterThanOrEqual(0);
       await expect(panel(page, c + 1).locator('[data-lp-check]')).toBeInViewport({ ratio: 1 });
     }
   }
+});
+
+test('at 390px a new case that does not fit where it lands is scrolled to the top of the view', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await open(page, 'fr');
+  await page.evaluate(() => { const after = document.createElement('div'); after.style.blockSize = '1500px'; document.querySelector('main').after(after); });
+  await answer(page, 0, 'ask');
+  // With Next case at the top of the view, the new case would start above it.
+  const next = panel(page, 0).locator('[data-lp-next]');
+  await next.evaluate(button => window.scrollBy(0, button.getBoundingClientRect().top));
+  await next.click();
+  const heading = panel(page, 1).locator('[data-lp-case-heading]');
+  await expect(heading).toBeFocused();
+  await expect.poll(() => heading.evaluate(el => el.getBoundingClientRect().top)).toBeLessThan(844 * 0.1);
+  expect(await heading.evaluate(el => el.getBoundingClientRect().top)).toBeGreaterThanOrEqual(0);
+  await expect(panel(page, 1).locator('[data-lp-check]')).toBeInViewport({ ratio: 1 });
 });
 
 test('at 1280px Next case leaves the page where it is when the new case fits', async ({ page }) => {
