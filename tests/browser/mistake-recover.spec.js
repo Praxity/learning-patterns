@@ -116,7 +116,10 @@ test('keyboard journey: approve, an empty check, recovery, the result and Start 
 
 test('holding the request opens the payment the colleague approved, and recovering it ends the card', async ({ page }) => {
   await open(page); await observe(page);
-  await hold(item(page, 0));
+  // Approve, then Hold, by keyboard. Hold reveals the colleague's payment, so Tab from the status line goes there next.
+  await page.keyboard.press('Tab'); await page.keyboard.press('Tab');
+  await expect(item(page, 0).locator('[data-lp-hold]')).toBeFocused();
+  await page.keyboard.press('Enter');
   await expect(line(page, 0)).toBeFocused();
   await expect(line(page, 0)).toHaveText(plain(`Status: ${request.held}`));
   await expect(item(page, 0).locator('[data-lp-recover]')).toBeHidden();
@@ -125,6 +128,7 @@ test('holding the request opens the payment the colleague approved, and recoveri
   await expect(second.locator('h3')).toHaveText(dana.title);
   await expect(line(page, 1)).toHaveText(plain(`Status: ${dana.approved}`));
   await expect(second.locator('[data-lp-recover]')).toBeVisible();
+  await page.keyboard.press('Tab'); await expect(second.locator('input').first()).toBeFocused();
   await expect(page.locator('[data-lp-result]')).toBeHidden();
   expect(await announcements(page)).toEqual([]);
   // Leaving out Cancel leaves the payment approved, in different words, so the check visibly did something.
@@ -137,6 +141,20 @@ test('holding the request opens the payment the colleague approved, and recoveri
   await expect(page.locator('[data-lp-summary]')).toHaveText(sentence);
   expect(await announcements(page)).toEqual([sentence]);
   expect(await saved(page)).toEqual({ decision: 'hold', steps: [null, ['leave', 'tell']] });
+});
+
+test('approving and leaving out Cancel: the payment still goes out', async ({ page }) => {
+  await open(page); await observe(page);
+  const first = item(page, 0);
+  await approve(first);
+  await recover(first, ['call']);
+  await expect(line(page, 0)).toBeFocused();
+  await expect(line(page, 0)).toHaveText(plain(`Status: ${request.notStopped}`));
+  await expect(row(first, 'cancel')).toHaveAttribute('data-lp-mark', 'missed');
+  const sentence = 'You approved the request, and the payment still goes out.';
+  await expect(page.locator('[data-lp-summary]')).toHaveText(sentence);
+  expect(await announcements(page)).toEqual([sentence]);
+  expect(await saved(page)).toEqual({ decision: 'approve', steps: [['call'], null] });
 });
 
 for (const [lang, content, labels] of [
