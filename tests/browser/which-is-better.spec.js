@@ -126,7 +126,9 @@ test('keyboard journey: error, one choice per question, focus on each result, th
   await expect(end.locator('[data-lp-result]')).toHaveText('You answered 1 of 3 questions correctly.');
   await expect(end.locator('mark')).toHaveText([english.versions.b[0], english.versions.b[1]]);
   await expect(end.locator('.lp-which-is-better-note')).toHaveText([`This sentence shows: ${english.qualities[2].note}`, `This sentence shows: ${english.qualities[0].note}`]);
-  await expect(end.locator('.lp-label')).toHaveText(['Version B', 'Missing from both versions']);
+  // "Version B" is said to screen readers only; the heading above already names it.
+  await expect(end.locator('.lp-which-is-better-group > .lp-visually-hidden')).toHaveText('Version B');
+  await expect(end.locator('.lp-label')).toHaveText(['Missing from both versions']);
   await expect(end.locator('.lp-which-is-better-missing li')).toHaveText([english.qualities[1].note]);
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ at: 3, picks: ['b2', 'b2', 'b3'] });
   expect(await announcements(page)).toEqual([]);
@@ -163,7 +165,8 @@ test('a chosen sentence keeps the accent border and takes the highlighter; marks
   expect(await row(page, 'a1').boundingBox()).toEqual(before);
   await row(page, 'b2').click();
   await page.locator('[data-lp-check]').click();
-  await expect(row(page, 'b2').locator('.lp-which-is-better-text')).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+  // After the check the highlighter stays on the sentence that shows the quality.
+  await expect(row(page, 'b2').locator('.lp-which-is-better-text')).toHaveCSS('background-color', HIGHLIGHTER);
   await expect(row(page, 'b2')).toHaveCSS('cursor', 'default');
   // The highlighter keeps AA contrast with the ink.
   await page.locator('[data-lp-next]').click(); await decide(page, 'neither'); await decide(page, 'b1');
@@ -259,7 +262,7 @@ for (const [lang, content, labels] of [
 }
 
 test('the versions sit side by side on a wide card and stack on a phone, and the notes follow', async ({ page }) => {
-  for (const [width, side] of [[1280, true], [390, false]]) {
+  for (const [width, side] of [[1280, true], [640, false], [390, false]]) {
     await page.setViewportSize({ width, height: 900 }); await open(page);
     const [a, b] = await Promise.all(['a1', 'b1'].map(pick => row(page, pick).boundingBox()));
     expect(Math.abs(a.y - b.y) < 1, `${width}px side by side`).toBe(side);
@@ -344,7 +347,7 @@ test('the pattern works in memory without a state adapter, with two questions an
   await expect(page.locator('[data-lp-progress]')).toHaveText('Question 1 of 2');
   await decide(page, 'b2'); await decide(page, 'b1');
   await expect(page.locator('[data-lp-result]')).toHaveText('You answered 2 of 2 questions correctly.');
-  await expect(page.locator('[data-lp-summary] .lp-label')).toHaveText(['Version B']);
+  await expect(page.locator('[data-lp-summary] .lp-label')).toHaveCount(0);
   await page.locator('[data-lp-restart]').click();
   await expect(page.locator('[data-lp-progress]')).toHaveText('Question 1 of 2');
 });
@@ -480,4 +483,35 @@ test('missing markup and invalid content fail loudly with the part named', async
   }, english);
   expect(messages.missing).toEqual(messages.selectors.map(selector => `Missing which-is-better markup: ${selector}`));
   expect(messages.invalid).toMatch(/qualities/);
+});
+
+test('after a wrong pick the right sentence keeps the highlighter and the wrong one loses it', async ({ page }) => {
+  await open(page);
+  await decide(page, 'a2', { next: false });
+  await expect(row(page, 'b2').locator('.lp-which-is-better-text')).toHaveCSS('background-color', HIGHLIGHTER);
+  await expect(row(page, 'a2').locator('.lp-which-is-better-text')).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+});
+
+test('on a wide card sentence n of each version starts level, even after a mark adds a line', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 }); await open(page);
+  const tops = () => Promise.all(['a1', 'b1', 'a2', 'b2', 'a3', 'b3'].map(pick => row(page, pick).evaluate(el => Math.round(el.getBoundingClientRect().top))));
+  const level = values => [0, 2, 4].every(i => Math.abs(values[i] - values[i + 1]) <= 1);
+  expect(level(await tops())).toBe(true);
+  await decide(page, 'b1', { next: false });
+  expect(level(await tops())).toBe(true);
+});
+
+for (const width of [390, 640]) test(`in the stacked summary at ${width}px each highlight is no wider than its text`, async ({ page }) => {
+  await page.setViewportSize({ width, height: 900 }); await open(page, '/which-is-better/fr.html');
+  await decide(page, 'b2'); await decide(page, 'neither'); await decide(page, 'b1');
+  const lines = await page.locator('[data-lp-summary] mark').evaluateAll(marks => marks.map(mark => {
+    const range = mark.ownerDocument.createRange(); range.selectNodeContents(mark);
+    const text = [...range.getClientRects()].filter(rect => rect.width > 0);
+    return [...mark.getClientRects()].filter(rect => rect.width > 0).map((rect, i) => rect.width - text[i].width);
+  }));
+  // Both highlights are measured; at 390px they wrap and give more lines, at 640px one line each.
+  expect(lines.length).toBe(2);
+  expect(lines.flat().length).toBeGreaterThanOrEqual(2);
+  // Only the 3px of padding on each side, as on the question screens.
+  for (const extra of lines.flat()) expect(extra).toBeLessThanOrEqual(6.5);
 });
