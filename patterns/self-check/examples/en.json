@@ -9,28 +9,16 @@
   "task": "Write to your manager to ask for more time.",
   "parts": [
     {
-      "id": "work_deadline",
-      "label": "Client report due Friday",
-      "missed": "Say the client report is due Friday.",
-      "evidence": "the client report is due Friday"
-    },
-    {
       "id": "reason",
       "label": "Sales data arrived late",
       "missed": "Say the sales data arrived late.",
-      "evidence": "The sales data arrived three days late"
+      "evidence": "the sales data for the client report arrived three days late"
     },
     {
       "id": "new_date",
       "label": "Ask for Tuesday",
       "missed": "Ask to finish by Tuesday.",
       "evidence": "I need until Tuesday to finish it"
-    },
-    {
-      "id": "impact",
-      "label": "Offer finished sections by Friday",
-      "missed": "Offer a draft or finished sections by Friday.",
-      "evidence": "I can send the finished sections by Friday"
     },
     {
       "id": "agreement",
@@ -45,5 +33,5 @@
       "evidence": null
     }
   ],
-  "model": "Hi Sam, the client report is due Friday. The sales data arrived three days late, so I need until Tuesday to finish it. I can send the finished sections by Friday. Would Tuesday work for you?"
+  "model": "Hi Sam, the sales data for the client report arrived three days late, so I need until Tuesday to finish it. Would Tuesday work for you?"
 }

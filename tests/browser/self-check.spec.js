@@ -228,15 +228,15 @@ test('message scene, non-live meter and annotated comparison use authored conten
   await expect(page.locator('.lp-self-check-composer')).toContainText('Sam, your manager');
   await expect(page.locator('.lp-self-check-composer')).toContainText('Client report');
   await ticks(page);
-  await expect(page.locator('[data-lp-meter]')).toHaveText('0 of 6');
+  await expect(page.locator('[data-lp-meter]')).toHaveText('0 of 4');
   await expect(page.locator('[data-lp-meter] svg')).toHaveAttribute('aria-hidden', 'true');
-  await page.getByRole('checkbox').nth(1).check();
-  await expect(page.locator('[data-lp-meter]')).toHaveText('1 of 6');
+  await page.getByRole('checkbox').first().check();
+  await expect(page.locator('[data-lp-meter]')).toHaveText('1 of 4');
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
   await page.locator('[data-lp-show]').click();
   await expect(page.locator('.lp-self-check-pane').first()).toContainText('My draft');
-  await expect(page.locator('.lp-self-check-pane-model mark')).toHaveCount(5);
-  await expect(page.locator('mark[data-lp-included="true"]')).toContainText('The sales data arrived three days late');
+  await expect(page.locator('.lp-self-check-pane-model mark')).toHaveCount(3);
+  await expect(page.locator('mark[data-lp-included="true"]')).toContainText('the sales data for the client report arrived three days late');
   await expect(page.locator('.lp-self-check-legend')).toContainText('Whole answer');
   await expect(page.locator('[data-lp-result]')).toHaveClass(/lp-reveal/);
   await page.setViewportSize({ width: 1280, height: 900 });
@@ -271,15 +271,15 @@ test('comparison escapes draft text and summaries cover one missing part and all
   const draft = '<img src=x onerror=alert(1)> & my message';
   await page.getByRole('textbox').fill(draft);
   for (const box of await page.getByRole('checkbox').all()) await box.check();
-  await page.getByRole('checkbox').nth(4).uncheck(); await page.locator('[data-lp-show]').click();
+  await page.getByRole('checkbox').nth(2).uncheck(); await page.locator('[data-lp-show]').click();
   await expect(page.locator('.lp-self-check-result-head')).toContainText("One part to add. Check that Tuesday works.");
   await expect(page.locator('.lp-self-check-pane').first().locator('p')).toHaveText(draft);
   await expect(page.locator('.lp-self-check-pane img')).toHaveCount(0);
   await expect(page.locator('mark[data-lp-included="false"]')).toHaveCount(1);
   await expect(page.locator('.lp-self-check-legend-hint')).toHaveCount(1);
-  await page.getByRole('checkbox').nth(4).check(); await page.locator('[data-lp-show]').click();
+  await page.getByRole('checkbox').nth(2).check(); await page.locator('[data-lp-show]').click();
   await expect(page.locator('.lp-self-check-result-head')).toContainText('Compare your wording with the model answer.');
-  await expect(page.locator('mark[data-lp-included="true"]')).toHaveCount(5);
+  await expect(page.locator('mark[data-lp-included="true"]')).toHaveCount(3);
   await expect(page.locator('.lp-self-check-legend-hint')).toHaveCount(0);
 });
 
@@ -305,10 +305,10 @@ test('keyboard-only journey, error association, focus and one mutation per annou
   await page.keyboard.press('Tab'); await page.keyboard.press('Enter');
   const boxes = page.getByRole('checkbox'); await expect(boxes.first()).toBeFocused();
   await page.keyboard.press('Space');
-  for (let index = 0; index < 6; index++) await page.keyboard.press('Tab');
+  for (let index = 0; index < 4; index++) await page.keyboard.press('Tab');
   const show = page.getByRole('button', { name: 'Show feedback' });
   await expect(show).toBeFocused(); await page.keyboard.press('Enter'); await expect(show).toBeFocused();
-  await expect(page.locator('[data-lp-result]')).toContainText('You ticked 1 of 6 parts.');
+  await expect(page.locator('[data-lp-result]')).toContainText('You ticked 1 of 4 parts.');
   await expect(page.locator('[data-lp-result]')).toContainText('Included');
   await expect(page.locator('[data-lp-result]')).toContainText('To add');
   await page.keyboard.press('Enter'); await expect(show).toBeFocused();
@@ -317,7 +317,7 @@ test('keyboard-only journey, error association, focus and one mutation per annou
   await expect(answer).toHaveValue(''); await expect(page.locator('[data-lp-ticks]')).toBeHidden();
   await expect(page.locator('[data-lp-result]')).toBeHidden();
   await expect(page.locator('input:checked')).toHaveCount(0);
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You ticked 1 of 6 parts.', 'You ticked 1 of 6 parts.', 'Answer cleared.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You ticked 1 of 4 parts.', 'You ticked 1 of 4 parts.', 'Answer cleared.']);
 });
 
 for (const [lang, content, included, notIncluded] of [
@@ -355,7 +355,7 @@ test('Start over is hidden initially and after reset, and available from the che
   await ticks(page); await page.locator('[data-lp-show]').click();
   await expect(restart).toBeVisible(); await restart.click();
   await expect(restart).toBeHidden(); await expect(page.locator('[data-lp-result]')).toBeHidden();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Answer cleared.', 'You ticked 0 of 6 parts.', 'Answer cleared.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Answer cleared.', 'You ticked 0 of 4 parts.', 'Answer cleared.']);
 });
 
 test('Start over is a quiet text button with an icon, the same target size and focus ring', async ({ page }) => {
@@ -411,9 +411,9 @@ test('editing answers or ticks preserves feedback, next submit replaces it and s
   await page.getByRole('textbox').fill('Edited draft');
   await page.getByRole('checkbox').nth(1).check();
   expect(await page.locator('[data-lp-result]').innerHTML()).toBe(before);
-  expect(await page.evaluate(() => window.lpSaved)).toEqual({ answer: 'Edited draft', ticked: ['work_deadline', 'reason'], shown: true });
+  expect(await page.evaluate(() => window.lpSaved)).toEqual({ answer: 'Edited draft', ticked: ['reason', 'new_date'], shown: true });
   await page.getByRole('button', { name: 'Show feedback' }).click();
-  await expect(page.locator('.lp-self-check-result-head h3')).toHaveText('You ticked 2 of 6 parts.');
+  await expect(page.locator('.lp-self-check-result-head h3')).toHaveText('You ticked 2 of 4 parts.');
   await expect(page.locator('[data-lp-result] > ol')).toHaveCount(1);
   await page.getByRole('button', { name: 'Start over' }).click();
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ answer: '', ticked: [], shown: false });
@@ -461,7 +461,7 @@ test('French root has French language and translated feedback', async ({ page })
   await open(page, '/self-check/fr.html'); await expect(page.locator('[data-lp-pattern]')).toHaveAttribute('lang', 'fr');
   await page.getByRole('textbox').fill('Mon message'); await page.locator('[data-lp-check]').click();
   await page.getByRole('checkbox').first().check(); await page.locator('[data-lp-show]').click();
-  await expect(page.locator('[data-lp-result]')).toContainText('Éléments cochés : 1 sur 6.');
+  await expect(page.locator('[data-lp-result]')).toContainText('Éléments cochés : 1 sur 4.');
   const model = await page.locator('.lp-self-check-pane-model p').evaluate(el => {
     const copy = el.cloneNode(true); copy.querySelectorAll('[aria-hidden="true"]').forEach(number => number.remove()); return copy.textContent;
   });
@@ -472,12 +472,12 @@ for (const shown of [false, true]) {
   test(`valid saved state restores checklist and shown=${shown} without announcements`, async ({ page }) => {
     await page.addInitScript(value => { window.lpSeed = value; }, { answer: 'Saved answer', ticked: ['reason'], shown });
     await open(page); await expect(page.getByRole('textbox')).toHaveValue('Saved answer');
-    await expect(page.getByRole('checkbox').nth(1)).toBeChecked(); await expect(page.locator('[data-lp-ticks]')).toBeVisible();
+    await expect(page.getByRole('checkbox').first()).toBeChecked(); await expect(page.locator('[data-lp-ticks]')).toBeVisible();
     await expect(page.locator('[data-lp-restart]')).toBeVisible();
     await expect(page.locator('.lp-visually-hidden[role="status"]')).toHaveText('');
     await expect(page.locator('[role="status"]')).toHaveCount(1);
     await expect(page.locator('[role="status"]')).toHaveText('');
-    if (shown) await expect(page.locator('[data-lp-result]')).toContainText('You ticked 1 of 6 parts.');
+    if (shown) await expect(page.locator('[data-lp-result]')).toContainText('You ticked 1 of 4 parts.');
     else await expect(page.locator('[data-lp-result]')).toBeHidden();
   });
 }
@@ -492,7 +492,7 @@ test('invalid saved state is ignored', async ({ page }) => {
 test('enhance is idempotent and destroy removes listeners and restores fallback', async ({ page }) => {
   await open(page); expect(await page.evaluate(() => window.lpEnhance() === window.lpInstances[0])).toBe(true);
   await observeStatus(page); await ticks(page); await page.locator('[data-lp-show]').click();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You ticked 0 of 6 parts.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You ticked 0 of 4 parts.']);
   await page.evaluate(() => window.lpInstances[0].destroy());
   await expect(page.locator('[data-lp-flow]')).toBeHidden(); await expect(page.locator('[data-lp-fallback]')).toBeVisible();
   await page.evaluate(() => window.lpEnhance()); await ticks(page); await page.locator('[data-lp-show]').click();
@@ -520,7 +520,7 @@ test('destroy is safe to repeat after another enhancement', async ({ page }) => 
   await expect(page.locator('[data-lp-check]')).toBeVisible();
   expect(await page.evaluate(() => window.lpEnhance() === window.lpEnhance())).toBe(true);
   await observeStatus(page); await ticks(page); await page.locator('[data-lp-show]').click();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You ticked 0 of 6 parts.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You ticked 0 of 4 parts.']);
 });
 
 test('missing or mismatched markup throws a useful error', async ({ page }) => {

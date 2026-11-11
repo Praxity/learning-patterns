@@ -9,28 +9,16 @@
   "task": "Écrivez à votre gestionnaire pour demander plus de temps.",
   "parts": [
     {
-      "id": "work_deadline",
-      "label": "Rapport client à remettre vendredi",
-      "missed": "Dites que le rapport client est à remettre vendredi.",
-      "evidence": "le rapport client est attendu vendredi"
-    },
-    {
       "id": "reason",
       "label": "Données de vente arrivées en retard",
       "missed": "Dites que les données de vente sont arrivées en retard.",
-      "evidence": "Les données de vente sont arrivées avec trois jours de retard"
+      "evidence": "les données de vente pour le rapport client sont arrivées avec trois jours de retard"
     },
     {
       "id": "new_date",
       "label": "Demander un délai jusqu’à mardi",
       "missed": "Demandez de terminer le rapport d’ici mardi.",
       "evidence": "Il me faut donc jusqu’à mardi pour le terminer"
-    },
-    {
-      "id": "impact",
-      "label": "Offrir les sections terminées d’ici vendredi",
-      "missed": "Offrez une version préliminaire ou les sections terminées d’ici vendredi.",
-      "evidence": "Je peux vous envoyer les sections terminées d’ici vendredi"
     },
     {
       "id": "agreement",
@@ -45,5 +33,5 @@
       "evidence": null
     }
   ],
-  "model": "Bonjour Sam, le rapport client est attendu vendredi. Les données de vente sont arrivées avec trois jours de retard. Il me faut donc jusqu’à mardi pour le terminer. Je peux vous envoyer les sections terminées d’ici vendredi. Est-ce que mardi vous conviendrait ?"
+  "model": "Bonjour Sam, les données de vente pour le rapport client sont arrivées avec trois jours de retard. Il me faut donc jusqu’à mardi pour le terminer. Est-ce que mardi vous conviendrait ?"
 }
