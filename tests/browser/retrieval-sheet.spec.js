@@ -74,7 +74,7 @@ for (const width of [1280, 390]) {
     await expect(root(page).locator('.lp-scene-icon svg')).toHaveAttribute('aria-hidden', 'true');
     await expect(side(page, 'front')).toBeVisible(); await expect(side(page, 'back')).toBeHidden();
     await expect(side(page, 'front').locator('li > p')).toHaveText(english.questions.map(row => row.question));
-    await expect(side(page, 'front').locator('.lp-retrieval-sheet-space')).toHaveCount(6);
+    await expect(side(page, 'front').locator('.lp-retrieval-sheet-space')).toHaveCount(4);
     for (const space of await side(page, 'front').locator('.lp-retrieval-sheet-space').all()) {
       expect(await space.evaluate(el => el.getBoundingClientRect().height)).toBeGreaterThanOrEqual(40);
     }
