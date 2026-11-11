@@ -5,16 +5,21 @@
 /* The two versions side by side, stacked in a narrow card. Headings and space set them apart. */
 .lp-which-is-better-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--lp-gap-group) 24px; align-items: start; }
 .lp-which-is-better-pair > div > * + * { margin-block-start: var(--lp-gap-stem); }
-.lp-which-is-better-plain, .lp-which-is-better-questions, .lp-which-is-better-missing { margin: 0; padding-inline-start: 1.5em; }
+.lp-which-is-better-plain, .lp-which-is-better-questions { margin: 0; padding-inline-start: 1.5em; }
+/* Missing qualities line up with the sentences above them, which have no markers. */
+.lp-which-is-better-missing { margin: 0; padding-inline-start: 6px; list-style: none; }
 .lp-which-is-better-plain > li + li, .lp-which-is-better-missing > li + li { margin-block-start: 4px; }
 .lp-which-is-better-questions > li + li { margin-block-start: var(--lp-gap-flow); }
 .lp-which-is-better-choices > * + * { margin-block-start: var(--lp-gap-flow); }
 .lp .lp-which-is-better-group > * + * { margin-block-start: var(--lp-gap-label); }
-.lp-which-is-better-choices > :is(.lp-error-text, .lp-which-is-better-feedback) { margin-block-start: var(--lp-gap-label); }
+.lp-which-is-better-choices > .lp-error-text { margin-block-start: var(--lp-gap-label); }
 
 /* Sentence rows are toggle buttons, so the row styles keyed on inputs are restated for them. */
 .lp-which-is-better .lp-choice { inline-size: 100%; margin: 0; color: var(--lp-ink); font: inherit; line-height: 1.4; text-align: start; }
 .lp-which-is-better .lp-choice:focus-visible { outline: 3px solid var(--lp-focus); outline-offset: 2px; }
+/* base.css rings every button on any focus. A tapped or clicked row already shows its border, and a
+   ring there reads as a selection, so rows ring for keyboard focus only, as radio rows do. */
+.lp-which-is-better .lp-choice:focus:not(:focus-visible) { outline: none; }
 /* A chosen sentence keeps the 2px accent border and takes the highlighter on its text in place of
    the tint. Marks replace both after the check. */
 .lp-which-is-better .lp-choice[aria-pressed="true"]:not([data-lp-mark]) { border: 2px solid var(--lp-accent); padding: 9px 13px; background: var(--lp-paper); }

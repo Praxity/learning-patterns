@@ -39,6 +39,15 @@ export function enhance(root, { content, strings, state }) {
   const text = (/** @type {string} */ value) => frenchTypography(value, root.lang);
   const save = () => state?.write({ at, picks: [...picks] });
   const pressed = () => rows.find(row => row.getAttribute('aria-pressed') === 'true');
+  /** Bring a line to the top of the view unless all of it is visible. On a phone the rows and the
+   * button sit a screen below the question, so a new question or an error would open out of sight.
+   * @param {HTMLElement} element */
+  function toTop(element) {
+    const view = root.ownerDocument.defaultView, box = element.getBoundingClientRect();
+    if (!view) return;
+    const top = parseFloat(view.getComputedStyle(root.ownerDocument.documentElement).scrollPaddingTop) || 0;
+    if (box.top < top - 1 || box.bottom > view.innerHeight + 1) element.scrollIntoView({ block: 'start' });
+  }
 
   function clearError() {
     error.hidden = true;
@@ -96,8 +105,8 @@ export function enhance(root, { content, strings, state }) {
       error.hidden = false;
       for (const row of rows) row.setAttribute('aria-describedby', error.id);
       status.textContent = '';
-      // The first row reads the error once; the question stays in view above it.
-      if (question.getBoundingClientRect().top < 0) question.scrollIntoView({ block: 'start' });
+      // The error sits under the question; the first row reads it once.
+      toTop(question);
       rows[0].focus({ preventScroll: true });
       return;
     }
@@ -113,11 +122,11 @@ export function enhance(root, { content, strings, state }) {
     at += 1;
     if (at === total) {
       finish();
-      reveal(end);
+      toTop(end);
       result.focus({ preventScroll: true });
     } else {
       open(at);
-      reveal(step);
+      toTop(question);
       question.focus({ preventScroll: true });
     }
     save();

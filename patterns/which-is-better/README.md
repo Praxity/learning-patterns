@@ -25,7 +25,7 @@ Read two versions of the same work. For each quality, select the sentence that s
 
 ## Before you use it
 
-Write two short versions of the same piece of work, two to five sentences each, and pair the sentences: each sentence of the weaker version should be a weaker attempt at something the better version does. Then a learner has to read both versions to answer, not only the better one.
+Write two short versions of the same piece of work, two to five sentences each, and pair the sentences: each sentence of the weaker version should be a weaker attempt at something the better version does. Then a learner has to read both versions to answer, not only the better one. Keep each sentence to one line of an email, about 15 words: on a phone the two versions are stacked, and learners scroll through both for every question. Write a phone number with a word joiner (U+2060) after each hyphen, so it never breaks across lines.
 
 Write two to four questions, each about one quality both versions attempt, such as "Which sentence tells a customer with an urgent order exactly who to call?" Put the deciding word in the question ("exactly", "plainly"), so only one sentence can be defended from the card alone. Make at least one answer "Neither version does this", so learners can't score by always picking the better version.
 
@@ -113,9 +113,10 @@ const instance = enhance(document.querySelector('[data-lp-pattern]'), { content,
 
 - The question line holds the progress, "Question 1 of 3", and the question. It labels the group of rows, and a hidden hint, "Choose one.", tells screen reader users that a new choice releases the old one.
 - Each version has a level 3 heading, one level below the card title. Tab moves through Version A's sentences, Version B's, then "Neither version does this". Space or Enter presses a row, and the row reports its pressed state.
-- "Check my answer" with nothing chosen shows an error linked to every row and moves focus to the first row, which reads the error once.
+- "Check my answer" with nothing chosen shows an error under the question, linked to every row, brings the question into view and moves focus to the first row, which reads the error once.
+- Rows show the focus ring for keyboard focus only; a tapped or clicked row shows its selection border.
 - After a check, focus moves to the feedback under the rows. For screen readers it starts with "Correct." or "Incorrect. Correct answer:" and the right sentence's name and text, then the reason, so the result is read once and the status region stays empty. The rows lock, and Tab goes on to "Next question".
-- "Next question" moves focus to the new question line. "Show the summary" moves focus to the result sentence; the annotated version follows in reading order, each note after its sentence and introduced by a hidden "This sentence shows:".
+- "Next question" brings the new question line into view and moves focus to it. "Show the summary" moves focus to the result sentence; the annotated version follows in reading order, each note after its sentence and introduced by a hidden "This sentence shows:".
 - "Start over" announces "Answers cleared." and moves focus to the first question.
 - Marks use words, icons and borders as well as colour.
 

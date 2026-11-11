@@ -59,12 +59,17 @@ test('every sentence answer is a sentence of the better version, used once, and 
   assert.throws(() => validateContent({ ...longer, better: 'a' }), /qualities\[0\]\.sentence/);
 });
 
+test('the sample phone numbers cannot break at their hyphens', () => {
+  assert.ok(en.versions.b[1].includes('514-\u2060555-\u20600142'));
+  assert.ok(fr.versions.b[1].includes('514 555-\u20600142'));
+});
+
 test('answers, names and the answer text', () => {
   assert.deepEqual(en.qualities.map((_, i) => answer(en, i)), ['b2', 'neither', 'b1']);
   assert.equal(pickName(en, strings.en, 'a3'), 'Version A, sentence 3');
   assert.equal(pickName(fr, strings.fr, 'b2'), 'Version B, phrase 2');
   assert.equal(pickName(en, strings.en, 'neither'), 'Neither version does this');
-  assert.equal(answerText(en, strings.en, 0), 'Version B, sentence 2: For an urgent order, call Jo Mensah at 514-555-0142.');
+  assert.equal(answerText(en, strings.en, 0), 'Version B, sentence 2: For an urgent order, call Jo Mensah at 514-\u2060555-\u20600142.');
   assert.equal(answerText(en, strings.en, 1), 'Neither version does this.');
   for (const pick of ['a1', 'b3', 'neither']) assert.equal(isPick(en, pick), true, pick);
   for (const pick of ['a0', 'a4', 'c1', 'b01', 'B1', '', null, 2]) assert.equal(isPick(en, pick), false, String(pick));
@@ -133,10 +138,10 @@ for (const [lang, content] of [['en', en], ['fr', fr]]) {
     const output = render(content, strings[lang], { id: 'pair', lang });
     const buttons = [...output.matchAll(/<button class="lp-choice[^"]*" type="button" aria-pressed="false" data-lp-pick="([^"]+)">(.*?)<\/button>/g)];
     assert.deepEqual(buttons.map(match => match[1]), ['a1', 'a2', 'a3', 'b1', 'b2', 'b3', 'neither']);
-    const version = lang === 'fr' ? 'phrase' : 'sentence';
-    assert.match(buttons[4][2], new RegExp(`^<span class="lp-choice-key" aria-hidden="true">2</span><span><span class="lp-visually-hidden">Version B, ${version} 2: </span><span class="lp-which-is-better-text">`));
+    const name = lang === 'fr' ? 'Version B, phrase 2\u00a0: ' : 'Version B, sentence 2: ';
+    assert.match(buttons[4][2], new RegExp(`^<span class="lp-choice-key" aria-hidden="true">2</span><span><span class="lp-visually-hidden">${name}</span><span class="lp-which-is-better-text">`));
     assert.equal(buttons[6][2], `<span>${strings[lang].neither}</span>`);
-    assert.match(output, /role="group" aria-labelledby="pair-question" aria-describedby="pair-hint"/);
+    assert.match(output, /role="group" aria-labelledby="pair-question" aria-describedby="pair-hint">\s*<p class="lp-visually-hidden" id="pair-hint">[^<]+<\/p>\s*<p class="lp-error-text" id="pair-error" data-lp-error hidden>/);
   });
 }
 
@@ -157,8 +162,8 @@ test('the summary marks the answer sentences and puts each note after its senten
   const end = output.slice(output.indexOf('data-lp-summary'));
   assert.match(end, /<h3 class="lp-stem">What makes Version B better<\/h3>/);
   assert.equal((end.match(/<mark>/g) ?? []).length, 2);
-  assert.ok(end.includes('<li><span class="lp-which-is-better-sentence"><mark>For an urgent order, call Jo Mensah at 514-555-0142.</mark></span><span class="lp-which-is-better-note"><span class="lp-visually-hidden">This sentence shows: </span>Who to call for an urgent order</span></li>'));
-  assert.ok(end.includes('<p class="lp-label">Missing from both versions</p>\n      <ul class="lp-which-is-better-missing"><li>What counts as urgent</li></ul>'));
+  assert.ok(end.includes('<li><span class="lp-which-is-better-sentence"><mark>For an urgent order, call Jo Mensah at 514-\u2060555-\u20600142.</mark></span><span class="lp-which-is-better-note"><span class="lp-visually-hidden">This sentence shows: </span>Who to call for an urgent order</span></li>'));
+  assert.ok(end.includes('<p class="lp-label">Missing from both versions</p>\n      <ul class="lp-which-is-better-missing" role="list"><li>What counts as urgent</li></ul>'));
   // With no Neither question there is nothing missing to list.
   assert.doesNotMatch(render(edited(c => { c.qualities[1].sentence = 3; }), strings.en, { id: 's', lang: 'en' }), /Missing from both/);
   assert.match(render({ ...en, better: 'a', qualities: en.qualities.map(q => ({ ...q, sentence: q.sentence && 4 - q.sentence })) }, strings.en, { id: 's', lang: 'en' }), /What makes Version A better/);

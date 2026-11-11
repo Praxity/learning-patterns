@@ -15,10 +15,10 @@ export function render(content, strings, { id, lang }) {
   const versions = /** @type {const} */ (['a', 'b']);
   const end = summary(content);
   const first = content.qualities[0];
-  // The question line's hidden comma sits inside the block progress label: names get a space after a
-  // block, so a comma outside it would follow that space ("Question 1 of 3 , Which").
+  // The hidden comma gives screen readers a pause between the progress and the question. It belongs
+  // to the progress label, which is a block.
   // Each sentence is a toggle button named with its version and number, then its text.
-  const choice = (/** @type {'a' | 'b'} */ version, /** @type {string} */ text, /** @type {number} */ i) => `<button class="lp-choice" type="button" aria-pressed="false" data-lp-pick="${version}${i + 1}"><span class="lp-choice-key" aria-hidden="true">${i + 1}</span><span><span class="lp-visually-hidden">${h(pickName(content, strings, `${version}${i + 1}`))}: </span><span class="lp-which-is-better-text">${h(text)}</span></span></button>`;
+  const choice = (/** @type {'a' | 'b'} */ version, /** @type {string} */ text, /** @type {number} */ i) => `<button class="lp-choice" type="button" aria-pressed="false" data-lp-pick="${version}${i + 1}"><span class="lp-choice-key" aria-hidden="true">${i + 1}</span><span><span class="lp-visually-hidden">${h(`${pickName(content, strings, `${version}${i + 1}`)}: `)}</span><span class="lp-which-is-better-text">${h(text)}</span></span></button>`;
   return `<section class="lp lp-which-is-better" data-lp-pattern="which-is-better" lang="${html(lang)}">
   <h2 class="lp-heading">${h(content.title)}</h2>
   <p class="lp-context">${h(content.context)}</p>
@@ -34,11 +34,11 @@ export function render(content, strings, { id, lang }) {
     <p class="lp-stem" id="${ids('question')}" tabindex="-1" data-lp-question><span class="lp-label"><span data-lp-progress>${h(format(strings.progress, { n: 1, total: content.qualities.length }))}</span><span class="lp-visually-hidden">, </span></span><span data-lp-question-text>${h(first.question)}</span></p>
     <div class="lp-which-is-better-choices" role="group" aria-labelledby="${ids('question')}" aria-describedby="${ids('hint')}">
       <p class="lp-visually-hidden" id="${ids('hint')}">${h(strings.chooseOne)}</p>
+      <p class="lp-error-text" id="${ids('error')}" data-lp-error hidden>${icons['alert-circle']}<span>${h(strings.choose)}</span></p>
       <div class="lp-which-is-better-pair">${versions.map(version => `
         <div><h3 class="lp-run-in">${name(version)}</h3><div class="lp-choices">${content.versions[version].map((text, i) => choice(version, text, i)).join('')}</div></div>`).join('')}
       </div>
       <div class="lp-choices"><button class="lp-choice lp-which-is-better-neither" type="button" aria-pressed="false" data-lp-pick="${NEITHER}"><span>${h(strings.neither)}</span></button></div>
-      <p class="lp-error-text" id="${ids('error')}" data-lp-error hidden>${icons['alert-circle']}<span>${h(strings.choose)}</span></p>
       <p class="lp-which-is-better-feedback" tabindex="-1" data-lp-feedback hidden><span class="lp-visually-hidden" data-lp-verdict></span><span data-lp-reason></span></p>
     </div>
     <div class="lp-actions"><button class="lp-button" type="button" data-lp-check>${h(strings.check)}</button><button class="lp-button" type="button" data-lp-next hidden>${h(strings.next)}</button></div>
@@ -54,7 +54,7 @@ export function render(content, strings, { id, lang }) {
     </div>${end.missing.length ? `
     <div class="lp-which-is-better-group">
       <p class="lp-label">${h(strings.missing)}</p>
-      <ul class="lp-which-is-better-missing">${end.missing.map(note => `<li>${h(note)}</li>`).join('')}</ul>
+      <ul class="lp-which-is-better-missing" role="list">${end.missing.map(note => `<li>${h(note)}</li>`).join('')}</ul>
     </div>` : ''}
     <div class="lp-actions"><button class="lp-button lp-button-quiet" type="button" data-lp-restart>${icons.refresh}${h(strings.restart)}</button></div>
   </div>

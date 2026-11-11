@@ -22,6 +22,8 @@ async function observe(page) {
 }
 const announcements = page => page.evaluate(() => window.lpAnnouncements);
 const scan = async page => expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()).violations).toEqual([]);
+// Engines may put a space before the hidden comma, since it is positioned out of flow; speech is the same.
+const groupName = (progress, question) => new RegExp(`^${progress} ?, ${question.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`);
 const row = (root, pick) => root.locator(`[data-lp-pick="${pick}"]`);
 /** Choose a row and check it, then go on with Next. */
 async function decide(root, pick, { next = true } = {}) {
@@ -49,7 +51,8 @@ test('keyboard journey: error, one choice per question, focus on each result, th
   await expect(page.locator('[data-lp-fallback]')).toBeHidden();
   await expect(page.locator('[data-lp-summary]')).toBeHidden();
   await expect(question).toHaveText(`Question 1 of 3, ${english.qualities[0].question}`);
-  await expect(page.getByRole('group', { name: `Question 1 of 3, ${english.qualities[0].question}` })).toHaveAccessibleDescription('Choose one.');
+  await expect(page.getByRole('group')).toHaveAccessibleName(groupName('Question 1 of 3', english.qualities[0].question));
+  await expect(page.getByRole('group')).toHaveAccessibleDescription('Choose one.');
 
   // Tab order: Version A's sentences, Version B's, Neither, then Check.
   const order = ['a1', 'a2', 'a3', 'b1', 'b2', 'b3', 'neither'];
@@ -188,7 +191,7 @@ for (const [lang, content, labels] of [
     await expect(row(root, 'b2')).toHaveAccessibleName(typeset(labels.name + content.versions.b[1]));
     await expect(row(root, 'b2').locator('.lp-choice-key')).toHaveText('2');
     await expect(row(root, 'neither')).toHaveAccessibleName(labels.neither);
-    await expect(root.getByRole('group', { name: typeset(labels.progress + content.qualities[0].question) })).toBeVisible();
+    await expect(root.getByRole('group')).toHaveAccessibleName(groupName(labels.progress.slice(0, -2), typeset(content.qualities[0].question)));
     await expect(root.locator('[data-lp-check]')).toHaveText(labels.check);
     for (const [i, quality] of content.qualities.entries()) {
       await expect(root.locator('[data-lp-question-text]')).toHaveText(typeset(quality.question));
@@ -407,4 +410,73 @@ test('forced colours keep the choice, the highlight, the marks and focus distinc
   await expect(row(page, 'b2')).toHaveCSS('border-top-style', 'dashed');
   await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-next]')).toBeFocused();
   expect(await ring(page.locator('[data-lp-next]'))).toEqual(['3px', 'solid']);
+});
+
+test('on a phone, an empty check and each Next bring the question, and the error under it, into view', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 }); await open(page, '/which-is-better/fr.html');
+  await page.locator('[data-lp-check]').click();
+  for (const locator of [page.locator('[data-lp-question]'), page.locator('[data-lp-error]')]) await expect(locator).toBeInViewport({ ratio: .95 });
+  // The error sits between the question and the versions.
+  const [question, error, versions] = await Promise.all(['[data-lp-question]', '[data-lp-error]', '[data-lp-step] h3'].map(selector => page.locator(selector).first().boundingBox()));
+  expect(error.y).toBeGreaterThan(question.y); expect(versions.y).toBeGreaterThan(error.y);
+  for (const pick of ['b2', 'neither']) {
+    await decide(page, pick, { next: false });
+    // The reason reads as the answer to the question, not a caption on the Neither row.
+    const gap = await page.locator('[data-lp-feedback]').evaluate(feedback => feedback.getBoundingClientRect().top - feedback.ownerDocument.querySelector('[data-lp-pick="neither"]').getBoundingClientRect().bottom);
+    expect(gap).toBeGreaterThanOrEqual(15);
+    await page.locator('[data-lp-next]').click();
+    await expect(page.locator('[data-lp-question]')).toBeFocused();
+    await expect(page.locator('[data-lp-question]')).toBeInViewport({ ratio: .95 });
+  }
+  await decide(page, 'b1');
+  await expect(page.locator('[data-lp-result]')).toBeInViewport({ ratio: .95 });
+});
+
+test('rows ring for keyboard focus only, so a tapped row does not look chosen twice', async ({ page, browserName }) => {
+  await open(page);
+  await page.keyboard.press('Tab'); await expect(row(page, 'a1')).toBeFocused();
+  await expect(row(page, 'a1')).toHaveCSS('outline-style', 'solid'); await expect(row(page, 'a1')).toHaveCSS('outline-width', '3px');
+  await open(page);
+  await row(page, 'a2').click();
+  await expect(row(page, 'a2')).toHaveCSS('outline-style', 'none');
+  await row(page, 'a2').click();
+  // WebKit decides focus-visible for script focus by its own rules, so the empty check is asserted elsewhere.
+  if (browserName === 'webkit') return;
+  await page.locator('[data-lp-check]').click();
+  await expect(row(page, 'a1')).toBeFocused();
+  await expect(row(page, 'a1')).toHaveCSS('outline-style', 'none');
+});
+
+for (const [lang, width] of [['en', 320], ['en', 1280], ['fr', 320], ['fr', 390], ['fr', 1280]]) {
+  test(`the phone number stays on one line at ${width}px (${lang})`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 }); await open(page, `/which-is-better/${lang}.html`);
+    const lines = target => target.evaluate(el => {
+      const node = el.firstChild, text = node.textContent, range = el.ownerDocument.createRange();
+      range.setStart(node, text.indexOf('514')); range.setEnd(node, text.indexOf('0142') + 4);
+      return new Set([...range.getClientRects()].filter(rect => rect.width > 0).map(rect => Math.round(rect.top))).size;
+    });
+    // In its row while choosing, then highlighted in the summary.
+    expect(await lines(row(page, 'b2').locator('.lp-which-is-better-text'))).toBe(1);
+    await decide(page, 'b2'); await decide(page, 'neither'); await decide(page, 'b1');
+    expect(await lines(page.locator('[data-lp-summary] mark').nth(1))).toBe(1);
+  });
+}
+
+test('missing markup and invalid content fail loudly with the part named', async ({ page }) => {
+  await open(page);
+  const messages = await page.evaluate(async content => {
+    const { render } = await import('/patterns/which-is-better/render.js');
+    const { enhance } = await import('/patterns/which-is-better/enhance.js');
+    const { strings } = await import('/patterns/which-is-better/strings.js');
+    const host = document.createElement('div'); document.body.append(host);
+    const attempt = (selector, data = content) => {
+      host.innerHTML = render(content, strings.en, { id: 'planted', lang: 'en' });
+      if (selector) host.querySelector(selector).remove();
+      try { enhance(host.firstElementChild, { content: data, strings: strings.en }); return 'enhanced'; } catch (error) { return error.message; }
+    };
+    const selectors = ['[data-lp-fallback]', '[data-lp-step]', '[role="group"]', '[data-lp-question]', '[data-lp-progress]', '[data-lp-question-text]', '[data-lp-error]', '[data-lp-feedback]', '[data-lp-verdict]', '[data-lp-reason]', '[data-lp-check]', '[data-lp-next]', '[data-lp-summary]', '[data-lp-result]', '[data-lp-restart]', '[role="status"]'];
+    return { selectors, missing: selectors.map(selector => attempt(selector)), invalid: attempt(null, { ...content, qualities: [] }) };
+  }, english);
+  expect(messages.missing).toEqual(messages.selectors.map(selector => `Missing which-is-better markup: ${selector}`));
+  expect(messages.invalid).toMatch(/qualities/);
 });
