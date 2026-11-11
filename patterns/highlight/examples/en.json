@@ -5,34 +5,6 @@
   "paragraphs": [
     [
       {
-        "id": "observation",
-        "text": "Psychologist John Gottman and his colleagues recorded couples talking and followed them for 14 years."
-      },
-      {
-        "id": "prediction",
-        "text": "How the couples talked, together with how satisfied they were, predicted divorce with 93% accuracy."
-      },
-      {
-        "id": "signals",
-        "text": "They named four behaviours that signal a break-up."
-      },
-      {
-        "id": "horsemen",
-        "text": "The four horsemen are criticism, defensiveness, contempt and stonewalling."
-      }
-    ],
-    [
-      {
-        "id": "work",
-        "text": "These behaviours also harm working relationships, including between a leader and their team."
-      },
-      {
-        "id": "harm",
-        "text": "Blame, contempt and stonewalling damage trust and disrupt work."
-      }
-    ],
-    [
-      {
         "id": "withdraw",
         "text": "Stonewalling means withdrawing from a conversation."
       },
