@@ -15,6 +15,8 @@ export function render(content, strings, { id, lang }) {
   const versions = /** @type {const} */ (['a', 'b']);
   const end = summary(content);
   const first = content.qualities[0];
+  // The question line's hidden comma sits inside the block progress label: names get a space after a
+  // block, so a comma outside it would follow that space ("Question 1 of 3 , Which").
   // Each sentence is a toggle button named with its version and number, then its text.
   const choice = (/** @type {'a' | 'b'} */ version, /** @type {string} */ text, /** @type {number} */ i) => `<button class="lp-choice" type="button" aria-pressed="false" data-lp-pick="${version}${i + 1}"><span class="lp-choice-key" aria-hidden="true">${i + 1}</span><span><span class="lp-visually-hidden">${h(pickName(content, strings, `${version}${i + 1}`))}: </span><span class="lp-which-is-better-text">${h(text)}</span></span></button>`;
   return `<section class="lp lp-which-is-better" data-lp-pattern="which-is-better" lang="${html(lang)}">
@@ -29,7 +31,7 @@ export function render(content, strings, { id, lang }) {
     </ol>
   </div>
   <div class="lp-stack" data-lp-step hidden>
-    <p class="lp-stem" id="${ids('question')}" tabindex="-1" data-lp-question><span class="lp-label" data-lp-progress>${h(format(strings.progress, { n: 1, total: content.qualities.length }))}</span><span class="lp-visually-hidden">, </span><span data-lp-question-text>${h(first.question)}</span></p>
+    <p class="lp-stem" id="${ids('question')}" tabindex="-1" data-lp-question><span class="lp-label"><span data-lp-progress>${h(format(strings.progress, { n: 1, total: content.qualities.length }))}</span><span class="lp-visually-hidden">, </span></span><span data-lp-question-text>${h(first.question)}</span></p>
     <div class="lp-which-is-better-choices" role="group" aria-labelledby="${ids('question')}" aria-describedby="${ids('hint')}">
       <p class="lp-visually-hidden" id="${ids('hint')}">${h(strings.chooseOne)}</p>
       <div class="lp-which-is-better-pair">${versions.map(version => `

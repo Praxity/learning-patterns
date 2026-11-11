@@ -125,6 +125,8 @@ for (const [lang, content] of [['en', en], ['fr', fr]]) {
     assert.doesNotMatch(fallback, /<button|<details[^>]*open/);
     const ids = [...output.matchAll(/ id="([^"]+)"/g)].map(match => match[1]);
     assert.deepEqual(ids, ['pair-question', 'pair-hint', 'pair-error']);
+    // "Question 1 of 3, " then the question: the comma stays inside the block label.
+    assert.match(output, /<span class="lp-label"><span data-lp-progress>[^<]+<\/span><span class="lp-visually-hidden">, <\/span><\/span><span data-lp-question-text>/);
   });
 
   test(`each sentence is a toggle button named with its version and number, then Neither (${lang})`, () => {
