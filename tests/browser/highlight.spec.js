@@ -315,7 +315,7 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
 }
 
 test('mode defaults enforce target count for evidence and target count plus one for key ideas', async ({ page }) => {
-  for (const [content, max] of [[english, 1], [englishKey, 5]]) {
+  for (const [content, max] of [[english, 1], [englishKey, 3]]) {
     await open(page); await mount(page, content);
     const all = page.locator('[data-lp-chunk]');
     for (let i = 0; i <= max; i++) await all.nth(i).click();
