@@ -509,7 +509,9 @@ for (const width of [390, 640]) test(`in the stacked summary at ${width}px each 
     const text = [...range.getClientRects()].filter(rect => rect.width > 0);
     return [...mark.getClientRects()].filter(rect => rect.width > 0).map((rect, i) => rect.width - text[i].width);
   }));
-  expect(lines.flat().length).toBeGreaterThan(2);
+  // Both highlights are measured; at 390px they wrap and give more lines, at 640px one line each.
+  expect(lines.length).toBe(2);
+  expect(lines.flat().length).toBeGreaterThanOrEqual(2);
   // Only the 3px of padding on each side, as on the question screens.
   for (const extra of lines.flat()) expect(extra).toBeLessThanOrEqual(6.5);
 });
