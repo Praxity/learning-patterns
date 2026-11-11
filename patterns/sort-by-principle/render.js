@@ -21,7 +21,7 @@ export function render(content, strings, { id, lang }) {
   ${content.cases.map((item, c) => {
     const group = html(`${id}-case-${c}`);
     return `<div class="lp-section lp-sort-by-principle-case" data-lp-case>
-    <h3 class="lp-run-in" id="${group}-heading" tabindex="-1" data-lp-case-heading>${t(strings.case, { number: c + 1, total })}</h3>
+    <h3 class="lp-label" id="${group}-heading" tabindex="-1" data-lp-case-heading>${t(strings.case, { number: c + 1, total })}</h3>
     <p class="lp-sort-by-principle-text">${html(item.text, lang)}</p>
     <fieldset class="lp-choices" id="${group}">
       <legend class="lp-stem">${html(content.question, lang)}</legend>
@@ -43,7 +43,7 @@ export function render(content, strings, { id, lang }) {
   <div class="lp-section" data-lp-result hidden>
     <p class="lp-run-in" data-lp-score></p>
     <div data-lp-pairs hidden>
-      <h3 class="lp-label">${t(strings.pairsLabel)}</h3>
+      <h3 class="lp-run-in">${t(strings.pairsLabel)}</h3>
       <ul class="lp-sort-by-principle-pairs" data-lp-pair-list></ul>
     </div>
     <div class="lp-actions"><button class="lp-button lp-button-quiet" type="button" data-lp-restart data-lp-keep>${icons.refresh}${t(strings.restart)}</button></div>

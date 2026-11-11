@@ -1,13 +1,28 @@
 /* Sort-by-principle specifics. Link lib/base.css first for shared styles and tokens. */
-/* Each choice row names the principle, then gives its rule on a second line in the quieter ink. */
-.lp-sort-by-principle-name { display: block; font-weight: 600; }
-.lp-sort-by-principle-rule { display: block; margin-block-start: 2px; color: var(--lp-ink-2); }
+/* Each choice row names the principle, then gives its rule on a second line in smaller, quieter type.
+   The text wrapper's parts join the row's grid: the name shares the first line with the mark, and the
+   rule runs the full width under both, so marking a row changes no line break or row height. */
+.lp-sort-by-principle .lp-choice > span:not(.lp-choice-mark) { display: contents; }
+.lp-sort-by-principle-name { grid-column: 2; grid-row: 1; margin-block-start: .125em; font-weight: 600; }
+/* The row gap is 6px; the rule sits 2px under the name. */
+.lp-sort-by-principle-rule { grid-column: 2 / -1; grid-row: 2; margin-block-start: -4px; color: var(--lp-ink-2); font-size: var(--lp-type-small); }
+/* The mark pill is about 2px taller than the name's line; it overhangs into the row gap rather than
+   pushing the rule down. */
+.lp-sort-by-principle .lp-choice > .lp-choice-mark { margin-block-end: -4px; }
+@container (max-width: 34rem) {
+  /* In narrow containers the shared mark drops to its own line, after the rule. */
+  .lp-sort-by-principle .lp-choice > .lp-choice-mark { grid-row: 3; margin-block-end: 0; }
+}
 /* The feedback belongs to the rows above it, so it sits closer to them than to the buttons. */
 .lp-sort-by-principle-feedback { margin-block-start: var(--lp-gap-stem); }
-.lp-sort-by-principle-pairs { display: grid; gap: var(--lp-gap-hint); margin: 0; padding-inline-start: 24px; }
-/* A case change is a view change, so it eases in and out (AGENTS.md, Motion). */
-.lp-sort-by-principle-enter { animation: lp-sort-by-principle-slide 240ms cubic-bezier(.65, 0, .35, 1); }
-@keyframes lp-sort-by-principle-slide { from { opacity: 0; transform: translateX(16px); } }
+/* The shared gap after the heading sets the list's top margin. */
+.lp-sort-by-principle-pairs { display: grid; gap: var(--lp-gap-hint); margin-block-end: 0; padding-inline-start: 24px; }
+/* Names in the result look as they do in the rows, and stay whole when they fit the line. */
+.lp-sort-by-principle-pairs em { display: inline-block; font-style: normal; font-weight: 600; }
+/* A case change is a view change. Fade only: the page may also scroll to the new case, and a
+   sideways slide on top of that read as a second jump. */
+.lp-sort-by-principle-enter { animation: lp-sort-by-principle-fade 200ms cubic-bezier(.65, 0, .35, 1); }
+@keyframes lp-sort-by-principle-fade { from { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
   .lp-sort-by-principle-enter { animation: none; }
 }

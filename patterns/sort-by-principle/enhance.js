@@ -159,7 +159,13 @@ export function enhance(root, { content, strings, state }) {
     part.next?.addEventListener('click', () => {
       show(c + 1, true);
       // The heading holds the case number, so focus reads where the learner is.
-      cases[c + 1].heading.focus();
+      cases[c + 1].heading.focus({ preventScroll: true });
+      // On a phone the new case replaces a taller one and would land mid-screen with its choices below
+      // the fold, so it moves to the top of the view. When it already fits in view, nothing moves.
+      const panel = panels[c + 1], view = document.defaultView, box = panel.getBoundingClientRect();
+      if (view && (box.top < 0 || box.bottom > view.innerHeight)) {
+        panel.scrollIntoView({ block: 'start', behavior: view.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+      }
       status.textContent = '';
     }, options);
     part.actions.hidden = false;

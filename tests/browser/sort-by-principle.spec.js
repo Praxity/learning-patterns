@@ -246,16 +246,19 @@ test('the card is the only box: the case, feedback and result have no panel', as
   expect(boxed).toEqual([]);
 });
 
-test('a case change slides in, and is instant under reduced motion', async ({ page }) => {
+test('a case change fades in, without sideways travel, and is instant under reduced motion', async ({ page }) => {
   await open(page);
   await answer(page, 0, 'agree');
   await panel(page, 0).locator('[data-lp-next]').click();
-  expect(await panel(page, 1).evaluate(el => [el.classList.contains('lp-sort-by-principle-enter'), getComputedStyle(el).animationName, getComputedStyle(el).animationDuration])).toEqual([true, 'lp-sort-by-principle-slide', '0.24s']);
+  expect(await panel(page, 1).evaluate(el => [el.classList.contains('lp-sort-by-principle-enter'), getComputedStyle(el).animationName, getComputedStyle(el).animationDuration])).toEqual([true, 'lp-sort-by-principle-fade', '0.2s']);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await answer(page, 1, 'name');
   await panel(page, 1).locator('[data-lp-next]').click();
   await expect(panel(page, 2).locator('[data-lp-case-heading]')).toBeFocused();
   expect(await panel(page, 2).evaluate(el => getComputedStyle(el).animationName)).toBe('none');
+  const frames = await page.evaluate(() => [...document.styleSheets].flatMap(sheet => [...sheet.cssRules]).filter(rule => rule.name === 'lp-sort-by-principle-fade').map(rule => rule.cssText));
+  expect(frames).toHaveLength(1);
+  expect(frames[0]).not.toContain('transform');
 });
 
 test('a checked case cannot be changed or checked twice', async ({ page }) => {
@@ -295,6 +298,64 @@ test('at 390px each check brings Next case into view with the feedback above it'
       await expect(feedback(page, c)).toBeInViewport({ ratio: 1 });
       await panel(page, c).locator('[data-lp-next]').click();
     }
+  }
+});
+
+test('checking an answer at 1280px changes no row height and no line break', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 1000 });
+  await open(page);
+  const rows = page.locator('[data-lp-case]').first().locator('.lp-choice');
+  const measure = () => rows.evaluateAll(all => all.map(row => [Math.round(row.getBoundingClientRect().height * 10) / 10, row.querySelector('.lp-sort-by-principle-rule').getClientRects().length, Math.round(row.querySelector('.lp-sort-by-principle-rule').getBoundingClientRect().height)]));
+  const before = await measure();
+  // A wrong pick marks two rows: Incorrect and Correct answer.
+  await answer(page, 0, 'ask');
+  expect(await measure()).toEqual(before);
+  // The mark shares the name's line, and the rule runs under it.
+  const [name, mark, rule] = await rows.nth(1).evaluate(row => ['.lp-sort-by-principle-name', '.lp-choice-mark', '.lp-sort-by-principle-rule'].map(selector => row.querySelector(selector).getBoundingClientRect()).map(box => ({ top: box.top, bottom: box.bottom, right: box.right })));
+  expect(mark.top).toBeLessThan(name.bottom);
+  expect(rule.top).toBeGreaterThanOrEqual(mark.bottom - 1);
+});
+
+test('at 390px Next case brings the new case to the top of the view', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const lang of ['en', 'fr']) {
+    await open(page, lang);
+    // A host page has content after the activity, so the browser does not clamp the scroll.
+    await page.evaluate(() => { const after = document.createElement('div'); after.style.blockSize = '1500px'; document.querySelector('main').after(after); });
+    for (const [c, id] of ['ask', 'agree', 'agree'].entries()) {
+      await answer(page, c, id);
+      await panel(page, c).locator('[data-lp-next]').click();
+      const heading = panel(page, c + 1).locator('[data-lp-case-heading]');
+      await expect(heading).toBeFocused();
+      await expect.poll(() => heading.evaluate(el => el.getBoundingClientRect().top)).toBeLessThan(844 * 0.1);
+      expect(await heading.evaluate(el => el.getBoundingClientRect().top)).toBeGreaterThanOrEqual(0);
+      await expect(panel(page, c + 1).locator('[data-lp-check]')).toBeInViewport({ ratio: 1 });
+    }
+  }
+});
+
+test('at 1280px Next case leaves the page where it is when the new case fits', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 1000 });
+  await open(page);
+  await answer(page, 0, 'agree');
+  const before = await page.evaluate(() => scrollY);
+  await panel(page, 0).locator('[data-lp-next]').click();
+  await expect(panel(page, 1).locator('[data-lp-case-heading]')).toBeFocused();
+  expect(await page.evaluate(() => scrollY)).toBe(before);
+});
+
+test('the result heading keeps its gap above the list, and names stay whole and upright', async ({ page }) => {
+  for (const width of [1280, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    await open(page, 'fr');
+    await answerAll(page, ['ask', 'agree', 'agree', 'ask']);
+    const look = await page.locator('[data-lp-pairs]').evaluate(pairs => {
+      const label = pairs.querySelector('h3').getBoundingClientRect(), list = pairs.querySelector('ul').getBoundingClientRect();
+      const names = [...pairs.querySelectorAll('li em')];
+      return { gap: list.top - label.bottom, broken: names.filter(name => name.getClientRects().length > 1).length, style: [...new Set(names.map(name => `${getComputedStyle(name).fontStyle} ${getComputedStyle(name).fontWeight}`))] };
+    });
+    expect(look.gap).toBeGreaterThanOrEqual(8);
+    expect(look).toMatchObject({ broken: 0, style: ['normal 600'] });
   }
 });
 
