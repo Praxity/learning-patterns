@@ -160,11 +160,12 @@ export function enhance(root, { content, strings, state }) {
       show(c + 1, true);
       // The heading holds the case number, so focus reads where the learner is.
       cases[c + 1].heading.focus({ preventScroll: true });
-      // On a phone the new case replaces a taller one and would land mid-screen with its choices below
-      // the fold, so it moves to the top of the view. When it already fits in view, nothing moves.
-      const panel = panels[c + 1], view = document.defaultView, box = panel.getBoundingClientRect();
-      if (view && (box.top < 0 || box.bottom > view.innerHeight)) {
-        panel.scrollIntoView({ block: 'start', behavior: view.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+      // On a phone the new case replaces a taller one and can land partly above or below the view. If any
+      // part of it, heading to Check, is outside the view, it moves to the top; otherwise nothing moves.
+      const view = document.defaultView;
+      const top = cases[c + 1].heading.getBoundingClientRect().top, bottom = cases[c + 1].actions.getBoundingClientRect().bottom;
+      if (view && (top < 0 || bottom > view.innerHeight)) {
+        panels[c + 1].scrollIntoView({ block: 'start', behavior: view.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
       }
       status.textContent = '';
     }, options);

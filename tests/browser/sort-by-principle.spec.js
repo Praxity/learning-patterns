@@ -346,8 +346,10 @@ test('at 390px a new case that does not fit where it lands is scrolled to the to
   await next.click();
   const heading = panel(page, 1).locator('[data-lp-case-heading]');
   await expect(heading).toBeFocused();
-  await expect.poll(() => heading.evaluate(el => el.getBoundingClientRect().top)).toBeLessThan(844 * 0.1);
-  expect(await heading.evaluate(el => el.getBoundingClientRect().top)).toBeGreaterThanOrEqual(0);
+  // The heading starts about 590px above the view and the scroll may be smooth, so wait for its top to
+  // settle inside the top 10% of the view; a value above the view must not pass.
+  const top = () => heading.evaluate(el => el.getBoundingClientRect().top);
+  await expect.poll(async () => { const value = await top(); return value >= 0 && value < 844 * 0.1; }, { message: 'heading top within 0 to 10% of the view' }).toBe(true);
   await expect(panel(page, 1).locator('[data-lp-check]')).toBeInViewport({ ratio: 1 });
 });
 
