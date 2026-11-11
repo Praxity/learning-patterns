@@ -14,7 +14,7 @@
     {
       "id": "pause",
       "heading": "Taking a time-out",
-      "body": "Tell the other person you need a pause. For example, \"I need ten minutes to think about this.\"",
+      "body": "Tell the other person you need a pause, instead of going silent. For example, \"I need ten minutes to think about this.\"",
       "label": "You tell the other person you need a pause.",
       "met": "You said to tell the other person you need a pause.",
       "missed": "Add how a time-out starts.",

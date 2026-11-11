@@ -14,7 +14,7 @@
     {
       "id": "pause",
       "heading": "Prendre une pause",
-      "body": "Dites à l’autre personne que vous avez besoin d’une pause. Par exemple : « J’ai besoin de dix minutes pour y réfléchir. »",
+      "body": "Dites à l’autre personne que vous avez besoin d’une pause, au lieu de vous taire. Par exemple : « J’ai besoin de dix minutes pour y réfléchir. »",
       "label": "Vous dites à l’autre personne que vous avez besoin d’une pause.",
       "met": "Vous avez dit d’annoncer à l’autre personne que vous avez besoin d’une pause.",
       "missed": "Ajoutez comment une pause commence.",
