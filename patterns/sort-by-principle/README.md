@@ -121,7 +121,7 @@ const instance = enhance(document.querySelector('[data-lp-pattern="sort-by-princ
 - After the last case, focus still moves to its feedback, and the status region announces the score and each mixed-up pair once.
 - "Next case" moves focus to the new case's heading, "Case 2 of 4". "Start over" moves focus to the first case's heading and announces "Answers cleared."
 - Checked choices are disabled and keep their marks: "Correct", "Incorrect", or "Correct answer" on the correct principle the learner did not choose.
-- A new case slides in for 240 ms, and appears at once under reduced motion.
+- A new case fades in over 200 ms, and appears at once under reduced motion. When it does not fit the view, the page scrolls it to the top.
 
 ## Adapt it with your agent
 
