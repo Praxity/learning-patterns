@@ -267,7 +267,8 @@ test('the versions sit side by side on a wide card and stack on a phone, and the
     const [sentence, note] = await Promise.all([page.locator('[data-lp-summary] mark').first().boundingBox(), page.locator('.lp-which-is-better-note').first().boundingBox()]);
     // Wide: the note sits in the margin to the right. Narrow: under its sentence.
     if (side) expect(note.x).toBeGreaterThan(sentence.x + sentence.width);
-    else expect(note.y).toBeGreaterThanOrEqual(sentence.y + sentence.height);
+    // Half a pixel of slack: Firefox rounds the two boxes' edges differently when they touch.
+    else expect(note.y).toBeGreaterThanOrEqual(sentence.y + sentence.height - 0.5);
   }
 });
 
