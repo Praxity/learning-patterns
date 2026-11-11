@@ -1,5 +1,6 @@
 import { answer, answerText, format, score, validateState } from './logic.js';
-import { frenchTypography } from '../../lib/html.js';
+import { escapeHtml, frenchTypography } from '../../lib/html.js';
+import { icons } from '../../lib/icons.js';
 import { clearChoice, markChoice, renderChoiceMark } from '../../lib/choice-mark.js';
 import { lock } from '../../lib/lock.js';
 import { reveal } from '../../lib/reveal.js';
@@ -78,7 +79,7 @@ export function enhance(root, { content, strings, state }) {
     for (const chunk of chunks) chunk.removeAttribute('aria-disabled');
     progress.textContent = text(format(strings.progress, { n: i + 1, total }));
     questionText.textContent = text(content.qualities[i].question);
-    feedback.hidden = true; verdict.textContent = ''; reason.textContent = '';
+    feedback.hidden = true; verdict.className = 'lp-which-is-better-verdict'; verdict.replaceChildren(); reason.textContent = '';
     check.hidden = false; next.hidden = true;
     step.hidden = false; end.hidden = true;
   }
@@ -94,8 +95,11 @@ export function enhance(root, { content, strings, state }) {
     }
     // Locked sentences stay in the tab order, as in Highlight the key passage, so the marks can be read.
     for (const chunk of chunks) chunk.setAttribute('aria-disabled', 'true');
-    // The marks sit on the choices; screen readers get the same result at the start of the feedback.
-    verdict.textContent = text(pick === right ? `${strings.markCorrect}. ` : `${strings.markWrong}. ${answerText(content, strings, i)} `);
+    // The verdict opens the feedback, visibly too: on a phone the chosen sentence may be scrolled off
+    // screen. Screen readers hear it once, with the right answer in words after a wrong one.
+    const ok = pick === right, h = (/** @type {string} */ value) => escapeHtml(value, root.lang);
+    verdict.className = `lp-which-is-better-verdict ${ok ? 'lp-met' : 'lp-missed'}`;
+    verdict.innerHTML = `${icons[ok ? 'check' : 'x']}<span>${h(ok ? strings.markCorrect : strings.markWrong)}</span><span class="lp-visually-hidden">${h(ok ? '. ' : `. ${answerText(content, strings, i)} `)}</span>`;
     reason.textContent = text(content.qualities[i].reason);
     feedback.hidden = false;
     check.hidden = true;
@@ -135,11 +139,12 @@ export function enhance(root, { content, strings, state }) {
     if (picks.length !== at) return;
     const chosen = pressed();
     if (!chosen) {
-      error.hidden = false;
       for (const choice of choices) choice.setAttribute('aria-describedby', error.id);
       status.textContent = '';
-      // The error sits under the question; the first sentence reads it once.
-      toTop(question);
+      // The error sits just above Check, where the learner is: keep both in view. The first sentence
+      // reads it once.
+      error.hidden = false;
+      reveal(check);
       choices[0].focus({ preventScroll: true });
       return;
     }

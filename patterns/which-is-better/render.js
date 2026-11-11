@@ -48,20 +48,20 @@ export function render(content, strings, { id, lang }) {
   </div>
   <div class="lp-stack" data-lp-step hidden>
     <p class="lp-stem" id="${ids('question')}" tabindex="-1" data-lp-question><span class="lp-label"><span data-lp-progress>${h(format(strings.progress, { n: 1, total: content.qualities.length }))}</span><span class="lp-visually-hidden">, </span></span><span data-lp-question-text>${h(first.question)}</span></p>
-    <p class="lp-small lp-which-is-better-hint" id="${ids('hint')}">${h(strings.chooseOne)}</p>
+    <p class="lp-run-in lp-which-is-better-hint" id="${ids('hint')}">${h(strings.chooseOne)}</p>
     <div class="lp-which-is-better-choices" role="group" data-lp-choices aria-labelledby="${ids('question')}" aria-describedby="${ids('hint')}">
-      <p class="lp-error-text" id="${ids('error')}" data-lp-error hidden>${icons['alert-circle']}<span>${h(strings.choose)}</span></p>
       <div class="lp-which-is-better-pair">${versions.map(version => `
         ${email(version, `<h3 class="lp-run-in" id="${ids(version)}">${name(version)}</h3>`, chunk(version), ` role="group" aria-labelledby="${ids(version)}"`)}`).join('')}
       </div>
-      <div class="lp-choices"><button class="lp-choice lp-which-is-better-neither" type="button" aria-pressed="false" data-lp-pick="${NEITHER}"><span class="lp-choice-key" aria-hidden="true"></span><span>${h(strings.neither)}</span></button></div>
-      <p class="lp-which-is-better-feedback" tabindex="-1" data-lp-feedback hidden><span class="lp-visually-hidden" data-lp-verdict></span><span data-lp-reason></span></p>
+      <div class="lp-choices"><button class="lp-choice lp-which-is-better-neither" type="button" aria-pressed="false" data-lp-pick="${NEITHER}"><span>${h(strings.neither)}</span></button></div>
+      <p class="lp-which-is-better-feedback" tabindex="-1" data-lp-feedback hidden><span class="lp-which-is-better-verdict" data-lp-verdict></span><span data-lp-reason></span></p>
     </div>
+    <p class="lp-error-text" id="${ids('error')}" data-lp-error hidden>${icons['alert-circle']}<span>${h(strings.choose)}</span></p>
     <div class="lp-actions"><button class="lp-button" type="button" data-lp-check>${h(strings.check)}</button><button class="lp-button" type="button" data-lp-next hidden>${h(strings.next)}</button></div>
   </div>
   <div class="lp-stack" data-lp-summary hidden>
-    <h3 class="lp-stem">${h(end.version === 'a' ? strings.summaryA : strings.summaryB)}</h3>
     <p tabindex="-1" data-lp-result></p>
+    <h3 class="lp-stem">${h(end.version === 'a' ? strings.summaryA : strings.summaryB)}</h3>
     ${email(end.version, `<p class="lp-visually-hidden">${name(end.version)}</p>`, annotated)}${end.missing.length ? `
     <div class="lp-which-is-better-group">
       <p class="lp-label">${h(strings.missing)}</p>

@@ -37,8 +37,8 @@ For each question, write a reason that says why the right sentence works and why
 
 1. The learner reads the situation and both versions as emails: a subject line, then the body. On a wide screen the emails sit side by side; on a phone, one under the other.
 2. One question at a time, they highlight a sentence in the body of either email, as in [Highlight the key passage](../highlight/README.md), or choose "Neither version does this" under the emails. Then they select "Check my answer". Selecting another sentence moves the highlight; selecting the highlighted sentence again clears it.
-3. A "Correct" or "Incorrect" mark follows their choice, a "Correct answer" mark follows the right sentence if they didn't choose it, and the reason appears under the emails. The highlighter moves to the sentence that shows the quality, as the summary will show it.
-4. "Next question" opens the next quality. After the last one, "Show the summary" gives the number they got right in one sentence and shows the better email with each answer sentence highlighted and its note under it. Qualities neither version has are listed under "Missing from both versions".
+3. The results follow Highlight the key passage. The learner's sentence keeps its highlight, with a green underline if it is right. The right sentence they missed gets a dashed underline and no highlight. A "Correct", "Incorrect" or "Correct answer" mark sits on its own line under each of these sentences, or on the Neither row. Under the emails, the feedback starts with the verdict, "Correct" or "Incorrect" with its icon, then the reason, so the result shows even when the chosen sentence has scrolled off a phone screen.
+4. "Next question" opens the next quality. After the last one, "Show the summary" gives the number they got right in one sentence, then shows the better email with each answer sentence highlighted and its note under it. Qualities neither version has are listed under "Missing from both versions".
 5. "Start over", on the summary, clears every answer.
 
 Without JavaScript, the learner reads both emails, then each question with a "Show the answer" disclosure that quotes the right sentence and gives the reason.
@@ -53,7 +53,7 @@ None of these studies asked learners to point to the sentence that shows a quali
 
 Follows the shared baseline in the root README.
 
-Each body sentence is an inline toggle button named by its own words, inside a group named by its version, so a screen reader says "Version B" as focus moves into that email. A chosen sentence takes a highlighter colour and a 2px accent underline; in forced colours it uses the system mark colours and a highlight-coloured underline. Without JavaScript, learners read both emails and open each answer, but nothing is chosen or saved.
+Each body sentence is an inline toggle button named by its own words, inside a group named by its version, so a screen reader says "Version B" as focus moves into that email. A chosen sentence takes a highlighter colour and a 2px accent underline; in forced colours it uses the system mark colours and a highlight-coloured underline. The Neither row has no key box; its 2px border and tint show the choice. Without JavaScript, learners read both emails and open each answer, but nothing is chosen or saved.
 
 ## Content fields
 
@@ -115,11 +115,12 @@ const instance = enhance(document.querySelector('[data-lp-pattern]'), { content,
 
 ### Accessibility details
 
-- The question line holds the progress, "Question 1 of 3", and the question. It labels the group of choices, and the line under it, "Select one sentence in either version.", describes the group.
+- The question line holds the progress, "Question 1 of 3", and the question. It labels the group of choices.
 - Each version has a level 3 heading, one level below the card title, and its email is a group named by that heading. Tab moves through Version A's body sentences, Version B's, then "Neither version does this". Space or Enter presses a sentence or the Neither row, and each reports its pressed state. Arrow keys move between sentences through both emails and wrap; Home and End go to the first and last sentence. They work when the screen reader passes them to the page.
-- "Check my answer" with nothing chosen shows an error under the question, linked to every choice, brings the question into view and moves focus to the first sentence, which reads the error once.
+- The instruction under the question, which names both ways to answer, describes the group of choices.
+- "Check my answer" with nothing chosen shows an error just above the button, linked to every choice, keeps the error and the button in view and moves focus to the first sentence, which reads the error once.
 - Choices show the focus ring for keyboard focus only; a tapped or clicked sentence shows its highlight and a tapped Neither row its border.
-- After a check, focus moves to the feedback under the emails. For screen readers it starts with "Correct." or "Incorrect. Correct answer, in Version B:" and the right sentence, then the reason, so the result is read once and the status region stays empty. Each mark follows its sentence in the text, kept on the line of the sentence's last word. The choices lock: sentences stay in the tab order so their marks can be read, and Tab goes on to "Next question".
+- After a check, focus moves to the feedback under the emails. For screen readers it starts with "Correct." or "Incorrect. Correct answer, in Version B:" and the right sentence, then the reason, so the result is read once and the status region stays empty. The visible verdict at the start of the feedback is the same text, so it is read once. Each sentence's mark sits on its own line under the sentence. The choices lock: sentences stay in the tab order so their marks can be read, and Tab goes on to "Next question".
 - "Next question" brings the new question line into view and moves focus to it. "Show the summary" moves focus to the result sentence; the annotated version follows in reading order, each note under its sentence and introduced by a hidden "This sentence shows:".
 - "Start over" announces "Answers cleared." and moves focus to the first question.
 - Marks use words, icons and borders as well as colour.
