@@ -1,6 +1,6 @@
 {
   "title": "Donnez une rétroaction à Priya sur sa réponse",
-  "context": "Votre équipe rembourse un cours dans les 30 jours suivant l’achat et offre un crédit de cours après ce délai. Priya, qui relève de vous, a rédigé une réponse à un client et vous demande de la vérifier avant de l’envoyer.",
+  "context": "Votre équipe rembourse un cours dans les 30 jours suivant l’achat et offre un crédit de cours après ce délai. Priya, qui relève de vous, vous demande de vérifier sa réponse à un client.",
   "colleague": "Priya",
   "messages": [
     {
