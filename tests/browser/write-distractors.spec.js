@@ -416,7 +416,7 @@ for (const lang of ['en', 'fr']) {
     await page.locator('[data-lp-compare]').click();
     await expectChoiceMarks(page);
     const message = lang === 'en' ? "Your labels match 1 of the author's 3 mistaken ideas. You added 1 of your own."
-      : "Idées fausses en commun avec l’auteur : 1 sur 4. Autres idées fausses : 1.";
+      : "Idées fausses en commun avec l’auteur : 1 sur 3. Autres idées fausses : 1.";
     await expect(page.locator('[data-lp-summary]')).toHaveText(message);
     await expect(page.locator('[role="status"]')).toHaveText(message);
     expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([message]);
@@ -543,7 +543,7 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     await expect(yours.locator('.lp-choice-key[aria-hidden="true"]')).toHaveCount(3);
     await expect(page.locator('[data-lp-summary]')).toHaveText(lang === 'en'
       ? "Your labels match 1 of the author's 3 mistaken ideas. You added 1 of your own."
-      : "Idées fausses en commun avec l’auteur : 1 sur 4. Autres idées fausses : 1.");
+      : "Idées fausses en commun avec l’auteur : 1 sur 3. Autres idées fausses : 1.");
   });
 
   test(`native no-JavaScript baseline (${lang})`, async ({ browser }) => {
