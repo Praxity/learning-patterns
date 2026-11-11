@@ -5,34 +5,6 @@
   "paragraphs": [
     [
       {
-        "id": "observation",
-        "text": "Le psychologue John Gottman et ses collègues ont filmé des couples en conversation et les ont suivis pendant 14 ans."
-      },
-      {
-        "id": "prediction",
-        "text": "Leur façon de se parler, jointe à leur degré de satisfaction, a prédit les divorces avec une précision de 93 %."
-      },
-      {
-        "id": "signals",
-        "text": "Ils ont nommé quatre comportements qui annoncent une rupture."
-      },
-      {
-        "id": "horsemen",
-        "text": "Les quatre cavaliers sont la critique, la défensive, le mépris et l’évitement."
-      }
-    ],
-    [
-      {
-        "id": "work",
-        "text": "Ces comportements nuisent aussi aux relations de travail, y compris entre un gestionnaire et son équipe."
-      },
-      {
-        "id": "harm",
-        "text": "Le blâme, le mépris et l’évitement minent la confiance et perturbent le travail."
-      }
-    ],
-    [
-      {
         "id": "withdraw",
         "text": "L’évitement signifie se retirer d’une conversation."
       },

@@ -211,10 +211,11 @@ test('English and French UI keys and placeholders match, and all four examples v
     validateContent(evidence); validateContent(key);
     assert.equal(matches(evidence, schema), true); assert.equal(matches(key, schema), true);
     const source = JSON.parse(await readFile(new URL(`../review-prompts/examples/${lang}.json`, import.meta.url)));
-    assert.deepEqual(evidence.paragraphs.map(p => p.map(c => c.text).join(' ')), source.parts[0].paragraphs);
+    // The passage is the last paragraph of the review-prompts reading, which holds the answer.
+    assert.deepEqual(evidence.paragraphs.map(p => p.map(c => c.text).join(' ')), source.parts[0].paragraphs.slice(-1));
     assert.deepEqual(evidence.paragraphs.map(p => p.map(c => c.text)), key.paragraphs.map(p => p.map(c => c.text)));
     assert.equal(check(evidence, []).total, 1);
-    assert.equal(check(key, []).total, 4);
+    assert.equal(check(key, []).total, 2);
   }
 });
 

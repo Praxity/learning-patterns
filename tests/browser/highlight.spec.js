@@ -143,7 +143,7 @@ test('chunks flow like the source paragraphs across inline boundaries', async ({
       const range = document.createRange(); range.selectNodeContents(passage.querySelector(`[data-lp-chunk="${id}"]`));
       return [...range.getClientRects()].map(rect => ({ top: rect.top, right: rect.right, left: rect.left }));
     };
-    return { first: rects('signals').at(-1), next: rects('horsemen')[0] };
+    return { first: rects('withdraw').at(-1), next: rects('actions')[0] };
   });
   expect(lines.next.top).toBeCloseTo(lines.first.top, 1);
   expect(lines.next.left).toBeGreaterThan(lines.first.right);
@@ -365,8 +365,8 @@ test('graded marks keep yellow non-targets, tint found targets and leave missed 
 });
 
 for (const [lang, content, correct, wrong, missed, summary] of [
-  ['en', englishKey, 'Correct', 'Incorrect', 'Correct answer', 'You found 1 of 4 key ideas.'],
-  ['fr', frenchKey, 'Correct', 'Incorrect', 'Bonne réponse', 'Idées clés trouvées : 1 sur 4.']
+  ['en', englishKey, 'Correct', 'Incorrect', 'Correct answer', 'You found 1 of 2 key ideas.'],
+  ['fr', frenchKey, 'Correct', 'Incorrect', 'Bonne réponse', 'Idées clés trouvées : 1 sur 2.']
 ]) {
   test(`key mode has inline success, neutral authored notes and dashed missed targets (${lang})`, async ({ page }) => {
     await open(page); await mount(page, content, lang);
