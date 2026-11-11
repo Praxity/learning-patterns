@@ -12,7 +12,7 @@
       "id": "reason",
       "label": "Données de vente arrivées en retard",
       "missed": "Dites que les données de vente sont arrivées en retard.",
-      "evidence": "les données de vente du rapport client sont arrivées avec trois jours de retard"
+      "evidence": "les données de vente pour le rapport client sont arrivées avec trois jours de retard"
     },
     {
       "id": "new_date",
@@ -33,5 +33,5 @@
       "evidence": null
     }
   ],
-  "model": "Bonjour Sam, les données de vente du rapport client sont arrivées avec trois jours de retard. Il me faut donc jusqu’à mardi pour le terminer. Est-ce que mardi vous conviendrait ?"
+  "model": "Bonjour Sam, les données de vente pour le rapport client sont arrivées avec trois jours de retard. Il me faut donc jusqu’à mardi pour le terminer. Est-ce que mardi vous conviendrait ?"
 }
