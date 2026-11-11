@@ -78,7 +78,7 @@ test('example preserves the demo question, labels and author options with topic 
   assert.equal(content.question, 'Are breaks during the workday a waste of time?');
   assert.equal(content.rightAnswer, 'No. Short breaks help you regain focus and make fewer mistakes.');
   assert.equal(content.count, 2);
-  assert.deepEqual(content.misconceptions.map(item => item.id), ['busy', 'push-through', 'phone', 'exhausted']);
+  assert.deepEqual(content.misconceptions.map(item => item.id), ['busy', 'push-through', 'phone']);
   assert.deepEqual(content.authorOptions.map(item => targetOf(content, item)), content.misconceptions.map(item => item.label));
 });
 
@@ -138,7 +138,7 @@ test('clean options normalize spaces and omit irrelevant custom text by emptying
 test('coverage identifies targeted, missed, extra and matching targets without repeats', () => {
   const value = coverage(content, [option('A'), option('B', 'other', 'Breaks disrupt focus')]);
   assert.deepEqual(value.targeted, ['Working without breaks always gets more done', 'Breaks disrupt focus']);
-  assert.deepEqual(value.missed, [content.misconceptions[0].label, content.misconceptions[2].label, content.misconceptions[3].label]);
+  assert.deepEqual(value.missed, [content.misconceptions[0].label, content.misconceptions[2].label]);
   assert.deepEqual(value.extra, ['Breaks disrupt focus']);
   assert.deepEqual(value.matches, [true, false]);
   assert.deepEqual(coverage(content, [option('A', 'other', ' WORKING without breaks always gets more done '), option('B')]).matches, [true, true]);
@@ -151,14 +151,14 @@ test('coverage identifies targeted, missed, extra and matching targets without r
 
 test('coverageMessage returns counts and untargeted author labels without formatting strings', () => {
   assert.deepEqual(coverageMessage(content, [option('A'), option('B', 'other', 'Focus lost')]), {
-    authorTargeted: 1, authorTotal: 4, ownExtra: 1,
-    untargeted: [content.misconceptions[0].label, content.misconceptions[2].label, content.misconceptions[3].label]
+    authorTargeted: 1, authorTotal: 3, ownExtra: 1,
+    untargeted: [content.misconceptions[0].label, content.misconceptions[2].label]
   });
   assert.deepEqual(coverageMessage(content, [option('A', 'other', 'Focus lost'), option('B', 'other', 'focus  LOST')]), {
-    authorTargeted: 0, authorTotal: 4, ownExtra: 1, untargeted: content.misconceptions.map(item => item.label)
+    authorTargeted: 0, authorTotal: 3, ownExtra: 1, untargeted: content.misconceptions.map(item => item.label)
   });
-  assert.deepEqual(coverageMessage({ ...content, count: 4 }, content.authorOptions.map(item => option(item.text, item.misconception))), {
-    authorTargeted: 4, authorTotal: 4, ownExtra: 0, untargeted: []
+  assert.deepEqual(coverageMessage({ ...content, count: 3 }, content.authorOptions.map(item => option(item.text, item.misconception))), {
+    authorTargeted: 3, authorTotal: 3, ownExtra: 0, untargeted: []
   });
   assert.equal(coverageMessage({ ...content, count: 3 }, [option('A', 'other', 'X'), option('B', 'other', 'Y'), option('C', 'other', 'Z')]).ownExtra, 3);
 });
