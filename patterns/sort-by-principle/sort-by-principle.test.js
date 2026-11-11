@@ -34,6 +34,32 @@ test('the schema and the validator agree on required fields and caps', () => {
   assert.deepEqual(['looksLike', 'decides'].map(key => schema.properties.cases.items.properties[key].maxLength), [150, 150]);
 });
 
+test('the schema and the validator agree that blank prose is invalid', () => {
+  const principle = schema.properties.principles.items.properties, item = schema.properties.cases.items.properties;
+  const prose = [
+    ['title', schema.properties.title, (c, v) => { c.title = v; }],
+    ['context', schema.properties.context, (c, v) => { c.context = v; }],
+    ['question', schema.properties.question, (c, v) => { c.question = v; }],
+    ['principles[0].name', principle.name, (c, v) => { c.principles[0].name = v; }],
+    ['principles[0].rule', principle.rule, (c, v) => { c.principles[0].rule = v; }],
+    ...['text', 'looksLike', 'decides'].map(key => [`cases[0].${key}`, item[key], (c, v) => { c.cases[0][key] = v; }])
+  ];
+  for (const [path, node, set] of prose) {
+    for (const blank of [' ', '\t ']) {
+      // minLength alone lets whitespace through, so the schema needs a non-space character as the validator does.
+      assert.ok(blank.length >= node.minLength && !new RegExp(node.pattern).test(blank), `schema rejects blank ${path}`);
+      assert.throws(() => validateContent(edited(c => set(c, blank))), new RegExp(path.replace(/[[\]]/g, '\\$&')));
+    }
+  }
+  for (const content of [en, fr]) {
+    for (const value of [content.title, content.question, ...content.principles.flatMap(p => [p.name, p.rule]), ...content.cases.flatMap(c => [c.text, c.looksLike, c.decides])]) assert.match(value, /\S/);
+  }
+  for (const key of ['correct', 'lure']) {
+    assert.ok(!new RegExp(item[key].pattern).test(' '));
+    assert.throws(() => validateContent(edited(c => { c.cases[0][key] = ' '; })), new RegExp(`cases\\[0\\]\\.${key}`));
+  }
+});
+
 test('content needs two to four principles with unique ids and names', () => {
   const fourth = { id: 'listen', name: 'Listen', rule: 'Let them finish.' };
   const case4 = { text: 'A case.', correct: 'listen', lure: 'name', looksLike: 'A look.', decides: 'A fact.' };
@@ -132,7 +158,7 @@ test('server HTML: every case, its rows with rules, hidden checks and answers wi
   assert.equal((markup.match(/type="radio"/g) || []).length, 12);
   assert.equal((markup.match(/role="status"/g) || []).length, 1);
   assert.ok(markup.includes('Case 3 of 4'));
-  assert.ok(markup.includes('<span class="lp-sort-by-principle-name">Ask an open question</span><span class="lp-visually-hidden">. </span><span class="lp-sort-by-principle-rule">The facts are agreed, but not the cause. Ask what got in the way.</span>'));
+  assert.ok(markup.includes('<span class="lp-sort-by-principle-name">Ask an open question</span><span class="lp-visually-hidden">. </span><span class="lp-sort-by-principle-rule">The facts are agreed, but the cause is not known. Ask what got in the way.</span>'));
   assert.ok(markup.includes('<summary>Answer for case 2</summary>'));
   assert.ok(markup.includes('<strong>Correct answer: Name the behaviour.</strong>'));
   assert.ok(markup.includes('&quot;From now on&quot; sounds like <em>Agree the next action</em>.'));
@@ -153,7 +179,10 @@ test('authored text is escaped, and the context is optional', () => {
 
 test('French renders with French typography', () => {
   const markup = render(fr, strings.fr, { id: 'fr', lang: 'fr' });
-  assert.ok(markup.includes('Quel principe convient à ce moment ?'));
+  assert.ok(markup.includes('Quel principe devez-vous appliquer maintenant\u202f?'));
+  // A question quoted in « » keeps its closing guillemet on the same line.
+  assert.ok(markup.includes('qu’allez-vous changer\u202f?\u00a0»'));
+  assert.ok(!/[?!;] »/.test(markup));
   assert.ok(markup.includes('Bonne réponse : Nommer le comportement.'));
   assert.ok(markup.includes('Cas 1 sur 4'));
 });

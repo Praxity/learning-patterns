@@ -13,8 +13,8 @@ Choose which of a few principles each short case needs, one case at a time. Afte
 
 ## Use it when
 
-- Learners can state each principle but choose the wrong one for a new case.
-- A surface detail, such as a question, a date or a judgement word, pulls learners toward the wrong principle.
+- Learners can state each principle but choose the wrong one for a new case, such as which privacy rule, accounting treatment or first-aid step applies.
+- A surface detail, such as a familiar keyword, a large amount or who is asking, pulls learners toward the wrong principle.
 - A course teaches several principles in turn, and learners need practice choosing among them before they apply them.
 
 ## Avoid it when
@@ -25,14 +25,14 @@ Choose which of a few principles each short case needs, one case at a time. Afte
 
 ## Before you use it
 
-Write two to four principles. Give each a short name and a one-line rule that says when it applies, so a learner can decide every case from the rules alone. Rules that turn on what is already settled, such as "the facts are agreed, but not the cause", rule each other out more easily than rules about what to do.
+Write two to four principles. Give each a short name and a one-line rule that says when it applies, so a learner can decide every case from the rules alone. Rules that turn on what is already settled, such as "the facts are agreed, but the cause is not known", rule each other out more easily than rules about what to do.
 
 Write three or four cases of one or two lines each. Each principle must be the answer to at least one case. Give each case a fact that decides it under the rules, and a surface detail that points to a different principle, its lure. For each case write:
 
 - `looksLike`: the surface detail and the principle it points to. Only a learner who chose that principle reads it.
 - `decides`: the fact that settles the case and what to do. Every learner reads it.
 
-Then check every wrong principle against its own rule: it must be wrong under that rule, not only under your practice. Put the cases in an order where the answers don't follow the order of the principles, and where two cases with different surfaces share an answer.
+Then check every wrong principle against its own rule: it must be wrong under that rule as written, so a learner can see why from the card. Put the cases in an order where the answers don't follow the order of the principles, and where two cases with different surfaces share an answer.
 
 ## How it works
 
@@ -42,7 +42,7 @@ Then check every wrong principle against its own rule: it must be wrong under th
 4. After the last case, one sentence gives their score, such as "You got 2 of 4 cases right.", and a list names each pair of principles they mixed up, such as "*Ask an open question* and *Agree the next action*: 2 cases".
 5. "Start over" clears every answer and opens the first case.
 
-There is no going back to an earlier case: each miss is explained when it happens.
+Learners cannot go back to an earlier case, because each miss is explained when it happens.
 
 ## Evidence
 

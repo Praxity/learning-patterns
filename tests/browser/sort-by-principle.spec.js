@@ -59,7 +59,7 @@ test('keyboard journey: error, a miss, the lure, a hit, the result with mixed-up
   await expect(panel(page, 0).locator('[data-lp-case-heading]')).toHaveText('Case 1 of 4');
   await expect(page.locator('[data-lp-fallback]:visible, [data-lp-result]:visible')).toHaveCount(0);
   // Each row gives the principle's name, then its rule.
-  await expect(panel(page, 0).getByRole('radio').nth(1)).toHaveAccessibleName(/^Ask an open question\s*\.\s+The facts are agreed, but not the cause\. Ask what got in the way\.$/);
+  await expect(panel(page, 0).getByRole('radio').nth(1)).toHaveAccessibleName(/^Ask an open question\s*\.\s+The facts are agreed, but the cause is not known\. Ask what got in the way\.$/);
 
   // Checking with nothing chosen names the problem in the group and focuses its first option.
   await page.keyboard.press('Tab'); await expect(panel(page, 0).getByRole('radio').first()).toBeFocused();
@@ -260,11 +260,42 @@ test('a case change slides in, and is instant under reduced motion', async ({ pa
 
 test('a checked case cannot be changed or checked twice', async ({ page }) => {
   await open(page);
+  // Mount with a state adapter that records every write.
+  await page.evaluate(async content => {
+    const { render } = await import('/patterns/sort-by-principle/render.js');
+    const { enhance } = await import('/patterns/sort-by-principle/enhance.js');
+    const { strings } = await import('/patterns/sort-by-principle/strings.js');
+    window.lpInstances.forEach(instance => instance.destroy());
+    document.querySelector('main').innerHTML = render(content, strings.en, { id: 'twice', lang: 'en' });
+    window.lpWrites = [];
+    enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en, state: { read: () => undefined, write: value => window.lpWrites.push(value) } });
+  }, english);
   await answer(page, 0, 'agree');
-  await panel(page, 0).locator('[data-lp-check]').evaluate(button => button.click());
-  await panel(page, 0).locator('input[value="ask"]').evaluate(radio => { radio.disabled = false; radio.click(); });
-  expect(await page.evaluate(() => window.lpSaved)).toEqual({ picks: ['agree'] });
+  // Turn the locked controls back on and send the events a second submission would.
+  await panel(page, 0).evaluate(panel => {
+    const other = panel.querySelector('input[value="ask"]'), check = panel.querySelector('[data-lp-check]');
+    other.disabled = false; other.checked = true; other.dispatchEvent(new Event('change', { bubbles: true }));
+    check.disabled = false; check.hidden = false;
+    check.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+  });
+  expect(await page.evaluate(() => window.lpWrites)).toEqual([{ picks: ['agree'] }]);
+  await expect(feedback(page, 0)).toHaveText(`Correct. ${english.cases[0].decides}`);
   await expect(panel(page, 0).locator('[data-lp-mark]')).toHaveCount(1);
+  await expect(panel(page, 0).locator('label:has(input[value="agree"])')).toHaveAttribute('data-lp-mark', 'correct');
+});
+
+test('at 390px each check brings Next case into view with the feedback above it', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  for (const lang of ['en', 'fr']) {
+    await open(page, lang);
+    for (const [c, id] of ['ask', 'agree', 'agree'].entries()) {
+      await answer(page, c, id);
+      await expect(panel(page, c).locator('[data-lp-next]')).toBeInViewport({ ratio: 1 });
+      await expect(feedback(page, c)).toBeInViewport({ ratio: 1 });
+      await panel(page, c).locator('[data-lp-next]').click();
+    }
+  }
 });
 
 test('missing or mismatched server markup fails loudly through enhance', async ({ page }) => {

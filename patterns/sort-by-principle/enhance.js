@@ -144,7 +144,9 @@ export function enhance(root, { content, strings, state }) {
       picks.push(chosen.value);
       mark(c);
       // Focus reads the feedback once, then the controls freeze. Only the final result uses the status region.
-      reveal(part.feedback);
+      // Before the last case, Next case comes into view with the feedback just above it; on a narrow
+      // screen, revealing the feedback alone left the button below the fold.
+      reveal(c === last ? part.feedback : part.actions);
       part.feedback.focus({ preventScroll: true });
       unlocks.push(lock(part.panel));
       if (c === last) {
