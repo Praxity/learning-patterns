@@ -2,79 +2,84 @@
 /* The paper highlighter Highlight the key passage and Change one detail use. */
 .lp-which-is-better { --lp-which-is-better-mark: #ffe49a; }
 
-/* The two versions side by side, stacked in a narrow card. Headings and space set them apart. */
-.lp-which-is-better-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--lp-gap-group) 24px; align-items: start; }
-.lp-which-is-better-pair > div > * + * { margin-block-start: var(--lp-gap-stem); }
-/* The question's pair shares its rows: the heading row, then one row per sentence. Sentence n of
-   each version starts level, and a mark that adds a line moves both columns together. */
-.lp-which-is-better-pair[data-lp-rows] { row-gap: var(--lp-gap-choice); }
-.lp-which-is-better-pair[data-lp-rows] > div,
-.lp-which-is-better-pair[data-lp-rows] .lp-choices { display: grid; grid-template-rows: subgrid; }
-.lp-which-is-better-pair[data-lp-rows] > div > * + * { margin-block-start: 0; }
-.lp-which-is-better-pair[data-lp-rows] h3 { margin-block-end: calc(var(--lp-gap-stem) - var(--lp-gap-choice)); }
-.lp-which-is-better-pair[data-lp-rows="3"] > div { grid-row: span 3; }
-.lp-which-is-better-pair[data-lp-rows="3"] .lp-choices { grid-row: span 2; }
-.lp-which-is-better-pair[data-lp-rows="4"] > div { grid-row: span 4; }
-.lp-which-is-better-pair[data-lp-rows="4"] .lp-choices { grid-row: span 3; }
-.lp-which-is-better-pair[data-lp-rows="5"] > div { grid-row: span 5; }
-.lp-which-is-better-pair[data-lp-rows="5"] .lp-choices { grid-row: span 4; }
-.lp-which-is-better-pair[data-lp-rows="6"] > div { grid-row: span 6; }
-.lp-which-is-better-pair[data-lp-rows="6"] .lp-choices { grid-row: span 5; }
-.lp-which-is-better-plain, .lp-which-is-better-questions { margin: 0; padding-inline-start: 1.5em; }
-.lp-which-is-better-plain > li + li, .lp-which-is-better-missing > li + li { margin-block-start: 4px; }
-.lp-which-is-better-questions > li + li { margin-block-start: var(--lp-gap-flow); }
-.lp-which-is-better-choices > * + * { margin-block-start: var(--lp-gap-flow); }
-.lp .lp-which-is-better-group > * + * { margin-block-start: var(--lp-gap-label); }
-.lp .lp-which-is-better-group + .lp-which-is-better-group { margin-block-start: var(--lp-gap-group); }
-.lp-which-is-better-choices > .lp-error-text { margin-block-start: var(--lp-gap-label); }
+/* The two emails side by side, stacked in a narrow card. Each email spans three shared rows (version,
+   subject, body), so the subjects and bodies start level and the two bodies end level. */
+.lp-which-is-better-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto auto 1fr; gap: 0 24px; }
+.lp-which-is-better-pair > .lp-which-is-better-email { display: grid; grid-row: span 3; grid-template-rows: subgrid; }
 
-/* Sentence rows are toggle buttons, so the row styles keyed on inputs are restated for them. */
+/* An email: a plain header line, then the body in the shared quote block. No card of its own. */
+.lp-which-is-better-subject { margin-block-start: var(--lp-gap-hint); }
+.lp-which-is-better-field { color: var(--lp-ink-2); }
+.lp-which-is-better-body { margin-block-start: var(--lp-gap-label); line-height: 1.75; }
+.lp-which-is-better-body > p + p { margin-block-start: var(--lp-gap-stem); }
+
+.lp-which-is-better-hint { margin-block-start: var(--lp-gap-hint); }
+.lp-which-is-better-questions { margin: 0; padding-inline-start: 1.5em; }
+.lp-which-is-better-questions > li + li { margin-block-start: var(--lp-gap-flow); }
+.lp-which-is-better-missing > li + li { margin-block-start: 4px; }
+.lp-which-is-better-choices > * + * { margin-block-start: var(--lp-gap-flow); }
+.lp-which-is-better-choices > .lp-choices { margin-block-start: var(--lp-gap-group); }
+.lp .lp-which-is-better-group > * + * { margin-block-start: var(--lp-gap-label); }
+.lp-which-is-better-choices > .lp-error-text { margin-block-start: var(--lp-gap-label); }
+[data-lp-fallback] > .lp-which-is-better-questions { margin-block-start: var(--lp-gap-group); }
+
+/* Body sentences are inline toggles, as in Highlight the key passage: the email stays running text. */
+.lp-which-is-better-chunk { padding-block: 2px; border-radius: 3px; cursor: pointer; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.lp-which-is-better-chunk:not([aria-disabled="true"]):hover { text-decoration: underline; text-underline-offset: 4px; }
+.lp-which-is-better-chunk[aria-disabled="true"] { cursor: default; }
+/* A tapped sentence already shows its highlight, and a ring there reads as a second choice, so
+   sentences ring for keyboard focus only, as the rows do. */
+.lp-which-is-better-chunk:focus { outline: none; }
+.lp-which-is-better-chunk:focus-visible { outline: 3px solid var(--lp-focus); outline-offset: 2px; }
+/* A chosen sentence takes the highlighter and an accent underline, so the choice shows on the grey
+   body without relying on the yellow. After the check the highlighter moves to the sentence that
+   shows the quality, chosen or missed, as the summary will show it; the underline then says which. */
+.lp-which-is-better-chunk:is([aria-pressed="true"]:not([data-lp-mark]), [data-lp-mark="correct"], [data-lp-mark="missed"]),
+.lp-which-is-better-body mark { margin: -1px -3px; padding: 1px 3px; color: var(--lp-ink); background: var(--lp-which-is-better-mark); }
+.lp-which-is-better-chunk[aria-pressed="true"]:not([data-lp-mark]) { text-decoration: underline solid var(--lp-accent) 2px; text-underline-offset: 4px; }
+.lp-which-is-better-chunk[data-lp-mark="correct"] { text-decoration: underline solid var(--lp-success-ink) 2px; text-underline-offset: 4px; }
+/* A wrong choice loses the highlighter but keeps an underline, so it is still clear which sentence was chosen. */
+.lp-which-is-better-chunk[data-lp-mark="wrong"] { text-decoration: underline solid var(--lp-error-ink) 2px; text-underline-offset: 4px; }
+/* A correct answer the learner didn't choose: dashed, so it doesn't read as their choice. */
+.lp-which-is-better-chunk[data-lp-mark="missed"] { text-decoration: underline dashed var(--lp-ink-2) 2px; text-underline-offset: 4px; }
+/* The shared mark follows its sentence inline. A leading word joiner (silent: empty alt text) keeps it
+   on the line of the sentence's last word; at the start of the next line it read as a verdict on the
+   sentence after it. An inline-flex badge can't do this, since a line may break before any atomic box. */
+.lp-which-is-better-body .lp-choice-mark { display: inline; margin-inline-start: 6px; padding-block: 1px; }
+.lp-which-is-better-body .lp-choice-mark::before { content: "\2060" / ""; }
+.lp-which-is-better-body .lp-choice-mark > .lp-icon { display: inline-block; block-size: 1.15em; margin-inline-end: 3px; vertical-align: -.23em; }
+
+/* Neither is a row button, so the row styles keyed on inputs are restated for it. */
 .lp-which-is-better .lp-choice { inline-size: 100%; margin: 0; color: var(--lp-ink); font: inherit; line-height: 1.4; text-align: start; }
 .lp-which-is-better .lp-choice:focus-visible { outline: 3px solid var(--lp-focus); outline-offset: 2px; }
-/* base.css rings every button on any focus. A tapped or clicked row already shows its border, and a
-   ring there reads as a selection, so rows ring for keyboard focus only, as radio rows do. */
+/* base.css rings every button on any focus. A tapped row already shows its border, so it rings for
+   keyboard focus only, as radio rows do. */
 .lp-which-is-better .lp-choice:focus:not(:focus-visible) { outline: none; }
-/* A chosen sentence keeps the 2px accent border and takes the highlighter on its text in place of
-   the tint. After the check the highlighter moves to the sentence that shows the quality, chosen or
-   missed, as the summary will show it; the marks draw the rows. */
-.lp-which-is-better .lp-choice[aria-pressed="true"]:not([data-lp-mark]) { border: 2px solid var(--lp-accent); padding: 9px 13px; background: var(--lp-paper); }
-.lp-which-is-better .lp-which-is-better-neither[aria-pressed="true"]:not([data-lp-mark]) { background: var(--lp-accent-soft); }
-.lp-which-is-better .lp-choice:is([aria-pressed="true"]:not([data-lp-mark]), [data-lp-mark="correct"], [data-lp-mark="missed"]) .lp-which-is-better-text,
-.lp-which-is-better-notes mark { margin: -1px -3px; padding: 1px 3px; border-radius: 3px; color: var(--lp-ink); background: var(--lp-which-is-better-mark); -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.lp-which-is-better .lp-choice[aria-pressed="true"]:not([data-lp-mark]) { border: 2px solid var(--lp-accent); padding: 9px 13px; background: var(--lp-accent-soft); }
 .lp-which-is-better .lp-choice[aria-pressed="true"]:not([data-lp-mark]) > .lp-choice-key { color: var(--lp-on-accent); background: var(--lp-accent); border-color: var(--lp-accent); }
-/* The columns are half the card wide, so a mark goes under its sentence instead of squeezing it. */
-.lp-which-is-better-pair .lp-choice > .lp-choice-mark { grid-column: 2 / -1; grid-row: 2; justify-self: start; white-space: normal; }
 /* A locked row shows no hover or pointer. */
 .lp-which-is-better .lp-choice:disabled { cursor: default; }
 .lp-which-is-better .lp-choice:disabled:not([data-lp-mark], [aria-pressed="true"]):hover { border-color: var(--lp-line-mid); background: var(--lp-paper); }
 
-/* Summary: the better version, each highlighted sentence joined by a line to its note in the margin.
-   The sentence column fits its text, the line takes what is left, and the notes share one edge. */
-.lp-which-is-better-notes { margin: 0; padding: 0; list-style: none; }
-.lp-which-is-better-notes > li { display: grid; grid-template-columns: fit-content(calc(100% - 16rem)) minmax(1.5rem, 1fr) 14rem; column-gap: 4px; align-items: center; }
-.lp-which-is-better-notes > li:has(.lp-which-is-better-note)::after { content: ""; grid-column: 2; grid-row: 1; border-block-start: 2px solid var(--lp-ink-2); }
-.lp-which-is-better-notes > li + li { margin-block-start: 12px; }
-.lp-which-is-better-sentence { grid-column: 1; padding-inline: 3px; }
-.lp-which-is-better-note { grid-column: 3; grid-row: 1; font-size: var(--lp-type-small); font-weight: 600; line-height: 1.3; }
+/* Summary: the better email, each highlighted sentence followed by its note on a rule that hangs
+   from the highlight. */
+.lp-which-is-better-note { display: block; inline-size: fit-content; margin: 2px 0 6px 12px; padding-block-start: 4px; padding-inline-start: 10px; border-inline-start: 2px solid var(--lp-ink-2); font-size: var(--lp-type-small); font-weight: 600; line-height: 1.3; }
 /* What both versions miss is a quality, like the notes, not another line of the message. */
 .lp-which-is-better-missing { margin: 0; padding: 0; list-style: none; font-size: var(--lp-type-small); font-weight: 600; line-height: 1.3; }
+[data-lp-summary] > .lp-which-is-better-email + .lp-which-is-better-group { margin-block-start: var(--lp-gap-group); }
 
 @container (max-width: 40rem) {
-  .lp-which-is-better-pair { grid-template-columns: minmax(0, 1fr); }
-  .lp-which-is-better-pair[data-lp-rows] { row-gap: var(--lp-gap-group); }
-  .lp-which-is-better-pair[data-lp-rows] > div { display: block; grid-row: auto; }
-  .lp-which-is-better-pair[data-lp-rows] .lp-choices { grid-row: auto; grid-template-rows: none; }
-  .lp-which-is-better-pair[data-lp-rows] h3 { margin-block-end: var(--lp-gap-stem); }
-  /* Narrow: each note sits under its sentence, on a rule that hangs from the highlight. */
-  .lp-which-is-better-notes > li { grid-template-columns: minmax(0, 1fr); }
-  .lp-which-is-better-notes > li:has(.lp-which-is-better-note)::after { content: none; }
-  .lp-which-is-better-note { grid-column: 1; grid-row: auto; margin-inline-start: 12px; padding-block-start: 6px; padding-inline-start: 10px; border-inline-start: 2px solid var(--lp-ink-2); }
+  .lp-which-is-better-pair { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; row-gap: var(--lp-gap-group); }
+  .lp-which-is-better-pair > .lp-which-is-better-email { display: block; grid-row: auto; }
 }
 
 @media (forced-colors: active) {
+  .lp-which-is-better-chunk:focus-visible { outline-color: Highlight; }
+  .lp-which-is-better-chunk:is([aria-pressed="true"]:not([data-lp-mark]), [data-lp-mark="correct"], [data-lp-mark="missed"]),
+  .lp-which-is-better-body mark { forced-color-adjust: none; color: MarkText; background: Mark; }
+  .lp-which-is-better-chunk[aria-pressed="true"]:not([data-lp-mark]) { text-decoration-color: Highlight; }
+  .lp-which-is-better-chunk[data-lp-mark] { text-decoration-color: CanvasText; }
   .lp-which-is-better .lp-choice[aria-pressed="true"]:not([data-lp-mark]) { border: 2px solid Highlight; }
-  .lp-which-is-better .lp-choice:is([aria-pressed="true"]:not([data-lp-mark]), [data-lp-mark="correct"], [data-lp-mark="missed"]) .lp-which-is-better-text,
-  .lp-which-is-better-notes mark { forced-color-adjust: none; color: MarkText; background: Mark; }
   .lp-which-is-better .lp-choice[aria-pressed="true"]:not([data-lp-mark]) > .lp-choice-key { forced-color-adjust: none; color: HighlightText; background: Highlight; border-color: Highlight; }
-  .lp-which-is-better-notes > li::after { border-color: CanvasText; }
+  .lp-which-is-better-note { border-color: CanvasText; }
 }

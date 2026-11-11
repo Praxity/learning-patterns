@@ -1,17 +1,36 @@
 {
   "title": "Comparer deux messages d’absence",
-  "context": "Vous êtes en congé pour une semaine, et la clientèle vous écrit au sujet de ses commandes.",
+  "context": "Vous êtes Sam Rivera. Vous êtes en congé pour une semaine, et la clientèle vous écrit au sujet de ses commandes.",
   "versions": {
-    "a": [
-      "Je suis actuellement à l’extérieur du bureau, avec un accès limité à mes courriels, jusqu’au lundi 14 octobre.",
-      "Si votre demande est urgente, veuillez communiquer avec le bureau.",
-      "Je vous prie d’excuser tout inconvénient et je vous répondrai dès que possible à mon retour."
-    ],
-    "b": [
-      "Je suis en congé jusqu’au lundi 14 octobre et je ne lis pas mes courriels.",
-      "Pour une commande urgente, appelez Jo Mensah au 514\u00a0555-\u20600142.",
-      "Pour toute autre demande, je vous répondrai à mon retour."
-    ]
+    "a": {
+      "subject": "Absence du bureau",
+      "greeting": "Bonjour,",
+      "body": [
+        [
+          "Merci de votre courriel.",
+          "Je suis actuellement à l’extérieur du bureau, avec un accès limité à mes courriels, jusqu’au lundi 14 octobre."
+        ],
+        [
+          "Si votre demande est urgente, veuillez communiquer avec le bureau.",
+          "Je vous prie d’excuser tout inconvénient et je vous répondrai dès que possible à mon retour."
+        ]
+      ],
+      "signoff": "Cordialement,\nSam Rivera"
+    },
+    "b": {
+      "subject": "En congé jusqu’au lundi 14 octobre",
+      "greeting": "Bonjour,",
+      "body": [
+        [
+          "Je suis en congé jusqu’au lundi 14 octobre et je ne lis pas mes courriels."
+        ],
+        [
+          "Pour une commande urgente, appelez Jo Mensah au 514\u00a0555-\u20600142.",
+          "Pour toute autre demande, je vous répondrai à mon retour."
+        ]
+      ],
+      "signoff": "Merci,\nSam Rivera"
+    }
   },
   "better": "b",
   "qualities": [
