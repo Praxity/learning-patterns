@@ -76,9 +76,14 @@ test('keyboard journey: error, one choice per question, arrow keys, focus on eac
   const choices = page.locator('[data-lp-choices]');
   await expect(choices).toHaveAccessibleName(groupName('Question 1 of 3', english.qualities[0].question));
   await expect(choices).toHaveAccessibleDescription('Highlight one sentence in either version, or choose "Neither version does this".');
-  // The instruction is a run-in line in ink, as in Highlight the key passage, not a grey hint.
-  await expect(page.locator('#' + await choices.getAttribute('aria-describedby'))).toHaveCSS('font-weight', '600');
-  await expect(page.locator('#' + await choices.getAttribute('aria-describedby'))).toHaveCSS('color', 'rgb(22, 24, 29)');
+  // The instruction is body-size ink at regular weight, so the question stays the one bold line, and
+  // a group gap separates it from the emails.
+  const hint = page.locator('#' + await choices.getAttribute('aria-describedby'));
+  await expect(hint).toHaveCSS('font-weight', '400');
+  await expect(hint).toHaveCSS('font-size', '17px');
+  await expect(hint).toHaveCSS('color', 'rgb(22, 24, 29)');
+  const [hintBox, emailsBox] = await Promise.all([hint.boundingBox(), page.locator('[data-lp-step] .lp-which-is-better-pair').boundingBox()]);
+  expect(emailsBox.y - (hintBox.y + hintBox.height)).toBeGreaterThanOrEqual(23);
   // Each email is a group named by its version, so moving into Version B says so.
   await expect(page.getByRole('group', { name: 'Version B', exact: true }).getByRole('button')).toHaveCount(b.length);
 
@@ -271,15 +276,39 @@ test('each mark sits on its own line under its sentence, without a pill, and the
   }
 });
 
-test('Neither has no key box, and its border and tint show the choice', async ({ page }) => {
+test('the Neither key shows a check when chosen or correct and an x when wrong, in the mark colours', async ({ page }) => {
   await open(page);
-  await expect(pick(page, 'neither').locator('.lp-choice-key')).toHaveCount(0);
-  const text = await pick(page, 'neither').locator('span').first().boundingBox(), row = await pick(page, 'neither').boundingBox();
-  // The label starts at the row's padding, with no empty key column before it.
-  expect(text.x - row.x).toBeLessThan(20);
-  await pick(page, 'neither').click();
-  await expect(pick(page, 'neither')).toHaveCSS('border-top-width', '2px');
-  await expect(pick(page, 'neither')).toHaveCSS('background-color', 'rgb(238, 242, 253)');
+  const neither = pick(page, 'neither'), key = neither.locator('.lp-choice-key');
+  const shown = () => key.locator('svg').evaluateAll(icons => icons.map(icon => getComputedStyle(icon).display !== 'none'));
+  expect(await shown()).toEqual([false, false]);
+  await neither.click();
+  expect(await shown()).toEqual([true, false]);
+  await expect(key).toHaveCSS('background-color', 'rgb(44, 85, 201)');
+  // Wrong on question 1: the x on the error colour.
+  await page.locator('[data-lp-check]').click();
+  expect(await shown()).toEqual([false, true]);
+  await expect(key).toHaveCSS('background-color', 'rgb(180, 35, 24)');
+  // Right on question 2: the check on the success colour.
+  await page.locator('[data-lp-next]').click();
+  expect(await shown()).toEqual([false, false]);
+  await decide(page, 'neither', { next: false });
+  expect(await shown()).toEqual([true, false]);
+  await expect(key).toHaveCSS('background-color', 'rgb(18, 112, 79)');
+});
+
+test('the French Neither label wraps in balanced lines on a narrow card', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 900 }); await open(page, '/which-is-better/fr.html');
+  // A 300px row, as in a host page with wider card padding, makes the label wrap.
+  await pick(page, 'neither').evaluate(row => row.style.setProperty('inline-size', '300px', 'important'));
+  const widths = await pick(page, 'neither').locator('span:not(.lp-choice-key)').evaluate(label => {
+    const range = label.ownerDocument.createRange(); range.selectNodeContents(label);
+    const lines = new Map();
+    for (const rect of range.getClientRects()) if (rect.width > 0) lines.set(Math.round(rect.top), (lines.get(Math.round(rect.top)) ?? 0) + rect.width);
+    return [...lines.values()];
+  });
+  // Unbalanced, the label left "fait" alone on its second line.
+  expect(widths.length).toBe(2);
+  expect(Math.min(...widths) / Math.max(...widths)).toBeGreaterThan(0.4);
 });
 
 for (const [lang, content, labels] of [
@@ -305,6 +334,9 @@ for (const [lang, content, labels] of [
       await expect(root.locator('[data-lp-question-text]')).toHaveText(typeset(quality.question));
       await decide(root, quality.sentence === null ? 'neither' : `b${quality.sentence}`, { next: false });
       await expect(root.locator('[data-lp-feedback]')).toHaveText(`Correct. ${typeset(quality.reason)}`);
+      // A correct Neither row already shows "Correct" just above, so its verdict is for screen readers only.
+      const hidden = await root.locator('.lp-which-is-better-verdict').evaluate(el => el.classList.contains('lp-visually-hidden'));
+      expect(hidden, `question ${i + 1}`).toBe(quality.sentence === null);
       await expect(root.locator('[data-lp-next]')).toHaveText(i === 2 ? labels.finish : labels.next);
       await root.locator('[data-lp-next]').click();
     }

@@ -1,4 +1,4 @@
-import { answer, answerText, format, score, validateState } from './logic.js';
+import { NEITHER, answer, answerText, format, score, validateState } from './logic.js';
 import { escapeHtml, frenchTypography } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
 import { clearChoice, markChoice, renderChoiceMark } from '../../lib/choice-mark.js';
@@ -98,7 +98,9 @@ export function enhance(root, { content, strings, state }) {
     // The verdict opens the feedback, visibly too: on a phone the chosen sentence may be scrolled off
     // screen. Screen readers hear it once, with the right answer in words after a wrong one.
     const ok = pick === right, h = (/** @type {string} */ value) => escapeHtml(value, root.lang);
-    verdict.className = `lp-which-is-better-verdict ${ok ? 'lp-met' : 'lp-missed'}`;
+    // A correct Neither row already says "Correct" right above the feedback, so the verdict is for
+    // screen readers only there.
+    verdict.className = `lp-which-is-better-verdict ${ok ? 'lp-met' : 'lp-missed'}${ok && pick === NEITHER ? ' lp-visually-hidden' : ''}`;
     verdict.innerHTML = `${icons[ok ? 'check' : 'x']}<span>${h(ok ? strings.markCorrect : strings.markWrong)}</span><span class="lp-visually-hidden">${h(ok ? '. ' : `. ${answerText(content, strings, i)} `)}</span>`;
     reason.textContent = text(content.qualities[i].reason);
     feedback.hidden = false;

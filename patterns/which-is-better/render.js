@@ -53,7 +53,7 @@ export function render(content, strings, { id, lang }) {
       <div class="lp-which-is-better-pair">${versions.map(version => `
         ${email(version, `<h3 class="lp-run-in" id="${ids(version)}">${name(version)}</h3>`, chunk(version), ` role="group" aria-labelledby="${ids(version)}"`)}`).join('')}
       </div>
-      <div class="lp-choices"><button class="lp-choice lp-which-is-better-neither" type="button" aria-pressed="false" data-lp-pick="${NEITHER}"><span>${h(strings.neither)}</span></button></div>
+      <div class="lp-choices"><button class="lp-choice lp-which-is-better-neither" type="button" aria-pressed="false" data-lp-pick="${NEITHER}"><span class="lp-choice-key" aria-hidden="true">${icons.check}${icons.x}</span><span>${h(strings.neither)}</span></button></div>
       <p class="lp-which-is-better-feedback" tabindex="-1" data-lp-feedback hidden><span class="lp-which-is-better-verdict" data-lp-verdict></span><span data-lp-reason></span></p>
     </div>
     <p class="lp-error-text" id="${ids('error')}" data-lp-error hidden>${icons['alert-circle']}<span>${h(strings.choose)}</span></p>

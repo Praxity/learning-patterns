@@ -13,7 +13,9 @@
 .lp-which-is-better-body { margin-block-start: var(--lp-gap-label); line-height: 1.75; }
 .lp-which-is-better-body > p + p { margin-block-start: var(--lp-gap-stem); }
 
-.lp-which-is-better-hint { margin-block-start: var(--lp-gap-label); }
+/* The instruction is ink at body size but regular weight, so the question stays the one bold line. */
+.lp-which-is-better-hint { margin-block-start: var(--lp-gap-label); font-weight: 400; }
+.lp-which-is-better-hint + .lp-which-is-better-choices { margin-block-start: var(--lp-gap-group); }
 .lp-which-is-better-questions { margin: 0; padding-inline-start: 1.5em; }
 .lp-which-is-better-questions > li + li { margin-block-start: var(--lp-gap-flow); }
 .lp-which-is-better-missing > li + li { margin-block-start: 4px; }
@@ -57,10 +59,14 @@
    keyboard focus only, as radio rows do. */
 .lp-which-is-better .lp-choice:focus:not(:focus-visible) { outline: none; }
 .lp-which-is-better .lp-choice[aria-pressed="true"]:not([data-lp-mark]) { border: 2px solid var(--lp-accent); padding: 9px 13px; background: var(--lp-accent-soft); }
-/* Neither has no key box: an empty box read as a checkbox. Its border and tint show the choice. */
-.lp-which-is-better-neither { grid-template-columns: minmax(0, 1fr) auto; }
-.lp-which-is-better-neither > span:not(.lp-choice-mark) { grid-column: 1; }
-.lp-which-is-better-neither > .lp-choice-mark { grid-column: 2; }
+/* Neither keeps the key box, so it reads as a choice, not a text field. The box shows a check when
+   the row is chosen or correct and an x when it is wrong; the base mark colours fill it. */
+.lp-which-is-better-neither > .lp-choice-key > .lp-icon { display: none; inline-size: 18px; block-size: 18px; }
+.lp-which-is-better-neither:is([aria-pressed="true"]:not([data-lp-mark]), [data-lp-mark="correct"]) > .lp-choice-key > .lp-icon:first-child,
+.lp-which-is-better-neither[data-lp-mark="wrong"] > .lp-choice-key > .lp-icon:last-child { display: block; }
+.lp-which-is-better .lp-choice[aria-pressed="true"]:not([data-lp-mark]) > .lp-choice-key { color: var(--lp-on-accent); background: var(--lp-accent); border-color: var(--lp-accent); }
+/* French wraps the label at 375px; balanced lines leave no word alone. */
+.lp-which-is-better-neither > span:not(.lp-choice-key, .lp-choice-mark) { text-wrap: balance; }
 /* A locked row shows no hover or pointer. */
 .lp-which-is-better .lp-choice:disabled { cursor: default; }
 .lp-which-is-better .lp-choice:disabled:not([data-lp-mark], [aria-pressed="true"]):hover { border-color: var(--lp-line-mid); background: var(--lp-paper); }
@@ -73,9 +79,6 @@
   .lp-which-is-better-pair { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; row-gap: var(--lp-gap-group); }
   .lp-which-is-better-pair > .lp-which-is-better-email { display: block; grid-row: auto; }
 }
-@container (max-width: 34rem) {
-  .lp-which-is-better-neither > .lp-choice-mark { grid-column: 1; }
-}
 
 @media (forced-colors: active) {
   .lp-which-is-better-chunk:focus-visible { outline-color: Highlight; }
@@ -84,5 +87,6 @@
   .lp-which-is-better-chunk[aria-pressed="true"]:not([data-lp-mark]) { text-decoration-color: Highlight; }
   .lp-which-is-better-chunk[data-lp-mark] { text-decoration-color: CanvasText; }
   .lp-which-is-better .lp-choice[aria-pressed="true"]:not([data-lp-mark]) { border: 2px solid Highlight; }
+  .lp-which-is-better .lp-choice[aria-pressed="true"]:not([data-lp-mark]) > .lp-choice-key { forced-color-adjust: none; color: HighlightText; background: Highlight; border-color: Highlight; }
   .lp-which-is-better-body .lp-choice-mark, .lp-which-is-better-note { border-color: CanvasText; }
 }

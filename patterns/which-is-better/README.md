@@ -53,7 +53,7 @@ None of these studies asked learners to point to the sentence that shows a quali
 
 Follows the shared baseline in the root README.
 
-Each body sentence is an inline toggle button named by its own words, inside a group named by its version, so a screen reader says "Version B" as focus moves into that email. A chosen sentence takes a highlighter colour and a 2px accent underline; in forced colours it uses the system mark colours and a highlight-coloured underline. The Neither row has no key box; its 2px border and tint show the choice. Without JavaScript, learners read both emails and open each answer, but nothing is chosen or saved.
+Each body sentence is an inline toggle button named by its own words, inside a group named by its version, so a screen reader says "Version B" as focus moves into that email. A chosen sentence takes a highlighter colour and a 2px accent underline; in forced colours it uses the system mark colours and a highlight-coloured underline. The Neither row's key box shows a check when the row is chosen or correct and an x when it is wrong, with its 2px border and tint. Without JavaScript, learners read both emails and open each answer, but nothing is chosen or saved.
 
 ## Content fields
 
@@ -120,7 +120,7 @@ const instance = enhance(document.querySelector('[data-lp-pattern]'), { content,
 - The instruction under the question, which names both ways to answer, describes the group of choices.
 - "Check my answer" with nothing chosen shows an error just above the button, linked to every choice, keeps the error and the button in view and moves focus to the first sentence, which reads the error once.
 - Choices show the focus ring for keyboard focus only; a tapped or clicked sentence shows its highlight and a tapped Neither row its border.
-- After a check, focus moves to the feedback under the emails. For screen readers it starts with "Correct." or "Incorrect. Correct answer, in Version B:" and the right sentence, then the reason, so the result is read once and the status region stays empty. The visible verdict at the start of the feedback is the same text, so it is read once. Each sentence's mark sits on its own line under the sentence. The choices lock: sentences stay in the tab order so their marks can be read, and Tab goes on to "Next question".
+- After a check, focus moves to the feedback under the emails. For screen readers it starts with "Correct." or "Incorrect. Correct answer, in Version B:" and the right sentence, then the reason, so the result is read once and the status region stays empty. The visible verdict at the start of the feedback is the same text, so it is read once. When the learner chose the Neither row and it is correct, the row already shows "Correct" just above, so the verdict is for screen readers only. Each sentence's mark sits on its own line under the sentence. The choices lock: sentences stay in the tab order so their marks can be read, and Tab goes on to "Next question".
 - "Next question" brings the new question line into view and moves focus to it. "Show the summary" moves focus to the result sentence; the annotated version follows in reading order, each note under its sentence and introduced by a hidden "This sentence shows:".
 - "Start over" announces "Answers cleared." and moves focus to the first question.
 - Marks use words, icons and borders as well as colour.

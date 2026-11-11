@@ -170,9 +170,9 @@ for (const [lang, content] of [['en', en], ['fr', fr]]) {
     assert.equal((step.match(/<p><span class="lp-which-is-better-chunk"/g) ?? []).length, 4);
     assert.ok(step.includes(`</span></p><p>${html(b.signoff, lang)}</p></div></div>`));
     // Neither has an empty key, so it reads as an option you can choose.
-    // Neither has no key box, which read as a checkbox; its border and tint show the choice.
-    assert.match(step, new RegExp(`<button class="lp-choice lp-which-is-better-neither" type="button" aria-pressed="false" data-lp-pick="neither"><span>${strings[lang].neither}</span></button>`));
-    assert.doesNotMatch(step, /lp-choice-key/);
+    // Neither keeps the key box, holding the check and x icons that the row's state shows.
+    assert.match(step, new RegExp(`<button class="lp-choice lp-which-is-better-neither" type="button" aria-pressed="false" data-lp-pick="neither"><span class="lp-choice-key" aria-hidden="true"><svg[^]*?</svg><svg[^]*?</svg></span><span>${strings[lang].neither}</span></button>`));
+    assert.equal((step.match(/lp-choice-key/g) ?? []).length, 1);
     // The instruction is a run-in line like Highlight's, and describes the group.
     assert.match(step, /<p class="lp-run-in lp-which-is-better-hint" id="pair-hint">[^<]+<\/p>\s*<div class="lp-which-is-better-choices" role="group" data-lp-choices aria-labelledby="pair-question" aria-describedby="pair-hint">\s*<div class="lp-which-is-better-pair">/);
     // The error sits just above Check, outside the emails' group.
@@ -235,10 +235,16 @@ test('the pattern stylesheet keeps its prefix, the highlighter and forced-colour
   assert.match(css, /\.lp-which-is-better-chunk\[data-lp-mark="correct"\] \{ text-decoration: underline solid var\(--lp-success-ink\)/);
   assert.match(css, /\.lp-which-is-better-chunk\[data-lp-mark="missed"\] \{ text-decoration: underline dashed/);
   assert.doesNotMatch(css, /data-lp-mark="missed"\][^{]*\{[^}]*background/);
-  assert.doesNotMatch(css, /data-lp-mark="wrong"/);
+  assert.doesNotMatch(css, /\.lp-which-is-better-chunk\[data-lp-mark="wrong"\]/);
   // A sentence's mark sits on its own line under it, like a summary note, with no pill.
   assert.match(css, /\.lp-which-is-better-body \.lp-choice-mark,\s*\.lp-which-is-better-note \{ display: flex;[^}]*margin: 2px 0 var\(--lp-gap-stem\) 12px;[^}]*background: none;/);
   assert.doesNotMatch(css, /2060/);
+  // The instruction is regular weight, with a group gap before the emails.
+  assert.match(css, /\.lp-which-is-better-hint \{[^}]*font-weight: 400;/);
+  assert.match(css, /\.lp-which-is-better-hint \+ \.lp-which-is-better-choices \{ margin-block-start: var\(--lp-gap-group\); \}/);
+  // Neither's key shows the check when chosen or correct and the x when wrong; its label balances.
+  assert.match(css, /\.lp-which-is-better-neither:is\(\[aria-pressed="true"\]:not\(\[data-lp-mark\]\), \[data-lp-mark="correct"\]\) > \.lp-choice-key > \.lp-icon:first-child,\s*\.lp-which-is-better-neither\[data-lp-mark="wrong"\] > \.lp-choice-key > \.lp-icon:last-child \{ display: block; \}/);
+  assert.match(css, /\.lp-which-is-better-neither > span:not\(\.lp-choice-key, \.lp-choice-mark\) \{ text-wrap: balance; \}/);
   // The summary highlight stays inline, hugging its text; a block one reads as a filled panel.
   assert.doesNotMatch(css, /\.lp-which-is-better-body mark \{[^}]*display: block/);
   // An email is never a card of its own inside the pattern card.
