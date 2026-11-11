@@ -61,7 +61,7 @@ test('every sentence answer is a sentence of the better version, used once, and 
 
 test('the sample phone numbers cannot break at their hyphens', () => {
   assert.ok(en.versions.b[1].includes('514-\u2060555-\u20600142'));
-  assert.ok(fr.versions.b[1].includes('514 555-\u20600142'));
+  assert.ok(fr.versions.b[1].includes('514\u00a0555-\u20600142'));
 });
 
 test('answers, names and the answer text', () => {
