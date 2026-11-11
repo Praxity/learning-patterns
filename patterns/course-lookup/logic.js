@@ -36,7 +36,7 @@ export function validateContent(content) {
     if (entry.id !== ids[index]) throw new Error(`Invalid ${path}.id`);
     for (const key of ['title', body]) if (!text(entry[key], key === 'title' ? 120 : 1500)) throw new Error(`Invalid ${path}.${key}`);
   });
-  if (!Array.isArray(content.seeds) || content.seeds.length !== 3) throw new Error('Invalid seeds');
+  if (!Array.isArray(content.seeds) || content.seeds.length !== 2) throw new Error('Invalid seeds');
   const seen = new Set();
   content.seeds.forEach((seed, index) => {
     const path = `seeds[${index}]`;
@@ -47,7 +47,7 @@ export function validateContent(content) {
     seen.add(seed.id);
     if (seed.author !== 'instructor' && seed.author !== 'learner') throw new Error(`Invalid ${path}.author`);
   });
-  if (content.seeds.filter(seed => seed.author === 'instructor').length !== 2) throw new Error('Invalid seeds.author');
+  if (content.seeds.filter(seed => seed.author === 'instructor').length !== 1) throw new Error('Invalid seeds.author');
 }
 
 /** @param {Content} content @param {unknown} answers @returns {Entry[]} */

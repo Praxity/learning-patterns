@@ -23,7 +23,7 @@ for (const lang of ['en', 'fr']) test(`Add focuses the new question; Remove focu
   await expect(bank.getByRole('button').first()).toBeFocused();
   await bank.getByRole('button').first().click();
   await expect(root.getByRole('textbox')).toBeFocused();
-  await expect(bank.locator('li')).toHaveCount(3);
+  await expect(bank.locator('li')).toHaveCount(2);
 });
 
 // VoiceOver keeps its cursor on a control that hides before focus moves. Add focuses the new question
@@ -262,21 +262,21 @@ test('30 automatic checks are shared; Enter works beyond the cap and after re-en
 test('browser bank adds, deduplicates, removes and persists separately from the seeds and other instances', async ({ page }) => {
   await open(page); await scores(page, { none:1 });
   const root=faq(page), bank=root.locator('[data-lp-bank-list]');
-  await expect(bank.locator('li')).toHaveCount(3);
-  await expect(bank.locator('li').filter({hasText:'Instructor'})).toHaveCount(2);
+  await expect(bank.locator('li')).toHaveCount(2);
+  await expect(bank.locator('li').filter({hasText:'Instructor'})).toHaveCount(1);
   await expect(bank.locator('li').filter({hasText:'Another learner'})).toHaveCount(1);
   const question = 'Can I practise with my team';
   await auto(page, question); await root.locator('[data-lp-add]').click(); await page.clock.runFor(50);
-  await expect(bank.locator('li')).toHaveCount(4);
+  await expect(bank.locator('li')).toHaveCount(3);
   await expect(bank).toContainText('Waiting for an answer');
   await expect(root.locator('[data-lp-add]')).toBeHidden();
-  await expect(sections(page).locator('[data-lp-bank-list] li')).toHaveCount(3);
+  await expect(sections(page).locator('[data-lp-bank-list] li')).toHaveCount(2);
   await page.reload(); await page.waitForFunction(() => window.lpReady);
-  await expect(bank.locator('li')).toHaveCount(4);
+  await expect(bank.locator('li')).toHaveCount(3);
   await bank.getByRole('button').click();
-  await expect(bank.locator('li')).toHaveCount(3);
+  await expect(bank.locator('li')).toHaveCount(2);
   await page.reload(); await page.waitForFunction(() => window.lpReady);
-  await expect(bank.locator('li')).toHaveCount(3);
+  await expect(bank.locator('li')).toHaveCount(2);
   expect(await page.evaluate(() => JSON.parse(sessionStorage.getItem('lp:course-lookup:en:example-faq-question')))).toEqual({questions:[]});
 });
 
@@ -286,11 +286,11 @@ for (const lang of ['en', 'fr']) test(`question banks survive reload and clear w
   for (const root of [faq(page), sections(page)]) {
     await auto(page, question, root);
     await root.locator('[data-lp-add]').click(); await page.clock.runFor(50);
-    await expect(root.locator('[data-lp-bank-list] li')).toHaveCount(4);
+    await expect(root.locator('[data-lp-bank-list] li')).toHaveCount(3);
   }
   await page.reload(); await page.waitForFunction(() => window.lpReady);
   for (const root of [faq(page), sections(page)]) {
-    await expect(root.locator('[data-lp-bank-list] li')).toHaveCount(4);
+    await expect(root.locator('[data-lp-bank-list] li')).toHaveCount(3);
     await expect(root.locator('[data-lp-bank-list] li').last()).toContainText(question);
     const key = `lp:course-lookup:${lang}:${await root.getByRole('textbox').getAttribute('id')}`;
     expect(await page.evaluate(key => JSON.parse(sessionStorage.getItem(key)), key)).toEqual({ questions: [question] });
@@ -299,7 +299,7 @@ for (const lang of ['en', 'fr']) test(`question banks survive reload and clear w
   await page.close();
   const next = await context.newPage();
   await open(next, { lang });
-  for (const root of [faq(next), sections(next)]) await expect(root.locator('[data-lp-bank-list] li')).toHaveCount(3);
+  for (const root of [faq(next), sections(next)]) await expect(root.locator('[data-lp-bank-list] li')).toHaveCount(2);
 });
 
 test('bank storage failures preserve the previous bank and report the failed change', async ({ page }) => {
@@ -308,7 +308,7 @@ test('bank storage failures preserve the previous bank and report the failed cha
   await faq(page).locator('[data-lp-add]').focus();
   await page.keyboard.press('Enter');
   await expect(faq(page).locator('[data-lp-bank-message]')).toHaveText(strings.en.storageError);
-  await expect(faq(page).locator('[data-lp-bank-list] li')).toHaveCount(3);
+  await expect(faq(page).locator('[data-lp-bank-list] li')).toHaveCount(2);
   await expect(faq(page).locator('[data-lp-add]')).toBeVisible();
   await expect(faq(page).locator('[data-lp-add]')).toBeFocused();
 });
@@ -478,12 +478,12 @@ for (const lang of ['en', 'fr']) test(`bank shows the latest ten, expands and us
   const root = faq(page), bank = root.locator('[data-lp-bank-list]');
   await expect(bank.locator('li:visible')).toHaveCount(10);
   await expect(bank.locator('li:visible').first()).toContainText('Question 91 about the course');
-  await expect(bank.locator('li:visible').last().getByRole('button')).toHaveAccessibleName(lang === 'fr' ? 'Retirer la question 103' : 'Remove question 103');
+  await expect(bank.locator('li:visible').last().getByRole('button')).toHaveAccessibleName(lang === 'fr' ? 'Retirer la question 102' : 'Remove question 102');
   await expect(bank.locator('li:visible').last().getByRole('button')).toHaveText(lang === 'fr' ? 'Retirer la question' : 'Remove question');
   const toggle = root.locator('[data-lp-bank-toggle]');
   await expect(toggle).toHaveAccessibleName(lang === 'fr' ? 'Tout afficher' : 'Show all');
   await toggle.focus(); await toggle.press('Enter');
-  await expect(bank.locator('li:visible')).toHaveCount(103);
+  await expect(bank.locator('li:visible')).toHaveCount(102);
   await expect(toggle).toBeFocused(); await expect(toggle).toHaveAttribute('aria-expanded', 'true');
   await axe(page);
   await toggle.press('Enter'); await expect(bank.locator('li:visible')).toHaveCount(10);

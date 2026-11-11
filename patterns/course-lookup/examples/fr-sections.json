@@ -41,12 +41,6 @@
       "answer": "Oui. Faites une demande à tour de rôle. Dites ensuite si la demande était claire."
     },
     {
-      "id": "private",
-      "question": "Dois-je raconter un vrai conflit?",
-      "author": "instructor",
-      "answer": "Non. Vous pouvez inventer une situation. Évitez de nommer d’autres personnes dans vos messages."
-    },
-    {
       "id": "nerves",
       "question": "Comment vous exercer quand vous êtes nerveux?",
       "author": "learner",

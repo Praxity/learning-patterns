@@ -56,6 +56,16 @@ test('content and browser bank guards reject planted violations', () => {
   for (const value of [null, {}, { questions: ['', 'x'] }, { questions: ['x'.repeat(501)] }, { questions: ['same', 'same'] }, { questions: [1] }, { questions: Array(101).fill('x') }]) assert.equal(validateState(value), null);
 });
 
+test('seeds are exactly one instructor example and one learner example', () => {
+  const instructor = { id: 'a', question: 'Can I practise with a partner?', author: 'instructor', answer: 'Yes.' };
+  const learner = { id: 'b', question: 'How do you practise when you feel nervous?', author: 'learner', answer: 'Slowly.' };
+  validateContent({ ...example, seeds: [instructor, learner] });
+  validateContent({ ...example, seeds: [learner, instructor] });
+  for (const seeds of [[], [instructor], [instructor, { ...learner, author: 'instructor' }], [{ ...instructor, author: 'learner' }, learner], [instructor, learner, { ...learner, id: 'c' }]]) {
+    assert.throws(() => validateContent({ ...example, seeds }), /Invalid seeds/);
+  }
+});
+
 test('bilingual no-JS markup contains full FAQ, outline links and one empty status per instance', async () => {
   assert.deepEqual(Object.keys(strings.en), Object.keys(strings.fr));
   for (const lang of ['en', 'fr']) {
