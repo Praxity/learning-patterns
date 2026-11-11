@@ -7,12 +7,10 @@
       "greeting": "Hello,",
       "body": [
         [
-          "Thank you for your email.",
           "I am currently out of the office with limited access to email until Monday, October 14."
         ],
         [
-          "If your matter is urgent, please contact the office.",
-          "I apologize for any inconvenience and will respond as soon as possible on my return."
+          "If your matter is urgent, please contact the office."
         ]
       ],
       "signoff": "Kind regards,\nSam Rivera"
@@ -25,8 +23,7 @@
           "I'm away until Monday, October 14, and not reading email."
         ],
         [
-          "For an urgent order, call Jo Mensah at 514-\u2060555-\u20600142.",
-          "For anything else, I'll reply when I'm back."
+          "For an urgent order, call Jo Mensah at 514-\u2060555-\u20600142."
         ]
       ],
       "signoff": "Thanks,\nSam Rivera"

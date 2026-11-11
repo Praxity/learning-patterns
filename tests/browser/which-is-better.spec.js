@@ -90,7 +90,7 @@ test('keyboard journey: error, one choice per question, arrow keys, focus on eac
   await expect(page.getByRole('group', { name: 'Version B', exact: true }).getByRole('button')).toHaveCount(b.length);
 
   // Tab order: Version A's body sentences, Version B's, Neither, then Check.
-  const order = ['a1', 'a2', 'a3', 'a4', 'b1', 'b2', 'b3', 'neither'];
+  const order = ['a1', 'a2', 'b1', 'b2', 'neither'];
   for (const value of order) { await page.keyboard.press('Tab'); await expect(pick(page, value)).toBeFocused(); }
   await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-check]')).toBeFocused();
 
@@ -108,11 +108,11 @@ test('keyboard journey: error, one choice per question, arrow keys, focus on eac
   await expect(error).toBeHidden(); await expect(page.locator('[aria-describedby="' + await error.getAttribute('id') + '"]')).toHaveCount(0);
   await expect(pick(page, 'a1')).toHaveAttribute('aria-pressed', 'true');
   // Arrows move through both emails and wrap; Home and End jump to the ends. Neither is a Tab stop only.
-  await page.keyboard.press('ArrowLeft'); await expect(pick(page, 'b3')).toBeFocused();
+  await page.keyboard.press('ArrowLeft'); await expect(pick(page, 'b2')).toBeFocused();
   await page.keyboard.press('ArrowDown'); await expect(pick(page, 'a1')).toBeFocused();
-  await page.keyboard.press('End'); await expect(pick(page, 'b3')).toBeFocused();
+  await page.keyboard.press('End'); await expect(pick(page, 'b2')).toBeFocused();
   await page.keyboard.press('Home'); await expect(pick(page, 'a1')).toBeFocused();
-  for (let i = 0; i < 5; i++) await page.keyboard.press('ArrowRight');
+  for (let i = 0; i < 3; i++) await page.keyboard.press('ArrowRight');
   await expect(pick(page, 'b2')).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(page.locator('[aria-pressed="true"]')).toHaveCount(1);
@@ -135,7 +135,7 @@ test('keyboard journey: error, one choice per question, arrow keys, focus on eac
   await expect(verdict.locator('svg')).toBeVisible();
   await expect(pick(page, 'b2')).toHaveAttribute('data-lp-mark', 'correct');
   await expect(page.locator('[data-lp-mark]')).toHaveCount(1);
-  await expect(page.locator('.lp-which-is-better-chunk[aria-disabled="true"]')).toHaveCount(7);
+  await expect(page.locator('.lp-which-is-better-chunk[aria-disabled="true"]')).toHaveCount(4);
   await expect(pick(page, 'neither')).toBeDisabled();
   await expect(page.locator('[data-lp-check]')).toBeHidden();
   await expectSentenceMarks(page);
@@ -164,7 +164,7 @@ test('keyboard journey: error, one choice per question, arrow keys, focus on eac
   await page.locator('[data-lp-next]').click();
 
   // The right version with the wrong sentence is wrong too, and the hidden line quotes the right one.
-  await decide(page, 'b3', { next: false });
+  await decide(page, 'b2', { next: false });
   await expect(feedback).toHaveText(`Incorrect. Correct answer, in Version B: ${b[0]} ${english.qualities[2].reason}`);
   await expect(page.locator('[data-lp-next]')).toHaveText('Show the summary');
   await expectSentenceMarks(page);
@@ -184,7 +184,7 @@ test('keyboard journey: error, one choice per question, arrow keys, focus on eac
   await expect(end.locator('.lp-which-is-better-subject')).toHaveText(`Subject: ${english.versions.b.subject}`);
   await expect(end.locator('.lp-label')).toHaveText(['Missing from both versions']);
   await expect(end.locator('.lp-which-is-better-missing li')).toHaveText([english.qualities[1].note]);
-  expect(await page.evaluate(() => window.lpSaved)).toEqual({ at: 3, picks: ['b2', 'b2', 'b3'] });
+  expect(await page.evaluate(() => window.lpSaved)).toEqual({ at: 3, picks: ['b2', 'b2', 'b2'] });
   expect(await announcements(page)).toEqual([]);
 
   // Start over: back to question 1, nothing chosen, one announcement.
@@ -247,34 +247,45 @@ test('a chosen sentence takes the highlighter and an accent underline; a correct
 
 test('results follow Highlight the key passage: the pick keeps its highlighter, the missed answer is dashed with no fill', async ({ page }) => {
   await open(page);
-  await decide(page, 'a3', { next: false });
+  await decide(page, 'a2', { next: false });
   // A wrong pick keeps its yellow and has no underline.
-  await expect(pick(page, 'a3')).toHaveCSS('background-color', HIGHLIGHTER);
-  await expect(pick(page, 'a3')).toHaveCSS('text-decoration-line', 'none');
+  await expect(pick(page, 'a2')).toHaveCSS('background-color', HIGHLIGHTER);
+  await expect(pick(page, 'a2')).toHaveCSS('text-decoration-line', 'none');
   // The right sentence the learner missed: dashed underline, no fill.
   await expect(pick(page, 'b2')).toHaveCSS('background-color', CLEAR);
   await expect(pick(page, 'b2')).toHaveCSS('text-decoration-style', 'dashed');
   await expectSentenceMarks(page);
 });
 
-test('each mark sits on its own line under its sentence, without a pill, and the next sentence starts a paragraph gap below', async ({ page }) => {
+test('each mark and each summary note sits on its own line under its sentence, and the next sentence starts a paragraph gap below', async ({ page }) => {
+  // The sample has one sentence per paragraph; a sentence after each answer puts text after the mark and the note.
+  const content = structuredClone(english);
+  content.versions.a.body[1].push('I apologize for any inconvenience.');
+  content.versions.b.body[1].push("For anything else, I'll reply when I'm back.");
   for (const width of [375, 1280]) {
-    await page.setViewportSize({ width, height: 900 }); await open(page);
-    await decide(page, 'a3', { next: false });
+    await page.setViewportSize({ width, height: 900 }); await mount(page, content);
+    await decide(page, 'a2', { next: false });
     const placed = await page.locator('.lp-which-is-better-body .lp-choice-mark').evaluateAll(marks => marks.map(mark => {
       const sentence = [...mark.previousElementSibling.getClientRects()].at(-1), badge = mark.getBoundingClientRect();
-      const line = mark.closest('p').getBoundingClientRect(), after = mark.nextElementSibling?.getClientRects()[0];
+      const line = mark.closest('p').getBoundingClientRect(), after = mark.nextElementSibling.getClientRects()[0];
       return {
         below: badge.top >= sentence.bottom - 1, indented: badge.left >= line.left + 11,
-        plain: getComputedStyle(mark).backgroundColor === 'rgba(0, 0, 0, 0)',
-        gap: after ? after.top - badge.bottom : null
+        plain: getComputedStyle(mark).backgroundColor === 'rgba(0, 0, 0, 0)', gap: after.top - badge.bottom
       };
     }));
     expect(placed.length).toBe(2);
     for (const { below, indented, plain, gap } of placed) {
       expect({ below, indented, plain }, `${width}px`).toEqual({ below: true, indented: true, plain: true });
-      if (gap !== null) expect(gap, `${width}px`).toBeGreaterThanOrEqual(11);
+      expect(gap, `${width}px`).toBeGreaterThanOrEqual(11);
     }
+    // The sentence after a summary note starts a paragraph gap below it, so it doesn't read as part of the note.
+    await page.locator('[data-lp-next]').click(); await decide(page, 'neither'); await decide(page, 'b1');
+    const gap = await page.locator('.lp-which-is-better-note').nth(1).evaluate(note => {
+      const range = note.ownerDocument.createRange(); range.selectNodeContents(note.nextSibling);
+      const first = [...range.getClientRects()].find(rect => rect.width > 4);
+      return first.top - note.getBoundingClientRect().bottom;
+    });
+    expect(gap, `${width}px summary`).toBeGreaterThanOrEqual(11);
   }
 });
 
@@ -384,7 +395,7 @@ for (const [lang, content, labels] of [
     await page.addStyleTag({ content: TEXT_SPACING });
     for (const stage of ['initial', 'error', 'chosen', 'checked', 'neither', 'summary']) {
       if (stage === 'error') await page.locator('[data-lp-check]').click();
-      if (stage === 'chosen') await pick(page, 'a3').click();
+      if (stage === 'chosen') await pick(page, 'a2').click();
       if (stage === 'checked') await page.locator('[data-lp-check]').click();
       if (stage === 'neither') { await page.locator('[data-lp-next]').click(); await decide(page, 'b2', { next: false }); }
       if (stage === 'summary') { await page.locator('[data-lp-next]').click(); await decide(page, 'b1'); }
@@ -418,13 +429,6 @@ test('the emails sit side by side on a wide card and stack on a phone, and each 
       // Half a pixel of slack: Firefox rounds the two boxes' edges differently when they touch.
       expect(note.y).toBeGreaterThanOrEqual(sentence.y + sentence.height - 0.5);
     }
-    // The sentence after a note starts a paragraph gap below it, so it doesn't read as part of the note.
-    const gap = await page.locator('.lp-which-is-better-note').nth(1).evaluate(note => {
-      const text = note.nextSibling, range = note.ownerDocument.createRange(); range.selectNodeContents(text);
-      const first = [...range.getClientRects()].find(rect => rect.width > 4);
-      return first.top - note.getBoundingClientRect().bottom;
-    });
-    expect(gap, `${width}px`).toBeGreaterThanOrEqual(11);
   }
 });
 
@@ -468,7 +472,7 @@ for (const [seed, question, checked, after] of [[{ at: 1, picks: ['b2'] }, 2, fa
     await expect(page.locator('[data-lp-progress]')).toHaveText(`Question ${question} of 3`);
     await expect(page.locator('[data-lp-feedback]')).toBeVisible({ visible: checked });
     await expect(page.locator('[data-lp-mark]')).toHaveCount(checked ? 2 : 0);
-    await expect(page.locator('.lp-which-is-better-chunk[aria-disabled="true"]')).toHaveCount(checked ? 7 : 0);
+    await expect(page.locator('.lp-which-is-better-chunk[aria-disabled="true"]')).toHaveCount(checked ? 4 : 0);
     await expect(page.locator('button[data-lp-pick]:disabled')).toHaveCount(checked ? 1 : 0);
     await expect(page.locator('[data-lp-next]')).toBeVisible({ visible: checked });
     await expect(page.locator('[role="status"]')).toHaveText('');
@@ -517,10 +521,10 @@ for (const width of [320, 1280]) test(`worst-case authored text wraps inside the
   content.title = `Compare ${token}`;
   content.versions.a.subject = `Re: ${token}`;
   content.versions.a.body.push([`${token} ${'More words in a long sentence. '.repeat(6)}`.slice(0, 300)]);
-  content.versions.b.body[1][1] = `Send ${token} to Jo.`;
+  content.versions.b.body[1].push(`Send ${token} to Jo.`);
   content.versions.b.signoff = `Thanks,\n${token}`;
   content.qualities[0].note = `Who to call about ${token}`;
-  await mount(page, content, { state: { at: 0, picks: ['a5'] } });
+  await mount(page, content, { state: { at: 0, picks: ['a3'] } });
   const overflow = async () => page.evaluate(() => {
     const card = document.querySelector('[data-lp-pattern]').getBoundingClientRect();
     return document.documentElement.scrollWidth <= innerWidth && Math.max(...[...document.querySelectorAll('[data-lp-pattern] *')].filter(el => el.getClientRects().length && !el.closest('.lp-visually-hidden')).map(el => el.getBoundingClientRect().right - card.right)) <= 0;
@@ -578,13 +582,13 @@ test('forced colours keep the choice, the highlight, the marks and focus distinc
   const ring = locator => locator.evaluate(el => { const css = getComputedStyle(el); return [css.outlineWidth, css.outlineStyle]; });
   await page.keyboard.press('Tab'); await expect(pick(page, 'a1')).toBeFocused();
   expect(await ring(pick(page, 'a1'))).toEqual(['3px', 'solid']);
-  await pick(page, 'b3').click();
-  const chosen = await pick(page, 'b3').evaluate(el => { const css = getComputedStyle(el); return [css.backgroundColor, css.forcedColorAdjust, css.textDecorationLine]; });
+  await pick(page, 'a2').click();
+  const chosen = await pick(page, 'a2').evaluate(el => { const css = getComputedStyle(el); return [css.backgroundColor, css.forcedColorAdjust, css.textDecorationLine]; });
   expect(chosen[1]).toBe('none'); expect(chosen[0]).not.toBe(CLEAR); expect(chosen[2]).toBe('underline');
   await page.locator('[data-lp-check]').click();
   // The wrong pick keeps the mark colours; the missed answer has a dashed underline and no fill.
   // Forced colours report transparent with the canvas RGB, so the alpha is what says "no fill".
-  await expect(pick(page, 'b3')).not.toHaveCSS('background-color', TRANSPARENT);
+  await expect(pick(page, 'a2')).not.toHaveCSS('background-color', TRANSPARENT);
   await expect(pick(page, 'b2')).toHaveCSS('text-decoration-style', 'dashed');
   await expect(pick(page, 'b2')).toHaveCSS('background-color', TRANSPARENT);
   await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-next]')).toBeFocused();

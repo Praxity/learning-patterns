@@ -61,13 +61,13 @@ test('content rejects unknown fields, blank text and wrong shapes', () => {
 });
 
 test('every sentence answer is a body sentence of the better version, counted across paragraphs, used once, and one must exist', () => {
-  for (const sentence of [0, 4, 1.5, '2']) assert.throws(() => validateContent(edited(c => { c.qualities[0].sentence = sentence; })), /qualities\[0\]\.sentence/);
-  // Sentence 3 is the second sentence of Version B's second paragraph; it is free in the sample.
-  assert.doesNotThrow(() => validateContent(edited(c => { c.qualities[0].sentence = 3; })));
+  for (const sentence of [0, 3, 1.5, '2']) assert.throws(() => validateContent(edited(c => { c.qualities[0].sentence = sentence; })), /qualities\[0\]\.sentence/);
+  // A sentence added to Version B's second paragraph is sentence 3: numbers count across paragraphs.
+  assert.doesNotThrow(() => validateContent(edited(c => { c.versions.b.body[1].push('Three.'); c.qualities[0].sentence = 3; })));
   assert.throws(() => validateContent(edited(c => { c.qualities[2].sentence = 2; })), /qualities\[2\]\.sentence: another quality/);
   assert.throws(() => validateContent(edited(c => { for (const q of c.qualities) q.sentence = null; })), /at least one/);
-  // Counting follows the better version: Version A has four sentences here, so a fifth fails.
-  const longer = edited(c => { c.versions.b.body.push(['Four.', 'Five.']); c.qualities[0].sentence = 5; });
+  // Counting follows the better version: Version A has two sentences here, so a fourth fails.
+  const longer = edited(c => { c.versions.b.body.push(['Three.', 'Four.']); c.qualities[0].sentence = 4; });
   assert.doesNotThrow(() => validateContent(longer));
   assert.throws(() => validateContent({ ...longer, better: 'a' }), /qualities\[0\]\.sentence/);
 });
@@ -85,49 +85,52 @@ test('the English title keeps "out-of-office" on one line with non-breaking hyph
 
 test('answers, names and the answer text', () => {
   assert.deepEqual(en.qualities.map((_, i) => answer(en, i)), ['b2', 'neither', 'b1']);
-  assert.equal(pickName(en, strings.en, 'a3'), 'Version A');
+  assert.equal(pickName(en, strings.en, 'a2'), 'Version A');
   assert.equal(pickName(fr, strings.fr, 'b2'), 'Version B');
   assert.equal(pickName(en, strings.en, 'neither'), 'Neither version does this');
   assert.equal(answerText(en, strings.en, 0), 'Correct answer, in Version B: For an urgent order, call Jo Mensah at 514-\u2060555-\u20600142.');
   assert.equal(answerText(en, strings.en, 2), "Correct answer, in Version B: I'm away until Monday, October 14, and not reading email.");
   assert.equal(answerText(en, strings.en, 1), 'Correct answer: Neither version does this.');
   assert.equal(answerText(fr, strings.fr, 1), 'Bonne réponse : Aucune des deux versions ne le fait.');
-  // Sentences count across paragraphs: Version A's fourth is the second of its second paragraph.
-  for (const pick of ['a1', 'a4', 'b3', 'neither']) assert.equal(isPick(en, pick), true, pick);
-  for (const pick of ['a0', 'a5', 'b4', 'c1', 'b01', 'B1', '', null, 2]) assert.equal(isPick(en, pick), false, String(pick));
+  // Sentences count across paragraphs: Version A's second is the only sentence of its second paragraph.
+  for (const pick of ['a1', 'a2', 'b2', 'neither']) assert.equal(isPick(en, pick), true, pick);
+  for (const pick of ['a0', 'a3', 'b3', 'c1', 'b01', 'B1', '', null, 2]) assert.equal(isPick(en, pick), false, String(pick));
 });
 
 test('score gives one count: a pick is right only when it is the answer sentence, or Neither when neither does it', () => {
   assert.deepEqual(score(en, []), { results: [], right: 0, total: 3, done: false });
   assert.deepEqual(score(en, ['b2', 'neither', 'b1']), { results: [true, true, true], right: 3, total: 3, done: true });
   // The right version with the wrong sentence, and a sentence where neither version does it, both count as wrong.
-  assert.deepEqual(score(en, ['b3', 'a3', 'b1']), { results: [false, false, true], right: 1, total: 3, done: true });
+  assert.deepEqual(score(en, ['b1', 'a2', 'b1']), { results: [false, false, true], right: 1, total: 3, done: true });
   assert.deepEqual(score(en, ['neither', 'b2']), { results: [false, false], right: 0, total: 3, done: false });
-  assert.throws(() => score(en, ['b4']), /picks\[0\]/);
+  assert.throws(() => score(en, ['b3']), /picks\[0\]/);
   assert.throws(() => score(en, ['b1', 'b1', 'b1', 'b1']), /picks/);
 });
 
 test('the summary gives the better version paragraph by paragraph with a note on each answer sentence, then what both miss', () => {
-  const [[first], [second, third]] = en.versions.b.body;
+  const [[first], [second]] = en.versions.b.body;
   assert.deepEqual(summary(en), {
     version: 'b',
     paragraphs: [
       [{ text: first, note: 'Whether you\'ll read email' }],
-      [{ text: second, note: 'Who to call for an urgent order' }, { text: third, note: null }]
+      [{ text: second, note: 'Who to call for an urgent order' }]
     ],
     missing: ['What counts as urgent']
   });
-  assert.deepEqual(summary(edited(c => { c.qualities[1].sentence = 3; })).missing, []);
+  // A sentence no question names has no note.
+  const third = edited(c => { c.versions.b.body[1].push('Three.'); });
+  assert.deepEqual(summary(third).paragraphs[1], [{ text: second, note: 'Who to call for an urgent order' }, { text: 'Three.', note: null }]);
+  assert.deepEqual(summary(edited(c => { c.versions.b.body[1].push('Three.'); c.qualities[1].sentence = 3; })).missing, []);
 });
 
 test('saved state is copied when valid and ignored otherwise', () => {
-  for (const saved of [{ at: 0, picks: [] }, { at: 0, picks: ['a1'] }, { at: 1, picks: ['a4'] }, { at: 2, picks: ['a1', 'neither', 'b3'] }, { at: 3, picks: ['b2', 'neither', 'b1'] }]) {
+  for (const saved of [{ at: 0, picks: [] }, { at: 0, picks: ['a1'] }, { at: 1, picks: ['a2'] }, { at: 2, picks: ['a1', 'neither', 'b2'] }, { at: 3, picks: ['b2', 'neither', 'b1'] }]) {
     const copy = validateState(en, saved);
     assert.deepEqual(copy, saved);
     assert.notEqual(copy.picks, saved.picks);
   }
   for (const value of [undefined, null, 'x', [], {}, { at: 0 }, { picks: [] }, { at: -1, picks: [] }, { at: 4, picks: ['b2', 'b2', 'b2'] },
-    { at: 1, picks: [] }, { at: 0, picks: ['a1', 'a2'] }, { at: 3, picks: ['b2', 'neither'] }, { at: 0, picks: ['z9'] }, { at: 0, picks: ['b4'] }, { at: 1.5, picks: ['a1'] }, { at: 0, picks: [], shown: true }]) {
+    { at: 1, picks: [] }, { at: 0, picks: ['a1', 'a2'] }, { at: 3, picks: ['b2', 'neither'] }, { at: 0, picks: ['z9'] }, { at: 0, picks: ['b3'] }, { at: 1.5, picks: ['a1'] }, { at: 0, picks: [], shown: true }]) {
     assert.equal(validateState(en, value), null, JSON.stringify(value));
   }
 });
@@ -161,9 +164,9 @@ for (const [lang, content] of [['en', en], ['fr', fr]]) {
     const output = render(content, strings[lang], { id: 'pair', lang });
     const step = output.slice(output.indexOf('data-lp-step'), output.indexOf('data-lp-summary'));
     const toggles = [...step.matchAll(/<span class="lp-which-is-better-chunk" role="button" tabindex="0" aria-pressed="false" data-lp-pick="([^"]+)">([^<]*)<\/span>/g)];
-    assert.deepEqual(toggles.map(match => match[1]), ['a1', 'a2', 'a3', 'a4', 'b1', 'b2', 'b3']);
+    assert.deepEqual(toggles.map(match => match[1]), ['a1', 'a2', 'b1', 'b2']);
     // A toggle's name is its own words.
-    assert.equal(toggles[5][2], html(content.versions.b.body[1][0], lang));
+    assert.equal(toggles[3][2], html(content.versions.b.body[1][0], lang));
     const b = content.versions.b, subject = lang === 'fr' ? 'Objet\u00a0:' : 'Subject:';
     assert.ok(step.includes(`<div class="lp-which-is-better-email" role="group" aria-labelledby="pair-b"><h3 class="lp-run-in" id="pair-b">Version B</h3><p class="lp-which-is-better-subject"><span class="lp-which-is-better-field">${subject}</span> ${html(b.subject, lang)}</p><div class="lp-quote lp-which-is-better-body"><p>${html(b.greeting, lang)}</p><p><span class="lp-which-is-better-chunk"`));
     // The paragraphs keep their sentences together, and the sign-off closes the body as text.
@@ -213,15 +216,17 @@ test('the summary shows the better email with each answer sentence marked and it
   assert.equal((end.match(/<mark>/g) ?? []).length, 2);
   // "Version B" is said to screen readers only; the heading above already names it.
   assert.match(end, /<div class="lp-which-is-better-email"><p class="lp-visually-hidden">Version B<\/p><p class="lp-which-is-better-subject">/);
-  const [[first], [second, third]] = en.versions.b.body;
+  const [[first], [second]] = en.versions.b.body;
   const noted = (text, note) => `<mark>${html(text)}</mark><span class="lp-which-is-better-note"><span class="lp-visually-hidden">This sentence shows: </span>${html(note)}</span>`;
   assert.ok(end.includes(`<p>${noted(first, en.qualities[2].note)}</p>`));
+  assert.ok(end.includes(`<p>${noted(second, en.qualities[0].note)}</p>`));
   // A sentence with no note stays plain text in its paragraph.
-  assert.ok(end.includes(`<p>${noted(second, en.qualities[0].note)} ${html(third)}</p>`));
+  const plain = render(edited(c => { c.versions.b.body[1].push('Three.'); }), strings.en, { id: 's', lang: 'en' });
+  assert.ok(plain.includes(`<p>${noted(second, en.qualities[0].note)} Three.</p>`));
   assert.ok(end.includes('<p class="lp-label">Missing from both versions</p>\n      <ul class="lp-which-is-better-missing" role="list"><li>What counts as urgent</li></ul>'));
   // With no Neither question there is nothing missing to list.
-  assert.doesNotMatch(render(edited(c => { c.qualities[1].sentence = 3; }), strings.en, { id: 's', lang: 'en' }), /Missing from both/);
-  const better = render({ ...en, better: 'a', qualities: en.qualities.map(q => ({ ...q, sentence: q.sentence && 4 - q.sentence })) }, strings.en, { id: 's', lang: 'en' });
+  assert.doesNotMatch(render(edited(c => { c.versions.b.body[1].push('Three.'); c.qualities[1].sentence = 3; }), strings.en, { id: 's', lang: 'en' }), /Missing from both/);
+  const better = render({ ...en, better: 'a', qualities: en.qualities.map(q => ({ ...q, sentence: q.sentence && 3 - q.sentence })) }, strings.en, { id: 's', lang: 'en' });
   assert.match(better, /What makes Version A better/);
   assert.ok(better.slice(better.indexOf('data-lp-summary')).includes(`<mark>${html(en.versions.a.body[1][0])}</mark>`));
 });
