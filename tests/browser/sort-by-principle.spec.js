@@ -59,7 +59,7 @@ test('keyboard journey: error, a miss, the lure, a hit, the result with mixed-up
   await expect(panel(page, 0).locator('[data-lp-case-heading]')).toHaveText('Case 1 of 4');
   await expect(page.locator('[data-lp-fallback]:visible, [data-lp-result]:visible')).toHaveCount(0);
   // Each row gives the principle's name, then its rule.
-  await expect(panel(page, 0).locator('.lp-choice').nth(1)).toHaveAccessibleName(`Ask an open question. ${english.principles[1].rule}`);
+  await expect(panel(page, 0).getByRole('radio').nth(1)).toHaveAccessibleName(/^Ask an open question\s*\.\s+The facts are agreed, but not the cause\. Ask what got in the way\.$/);
 
   // Checking with nothing chosen names the problem in the group and focuses its first option.
   await page.keyboard.press('Tab'); await expect(panel(page, 0).getByRole('radio').first()).toBeFocused();
