@@ -1,0 +1,17 @@
+/* Sort-by-principle specifics. Link lib/base.css first for shared styles and tokens. */
+/* Each choice row names the principle, then gives its rule on a second line in the quieter ink. */
+.lp-sort-by-principle-name { display: block; font-weight: 600; }
+.lp-sort-by-principle-rule { display: block; margin-block-start: 2px; color: var(--lp-ink-2); }
+/* The feedback belongs to the rows above it, so it sits closer to them than to the buttons. */
+.lp-sort-by-principle-feedback { margin-block-start: var(--lp-gap-stem); }
+.lp-sort-by-principle-pairs { display: grid; gap: var(--lp-gap-hint); margin: 0; padding-inline-start: 24px; }
+/* A case change is a view change, so it eases in and out (AGENTS.md, Motion). */
+.lp-sort-by-principle-enter { animation: lp-sort-by-principle-slide 240ms cubic-bezier(.65, 0, .35, 1); }
+@keyframes lp-sort-by-principle-slide { from { opacity: 0; transform: translateX(16px); } }
+@media (prefers-reduced-motion: reduce) {
+  .lp-sort-by-principle-enter { animation: none; }
+}
+@media (forced-colors: active) {
+  /* Underlining keeps the quiet reset distinct when system colours replace button fills. */
+  .lp-sort-by-principle .lp-button-quiet { text-decoration: underline; text-underline-offset: 3px; }
+}

@@ -1,0 +1,52 @@
+{
+  "title": "Choose a principle for each feedback talk",
+  "context": "You lead a small team and give each person feedback one on one.",
+  "question": "Which principle should you apply now?",
+  "principles": [
+    {
+      "id": "name",
+      "name": "Name the behaviour",
+      "rule": "The facts are not agreed yet. Say what you saw or heard, without a judgement."
+    },
+    {
+      "id": "ask",
+      "name": "Ask an open question",
+      "rule": "The facts are agreed, but the cause is not known. Ask what got in the way."
+    },
+    {
+      "id": "agree",
+      "name": "Agree the next action",
+      "rule": "You both know the cause. Agree who does what, and when you will check."
+    }
+  ],
+  "cases": [
+    {
+      "text": "Sam agrees the last two handover notes did not say who owns each task, and you have both found why: the new template hides that field. You are about to ask, \"So what will you change?\"",
+      "correct": "agree",
+      "lure": "ask",
+      "looksLike": "Your line is a question, so it can look like Ask an open question.",
+      "decides": "Sam agrees what happened and you both know why, so asking what will change is the next step. Agree who changes the template and when you will check."
+    },
+    {
+      "text": "Jo says, \"I didn't interrupt anyone in Monday's meeting.\" You are about to reply, \"From now on, let people finish.\"",
+      "correct": "name",
+      "lure": "agree",
+      "looksLike": "\"From now on\" sounds like Agree the next action.",
+      "decides": "Jo disputes what happened, so the facts are not agreed. Say what you saw: who was speaking, and when Jo started talking."
+    },
+    {
+      "text": "Alex agrees they talked over Priya twice in Monday's meeting and offers to wait until the end next time. Neither of you knows why it happened.",
+      "correct": "ask",
+      "lure": "agree",
+      "looksLike": "Alex's offer sounds like Agree the next action.",
+      "decides": "The facts are agreed, but nobody knows why, so the offer may not stop it next time. Ask what was going on."
+    },
+    {
+      "text": "Maya's last two handover notes did not say who owns each task, and you have not raised it yet. Your planned first line is \"Why don't you care about handovers?\"",
+      "correct": "name",
+      "lure": "ask",
+      "looksLike": "Your line is a question, so it can look like Ask an open question.",
+      "decides": "Nothing has been raised, so the facts are not agreed, and \"don't care\" is a judgement. Start with the missing names."
+    }
+  ]
+}

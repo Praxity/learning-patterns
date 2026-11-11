@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Sort cases by principle content",
+  "type": "object",
+  "required": [
+    "title",
+    "question",
+    "principles",
+    "cases"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "pattern": "S"
+    },
+    "context": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 400,
+      "pattern": "S"
+    },
+    "question": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "S"
+    },
+    "principles": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 4,
+      "x-uniqueBy": "id",
+      "x-uniqueNames": true,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "rule"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9_-]+$",
+            "maxLength": 60
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 60,
+            "pattern": "S"
+          },
+          "rule": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120,
+            "pattern": "S"
+          }
+        }
+      }
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 4,
+      "x-everyPrincipleCorrect": true,
+      "items": {
+        "type": "object",
+        "required": [
+          "text",
+          "correct",
+          "lure",
+          "looksLike",
+          "decides"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300,
+            "pattern": "S"
+          },
+          "correct": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 60,
+            "x-principleReference": true,
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          },
+          "lure": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 60,
+            "x-principleReference": true,
+            "x-differsFrom": "correct",
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          },
+          "looksLike": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 150,
+            "pattern": "S"
+          },
+          "decides": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 150,
+            "pattern": "S"
+          }
+        }
+      }
+    }
+  }
+}

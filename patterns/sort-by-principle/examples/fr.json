@@ -1,0 +1,52 @@
+{
+  "title": "Choisir un principe pour chaque échange de rétroaction",
+  "context": "Vous dirigez une petite équipe et donnez de la rétroaction à chaque personne en rencontre individuelle.",
+  "question": "Quel principe devez-vous appliquer maintenant ?",
+  "principles": [
+    {
+      "id": "name",
+      "name": "Nommer le comportement",
+      "rule": "Vous ne vous entendez pas encore sur les faits. Dites ce que vous avez vu ou entendu, sans jugement."
+    },
+    {
+      "id": "ask",
+      "name": "Poser une question ouverte",
+      "rule": "Vous vous entendez sur les faits, mais la cause reste inconnue. Demandez ce qui a fait obstacle."
+    },
+    {
+      "id": "agree",
+      "name": "Convenir de la prochaine action",
+      "rule": "La cause est connue de vous et de l’autre personne. Convenez de qui fait quoi, et de la date du suivi."
+    }
+  ],
+  "cases": [
+    {
+      "text": "Sam reconnaît que ses deux dernières notes de passation n’indiquaient pas qui est responsable de chaque tâche, et vous avez trouvé pourquoi : le nouveau gabarit cache ce champ. Vous allez demander : « Alors, qu’allez-vous changer ? »",
+      "correct": "agree",
+      "lure": "ask",
+      "looksLike": "Votre phrase est une question, ce qui peut la faire ressembler à Poser une question ouverte.",
+      "decides": "Sam reconnaît les faits et vous savez pourquoi : demander ce qui va changer est la bonne étape. Convenez de qui modifie le gabarit et du suivi."
+    },
+    {
+      "text": "Jo dit : « Je n’ai interrompu personne à la réunion de lundi. » Vous allez répondre : « Dorénavant, laissez les gens finir. »",
+      "correct": "name",
+      "lure": "agree",
+      "looksLike": "« Dorénavant » ressemble à Convenir de la prochaine action.",
+      "decides": "Jo conteste ce qui s’est passé, donc vous ne vous entendez pas sur les faits. Dites ce que vous avez vu : qui parlait, et quand Jo a pris la parole."
+    },
+    {
+      "text": "Alex reconnaît avoir coupé la parole à Priya deux fois à la réunion de lundi et propose d’attendre la fin la prochaine fois. Ni vous ni Alex ne savez pourquoi c’est arrivé.",
+      "correct": "ask",
+      "lure": "agree",
+      "looksLike": "La proposition d’Alex ressemble à Convenir de la prochaine action.",
+      "decides": "Vous vous entendez sur les faits, mais personne ne sait pourquoi, donc sa proposition pourrait ne pas suffire. Demandez ce qui se passait."
+    },
+    {
+      "text": "Les deux dernières notes de passation de Maya n’indiquaient pas qui est responsable de chaque tâche, et vous n’en avez pas encore parlé. Votre première phrase prévue : « Pourquoi les passations ne vous intéressent-elles pas ? »",
+      "correct": "name",
+      "lure": "ask",
+      "looksLike": "Votre phrase est une question, ce qui peut la faire ressembler à Poser une question ouverte.",
+      "decides": "Rien n’a été abordé, donc vous ne vous entendez pas sur les faits, et « ne vous intéressent pas » est un jugement. Commencez par les noms manquants."
+    }
+  ]
+}
