@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Which is better, and why content",
+  "type": "object",
+  "required": ["title", "context", "versions", "better", "qualities"],
+  "additionalProperties": false,
+  "properties": {
+    "title": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "context": { "type": "string", "minLength": 1, "maxLength": 400 },
+    "versions": {
+      "type": "object", "required": ["a", "b"], "additionalProperties": false,
+      "description": "Two versions of the same piece of work, one sentence per item.",
+      "properties": {
+        "a": { "type": "array", "minItems": 2, "maxItems": 5, "items": { "type": "string", "minLength": 1, "maxLength": 300 } },
+        "b": { "type": "array", "minItems": 2, "maxItems": 5, "items": { "type": "string", "minLength": 1, "maxLength": 300 } }
+      }
+    },
+    "better": { "enum": ["a", "b"], "description": "The better version. Every sentence answer is in it." },
+    "qualities": {
+      "type": "array", "minItems": 2, "maxItems": 4,
+      "x-oneNamesSentence": true, "x-uniqueBy": "sentence",
+      "items": {
+        "type": "object", "required": ["question", "sentence", "reason", "note"], "additionalProperties": false,
+        "properties": {
+          "question": { "type": "string", "minLength": 1, "maxLength": 400 },
+          "sentence": {
+            "type": ["integer", "null"], "minimum": 1, "maximum": 5,
+            "description": "The sentence in the better version that shows the quality, counted from 1, or null when neither version does."
+          },
+          "reason": { "type": "string", "minLength": 1, "maxLength": 600 },
+          "note": { "type": "string", "minLength": 1, "maxLength": 120 }
+        }
+      }
+    }
+  }
+}

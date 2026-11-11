@@ -1,0 +1,37 @@
+{
+  "title": "Compare two out-of-office replies",
+  "context": "You're on leave for a week, and customers email you about their orders.",
+  "versions": {
+    "a": [
+      "I am currently out of the office with limited access to email until Monday, October 14.",
+      "If your matter is urgent, please contact the office.",
+      "I apologize for any inconvenience and will respond as soon as possible on my return."
+    ],
+    "b": [
+      "I'm away until Monday, October 14, and not reading email.",
+      "For an urgent order, call Jo Mensah at 514-555-0142.",
+      "For anything else, I'll reply when I'm back."
+    ]
+  },
+  "better": "b",
+  "qualities": [
+    {
+      "question": "Which sentence tells a customer with an urgent order exactly who to call?",
+      "sentence": 2,
+      "reason": "Jo's name and number let a customer with an urgent order act today, not in a week. \"Contact the office\" gives no name and no number.",
+      "note": "Who to call for an urgent order"
+    },
+    {
+      "question": "Which sentence says what counts as an urgent order?",
+      "sentence": null,
+      "reason": "Both replies mention urgency, and neither says what counts, so each customer has to guess whether to call.",
+      "note": "What counts as urgent"
+    },
+    {
+      "question": "Which sentence says plainly whether you'll read email while you're away?",
+      "sentence": 1,
+      "reason": "\"Not reading email\" tells customers not to wait for an answer. Version A's \"limited access\" leaves them hoping for one.",
+      "note": "Whether you'll read email"
+    }
+  ]
+}

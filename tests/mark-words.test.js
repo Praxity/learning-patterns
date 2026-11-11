@@ -9,7 +9,7 @@ const MARKS = {
   fr: { markCorrect: 'Correct', markWrong: 'Incorrect', markAnswer: 'Bonne réponse' }
 };
 
-for (const pattern of ['answer-with-confidence', 'change-one-detail', 'dont-know', 'highlight', 'hint-ladder', 'mistake-recover', 'sort-by-principle', 'test-out']) {
+for (const pattern of ['answer-with-confidence', 'change-one-detail', 'dont-know', 'highlight', 'hint-ladder', 'mistake-recover', 'sort-by-principle', 'test-out', 'which-is-better']) {
   test(`${pattern} marks answers with the shared words in English and French`, async () => {
     const { strings } = await import(`../patterns/${pattern}/strings.js`);
     for (const lang of ['en', 'fr']) {

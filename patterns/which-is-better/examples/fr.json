@@ -1,0 +1,37 @@
+{
+  "title": "Comparer deux messages d’absence",
+  "context": "Vous êtes en congé pour une semaine, et la clientèle vous écrit au sujet de ses commandes.",
+  "versions": {
+    "a": [
+      "Je suis actuellement à l’extérieur du bureau, avec un accès limité à mes courriels, jusqu’au lundi 14 octobre.",
+      "Si votre demande est urgente, veuillez communiquer avec le bureau.",
+      "Je vous prie d’excuser tout inconvénient et je vous répondrai dès que possible à mon retour."
+    ],
+    "b": [
+      "Je suis en congé jusqu’au lundi 14 octobre et je ne lis pas mes courriels.",
+      "Pour une commande urgente, appelez Jo Mensah au 514 555-0142.",
+      "Pour toute autre demande, je vous répondrai à mon retour."
+    ]
+  },
+  "better": "b",
+  "qualities": [
+    {
+      "question": "Quelle phrase indique exactement qui appeler pour une commande urgente ?",
+      "sentence": 2,
+      "reason": "Le nom et le numéro de Jo permettent d’agir dès aujourd’hui plutôt que dans une semaine. « Communiquer avec le bureau » ne donne ni nom ni numéro.",
+      "note": "Qui appeler pour une commande urgente"
+    },
+    {
+      "question": "Quelle phrase précise ce qui compte comme une commande urgente ?",
+      "sentence": null,
+      "reason": "Les deux messages parlent d’urgence, mais aucun ne précise ce qui compte comme urgent : chaque personne doit deviner si elle doit appeler.",
+      "note": "Ce qui compte comme urgent"
+    },
+    {
+      "question": "Quelle phrase dit clairement si vous lirez vos courriels pendant votre absence ?",
+      "sentence": 1,
+      "reason": "« Je ne lis pas mes courriels » indique à la clientèle de ne pas attendre de réponse. Avec son « accès limité », la version A laisse espérer une réponse.",
+      "note": "Si vous lirez vos courriels"
+    }
+  ]
+}
