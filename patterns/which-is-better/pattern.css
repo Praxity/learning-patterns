@@ -5,7 +5,8 @@
 /* The two emails side by side, stacked in a narrow card. Each email spans three shared rows (version,
    subject, body), so the subjects and bodies start level and the two bodies end level. */
 .lp-which-is-better-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto auto 1fr; gap: 0 24px; }
-.lp-which-is-better-pair > .lp-which-is-better-email { display: grid; grid-row: span 3; grid-template-rows: subgrid; }
+/* minmax(0, 1fr): a long unbroken word wraps in its email instead of widening the column past the card. */
+.lp-which-is-better-pair > .lp-which-is-better-email { display: grid; grid-row: span 3; grid-template-rows: subgrid; grid-template-columns: minmax(0, 1fr); }
 
 /* An email: a plain header line, then the body in the shared quote block. No card of its own. */
 .lp-which-is-better-subject { margin-block-start: var(--lp-gap-hint); }
@@ -36,7 +37,9 @@
    wrong; before the check an accent underline also shows it on the grey body. A correct choice adds a
    green underline. The right sentence the learner missed gets a dashed underline and no fill. */
 .lp-which-is-better-chunk[aria-pressed="true"],
-.lp-which-is-better-body mark { margin: -1px -3px; padding: 1px 3px; color: var(--lp-ink); background: var(--lp-which-is-better-mark); }
+.lp-which-is-better-body mark { color: var(--lp-ink); background: var(--lp-which-is-better-mark); }
+/* As in Highlight, the highlight pads only above and below: side padding spilled past the end of a full line. */
+.lp-which-is-better-body mark { padding-block: 2px; border-radius: 3px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 .lp-which-is-better-chunk[aria-pressed="true"]:not([data-lp-mark]) { text-decoration: underline solid var(--lp-accent) 2px; text-underline-offset: 4px; }
 .lp-which-is-better-chunk[data-lp-mark="correct"] { text-decoration: underline solid var(--lp-success-ink) 2px; text-underline-offset: 4px; }
 .lp-which-is-better-chunk[data-lp-mark="missed"] { text-decoration: underline dashed var(--lp-ink-2) 2px; text-underline-offset: 4px; }
@@ -45,8 +48,9 @@
    hangs from it, with a paragraph's gap before the text that follows. The shared mark drops its pill:
    the email body is already a block, and a pill inside it would be a box inside a box. */
 .lp-which-is-better-body .lp-choice-mark,
-.lp-which-is-better-note { display: flex; inline-size: fit-content; margin: 2px 0 var(--lp-gap-stem) 12px; padding: 4px 0 0 10px; border-inline-start: 2px solid var(--lp-ink-2); border-radius: 0; background: none; font-size: var(--lp-type-small); font-weight: 600; line-height: 1.3; white-space: normal; }
-.lp-which-is-better-body .lp-choice-mark { gap: 4px; align-items: flex-start; }
+.lp-which-is-better-note { display: block; margin: 2px 0 var(--lp-gap-stem) 12px; padding: 4px 0 0 10px; border-inline-start: 2px solid var(--lp-ink-2); border-radius: 0; background: none; font-size: var(--lp-type-small); font-weight: 600; line-height: 1.3; white-space: normal; }
+/* Only the mark is a flex row (icon and word); a note stays a block so a long word in it can wrap. */
+.lp-which-is-better-body .lp-choice-mark { display: flex; gap: 4px; align-items: flex-start; }
 
 /* The verdict opens the feedback in the status colours, icon and word, so it shows wherever the page has scrolled. */
 .lp-which-is-better-verdict { display: flex; gap: 6px; align-items: flex-start; margin-block-end: var(--lp-gap-hint); font-weight: 600; }

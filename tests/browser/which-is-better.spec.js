@@ -8,6 +8,7 @@ const french = JSON.parse(await readFile(new URL('../../patterns/which-is-better
 const TEXT_SPACING = '*{line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important}p{margin-bottom:2em!important}';
 const HIGHLIGHTER = 'rgb(255, 228, 154)';
 const CLEAR = 'rgba(0, 0, 0, 0)';
+const TRANSPARENT = /^rgba\(\d+, \d+, \d+, 0\)$/;
 /** Body sentences in reading order, as picks count them. */
 const sentences = (content, version) => content.versions[version].body.flat();
 
@@ -26,7 +27,8 @@ async function observe(page) {
 const announcements = page => page.evaluate(() => window.lpAnnouncements);
 const scan = async page => expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()).violations).toEqual([]);
 // Engines may put a space before the hidden comma, since it is positioned out of flow; speech is the same.
-const groupName = (progress, question) => new RegExp(`^${progress} ?, ${question.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`);
+// Accessible names are whitespace-normalised, so French no-break spaces come back as plain spaces.
+const groupName = (progress, question) => new RegExp(`^${progress} ?, ${question.replace(/\s+/g, ' ').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`);
 const pick = (root, value) => root.locator(`[data-lp-pick="${value}"]`);
 /** Choose a sentence or Neither and check it, then go on with Next. */
 async function decide(root, value, { next = true } = {}) {
@@ -507,8 +509,9 @@ test('the pattern works in memory without a state adapter, with two questions an
   await expect(page.locator('[data-lp-progress]')).toHaveText('Question 1 of 2');
 });
 
-test('worst-case authored text wraps inside the card at 320px', async ({ page }) => {
-  await page.setViewportSize({ width: 320, height: 900 });
+// At 1280 the emails sit side by side: each column must wrap a long word rather than widen past the card.
+for (const width of [320, 1280]) test(`worst-case authored text wraps inside the card at ${width}px`, async ({ page }) => {
+  await page.setViewportSize({ width, height: 900 });
   const token = 'Q3-Client-Report_Northwind_Industries_Holdings_FINAL_v12_approved-by-legal.xlsx';
   const content = structuredClone(english);
   content.title = `Compare ${token}`;
@@ -522,9 +525,9 @@ test('worst-case authored text wraps inside the card at 320px', async ({ page })
     const card = document.querySelector('[data-lp-pattern]').getBoundingClientRect();
     return document.documentElement.scrollWidth <= innerWidth && Math.max(...[...document.querySelectorAll('[data-lp-pattern] *')].filter(el => el.getClientRects().length && !el.closest('.lp-visually-hidden')).map(el => el.getBoundingClientRect().right - card.right)) <= 0;
   });
-  expect(await overflow()).toBe(true);
+  expect(await overflow(), 'question').toBe(true);
   await page.locator('[data-lp-next]').click(); await decide(page, 'neither'); await decide(page, 'b1');
-  expect(await overflow()).toBe(true);
+  expect(await overflow(), 'summary').toBe(true);
 });
 
 test('the English title does not break inside "out-of-office" on a phone', async ({ page }) => {
@@ -580,9 +583,10 @@ test('forced colours keep the choice, the highlight, the marks and focus distinc
   expect(chosen[1]).toBe('none'); expect(chosen[0]).not.toBe(CLEAR); expect(chosen[2]).toBe('underline');
   await page.locator('[data-lp-check]').click();
   // The wrong pick keeps the mark colours; the missed answer has a dashed underline and no fill.
-  await expect(pick(page, 'b3')).not.toHaveCSS('background-color', CLEAR);
+  // Forced colours report transparent with the canvas RGB, so the alpha is what says "no fill".
+  await expect(pick(page, 'b3')).not.toHaveCSS('background-color', TRANSPARENT);
   await expect(pick(page, 'b2')).toHaveCSS('text-decoration-style', 'dashed');
-  await expect(pick(page, 'b2')).toHaveCSS('background-color', CLEAR);
+  await expect(pick(page, 'b2')).toHaveCSS('background-color', TRANSPARENT);
   await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-next]')).toBeFocused();
   expect(await ring(page.locator('[data-lp-next]'))).toEqual(['3px', 'solid']);
 });
@@ -675,6 +679,6 @@ for (const width of [390, 640]) test(`in the summary at ${width}px each highligh
   }));
   expect(lines.length).toBe(2);
   expect(lines.flat().length).toBeGreaterThanOrEqual(2);
-  // Only the 3px of padding on each side, as on the question screens.
-  for (const extra of lines.flat()) expect(extra).toBeLessThanOrEqual(6.5);
+  // No side padding, as in Highlight the key passage; a pixel of slack for rounding.
+  for (const extra of lines.flat()) expect(extra).toBeLessThanOrEqual(1);
 });

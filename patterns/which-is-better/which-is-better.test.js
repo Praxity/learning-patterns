@@ -237,7 +237,12 @@ test('the pattern stylesheet keeps its prefix, the highlighter and forced-colour
   assert.doesNotMatch(css, /data-lp-mark="missed"\][^{]*\{[^}]*background/);
   assert.doesNotMatch(css, /\.lp-which-is-better-chunk\[data-lp-mark="wrong"\]/);
   // A sentence's mark sits on its own line under it, like a summary note, with no pill.
-  assert.match(css, /\.lp-which-is-better-body \.lp-choice-mark,\s*\.lp-which-is-better-note \{ display: flex;[^}]*margin: 2px 0 var\(--lp-gap-stem\) 12px;[^}]*background: none;/);
+  assert.match(css, /\.lp-which-is-better-body \.lp-choice-mark,\s*\.lp-which-is-better-note \{ display: block;[^}]*margin: 2px 0 var\(--lp-gap-stem\) 12px;[^}]*background: none;/);
+  assert.match(css, /\.lp-which-is-better-body \.lp-choice-mark \{ display: flex;/);
+  // Each side-by-side email's column can shrink below a long word, so the word wraps inside the card.
+  assert.match(css, /\.lp-which-is-better-pair > \.lp-which-is-better-email \{[^}]*grid-template-columns: minmax\(0, 1fr\);/);
+  // The highlight pads only above and below, as in Highlight the key passage.
+  assert.doesNotMatch(css, /\.lp-which-is-better-(chunk|body mark)[^{]*\{[^}]*padding: \d+px \d+px/);
   assert.doesNotMatch(css, /2060/);
   // The instruction is regular weight, with a group gap before the emails.
   assert.match(css, /\.lp-which-is-better-hint \{[^}]*font-weight: 400;/);
