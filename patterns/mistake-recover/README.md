@@ -13,14 +13,14 @@ Decide a request in a practice system. Approving it changes its status line to s
 
 ## Use it when
 
-- A process has a check people skip under pressure, such as matching an invoice before approving a payment.
-- Learners should see what a mistake costs, and practise undoing it, before they meet it on a live system.
+- A process has a check people skip under pressure.
+- Learners should see what a mistake costs, and practise undoing it, before they meet it for real.
 - The steps after an error matter as much as avoiding it: stopping the harm, fixing the cause and recording what happened.
 
 ## Avoid it when
 
 - When the course has not yet taught the check, teach it first. This card states the rule in its context but does not explain it.
-- When learners need to tell clean requests from faulty ones, use a sorting or decision activity before this one. The request here has a fault, so holding is always right, and a learner who holds it never misses.
+- When learners need to judge whether a case has a fault at all, use a sorting or decision activity first. This pattern starts from a case that has one.
 - When the goal is one fixed procedure with nothing to adapt, direct instruction may teach it with less time and effort. The meta-analysis below found error-based training most useful for transfer to new problems.
 
 ## Before you use it

@@ -13,7 +13,7 @@ Write three actions to become more assertive at work. A checklist updates when y
 
 ## Use it when
 
-- Use it for short action plans, outline-like writing assignments, and generally to give learners immediate feedback on responses that can be classified. This example checks for three different actions a colleague could see or hear, a time or situation, and your own commitments. The feedback helps you revise.
+- Learners write short answers that can be checked against a few clear criteria, and need feedback while they write.
 
 ## Avoid it when
 

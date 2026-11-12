@@ -13,7 +13,7 @@ Study one fully worked case of a procedure. Each later case leaves more of its s
 
 ## Use it when
 
-- Learners can follow a procedure when someone demonstrates it but stall when they do it alone, such as checking an invoice, triaging a support ticket or working out a dose.
+- Learners can follow a procedure when someone demonstrates it but stall when they do it alone.
 - Learners are new to the procedure, and each step ends in a result you can write as two to four options.
 
 ## Avoid it when

@@ -13,7 +13,7 @@ Set the next few points of a line chart, then see the real line over your guess.
 
 ## Use it when
 
-- The lesson turns on a trend, such as what happened after a change, a launch or a new rule.
+- The lesson turns on the shape of a trend, such as what happens after a change.
 - Learners tend to expect a straight line where the real one bends or levels off.
 
 ## Avoid it when

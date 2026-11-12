@@ -13,7 +13,7 @@ Decide a short case. Decide again after one stated detail changes, then see whic
 
 ## Use it when
 
-- Learners mix up two situations that look alike, such as a billing question and a data leak.
+- Learners confuse two situations that look alike but call for different responses.
 - One fact decides which rule applies, and people miss it.
 - A detail that feels important, such as a large amount, does not change the answer, and learners treat it as if it did.
 

@@ -13,7 +13,7 @@ Answer a short check to see which course sections you can skip and which to take
 
 ## Use it when
 
-- Use it for a small refresher where one or two questions can justify skipping a section. Advanced questions must test any prerequisite knowledge they credit.
+- Some learners already know part of the material, and one or two questions can show it.
 
 ## Avoid it when
 
@@ -21,7 +21,7 @@ Answer a short check to see which course sections you can skip and which to take
 
 ## Before you use it
 
-Write one or two questions per section. Decide whether passing can skip sections. Your course handles navigation and completion records.
+Write one or two questions per section. Advanced questions must test any prerequisite knowledge they credit. Decide whether passing can skip sections. Your course handles navigation and completion records.
 
 ## How it works
 

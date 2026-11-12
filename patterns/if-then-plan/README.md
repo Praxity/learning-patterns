@@ -13,9 +13,9 @@ Choose a moment and an action to build a one-sentence plan, "When ..., I will ..
 
 ## Use it when
 
-- A course ends with a skill learners must use at work, such as asking more questions in a one-on-one, and you want each of them to leave with a plan for a named moment.
-- Using the skill depends on noticing a moment, such as a colleague asking for advice or a call starting.
-- Learners finish with intentions too vague to act on, such as "be more patient".
+- Learners must use a new skill or habit on their own after the course, and need a plan tied to a specific moment.
+- Using the skill depends on noticing the right moment.
+- Learners finish with intentions too vague to act on.
 
 ## Avoid it when
 

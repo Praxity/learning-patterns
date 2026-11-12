@@ -13,11 +13,11 @@ Answer a study question. Compare your reasoning with the feedback and model answ
 
 ## Use it when
 
-- Use it when a short answer can reveal a mistaken belief. This example asks whether rereading notes prepares you for a test. The proxy checks four study misconceptions. Feedback helps you revise your reasoning.
+- A short written answer can reveal a mistaken belief, and learners need feedback on their reasoning.
 
 ## Avoid it when
 
-- When your topic has different misconceptions and you cannot change and test what the model checks, use [Check your own answer](../self-check/README.md).
+- When you can't change and test what the model checks for your topic's misconceptions, use [Check your own answer](../self-check/README.md).
 - When learners can explain common mistakes themselves, use [Write the wrong options](../write-distractors/README.md).
 - When you need a grade, use an assessment. This pattern helps learners revise.
 

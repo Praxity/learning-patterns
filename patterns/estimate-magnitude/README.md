@@ -13,7 +13,7 @@ Slide a range until it holds your estimate, then see which answers your ranges c
 
 ## Use it when
 
-- Learners estimate costs, durations or counts at work and tend to give one confident number.
+- Learners need a sense of scale for a quantity and tend to give one confident number.
 - Getting the size right matters more than the exact figure: tens, hundreds or thousands.
 
 ## Avoid it when

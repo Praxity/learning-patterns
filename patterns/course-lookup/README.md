@@ -13,11 +13,11 @@ Ask about Assertive at work. The decision model picks an authored answer or a se
 
 ## Use it when
 
-- Use it across a course with a small, stable catalogue. The demo has eight FAQ entries and six course sections.
+- Learners need to find answers in the course's own material, and that material is small and stable.
 
 ## Avoid it when
 
-- When you need to search a large or changing catalogue, use a course search tool. This example relies on a small, fixed catalogue.
+- When the material is large or changes often, use a search tool.
 - When learners need to recall an answer before seeing it, use [Questions inside the reading](../review-prompts/README.md).
 
 ## Before you use it

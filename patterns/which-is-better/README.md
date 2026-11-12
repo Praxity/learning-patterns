@@ -13,9 +13,9 @@ Read two versions of the same email. For each quality, highlight the sentence th
 
 ## Use it when
 
-- Good and weak emails look alike at first, and the difference is in one or two sentences, as in a reply to a customer or a request to a colleague.
+- Good and weak versions of the same work look alike at first, and the difference is in a few sentences.
 - Learners can tell which version is better but can't yet point to what makes it better.
-- A course on giving feedback needs learners to see what good looks like before they comment on a colleague's draft.
+- Learners need to see what good work looks like before they produce their own or review someone else's.
 
 ## Avoid it when
 

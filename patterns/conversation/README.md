@@ -13,7 +13,8 @@ You changed a work plan without asking Michel. Practise answering him in two rou
 
 ## Use it when
 
-- Use it to practise a difficult workplace conversation. You can acknowledge the impact, defend the change, attack, withdraw or ask for a pause. Michel responds to each choice. The review explains the effects of your two replies.
+- Learners need to practise a difficult conversation where each reply changes how the other person responds.
+- Learners know what they should say but, under pressure, defend, attack or withdraw.
 
 ## Avoid it when
 

@@ -13,7 +13,7 @@ Print questions on the front and answers on the back. Choose a date to answer fr
 
 ## Use it when
 
-- Use it for a short module with a few ideas or actions worth recalling. Keep questions focused and answers short.
+- Learners need to recall a few key ideas or actions over the following days or weeks.
 - Learners need to practise away from the screen, even without internet.
 
 ## Avoid it when
