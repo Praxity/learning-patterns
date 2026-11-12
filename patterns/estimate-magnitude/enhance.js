@@ -147,8 +147,7 @@ export function enhance(root, { content, strings, state }) {
       return [index + 1];
     });
     if (missing.length) {
-      const questions = new Intl.ListFormat(/^fr(?:-|$)/i.test(root.lang) ? 'fr-CA' : 'en-GB', { type: 'conjunction' }).format(missing.map(String));
-      announce(format(missing.length === 1 ? strings.missingOne : strings.missingMany, { questions }));
+      announce(strings.missing);
       return;
     }
     show(true);

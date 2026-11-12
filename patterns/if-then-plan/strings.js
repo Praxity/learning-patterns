@@ -16,7 +16,7 @@ export const strings = {
     downloaded: 'Calendar file downloaded. Open it to add your plan to your calendar.',
     fileName: 'if-then-plan.ics',
     eventNote: 'You made this plan in "{title}".',
-    restart: 'Start over', cleared: 'Answers cleared.',
+    restart: 'Start over', cleared: 'Plan cleared.',
     vagueOptions: 'Why some options are too vague',
     noScript: 'Choose one moment and one action, then write your plan in your calendar as one sentence. Making a calendar file needs JavaScript.'
   },
@@ -35,7 +35,7 @@ export const strings = {
     downloaded: 'Fichier de calendrier téléchargé. Ouvrez-le pour ajouter votre plan à votre calendrier.',
     fileName: 'plan-si-alors.ics',
     eventNote: 'Vous avez fait ce plan dans l’activité « {title} ».',
-    restart: 'Recommencer', cleared: 'Réponses effacées.',
+    restart: 'Recommencer', cleared: 'Plan effacé.',
     vagueOptions: 'Pourquoi certaines options sont trop vagues',
     noScript: 'Choisissez un moment et une action, puis écrivez votre plan dans votre calendrier en une seule phrase. JavaScript est nécessaire pour créer un fichier de calendrier.'
   }

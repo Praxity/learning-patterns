@@ -21,7 +21,7 @@
   ],
   "cases": [
     {
-      "text": "Sam agrees the last two handover notes did not say who owns each task, and you have both found the cause, a new template that hides that field. You are about to ask, \"So what will you change?\"",
+      "text": "Sam agrees the last two handover notes did not say who owns each task, and you have both traced it to a new template that hides that field. You are about to ask, \"So what will you change?\"",
       "correct": "agree",
       "lure": "ask",
       "looksLike": "Your line is a question, so it can look like Ask an open question.",

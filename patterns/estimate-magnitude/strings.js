@@ -6,9 +6,8 @@ export const strings = {
     tryAgain: 'Try again',
     cleared: 'Cleared. Start again.',
     empty: 'Slide this range to set your estimate.',
-    missingOne: 'Question {questions} needs a range before the check.',
-    missingMany: 'Questions {questions} need a range before the check.',
-    // The fieldset legend already names the question; the slider names only itself, numbered like the validation message, so NVDA does not read the question twice.
+    missing: 'Set a range for every question first.',
+    // The fieldset legend already names the question; the slider names only itself, by number, so NVDA does not read the question twice.
     band: 'Range for question {number}',
     range: '{low} to {high}',
     caught: 'In your range: {answer} {unit}.',
@@ -25,8 +24,7 @@ export const strings = {
     tryAgain: 'Réessayer',
     cleared: 'Plages effacées. Recommencez.',
     empty: 'Faites glisser cette plage pour donner votre estimation.',
-    missingOne: 'Définissez une plage pour la question {questions} avant de vérifier.',
-    missingMany: 'Définissez une plage pour les questions {questions} avant de vérifier.',
+    missing: 'Définissez d’abord une plage pour chaque question.',
     band: 'Plage de la question {number}',
     range: '{low} à {high}',
     caught: 'Dans votre plage : {answer} {unit}.',

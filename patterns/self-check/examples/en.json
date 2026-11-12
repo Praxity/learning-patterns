@@ -27,7 +27,7 @@
     },
     {
       "id": "no_blame",
-      "label": "No blame for the delay",
+      "label": "The delay described without blame",
       "missed": "Say what arrived late and when. Leave out who was responsible.",
       "evidence": null
     }

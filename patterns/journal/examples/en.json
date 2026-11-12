@@ -1,7 +1,7 @@
 {
   "prompt": "What did you notice this week when you tried to be assertive?",
   "questions": [
-    { "id": "situation", "text": "Where were you, and what was said?" },
+    { "id": "situation", "text": "Think of one moment. Where were you, and what was said?" },
     { "id": "action", "text": "What did you say or do?" },
     { "id": "next_step", "text": "What is one thing you'll try next time?" },
     { "id": "when", "text": "When will you try it?" }

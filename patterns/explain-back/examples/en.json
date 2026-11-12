@@ -1,6 +1,6 @@
 {
   "task": "A new manager asks you what stonewalling is and how to take a time-out instead. Explain both to them in two sentences.",
-  "model": "Stonewalling means going quiet or pulling away without saying why, so the other person feels ignored. To take a time-out, you tell them you need one, agree when you'll come back, and then come back.",
+  "model": "Stonewalling means going quiet or pulling away without saying why, so the other person feels ignored. To take a time-out, you tell them you need one, agree on when you'll come back, and then come back.",
   "ideas": [
     {
       "id": "stonewalling",
@@ -23,9 +23,9 @@
     {
       "id": "return",
       "heading": "Coming back",
-      "body": "A time-out ends when you come back. Agree when you'll return to the conversation, then do it.",
-      "label": "You agree when to come back, and then come back.",
-      "met": "You said to agree when to come back, and then come back.",
+      "body": "A time-out ends when you come back. Agree on when you'll return to the conversation, then do it.",
+      "label": "You agree on when to come back, and then come back.",
+      "met": "You said to agree on when to come back, and then come back.",
       "missed": "Add how a time-out ends.",
       "unsure": "It's unclear whether you said when to come back. Say that you agree on a time, so the other person isn't left waiting."
     }

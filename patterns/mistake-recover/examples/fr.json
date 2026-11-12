@@ -36,7 +36,7 @@
       { "id": "invoice", "text": "Demander la facture à Enseignes du Port", "correct": true, "feedback": "La facture doit être jointe au paiement avant toute approbation." },
       { "id": "cancel", "text": "Annuler le paiement avant le lot de ce soir", "correct": true, "stops": true, "feedback": "Seule l’annulation retire ce paiement du lot de paiements de ce soir." },
       { "id": "leave", "text": "Laisser Dana revoir le paiement demain", "correct": false, "feedback": "Le lot de paiements de ce soir envoie l’argent avant le retour de Dana. Vous pouvez l’annuler maintenant." },
-      { "id": "tell", "text": "Informer Dana que la facture manquait", "correct": true, "feedback": "Dana pensera à vérifier la facture la prochaine fois." }
+      { "id": "tell", "text": "Informer Dana qu’il manque la facture", "correct": true, "feedback": "Dana pensera à vérifier la facture la prochaine fois." }
     ]
   }
 }

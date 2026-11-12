@@ -147,7 +147,7 @@ for (const lang of ['en', 'fr']) {
     await expect(page.locator('[data-lp-check]')).toBeFocused();
     await expect(page.locator('[data-lp-error]:visible')).toHaveCount(3);
     await expect(bands.first()).toHaveAttribute('aria-invalid', 'true');
-    await expect(status).toHaveText(frenchTypography(format(strings[lang].missingMany, { questions: lang === 'fr' ? '1, 2 et 3' : '1, 2 and 3' }), lang));
+    await expect(status).toHaveText(frenchTypography(strings[lang].missing, lang));
     await setByKeyboard(page);
     await expect(page.locator('[data-lp-error]:visible')).toHaveCount(0);
     await expect(bands.first()).not.toHaveAttribute('aria-invalid');

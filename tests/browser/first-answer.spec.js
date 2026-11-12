@@ -365,7 +365,7 @@ test('end only allows a current answer with no saved first; reset focuses curren
   await expect(page.locator('[data-lp-skip]')).toHaveCount(0); await expect(page.locator('[data-lp-missing]')).toBeVisible();
   await expect(page.locator('[data-lp-now-input]')).toBeVisible(); await scan(page); await compare(page);
   expect((await page.evaluate(() => window.lpSaved)).first).toBeNull();
-  await expect(page.locator('[data-lp-panel-first]')).toHaveText("Your first answer wasn't saved. You can still write and keep your new answer."); await expect(page.locator('[data-lp-missing]')).toBeHidden();
+  await expect(page.locator('[data-lp-panel-first]')).toHaveText("Your first answer wasn't saved, so there is no first answer to compare with your new one."); await expect(page.locator('[data-lp-missing]')).toBeHidden();
   await expect(page.locator('[data-lp-panel-first-date]')).toBeEmpty(); await expect(page.getByRole('checkbox')).toHaveCount(3); await scan(page);
   await expect(page.locator('[data-lp-panel-note]')).toBeHidden();
   await expect(page.locator('[data-lp-panel-first-card] .lp-first-answer-date')).toBeHidden();

@@ -27,7 +27,7 @@
     },
     {
       "id": "no_blame",
-      "label": "Aucun blâme pour le retard",
+      "label": "Le retard décrit sans blâme",
       "missed": "Dites ce qui est arrivé en retard et quand. Ne dites pas qui en est responsable.",
       "evidence": null
     }

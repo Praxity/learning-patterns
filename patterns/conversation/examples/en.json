@@ -56,7 +56,7 @@
       "debrief": "Ending the discussion without agreeing to come back to it leaves the problem unresolved."
     },
     "pause": {
-      "line": "All right. Let's take ten minutes and come back to agree on the plan.",
+      "line": "All right. Let's take a break and come back to agree on the plan.",
       "endings": {
         "acknowledge": "Thanks. That's what I needed to hear. Let's fix the new order together.",
         "defend": "So the break changed nothing.",
@@ -118,7 +118,7 @@
     "withdraw:withdraw": "Michel turns to his screen and says nothing more in the meeting.",
     "defend:withdraw": "Michel says nothing for the rest of the meeting."
   },
-  "pauseNote": "Ten minutes later, you're back with Michel.",
+  "pauseNote": "After the break, you're back with Michel.",
   "unsure": "It's unclear how Michel would take that. Rephrase it or choose a reply.",
   "offScript": "Michel is waiting for an answer about the plan."
 }

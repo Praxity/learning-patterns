@@ -212,14 +212,14 @@ for (const [lang, message] of [['en', 'Choose a valid date.'], ['fr', 'Choisisse
     await page.evaluate(() => { window.lpAnnouncements = []; });
     await date.evaluate(el => { el.value = '2028-02-29'; el.dispatchEvent(new Event('change', { bubbles: true })); });
     expect(await page.evaluate(() => window.lpAnnouncements.filter(Boolean))).toEqual([
-      lang === 'fr' ? 'Testez vos connaissances le 29 février 2028.' : 'Test yourself on February 29, 2028.'
+      lang === 'fr' ? 'Testez-vous le 29 février 2028.' : 'Test yourself on February 29, 2028.'
     ]);
   });
 }
 
 for (const [lang, labels, another, status] of [
   ['en', [['In 2 days', 'Thu, Oct 8'], ['In 1 week', 'Tue, Oct 13']], 'Another date', 'Test yourself on October 13, 2026.'],
-  ['fr', [['Dans 2 jours', 'jeu. 8 oct.'], ['Dans 1 semaine', 'mar. 13 oct.']], 'Une autre date', 'Testez vos connaissances le 13 octobre 2026.']
+  ['fr', [['Dans 2 jours', 'jeu. 8 oct.'], ['Dans 1 semaine', 'mar. 13 oct.']], 'Une autre date', 'Testez-vous le 13 octobre 2026.']
 ]) test(`radio names separate label and date; Another date and same-date recovery speak the date once (${lang})`, async ({ page }) => {
   await open(page, `/retrieval-sheet/${lang}.html`); await observe(page);
   for (const [label, date] of labels) await expect(root(page).getByRole('radio', { name: named(label, date) })).toHaveCount(1);
@@ -453,7 +453,7 @@ test('French date, labels, authored answers and announcement use French', async 
   await expect(root(page).locator('time')).toHaveText(['29 février 2028', '29 février 2028']);
   await root(page).getByRole('tab', { name: 'Verso', exact: true }).click();
   await expect(side(page, 'back').locator('li > p')).toHaveText(french.questions.map(row => row.answer));
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Testez vos connaissances le 13 octobre 2026.', 'Testez vos connaissances le 29 février 2028.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Testez-vous le 13 octobre 2026.', 'Testez-vous le 29 février 2028.']);
 });
 
 test('forced colours keeps the active tab and keyboard focus visible', async ({ page, browserName }) => {

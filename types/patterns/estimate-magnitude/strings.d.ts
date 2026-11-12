@@ -6,8 +6,7 @@ export namespace strings {
         let tryAgain: string;
         let cleared: string;
         let empty: string;
-        let missingOne: string;
-        let missingMany: string;
+        let missing: string;
         let band: string;
         let range: string;
         let caught: string;
@@ -30,10 +29,8 @@ export namespace strings {
         export { cleared_1 as cleared };
         let empty_1: string;
         export { empty_1 as empty };
-        let missingOne_1: string;
-        export { missingOne_1 as missingOne };
-        let missingMany_1: string;
-        export { missingMany_1 as missingMany };
+        let missing_1: string;
+        export { missing_1 as missing };
         let band_1: string;
         export { band_1 as band };
         let range_1: string;

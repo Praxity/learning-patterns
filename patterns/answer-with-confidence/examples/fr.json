@@ -66,7 +66,7 @@
         },
         {
           "id": "saved",
-          "text": "Ils sont supprimés à l’enregistrement du fichier",
+          "text": "Ils restent dans le fichier jusqu’à son enregistrement",
           "feedback": "L’enregistrement conserve les rectangles et le texte qu’ils recouvrent. Un outil de caviardage supprime le texte.",
           "rightWhen": "L’enregistrement rend bien définitif le travail d’un outil de caviardage."
         }

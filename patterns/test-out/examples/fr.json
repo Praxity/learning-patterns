@@ -20,10 +20,10 @@
       "id": "discussion", "section": 3, "text": "Une personne monopolise la parole. Que devriez-vous faire si vous animez la réunion ?",
       "options": [
         { "id": "invite", "text": "La remercier, puis demander l’avis de chacune des autres personnes" },
-        { "id": "read-back", "text": "Faire relire à la personne qui prend les notes ce qui a été dit" },
+        { "id": "read-back", "text": "Demander à la personne qui prend les notes de relire ce qui a été noté" },
         { "id": "vote", "text": "Demander au groupe de voter sur le sujet maintenant et passer au suivant" }
       ],
-      "correct": "invite", "explanation": "Remerciez la personne, puis demandez l’avis des autres, pour que le groupe entende plus d’un point de vue. Relire ce qui a été dit aide quand le groupe ne sait plus où il en est. Un vote convient quand tout le monde s’est déjà exprimé."
+      "correct": "invite", "explanation": "Remerciez la personne, puis demandez l’avis des autres, pour que le groupe entende plus d’un point de vue. Relire les notes aide quand le groupe ne sait plus où il en est. Un vote convient quand tout le monde s’est déjà exprimé."
     },
     {
       "id": "follow-up", "section": 4, "text": "Que devriez-vous confirmer avant la fin de la réunion ?",

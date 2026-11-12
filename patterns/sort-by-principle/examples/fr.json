@@ -46,7 +46,7 @@
       "correct": "name",
       "lure": "ask",
       "looksLike": "Votre phrase est une question, ce qui peut la faire ressembler à Poser une question ouverte.",
-      "decides": "Rien n’a été abordé, donc vous ne vous entendez pas sur les faits, et « ne vous intéressent pas » est un jugement. Dites ce que les notes omettaient."
+      "decides": "Les faits ne sont pas convenus, et « ne vous intéressent pas » est un jugement. Dites ce que vous avez vu : aucune note ne précisait qui fait quoi."
     }
   ]
 }

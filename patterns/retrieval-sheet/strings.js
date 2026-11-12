@@ -32,7 +32,7 @@ export const strings = {
     anotherDate: 'Une autre date',
     customDateLabel: 'Date',
     dateError: 'Choisissez une date valide.',
-    dateChanged: 'Testez vos connaissances le {date}.',
+    dateChanged: 'Testez-vous le {date}.',
     sides: 'Côté de la feuille',
     front: 'Recto',
     back: 'Verso',

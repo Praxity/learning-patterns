@@ -8,7 +8,7 @@
   "misconceptions": [
     { "id": "rereading", "label": "Rereading is enough", "idea": "rereading is enough to remember", "why": "Familiarity can feel like knowing. Test your recall over several days." },
     { "id": "highlighting", "label": "Highlighting is studying", "idea": "highlighting counts as studying", "why": "Marking words doesn't test recall. Close your notes and test yourself." },
-    { "id": "cramming", "label": "Cramming the night before works as well as spreading it out", "idea": "cramming works as well as spaced practice", "why": "Crammed material fades faster. Spread your self-tests over several days." },
+    { "id": "cramming", "label": "Cramming the night before works as well as studying over several days", "idea": "cramming works as well as spaced practice", "why": "Crammed material fades faster. Spread your self-tests over several days." },
     { "id": "watching", "label": "Some people learn only by watching", "idea": "some people can learn only by watching", "why": "Preferring to watch doesn't mean you learn best that way. Practise recalling what you watched." }
   ]
 }

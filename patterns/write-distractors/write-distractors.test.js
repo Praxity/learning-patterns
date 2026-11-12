@@ -8,7 +8,7 @@ import * as logic from './logic.js';
 
 const content = JSON.parse(await readFile(new URL('./examples/en.json', import.meta.url)));
 const fr = JSON.parse(await readFile(new URL('./examples/fr.json', import.meta.url)));
-const option = (text = 'Yes, keep working.', misconception = 'momentum', custom = '') => ({ text, misconception, custom });
+const option = (text = 'Yes, keep working.', misconception = 'drains-energy', custom = '') => ({ text, misconception, custom });
 
 test('initial answer uses a 2,000 UTF-16-unit limit after trimming', () => {
   assert.equal(logic.MAX_ANSWER, 2000);
@@ -76,12 +76,12 @@ function matches(value, rule, root = value) {
 
 test('example preserves the demo question, labels and author options with topic IDs', () => {
   assert.equal(content.question, 'How do short breaks affect a day of focused work?');
-  assert.equal(content.rightAnswer, 'They restore your attention, so you make fewer mistakes.');
+  assert.equal(content.rightAnswer, 'They give you time to recover, so you feel less tired.');
   // No option shares an opening word with the correct answer alone, so form gives no cue to the key.
   assert.ok(content.authorOptions.every(item => item.text.split(' ')[0] === content.rightAnswer.split(' ')[0]));
   assert.ok(content.authorOptions.every(item => targetOf(content, item) !== item.text.replace(/\.$/, '')));
   assert.equal(content.count, 2);
-  assert.deepEqual(content.misconceptions.map(item => item.id), ['time-lost', 'momentum', 'tired']);
+  assert.deepEqual(content.misconceptions.map(item => item.id), ['no-recovery', 'drains-energy', 'wait-for-exhaustion']);
   assert.deepEqual(content.authorOptions.map(item => targetOf(content, item)), content.misconceptions.map(item => item.label));
 });
 
@@ -127,27 +127,27 @@ test('right answer, duplicates anywhere, and raw length limits are refused', () 
   assert.equal(validateOptions(content, [option('A', 'other', 'x'.repeat(121)), option('B')]).errors[0].code, 'longCustom');
   assert.equal(validateOptions(content, [option('A', 'other', ' '.repeat(121) + 'X'), option('B')]).errors[0].code, 'longCustom');
   assert.equal(validateOptions(content, [option('x'.repeat(300), 'other', 'y'.repeat(120)), option('B')]).ok, true);
-  for (const options of [null, [], [option()], [null, option()], [option(3), option()], [option('A', 4), option()], [{ text: 'A', misconception: 'time-lost' }, option()], [option('A', 'time-lost', null), option()]]) {
+  for (const options of [null, [], [option()], [null, option()], [option(3), option()], [option('A', 4), option()], [{ text: 'A', misconception: 'no-recovery' }, option()], [option('A', 'no-recovery', null), option()]]) {
     assert.throws(() => validateOptions(content, options), /Invalid options/);
   }
 });
 
 test('clean options normalize spaces and omit irrelevant custom text by emptying it', () => {
-  assert.deepEqual(validateOptions(content, [option('  A  B  ', 'time-lost', 'ignored'), option('C', 'other', '  Focus  lost  ')]), {
-    ok: true, options: [option('A B', 'time-lost'), option('C', 'other', 'Focus lost')]
+  assert.deepEqual(validateOptions(content, [option('  A  B  ', 'no-recovery', 'ignored'), option('C', 'other', '  Focus  lost  ')]), {
+    ok: true, options: [option('A B', 'no-recovery'), option('C', 'other', 'Focus lost')]
   });
 });
 
 test('coverage identifies targeted, missed, extra and matching targets without repeats', () => {
   const value = coverage(content, [option('A'), option('B', 'other', 'Breaks disrupt focus')]);
-  assert.deepEqual(value.targeted, ['Stopping costs you your momentum', 'Breaks disrupt focus']);
+  assert.deepEqual(value.targeted, ['Taking a break drains your mental energy', 'Breaks disrupt focus']);
   assert.deepEqual(value.missed, [content.misconceptions[0].label, content.misconceptions[2].label]);
   assert.deepEqual(value.extra, ['Breaks disrupt focus']);
   assert.deepEqual(value.matches, [true, false]);
-  assert.deepEqual(coverage(content, [option('A', 'other', ' STOPPING costs you your momentum '), option('B')]).matches, [true, true]);
+  assert.deepEqual(coverage(content, [option('A', 'other', ' TAKING a break drains your mental energy '), option('B')]).matches, [true, true]);
   assert.deepEqual(coverage(content, [option('A', 'other', ' New tag '), option('B', 'other', 'new TAG')]).extra, ['New tag']);
   const partial = { ...content, authorOptions: [content.authorOptions[0]] };
-  assert.deepEqual(coverage(partial, [option('A'), option('B', 'tired')]).extra, [content.misconceptions[1].label, content.misconceptions[2].label]);
+  assert.deepEqual(coverage(partial, [option('A'), option('B', 'wait-for-exhaustion')]).extra, [content.misconceptions[1].label, content.misconceptions[2].label]);
   assert.throws(() => targetOf(content, option('A', 'unknown')), /misconception/);
   assert.throws(() => coverage(content, [option('', '') , option()]), /Invalid options/);
 });
@@ -167,13 +167,13 @@ test('coverageMessage returns counts and untargeted author labels without format
 });
 
 test('coverage counts unique normalized author targets rather than the whole taxonomy', () => {
-  const partial = { ...content, authorOptions: [content.authorOptions[0], { text: 'Another busy answer', misconception: 'time-lost' }] };
-  assert.deepEqual(coverageMessage(partial, [option('A'), option('B', 'tired')]), {
+  const partial = { ...content, authorOptions: [content.authorOptions[0], { text: 'Another busy answer', misconception: 'no-recovery' }] };
+  assert.deepEqual(coverageMessage(partial, [option('A'), option('B', 'wait-for-exhaustion')]), {
     authorTargeted: 0, authorTotal: 1, ownExtra: 2, untargeted: [content.misconceptions[0].label]
   });
-  assert.deepEqual(coverage(partial, [option('A'), option('B', 'tired')]).missed, [content.misconceptions[0].label]);
-  const aliases = { ...partial, misconceptions: [...content.misconceptions, { id: 'alias', label: '  TIME away from a task is time LOST  ' }], authorOptions: [...partial.authorOptions, { text: 'Alias answer', misconception: 'alias' }] };
-  assert.deepEqual(coverageMessage(aliases, [option('A', 'alias'), option('B', 'other', 'TIME away from a task is time lost')]), {
+  assert.deepEqual(coverage(partial, [option('A'), option('B', 'wait-for-exhaustion')]).missed, [content.misconceptions[0].label]);
+  const aliases = { ...partial, misconceptions: [...content.misconceptions, { id: 'alias', label: '  SHORT breaks do not help you RECOVER  ' }], authorOptions: [...partial.authorOptions, { text: 'Alias answer', misconception: 'alias' }] };
+  assert.deepEqual(coverageMessage(aliases, [option('A', 'alias'), option('B', 'other', 'SHORT breaks do not help you recover')]), {
     authorTargeted: 1, authorTotal: 1, ownExtra: 0, untargeted: []
   });
 });

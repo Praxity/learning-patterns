@@ -52,7 +52,7 @@
       "debrief": "Quitter la discussion sans convenir d’un retour laisse le problème en suspens."
     },
     "pause": {
-      "line": "D’accord. Prenons dix minutes, puis revenons pour nous entendre sur le plan.",
+      "line": "D’accord. Prenons une pause, puis revenons pour nous entendre sur le plan.",
       "endings": {
         "acknowledge": "Merci. C’est ce que j’avais besoin d’entendre. Corrigeons le nouvel ordre ensemble.",
         "defend": "Alors la pause n’a rien changé.",
@@ -114,7 +114,7 @@
     "withdraw:withdraw": "Michel se tourne vers son écran et ne dit plus rien pendant la réunion.",
     "defend:withdraw": "Michel ne dit plus rien pendant le reste de la réunion."
   },
-  "pauseNote": "Dix minutes plus tard, vous retrouvez Michel.",
+  "pauseNote": "Après la pause, vous retrouvez Michel.",
   "unsure": "On ne sait pas comment Michel prendrait cette réponse. Reformulez-la ou choisissez une réponse.",
   "offScript": "Michel attend une réponse au sujet du plan."
 }
