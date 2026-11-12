@@ -13,7 +13,7 @@ Split a fixed total across two to six options by moving dividers on one bar. Com
 
 ## Use it when
 
-- The answer is a mix, such as where complaints, costs or errors come from.
+- The answer is a mix of several parts that share one total.
 - Learners should spread their confidence across several outcomes instead of betting on one.
 - Learners set priorities within a fixed budget of time or money.
 

@@ -13,7 +13,7 @@ Reflect on practising assertiveness this week. Save your entry in your tab or as
 
 ## Use it when
 
-- Use it for weekly course reflections. Each suggestion asks about the first missing detail: a situation, your response, a next step or when to try it.
+- Learners reflect on what they tried, and their entries stay too vague to learn from.
 
 ## Avoid it when
 

@@ -13,7 +13,8 @@ Explain a lesson in your own words and check which key ideas you included.
 
 ## Use it when
 
-- Use it after a short reading. This example checks three ideas: stonewalling, announcing a pause and returning to the conversation. The feedback helps you revise your explanation.
+- Learners have read a short text and need to put its key ideas in their own words.
+- Learners can repeat a definition but can't yet explain how the ideas connect.
 
 ## Avoid it when
 

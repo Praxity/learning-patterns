@@ -15,8 +15,8 @@ The nearest pattern is ["I don't know" as an answer](../dont-know/README.md). Th
 
 ## Use it when
 
-- Learners arrive sure of answers that are often wrong, such as habits picked up on the job, and need to notice which ones.
-- A practice quiz comes before a review session, and learners need to know which questions to reread first.
+- Learners are confident in answers that are often wrong, and need to notice which ones.
+- Learners need to know which topics to review first.
 
 ## Avoid it when
 

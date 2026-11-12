@@ -13,11 +13,11 @@ Answer questions between reading sections, compare with the answers and see when
 
 ## Use it when
 
-- Use it for short readings with facts or actions learners need to recall later. Give each section one focused question and a short answer.
+- Learners read short texts with facts or actions they need to recall later.
 
 ## Avoid it when
 
-- When you need to verify recall or workplace performance, use an assessment. Ratings here record what learners say they remembered.
+- When you need to verify what learners recall or can do, use an assessment. Ratings here record what learners say they remembered.
 - When learners need a paper copy for later practice, use [Printable retrieval sheet](../retrieval-sheet/README.md).
 
 ## Before you use it

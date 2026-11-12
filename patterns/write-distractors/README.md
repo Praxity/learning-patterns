@@ -13,11 +13,11 @@ Answer from memory, then write wrong options and name the mistaken idea behind e
 
 ## Use it when
 
-- Use it when learners know enough to answer from memory and explain common mistakes. Authors can review their wrong options for use in quizzes.
+- Learners know enough to answer from memory and to explain common mistakes.
 
 ## Avoid it when
 
-- When learners cannot yet answer from memory or explain common mistakes, use [Spot the misconception](../misconception/README.md) for a supported study question.
+- When learners cannot yet answer from memory or explain common mistakes, use [Spot the misconception](../misconception/README.md), which gives feedback on their reasoning.
 - When nobody can review whether the wrong options would tempt a learner, use [Check your own answer](../self-check/README.md).
 
 ## Before you use it

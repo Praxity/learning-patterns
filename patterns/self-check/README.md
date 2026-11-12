@@ -13,11 +13,11 @@ Write an answer, tick the parts it includes, then compare with a model. Hints he
 
 ## Use it when
 
-- Use it when learners can check their answers against a short list of clear parts. It works offline and can help you compare self-checking with automated feedback.
+- Learners can check their own answers against a short list of clear parts.
 
 ## Avoid it when
 
-- When you need automatic feedback on a short action plan, use [Feedback while you type](../live-feedback/README.md).
+- When you need automatic feedback on short written answers, use [Feedback while you type](../live-feedback/README.md).
 - When you need a grade, use an assessment. Checklist ticks record the learner's own judgment.
 
 ## Before you use it

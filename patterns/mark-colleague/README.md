@@ -13,8 +13,8 @@ Read a colleague's draft, write them feedback, tick the issues your feedback rai
 
 ## Use it when
 
-- Learners already know the standard for a piece of work, such as a reply to a customer or a short report, and need practice finding where a colleague's draft falls short.
-- A course on giving feedback needs a realistic draft to comment on before learners comment on a real one.
+- Learners already know the standard for a piece of work and need practice finding where someone else's falls short.
+- Learners need to practise giving feedback on a draft before they give it on real work.
 - Experienced learners would skim another explanation. Reviewing a draft as a manager, mentor or peer gives them a task at their level.
 
 ## Avoid it when

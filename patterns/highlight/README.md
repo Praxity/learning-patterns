@@ -13,7 +13,7 @@ Mark key ideas or text that answers a question. Then compare your marks with the
 
 ## Use it when
 
-- Use it to find key ideas or evidence for a question. Keep passages short and split them into meaningful pieces.
+- Learners need to find the key ideas in a text, or the evidence that answers a question.
 
 ## Avoid it when
 

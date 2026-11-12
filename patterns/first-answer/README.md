@@ -13,7 +13,7 @@ Save an answer at the start of a course. Answer again at the end, then compare w
 
 ## Use it when
 
-- Use it when learners can answer the same question at the start and end of a course. Keep the question and self-check criteria the same.
+- Learners can answer the same question at the start and end of a course, and should see how their answer changed.
 
 ## Avoid it when
 
@@ -21,6 +21,8 @@ Save an answer at the start of a course. Answer again at the end, then compare w
 - When learners need feedback on one answer now, use [Check your own answer](../self-check/README.md).
 
 ## Before you use it
+
+Keep the question and self-check criteria the same at the start and the end.
 
 Ask your developer to save the first answer between visits. Without that, the answer is lost when the learner leaves the page.
 

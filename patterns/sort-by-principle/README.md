@@ -13,7 +13,7 @@ Choose which of a few principles each short case needs, one case at a time. Afte
 
 ## Use it when
 
-- Learners can state each principle but choose the wrong one for a new case, such as which privacy rule, accounting treatment or first-aid step applies.
+- Learners can state each principle but choose the wrong one for a new case.
 - A surface detail, such as a familiar keyword, a large amount or who is asking, pulls learners toward the wrong principle.
 - A course teaches several principles in turn, and learners need practice choosing among them before they apply them.
 
