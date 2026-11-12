@@ -40,9 +40,9 @@ test('each version is an email with one to three paragraphs and two to six sente
   assert.doesNotThrow(() => validateContent(edited(c => { c.versions.b.body = [['1.', '2.'], ['3.', '4.'], ['5.', '6.']]; })));
   assert.throws(() => validateContent(edited(c => { c.versions.b.body = [['1.'], ['2.'], ['3.'], ['4.']]; })), /versions\.b\.body: write one to three/);
   assert.throws(() => validateContent(edited(c => { c.versions.b.body = []; })), /versions\.b\.body/);
-  assert.throws(() => validateContent(edited(c => { c.versions.b.body.push([]); })), /versions\.b\.body\[2\]/);
+  assert.throws(() => validateContent(edited(c => { c.versions.b.body.push([]); })), /versions\.b\.body\[1\]/);
   assert.throws(() => validateContent(edited(c => { c.versions.b.body = [['1.', '2.'], '3.']; })), /versions\.b\.body\[1\]/);
-  assert.throws(() => validateContent(edited(c => { c.versions.a.body[1][0] = ' '; })), /versions\.a\.body\[1\]\[0\]/);
+  assert.throws(() => validateContent(edited(c => { c.versions.a.body[0][1] = ' '; })), /versions\.a\.body\[0\]\[1\]/);
   for (const field of ['subject', 'greeting', 'signoff']) assert.throws(() => validateContent(edited(c => { c.versions.a[field] = ' '; })), new RegExp(`versions\\.a\\.${field}`));
   assert.throws(() => validateContent(edited(c => { c.versions.a = ['One.', 'Two.']; })), /versions\.a/);
   assert.throws(() => validateContent(edited(c => { c.versions.a.from = 'Sam'; })), /versions\.a\.from/);
@@ -62,8 +62,8 @@ test('content rejects unknown fields, blank text and wrong shapes', () => {
 
 test('every sentence answer is a body sentence of the better version, counted across paragraphs, used once, and one must exist', () => {
   for (const sentence of [0, 3, 1.5, '2']) assert.throws(() => validateContent(edited(c => { c.qualities[0].sentence = sentence; })), /qualities\[0\]\.sentence/);
-  // A sentence added to Version B's second paragraph is sentence 3: numbers count across paragraphs.
-  assert.doesNotThrow(() => validateContent(edited(c => { c.versions.b.body[1].push('Three.'); c.qualities[0].sentence = 3; })));
+  // A sentence in a second paragraph of Version B is sentence 3: numbers count across paragraphs.
+  assert.doesNotThrow(() => validateContent(edited(c => { c.versions.b.body.push(['Three.']); c.qualities[0].sentence = 3; })));
   assert.throws(() => validateContent(edited(c => { c.qualities[2].sentence = 2; })), /qualities\[2\]\.sentence: another quality/);
   assert.throws(() => validateContent(edited(c => { for (const q of c.qualities) q.sentence = null; })), /at least one/);
   // Counting follows the better version: Version A has two sentences here, so a fourth fails.
@@ -73,8 +73,8 @@ test('every sentence answer is a body sentence of the better version, counted ac
 });
 
 test('the sample phone numbers cannot break at their hyphens', () => {
-  assert.ok(en.versions.b.body[1][0].includes('514-\u2060555-\u20600142'));
-  assert.ok(fr.versions.b.body[1][0].includes('514\u00a0555-\u20600142'));
+  assert.ok(en.versions.b.body[0][1].includes('514-\u2060555-\u20600142'));
+  assert.ok(fr.versions.b.body[0][1].includes('514\u00a0555-\u20600142'));
 });
 
 test('the English title keeps "out-of-office" on one line with non-breaking hyphens', () => {
@@ -92,6 +92,8 @@ test('answers, names and the answer text', () => {
   assert.equal(answerText(en, strings.en, 2), "Correct answer, in Version B: I'm away until Monday, October 14, and not reading email.");
   assert.equal(answerText(en, strings.en, 1), 'Correct answer: Neither version does this.');
   assert.equal(answerText(fr, strings.fr, 1), 'Bonne réponse : Aucune des deux versions ne le fait.');
+  // French names the version in lower case inside the sentence, as the summary heading does.
+  assert.equal(answerText(fr, strings.fr, 2), `Bonne réponse, dans la version B : ${fr.versions.b.body[0][0]}`);
   // Sentences count across paragraphs: Version A's second is the only sentence of its second paragraph.
   for (const pick of ['a1', 'a2', 'b2', 'neither']) assert.equal(isPick(en, pick), true, pick);
   for (const pick of ['a0', 'a3', 'b3', 'c1', 'b01', 'B1', '', null, 2]) assert.equal(isPick(en, pick), false, String(pick));
@@ -108,19 +110,16 @@ test('score gives one count: a pick is right only when it is the answer sentence
 });
 
 test('the summary gives the better version paragraph by paragraph with a note on each answer sentence, then what both miss', () => {
-  const [[first], [second]] = en.versions.b.body;
+  const [[first, second]] = en.versions.b.body;
   assert.deepEqual(summary(en), {
     version: 'b',
-    paragraphs: [
-      [{ text: first, note: 'Whether you\'ll read email' }],
-      [{ text: second, note: 'Who to call for an urgent order' }]
-    ],
+    paragraphs: [[{ text: first, note: 'Whether you\'ll read email' }, { text: second, note: 'Who to call for an urgent order' }]],
     missing: ['What counts as urgent']
   });
-  // A sentence no question names has no note.
-  const third = edited(c => { c.versions.b.body[1].push('Three.'); });
-  assert.deepEqual(summary(third).paragraphs[1], [{ text: second, note: 'Who to call for an urgent order' }, { text: 'Three.', note: null }]);
-  assert.deepEqual(summary(edited(c => { c.versions.b.body[1].push('Three.'); c.qualities[1].sentence = 3; })).missing, []);
+  // A sentence no question names has no note, and a second paragraph keeps its own list.
+  const third = edited(c => { c.versions.b.body.push(['Three.']); });
+  assert.deepEqual(summary(third).paragraphs[1], [{ text: 'Three.', note: null }]);
+  assert.deepEqual(summary(edited(c => { c.versions.b.body.push(['Three.']); c.qualities[1].sentence = 3; })).missing, []);
 });
 
 test('saved state is copied when valid and ignored otherwise', () => {
@@ -166,11 +165,13 @@ for (const [lang, content] of [['en', en], ['fr', fr]]) {
     const toggles = [...step.matchAll(/<span class="lp-which-is-better-chunk" role="button" tabindex="0" aria-pressed="false" data-lp-pick="([^"]+)">([^<]*)<\/span>/g)];
     assert.deepEqual(toggles.map(match => match[1]), ['a1', 'a2', 'b1', 'b2']);
     // A toggle's name is its own words.
-    assert.equal(toggles[3][2], html(content.versions.b.body[1][0], lang));
+    assert.equal(toggles[3][2], html(content.versions.b.body[0][1], lang));
     const b = content.versions.b, subject = lang === 'fr' ? 'Objet\u00a0:' : 'Subject:';
     assert.ok(step.includes(`<div class="lp-which-is-better-email" role="group" aria-labelledby="pair-b"><h3 class="lp-run-in" id="pair-b">Version B</h3><p class="lp-which-is-better-subject"><span class="lp-which-is-better-field">${subject}</span> ${html(b.subject, lang)}</p><div class="lp-quote lp-which-is-better-body"><p>${html(b.greeting, lang)}</p><p><span class="lp-which-is-better-chunk"`));
     // The paragraphs keep their sentences together, and the sign-off closes the body as text.
-    assert.equal((step.match(/<p><span class="lp-which-is-better-chunk"/g) ?? []).length, 4);
+    // Each body is one paragraph, so its two sentences run on in the same text, as in Highlight the key passage.
+    assert.equal((step.match(/<p><span class="lp-which-is-better-chunk"/g) ?? []).length, 2);
+    assert.equal((step.match(/<\/span> <span class="lp-which-is-better-chunk"/g) ?? []).length, 2);
     assert.ok(step.includes(`</span></p><p>${html(b.signoff, lang)}</p></div></div>`));
     // Neither has an empty key, so it reads as an option you can choose.
     // Neither keeps the key box, holding the check and x icons that the row's state shows.
@@ -197,7 +198,7 @@ test('authored text is escaped, and French typography applies', () => {
   const french = render(fr, strings.fr, { id: 'f', lang: 'fr' });
   assert.ok(french.includes('Quelle phrase précise ce qui compte comme une commande urgente\u202f?'));
   assert.ok(french.includes('Bonne réponse\u00a0: Aucune des deux versions ne le fait.'));
-  assert.ok(french.includes('Bonne réponse, dans la Version B\u00a0: Pour une commande urgente'));
+  assert.ok(french.includes('Bonne réponse, dans la version B\u00a0: Pour une commande urgente'));
   assert.ok(french.includes('<span class="lp-which-is-better-field">Objet\u00a0:</span>'));
   assert.throws(() => render({ ...content, qualities: [] }, strings.en, { id: 'x', lang: 'en' }), /qualities/);
 });
@@ -216,19 +217,18 @@ test('the summary shows the better email with each answer sentence marked and it
   assert.equal((end.match(/<mark>/g) ?? []).length, 2);
   // "Version B" is said to screen readers only; the heading above already names it.
   assert.match(end, /<div class="lp-which-is-better-email"><p class="lp-visually-hidden">Version B<\/p><p class="lp-which-is-better-subject">/);
-  const [[first], [second]] = en.versions.b.body;
+  const [[first, second]] = en.versions.b.body;
   const noted = (text, note) => `<mark>${html(text)}</mark><span class="lp-which-is-better-note"><span class="lp-visually-hidden">This sentence shows: </span>${html(note)}</span>`;
-  assert.ok(end.includes(`<p>${noted(first, en.qualities[2].note)}</p>`));
-  assert.ok(end.includes(`<p>${noted(second, en.qualities[0].note)}</p>`));
+  assert.ok(end.includes(`<p>${noted(first, en.qualities[2].note)} ${noted(second, en.qualities[0].note)}</p>`));
   // A sentence with no note stays plain text in its paragraph.
-  const plain = render(edited(c => { c.versions.b.body[1].push('Three.'); }), strings.en, { id: 's', lang: 'en' });
-  assert.ok(plain.includes(`<p>${noted(second, en.qualities[0].note)} Three.</p>`));
+  const plain = render(edited(c => { c.versions.b.body[0].push('Three.'); }), strings.en, { id: 's', lang: 'en' });
+  assert.ok(plain.includes(`${noted(second, en.qualities[0].note)} Three.</p>`));
   assert.ok(end.includes('<p class="lp-label">Missing from both versions</p>\n      <ul class="lp-which-is-better-missing" role="list"><li>What counts as urgent</li></ul>'));
   // With no Neither question there is nothing missing to list.
-  assert.doesNotMatch(render(edited(c => { c.versions.b.body[1].push('Three.'); c.qualities[1].sentence = 3; }), strings.en, { id: 's', lang: 'en' }), /Missing from both/);
+  assert.doesNotMatch(render(edited(c => { c.versions.b.body[0].push('Three.'); c.qualities[1].sentence = 3; }), strings.en, { id: 's', lang: 'en' }), /Missing from both/);
   const better = render({ ...en, better: 'a', qualities: en.qualities.map(q => ({ ...q, sentence: q.sentence && 3 - q.sentence })) }, strings.en, { id: 's', lang: 'en' });
   assert.match(better, /What makes Version A better/);
-  assert.ok(better.slice(better.indexOf('data-lp-summary')).includes(`<mark>${html(en.versions.a.body[1][0])}</mark>`));
+  assert.ok(better.slice(better.indexOf('data-lp-summary')).includes(`<mark>${html(en.versions.a.body[0][1])}</mark>`));
 });
 
 test('the pattern stylesheet keeps its prefix, the highlighter and forced-colour cues', async () => {

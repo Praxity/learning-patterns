@@ -1,4 +1,4 @@
-// {n}, {right} and {total} are numbers; {version} is a version name; {answer} is a sentence, or the Neither label, with its closing punctuation.
+// {n}, {right} and {total} are numbers; {version} is a version name and {letter} its letter, A or B; {answer} is a sentence, or the Neither label, with its closing punctuation.
 export const strings = {
   en: {
     versionA: 'Version A',
@@ -38,7 +38,7 @@ export const strings = {
     markWrong: 'Incorrect',
     markAnswer: 'Bonne réponse',
     correct: 'Bonne réponse : {answer}',
-    correctIn: 'Bonne réponse, dans la {version} : {answer}',
+    correctIn: 'Bonne réponse, dans la version {letter} : {answer}',
     next: 'Question suivante',
     finish: 'Afficher le résumé',
     summaryA: 'Ce qui rend la version A meilleure',

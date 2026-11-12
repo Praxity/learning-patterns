@@ -116,7 +116,7 @@ export function pickName(content, strings, pick) {
 export function answerText(content, strings, index) {
   const pick = answer(content, index), sentence = sentenceOf(content, pick);
   return sentence
-    ? format(strings.correctIn, { version: pickName(content, strings, pick), answer: sentences(content.versions[sentence.version])[sentence.sentence - 1] })
+    ? format(strings.correctIn, { version: pickName(content, strings, pick), letter: sentence.version.toUpperCase(), answer: sentences(content.versions[sentence.version])[sentence.sentence - 1] })
     : format(strings.correct, { answer: `${strings.neither}.` });
 }
 

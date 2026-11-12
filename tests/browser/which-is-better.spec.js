@@ -258,10 +258,10 @@ test('results follow Highlight the key passage: the pick keeps its highlighter, 
 });
 
 test('each mark and each summary note sits on its own line under its sentence, and the next sentence starts a paragraph gap below', async ({ page }) => {
-  // The sample has one sentence per paragraph; a sentence after each answer puts text after the mark and the note.
+  // In the sample the answer sentences end their paragraphs; a sentence after each puts text after the mark and the note.
   const content = structuredClone(english);
-  content.versions.a.body[1].push('I apologize for any inconvenience.');
-  content.versions.b.body[1].push("For anything else, I'll reply when I'm back.");
+  content.versions.a.body[0].push('I apologize for any inconvenience.');
+  content.versions.b.body[0].push("For anything else, I'll reply when I'm back.");
   for (const width of [375, 1280]) {
     await page.setViewportSize({ width, height: 900 }); await mount(page, content);
     await decide(page, 'a2', { next: false });
@@ -326,7 +326,7 @@ test('the French Neither label wraps in balanced lines on a narrow card', async 
 
 for (const [lang, content, labels] of [
   ['en', english, { hint: 'Highlight one sentence in either version, or choose "Neither version does this".', progress: 'Question 1 of 3, ', check: 'Check my answer', next: 'Next question', finish: 'Show the summary', summary: 'What makes Version B better', result: 'You answered 3 of 3 questions correctly.', answerIn: 'Correct answer, in Version B: ', neither: 'Neither version does this', subject: 'Subject: ', missing: 'Missing from both versions', restart: 'Start over', cleared: 'Answers cleared.' }],
-  ['fr', french, { hint: 'Surlignez une phrase dans l’une ou l’autre version, ou choisissez « Aucune des deux versions ne le fait ».', progress: 'Question 1 sur 3, ', check: 'Vérifier ma réponse', next: 'Question suivante', finish: 'Afficher le résumé', summary: 'Ce qui rend la version B meilleure', result: 'Bonnes réponses : 3 sur 3.', answerIn: 'Bonne réponse, dans la Version B : ', neither: 'Aucune des deux versions ne le fait', subject: 'Objet : ', missing: 'Absent des deux versions', restart: 'Recommencer', cleared: 'Réponses effacées.' }]
+  ['fr', french, { hint: 'Surlignez une phrase dans l’une ou l’autre version, ou choisissez « Aucune des deux versions ne le fait ».', progress: 'Question 1 sur 3, ', check: 'Vérifier ma réponse', next: 'Question suivante', finish: 'Afficher le résumé', summary: 'Ce qui rend la version B meilleure', result: 'Bonnes réponses : 3 sur 3.', answerIn: 'Bonne réponse, dans la version B : ', neither: 'Aucune des deux versions ne le fait', subject: 'Objet : ', missing: 'Absent des deux versions', restart: 'Recommencer', cleared: 'Réponses effacées.' }]
 ]) {
   const typeset = value => lang === 'fr' ? value.replace(/ (?=[:$»])/g, ' ').replace(/ (?=[?!;])/g, ' ').replace(/« /g, '« ') : value;
 
@@ -521,7 +521,7 @@ for (const width of [320, 1280]) test(`worst-case authored text wraps inside the
   content.title = `Compare ${token}`;
   content.versions.a.subject = `Re: ${token}`;
   content.versions.a.body.push([`${token} ${'More words in a long sentence. '.repeat(6)}`.slice(0, 300)]);
-  content.versions.b.body[1].push(`Send ${token} to Jo.`);
+  content.versions.b.body[0].push(`Send ${token} to Jo.`);
   content.versions.b.signoff = `Thanks,\n${token}`;
   content.qualities[0].note = `Who to call about ${token}`;
   await mount(page, content, { state: { at: 0, picks: ['a3'] } });
