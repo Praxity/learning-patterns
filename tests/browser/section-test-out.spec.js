@@ -59,8 +59,8 @@ test('repeating a course plan announces each result once and leaves progress to 
 });
 
 for (const [lang, headings] of [
-  ['en', ['Question 1 of 3: Writing an agenda', 'Question 2 of 3: Running the discussion', 'Question 3 of 3: Confirming decisions and tasks']],
-  ['fr', ['Question 1 sur 3 : Préparer un ordre du jour', 'Question 2 sur 3 : Animer la discussion', 'Question 3 sur 3 : Confirmer les décisions et les tâches']]
+  ['en', ['Question 1 of 3: Writing an agenda', 'Question 2 of 3: Running the discussion', 'Question 3 of 3: Closing the meeting']],
+  ['fr', ['Question 1 sur 3 : Préparer un ordre du jour', 'Question 2 sur 3 : Animer la discussion', 'Question 3 sur 3 : Conclure la réunion']]
 ]) {
   test(`owner request: counters carry section titles (${lang})`, async ({ page }) => {
     await open(page, `/test-out/${lang}.html`);

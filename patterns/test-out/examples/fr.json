@@ -4,7 +4,7 @@
   "sections": [
     { "id": 1, "title": "Préparer un ordre du jour", "requires": [] },
     { "id": 3, "title": "Animer la discussion", "requires": [] },
-    { "id": 4, "title": "Confirmer les décisions et les tâches", "requires": [3] }
+    { "id": 4, "title": "Conclure la réunion", "requires": [3] }
   ],
   "questions": [
     {

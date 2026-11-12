@@ -1,5 +1,6 @@
 {
   "mode": "key",
+  "maxMarks": 2,
   "title": "La dérobade",
   "question": "Vous avez deux phrases pour expliquer à un collègue ce qu’est la dérobade et son effet sur l’autre personne.",
   "paragraphs": [

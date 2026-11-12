@@ -1,5 +1,6 @@
 {
   "mode": "key",
+  "maxMarks": 2,
   "title": "Stonewalling",
   "question": "You have two sentences to tell a colleague what stonewalling is and what it does to the other person.",
   "paragraphs": [
