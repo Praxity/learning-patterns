@@ -11,12 +11,12 @@
     {
       "id": "certificate",
       "title": "Will I get a certificate?",
-      "answer": "Complete all six sections and the final action plan to download a completion certificate."
+      "answer": "Complete all six sections, including your action plan, to download a completion certificate."
     },
     {
       "id": "time",
       "title": "How much time will I need?",
-      "answer": "Allow three hours in total, plus ten minutes a week to practise at work."
+      "answer": "Allow three hours for the course. Practising at work takes ten more minutes a week."
     },
     {
       "id": "help",
@@ -26,22 +26,22 @@
     {
       "id": "assertive",
       "title": "What does assertive mean?",
-      "answer": "Say what you need clearly while respecting the other person. Aggression uses threats or insults to get your way."
+      "answer": "Being assertive means saying what you need clearly while respecting the other person. Aggression uses threats or insults to get your way."
     },
     {
       "id": "interruptions",
       "title": "What if someone talks over me?",
-      "answer": "Say: I would like to finish my point. Then pause and continue when you have the floor."
+      "answer": "Say: \"I'd like to finish my point.\" Then pause and continue when you have the floor."
     },
     {
       "id": "no",
       "title": "How do I say no to extra work?",
-      "answer": "State your limit and offer a realistic alternative: I cannot take this on today. I can help on Thursday."
+      "answer": "State your limit and offer a realistic alternative: \"I can't take this on today. I can help on Thursday.\""
     },
     {
       "id": "timeout",
       "title": "What is a time-out?",
-      "answer": "Agree on a short break when a conversation gets heated. Say when you will return, then resume the conversation at that time."
+      "answer": "A time-out is a short break you agree on when a conversation gets heated. Say when you will return, then resume the conversation at that time."
     }
   ],
   "seeds": [

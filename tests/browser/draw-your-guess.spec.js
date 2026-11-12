@@ -47,7 +47,7 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([frenchTypography(content.feedback.fellThenFlat, lang)]);
     await expect(page.locator('[data-lp-comparison] li')).toHaveCount(4);
     expect((await page.locator('[data-lp-real]').getAttribute('points')).split(' ')).toHaveLength(8);
-    await expect(sliders.first()).toHaveAttribute('aria-valuetext', lang === 'en' ? 'April: your guess 115, real 95 calls a day' : 'avril\u00a0: votre estimation 115, valeur réelle 95 appels par jour');
+    await expect(sliders.first()).toHaveAttribute('aria-valuetext', lang === 'en' ? 'April: your guess 115, actual 95 calls a day' : 'avril\u00a0: votre estimation 115, valeur réelle 95 appels par jour');
     // Record focus at the instant Try again is hidden, before any later focus can mask a gap.
     await page.evaluate(() => {
       const again = document.querySelector('[data-lp-try-again]');

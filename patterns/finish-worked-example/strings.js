@@ -23,7 +23,7 @@ export const strings = {
   },
   fr: {
     case: 'Cas {number} sur {total}',
-    shareNone: 'Les {total} étapes sont faites pour vous. Lisez la raison de chacune.',
+    shareNone: 'Les {total} étapes sont déjà faites. Lisez la raison de chacune.',
     shareSome: 'Vous faites {count} des {total} étapes.',
     shareAll: 'Vous faites les {total} étapes.',
     step: 'Étape {number}',

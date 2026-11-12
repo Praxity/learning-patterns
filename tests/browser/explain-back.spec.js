@@ -148,7 +148,7 @@ for (const lang of ['en', 'fr']) {
     await expect(page.locator('[data-lp-mark="correct"]')).toHaveCount(3);
     await expect(page.locator('[data-lp-model]')).toHaveAttribute('open', '');
     await expect(page.locator('[data-lp-model] p')).toHaveText(examples[lang].model);
-    expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([lang === 'fr' ? 'Idées clés\u00a0: 3 sur 3' : '3 of 3 key ideas']);
+    expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([lang === 'fr' ? 'Idées clés trouvées\u00a0: 3 sur 3' : '3 of 3 key ideas found']);
     expect(await page.evaluate(() => window.lpTestCalls)).toEqual([{ block: '07-explain-back', fields: { answer: 'My explanation' }, slot: true }]);
     await axe(page);
   });
@@ -186,7 +186,7 @@ for (const lang of ['en', 'fr']) {
     });
   }
 }
-function pageFallback(lang) { return lang === 'fr' ? "La vérification automatique est indisponible. Cochez les idées dans votre explication." : "Automatic checking is unavailable. Tick the ideas in your explanation."; }
+function pageFallback(lang) { return lang === 'fr' ? "La vérification automatique est indisponible. Cochez chaque idée que votre explication contient." : "Automatic checking is unavailable. Tick each idea your explanation covers."; }
 
 test('keyboard journey validates empty text, submits and rereads without result focus jumps', async ({ page }) => {
   await open(page); await observe(page);
@@ -203,18 +203,18 @@ test('keyboard journey validates empty text, submits and rereads without result 
   await page.keyboard.press('Tab');
   await expect(page.locator('[data-lp-reread]')).toBeFocused(); await page.keyboard.press('Enter');
   await expect(page.locator('#example-lesson-return')).toBeFocused();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Write an explanation first.', '2 of 3 key ideas']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Write an explanation first.', '2 of 3 key ideas found']);
 });
 
 test('typing preserves feedback and does not announce or send until the next submit', async ({ page }) => {
   await open(page); await submit(page); await observe(page);
   await page.getByRole('textbox').fill('Revised explanation');
-  await expect(page.locator('[data-lp-result]')).toContainText('2 of 3 key ideas');
+  await expect(page.locator('[data-lp-result]')).toContainText('2 of 3 key ideas found');
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
   expect(await page.evaluate(() => window.lpTestCalls.length)).toBe(1);
   await page.locator('[data-lp-check]').click();
   expect(await page.evaluate(() => window.lpTestCalls.length)).toBe(2);
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['2 of 3 key ideas']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['2 of 3 key ideas found']);
 });
 
 test('edits while pending discard the judgment and allow a new check', async ({ page }) => {
@@ -255,7 +255,7 @@ for (const lang of ['en', 'fr']) test(`pending check keeps focus and its label, 
   await expect(check).toBeFocused();
   expect(await page.evaluate(() => window.lpStateChanges)).toEqual([]);
   await expect(note).toHaveCount(0);
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([frenchTypography(strings[lang].checking, lang), lang === 'fr' ? 'Idées clés : 3 sur 3' : '3 of 3 key ideas']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([frenchTypography(strings[lang].checking, lang), lang === 'fr' ? 'Idées clés trouvées : 3 sur 3' : '3 of 3 key ideas found']);
   expect(await page.evaluate(() => window.lpStatusTimes[0] - window.lpPressed)).toBeGreaterThanOrEqual(900);
 });
 
@@ -329,7 +329,7 @@ test('shared client renders the configured data notice and completes inline clea
   await expect(page.locator('[data-lp-challenge]')).toBeVisible();
   expect(await page.evaluate(() => window.lpWidget.slot === document.querySelector('[data-lp-challenge]'))).toBe(true);
   await page.evaluate(() => window.lpWidget.options.callback('test-token'));
-  await expect(page.locator('[data-lp-result]')).toContainText('3 of 3 key ideas');
+  await expect(page.locator('[data-lp-result]')).toContainText('3 of 3 key ideas found');
   await expect(page.locator('[data-lp-challenge]')).toBeHidden();
   expect(await page.evaluate(() => window.lpNetworkCalls.map(call => call.url))).toEqual(['/api/patterns/config', '/api/patterns/ask', '/api/patterns/ask']);
 });

@@ -1,6 +1,6 @@
 {
-  "title": "Estimate from the office records",
-  "context": "Your office has 120 staff. Each answer below comes from its records.",
+  "title": "Estimate your office's numbers",
+  "context": "Your office has 120 staff.",
   "questions": [
     {
       "question": "How many staff are off sick on a typical day?",

@@ -4,13 +4,13 @@
   "questions": [
     {
       "id": "reply-all",
-      "text": "Vous étiez en Cci et vous sélectionnez Répondre à tous. Qui reçoit votre réponse ?",
+      "text": "Vous recevez un courriel en Cci et vous sélectionnez Répondre à tous. Qui reçoit votre réponse ?",
       "options": [
         {
           "id": "sender",
           "text": "Seulement la personne qui a envoyé le courriel",
-          "feedback": "Répondre à tous écrit aussi à toutes les personnes en À et en Cc, qui voient alors que vous étiez en Cci.",
-          "rightWhen": "Répondre écrit seulement à la personne qui a envoyé le courriel."
+          "feedback": "Répondre à tous écrit aussi à toutes les personnes des champs À et Cc, qui voient alors que vous étiez en Cci.",
+          "rightWhen": "Le bouton Répondre écrit seulement à la personne qui a envoyé le courriel."
         },
         {
           "id": "to-cc",
@@ -39,34 +39,34 @@
         {
           "id": "higher",
           "text": "Elles sont 25 % plus élevées que celles de février",
-          "feedback": "Mars valait la moitié de février. En ajoutant la moitié de mars, on arrive aux trois quarts de février, soit 25 % de moins."
+          "feedback": "Les ventes de mars valaient la moitié de celles de février. La hausse d’avril y a ajouté la moitié des ventes de mars, ce qui donne les trois quarts des ventes de février, soit 25 % de moins."
         },
         {
           "id": "lower",
           "text": "Elles sont 25 % plus basses que celles de février",
-          "feedback": "Mars valait la moitié de février. En ajoutant la moitié de mars, on arrive aux trois quarts de février."
+          "feedback": "Les ventes de mars valaient la moitié de celles de février. La hausse d’avril y a ajouté la moitié des ventes de mars, ce qui donne les trois quarts des ventes de février."
         }
       ],
       "correct": "lower"
     },
     {
       "id": "redact",
-      "text": "Vous dessinez des rectangles noirs sur les numéros de compte d’un client dans un PDF, vous l’enregistrez et vous l’envoyez. Les numéros sont-ils masqués ?",
+      "text": "Vous dessinez des rectangles noirs sur les numéros de compte d’un client dans un PDF, vous l’enregistrez et vous l’envoyez. Qu’arrive-t-il aux numéros sous les rectangles ?",
       "options": [
         {
           "id": "still-there",
-          "text": "Non, le texte sous les rectangles peut encore être copié ou recherché",
+          "text": "Ils restent dans le fichier et n’importe qui peut les copier",
           "feedback": "Un rectangle dessiné se pose sur le texte. Un outil de caviardage supprime le texte."
         },
         {
           "id": "covered",
-          "text": "Oui, les rectangles les recouvrent",
+          "text": "Ils restent dans le fichier, mais personne ne peut les lire",
           "feedback": "Un rectangle dessiné se pose sur le texte, que n’importe qui peut encore copier ou rechercher.",
           "rightWhen": "Les rectangles masquent bien les numéros sur une page imprimée."
         },
         {
           "id": "saved",
-          "text": "Oui, une fois le fichier enregistré",
+          "text": "Ils sont supprimés à l’enregistrement du fichier",
           "feedback": "L’enregistrement conserve les rectangles et le texte qu’ils recouvrent. Un outil de caviardage supprime le texte.",
           "rightWhen": "L’enregistrement rend bien définitif le travail d’un outil de caviardage."
         }

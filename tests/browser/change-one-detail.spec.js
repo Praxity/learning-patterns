@@ -85,7 +85,7 @@ test('keyboard journey: error, three locked decisions, one closing announcement 
   await page.keyboard.press('Tab'); await expect(rounds.nth(1).locator('input').first()).toBeFocused();
   await page.keyboard.press('Space'); await page.keyboard.press('Tab'); await page.keyboard.press('Enter');
   await expect(feedback(1)).toBeFocused();
-  await expect(feedback(1)).toHaveText(`Incorrect. Correct answer: Security. The answer changes. ${english.changes[0].explanation}`);
+  await expect(feedback(1)).toHaveText(`Incorrect. Correct answer: Security. This detail changes the answer. ${english.changes[0].explanation}`);
   await expect(rounds.nth(1).locator('label:has(input[value="billing"])')).toHaveAttribute('data-lp-mark', 'wrong');
   await expect(rounds.nth(1).locator('label:has(input[value="security"])')).toHaveAttribute('data-lp-mark', 'missed');
   await expect(rounds.nth(1).locator('label:has(input[value="ask"])')).not.toHaveAttribute('data-lp-mark');
@@ -96,11 +96,11 @@ test('keyboard journey: error, three locked decisions, one closing announcement 
   await page.keyboard.press('Tab'); await expect(rounds.nth(2).locator('input').first()).toBeFocused();
   await page.keyboard.press('Space'); await page.keyboard.press('Tab'); await page.keyboard.press('Enter');
   await expect(feedback(2)).toBeFocused();
-  await expect(feedback(2)).toHaveText(`Correct. The answer stays the same. ${english.changes[1].explanation}`);
+  await expect(feedback(2)).toHaveText(`Correct. This detail doesn't change the answer. ${english.changes[1].explanation}`);
   const result = page.locator('[data-lp-result]');
   await expect(result).toBeVisible();
   await expect(result.locator('[data-lp-score]')).toHaveText('You got 2 of 3 right.');
-  await expect(result.locator('h3')).toHaveText('What decides it');
+  await expect(result.locator('h3')).toHaveText('What decides the answer');
   await expect(result.locator('h3 + p')).toHaveText(english.rule);
   expect(await announcements(page)).toEqual([`You got 2 of 3 right. ${english.rule}`]);
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ picks: ['billing', 'billing', 'billing'] });
@@ -127,8 +127,8 @@ test('keyboard journey: error, three locked decisions, one closing announcement 
 });
 
 for (const [lang, content, labels] of [
-  ['en', english, { first: 'Now one detail changes', next: 'Now a different detail changes instead', before: 'Before: ', now: 'Now: ', same: 'Everything else is as it was at the start.', moves: 'The answer changes.', stays: 'The answer stays the same.', check: 'Check my answer', summary: 'You got 3 of 3 right.', rule: 'What decides it', correct: 'Correct. ', restart: 'Start over', cleared: 'Answers cleared.' }],
-  ['fr', french, { first: 'Maintenant, un détail change', next: 'Maintenant, c’est un autre détail qui change', before: 'Avant : ', now: 'Maintenant : ', same: 'Tout le reste est comme au départ.', moves: 'La réponse change.', stays: 'La réponse reste la même.', check: 'Vérifier ma réponse', summary: 'Bonnes réponses : 3 sur 3.', rule: 'Ce qui détermine la réponse', correct: 'Correct. ', restart: 'Recommencer', cleared: 'Réponses effacées.' }]
+  ['en', english, { first: 'Now one detail changes', next: 'Now a different detail changes instead', before: 'Before: ', now: 'Now: ', same: 'Everything else is as it was at the start.', moves: 'This detail changes the answer.', stays: "This detail doesn't change the answer.", check: 'Check my answer', summary: 'You got 3 of 3 right.', rule: 'What decides the answer', correct: 'Correct. ', restart: 'Start over', cleared: 'Answers cleared.' }],
+  ['fr', french, { first: 'Maintenant, un détail change', next: 'Maintenant, c’est un autre détail qui change', before: 'Avant : ', now: 'Maintenant : ', same: 'Tout le reste est comme au départ.', moves: 'Ce détail change la réponse.', stays: 'Ce détail ne change pas la réponse.', check: 'Vérifier ma réponse', summary: 'Bonnes réponses : 3 sur 3.', rule: 'Ce qui détermine la réponse', correct: 'Correct. ', restart: 'Recommencer', cleared: 'Réponses effacées.' }]
 ]) {
   const typeset = value => lang === 'fr' ? value.replace(/ (?=[:$])/g, ' ').replace(/ (?=[?!;])/g, ' ') : value;
 
@@ -161,7 +161,9 @@ for (const [lang, content, labels] of [
       for (const label of [old.locator('.lp-visually-hidden'), fresh.locator('.lp-visually-hidden')]) expect((await label.boundingBox()).width).toBeLessThanOrEqual(1);
       // Each change starts from the first case: with the old wording put back, the rest matches it.
       expect(await section.locator('.lp-quote').evaluate(quote => { const copy = quote.cloneNode(true); copy.querySelectorAll('.lp-visually-hidden, ins').forEach(node => node.remove()); return copy.textContent.replace(/ (?= )/, ''); })).toBe(typeset(content.case));
-      await expect(section.locator('.lp-quote + .lp-small')).toHaveText(labels.same);
+      // The first change follows the start directly, so only later changes say the rest is as it was.
+      if (i) await expect(section.locator('.lp-quote + .lp-small')).toHaveText(labels.same);
+      else await expect(section.locator('.lp-quote + .lp-small')).toHaveCount(0);
       await expect(section.getByRole('group', { name: typeset(content.question) })).toBeVisible();
       await decide(root, i + 1, change.correct);
       await expect(section.locator('[data-lp-feedback]')).toHaveText(`${labels.correct}${change.correct === content.correct ? labels.stays : labels.moves} ${typeset(change.explanation)}`);
@@ -455,7 +457,7 @@ test('shared look: one card, sans headings, keyed rows, a quiet reset and body-s
   await expect(round(root, 0).locator('legend')).toHaveCSS('font-size', '19px');
   await expect(round(root, 0).locator('legend')).toHaveCSS('font-weight', '600');
   await decide(root, 0, 'billing'); await decide(root, 1, 'billing'); await decide(root, 2, 'billing');
-  for (const locator of [round(root, 1).locator('.lp-small'), root.locator('.lp-choice-mark').first(), root.locator('[data-lp-restart]')]) await expect(locator).toHaveCSS('font-size', '16px');
+  for (const locator of [round(root, 2).locator('.lp-small'), root.locator('.lp-choice-mark').first(), root.locator('[data-lp-restart]')]) await expect(locator).toHaveCSS('font-size', '16px');
   for (const locator of [round(root, 1).locator('.lp-quote'), round(root, 1).locator('[data-lp-feedback]'), root.locator('[data-lp-score]'), root.locator('[data-lp-result] h3 + p')]) await expect(locator).toHaveCSS('font-size', '17px');
   await expect(round(root, 1).locator('h3')).toHaveCSS('font-weight', '600');
   await expect(root.locator('[data-lp-restart]')).toHaveClass(/lp-button-quiet/);

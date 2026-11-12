@@ -28,15 +28,15 @@ It needs a server running a model. Without JavaScript, or when lookup fails, the
 
 1. The learner types a question of at least 10 characters. Lookup runs when they pause typing, or straight away on Enter or a final question mark.
 2. An FAQ lookup shows the closest authored answer. A section lookup links the closest course section. When two match about equally well, both appear.
-3. When nothing matches, the learner can add the question to the question bank, where it shows as "Waiting for an answer".
+3. When nothing matches, the learner can select "Ask the instructor". The question joins the list "Questions from learners", where it shows as "Waiting for an answer".
 
-Without JavaScript, or when lookup fails, the page shows that lookup's full FAQ or outline. The question bank still works when lookup fails.
+Without JavaScript, or when lookup fails, the page shows that lookup's full FAQ or outline. Learners can still ask the instructor when lookup fails.
 
 ## Evidence
 
 FAQs can give people a direct route to common answers. They need real user questions and readable lists. The mock questions here illustrate the format; they did not come from learner research ([Nielsen Norman Group, 2014](https://www.nngroup.com/articles/faqs-deliver-value/)).
 
-Help-seeking research distinguishes seeking help to understand from seeking an answer to finish quickly. Perceived emphasis on mastery was associated with more help-seeking in two studies of college classes ([Karabenick, 2004](https://doi.org/10.1037/0022-0663.96.3.569)). This supports treating questions as part of learning. It does not test instant lookup or this bank.
+Help-seeking research distinguishes seeking help to understand from seeking an answer to finish quickly. Perceived emphasis on mastery was associated with more help-seeking in two studies of college classes ([Karabenick, 2004](https://doi.org/10.1037/0022-0663.96.3.569)). This supports treating questions as part of learning. It does not test instant lookup or this list of questions.
 
 [Dhakal et al., CHI 2018](https://doi.org/10.1145/3173574.3174220) measured a mean inter-key interval of 239 ms, and over 480 ms for slow typists, in a transcription task. [Nielsen, 1993](https://www.nngroup.com/articles/response-times-3-important-limits/) identifies about one second as the limit for uninterrupted flow. These inform the adaptive wait. They do not establish the multiplier, sample window or cap. Network time adds to the wait.
 
@@ -61,7 +61,7 @@ Write complete answers or section summaries and clear link names. Without JavaSc
 | `entries[].id`, `title` | Fixed identity and authored question or section title. |
 | `entries[].answer` | Short authored FAQ answer, for `faq` only. |
 | `entries[].summary` | One-line section summary, for `sections` only. |
-| `seeds` | Two authored bank examples, with unique `id`, `question`, `author` and `answer`. |
+| `seeds` | Two authored examples for "Questions from learners", with unique `id`, `question`, `author` and `answer`. |
 | `seeds[].author` | `instructor` for one example; `learner` for the other. |
 
 All text is escaped. Unknown fields, wrong IDs and empty text fail validation. Keep the displayed catalogue consistent with the server-owned catalogue. To change topics, change both and calibrate the questions again. Section results link to the outline anchors that `render` creates.
@@ -85,7 +85,7 @@ The proxy owns both catalogues and the Choice questions. The browser sends only 
 
 `enhance(root, { content, strings, ask, state })` returns `{ destroy() }`. Repeated calls return the same instance. Optional `state: { read, write }` replaces session storage. Use a separate state adapter for each instance. Invalid saved values are ignored. `destroy()` cancels work, removes listeners and restores server markup. The page allowance survives re-enhancement.
 
-### Question bank
+### Questions from learners
 
 The demo keeps up to 100 added questions in the browser tab until it's closed. It stores nothing on a server and notifies no one. Two sample entries show answered questions: one answered by an instructor, one by another learner.
 
@@ -112,7 +112,7 @@ enhance(document.querySelector('[data-lp-pattern="course-lookup"]'), {
 });
 ```
 
-The default `browserState` adapter uses sessionStorage with the key `lp:course-lookup:<lang>:<question-field-id>`. Give each instance a stable, unique prefix so its bank survives reloads. Use a separate prefix for each course.
+The default `browserState` adapter uses sessionStorage with the key `lp:course-lookup:<lang>:<question-field-id>`. Give each instance a stable, unique prefix so its added questions survive reloads. Use a separate prefix for each course.
 
 ### Accessibility details
 
@@ -123,15 +123,15 @@ The field keeps the full question. After a typing pause or Enter, an oversized q
 Daily proxy caps show and announce the reason and midnight UTC reset once, keep focus in place and leave the fallback usable. Checks then stop until reload.
 
 - Results and the delayed progress line use `aria-live="off"`. One empty `role="status"` region announces a new result. Typing produces no announcements.
-- Enter starts a check. Shift+Enter adds a line break. Composition input finishes before lookup. Links and bank buttons use native keyboard behaviour.
+- Enter starts a check. Shift+Enter adds a line break. Composition input finishes before lookup. Links, "Ask the instructor" and the removal buttons use native keyboard behaviour.
 - Native FAQ disclosures and outline links work without JavaScript. Failed checks reveal the same content.
 - Activating a section result reveals the outline and focuses that entry's link after layout, while keeping the URL fragment.
-- No animation, colour-only feedback or focus movement on results. Adding a question focuses its text in the bank. Removing a question moves focus to the next removal button or the question field. If lookup fails while a lookup control has focus, focus moves to the message "Lookup is unavailable. Browse the list below." before the controls hide. Focus reads the message, so the status region stays empty, and the next Tab reaches the first fallback disclosure or outline link. If focus is elsewhere, the status region announces the message once.
+- No animation, colour-only feedback or focus movement on results. Adding a question focuses its text in "Questions from learners". Removing a question moves focus to the next removal button or the question field. If lookup fails while a lookup control has focus, focus moves to the message "Automatic answers are unavailable right now. Browse the list below." before the controls hide. Focus reads the message, so the status region stays empty, and the next Tab reaches the first fallback disclosure or outline link. If focus is elsewhere, the status region announces the message once.
 - English and Québec French use the same controls.
 
 ## Adapt it with your agent
 
-> Replace the FAQ and outline for [course]. Keep one shared renderer and enhancer, server-owned Choice catalogues, authored answers and a browser-only bank. Write English and Québec French together, using vous. Calibrate the questions and gates before using live lookup with learners.
+> Replace the FAQ and outline for [course]. Keep one shared renderer and enhancer, server-owned Choice catalogues, authored answers and a browser-only "Questions from learners" list. Write English and Québec French together, using vous. Calibrate the questions and gates before using live lookup with learners.
 
 ## Related patterns
 

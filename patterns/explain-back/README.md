@@ -31,7 +31,7 @@ Write a short lesson, three checklist statements, hints and a model answer, then
 
 1. The learner reads a three-part lesson, then selects "I'm ready to explain it", which hides the lesson.
 2. They explain the lesson in two sentences, as if to a new manager, and select "Check my explanation".
-3. Each key idea is marked "Found", "To add" or "Not sure", with a count of ideas found.
+3. Each key idea is marked "Found", "To add" or "Unclear", with a count of ideas found.
 4. "Read the text again" or a feedback link brings the lesson back. The draft stays, so the learner can revise and check again.
 5. The model answer appears once all three ideas are found. If automatic checking is unavailable, the learner ticks the ideas themselves and compares with the model answer.
 
@@ -106,7 +106,7 @@ Daily proxy caps show and announce the reason and midnight UTC reset once, keep 
 - While a check runs, "Check my explanation" keeps its label and focus, and pressing it again sends nothing. "Checking your explanation…" appears beside it. If the check takes more than a second, the status region says it once.
 - If automatic checking fails while "Check my explanation" has focus, focus moves to the first idea in the checklist before the button hides. The checklist's legend is the message, so the screen reader reads it once as focus enters the group, and the status region stays empty. If focus is elsewhere, the status region announces the message once.
 - Switching steps reveals the new step, waits for browser layout, focuses its heading, then hides the previous step. Feedback links open the reading step and focus the matching lesson heading. "Read the text again" stays available after a check.
-- Each row has an icon and a word as well as colour. "To add" is orange; "Not sure" is neutral.
+- Each row has an icon and a word as well as colour. "To add" is orange; "Unclear" is neutral.
 - Without JavaScript, the lesson, answer box, native checklist and model answer appear together. JavaScript adds the step controls. If automatic checking is unavailable, the explanation step offers the checklist and model answer.
 - English and Québec French have the same fields and controls.
 

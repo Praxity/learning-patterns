@@ -122,13 +122,13 @@ for (const lang of ['en', 'fr']) for (const scale of ['default', 'wide', 'edge']
 
 for (const lang of ['en', 'fr']) {
   const instructions = lang === 'en' ? {
-    10: 'Slide each range to hold your estimate. Each range is limited to ten times its low end.',
-    100: 'Slide each range to hold your estimate. Each range is limited to 100 times its low end.',
-    1000: 'Slide each range to hold your estimate. Each range is limited to 1,000 times its low end.'
+    10: 'Slide each range to where you think the answer is. The top of a range is always ten times the bottom.',
+    100: 'Slide each range to where you think the answer is. The top of a range is always 100 times the bottom.',
+    1000: 'Slide each range to where you think the answer is. The top of a range is always 1,000 times the bottom.'
   } : {
-    10: 'Faites glisser chaque plage pour y inclure votre estimation. Chaque plage est limitée à dix fois sa borne inférieure.',
-    100: 'Faites glisser chaque plage pour y inclure votre estimation. Chaque plage est limitée à 100 fois sa borne inférieure.',
-    1000: /^Faites glisser chaque plage pour y inclure votre estimation\. Chaque plage est limitée à 1[\u00a0\u202f]000 fois sa borne inférieure\.$/
+    10: 'Faites glisser chaque plage là où se trouve la réponse, selon vous. Le haut d’une plage vaut toujours dix fois le bas.',
+    100: 'Faites glisser chaque plage là où se trouve la réponse, selon vous. Le haut d’une plage vaut toujours 100 fois le bas.',
+    1000: /^Faites glisser chaque plage là où se trouve la réponse, selon vous\. Le haut d’une plage vaut toujours 1[\u00a0\u202f]000 fois le bas\.$/
   };
 
   test(`keyboard, validation, checked ranges, one announcement and Try again (${lang})`, async ({ page }) => {
@@ -166,7 +166,7 @@ for (const lang of ['en', 'fr']) {
     await expect(page.locator('[data-lp-feedback]:visible')).toHaveCount(3);
     for (let index = 0; index < 3; index++) {
       await expect(bands.nth(index)).toBeDisabled();
-      await expect(bands.nth(index)).toHaveAttribute('aria-valuetext', new RegExp(lang === 'fr' ? ' à .*Dans votre plage' : ' to .*Caught'));
+      await expect(bands.nth(index)).toHaveAttribute('aria-valuetext', new RegExp(lang === 'fr' ? ' à .*Dans votre plage' : ' to .*In your range'));
       await expect(page.locator('[data-lp-feedback]').nth(index)).toContainText(examples[lang].questions[index].source);
     }
     const original = await bands.first().getAttribute('aria-valuenow');
@@ -396,15 +396,15 @@ test('track taps and dragging select discrete bands without a keyboard', async (
   await page.locator('[data-lp-line]').nth(1).click({ position: { x: 1, y: 22 } });
   await page.locator('[data-lp-line]').nth(2).click({ position: { x: 1, y: 22 } });
   await page.locator('[data-lp-check]').click();
-  await expect(page.locator('[data-lp-result]')).toHaveText('You caught 0 of 3 answers in your ranges.');
-  await expect(page.locator('[data-lp-feedback]').first()).toContainText('below your range');
-  await expect(page.locator('[data-lp-feedback]').nth(1)).toContainText('above your range');
+  await expect(page.locator('[data-lp-result]')).toHaveText('Answers in your ranges: 0 of 3.');
+  await expect(page.locator('[data-lp-feedback]').first()).toContainText('Below your range');
+  await expect(page.locator('[data-lp-feedback]').nth(1)).toContainText('Above your range');
 });
 
 test('checked host state restores silently, destroy restores fallback', async ({ page }) => {
   await page.addInitScript(() => { window.lpSeed = { ranges: [0, 4, 8], touched: [true, true, true], shown: true }; });
   await page.goto('/estimate-magnitude/en.html');
-  await expect(page.locator('[data-lp-result]')).toHaveText('You caught 3 of 3 answers in your ranges.');
+  await expect(page.locator('[data-lp-result]')).toHaveText('Answers in your ranges: 3 of 3.');
   await expect(page.getByRole('status')).toHaveText('');
   // Wait past lock's two-frame focus work before checking the restored page.
   await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(resolve)))));

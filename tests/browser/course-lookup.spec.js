@@ -117,7 +117,7 @@ test('bank capacity and automatic-check cap keep a usable focused control', asyn
   const root = faq(page), add = root.locator('[data-lp-add]');
   await auto(page, 'Can I practise with my team'); await add.focus(); await page.keyboard.press('Enter');
   await expect(add).toBeFocused();
-  await expect(root.locator('[data-lp-bank-message]')).toHaveText('Your bank is full. Remove a question to add another.');
+  await expect(root.locator('[data-lp-bank-message]')).toHaveText(strings.en.bankFull);
   for (let index = 1; index < 30; index++) await auto(page, `Another unanswered question ${index}`);
   await expect(root.locator('[data-lp-paused]')).toBeVisible();
   await expect(root.getByRole('textbox')).toBeFocused();
@@ -481,7 +481,7 @@ for (const lang of ['en', 'fr']) test(`bank shows the latest ten, expands and us
   await expect(bank.locator('li:visible').last().getByRole('button')).toHaveAccessibleName(lang === 'fr' ? 'Retirer la question 102' : 'Remove question 102');
   await expect(bank.locator('li:visible').last().getByRole('button')).toHaveText(lang === 'fr' ? 'Retirer la question' : 'Remove question');
   const toggle = root.locator('[data-lp-bank-toggle]');
-  await expect(toggle).toHaveAccessibleName(lang === 'fr' ? 'Tout afficher' : 'Show all');
+  await expect(toggle).toHaveAccessibleName(lang === 'fr' ? 'Afficher toutes les questions' : 'Show all questions');
   await toggle.focus(); await toggle.press('Enter');
   await expect(bank.locator('li:visible')).toHaveCount(102);
   await expect(toggle).toBeFocused(); await expect(toggle).toHaveAttribute('aria-expanded', 'true');

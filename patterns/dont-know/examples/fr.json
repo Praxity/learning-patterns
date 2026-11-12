@@ -2,34 +2,34 @@
   "title": "Les bases des finances personnelles",
   "questions": [
     {
-      "id": "q1", "text": "À quoi sert un fonds d’urgence ?",
+      "id": "q1", "text": "Laquelle de ces dépenses un fonds d’urgence devrait-il couvrir ?",
       "options": [
-        { "id": "unexpected-expenses", "text": "Couvrir les dépenses imprévues" },
-        { "id": "planned-holidays", "text": "Payer des vacances prévues" },
-        { "id": "before-payday", "text": "Acheter des choses avant le jour de paie" }
+        { "id": "car-repair", "text": "La réparation de votre voiture après une panne" },
+        { "id": "booked-vacation", "text": "Des vacances réservées pour l’été prochain" },
+        { "id": "down-payment", "text": "La mise de fonds pour votre première maison" }
       ],
-      "correct": "unexpected-expenses",
-      "explanation": "Un fonds d’urgence couvre les dépenses imprévues, comme une réparation urgente."
+      "correct": "car-repair",
+      "explanation": "Un fonds d’urgence est de l’argent mis de côté pour des dépenses impossibles à prévoir, comme la réparation de votre voiture après une panne ou une perte de revenu soudaine. Des vacances réservées et une mise de fonds sont des dépenses prévues, pour lesquelles on épargne séparément."
     },
     {
-      "id": "q2", "text": "Que se passe-t-il généralement si vous payez seulement le minimum de votre carte de crédit chaque mois ?",
+      "id": "q2", "text": "Que se passe-t-il généralement si vous faites seulement le paiement minimum de votre carte de crédit chaque mois ?",
       "options": [
-        { "id": "no-interest", "text": "Vous évitez tous les frais d’intérêt" },
-        { "id": "longer-more-interest", "text": "Vous mettez plus de temps à rembourser et payez plus d’intérêts" },
-        { "id": "balance-disappears", "text": "Le solde restant disparaît" }
+        { "id": "no-interest", "text": "Vous évitez les frais d’intérêt" },
+        { "id": "longer-more-interest", "text": "Vous payez des intérêts beaucoup plus longtemps" },
+        { "id": "late-fee", "text": "Vous payez des frais de retard chaque mois" }
       ],
       "correct": "longer-more-interest",
-      "explanation": "Payer seulement le minimum signifie généralement un remboursement plus long et plus d’intérêts."
+      "explanation": "Le paiement minimum couvre les intérêts du mois et seulement une petite partie de ce que vous devez. Le solde diminue donc lentement, et vous payez des intérêts beaucoup plus longtemps. Seul le paiement du solde complet évite les intérêts, et des frais de retard s’appliquent seulement si vous payez moins que le minimum."
     },
     {
       "id": "q3", "text": "Comment les intérêts composés font-ils croître votre épargne ?",
       "options": [
-        { "id": "interest-on-interest", "text": "Vous gagnez des intérêts sur votre épargne et sur les intérêts déjà ajoutés" },
+        { "id": "interest-on-interest", "text": "Vous gagnez des intérêts sur vos dépôts et sur les intérêts déjà ajoutés" },
         { "id": "initial-savings-only", "text": "Vous gagnez des intérêts seulement sur le montant épargné au départ" },
-        { "id": "fixed-growth", "text": "Votre épargne augmente toujours du même montant" }
+        { "id": "rising-rate", "text": "Votre taux d’intérêt augmente chaque année où vous laissez l’argent en place" }
       ],
       "correct": "interest-on-interest",
-      "explanation": "Vous gagnez des intérêts sur votre épargne et sur les intérêts déjà ajoutés."
+      "explanation": "Chaque fois que des intérêts sont versés, ils s’ajoutent à votre épargne, et les intérêts suivants sont calculés sur ce montant plus élevé. Le taux peut rester le même tout le temps. Des intérêts calculés seulement sur le montant de départ sont des intérêts simples."
     }
   ],
   "points": { "right": 1, "wrong": -1, "unknown": 0 }

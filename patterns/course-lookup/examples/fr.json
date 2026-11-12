@@ -11,12 +11,12 @@
     {
       "id": "certificate",
       "title": "Vais-je recevoir une attestation?",
-      "answer": "Terminez les six sections et le plan d’action final pour télécharger votre attestation."
+      "answer": "Terminez les six sections, y compris votre plan d’action, pour télécharger votre attestation."
     },
     {
       "id": "time",
       "title": "Combien de temps faut-il prévoir?",
-      "answer": "Prévoyez trois heures en tout, puis dix minutes par semaine pour vous exercer au travail."
+      "answer": "Prévoyez trois heures pour le cours. Vos exercices au travail demandent dix minutes de plus par semaine."
     },
     {
       "id": "help",
@@ -26,7 +26,7 @@
     {
       "id": "assertive",
       "title": "Que veut dire s’affirmer?",
-      "answer": "Exprimez clairement vos besoins en respectant l’autre personne. L’agressivité consiste à imposer sa volonté par des menaces ou des insultes."
+      "answer": "S’affirmer, c’est exprimer clairement ses besoins en respectant l’autre personne. L’agressivité consiste à imposer sa volonté par des menaces ou des insultes."
     },
     {
       "id": "interruptions",
@@ -35,13 +35,13 @@
     },
     {
       "id": "no",
-      "title": "Comment refuser du travail de plus?",
+      "title": "Comment refuser du travail supplémentaire?",
       "answer": "Nommez votre limite et proposez une solution réaliste : « Je ne peux pas m’en occuper aujourd’hui. Je peux vous aider jeudi. »"
     },
     {
       "id": "timeout",
       "title": "À quoi sert une pause dans une discussion?",
-      "answer": "Convenez d’une courte pause quand le ton monte. Dites quand vous reviendrez, puis reprenez la discussion à ce moment."
+      "answer": "Une pause permet à chacun de se calmer. Convenez-en quand le ton monte, dites quand vous reviendrez, puis reprenez la discussion à ce moment-là."
     }
   ],
   "seeds": [
@@ -53,7 +53,7 @@
     },
     {
       "id": "nerves",
-      "question": "Comment vous exercer quand vous êtes nerveux?",
+      "question": "Comment faites-vous pour vous exercer malgré la nervosité?",
       "author": "learner",
       "answer": "J’ai fait ma première demande à une collègue en qui j’ai confiance. La suivante était plus facile."
     }

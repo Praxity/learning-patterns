@@ -26,39 +26,39 @@ export const FIRST = {
 // SECOND[node][branch]: Michel's answer to the second reply, given where the first one led.
 export const SECOND = {
 	acknowledge: {
-		acknowledge: "OK. If you check with me first, I can live with changes. Let's write that down.",
+		acknowledge: "OK. If that's how changes will work, I can live with them. Let's write that down.",
 		defend: "Then nothing will change, and I'll keep redoing my work.",
 		attack: "I asked a fair question. I'll take this to the team lead.",
 		withdraw: "So we're leaving it. Then it'll happen again next month.",
-		pause: "Fine. This afternoon, then.",
+		pause: "Fine. Come back to me when you've thought it through.",
 	},
 	defend: {
 		acknowledge: "Thank you. That's what I needed. Let's look at the new order together.",
 		defend: "Then this will keep happening, and I'll keep paying for it.",
-		attack: "A few hours of my work. I'm done with this conversation.",
-		withdraw: "Fine. Next item.",
-		pause: "OK. Ten minutes.",
+		attack: "There's no need to talk to me like that. I'm done with this conversation.",
+		withdraw: "Fine. We'll leave it.",
+		pause: "OK. Take the time you need, then come back to me.",
 	},
 	attack: {
-		acknowledge: "Thank you. Then let's agree how changes work from now on.",
-		defend: "It didn't sound like facts to me. Let's leave it for now.",
+		acknowledge: "Thank you. Then let's agree on how changes work from now on.",
+		defend: "It sounded like an attack to me. Let's leave it for now.",
 		attack: "I'm not doing this. Talk to me when you can be civil.",
 		withdraw: "Then I'll raise it with the team lead.",
-		pause: "Yes. Three o'clock.",
+		pause: "Yes. Let's take a break and come back to it.",
 	},
 	withdraw: {
 		acknowledge: "Thank you. Let's start with what's left of my part.",
 		defend: "I redid hours of work. I'm not letting this go.",
 		attack: "I asked a simple question. I'll take this to the team lead.",
 		withdraw: "Right.",
-		pause: "OK. After lunch, then.",
+		pause: "OK. I'll wait for you to come back to me.",
 	},
 	pause: {
 		acknowledge: "Thanks. That's what I needed to hear. Let's fix the new order together.",
 		defend: "So the break changed nothing.",
 		attack: "Then the break was pointless.",
 		withdraw: "You said we'd come back to this. Leaving it is exactly the problem.",
-		pause: "Tomorrow at nine, then. I'll hold you to it.",
+		pause: "One more break, then. I'll hold you to it.",
 	},
 };
 

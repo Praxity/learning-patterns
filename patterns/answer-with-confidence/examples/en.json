@@ -4,13 +4,13 @@
   "questions": [
     {
       "id": "reply-all",
-      "text": "You were on Bcc and select Reply all. Who gets your reply?",
+      "text": "You receive an email as a Bcc recipient and select Reply all. Who gets your reply?",
       "options": [
         {
           "id": "sender",
           "text": "Only the sender",
           "feedback": "Reply all also goes to everyone on To and Cc, who then see you were on Bcc.",
-          "rightWhen": "Reply goes only to the sender."
+          "rightWhen": "The Reply button sends only to the sender."
         },
         {
           "id": "to-cc",
@@ -39,34 +39,34 @@
         {
           "id": "higher",
           "text": "25% higher than February",
-          "feedback": "March was half of February. Adding half of March makes three quarters of February, which is 25% lower."
+          "feedback": "March's sales were half of February's. April's rise added half of March's sales, so April's sales were three quarters of February's, which is 25% lower."
         },
         {
           "id": "lower",
           "text": "25% lower than February",
-          "feedback": "March was half of February. Adding half of March makes three quarters of February."
+          "feedback": "March's sales were half of February's. April's rise added half of March's sales, so April's sales were three quarters of February's."
         }
       ],
       "correct": "lower"
     },
     {
       "id": "redact",
-      "text": "You draw black boxes over a client's account numbers in a PDF, save it and send it. Are the numbers hidden?",
+      "text": "You draw black boxes over a client's account numbers in a PDF, save it and send it. What happens to the numbers under the boxes?",
       "options": [
         {
           "id": "still-there",
-          "text": "No, the text under the boxes can still be copied or searched",
+          "text": "They stay in the file, and anyone can copy them",
           "feedback": "A drawn box sits on top of the text. A redaction tool deletes the text."
         },
         {
           "id": "covered",
-          "text": "Yes, the boxes cover them",
+          "text": "They stay in the file, but no one can read them",
           "feedback": "A drawn box sits on top of the text, where anyone can still copy or search for it.",
           "rightWhen": "Boxes do hide the numbers on a printed page."
         },
         {
           "id": "saved",
-          "text": "Yes, once the file is saved",
+          "text": "They are deleted when you save the file",
           "feedback": "Saving keeps the boxes and the text under them. A redaction tool deletes the text.",
           "rightWhen": "Saving does make a redaction tool's change permanent."
         }

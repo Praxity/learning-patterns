@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { DONT_KNOW, SURE, UNSURE, feedback, format, summarize, validateContent, validateState } from './logic.js';
 import { render } from './render.js';
+import { escapeHtml } from '../../lib/html.js';
 import { strings } from './strings.js';
 
 const content = JSON.parse(await readFile(new URL('./examples/en.json', import.meta.url)));
@@ -146,7 +147,7 @@ for (const [lang, example] of [['en', content], ['fr', french]]) {
     assert.match(markup, /data-lp-result hidden>/);
     assert.match(markup, /<details class="lp-details lp-section" data-lp-fallback>/);
     const fallback = markup.split('data-lp-fallback>')[1];
-    for (const q of example.questions) assert.ok(fallback.includes(q.options.find(o => o.id === q.correct).feedback.slice(0, 20)));
+    for (const q of example.questions) assert.ok(fallback.includes(escapeHtml(q.options.find(o => o.id === q.correct).feedback, lang).slice(0, 20)));
   });
 }
 

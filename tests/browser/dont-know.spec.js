@@ -5,9 +5,9 @@ import { expectChoiceMarks } from './choice-marks.js';
 
 const english = JSON.parse(await readFile(new URL('../../patterns/dont-know/examples/en.json', import.meta.url)));
 const french = JSON.parse(await readFile(new URL('../../patterns/dont-know/examples/fr.json', import.meta.url)));
-const mixed = ['unexpected-expenses', 'no-interest', 'dont-know'];
+const mixed = ['car-repair', 'no-interest', 'dont-know'];
 
-for (const [lang, expected] of [['en', 'Score 0.33 out of 1.'], ['fr', 'Score de 0,33 sur 1.']]) {
+for (const [lang, expected] of [['en', 'You scored 0.33 out of 1.'], ['fr', 'Votre score est de 0,33 sur 1.']]) {
   test(`one-third reward displays without float artefacts (${lang})`, async ({ page }) => {
     await open(page, `/dont-know/${lang}.html`);
     await page.evaluate(async ({ content, lang }) => {
@@ -98,7 +98,7 @@ for (const [lang, title, label, number] of [
     await expect(ring).toHaveAttribute('aria-hidden', 'true');
     await expect(ring).toHaveAttribute('focusable', 'false');
     await expect(ring.locator('.lp-dont-know-ring-fill')).toHaveAttribute('stroke-dashoffset', '100');
-    await expect(page.locator('[data-lp-review] h3')).toHaveText(lang === 'en' ? 'Review' : 'À revoir');
+    await expect(page.locator('[data-lp-review] h3')).toHaveText(lang === 'en' ? 'Questions to review' : 'À revoir');
     await expect(page.locator('[data-lp-review] li')).toHaveCount(2);
     await expect(page.locator('[data-lp-review] a svg[aria-hidden="true"]')).toHaveCount(2);
     const links = await page.locator('[data-lp-review] a').evaluateAll(els => els.map(el => el.getBoundingClientRect().top));
@@ -144,7 +144,7 @@ test('keyboard journey associates each unanswered error, focuses first missing r
   for (let n = 0; n < 3; n++) await page.keyboard.press('Tab');
   await expect(check).toBeFocused(); await page.keyboard.press('Enter');
   await expect(questions.nth(1).locator('input').first()).toBeFocused();
-  await expect(page.locator('[data-lp-error] > p')).toHaveText("2 questions need answers. Choose an answer or \"I don't know\".");
+  await expect(page.locator('[data-lp-error] > p')).toHaveText('2 questions still need an answer:');
   for (let n = 1; n < 3; n++) {
     const fieldset = questions.nth(n);
     const id = await fieldset.getAttribute('aria-describedby');
@@ -158,7 +158,7 @@ test('keyboard journey associates each unanswered error, focuses first missing r
   await page.keyboard.press('ArrowDown'); await page.keyboard.press('ArrowDown'); await page.keyboard.press('ArrowDown');
   await page.keyboard.press('Tab'); await expect(check).toBeFocused(); await page.keyboard.press('Enter');
   await expect(page.locator('[data-lp-score]').first()).toBeFocused();
-  await expect(page.locator('[data-lp-score]').first()).toHaveText('Score 0 out of 3.');
+  await expect(page.locator('[data-lp-score]').first()).toHaveText('You scored 0 out of 3.');
   await expect(check).toBeHidden();
   await page.keyboard.press('Tab'); await expect(page.getByRole('link', { name: english.questions[1].text, exact: true })).toBeFocused();
   await page.keyboard.press('Enter'); await expect(questions.nth(1)).toBeFocused();
@@ -186,7 +186,7 @@ test('score focus supplies one result announcement without a duplicate status up
   await open(page); await observe(page); await pick(page);
   await page.locator('[data-lp-check]').click();
   await expect(page.locator('[data-lp-score]')).toBeFocused();
-  await expect(page.locator('[data-lp-score]')).toHaveText('Score 0 out of 3.');
+  await expect(page.locator('[data-lp-score]')).toHaveText('You scored 0 out of 3.');
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
 });
 
@@ -291,9 +291,9 @@ test('all wrong, all unknown and all right omit zero counts and unnecessary revi
   await open(page);
   await expect(page.locator('.lp-scene + p')).toHaveText('A right answer scores a point. A wrong answer costs a point. "I don\'t know" costs nothing.');
   for (const [values, summary, counts, reviews, explanations, offset] of [
-    [english.questions.map(q => q.options.find(o => o.id !== q.correct).id), 'Score −3 out of 3.', '3 wrong', 3, 3, '100'],
-    [english.questions.map(() => 'dont-know'), 'Score 0 out of 3.', '3 "I don\'t know"', 3, 3, '100'],
-    [english.questions.map(q => q.correct), 'Score 3 out of 3.', '3 right', 0, 0, '0']
+    [english.questions.map(q => q.options.find(o => o.id !== q.correct).id), 'You scored −3 out of 3.', '3 wrong', 3, 3, '100'],
+    [english.questions.map(() => 'dont-know'), 'You scored 0 out of 3.', '3 "I don\'t know"', 3, 3, '100'],
+    [english.questions.map(q => q.correct), 'You scored 3 out of 3.', '3 right', 0, 0, '0']
   ]) {
     await pick(page, values); await page.locator('[data-lp-check]').click();
     await expect(page.locator('[data-lp-score]').first()).toHaveText(summary);
@@ -321,7 +321,7 @@ test('authored fractional points reach the rule and total; feedback preserves ho
   }, english);
   await expect(page.locator('.lp-scene + p')).toHaveText('A right answer scores 2 points. A wrong answer costs 0.5 points. "I don\'t know" scores 0.25 points.');
   await pick(page); await page.locator('[data-lp-check]').click();
-  await expect(page.locator('[data-lp-score]').first()).toHaveText('Score 1.75 out of 6.');
+  await expect(page.locator('[data-lp-score]').first()).toHaveText('You scored 1.75 out of 6.');
   await expect(page.locator('.lp-dont-know-ring-fill')).toHaveAttribute('stroke-dashoffset', '70.83333333333333');
   await expect(page.locator('fieldset').nth(1).locator('label:has(input:checked)')).toContainText('<img src=x onerror=alert(1)> {option} & "quoted"');
   await expect(page.locator('fieldset').nth(1).locator('[data-lp-explanation]')).toHaveText('<script>alert(1)</script> {total}');
@@ -355,8 +355,8 @@ test('reset uses a quiet button and theme tokens reach controls and focus', asyn
 
 test('decorative score rings stay bounded for zero and negative authored totals', async ({ page }) => {
   for (const [points, expected, offset] of [
-    [{ right: 0, wrong: -1, unknown: -0.5 }, 'Score −1.5 out of 0.', '100'],
-    [{ right: -1, wrong: -2, unknown: -1.5 }, 'Score −4.5 out of −3.', '100']
+    [{ right: 0, wrong: -1, unknown: -0.5 }, 'You scored −1.5 out of 0.', '100'],
+    [{ right: -1, wrong: -2, unknown: -1.5 }, 'You scored −4.5 out of −3.', '100']
   ]) {
     await open(page);
     await page.evaluate(async ({ content, points }) => {
@@ -409,7 +409,7 @@ for (const shown of [false, true]) {
     await open(page); await expect(page.locator('input:checked')).toHaveCount(3);
     await expect(page.locator('[role="status"]')).toHaveText('');
     if (shown) {
-      await expect(page.locator('[data-lp-result]')).toContainText('Score 0 out of 3.');
+      await expect(page.locator('[data-lp-result]')).toContainText('You scored 0 out of 3.');
       await expect(page.locator('[data-lp-restart]')).toBeVisible();
       await expect(page.locator('input:disabled')).toHaveCount(12);
       await expect(page.locator('.lp-choice-mark')).toHaveCount(5);
@@ -421,7 +421,7 @@ for (const shown of [false, true]) {
   });
 }
 
-for (const seed of [{ picks: { q1: 'bad' }, shown: false }, { picks: { q1: 'unexpected-expenses' }, shown: true }]) {
+for (const seed of [{ picks: { q1: 'bad' }, shown: false }, { picks: { q1: 'car-repair' }, shown: true }]) {
   test(`invalid saved state is ignored: ${JSON.stringify(seed)}`, async ({ page }) => {
     await page.addInitScript(value => { window.lpSeed = value; }, seed); await open(page);
     await expect(page.locator('input:checked')).toHaveCount(0); await expect(page.locator('[data-lp-result]')).toBeHidden();
@@ -507,7 +507,7 @@ test('quiet reset and forced colours preserve focus rings and button distinction
 });
 
 test('one unanswered question uses the singular message in English and French', async ({ page }) => {
-  for (const [lang, text] of [['en', "1 question needs an answer. Choose an answer or \"I don't know\"."], ['fr', 'Répondez à la question restante ou choisissez « Je ne sais pas ».']]) {
+  for (const [lang, text] of [['en', '1 question still needs an answer:'], ['fr', 'Il reste 1 question sans réponse :']]) {
     await open(page, `/dont-know/${lang}.html`);
     await pick(page, mixed.slice(0, 2));
     await page.locator('[data-lp-check]').click();

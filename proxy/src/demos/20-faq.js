@@ -3,13 +3,13 @@ import { QUESTION_LIMIT } from '../../logic/20-faq.js';
 // The proxy owns the catalogue and wording. Browser requests contain only learner text.
 export const CATALOGUE = {
   deadline: 'When is the deadline? Finish Assertive at work within eight weeks of enrolment.',
-  certificate: 'Will I get a certificate? Complete all six sections and the final action plan to download a completion certificate.',
-  time: 'How much time will I need? Allow three hours in total, plus ten minutes a week to practise at work.',
+  certificate: 'Will I get a certificate? Complete all six sections, including your action plan, to download a completion certificate.',
+  time: 'How much time will I need? Allow three hours for the course. Practising at work takes ten more minutes a week.',
   help: 'Where can I get help? Post in the course forum. The instructor replies within two working days.',
-  assertive: 'What does assertive mean? Say what you need clearly while respecting the other person. Aggression uses threats or insults to get your way.',
-  interruptions: 'What if someone talks over me? Say: I would like to finish my point. Then pause and continue when you have the floor.',
-  no: 'How do I say no to extra work? State your limit and offer a realistic alternative: I cannot take this on today. I can help on Thursday.',
-  timeout: 'What is a time-out? Agree on a short break when a conversation gets heated. Say when you will return, then resume the conversation at that time.',
+  assertive: 'What does assertive mean? Being assertive means saying what you need clearly while respecting the other person. Aggression uses threats or insults to get your way.',
+  interruptions: 'What if someone talks over me? Say: "I\'d like to finish my point." Then pause and continue when you have the floor.',
+  no: 'How do I say no to extra work? State your limit and offer a realistic alternative: "I can\'t take this on today. I can help on Thursday."',
+  timeout: 'What is a time-out? A time-out is a short break you agree on when a conversation gets heated. Say when you will return, then resume the conversation at that time.',
 };
 export const questions = { lookup: {
   type: 'choice',

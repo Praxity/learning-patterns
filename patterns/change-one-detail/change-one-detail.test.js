@@ -179,8 +179,8 @@ for (const [lang, content] of [['en', en], ['fr', fr]]) {
     const answer = id => text(strings[lang].correct.replace('{option}', option(id)));
     const steps = [
       `<p>${answer(content.correct)}</p><p>${text(content.explanation)}</p>`,
-      `<p><strong>${strings[lang].moves}</strong> ${answer(content.changes[0].correct)}</p>`,
-      `<p><strong>${strings[lang].stays}</strong> ${answer(content.changes[1].correct)}</p>`,
+      `<p><strong>${text(strings[lang].moves)}</strong> ${answer(content.changes[0].correct)}</p>`,
+      `<p><strong>${text(strings[lang].stays)}</strong> ${answer(content.changes[1].correct)}</p>`,
       `<summary>${strings[lang].ruleLabel}</summary><p>${text(content.rule)}</p>`
     ].map(step => fallback.indexOf(step));
     assert.ok(steps.every(at => at >= 0), JSON.stringify(steps));
@@ -192,10 +192,22 @@ test('feedback says whether the answer moved, and the first case makes no such c
   const output = render(en, strings.en, { id: 'route', lang: 'en' });
   const feedback = [...output.matchAll(/<p class="lp-change-one-detail-feedback" tabindex="-1" data-lp-feedback hidden><span class="lp-visually-hidden" data-lp-verdict><\/span>(.*?)<\/p>/g)].map(match => match[1]);
   assert.deepEqual(feedback, [
-    'The bill is the customer&#39;s own, so this is a question about a charge. Billing reviews it.',
-    '<strong>The answer changes.</strong> The customer saw another person&#39;s name and card digits. Those are personal details shown to the wrong person, so the message goes to security.',
-    '<strong>The answer stays the same.</strong> A larger amount is still a charge on the customer&#39;s own bill, so the message goes to billing.'
+    'The bill is the customer&#39;s own, so this is a question about a charge, and billing reviews charges. The message already names the bill and the charge, so you don&#39;t need more detail.',
+    '<strong>This detail changes the answer.</strong> The customer saw another person&#39;s name and card digits. Those are personal details shown to the wrong person, so the message goes to security.',
+    '<strong>This detail doesn&#39;t change the answer.</strong> A larger amount is still a charge on the customer&#39;s own bill, so the message goes to billing.'
   ]);
+});
+
+test('the reminder that the rest matches the start shows from the second change on', () => {
+  for (const lang of ['en', 'fr']) {
+    const content = lang === 'en' ? en : fr;
+    const output = render(content, strings[lang], { id: 'route', lang });
+    const same = `<p class="lp-small">${strings[lang].same}</p>`;
+    // The second change appears once in its round and once in the no-JavaScript list; the first change never carries it.
+    assert.equal(output.split(same).length - 1, 2);
+    const firstChange = output.slice(output.indexOf(strings[lang].changeFirst), output.indexOf(strings[lang].changeNext));
+    assert.ok(!firstChange.includes(same));
+  }
 });
 
 test('authored text is escaped, and the context is optional', () => {

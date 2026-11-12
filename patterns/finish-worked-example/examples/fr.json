@@ -11,7 +11,7 @@
       "options": ["Tout est arrivé", "Il manque des articles"]
     },
     {
-      "question": "Que faites-vous ?",
+      "question": "Que devez-vous faire ?",
       "options": [
         "Payer la facture au complet",
         "Payer seulement ce qui est arrivé",
@@ -28,7 +28,7 @@
       ],
       "steps": [
         { "answer": 0, "worked": true, "reason": "Mêmes articles, même quantité et même prix que sur le bon de commande. Votre entreprise retient une facture seulement si elle diffère du bon de commande." },
-        { "answer": 0, "worked": true, "reason": "Le bon de réception indique les 20 chaises. S’il manque des articles et que la facture correspond au bon de commande, votre entreprise paie ce qui est arrivé." },
+        { "answer": 0, "worked": true, "reason": "Le bon de réception confirme les 20 chaises. S’il manque des articles et que la facture correspond au bon de commande, votre entreprise paie ce qui est arrivé." },
         { "answer": 0, "worked": true, "reason": "Les deux vérifications sont réussies, donc vous payez les 1 700 $ au complet." }
       ]
     },
@@ -52,7 +52,7 @@
       ],
       "steps": [
         { "answer": 1, "worked": false, "reason": "La facture indique 240 $ par bureau. Le bon de commande indique 220 $." },
-        { "answer": 0, "worked": false, "reason": "Le bon de réception indique les 12 bureaux." },
+        { "answer": 0, "worked": false, "reason": "Le bon de réception confirme les 12 bureaux." },
         { "answer": 2, "worked": false, "reason": "La facture diffère du bon de commande, donc vous la retenez jusqu’à ce que le fournisseur la corrige." }
       ]
     }
