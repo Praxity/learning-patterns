@@ -4,14 +4,12 @@
   "misconceptions": [
     { "id": "busy", "label": "Busy people don't need breaks" },
     { "id": "push-through", "label": "Working without breaks always gets more done" },
-    { "id": "phone", "label": "Scrolling on your phone gives you rest" },
-    { "id": "exhausted", "label": "You only need rest when you're exhausted" }
+    { "id": "phone", "label": "Scrolling on your phone gives you rest" }
   ],
   "authorOptions": [
     { "text": "Yes. Busy people don't have time for breaks.", "misconception": "busy" },
     { "text": "Yes. Working without breaks always gets more done.", "misconception": "push-through" },
-    { "text": "Yes. Scrolling on your phone while working gives you enough rest.", "misconception": "phone" },
-    { "text": "Yes. You only need rest once you're exhausted.", "misconception": "exhausted" }
+    { "text": "Yes. Scrolling on your phone while working gives you enough rest.", "misconception": "phone" }
   ],
   "count": 2
 }

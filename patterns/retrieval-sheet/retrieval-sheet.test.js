@@ -139,7 +139,7 @@ test('state copies a valid date and side and ignores malformed saved values', ()
     ...['', 'left', null, 'toString', 2].map(side => ({ ...valid, side }))]) assert.equal(logic.validateState(value), null);
 });
 
-test('server sheet includes scene header, six questions then answers, a printed date and hidden controls', () => {
+test('server sheet includes scene header, four questions then answers, a printed date and hidden controls', () => {
   const markup = render(content, strings.en, options);
   assert.match(markup, /class="lp lp-retrieval-sheet" data-lp-pattern="retrieval-sheet" lang="en"/);
   assert.match(markup, /class="lp-scene"/);
@@ -149,7 +149,7 @@ test('server sheet includes scene header, six questions then answers, a printed 
   assert.match(markup, /type="date"/);
   assert.match(markup, /value="2026-10-13"/);
   assert.equal((markup.match(/datetime="2026-10-13"/g) || []).length, 2);
-  assert.equal((markup.match(/data-lp-question=/g) || []).length, 12);
+  assert.equal((markup.match(/data-lp-question=/g) || []).length, 8);
   assert.equal((markup.match(/data-lp-side="(?:front|back)"/g) || []).length, 2);
   assert.doesNotMatch(markup, /data-lp-side="(?:front|back)"[^>]*hidden/);
   assert.ok(markup.indexOf('data-lp-side="front"') < markup.indexOf('data-lp-side="back"'));

@@ -4,8 +4,6 @@
     { "id": "four", "question": "Name the four horsemen.", "answer": "Criticism, defensiveness, contempt and stonewalling." },
     { "id": "eyes", "question": "A colleague rolls their eyes at an idea. Which horseman is this?", "answer": "Contempt. It is the most serious of the four." },
     { "id": "criticism", "question": "How can you raise a concern without criticising the person?", "answer": "Raise the concern gently. Use \"I\" to explain how a specific behaviour affects you. Avoid judging the person." },
-    { "id": "defensiveness", "question": "How can you respond without getting defensive?", "answer": "Listen, accept your share of responsibility and apologise." },
-    { "id": "contempt", "question": "How can you respond without showing contempt?", "answer": "Say what you appreciate about the person and what you need. A word of appreciation can be enough." },
     { "id": "pause", "question": "How is a time-out different from stonewalling?", "answer": "With stonewalling, you leave without a word and the other person feels ignored. For a time-out, say you need a few minutes to think. Then return to the conversation." }
   ]
 }

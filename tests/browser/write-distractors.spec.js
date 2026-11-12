@@ -415,8 +415,8 @@ for (const lang of ['en', 'fr']) {
     expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
     await page.locator('[data-lp-compare]').click();
     await expectChoiceMarks(page);
-    const message = lang === 'en' ? "Your labels match 1 of the author's 4 mistaken ideas. You added 1 of your own."
-      : "Idées fausses en commun avec l’auteur : 1 sur 4. Autres idées fausses : 1.";
+    const message = lang === 'en' ? "Your labels match 1 of the author's 3 mistaken ideas. You added 1 of your own."
+      : "Idées fausses en commun avec l’auteur : 1 sur 3. Autres idées fausses : 1.";
     await expect(page.locator('[data-lp-summary]')).toHaveText(message);
     await expect(page.locator('[role="status"]')).toHaveText(message);
     expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([message]);
@@ -429,8 +429,8 @@ for (const lang of ['en', 'fr']) {
   });
 
   for (const fixture of [
-    { name: 'zero author, two own', author: 0, total: 4, own: 2, targets: ['other', 'other'], customs: ['New one', 'New two'] },
-    { name: 'two author, zero own', author: 2, total: 4, own: 0, targets: ['busy', 'phone'] },
+    { name: 'zero author, two own', author: 0, total: 3, own: 2, targets: ['other', 'other'], customs: ['New one', 'New two'] },
+    { name: 'two author, zero own', author: 2, total: 3, own: 0, targets: ['busy', 'phone'] },
     { name: 'one author with duplicate tags and a custom alias', author: 1, total: 1, own: 0, targets: ['busy', 'other'], alias: true },
     { name: 'zero of one author, repeated own tag', author: 0, total: 1, own: 1, targets: ['other', 'other'], customs: ['New tag', ' new TAG '] }
   ]) {
@@ -490,7 +490,7 @@ test('keyboard-only error, custom tag, comparison, repeated announcement and cle
   await expect(page.locator('[data-lp-compare]')).toBeFocused();
   const coverage = await page.locator('[data-lp-coverage]').innerText();
   await expect(page.locator('[role="status"]')).toHaveText(coverage);
-  await expect(page.locator('[data-lp-coverage]')).toHaveText("Your labels match 1 of the author's 4 mistaken ideas. You added 1 of your own.");
+  await expect(page.locator('[data-lp-coverage]')).toHaveText("Your labels match 1 of the author's 3 mistaken ideas. You added 1 of your own.");
   await page.keyboard.press('Enter');
   await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-clear]')).toBeFocused();
   await page.keyboard.press('Enter'); await expect(page.locator('[data-lp-answer]')).toBeFocused();
@@ -528,7 +528,7 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     await open(page, lang); await fill(page, true); await page.locator('[data-lp-compare]').click();
     await expect(page.locator('[data-lp-pattern]')).toHaveAttribute('lang', lang);
     const author = page.locator('[data-lp-result] [data-lp-preview="author"] li');
-    await expect(author).toHaveCount(5);
+    await expect(author).toHaveCount(4);
     await expect(author.first()).toContainText(content.rightAnswer);
     for (const [index, item] of content.authorOptions.entries()) {
       await expect(author.nth(index + 1)).toContainText(item.text);
@@ -542,8 +542,8 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     await expect(yours.locator('svg[aria-hidden="true"]')).toHaveCount(2);
     await expect(yours.locator('.lp-choice-key[aria-hidden="true"]')).toHaveCount(3);
     await expect(page.locator('[data-lp-summary]')).toHaveText(lang === 'en'
-      ? "Your labels match 1 of the author's 4 mistaken ideas. You added 1 of your own."
-      : "Idées fausses en commun avec l’auteur : 1 sur 4. Autres idées fausses : 1.");
+      ? "Your labels match 1 of the author's 3 mistaken ideas. You added 1 of your own."
+      : "Idées fausses en commun avec l’auteur : 1 sur 3. Autres idées fausses : 1.");
   });
 
   test(`native no-JavaScript baseline (${lang})`, async ({ browser }) => {

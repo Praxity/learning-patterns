@@ -61,8 +61,8 @@ Write complete answers or section summaries and clear link names. Without JavaSc
 | `entries[].id`, `title` | Fixed identity and authored question or section title. |
 | `entries[].answer` | Short authored FAQ answer, for `faq` only. |
 | `entries[].summary` | One-line section summary, for `sections` only. |
-| `seeds` | Three authored bank examples, with unique `id`, `question`, `author` and `answer`. |
-| `seeds[].author` | `instructor` for two examples; `learner` for one. |
+| `seeds` | Two authored bank examples, with unique `id`, `question`, `author` and `answer`. |
+| `seeds[].author` | `instructor` for one example; `learner` for the other. |
 
 All text is escaped. Unknown fields, wrong IDs and empty text fail validation. Keep the displayed catalogue consistent with the server-owned catalogue. To change topics, change both and calibrate the questions again. Section results link to the outline anchors that `render` creates.
 
@@ -87,7 +87,7 @@ The proxy owns both catalogues and the Choice questions. The browser sends only 
 
 ### Question bank
 
-The demo keeps up to 100 added questions in the browser tab until it's closed. It stores nothing on a server and notifies no one. Three sample entries show answered questions: two answered by an instructor, one by another learner.
+The demo keeps up to 100 added questions in the browser tab until it's closed. It stores nothing on a server and notifies no one. Two sample entries show answered questions: one answered by an instructor, one by another learner.
 
 In a real course, send questions to the course forum or the instructor's queue, and ask the learner first. For example: "Send this question to the course forum? Other learners and the instructor can read it." Decide who answers and removes questions, and say how long they stay.
 
