@@ -60,7 +60,7 @@ test('repeating a course plan announces each result once and leaves progress to 
 
 for (const [lang, headings] of [
   ['en', ['Question 1 of 3: Writing an agenda', 'Question 2 of 3: Running the discussion', 'Question 3 of 3: Closing the meeting']],
-  ['fr', ['Question 1 sur 3 : Préparer un ordre du jour', 'Question 2 sur 3 : Animer la discussion', 'Question 3 sur 3 : Conclure la réunion']]
+  ['fr', ['Question 1 sur 3 : Préparer un ordre du jour', 'Question 2 sur 3 : Animer la discussion', 'Question 3 sur 3 : Conclure la réunion']]
 ]) {
   test(`owner request: counters carry section titles (${lang})`, async ({ page }) => {
     await open(page, `/test-out/${lang}.html`);
@@ -94,7 +94,7 @@ for (const [lang, headings] of [
     await page.locator('[data-lp-check]').click();
     await expect(page.locator('.lp-test-out-outline-list > li')).toHaveCount(3);
     await expect(page.locator('[data-lp-section-status]')).toHaveText(lang === 'en' ? ['Can skip', 'Can skip', 'Can skip'] : ['Peut être sautée', 'Peut être sautée', 'Peut être sautée']);
-    await expect(page.locator('[data-lp-result]')).toHaveText(lang === 'en' ? 'You can skip 3 of 3 sections.' : 'Sections que vous pouvez sauter : 3 sur 3.');
+    await expect(page.locator('[data-lp-result]')).toHaveText(lang === 'en' ? 'You can skip 3 of 3 sections.' : 'Sections que vous pouvez sauter : 3 sur 3.');
   });
 }
 
@@ -158,7 +158,7 @@ test('keyboard validates only this panel, Back keeps picks, changes announce onc
 
 for (const [lang, content, correct, wrong, answer, summary, statuses] of [
   ['en', english, 'Correct', 'Incorrect', 'Correct answer', 'You can skip 1 of 3 sections.', ['To take', 'To take', 'Can skip']],
-  ['fr', french, 'Correct', 'Incorrect', 'Bonne réponse', 'Sections que vous pouvez sauter : 1 sur 3.', ['À faire', 'À faire', 'Peut être sautée']]
+  ['fr', french, 'Correct', 'Incorrect', 'Bonne réponse', 'Sections que vous pouvez sauter : 1 sur 3.', ['À faire', 'À faire', 'Peut être sautée']]
 ]) {
   test(`in-place marks, explanations and credited outline (${lang})`, async ({ page }) => {
     await open(page, `/test-out/${lang}.html`); await observe(page); await pick(page); await page.locator('[data-lp-check]').click();
@@ -254,7 +254,7 @@ test('French summary stays plural when one of several sections is skippable', as
   await open(page, '/test-out/fr.html');
   await pick(page, ['outcomes', 'read-back', 'attendance']);
   await page.locator('[data-lp-check]').click();
-  await expect(page.locator('[data-lp-result]')).toHaveText('Sections que vous pouvez sauter : 1 sur 3.');
+  await expect(page.locator('[data-lp-result]')).toHaveText('Sections que vous pouvez sauter : 1 sur 3.');
 });
 
 test('reduced motion applies and new scene colours meet contrast', async ({ page }) => {

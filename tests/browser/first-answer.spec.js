@@ -192,7 +192,7 @@ test('restoring now locks the comparison silently and reset clears the lock', as
 
 for (const [lang, legend, announcement, retry] of [
   ['en', "What does your new answer do that your first answer didn't?", 'Compare your answers. Tick the improvements.', 'Try again'],
-  ['fr', "Qu’est-ce qui s’est amélioré dans votre nouvelle réponse ?", "Comparez vos réponses. Cochez les améliorations.", 'Réessayer']
+  ['fr', "Que fait votre nouvelle réponse que la première ne faisait pas ?", "Comparez vos réponses. Cochez les améliorations.", 'Réessayer']
 ]) {
   test(`comparison uses the improvement question and quiet icon actions (${lang})`, async ({ page }) => {
     await open(page, `/first-answer/${lang}.html`); await saveFirst(page); await page.locator('[data-lp-skip]').click(); await compare(page);

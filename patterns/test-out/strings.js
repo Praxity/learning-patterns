@@ -43,7 +43,7 @@ export const strings = {
     choose: 'Choisissez une réponse',
     unansweredOne: 'Choisissez une réponse à la question restante.',
     unanswered: 'Choisissez une réponse à chacune des {count} questions restantes.',
-    summary: 'Sections que vous pouvez sauter : {skip} sur {total}.',
+    summary: 'Sections que vous pouvez sauter : {skip} sur {total}.',
     summaryOne: 'Vous pouvez sauter cette section.',
     summaryOneRequired: 'Vous devez suivre cette section.',
     markCorrect: 'Correct',

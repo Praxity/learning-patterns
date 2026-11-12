@@ -318,7 +318,7 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
 
 test('mode defaults enforce target count for evidence and target count plus one for key ideas', async ({ page }) => {
   // The key example sets maxMarks to match its question; drop it to test the default.
-  for (const [content, max] of [[english, 1], [{ ...englishKey, maxMarks: undefined }, 3]]) {
+  for (const [content, max] of [[english, 1], [(({ maxMarks, ...rest }) => rest)(englishKey), 3]]) {
     await open(page); await mount(page, content);
     const all = page.locator('[data-lp-chunk]');
     for (let i = 0; i <= max; i++) await all.nth(i).click();

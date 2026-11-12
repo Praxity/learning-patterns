@@ -148,7 +148,7 @@ test('question previews replace result lists and preserve keyed row alignment at
   await expect(result.locator('[data-lp-preview]')).toHaveCount(2);
   await expect(result.locator('[data-lp-preview] h3')).toHaveText(['Your options', "The author's options"]);
   // The card title already shows the question; the previews show only the options.
-  await expect(result.locator('[data-lp-preview]')).not.toContainText(english.question);
+  for (const preview of await result.locator('[data-lp-preview]').all()) await expect(preview).not.toContainText(english.question);
   await expect(result.locator('[data-lp-untargeted], [data-lp-yours], .lp-write-distractors-list')).toHaveCount(0);
   expect(await result.evaluate(el => el.firstElementChild.matches('[data-lp-summary]'))).toBe(true);
   await expect(result.locator('[data-lp-preview="yours"] .lp-choice-mark')).toHaveText(['Correct answer', 'Same mistaken idea as the author']);

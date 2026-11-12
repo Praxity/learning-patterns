@@ -77,7 +77,8 @@ for (const width of [1280, 390]) {
     await expect(ticks).toBeVisible();
     await expect(ticks).toHaveCSS('border-top-width', '1px');
     const choices = ticks.locator('.lp-choice');
-    expect(await gap(ticks.locator('legend'), ticks.locator('[id$="-hint"]'))).toBeCloseTo(12, 1);
+    // The tick hint was cut (card writing audit), so the meter follows the legend at the legend's 12px gap.
+    expect(await gap(ticks.locator('legend'), ticks.locator('[data-lp-meter]'))).toBeCloseTo(12, 1);
     expect(await gap(ticks.locator('[data-lp-meter]'), choices.first())).toBeCloseTo(10, 1);
     if (width === 1280) {
       const a = await choices.nth(0).boundingBox(), b = await choices.nth(1).boundingBox();
