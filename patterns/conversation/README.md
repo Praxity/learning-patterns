@@ -63,7 +63,7 @@ The schema and validator reject unknown fields, missing branch IDs and blank tex
 
 ## Logic
 
-If the first reply asks for a break, Michel agrees and a note reads "Ten minutes later, you're back with Michel." Some endings add a stage note, such as "Michel leaves the meeting."
+If the first reply asks for a break, Michel agrees and a note reads "After the break, you're back with Michel." Some endings add a stage note, such as "Michel leaves the meeting."
 
 Authored text is capped at 120 characters for titles and labels, 400 for questions and prompts, 300 for options, and 1,500 for answers, explanations and passage text. Avatar `person.initial` is at most two characters; example replies stay capped at 1,200. The schema gives each field's limit; `validateContent` enforces it.
 

@@ -4,7 +4,7 @@
   "unit": "appels par jour",
   "top": 150,
   "step": 5,
-  "changeLabel": "Réinitialisation en ligne",
+  "changeLabel": "Page en ligne",
   "realLabel": "Appels réels",
   "resultTitle": "Appels par jour après la mise en ligne de la page",
   "explanationLabel": "Pourquoi la courbe s’est stabilisée :",

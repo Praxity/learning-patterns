@@ -19,7 +19,7 @@
         { "id": "late-fee", "text": "Vous payez des frais de retard chaque mois" }
       ],
       "correct": "longer-more-interest",
-      "explanation": "Le paiement minimum couvre les intérêts du mois et seulement une petite partie de ce que vous devez. Le solde diminue donc lentement, et vous payez des intérêts beaucoup plus longtemps. Seul le paiement du solde complet évite les intérêts, et des frais de retard s’appliquent seulement si vous payez moins que le minimum."
+      "explanation": "Le paiement minimum couvre les intérêts du mois et seulement une petite partie de ce que vous devez. Le solde diminue donc lentement, et vous payez des intérêts beaucoup plus longtemps. Seul le paiement du solde complet évite les intérêts, et des frais de retard s’appliquent si vous ne faites pas le paiement minimum ou si vous le faites en retard."
     },
     {
       "id": "q3", "text": "Comment les intérêts composés font-ils croître votre épargne ?",

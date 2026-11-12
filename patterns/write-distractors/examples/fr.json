@@ -1,15 +1,15 @@
 {
   "question": "Quel effet les courtes pauses ont-elles sur une journée de travail concentré ?",
-  "rightAnswer": "Elles rétablissent votre attention, donc vous faites moins d’erreurs.",
+  "rightAnswer": "Elles vous donnent le temps de récupérer, donc vous ressentez moins de fatigue.",
   "misconceptions": [
-    { "id": "time-lost", "label": "Le temps passé loin d’une tâche est du temps perdu" },
-    { "id": "momentum", "label": "S’arrêter fait perdre son élan" },
-    { "id": "tired", "label": "Le repos sert seulement quand la fatigue se fait sentir" }
+    { "id": "no-recovery", "label": "Les courtes pauses n’aident pas à récupérer" },
+    { "id": "drains-energy", "label": "Prendre une pause épuise l’énergie mentale" },
+    { "id": "wait-for-exhaustion", "label": "Il faut attendre l’épuisement pour récupérer" }
   ],
   "authorOptions": [
-    { "text": "Elles enlèvent du temps à la tâche, donc vous accomplissez moins.", "misconception": "time-lost" },
-    { "text": "Elles interrompent votre réflexion, donc chaque reprise est plus lente.", "misconception": "momentum" },
-    { "text": "Elles aident surtout quand la fatigue s’installe, donc elles peuvent attendre.", "misconception": "tired" }
+    { "text": "Elles ne changent pas votre fatigue, donc vous ne perdez rien à les sauter.", "misconception": "no-recovery" },
+    { "text": "Elles épuisent votre énergie mentale, donc vous ressentez plus de fatigue au retour.", "misconception": "drains-energy" },
+    { "text": "Elles sont plus efficaces après l’épuisement, donc vous devriez les garder pour plus tard.", "misconception": "wait-for-exhaustion" }
   ],
   "count": 2
 }

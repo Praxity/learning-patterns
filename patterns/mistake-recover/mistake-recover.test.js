@@ -148,7 +148,7 @@ test('the closing sentence names the decision and whether the payment at risk wa
   assert.equal(end('hold', ['leave', 'tell']), 'You held the request, and the one Dana approved still goes through.');
   const fin = (...moves) => summarize(french, play(...moves), strings.fr).replace(nbsp, ' ');
   assert.equal(fin('approve', ['cancel']), 'Vous avez approuvé la demande, puis vous l’avez arrêtée avant qu’elle soit exécutée.');
-  assert.equal(fin('approve', ['call']), 'Vous avez approuvé la demande, et elle sera quand même exécutée.');
+  assert.equal(fin('approve', ['call']), 'Vous avez approuvé la demande, mais elle sera quand même exécutée.');
   assert.equal(fin('hold', ['cancel']), 'Vous avez mis la demande en attente, puis vous avez arrêté celle que Dana avait approuvée avant qu’elle soit exécutée.');
   assert.equal(fin('hold', ['tell']), 'Vous avez mis la demande en attente, mais celle que Dana avait approuvée sera quand même exécutée.');
   assert.throws(() => summarize(content, play('hold'), strings.en), /No summary/);

@@ -19,7 +19,7 @@
         { "id": "late-fee", "text": "You pay a late fee each month" }
       ],
       "correct": "longer-more-interest",
-      "explanation": "The minimum payment covers the month's interest and only a small part of what you owe. The balance shrinks slowly, so you pay interest for much longer. Only paying the full balance avoids interest, and a late fee applies only when you pay less than the minimum."
+      "explanation": "The minimum payment covers the month's interest and only a small part of what you owe. The balance shrinks slowly, so you pay interest for much longer. Only paying the full balance avoids interest, and a late fee applies when you miss the minimum payment or pay it late."
     },
     {
       "id": "q3", "text": "How does compound interest grow your savings?",

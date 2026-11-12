@@ -4,7 +4,7 @@
   "question": "A customer ordered at 4 pm on Friday. By the end of which day must the order ship?",
   "options": [
     { "id": "monday", "text": "Monday", "feedback": "Monday is the day this order counts as received, not the day it must ship." },
-    { "id": "tuesday", "text": "Tuesday", "feedback": "Tuesday is the second working day after Friday. This order was placed at 4 pm, so it counts as received on the next working day, and the two working days start after that day." },
+    { "id": "tuesday", "text": "Tuesday", "feedback": "Tuesday is the second working day after Friday. This order was placed at 4 pm, so it counts as received on the next working day. The two working days start after that day." },
     { "id": "wednesday", "text": "Wednesday" },
     { "id": "thursday", "text": "Thursday", "feedback": "Thursday is the third working day after this order counts as received, and the rule allows two." }
   ],

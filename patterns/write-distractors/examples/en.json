@@ -1,15 +1,15 @@
 {
   "question": "How do short breaks affect a day of focused work?",
-  "rightAnswer": "They restore your attention, so you make fewer mistakes.",
+  "rightAnswer": "They give you time to recover, so you feel less tired.",
   "misconceptions": [
-    { "id": "time-lost", "label": "Time away from a task is time lost" },
-    { "id": "momentum", "label": "Stopping costs you your momentum" },
-    { "id": "tired", "label": "Rest is only for when you are tired" }
+    { "id": "no-recovery", "label": "Short breaks do not help you recover" },
+    { "id": "drains-energy", "label": "Taking a break drains your mental energy" },
+    { "id": "wait-for-exhaustion", "label": "Recovery should wait until you are exhausted" }
   ],
   "authorOptions": [
-    { "text": "They take time from the task, so you finish less.", "misconception": "time-lost" },
-    { "text": "They interrupt your concentration, so each restart is slower.", "misconception": "momentum" },
-    { "text": "They help most when you're tired, so they can wait until later.", "misconception": "tired" }
+    { "text": "They leave your fatigue unchanged, so skipping them has no recovery cost.", "misconception": "no-recovery" },
+    { "text": "They use up your mental energy, so you return feeling more tired.", "misconception": "drains-energy" },
+    { "text": "They work best after exhaustion, so you should save them for later.", "misconception": "wait-for-exhaustion" }
   ],
   "count": 2
 }

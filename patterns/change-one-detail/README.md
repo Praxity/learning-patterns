@@ -75,7 +75,7 @@ Authors write plain text. Rendering escapes HTML characters. Keep English and Ca
 | `changes[].from` | Wording to replace, at most 120 characters. It must appear exactly once in `case`. |
 | `changes[].to` | The new wording, at most 120 characters. It must differ from `from`. |
 | `changes[].correct` | Id of the correct option once this detail has changed. |
-| `changes[].explanation` | Why, at most 600 characters. The page adds "The answer changes." or "The answer stays the same." before it. |
+| `changes[].explanation` | Why, at most 600 characters. The page adds "This detail changes the answer." or "This detail doesn't change the answer." before it. |
 | `rule` | The rule in one sentence, at most 400 characters. Every learner sees it at the end. |
 
 `validateContent` rejects unknown fields, blank strings, duplicate option ids and unknown correct-option references. It also makes the checks ordinary JSON Schema tools cannot: `x-uniqueBy`, `x-optionReference`, `x-occursOnceIn` (the wording appears exactly once in the case) and `x-oneDiffers` (at least one change has a different correct answer from the first case).

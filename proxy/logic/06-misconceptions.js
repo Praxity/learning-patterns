@@ -12,8 +12,8 @@ export const ANSWER_LIMIT = 1500;
 // Authored refutations. Each names the wrong idea, says why it's wrong and gives the right idea.
 export const CATALOGUE = {
 	rereading: {
-		label: "Rereading builds memory",
-		idea: "rereading builds memory",
+		label: "Rereading is enough",
+		idea: "rereading is enough to remember",
 		why: "Familiarity can feel like knowing, so test your recall over several days instead.",
 	},
 	highlighting: {
@@ -22,14 +22,14 @@ export const CATALOGUE = {
 		why: "Marking words doesn't show what you recall, so close your notes and test yourself.",
 	},
 	cramming: {
-		label: "Cramming the night before works as well",
+		label: "Cramming the night before works as well as studying over several days",
 		idea: "cramming works as well as spaced practice",
 		why: "Cramming fades faster, so spread your self-tests over several days.",
 	},
 	watching: {
-		label: "Some people only learn by watching",
+		label: "Some people learn only by watching",
 		idea: "some people can learn only by watching",
-		why: "A preference isn't a fixed learning style, so practise recalling what you watched.",
+		why: "Preferring to watch doesn't mean you learn best that way, so practise recalling what you watched.",
 	},
 };
 

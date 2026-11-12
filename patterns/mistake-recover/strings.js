@@ -36,7 +36,7 @@ export const strings = {
     markWrong: 'Incorrect',
     markAnswer: 'Bonne réponse',
     approvedStopped: 'Vous avez approuvé la demande, puis vous l’avez arrêtée avant qu’elle soit exécutée.',
-    approvedGoes: 'Vous avez approuvé la demande, et elle sera quand même exécutée.',
+    approvedGoes: 'Vous avez approuvé la demande, mais elle sera quand même exécutée.',
     heldStopped: 'Vous avez mis la demande en attente, puis vous avez arrêté celle que {name} avait approuvée avant qu’elle soit exécutée.',
     heldGoes: 'Vous avez mis la demande en attente, mais celle que {name} avait approuvée sera quand même exécutée.',
     restart: 'Recommencer',

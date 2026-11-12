@@ -4,7 +4,7 @@ export const CATALOGUE = {
   needs: 'Name your needs. Identify what matters to you before you ask for a change.',
   speaking: 'Speak and be heard. Make a clear request and respond when someone interrupts you.',
   boundaries: 'Set boundaries. Say no to extra work and offer an alternative you can manage.',
-  conflict: 'Handle conflict. Use a time-out to cool down and agree when to return to the conversation.',
+  conflict: 'Handle conflict. Use a time-out to cool down and agree on when to return to the conversation.',
   practice: 'Make an action plan. Choose three observable actions and decide when to practise them at work.',
 };
 export const questions = { lookup: {

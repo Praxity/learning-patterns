@@ -4,7 +4,7 @@
   "unit": "calls a day",
   "top": 150,
   "step": 5,
-  "changeLabel": "Password reset page goes live",
+  "changeLabel": "Page goes live",
   "realLabel": "Actual calls",
   "resultTitle": "Calls a day after the password reset page went live",
   "explanationLabel": "Why calls levelled off:",

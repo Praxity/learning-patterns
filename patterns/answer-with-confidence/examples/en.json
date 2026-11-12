@@ -66,7 +66,7 @@
         },
         {
           "id": "saved",
-          "text": "They are deleted when you save the file",
+          "text": "They stay in the file until you save it",
           "feedback": "Saving keeps the boxes and the text under them. A redaction tool deletes the text.",
           "rightWhen": "Saving does make a redaction tool's change permanent."
         }
