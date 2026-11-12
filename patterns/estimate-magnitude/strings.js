@@ -1,6 +1,6 @@
 export const strings = {
   en: {
-    instructions: 'Slide each range to where you think the answer is. The top of a range is at most {ratio} times the bottom.',
+    instructions: 'Slide each range to where you think the answer is. The top of a range is always {ratio} times the bottom.',
     ten: 'ten',
     check: 'Check my ranges',
     tryAgain: 'Try again',
@@ -19,7 +19,7 @@ export const strings = {
     source: 'Source:'
   },
   fr: {
-    instructions: 'Faites glisser chaque plage là où se trouve la réponse, selon vous. Le haut d’une plage vaut au plus {ratio} fois le bas.',
+    instructions: 'Faites glisser chaque plage là où se trouve la réponse, selon vous. Le haut d’une plage vaut toujours {ratio} fois le bas.',
     ten: 'dix',
     check: 'Vérifier mes plages',
     tryAgain: 'Réessayer',

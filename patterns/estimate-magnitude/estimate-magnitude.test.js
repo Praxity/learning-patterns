@@ -202,14 +202,14 @@ test('formatting replaces placeholders once and localizes numbers and ratios', (
   assert.equal(numberText(1.5, 'fr'), '1,5');
   const expected = {
     en: {
-      10: 'Slide each range to where you think the answer is. The top of a range is at most ten times the bottom.',
-      100: 'Slide each range to where you think the answer is. The top of a range is at most 100 times the bottom.',
-      1000: 'Slide each range to where you think the answer is. The top of a range is at most 1,000 times the bottom.'
+      10: 'Slide each range to where you think the answer is. The top of a range is always ten times the bottom.',
+      100: 'Slide each range to where you think the answer is. The top of a range is always 100 times the bottom.',
+      1000: 'Slide each range to where you think the answer is. The top of a range is always 1,000 times the bottom.'
     },
     fr: {
-      10: 'Faites glisser chaque plage là où se trouve la réponse, selon vous. Le haut d’une plage vaut au plus dix fois le bas.',
-      100: 'Faites glisser chaque plage là où se trouve la réponse, selon vous. Le haut d’une plage vaut au plus 100 fois le bas.',
-      1000: 'Faites glisser chaque plage là où se trouve la réponse, selon vous. Le haut d’une plage vaut au plus 1\u00a0000 fois le bas.'
+      10: 'Faites glisser chaque plage là où se trouve la réponse, selon vous. Le haut d’une plage vaut toujours dix fois le bas.',
+      100: 'Faites glisser chaque plage là où se trouve la réponse, selon vous. Le haut d’une plage vaut toujours 100 fois le bas.',
+      1000: 'Faites glisser chaque plage là où se trouve la réponse, selon vous. Le haut d’une plage vaut toujours 1\u00a0000 fois le bas.'
     }
   };
   for (const lang of ['en', 'fr']) {
