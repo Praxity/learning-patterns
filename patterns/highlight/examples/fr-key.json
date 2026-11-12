@@ -16,7 +16,7 @@
       },
       {
         "id": "overwhelmed",
-        "text": "Cela arrive souvent quand la situation vous dépasse.",
+        "text": "Cela arrive habituellement quand la situation vous dépasse.",
         "note": "Ce passage dit quand la dérobade survient. Vos deux phrases portent sur ce qu’elle est et sur son effet sur l’autre personne."
       },
       {
@@ -26,7 +26,7 @@
       },
       {
         "id": "ignored",
-        "text": "Elle vous voit vous retirer sans un mot et se sent ignorée ou rejetée.",
+        "text": "Elle vous voit vous retirer et se sent ignorée ou rejetée.",
         "key": true
       }
     ]
