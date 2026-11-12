@@ -57,7 +57,7 @@ The fixed demo registry below continues to own the public demo's topic-specific 
 `GET /api/patterns/config` returns the public Turnstile site key, provider, decision model, mock status, `providerName` and the authored `dataNotice.en` and `dataNotice.fr`. By default it reports `provider: "perplexity"`, `providerName: "Perplexity (US)"` and `model: "pplx-decider-v1.2"`. `POST /api/patterns/ask` accepts this shape:
 
 ```json
-{ "block": "07-explain-back", "fields": { "answer": "I would announce a pause and agree when to return." } }
+{ "block": "07-explain-back", "fields": { "answer": "I would announce a pause and agree on when to return." } }
 ```
 
 | Block | Fields and maximum characters |

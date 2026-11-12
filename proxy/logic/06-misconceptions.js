@@ -22,7 +22,7 @@ export const CATALOGUE = {
 		why: "Marking words doesn't show what you recall, so close your notes and test yourself.",
 	},
 	cramming: {
-		label: "Cramming the night before works as well as spreading it out",
+		label: "Cramming the night before works as well as studying over several days",
 		idea: "cramming works as well as spaced practice",
 		why: "Cramming fades faster, so spread your self-tests over several days.",
 	},

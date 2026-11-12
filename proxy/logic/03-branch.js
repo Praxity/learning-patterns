@@ -20,7 +20,7 @@ export const FIRST = {
 	defend: "I hear your reasons, but I still had to redo my work. What will you do differently?",
 	attack: "I'm trying to talk about the plan. Can we discuss that without attacking each other?",
 	withdraw: "We still need to resolve the plan. Are you willing to come back to this conversation?",
-	pause: "All right. Let's take ten minutes and come back to agree on the plan.",
+	pause: "All right. Let's take a break and come back to agree on the plan.",
 };
 
 // SECOND[node][branch]: Michel's answer to the second reply, given where the first one led.
@@ -123,7 +123,7 @@ const PROMPTS = {
 	defend: "Round 2 of 2. Reply to Michel.",
 	attack: "Round 2 of 2. Reply to Michel.",
 	withdraw: "Round 2 of 2. Reply to Michel.",
-	pause: "Round 2 of 2. Ten minutes later, you're back with Michel. Reply to him.",
+	pause: "Round 2 of 2. After the break, you're back with Michel. Reply to him.",
 };
 
 // One line on what the reply did, in the course's terms.

@@ -24,7 +24,7 @@ test("each allowlisted node selects its own server-authored Michel line", () => 
 		defend: "I hear your reasons, but I still had to redo my work. What will you do differently?",
 		attack: "I'm trying to talk about the plan. Can we discuss that without attacking each other?",
 		withdraw: "We still need to resolve the plan. Are you willing to come back to this conversation?",
-		pause: "All right. Let's take ten minutes and come back to agree on the plan.",
+		pause: "All right. Let's take a break and come back to agree on the plan.",
 		off_script: "I'm talking about the change to our agreed plan. What do you want to do about it?",
 	};
 	assert.deepEqual(MICHEL_REPLIES, expected);
