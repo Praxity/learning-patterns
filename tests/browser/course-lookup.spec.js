@@ -117,7 +117,7 @@ test('bank capacity and automatic-check cap keep a usable focused control', asyn
   const root = faq(page), add = root.locator('[data-lp-add]');
   await auto(page, 'Can I practise with my team'); await add.focus(); await page.keyboard.press('Enter');
   await expect(add).toBeFocused();
-  await expect(root.locator('[data-lp-bank-message]')).toHaveText('Your bank is full. Remove a question to add another.');
+  await expect(root.locator('[data-lp-bank-message]')).toHaveText(strings.en.bankFull);
   for (let index = 1; index < 30; index++) await auto(page, `Another unanswered question ${index}`);
   await expect(root.locator('[data-lp-paused]')).toBeVisible();
   await expect(root.getByRole('textbox')).toBeFocused();

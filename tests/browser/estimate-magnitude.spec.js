@@ -397,8 +397,8 @@ test('track taps and dragging select discrete bands without a keyboard', async (
   await page.locator('[data-lp-line]').nth(2).click({ position: { x: 1, y: 22 } });
   await page.locator('[data-lp-check]').click();
   await expect(page.locator('[data-lp-result]')).toHaveText('Answers in your ranges: 0 of 3.');
-  await expect(page.locator('[data-lp-feedback]').first()).toContainText('below your range');
-  await expect(page.locator('[data-lp-feedback]').nth(1)).toContainText('above your range');
+  await expect(page.locator('[data-lp-feedback]').first()).toContainText('Below your range');
+  await expect(page.locator('[data-lp-feedback]').nth(1)).toContainText('Above your range');
 });
 
 test('checked host state restores silently, destroy restores fallback', async ({ page }) => {

@@ -110,7 +110,7 @@ for (const lang of ['en', 'fr']) {
       await expect(page.locator('[data-lp-chat] [data-lp-you]')).toHaveText('YouMy reply'.replace('You', strings[lang].you));
       await expect(page.getByRole('textbox')).toHaveValue('');
       await expect(page.locator('[data-lp-debrief]')).toBeHidden();
-      expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([examples[lang].branches[branch].line]);
+      expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([frenchTypography(examples[lang].branches[branch].line, lang)]);
       await submit(page, 'My second reply');
       await expect(page.locator('[data-lp-michel]').last()).toHaveText(examples[lang].branches[branch].endings[branch]);
       await expect(page.locator('[data-lp-michel]').last()).toBeFocused();
@@ -119,7 +119,7 @@ for (const lang of ['en', 'fr']) {
       await expect(page.locator('[data-lp-debrief] li')).toHaveCount(1);
       await expect(page.locator('[data-lp-debrief] li').first()).toContainText(examples[lang].branches[branch].move);
       await expect(page.locator('[data-lp-debrief] li').last()).toContainText(examples[lang].branches[branch].debrief);
-      expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([examples[lang].branches[branch].line, examples[lang].branches[branch].endings[branch]]);
+      expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([examples[lang].branches[branch].line, examples[lang].branches[branch].endings[branch]].map(text => frenchTypography(text, lang)));
       expect(await page.evaluate(() => window.lpTestCalls)).toEqual([
         { block: '03-branch', fields: { node: 'opening', reply: 'My reply' }, slot: true },
         { block: '03-branch', fields: { node: branch, reply: 'My second reply' }, slot: true }
@@ -137,7 +137,7 @@ for (const lang of ['en', 'fr']) {
       await expect(page.locator('[data-lp-michel]')).toHaveCount(1);
       await expect(page.locator('[data-lp-you]')).toHaveCount(0);
       await expect(page.getByRole('textbox')).toHaveValue('My reply');
-      expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([examples[lang][field]]);
+      expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([frenchTypography(examples[lang][field], lang)]);
       await page.locator('[data-lp-branch="acknowledge"]').click();
       await expect(page.locator('[data-lp-michel]')).toHaveCount(2);
       await expect(page.locator('[data-lp-hint]')).toBeHidden();

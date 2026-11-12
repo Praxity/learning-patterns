@@ -457,7 +457,7 @@ test('shared look: one card, sans headings, keyed rows, a quiet reset and body-s
   await expect(round(root, 0).locator('legend')).toHaveCSS('font-size', '19px');
   await expect(round(root, 0).locator('legend')).toHaveCSS('font-weight', '600');
   await decide(root, 0, 'billing'); await decide(root, 1, 'billing'); await decide(root, 2, 'billing');
-  for (const locator of [round(root, 1).locator('.lp-small'), root.locator('.lp-choice-mark').first(), root.locator('[data-lp-restart]')]) await expect(locator).toHaveCSS('font-size', '16px');
+  for (const locator of [round(root, 2).locator('.lp-small'), root.locator('.lp-choice-mark').first(), root.locator('[data-lp-restart]')]) await expect(locator).toHaveCSS('font-size', '16px');
   for (const locator of [round(root, 1).locator('.lp-quote'), round(root, 1).locator('[data-lp-feedback]'), root.locator('[data-lp-score]'), root.locator('[data-lp-result] h3 + p')]) await expect(locator).toHaveCSS('font-size', '17px');
   await expect(round(root, 1).locator('h3')).toHaveCSS('font-weight', '600');
   await expect(root.locator('[data-lp-restart]')).toHaveClass(/lp-button-quiet/);

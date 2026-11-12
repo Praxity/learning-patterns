@@ -128,9 +128,9 @@ test('a locked choice row shows no hover or pointer', async ({ page }) => {
   // Reduced motion removes the colour transition, so styles read straight after the hover are final.
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await open(page, '/dont-know/en.html');
-  for (const [index, value] of ['unexpected-expenses', 'no-interest', 'dont-know'].entries()) await page.locator('fieldset').nth(index).locator(`input[value="${value}"]`).check();
+  for (const [index, value] of ['car-repair', 'no-interest', 'dont-know'].entries()) await page.locator('fieldset').nth(index).locator(`input[value="${value}"]`).check();
   await page.locator('[data-lp-check]').click();
-  const row = page.locator('fieldset').first().locator('label:has(input[value="planned-holidays"])');
+  const row = page.locator('fieldset').first().locator('label:has(input[value="booked-vacation"])');
   await row.hover();
   expect(await row.evaluate(el => [getComputedStyle(el).backgroundColor, getComputedStyle(el).borderTopColor, getComputedStyle(el).cursor, getComputedStyle(el.querySelector('input')).cursor])).toEqual(['rgb(255, 255, 255)', 'rgb(213, 217, 223)', 'default', 'default']);
   // A locked row the learner chose, with no mark ("I don't know"), keeps its selection under the pointer.
