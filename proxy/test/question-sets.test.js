@@ -9,7 +9,9 @@ import live from "../src/demos/02-live.js";
 const cases = [
  [live, "answer", 1200, { three_actions: "noul", observable: "noul", when: "noul", commitments: "noul" }],
 	[misconceptions, "answer", 1500, { misconception: "choice" }],
-	[explainBack, "answer", 1500, { stonewalling: "noul", pause: "noul", return: "noul" }],	[journal, "answer", 1500, { situation: "noul", action: "noul", next_step: "noul", when: "noul", distress: "noul" }],];
+	[explainBack, "answer", 1500, { stonewalling: "noul", pause: "noul", return: "noul" }],
+	[journal, "answer", 1500, { situation: "noul", action: "noul", next_step: "noul", when: "noul", distress: "noul" }],
+];
 
 for (const [demo, field, limit, shape] of cases) {
 	test(`${demo.id} builds its sample through the server interface`, () => {
@@ -58,7 +60,7 @@ test("classifier tasks match the learner-facing questions", () => {
 	for (const [demo, task] of [
 		[misconceptions, "Is rereading your notes a good way to prepare for a test?"],
 		[explainBack, "Explain to a new manager, in two sentences, how a time-out differs from stonewalling."],
-		[journal, "What did you notice this week when you tried to stay assertive? What happened, and how did the other person react?"],
+		[journal, "What did you notice this week when you tried to be assertive? What happened, and how did the other person react?"],
 	]) {
 		assert.equal(jevRequest({ block: demo.id, fields: demo.sample }).state.task, task);
 	}
