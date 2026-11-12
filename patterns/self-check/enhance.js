@@ -87,7 +87,7 @@ export function enhance(root, { content, strings, state }) {
       return segment.partIndex === null ? text
         : `<mark class="lp-self-check-ann" data-lp-included="${segment.included}"><span class="lp-self-check-ann-n" aria-hidden="true">${segment.partIndex + 1}</span>${text}</mark>`;
     }).join('');
-    result.innerHTML = `<div class="lp-self-check-result-head">${ring(outcome.count, outcome.total, 64)}<div><h3 class="lp-stem">${html(summary, root.lang)}</h3><p class="lp-small">${html(sub, root.lang)}</p></div></div>
+    result.innerHTML = `<div class="lp-self-check-result-head">${ring(outcome.count, outcome.total, 64)}<h3 class="lp-stem">${html(sub, root.lang)}</h3></div>
       <div class="lp-self-check-compare">
         <figure class="lp-self-check-pane"><figcaption>${html(strings.mine, root.lang)}</figcaption><p class="lp-self-check-pane-body">${html(answer.value.trim(), root.lang)}</p></figure>
         <figure class="lp-self-check-pane lp-self-check-pane-model"><figcaption>${html(strings.model, root.lang)}</figcaption><p class="lp-self-check-pane-body">${model}</p></figure>

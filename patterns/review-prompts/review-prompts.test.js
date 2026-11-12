@@ -43,8 +43,8 @@ test('reading minutes count authored text at 200 words per minute, rounded up wi
 
 test('render includes an escaped article header, localized reading time, silent progress and a decorative calendar icon', () => {
   for (const [lang, title, minutes, progress] of [
-    ['en', 'Stonewalling & time-outs', '1 min read', '0 of 1 questions checked'],
-    ['fr', "L’évitement et le temps mort", '1 min de lecture', 'Questions revues : 0 sur 1']
+    ['en', 'Stonewalling & time-outs', '1 min read', '0 of 1 questions reviewed'],
+    ['fr', "La dérobade et le temps mort", '1 min de lecture', 'Questions revues : 0 sur 1']
   ]) {
     const value = { ...content, title, parts: [{ ...content.parts[0], paragraphs: ['A short reading.'] }] };
     const markup = render(value, strings[lang], { id: 'article', lang });
@@ -204,7 +204,7 @@ test('state validation rejects unknown parts, malformed results and impossible d
 
 test('examples contain one stonewalling section while render supports several parts', () => {
   assert.equal(content.title, 'Stonewalling');
-  assert.equal(french.title, "L’évitement");
+  assert.equal(french.title, "La dérobade");
   for (const example of [content, french]) {
     assert.equal(example.parts.length, 1);
     assert.equal(example.parts[0].id, 'stonewalling');

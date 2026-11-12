@@ -144,7 +144,7 @@ test('server sheet includes scene header, four questions then answers, a printed
   assert.match(markup, /class="lp lp-retrieval-sheet" data-lp-pattern="retrieval-sheet" lang="en"/);
   assert.match(markup, /class="lp-scene"/);
   assert.doesNotMatch(markup, /Take it with you/);
-  assert.match(markup, /<h2[^>]*id="sheet-title"[^>]*>The four horsemen<\/h2>/);
+  assert.match(markup, /<h2[^>]*id="sheet-title"[^>]*>Gottman&#39;s four horsemen<\/h2>/);
   assert.match(markup, /data-lp-controls hidden/);
   assert.match(markup, /type="date"/);
   assert.match(markup, /value="2026-10-13"/);

@@ -57,7 +57,6 @@ test('composer renders escaped context, a labelled answer, and accessible checkl
   assert.ok(markup.includes('&quot;Report&quot;'));
   assert.ok(markup.includes('Your answer'));
   assert.ok(markup.includes('data-lp-meter'));
-  assert.ok(markup.includes('Tick each part your answer includes.'));
   assert.equal((markup.match(/role="status"/g) || []).length, 1);
 });
 
@@ -75,12 +74,12 @@ test('optional authored placeholder is escaped and never becomes the learner ans
   }
 });
 
-test('scene has only the task and checklist question has a separate instruction', () => {
+test('scene has only the task and the checklist question carries no repeated instruction', () => {
   const markup = render(content, strings.en, { id: 'message', lang: 'en' });
   assert.doesNotMatch(markup, /lp-scene-label|Your task|Read your answer again/);
-  assert.equal((markup.match(/Tick each part your answer includes\./g) || []).length, 1);
   assert.match(markup, /<legend[^>]*>Which parts does your answer include\?<\/legend>/);
-  assert.match(markup, /<p[^>]*id="message-hint">Tick each part your answer includes\.<\/p>/);
+  assert.doesNotMatch(markup, /Tick each part|message-hint/);
+  assert.match(markup, /<fieldset class="lp-choices">/);
   assert.match(markup, /<summary>Check for these parts\.<\/summary>/);
   assert.doesNotMatch(markup, /Did your answer include these parts/);
 });

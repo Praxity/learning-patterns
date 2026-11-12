@@ -1,38 +1,38 @@
 {
-  "title": "Meetings: a refresher",
+  "title": "A refresher on meetings",
   "allowTestOut": true,
   "sections": [
     { "id": 1, "title": "Writing an agenda", "requires": [] },
     { "id": 3, "title": "Running the discussion", "requires": [] },
-    { "id": 4, "title": "Decisions and follow-up", "requires": [3] }
+    { "id": 4, "title": "Confirming decisions and tasks", "requires": [3] }
   ],
   "questions": [
     {
-      "id": "agenda", "section": 1, "text": "What should people learn from the agenda before a meeting?",
+      "id": "agenda", "section": 1, "text": "What should the agenda tell people so they can prepare?",
       "options": [
-        { "id": "attendees", "text": "Only who will attend" },
-        { "id": "outcomes", "text": "The topics, goals and time for each item" },
-        { "id": "everything", "text": "Everything the organiser knows about each topic" }
+        { "id": "attendees", "text": "Who is invited, the room and the video link" },
+        { "id": "outcomes", "text": "The topics, the goal of each and the time it gets" },
+        { "id": "last-notes", "text": "The decisions made last time and who owns each task" }
       ],
-      "correct": "outcomes", "explanation": "People can prepare when they know the topics, goals and time for each item."
+      "correct": "outcomes", "explanation": "People can prepare when they know the topics, the goal of each and the time it gets. Who is invited and where to join belong in the invitation. Past decisions and task owners belong in the notes from the last meeting."
     },
     {
       "id": "discussion", "section": 3, "text": "One person does most of the talking. What should you do as the facilitator?",
       "options": [
-        { "id": "invite", "text": "Pause and invite others to speak" },
-        { "id": "wait", "text": "Let them speak until the meeting ends" },
-        { "id": "delegate", "text": "Ask the note taker to decide for everyone" }
+        { "id": "invite", "text": "Thank them, then ask each of the others for their view" },
+        { "id": "read-back", "text": "Have the note taker read back what has been said so far" },
+        { "id": "vote", "text": "Ask the group to vote on the topic now and move to the next one" }
       ],
-      "correct": "invite", "explanation": "Invite others to speak so everyone can contribute."
+      "correct": "invite", "explanation": "Thank the speaker, then ask each of the others, so the group hears more than one view. Reading back the discussion helps when the group has lost track. A vote suits a topic everyone has already discussed."
     },
     {
       "id": "follow-up", "section": 4, "text": "What should you confirm before the meeting ends?",
       "options": [
-        { "id": "equal-time", "text": "That everyone spoke for the same amount of time" },
-        { "id": "actions", "text": "The decisions, who will do each task and by when" },
-        { "id": "next-meeting", "text": "That another meeting is already booked" }
+        { "id": "next-agenda", "text": "The topics, goals and timing for the next agenda" },
+        { "id": "actions", "text": "Each decision, who will do each task and by what date" },
+        { "id": "attendance", "text": "The names of everyone who attended or sent regrets" }
       ],
-      "correct": "actions", "explanation": "Confirm what was decided, who will do each task and by when."
+      "correct": "actions", "explanation": "Confirm each decision, who will do each task and by what date, while everyone is there to correct it. Topics for the next agenda can be set later, and attendance goes in the notes."
     }
   ]
 }

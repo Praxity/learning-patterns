@@ -23,7 +23,7 @@ export function render(content, strings, { id, lang }) {
   <p class="lp-context">${h(content.context)}</p>
   <fieldset class="lp-split-by-proportion-estimate" aria-describedby="${html(`${id}-help`)}">
     <legend class="lp-stem"><h2 class="lp-heading">${h(content.question)}</h2></legend>
-    <p class="lp-small" id="${html(`${id}-help`)}" data-lp-help hidden>${h(format(strings.help, { total: quantity(content.total, content, lang) }))}</p>
+    <p class="lp-small" id="${html(`${id}-help`)}" data-lp-help hidden>${h(strings.help)}</p>
     <div data-lp-interaction hidden>
     <div class="lp-split-by-proportion-split" data-lp-split>
       ${d.map((value, i) => `<input type="range" id="${html(`${id}-divider-${i}`)}" data-i="${i}" min="0" max="${content.total}" step="${content.step}" value="${value}" aria-label="${h(format(strings.divider, { left: content.options[i].label, right: content.options[i + 1].label }))}" aria-valuetext="${h(`${content.options[i].label} ${quantity(mine[i], content, lang)}, ${content.options[i + 1].label} ${quantity(mine[i + 1], content, lang)}`)}">`).join('')}

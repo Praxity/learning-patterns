@@ -57,9 +57,9 @@ for (const [lang, content] of [['en', english], ['fr', french]]) test(`every che
 });
 
 
-for (const [lang, placeholder, instruction] of [
-  ['en', 'Hi Sam,\n\nType your message here…', 'Tick each part your answer includes.'],
-  ['fr', 'Bonjour Sam,\n\nÉcrivez votre message ici…', 'Cochez chaque élément présent dans votre réponse.']
+for (const [lang, placeholder] of [
+  ['en', 'Hi Sam,\n\nType your message here…'],
+  ['fr', 'Bonjour Sam,\n\nÉcrivez votre message ici…']
 ]) {
   test(`composer labels size to content and recipient stays on one line (${lang})`, async ({ page }) => {
     await open(page, `/self-check/${lang}.html`);
@@ -81,8 +81,18 @@ for (const [lang, placeholder, instruction] of [
     }
   });
 
-  test(`placeholder is authored, empty, labelled and has 4.5:1 contrast (${lang})`, async ({ page }) => {
+  test(`an authored placeholder is empty, labelled and has 4.5:1 contrast (${lang})`, async ({ page }) => {
     await open(page, `/self-check/${lang}.html`);
+    // The examples set no placeholder, so render one an author could supply.
+    await page.evaluate(async ({ lang, placeholder, example }) => {
+      const { render } = await import('/patterns/self-check/render.js');
+      const { enhance } = await import('/patterns/self-check/enhance.js');
+      const { strings } = await import('/patterns/self-check/strings.js');
+      const content = { ...example, context: { ...example.context, placeholder } };
+      window.lpInstances[0].destroy();
+      document.querySelector('main').innerHTML = render(content, strings[lang], { id: 'placeholder', lang });
+      enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings[lang] });
+    }, { lang, placeholder, example: lang === 'en' ? english : french });
     await expect(page.getByRole('textbox')).toHaveAccessibleName(lang === 'fr' ? 'Votre réponse' : 'Your answer');
     await expect(page.getByRole('textbox')).toHaveAttribute('placeholder', placeholder);
     await expect(page.getByRole('textbox')).toHaveValue('');
@@ -97,9 +107,8 @@ for (const [lang, placeholder, instruction] of [
     await expect(page.getByRole('textbox')).toHaveAttribute('aria-invalid', 'true');
     await page.getByRole('textbox').fill('Draft');
     await page.locator('[data-lp-check]').click();
-    await expect(page.locator('[data-lp-ticks] legend')).not.toContainText(instruction);
-    await expect(page.locator('[data-lp-ticks] [id$="-hint"]')).toHaveText(instruction);
-    await expect(page.locator('[data-lp-ticks] .lp-small')).toHaveCount(1);
+    await expect(page.locator('[data-lp-ticks] legend')).toBeVisible();
+    await expect(page.locator('[data-lp-ticks] .lp-small')).toHaveCount(0);
   });
 }
 
@@ -164,8 +173,8 @@ async function open(page, path = '/self-check/en.html') {
 }
 
 for (const [lang, answerLabel, empty, check, show, whole, summary, restart] of [
-  ['en', 'Your answer', 'Write your answer first.', 'Check my answer', 'Show feedback', 'Whole answer', 'You ticked 1 of 2 parts.', 'Start over'],
-  ['fr', 'Votre réponse', "Écrivez d’abord votre réponse.", 'Vérifier ma réponse', 'Afficher la rétroaction', "Toute la réponse", 'Éléments cochés : 1 sur 2.', 'Recommencer']
+  ['en', 'Your answer', 'Write your answer first.', 'Check my answer', 'Show feedback', 'Applies to the whole answer', 'You ticked 1 of 2 parts.', 'Start over'],
+  ['fr', 'Votre réponse', "Écrivez d’abord votre réponse.", 'Vérifier ma réponse', 'Afficher la rétroaction', 'S’applique à toute la réponse', 'Éléments cochés : 1 sur 2.', 'Recommencer']
 ]) test(`general answer without email context supports the complete journey (${lang})`, async ({ page }) => {
   await open(page, `/self-check/${lang}.html`);
   const content = lang === 'en'
@@ -237,7 +246,7 @@ test('message scene, non-live meter and annotated comparison use authored conten
   await expect(page.locator('.lp-self-check-pane').first()).toContainText('My draft');
   await expect(page.locator('.lp-self-check-pane-model mark')).toHaveCount(3);
   await expect(page.locator('mark[data-lp-included="true"]')).toContainText('the sales data for the client report arrived three days late');
-  await expect(page.locator('.lp-self-check-legend')).toContainText('Whole answer');
+  await expect(page.locator('.lp-self-check-legend')).toContainText('Applies to the whole answer');
   await expect(page.locator('[data-lp-result]')).toHaveClass(/lp-reveal/);
   await page.setViewportSize({ width: 1280, height: 900 });
   const wide = await page.locator('.lp-self-check-pane').evaluateAll(panes => panes.map(p => p.getBoundingClientRect().top));
@@ -272,7 +281,7 @@ test('comparison escapes draft text and summaries cover one missing part and all
   await page.getByRole('textbox').fill(draft);
   for (const box of await page.getByRole('checkbox').all()) await box.check();
   await page.getByRole('checkbox').nth(2).uncheck(); await page.locator('[data-lp-show]').click();
-  await expect(page.locator('.lp-self-check-result-head')).toContainText("One part to add. Check that Tuesday works.");
+  await expect(page.locator('.lp-self-check-result-head')).toHaveText('One part to add: A question asking whether that day works for Sam.');
   await expect(page.locator('.lp-self-check-pane').first().locator('p')).toHaveText(draft);
   await expect(page.locator('.lp-self-check-pane img')).toHaveCount(0);
   await expect(page.locator('mark[data-lp-included="false"]')).toHaveCount(1);
@@ -308,7 +317,8 @@ test('keyboard-only journey, error association, focus and one mutation per annou
   for (let index = 0; index < 4; index++) await page.keyboard.press('Tab');
   const show = page.getByRole('button', { name: 'Show feedback' });
   await expect(show).toBeFocused(); await page.keyboard.press('Enter'); await expect(show).toBeFocused();
-  await expect(page.locator('[data-lp-result]')).toContainText('You ticked 1 of 4 parts.');
+  await expect(page.locator('.lp-self-check-result-head h3')).toHaveText('Use the hints to add missing parts.');
+  await expect(page.locator('[data-lp-result]')).not.toContainText('You ticked');
   await expect(page.locator('[data-lp-result]')).toContainText('Included');
   await expect(page.locator('[data-lp-result]')).toContainText('To add');
   await page.keyboard.press('Enter'); await expect(show).toBeFocused();
@@ -413,7 +423,8 @@ test('editing answers or ticks preserves feedback, next submit replaces it and s
   expect(await page.locator('[data-lp-result]').innerHTML()).toBe(before);
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ answer: 'Edited draft', ticked: ['reason', 'new_date'], shown: true });
   await page.getByRole('button', { name: 'Show feedback' }).click();
-  await expect(page.locator('.lp-self-check-result-head h3')).toHaveText('You ticked 2 of 4 parts.');
+  await expect(page.locator('.lp-self-check-result-head h3')).toHaveText('Use the hints to add missing parts.');
+  await expect(page.locator('.lp-visually-hidden[role="status"]')).toHaveText('You ticked 2 of 4 parts.');
   await expect(page.locator('[data-lp-result] > ol')).toHaveCount(1);
   await page.getByRole('button', { name: 'Start over' }).click();
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ answer: '', ticked: [], shown: false });
@@ -425,7 +436,7 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     const page = await context.newPage();
     await page.goto(`/self-check/${lang}.html`);
     await expect(page.getByRole('textbox')).toHaveAttribute('rows', '5');
-    await expect(page.getByRole('textbox')).toHaveAttribute('placeholder', lang === 'en' ? 'Hi Sam,\n\nType your message here…' : 'Bonjour Sam,\n\nÉcrivez votre message ici…');
+    await expect(page.getByRole('textbox')).not.toHaveAttribute('placeholder');
     await page.locator('summary').click(); await expect(page.locator('details')).toHaveAttribute('open', '');
     for (const part of content.parts) await expect(page.locator('details')).toContainText(part.missed);
     for (const part of content.parts) await expect(page.locator('details')).toContainText(part.label);
@@ -461,7 +472,7 @@ test('French root has French language and translated feedback', async ({ page })
   await open(page, '/self-check/fr.html'); await expect(page.locator('[data-lp-pattern]')).toHaveAttribute('lang', 'fr');
   await page.getByRole('textbox').fill('Mon message'); await page.locator('[data-lp-check]').click();
   await page.getByRole('checkbox').first().check(); await page.locator('[data-lp-show]').click();
-  await expect(page.locator('[data-lp-result]')).toContainText('Éléments cochés : 1 sur 4.');
+  await expect(page.locator('.lp-self-check-result-head h3')).toHaveText('Ajoutez les éléments manquants à l’aide des conseils.');
   const model = await page.locator('.lp-self-check-pane-model p').evaluate(el => {
     const copy = el.cloneNode(true); copy.querySelectorAll('[aria-hidden="true"]').forEach(number => number.remove()); return copy.textContent;
   });
@@ -477,7 +488,7 @@ for (const shown of [false, true]) {
     await expect(page.locator('.lp-visually-hidden[role="status"]')).toHaveText('');
     await expect(page.locator('[role="status"]')).toHaveCount(1);
     await expect(page.locator('[role="status"]')).toHaveText('');
-    if (shown) await expect(page.locator('[data-lp-result]')).toContainText('You ticked 1 of 4 parts.');
+    if (shown) await expect(page.locator('.lp-self-check-result-head h3')).toHaveText('Use the hints to add missing parts.');
     else await expect(page.locator('[data-lp-result]')).toBeHidden();
   });
 }

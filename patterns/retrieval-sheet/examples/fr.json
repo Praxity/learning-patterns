@@ -1,9 +1,9 @@
 {
-  "title": "Les quatre cavaliers",
+  "title": "Les quatre cavaliers de Gottman",
   "questions": [
-    { "id": "four", "question": "Nommez les quatre cavaliers.", "answer": "La critique, la défensive, le mépris et l’évitement." },
+    { "id": "four", "question": "Nommez les quatre cavaliers.", "answer": "La critique, l’attitude défensive, le mépris et la dérobade." },
     { "id": "eyes", "question": "Un collègue lève les yeux au ciel devant une idée. De quel cavalier s’agit-il ?", "answer": "Le mépris. C’est le plus grave des quatre." },
-    { "id": "criticism", "question": "Comment exprimer une préoccupation sans critiquer la personne ?", "answer": "Exprimez votre préoccupation avec douceur. Parlez au « je » pour expliquer comment un comportement précis vous affecte. Évitez de juger la personne." },
-    { "id": "pause", "question": "Quelle est la différence entre une pause et l’évitement ?", "answer": "Avec l’évitement, vous partez sans un mot et l’autre personne se sent ignorée. Pour une pause, dites que vous avez besoin de quelques minutes pour réfléchir. Revenez ensuite à la conversation." }
+    { "id": "criticism", "question": "Comment exprimer une préoccupation sans critiquer la personne ?", "answer": "Parlez au « je » pour dire comment un comportement précis vous touche, sans porter de jugement sur la personne." },
+    { "id": "pause", "question": "Quelle est la différence entre une pause et la dérobade ?", "answer": "Avec la dérobade, vous partez sans un mot et l’autre personne se sent ignorée. Avec une pause, vous dites que vous avez besoin de quelques minutes pour réfléchir, puis vous revenez à la conversation." }
   ]
 }

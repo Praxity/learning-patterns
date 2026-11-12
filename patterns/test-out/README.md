@@ -25,9 +25,9 @@ Write one or two questions per section. Advanced questions must test any prerequ
 
 ## How it works
 
-1. The learner reads the course outline and selects "Start the check".
+1. The learner reads the course outline and selects "Start the questions".
 2. They answer one question at a time, moving with "Next" and "Back". A counter shows the question number and its section.
-3. "Check my answers" gives a course plan that marks each section "Skip" or "Take it".
+3. "Check my answers" gives a course plan that marks each section "Can skip" or "To take".
 4. "Review answers" shows the marks, with correct answers and explanations for missed questions.
 5. "Start over" clears the answers and returns to the outline.
 
@@ -89,7 +89,7 @@ Without JavaScript, learners can read the outline, answer native questions and o
 
 Set `allowTestOut` to `false` when all sections are required. The outline explains this and hides Start. Learners cannot change the setting.
 
-Passing a section requires every answer to be correct. A passed section also credits its prerequisites and theirs. When several passes credit one section, the lowest numeric passed id supplies credit. A directly failed section stays required even when another pass would credit it. A direct pass takes precedence over credit. Passed and credited sections both show "Skip"; others show "Take it".
+Passing a section requires every answer to be correct. A passed section also credits its prerequisites and theirs. When several passes credit one section, the lowest numeric passed id supplies credit. A directly failed section stays required even when another pass would credit it. A direct pass takes precedence over credit. Passed and credited sections both show "Can skip"; others show "To take".
 
 Submission locks answers. Panels show the question number, total and section title. They slide horizontally over 240 ms, or change instantly under reduced motion.
 

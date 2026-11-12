@@ -39,7 +39,7 @@ Then check every wrong principle against its own rule: it must be wrong under th
 1. The learner reads a case and chooses one principle. Each choice shows the principle's name and its rule.
 2. "Check my answer" marks their choice "Correct" or "Incorrect", and marks the correct principle "Correct answer" after a miss. The feedback under the choices gives the deciding fact, after the surface detail if they chose the lure. Each case takes one try.
 3. "Next case" opens the next case in place of this one.
-4. After the last case, one sentence gives their score, such as "You got 2 of 4 cases right.", and a list names each pair of principles they mixed up, such as "*Ask an open question* and *Agree the next action*: 2 cases".
+4. After the last case, one sentence gives their score, such as "You got 2 of 4 cases right.", and a list names each pair of principles they mixed up, such as "*Ask an open question* and *Agree on the next action*: 2 cases".
 5. "Start over" clears every answer and opens the first case.
 
 Learners cannot go back to an earlier case, because each miss is explained when it happens.

@@ -99,6 +99,8 @@ async function expectResultBar(page, mine, real, lang = 'en', content = examples
       const percentage = label.locator('[data-lp-segment-value]');
       await expect(letter).toHaveText('ABCDEF'[i]);
       await expect(percentage).toHaveText(frenchTypography(quantity(share, content, lang), lang));
+      // toHaveText folds no-break spaces; French needs the exact "30 %" with U+00A0, which must not wrap.
+      if (content.unit === '%') expect(await percentage.textContent()).toBe(frenchTypography(quantity(share, content, lang), lang));
       await expect(label.locator('.lp-split-by-proportion-label > span').first()).toHaveClass(row === 0
         ? 'lp-split-by-proportion-letter' : 'lp-split-by-proportion-pct');
       if (share === 0) {

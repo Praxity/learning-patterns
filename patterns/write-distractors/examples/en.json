@@ -1,15 +1,15 @@
 {
-  "question": "Are breaks during the workday a waste of time?",
-  "rightAnswer": "No. Short breaks help you regain focus and make fewer mistakes.",
+  "question": "How do short breaks affect a day of focused work?",
+  "rightAnswer": "They restore your attention, so you make fewer mistakes.",
   "misconceptions": [
-    { "id": "busy", "label": "Busy people don't need breaks" },
-    { "id": "push-through", "label": "Working without breaks always gets more done" },
-    { "id": "phone", "label": "Scrolling on your phone gives you rest" }
+    { "id": "time-lost", "label": "Time away from a task is time lost" },
+    { "id": "momentum", "label": "Stopping costs you your momentum" },
+    { "id": "tired", "label": "Rest is only for when you are tired" }
   ],
   "authorOptions": [
-    { "text": "Yes. Busy people don't have time for breaks.", "misconception": "busy" },
-    { "text": "Yes. Working without breaks always gets more done.", "misconception": "push-through" },
-    { "text": "Yes. Scrolling on your phone while working gives you enough rest.", "misconception": "phone" }
+    { "text": "They take time from the task, so you finish less.", "misconception": "time-lost" },
+    { "text": "They interrupt your concentration, so each restart is slower.", "misconception": "momentum" },
+    { "text": "They help most when you're tired, so they can wait until later.", "misconception": "tired" }
   ],
   "count": 2
 }
