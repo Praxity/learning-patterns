@@ -5,7 +5,7 @@
     {
       "id": "stonewalling",
       "heading": "Stonewalling",
-      "body": "Stonewalling is going silent, withdrawing or changing the subject without saying why. The other person feels ignored or rejected. The problem stays unsolved.",
+      "body": "Stonewalling is going silent, withdrawing or changing the subject without saying why. The other person feels ignored or rejected.",
       "label": "Stonewalling is withdrawing without saying why.",
       "met": "You explained that stonewalling means going silent or withdrawing.",
       "missed": "Describe stonewalling: going silent, withdrawing or changing the subject without saying why.",
@@ -14,7 +14,7 @@
     {
       "id": "pause",
       "heading": "Taking a time-out",
-      "body": "Tell the other person you need a pause. For example, \"I need ten minutes to think about this.\" You can step away to calm down. Leaving without saying why is stonewalling.",
+      "body": "Tell the other person you need a pause, instead of going silent. For example, \"I need ten minutes to think about this.\"",
       "label": "You tell the other person you need a pause.",
       "met": "You said to tell the other person you need a pause.",
       "missed": "Add how a time-out starts.",
@@ -23,7 +23,7 @@
     {
       "id": "return",
       "heading": "Coming back",
-      "body": "A time-out ends when you come back. Agree when you'll return to the conversation, then do it. That way the other person isn't left waiting.",
+      "body": "A time-out ends when you come back. Agree when you'll return to the conversation, then do it.",
       "label": "You agree when to come back, and then come back.",
       "met": "You said to agree when to come back, and then come back.",
       "missed": "Add how a time-out ends.",
