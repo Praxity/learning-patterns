@@ -1,7 +1,7 @@
 import { criterion } from "../shared.js";
 import { ANSWER_LIMIT } from "../../logic/13-journal.js";
 
-export const TASK = "What did you notice this week when you tried to stay assertive? What happened, and how did the other person react?";
+export const TASK = "What did you notice this week when you tried to be assertive? What happened, and how did the other person react?";
 
 export const clefQuestions = {
 	situation: criterion("describe one identifiable interaction or event", "Describes a particular meeting, conversation or event and what happened. Invented events count; names and private details are unnecessary.", "Only general goals, feelings or unrelated facts, without an identifiable interaction or event."),
