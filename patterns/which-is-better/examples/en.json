@@ -1,17 +1,29 @@
 {
-  "title": "Compare two out-of-office replies",
-  "context": "You're on leave for a week, and customers email you about their orders.",
+  "title": "Compare two out\u2011of\u2011office replies",
+  "context": "You're Sam Rivera. You're on leave for a week, and customers email you about their orders.",
   "versions": {
-    "a": [
-      "I am currently out of the office with limited access to email until Monday, October 14.",
-      "If your matter is urgent, please contact the office.",
-      "I apologize for any inconvenience and will respond as soon as possible on my return."
-    ],
-    "b": [
-      "I'm away until Monday, October 14, and not reading email.",
-      "For an urgent order, call Jo Mensah at 514-\u2060555-\u20600142.",
-      "For anything else, I'll reply when I'm back."
-    ]
+    "a": {
+      "subject": "Out of office",
+      "greeting": "Hello,",
+      "body": [
+        [
+          "I am currently out of the office with limited access to email until Monday, October 14.",
+          "If your matter is urgent, please contact the office."
+        ]
+      ],
+      "signoff": "Kind regards,\nSam Rivera"
+    },
+    "b": {
+      "subject": "Away until Monday, October 14",
+      "greeting": "Hello,",
+      "body": [
+        [
+          "I'm away until Monday, October 14, and not reading email.",
+          "For an urgent order, call Jo Mensah at 514-\u2060555-\u20600142."
+        ]
+      ],
+      "signoff": "Thanks,\nSam Rivera"
+    }
   },
   "better": "b",
   "qualities": [

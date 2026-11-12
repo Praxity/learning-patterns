@@ -2,7 +2,7 @@ export namespace strings {
     namespace en {
         let versionA: string;
         let versionB: string;
-        let sentenceName: string;
+        let subject: string;
         let neither: string;
         let progress: string;
         let chooseOne: string;
@@ -12,6 +12,7 @@ export namespace strings {
         let markWrong: string;
         let markAnswer: string;
         let correct: string;
+        let correctIn: string;
         let next: string;
         let finish: string;
         let summaryA: string;
@@ -28,8 +29,8 @@ export namespace strings {
         export { versionA_1 as versionA };
         let versionB_1: string;
         export { versionB_1 as versionB };
-        let sentenceName_1: string;
-        export { sentenceName_1 as sentenceName };
+        let subject_1: string;
+        export { subject_1 as subject };
         let neither_1: string;
         export { neither_1 as neither };
         let progress_1: string;
@@ -48,6 +49,8 @@ export namespace strings {
         export { markAnswer_1 as markAnswer };
         let correct_1: string;
         export { correct_1 as correct };
+        let correctIn_1: string;
+        export { correctIn_1 as correctIn };
         let next_1: string;
         export { next_1 as next };
         let finish_1: string;

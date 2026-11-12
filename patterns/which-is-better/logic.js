@@ -1,7 +1,9 @@
 import { validateTextLengths } from '../../lib/text-limits.js';
 /** @typedef {'a' | 'b'} Version */
 /** @typedef {{ question: string, sentence: number | null, reason: string, note: string }} Quality */
-/** @typedef {{ title: string, context: string, versions: { a: string[], b: string[] }, better: Version, qualities: Quality[] }} Content */
+/** An email: its body is paragraphs of sentences, and only body sentences can be picked.
+ * @typedef {{ subject: string, greeting: string, body: string[][], signoff: string }} Email */
+/** @typedef {{ title: string, context: string, versions: { a: Email, b: Email }, better: Version, qualities: Quality[] }} Content */
 /** A pick is a sentence written as its version and number, such as "b2", or "neither". @typedef {string} Pick */
 /** @typedef {{ at: number, picks: Pick[] }} LearnerState */
 
@@ -24,8 +26,9 @@ function text(value, path) {
 
 /** @param {unknown} content @returns {asserts content is Content} */
 export function validateContent(content) {
+  const email = { subject: 120, greeting: 120, body: [[300]], signoff: 200 };
   validateTextLengths(content, {
-    title: 120, context: 400, versions: { a: [300], b: [300] },
+    title: 120, context: 400, versions: { a: email, b: email },
     qualities: [{ question: 400, reason: 600, note: 120 }]
   });
   if (!object(content)) throw new Error('Invalid content');
@@ -35,12 +38,21 @@ export function validateContent(content) {
   if (!object(versions)) throw new Error('Invalid versions');
   fields(versions, ['a', 'b'], 'versions');
   for (const version of ['a', 'b']) {
-    const sentences = versions[version];
-    if (!Array.isArray(sentences) || sentences.length < 2 || sentences.length > 5) throw new Error(`Invalid versions.${version}: write two to five sentences`);
-    sentences.forEach((sentence, i) => text(sentence, `versions.${version}[${i}]`));
+    const path = `versions.${version}`, value = versions[version];
+    if (!object(value)) throw new Error(`Invalid ${path}`);
+    fields(value, ['subject', 'greeting', 'body', 'signoff'], path);
+    for (const field of ['subject', 'greeting', 'signoff']) text(value[field], `${path}.${field}`);
+    const body = value.body;
+    if (!Array.isArray(body) || body.length < 1 || body.length > 3) throw new Error(`Invalid ${path}.body: write one to three paragraphs`);
+    body.forEach((paragraph, p) => {
+      if (!Array.isArray(paragraph) || paragraph.length === 0) throw new Error(`Invalid ${path}.body[${p}]: write at least one sentence`);
+      paragraph.forEach((sentence, i) => text(sentence, `${path}.body[${p}][${i}]`));
+    });
+    const count = body.flat().length;
+    if (count < 2 || count > 6) throw new Error(`Invalid ${path}.body: write two to six sentences in all`);
   }
   if (content.better !== 'a' && content.better !== 'b') throw new Error('Invalid better: use "a" or "b"');
-  const length = /** @type {unknown[]} */ (versions[content.better]).length;
+  const length = sentences(/** @type {Email} */ (versions[content.better])).length;
   if (!Array.isArray(content.qualities) || content.qualities.length < 2 || content.qualities.length > 4) throw new Error('Invalid qualities: write two to four');
   const used = new Set();
   content.qualities.forEach((quality, i) => {
@@ -61,6 +73,12 @@ export function validateContent(content) {
   if (used.size === 0) throw new Error('Invalid qualities: at least one must name a sentence');
 }
 
+/** An email's body sentences in reading order; a sentence's number counts from 1 in this list.
+ * @param {Email} email */
+function sentences(email) {
+  return email.body.flat();
+}
+
 /** The right pick for a quality. @param {Content} content @param {number} index @returns {Pick} */
 export function answer(content, index) {
   const sentence = content.qualities[index].sentence;
@@ -74,7 +92,7 @@ export function sentenceOf(content, pick) {
   const match = typeof pick === 'string' ? /^([ab])([1-9]\d*)$/.exec(pick) : null;
   if (!match) return null;
   const version = /** @type {Version} */ (match[1]), sentence = Number(match[2]);
-  return sentence <= content.versions[version].length ? { version, sentence } : null;
+  return sentence <= sentences(content.versions[version]).length ? { version, sentence } : null;
 }
 
 /** @param {Content} content @param {unknown} pick @returns {pick is Pick} */
@@ -82,22 +100,24 @@ export function isPick(content, pick) {
   return pick === NEITHER || sentenceOf(content, pick) !== null;
 }
 
-/** A pick's name, such as "Version B, sentence 2", or the Neither label.
+/** A pick's name: the version a sentence is in, such as "Version B", or the Neither label.
  * @param {Content} content @param {import('./strings.js').Strings} strings @param {string} pick
  */
 export function pickName(content, strings, pick) {
   const sentence = sentenceOf(content, pick);
   if (!sentence) return strings.neither;
-  return format(strings.sentenceName, { version: sentence.version === 'a' ? strings.versionA : strings.versionB, n: sentence.sentence });
+  return sentence.version === 'a' ? strings.versionA : strings.versionB;
 }
 
-/** The right answer in words, ending in punctuation: a sentence's name and the sentence itself, or
- * the Neither label with a full stop.
+/** The right answer as one line ending in punctuation, such as "Correct answer, in Version B: For an
+ * urgent order, call …", or "Correct answer: Neither version does this."
  * @param {Content} content @param {import('./strings.js').Strings} strings @param {number} index
  */
 export function answerText(content, strings, index) {
   const pick = answer(content, index), sentence = sentenceOf(content, pick);
-  return sentence ? `${pickName(content, strings, pick)}: ${content.versions[sentence.version][sentence.sentence - 1]}` : `${strings.neither}.`;
+  return sentence
+    ? format(strings.correctIn, { version: pickName(content, strings, pick), letter: sentence.version.toUpperCase(), answer: sentences(content.versions[sentence.version])[sentence.sentence - 1] })
+    : format(strings.correct, { answer: `${strings.neither}.` });
 }
 
 /** Score checked picks, in question order.
@@ -113,15 +133,19 @@ export function score(content, picks) {
   return { results, right: results.filter(Boolean).length, total: content.qualities.length, done: picks.length === content.qualities.length };
 }
 
-/** The better version, sentence by sentence with the note of the quality it shows, then the notes of
- * the qualities neither version has.
+/** The better version's body, paragraph by paragraph, each sentence with the note of the quality it
+ * shows, then the notes of the qualities neither version has.
  * @param {Content} content
  */
 export function summary(content) {
   validateContent(content);
+  let n = 0;
   return {
     version: content.better,
-    sentences: content.versions[content.better].map((text, i) => ({ text, note: content.qualities.find(q => q.sentence === i + 1)?.note ?? null })),
+    paragraphs: content.versions[content.better].body.map(paragraph => paragraph.map(text => {
+      n += 1;
+      return { text, note: content.qualities.find(q => q.sentence === n)?.note ?? null };
+    })),
     missing: content.qualities.filter(q => q.sentence === null).map(q => q.note)
   };
 }
