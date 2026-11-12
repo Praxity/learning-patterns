@@ -1,30 +1,32 @@
 {
   "mode": "evidence",
-  "title": "Qu’est-ce que l’évitement ?",
-  "question": "Pourquoi partir sans un mot donne-t-il à l’autre personne le sentiment d’être rejetée ?",
+  "title": "La dérobade",
+  "question": "Quel effet la dérobade a-t-elle sur l’autre personne ?",
   "paragraphs": [
     [
       {
         "id": "withdraw",
-        "text": "L’évitement signifie se retirer d’une conversation."
+        "text": "La dérobade consiste à se retirer d’une conversation.",
+        "note": "Ce passage définit la dérobade. La question porte sur son effet sur l’autre personne."
       },
       {
         "id": "actions",
         "text": "Vous vous taisez, changez de sujet ou quittez la pièce.",
-        "note": "Ce passage décrit vos gestes. La question demande pourquoi l’autre personne se sent rejetée."
+        "note": "Ce passage décrit vos gestes. La question porte sur l’effet sur l’autre personne."
       },
       {
         "id": "overwhelmed",
-        "text": "Cela arrive souvent quand la situation vous dépasse.",
-        "note": "Ce passage explique vos sentiments. La question porte sur l’autre personne."
+        "text": "Cela arrive habituellement quand la situation vous dépasse.",
+        "note": "Ce passage dit quand la dérobade survient. La question porte sur l’autre personne."
       },
       {
         "id": "unseen",
-        "text": "L’autre personne ne le voit pas."
+        "text": "L’autre personne ne le voit pas.",
+        "note": "Ce passage dit ce que l’autre personne ne voit pas. La question porte sur l’effet que la dérobade a sur elle."
       },
       {
         "id": "ignored",
-        "text": "Elle vous voit vous retirer sans un mot et se sent ignorée ou rejetée.",
+        "text": "Elle vous voit vous retirer et se sent ignorée ou rejetée.",
         "key": true
       }
     ]

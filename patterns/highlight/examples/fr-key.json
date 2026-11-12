@@ -1,29 +1,33 @@
 {
   "mode": "key",
-  "title": "Qu’est-ce que l’évitement?",
+  "maxMarks": 2,
+  "title": "La dérobade",
+  "question": "Vous avez deux phrases pour expliquer à un collègue ce qu’est la dérobade et son effet sur l’autre personne.",
   "paragraphs": [
     [
       {
         "id": "withdraw",
-        "text": "L’évitement signifie se retirer d’une conversation.",
+        "text": "La dérobade consiste à se retirer d’une conversation.",
         "key": true
       },
       {
         "id": "actions",
-        "text": "Vous vous taisez, changez de sujet ou quittez la pièce."
+        "text": "Vous vous taisez, changez de sujet ou quittez la pièce.",
+        "note": "Ce passage donne des exemples. La première phrase dit déjà ce qu’est la dérobade."
       },
       {
         "id": "overwhelmed",
-        "text": "Cela arrive souvent quand la situation vous dépasse.",
-        "note": "Ce passage explique quand l’évitement survient. Les idées clés décrivent le comportement et son effet sur l’autre personne."
+        "text": "Cela arrive habituellement quand la situation vous dépasse.",
+        "note": "Ce passage dit quand la dérobade survient. Vos deux phrases portent sur ce qu’elle est et sur son effet sur l’autre personne."
       },
       {
         "id": "unseen",
-        "text": "L’autre personne ne le voit pas."
+        "text": "L’autre personne ne le voit pas.",
+        "note": "Ce passage dit ce que l’autre personne ne voit pas. La dernière phrase dit quel effet la dérobade a sur elle."
       },
       {
         "id": "ignored",
-        "text": "Elle vous voit vous retirer sans un mot et se sent ignorée ou rejetée.",
+        "text": "Elle vous voit vous retirer et se sent ignorée ou rejetée.",
         "key": true
       }
     ]

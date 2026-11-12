@@ -46,23 +46,23 @@ test('progress counts distinct ratings without announcing progress', async ({ pa
   await open(page, undefined, multiple); await observe(page);
   const root = page.locator('[data-lp-pattern]');
   const progress = root.locator('[data-lp-progress]');
-  await expect(progress).toHaveText('0 of 3 questions checked');
+  await expect(progress).toHaveText('0 of 3 questions reviewed');
   await expect(progress).toBeVisible();
   expect(await progress.getAttribute('aria-live')).toBeNull();
   expect(await progress.getAttribute('role')).toBeNull();
   await part(page).locator('[data-lp-commit]').click();
-  await expect(progress).toHaveText('0 of 3 questions checked');
+  await expect(progress).toHaveText('0 of 3 questions reviewed');
   await part(page).getByRole('button', { name: 'I remembered' }).click();
-  await expect(progress).toHaveText('1 of 3 questions checked');
+  await expect(progress).toHaveText('1 of 3 questions reviewed');
   await expect(part(page).locator('[data-lp-review] svg')).toHaveAttribute('aria-hidden', 'true');
   await part(page).getByRole('button', { name: 'I forgot' }).click();
-  await expect(progress).toHaveText('1 of 3 questions checked');
+  await expect(progress).toHaveText('1 of 3 questions reviewed');
   const second = root.locator('[data-lp-part]').nth(1);
   await second.locator('[data-lp-commit]').click(); await second.getByRole('button', { name: 'I forgot' }).click();
-  await expect(progress).toHaveText('2 of 3 questions checked');
+  await expect(progress).toHaveText('2 of 3 questions reviewed');
   const third = root.locator('[data-lp-part]').nth(2);
   await third.locator('[data-lp-commit]').click(); await third.getByRole('button', { name: 'I remembered' }).click();
-  await expect(progress).toHaveText('3 of 3 questions checked');
+  await expect(progress).toHaveText('3 of 3 questions reviewed');
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([
     'Review again on Friday, October 9, 2026', 'Review again on Wednesday, October 7, 2026',
     'Review again on Wednesday, October 7, 2026', 'Review again on Friday, October 9, 2026'
@@ -73,7 +73,7 @@ test('article metadata uses authored text in French and progress restores withou
   await page.addInitScript(() => { window.lpSeed = { results: { stonewalling: { result: 'forgot', reviewOn: '2026-10-07' } } }; });
   await open(page, '/review-prompts/fr.html');
   const root = page.locator('[data-lp-pattern]');
-  await expect(root.getByRole('heading', { level: 2 })).toHaveText("L’évitement");
+  await expect(root.getByRole('heading', { level: 2 })).toHaveText("La dérobade");
   await expect(root.locator('header > .lp-small').first()).toHaveText('1 min de lecture');
   await expect(root.locator('[data-lp-progress]')).toHaveText('Questions revues : 1 sur 1');
   await expect(root.getByRole('status')).toHaveText('');
@@ -314,7 +314,7 @@ test('valid saved dates restore exactly, open rated parts, and do not announce',
   await expect(page.locator('[data-lp-part]').nth(1).locator('[data-lp-rating]')).toBeHidden();
   await expect(page.locator('[data-lp-part]').nth(2).locator('time')).toHaveAttribute('datetime', '2028-02-29');
   await expect(page.getByRole('status')).toHaveText('');
-  await expect(page.locator('[data-lp-progress]')).toHaveText('2 of 3 questions checked');
+  await expect(page.locator('[data-lp-progress]')).toHaveText('2 of 3 questions reviewed');
 });
 
 test('invalid saved state is ignored without revealing answers or announcing', async ({ page }) => {
@@ -322,7 +322,7 @@ test('invalid saved state is ignored without revealing answers or announcing', a
   await open(page); await expect(part(page).locator('[data-lp-answer]')).toBeHidden();
   await expect(part(page).locator('[data-lp-commit]')).toBeVisible();
   await expect(page.locator('time')).toHaveCount(0); await expect(page.getByRole('status')).toHaveText('');
-  await expect(page.locator('[data-lp-progress]')).toHaveText('0 of 1 questions checked');
+  await expect(page.locator('[data-lp-progress]')).toHaveText('0 of 1 questions reviewed');
 });
 
 test('two instances have unique ids and independent results', async ({ page }) => {
@@ -332,8 +332,8 @@ test('two instances have unique ids and independent results', async ({ page }) =
   await roots.first().getByRole('button', { name: 'I remembered' }).first().click();
   await expect(roots.nth(1).locator('[data-lp-answer]')).toBeHidden(); await expect(roots.nth(1).locator('time')).toHaveCount(0);
   await expect(roots.nth(1).getByRole('status')).toHaveText('');
-  await expect(roots.first().locator('[data-lp-progress]')).toHaveText('1 of 1 questions checked');
-  await expect(roots.nth(1).locator('[data-lp-progress]')).toHaveText('0 of 1 questions checked');
+  await expect(roots.first().locator('[data-lp-progress]')).toHaveText('1 of 1 questions reviewed');
+  await expect(roots.nth(1).locator('[data-lp-progress]')).toHaveText('0 of 1 questions reviewed');
 });
 
 test('enhance is idempotent, destroy restores native details and old destroy is harmless', async ({ page }) => {

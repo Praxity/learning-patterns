@@ -1,6 +1,8 @@
 {
   "mode": "key",
-  "title": "What is stonewalling?",
+  "maxMarks": 2,
+  "title": "Stonewalling",
+  "question": "You have two sentences to tell a colleague what stonewalling is and what it does to the other person.",
   "paragraphs": [
     [
       {
@@ -10,20 +12,22 @@
       },
       {
         "id": "actions",
-        "text": "You go quiet, change the subject or leave the room."
+        "text": "You go quiet, change the subject or leave the room.",
+        "note": "This gives examples. The first sentence already says what stonewalling is."
       },
       {
         "id": "overwhelmed",
         "text": "It usually happens when you feel overwhelmed.",
-        "note": "This explains when stonewalling happens. The key ideas describe the behaviour and its effect on the other person."
+        "note": "This says when stonewalling happens. Your two sentences cover what it is and what it does to the other person."
       },
       {
         "id": "unseen",
-        "text": "The other person can't see that."
+        "text": "The other person can't see that.",
+        "note": "This says what the other person can't see. The last sentence says what stonewalling does to them."
       },
       {
         "id": "ignored",
-        "text": "They see you withdraw without a word and feel ignored or rejected.",
+        "text": "They see you withdraw and feel ignored or rejected.",
         "key": true
       }
     ]

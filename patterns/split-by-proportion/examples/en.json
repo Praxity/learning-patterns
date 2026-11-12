@@ -1,8 +1,8 @@
 {
-  "context": "You've just joined the support team. Last month it closed 400 tickets.",
-  "question": "What share of those 400 tickets came from each cause?",
-  "resultTitle": "Where last month's 400 tickets came from",
-  "optionHeading": "Cause",
+  "context": "You've just joined the support team for a payroll app. Last month the team closed 400 tickets.",
+  "question": "What share of those 400 tickets was about each topic?",
+  "resultTitle": "What last month's 400 tickets were about",
+  "optionHeading": "Topic",
   "source": "Support desk ticket log, last month.",
   "total": 100,
   "unit": "%",

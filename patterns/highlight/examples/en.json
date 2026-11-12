@@ -1,30 +1,32 @@
 {
   "mode": "evidence",
-  "title": "What is stonewalling?",
-  "question": "Why does leaving without a word make the other person feel rejected?",
+  "title": "Stonewalling",
+  "question": "How does stonewalling affect the other person?",
   "paragraphs": [
     [
       {
         "id": "withdraw",
-        "text": "Stonewalling means withdrawing from a conversation."
+        "text": "Stonewalling means withdrawing from a conversation.",
+        "note": "This defines stonewalling. The question asks how the other person is affected."
       },
       {
         "id": "actions",
         "text": "You go quiet, change the subject or leave the room.",
-        "note": "This lists your actions. The question asks why the other person feels rejected."
+        "note": "This lists what you do. The question asks how the other person is affected."
       },
       {
         "id": "overwhelmed",
         "text": "It usually happens when you feel overwhelmed.",
-        "note": "This explains your feelings. The question asks about the other person."
+        "note": "This says when stonewalling happens. The question asks about the other person."
       },
       {
         "id": "unseen",
-        "text": "The other person can't see that."
+        "text": "The other person can't see that.",
+        "note": "This says what the other person can't see. The question asks how they are affected."
       },
       {
         "id": "ignored",
-        "text": "They see you withdraw without a word and feel ignored or rejected.",
+        "text": "They see you withdraw and feel ignored or rejected.",
         "key": true
       }
     ]

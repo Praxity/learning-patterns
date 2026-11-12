@@ -87,11 +87,13 @@ export function enhance(root, { content, strings, state, ask }) {
       const outcome = feedback(content, answers, modelId);
       const found = outcome.kind === 'correct', known = outcome.kind === 'misconception';
       const word = found ? strings.found : known ? strings.misconception : outcome.kind === 'none' ? strings.noMatch : strings.unsure;
+      // The heading names the label as a misconception, so sighted learners never see the false claim stated bare.
+      const heading = strings.misconceptionHeading.replaceAll('{label}', outcome.heading);
       result.innerHTML = known
-        ? `<h3 class="lp-run-in lp-misconception-heading">${icons['alert-circle']}${html(outcome.heading, root.lang)}</h3><p>${html(outcome.text, root.lang)}</p>`
+        ? `<h3 class="lp-run-in lp-misconception-heading">${icons['alert-circle']}${html(heading, root.lang)}</h3><p>${html(outcome.text, root.lang)}</p>`
         : `<p class="lp-misconception-feedback ${found ? 'lp-met' : 'lp-neutral'}">${found ? icons.check : icons['question-mark']}<span>${html(outcome.text, root.lang)}</span></p>`;
       result.hidden = false; fallback.hidden = true; model.hidden = false; model.open = true;
-      status.textContent = frenchTypography(known ? `${word}: ${outcome.heading}. ${outcome.text}` : `${word}. ${outcome.text}`, root.lang);
+      status.textContent = frenchTypography(known ? `${heading}. ${outcome.text}` : `${word}. ${outcome.text}`, root.lang);
     } catch (error) {
       if (!destroyed) {
         const capped = showCapNotice(error, root, fallback, status);

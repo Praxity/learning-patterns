@@ -2,10 +2,11 @@
 .lp-test-out-outline-list { display: grid; gap: var(--lp-gap-group); padding-inline-start: 24px; }
 .lp-test-out-outline-list li::marker { color: var(--lp-ink-2); font-size: var(--lp-type-small); }
 .lp-test-out-outline-row { display: flex; gap: 16px; align-items: flex-start; }
-.lp-test-out-outline-row > .lp-run-in { flex: 1; min-inline-size: 0; }
+.lp-test-out-outline-row > .lp-run-in { flex: 1; min-inline-size: min-content; }
 /* Outline titles and statuses share a row. */
 .lp-test-out-outline-row > .lp-test-out-status { margin-block-start: 0; }
-.lp-test-out-status { display: inline-flex; align-items: center; gap: 4px; flex: none; white-space: nowrap; font-weight: 600; }
+/* A long status (« Peut être sautée ») wraps under 400% zoom and text spacing instead of pushing the row past the card. */
+.lp-test-out-status { display: inline-flex; align-items: center; gap: 4px; flex: 0 1 auto; font-weight: 600; }
 /* Back and Next share one row at every width. Next keeps its size; base.css would fill the card. */
 .lp-test-out-navigation { justify-content: space-between; }
 .lp-test-out-navigation > .lp-button:not(.lp-button-quiet) { flex: none; }

@@ -18,7 +18,7 @@
     {
       "id": "no_reason",
       "label": "La raison du refus",
-      "explanation": "La réponse refuse sans dire pourquoi, donc Alex ne peut pas savoir si la décision est définitive et risque d’insister. Demandez à Priya d’indiquer que le délai de remboursement est de 30 jours après l’achat."
+      "explanation": "La réponse refuse sans dire pourquoi. Alex ne peut pas savoir si la décision est définitive et risque donc d’insister. Demandez à Priya d’indiquer que le délai de remboursement est de 30 jours après l’achat."
     },
     {
       "id": "no_alternative",

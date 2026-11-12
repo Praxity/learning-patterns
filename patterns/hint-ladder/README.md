@@ -42,7 +42,7 @@ Put the rule on the card, in the context, unless the course has just taught it. 
 3. Each hint opens under the options, in order. After the last hint the button reads "Show the worked answer", which opens once the learner has checked an answer.
 4. The first question ends when the learner answers correctly, opens the worked answer, or has only the correct option left. The worked answer shows in all three cases.
 5. A second question of the same kind follows, with no hints and one try.
-6. One sentence says how both went, for example "You answered the first question correctly in 2 tries with 1 hint, then answered the question without hints correctly." "Start over" clears everything.
+6. A short summary says how both went, for example "First question: correct in 2 tries, with 1 hint. Question without hints: correct." "Start over" clears everything.
 
 Nothing is scored, and hints cost nothing.
 
@@ -135,7 +135,7 @@ const instance = enhance(document.querySelector('[data-lp-pattern="hint-ladder"]
 - A wrong check leaves focus on "Check my answer", and moves it there if the option being closed held it. The status region announces "Incorrect." and the reason once. The option is disabled and keeps its mark and reason.
 - When the first question ends, focus moves to the worked answer. It starts with a visually hidden "Correct." or, when the last wrong option was checked, "Incorrect." and that option's reason. Reading on reaches the second question.
 - Checking the second question moves focus to its explanation, which starts with a visually hidden "Correct." or "Incorrect. Correct answer: …". The status region then announces the closing sentence once.
-- Checking with nothing chosen shows "Choose an answer" in the question group, links it as the group's description and focuses the first option still open.
+- Checking with nothing chosen shows "Choose an answer first." in the question group, links it as the group's description and focuses the first option still open.
 - "Start over" focuses the first option of the first question and announces "Answers cleared."
 - Hints are set apart by space, an icon and a label. Marks use "Correct", "Incorrect", or "Correct answer" on a correct option the learner did not choose.
 

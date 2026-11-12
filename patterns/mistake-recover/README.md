@@ -38,7 +38,7 @@ Write three to five recovery steps for each, with a reason for every step. Exact
 1. The learner reads the request and selects Approve or Hold.
 2. Approve changes the status line to state the cost. The learner ticks the recovery steps they would take and selects "Check my steps". Each chosen step is marked "Correct" or "Incorrect", each correct step they left out is marked "Correct answer", and each marked step shows its reason. The status line changes again: cancelled when they chose the stopping step, still approved when they did not.
 3. Hold changes the status line to say why the payment waits. A payment a colleague approved appears below, already approved, and the learner recovers it the same way.
-4. One sentence says how it went, for example "You approved the request and stopped the payment before it went out." "Start over" clears everything.
+4. One sentence says how it went, for example "You approved the request, then stopped it before it went through." "Start over" clears everything.
 
 The recovery is checked once. Nothing is scored.
 
@@ -125,7 +125,7 @@ const instance = enhance(document.querySelector('[data-lp-pattern="mistake-recov
 - After "Check my steps", the steps lock and focus moves to the same status line, which now says whether the payment was cancelled or is still approved. The marked steps follow in reading order, each with its mark word and reason.
 - After Hold, the colleague's payment appears below without scrolling, so the status line stays in view. After a check, the status line and the marked steps stay in view.
 - When the card ends, focus moves to the status line first, then the status region announces the closing sentence once.
-- Checking with no step ticked shows "Choose at least one step" in the group, links it as part of the group's description and focuses the first step.
+- Checking with no step ticked shows "Choose at least one step first." in the group, links it as part of the group's description and focuses the first step.
 - "Start over" focuses Approve on the request and announces "Answers cleared."
 - Marks use "Correct", "Incorrect", or "Correct answer" on a correct step the learner left out.
 

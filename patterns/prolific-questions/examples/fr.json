@@ -1,6 +1,6 @@
 {
   "title": "Classez chaque fait dans le modèle de la CIF",
-  "context": "La Classification internationale du fonctionnement (CIF) de l’OMS utilise ces termes pour décrire le handicap.",
+  "context": "La Classification internationale du fonctionnement, du handicap et de la santé (CIF) de l’OMS décrit le handicap à l’aide de ces trois termes.",
   "question": "Chaque fait décrit-il une déficience, une limitation d’activité ou une restriction de participation?",
   "parts": [
     {
@@ -25,7 +25,7 @@
     [
       "Ana a une basse vision causée par le glaucome.",
       "Ana ne peut pas lire les caractères de taille standard.",
-      "Ana ne peut pas passer l’examen d’agrément sur papier qu’exige son emploi."
+      "Ana ne peut pas passer l’examen d’agrément exigé pour son emploi, car il n’existe qu’en version papier."
     ],
     [
       "Ben a une perte auditive profonde aux deux oreilles.",
@@ -33,7 +33,7 @@
       "Ben est exclu des réunions téléphoniques hebdomadaires de son équipe."
     ],
     [
-      "Chloe a de la polyarthrite rhumatoïde aux mains.",
+      "Les articulations des doigts de Chloe sont raides et douloureuses à cause de la polyarthrite rhumatoïde.",
       "Chloe ne peut pas saisir et soulever des boîtes lourdes.",
       "Chloe a cessé de faire du bénévolat à la banque alimentaire, où le travail consiste à remplir des boîtes."
     ],
@@ -43,13 +43,13 @@
       "Emi n’obtient pas de promotion parce que l’évaluation est un test écrit chronométré."
     ],
     [
-      "Farid a de l’épilepsie, et les médicaments ne maîtrisent pas entièrement ses crises.",
-      "Farid ne peut pas conduire.",
+      "Farid a des crises d’épilepsie que les médicaments ne maîtrisent pas entièrement.",
+      "Farid ne peut pas conduire en toute sécurité, car une crise peut survenir sans avertissement.",
       "Farid ne peut pas accepter le poste de représentant sur la route qu’on lui a offert, car il exige un permis de conduire."
     ],
     [
       "Grace a des pertes de mémoire à la suite d’une lésion cérébrale.",
-      "Grace ne peut pas retenir une liste de consignes données de vive voix.",
+      "Grace ne peut pas accomplir une tâche en plusieurs étapes si les étapes ne sont pas écrites.",
       "Grace a dû quitter son poste de responsable de quart au café où elle travaille."
     ],
     [
@@ -63,13 +63,13 @@
       "Ines ne peut pas faire ses quarts de travail à la caisse du supermarché, où le personnel travaille debout."
     ],
     [
-      "Jamal a un daltonisme rouge-vert.",
-      "Jamal ne peut pas distinguer les voyants rouges des voyants verts.",
+      "Jamal est atteint de daltonisme rouge-vert.",
+      "Jamal ne peut pas lire une carte ou un graphique à code de couleurs.",
       "Jamal ne peut pas suivre la formation de conducteur de train, un métier qui exige une vision complète des couleurs."
     ],
     [
-      "Kai a un bégaiement.",
-      "Kai ne peut pas parler rapidement quand le temps est limité.",
+      "Kai bégaie.",
+      "Kai a de la difficulté à tenir une conversation téléphonique au rythme habituel.",
       "Kai se voit refuser un emploi dans un centre d’appels après une entrevue téléphonique chronométrée."
     ]
   ]

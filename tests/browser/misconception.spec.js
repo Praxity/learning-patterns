@@ -73,7 +73,8 @@ for (const lang of ['en', 'fr']) {
       const expected = field === 'known' ? item.why : field === 'unsure' ? examples[lang].unsureMisconception.replaceAll('{idea}', item.idea).replaceAll('{why}', item.why) : examples[lang][field];
       await expect(page.locator('[data-lp-result]')).toContainText(expected);
       if (field === 'known') {
-        await expect(page.locator('[data-lp-result] h3')).toHaveText(item.label);
+        // The visible heading names the claim as a misconception, never the bare claim.
+        await expect(page.locator('[data-lp-result] h3')).toHaveText(frenchTypography(strings[lang].misconceptionHeading.replaceAll('{label}', item.label), lang));
         await expect(page.locator('[data-lp-result] h3')).toHaveCSS('color', 'rgb(162, 74, 7)');
       } else await expect(page.locator('[data-lp-result] h3')).toHaveCount(0);
       if (field === 'keyIdea') await expect(page.locator('[data-lp-result] .lp-met .lp-icon')).toHaveCount(1);
@@ -302,7 +303,7 @@ for (const lang of ['en', 'fr']) {
 test('forced colours preserve icon text, native ticks and focus', async ({ page, browserName }) => {
   test.skip(browserName !== 'chromium', 'Forced colours emulation checked in Chromium.');
   await page.emulateMedia({ forcedColors: 'active' }); await open(page, 'en', 'rereading'); await submit(page);
-  await expect(page.locator('[data-lp-result] h3')).toHaveText(examples.en.misconceptions[0].label);
+  await expect(page.locator('[data-lp-result] h3')).toHaveText('Common misconception: "Rereading is enough"');
   for (const target of [page.locator('[data-lp-check]'), page.locator('[data-lp-model] summary')]) {
     await target.focus(); await expect(target).toHaveCSS('outline-width', '3px'); await expect(target).toHaveCSS('outline-style', 'solid');
   }

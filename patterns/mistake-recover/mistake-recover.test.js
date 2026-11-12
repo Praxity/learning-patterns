@@ -44,7 +44,7 @@ function matches(value, rule) {
 
 test('the examples share ids, correct steps and stopping steps, and stay short', () => {
   assert.equal(content.title, 'Approve supplier payments');
-  assert.equal(french.title, 'Approuver les paiements aux fournisseurs');
+  assert.equal(french.title, 'Approuvez les paiements aux fournisseurs');
   const shape = example => [example.request, example.colleague].map(item => item.steps.map(step => [step.id, step.correct, step.stops ?? false]));
   assert.deepEqual(shape(french), shape(content));
   for (const example of [content, french]) {
@@ -142,15 +142,15 @@ test('decisions and recovery steps are checked', () => {
 
 test('the closing sentence names the decision and whether the payment at risk was stopped', () => {
   const end = (...moves) => summarize(content, play(...moves), strings.en);
-  assert.equal(end('approve', ['call', 'cancel']), 'You approved the request and stopped the payment before it went out.');
-  assert.equal(end('approve', ['update']), 'You approved the request, and the payment still goes out.');
-  assert.equal(end('hold', ['cancel']), 'You held the request and stopped the payment Dana approved before it went out.');
-  assert.equal(end('hold', ['leave', 'tell']), 'You held the request, and the payment Dana approved still goes out.');
+  assert.equal(end('approve', ['call', 'cancel']), 'You approved the request, then stopped it before it went through.');
+  assert.equal(end('approve', ['update']), 'You approved the request, and it still goes through.');
+  assert.equal(end('hold', ['cancel']), 'You held the request, then stopped the one Dana approved before it went through.');
+  assert.equal(end('hold', ['leave', 'tell']), 'You held the request, and the one Dana approved still goes through.');
   const fin = (...moves) => summarize(french, play(...moves), strings.fr).replace(nbsp, ' ');
-  assert.equal(fin('approve', ['cancel']), 'Vous avez approuvé la demande, puis vous avez arrêté le paiement avant son envoi.');
-  assert.equal(fin('approve', ['call']), 'Vous avez approuvé la demande, mais le paiement sera quand même envoyé.');
-  assert.equal(fin('hold', ['cancel']), 'Vous avez mis la demande en attente, puis vous avez arrêté le paiement approuvé par Dana avant son envoi.');
-  assert.equal(fin('hold', ['tell']), 'Vous avez mis la demande en attente, mais le paiement approuvé par Dana sera quand même envoyé.');
+  assert.equal(fin('approve', ['cancel']), 'Vous avez approuvé la demande, puis vous l’avez arrêtée avant qu’elle soit exécutée.');
+  assert.equal(fin('approve', ['call']), 'Vous avez approuvé la demande, et elle sera quand même exécutée.');
+  assert.equal(fin('hold', ['cancel']), 'Vous avez mis la demande en attente, puis vous avez arrêté celle que Dana avait approuvée avant qu’elle soit exécutée.');
+  assert.equal(fin('hold', ['tell']), 'Vous avez mis la demande en attente, mais celle que Dana avait approuvée sera quand même exécutée.');
   assert.throws(() => summarize(content, play('hold'), strings.en), /No summary/);
 });
 

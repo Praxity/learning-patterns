@@ -73,7 +73,7 @@ test('keyboard journey: approve, an empty check, recovery, the result and Start 
   await expect(first.locator('[data-lp-check]')).toBeFocused();
   await page.keyboard.press('Enter');
   const error = first.locator('[data-lp-error]');
-  await expect(error).toBeVisible(); await expect(error).toHaveText('Choose at least one step');
+  await expect(error).toBeVisible(); await expect(error).toHaveText('Choose at least one step first.');
   await expect(first.locator('fieldset')).toHaveAttribute('aria-describedby', `example-request-hint ${await error.getAttribute('id')}`);
   await expect(first.locator('input[aria-invalid="true"]')).toHaveCount(3);
   await expect(first.locator('input').first()).toBeFocused();
@@ -97,7 +97,7 @@ test('keyboard journey: approve, an empty check, recovery, the result and Start 
   await expect(first.locator('[data-lp-check]')).toBeHidden();
   await expectChoiceMarks(page);
   // Focus reads the line, then the region speaks the closing sentence once.
-  const sentence = 'You approved the request and stopped the payment before it went out.';
+  const sentence = 'You approved the request, then stopped it before it went through.';
   await expect(page.locator('[data-lp-summary]')).toHaveText(sentence);
   expect(await announcements(page)).toEqual([sentence]);
   await expect(item(page, 1)).toBeHidden();
@@ -137,7 +137,7 @@ test('holding the request opens the payment the colleague approved, and recoveri
   await expect(line(page, 1)).toHaveText(plain(`Status: ${dana.notStopped}`));
   await expect(row(second, 'cancel')).toHaveAttribute('data-lp-mark', 'missed');
   await expect(row(second, 'leave')).toHaveAttribute('data-lp-mark', 'wrong');
-  const sentence = 'You held the request, and the payment Dana approved still goes out.';
+  const sentence = 'You held the request, and the one Dana approved still goes through.';
   await expect(page.locator('[data-lp-summary]')).toHaveText(sentence);
   expect(await announcements(page)).toEqual([sentence]);
   expect(await saved(page)).toEqual({ decision: 'hold', steps: [null, ['leave', 'tell']] });
@@ -151,7 +151,7 @@ test('approving and leaving out Cancel: the payment still goes out', async ({ pa
   await expect(line(page, 0)).toBeFocused();
   await expect(line(page, 0)).toHaveText(plain(`Status: ${request.notStopped}`));
   await expect(row(first, 'cancel')).toHaveAttribute('data-lp-mark', 'missed');
-  const sentence = 'You approved the request, and the payment still goes out.';
+  const sentence = 'You approved the request, and it still goes through.';
   await expect(page.locator('[data-lp-summary]')).toHaveText(sentence);
   expect(await announcements(page)).toEqual([sentence]);
   expect(await saved(page)).toEqual({ decision: 'approve', steps: [['call'], null] });
@@ -272,7 +272,7 @@ test('a finished saved card restores its marks, sentence and Start over without 
   await expect(page.locator('input:disabled')).toHaveCount(3);
   await expect(page.locator('input:checked')).toHaveCount(1);
   await expect(line(page, 0)).toHaveText(plain(`Status: ${request.notStopped}`));
-  await expect(page.locator('[data-lp-summary]')).toHaveText('You approved the request, and the payment still goes out.');
+  await expect(page.locator('[data-lp-summary]')).toHaveText('You approved the request, and it still goes through.');
   await expect(page.locator('[data-lp-restart]')).toBeVisible();
   await expect(page.locator('[role="status"]')).toHaveText('');
   expect(await page.evaluate(() => document.activeElement === document.body)).toBe(true);
@@ -310,13 +310,13 @@ test('a double activation of a decision or a check makes one transition, one sav
   expect((await writes()).slice(1)).toEqual([{ decision: 'approve', steps: [['cancel'], null] }]);
   // Cancel is marked correct and Call, left out, is marked as the correct answer.
   await expect(page.locator('[data-lp-mark]')).toHaveCount(2);
-  expect(await announcements(page)).toEqual(['You approved the request and stopped the payment before it went out.']);
+  expect(await announcements(page)).toEqual(['You approved the request, then stopped it before it went through.']);
 });
 
 test('the pattern works in memory without a state adapter', async ({ page }) => {
   await mount(page, english);
   await hold(item(page, 0)); await recover(item(page, 1), ['cancel']);
-  await expect(page.locator('[data-lp-summary]')).toHaveText('You held the request and stopped the payment Dana approved before it went out.');
+  await expect(page.locator('[data-lp-summary]')).toHaveText('You held the request, then stopped the one Dana approved before it went through.');
 });
 
 test('worst-case authored text wraps inside the card at 320px', async ({ page }) => {
@@ -371,7 +371,7 @@ test('enhance twice returns one instance; destroy restores the no-JavaScript vie
   expect(await page.evaluate(() => { const instance = window.lpEnhance(); return instance === window.lpEnhance() && instance !== window.lpInstances[0]; })).toBe(true);
   await expect(line(page, 0)).toHaveText(plain(`Status: ${request.held}`));
   await expect(line(page, 1)).toHaveText(plain(`Status: ${dana.stopped}`));
-  await expect(page.locator('[data-lp-summary]')).toHaveText('You held the request and stopped the payment Dana approved before it went out.');
+  await expect(page.locator('[data-lp-summary]')).toHaveText('You held the request, then stopped the one Dana approved before it went through.');
 });
 
 test('missing and mismatched markup fail loudly', async ({ page }) => {

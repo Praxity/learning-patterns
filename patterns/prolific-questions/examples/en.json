@@ -1,7 +1,7 @@
 {
   "title": "Place each fact in the ICF model",
-  "context": "The WHO's International Classification of Functioning (ICF) uses these terms to describe disability.",
-  "question": "Is each fact an impairment, an activity limitation or a participation restriction?",
+  "context": "The WHO's International Classification of Functioning, Disability and Health (ICF) describes disability with these three terms.",
+  "question": "Does each fact describe an impairment, an activity limitation or a participation restriction?",
   "parts": [
     {
       "label": "Impairment",
@@ -33,7 +33,7 @@
       "Ben is left out of his team's weekly phone meetings."
     ],
     [
-      "Chloe has rheumatoid arthritis in her hands.",
+      "Chloe's finger joints are stiff and painful from rheumatoid arthritis.",
       "Chloe can't grip and lift heavy boxes.",
       "Chloe gave up volunteering at the food bank, where the work is packing boxes."
     ],
@@ -43,13 +43,13 @@
       "Emi misses out on promotion because the assessment is a timed written test."
     ],
     [
-      "Farid has epilepsy, and medication doesn't fully control his seizures.",
-      "Farid can't drive.",
+      "Farid has seizures that medication doesn't fully control.",
+      "Farid can't drive safely, because a seizure can come without warning.",
       "Farid can't take the field sales job he was offered, which needs a driving licence."
     ],
     [
       "Grace has memory loss after a brain injury.",
-      "Grace can't remember a list of spoken instructions.",
+      "Grace can't carry out a task with several steps unless the steps are written down.",
       "Grace had to step down as the shift manager at her café."
     ],
     [
@@ -64,12 +64,12 @@
     ],
     [
       "Jamal has red-green colour blindness.",
-      "Jamal can't tell red status lights from green ones.",
+      "Jamal can't read a colour-coded map or chart.",
       "Jamal can't train as a train driver, a job that requires full colour vision."
     ],
     [
       "Kai has a stammer.",
-      "Kai can't speak quickly under time pressure.",
+      "Kai has difficulty holding a phone conversation at the usual pace.",
       "Kai is turned down for a call-centre job after a timed phone interview."
     ]
   ]

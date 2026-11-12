@@ -1,6 +1,6 @@
 export const strings = {
   en: {
-    worked: 'A worked example',
+    worked: 'Example',
     check: 'Check',
     next: 'New set',
     answers: 'Answers',
@@ -20,7 +20,7 @@ export const strings = {
     markAnswer: 'Correct answer'
   },
   fr: {
-    worked: 'Un exemple résolu',
+    worked: 'Exemple',
     check: 'Vérifier',
     next: 'Nouvelle série',
     answers: 'Réponses',

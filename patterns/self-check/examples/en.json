@@ -2,34 +2,33 @@
   "context": {
     "to": "Sam, your manager",
     "initials": "S",
-    "subject": "Client report",
-    "placeholder": "Hi Sam,\n\nType your message here…"
+    "subject": "Client report"
   },
   "scenario": "Your client report is due Friday. The sales data arrived three days late. You need until Tuesday to finish.",
   "task": "Write to your manager to ask for more time.",
   "parts": [
     {
       "id": "reason",
-      "label": "Sales data arrived late",
-      "missed": "Say the sales data arrived late.",
+      "label": "Why you need more time",
+      "missed": "Say what held you up: the sales data arrived three days late.",
       "evidence": "the sales data for the client report arrived three days late"
     },
     {
       "id": "new_date",
-      "label": "Ask for Tuesday",
-      "missed": "Ask to finish by Tuesday.",
+      "label": "The day you'll finish",
+      "missed": "Name the day. \"More time\" doesn't tell Sam how long.",
       "evidence": "I need until Tuesday to finish it"
     },
     {
       "id": "agreement",
-      "label": "Check that Tuesday works",
-      "missed": "Ask whether Tuesday works for your manager.",
+      "label": "A question asking whether that day works for Sam",
+      "missed": "End with a question, so Sam can agree or offer another day.",
       "evidence": "Would Tuesday work for you?"
     },
     {
       "id": "no_blame",
-      "label": "Describe the delay without blame",
-      "missed": "Describe the delay without blaming anyone.",
+      "label": "No blame for the delay",
+      "missed": "Say what arrived late and when. Leave out who was responsible.",
       "evidence": null
     }
   ],

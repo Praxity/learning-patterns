@@ -75,7 +75,7 @@ test('keyboard journey: error, a miss, the lure, a hit, the result with mixed-up
   await expect(error).toBeHidden();
   await page.keyboard.press('Tab'); await page.keyboard.press('Enter');
   await expect(feedback(page, 0)).toBeFocused();
-  await expect(feedback(page, 0)).toHaveText(`Incorrect. Correct answer: Agree the next action. ${english.cases[0].decides}`);
+  await expect(feedback(page, 0)).toHaveText(`Incorrect. Correct answer: Agree on the next action. ${english.cases[0].decides}`);
   await expect(panel(page, 0).locator('label:has(input[value="name"])')).toHaveAttribute('data-lp-mark', 'wrong');
   await expect(panel(page, 0).locator('label:has(input[value="agree"])')).toHaveAttribute('data-lp-mark', 'missed');
   await expect(panel(page, 0).locator('label:has(input[value="ask"])')).not.toHaveAttribute('data-lp-mark');
@@ -98,7 +98,7 @@ test('keyboard journey: error, a miss, the lure, a hit, the result with mixed-up
   await page.keyboard.press('Tab'); await page.keyboard.press('Enter');
   await expect(feedback(page, 1)).toBeFocused();
   await expect(feedback(page, 1)).toHaveText(`Incorrect. Correct answer: Name the behaviour. ${english.cases[1].looksLike} ${english.cases[1].decides}`);
-  await expect(feedback(page, 1).locator('em')).toHaveText(['Agree the next action']);
+  await expect(feedback(page, 1).locator('em')).toHaveText(['Agree on the next action']);
 
   // Case 3: a hit still gives the deciding fact.
   await page.keyboard.press('Tab'); await page.keyboard.press('Enter');
@@ -113,9 +113,9 @@ test('keyboard journey: error, a miss, the lure, a hit, the result with mixed-up
   const result = page.locator('[data-lp-result]');
   await expect(result.locator('[data-lp-score]')).toHaveText('You got 1 of 4 cases right.');
   await expect(result.locator('h3')).toHaveText('Principles you mixed up');
-  await expect(result.locator('li')).toHaveText(['Name the behaviour and Agree the next action: 2 cases', 'Name the behaviour and Ask an open question: 1 case']);
-  await expect(result.locator('li em')).toHaveText(['Name the behaviour', 'Agree the next action', 'Name the behaviour', 'Ask an open question']);
-  expect(await announcements(page)).toEqual(['You got 1 of 4 cases right. Principles you mixed up: Name the behaviour and Agree the next action: 2 cases. Name the behaviour and Ask an open question: 1 case.']);
+  await expect(result.locator('li')).toHaveText(['Name the behaviour and Agree on the next action: 2 cases', 'Name the behaviour and Ask an open question: 1 case']);
+  await expect(result.locator('li em')).toHaveText(['Name the behaviour', 'Agree on the next action', 'Name the behaviour', 'Ask an open question']);
+  expect(await announcements(page)).toEqual(['You got 1 of 4 cases right. Principles you mixed up: Name the behaviour and Agree on the next action: 2 cases. Name the behaviour and Ask an open question: 1 case.']);
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ picks: ['name', 'agree', 'ask', 'ask'] });
   await expect(page.locator('[data-lp-next]:visible, [data-lp-check]:visible')).toHaveCount(0);
   await expectChoiceMarks(page);

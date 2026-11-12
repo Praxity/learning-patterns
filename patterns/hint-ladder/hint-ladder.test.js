@@ -31,7 +31,7 @@ function matches(value, rule) {
 
 test('the examples share ids and answers, and stay short', () => {
   assert.equal(content.title, 'Find the shipping deadline');
-  assert.equal(french.title, 'Trouver la date limite d’expédition');
+  assert.equal(french.title, 'Trouvez la date limite d’expédition');
   assert.deepEqual(french.options.map(o => o.id), content.options.map(o => o.id));
   assert.deepEqual(french.followUp.options.map(o => o.id), content.followUp.options.map(o => o.id));
   assert.deepEqual([french.correct, french.followUp.correct], [content.correct, content.followUp.correct]);
@@ -40,8 +40,10 @@ test('the examples share ids and answers, and stay short', () => {
   for (const example of [content, french]) {
     assert.equal(example.options.length, 4);
     assert.equal(example.hints.length, 2);
-    // The setup is at most two sentences, and no hint names the answer.
-    assert.equal(example.context.split(/(?<=\.) /).length, 2);
+    // The setup is the situation plus one short sentence per rule, and no hint names the answer.
+    const sentences = example.context.split(/(?<=\.) /);
+    assert.ok(sentences.length <= 4, example.context);
+    for (const sentence of sentences) assert.ok(sentence.split(/\s+/).length <= 20, sentence);
     const answer = example.options.find(o => o.id === example.correct).text;
     for (const hint of example.hints) assert.ok(!hint.toLowerCase().includes(answer.toLowerCase()), hint);
     for (const option of example.options) if (option.feedback) assert.ok(!option.feedback.toLowerCase().includes(answer.toLowerCase()), option.feedback);
@@ -145,19 +147,19 @@ test('the question without hints opens when the first one ends and takes one ans
 
 test('the closing sentence gives tries and hints for the first question and the unaided result', () => {
   const end = (state, option) => summarize(content, tryFollowUp(content, state, option), strings.en);
-  assert.equal(end(play('wednesday'), 'tuesday'), 'You answered the first question correctly in 1 try with no hints, then answered the question without hints correctly.');
-  assert.equal(end(play('monday', 'help', 'wednesday'), 'monday'), 'You answered the first question correctly in 2 tries with 1 hint, then answered the question without hints incorrectly.');
-  assert.equal(end(play('help', 'monday', 'help', 'tuesday', 'wednesday'), 'tuesday'), 'You answered the first question correctly in 3 tries with 2 hints, then answered the question without hints correctly.');
-  assert.equal(end(play('help', 'help', 'thursday', 'help'), 'tuesday'), 'You saw the worked answer to the first question after 1 try with 2 hints, then answered the question without hints correctly.');
+  assert.equal(end(play('wednesday'), 'tuesday'), 'First question: correct in 1 try, with no hints. Question without hints: correct.');
+  assert.equal(end(play('monday', 'help', 'wednesday'), 'monday'), 'First question: correct in 2 tries, with 1 hint. Question without hints: incorrect.');
+  assert.equal(end(play('help', 'monday', 'help', 'tuesday', 'wednesday'), 'tuesday'), 'First question: correct in 3 tries, with 2 hints. Question without hints: correct.');
+  assert.equal(end(play('help', 'help', 'thursday', 'help'), 'tuesday'), 'First question: worked answer shown after 1 try, with 2 hints. Question without hints: correct.');
   // The worked answer also shows when only the correct option is left, with however many hints were open.
-  assert.equal(end(play('monday', 'tuesday', 'thursday'), 'friday'), 'You saw the worked answer to the first question after 3 tries with no hints, then answered the question without hints incorrectly.');
-  assert.equal(end(play('monday', 'help', 'tuesday', 'thursday'), 'tuesday'), 'You saw the worked answer to the first question after 3 tries with 1 hint, then answered the question without hints correctly.');
+  assert.equal(end(play('monday', 'tuesday', 'thursday'), 'friday'), 'First question: worked answer shown after 3 tries, with no hints. Question without hints: incorrect.');
+  assert.equal(end(play('monday', 'help', 'tuesday', 'thursday'), 'tuesday'), 'First question: worked answer shown after 3 tries, with 1 hint. Question without hints: correct.');
   const fin = (state, option) => summarize(french, tryFollowUp(french, state, option), strings.fr);
-  assert.equal(fin(play('wednesday'), 'tuesday'), 'Vous avez répondu correctement à la première question en 1 essai sans indice, puis vous avez répondu correctement à la question sans indice.');
-  assert.equal(fin(play('monday', 'help', 'help', 'wednesday'), 'monday'), 'Vous avez répondu correctement à la première question en 2 essais avec 2 indices, puis vous avez répondu incorrectement à la question sans indice.');
-  assert.equal(fin(play('monday', 'help', 'help', 'help'), 'tuesday'), 'Vous avez vu la solution détaillée de la première question après 1 essai avec 2 indices, puis vous avez répondu correctement à la question sans indice.');
-  assert.equal(fin(play('monday', 'tuesday', 'thursday'), 'tuesday'), 'Vous avez vu la solution détaillée de la première question après 3 essais sans indice, puis vous avez répondu correctement à la question sans indice.');
-  assert.equal(fin(play('help', 'monday', 'tuesday', 'thursday'), 'friday'), 'Vous avez vu la solution détaillée de la première question après 3 essais avec 1 indice, puis vous avez répondu incorrectement à la question sans indice.');
+  assert.equal(fin(play('wednesday'), 'tuesday'), 'Première question : réussie en 1 essai, sans indice. Question sans indice : réussie.');
+  assert.equal(fin(play('monday', 'help', 'help', 'wednesday'), 'monday'), 'Première question : réussie en 2 essais, avec 2 indices. Question sans indice : manquée.');
+  assert.equal(fin(play('monday', 'help', 'help', 'help'), 'tuesday'), 'Première question : solution détaillée affichée après 1 essai, avec 2 indices. Question sans indice : réussie.');
+  assert.equal(fin(play('monday', 'tuesday', 'thursday'), 'tuesday'), 'Première question : solution détaillée affichée après 3 essais, sans indice. Question sans indice : réussie.');
+  assert.equal(fin(play('help', 'monday', 'tuesday', 'thursday'), 'friday'), 'Première question : solution détaillée affichée après 3 essais, avec 1 indice. Question sans indice : manquée.');
   assert.throws(() => summarize(content, play('wednesday'), strings.en), /No summary/);
 });
 
@@ -266,6 +268,6 @@ test('English and French strings have the same keys, and French uses a no-break 
   for (const lang of ['en', 'fr']) for (const [key, value] of Object.entries(strings[lang])) assert.ok(value.trim(), `${lang}.${key}`);
   const output = render(french, strings.fr, { id: 'quiz', lang: 'fr' });
   assert.match(output, /Bonne réponse : Mercredi\./);
-  assert.match(output, /être expédiée \?/);
+  assert.match(output, /expédier la commande \?/);
   assert.doesNotMatch(render(content, strings.en, { id: 'quiz', lang: 'en' }), / /);
 });

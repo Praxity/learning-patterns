@@ -190,7 +190,7 @@ test('passage buttons support Tab through every chunk, arrow shortcuts and silen
   await expect(chunks.first()).toBeFocused();
   const instructions = await chunks.first().getAttribute('aria-describedby');
   await expect(page.locator('[data-lp-passage]')).toHaveAttribute('aria-describedby', instructions);
-  await expect(page.locator(`[id="${instructions}"]`)).toContainText('Click or tap a passage to mark or unmark it.');
+  await expect(page.locator(`[id="${instructions}"]`)).toContainText('Select a passage to highlight it.');
   const outline = await chunks.first().evaluate(el => {
     const css = getComputedStyle(el); return [css.outlineWidth, css.outlineStyle, css.outlineOffset];
   });
@@ -200,10 +200,10 @@ test('passage buttons support Tab through every chunk, arrow shortcuts and silen
     await expect(page.locator('[data-lp-chunk][tabindex="-1"]')).toHaveCount(0);
   }
   await page.keyboard.press('Space'); await expect(chunks.first()).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('[data-lp-count]')).toHaveText('1 of 1 marked');
+  await expect(page.locator('[data-lp-count]')).toHaveText('1 of 1 highlighted');
   await page.keyboard.press('Enter'); await expect(chunks.first()).toHaveAttribute('aria-pressed', 'false');
   await page.keyboard.press('a'); await expect(chunks.first()).toHaveAttribute('aria-pressed', 'false');
-  await expect(page.locator('[data-lp-count]')).toHaveText('0 of 1 marked');
+  await expect(page.locator('[data-lp-count]')).toHaveText('0 of 1 highlighted');
   await page.keyboard.press('Tab'); await expect(chunks.nth(1)).toBeFocused();
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
 });
@@ -214,11 +214,13 @@ test('evidence check puts authored and default feedback in place, locks marks, a
   await page.locator('[data-lp-check]').focus(); await page.keyboard.press('Enter');
   await expect(page.locator('[data-lp-check]')).toBeHidden(); await expect(page.locator('[data-lp-restart]')).toBeFocused();
   await expect(feedback(page, 'actions')).toHaveText(`Incorrect. ${english.paragraphs.flat().find(c => c.id === 'actions').note}`);
-  await expect(feedback(page, 'withdraw')).toHaveText('Incorrect');
+  await expect(feedback(page, 'withdraw')).toHaveText(`Incorrect. ${english.paragraphs.flat().find(c => c.id === 'withdraw').note}`);
   await expect(feedback(page, 'ignored')).toHaveText('Correct answer');
   await expect(chunk(page, 'ignored')).toHaveAttribute('data-lp-outcome', 'missed');
   await expect(feedback(page, 'overwhelmed')).toBeHidden();
-  await expect(page.locator('[data-lp-summary]')).toHaveText('You found 0 of 1 passages that answer the question.');
+  await expect(page.locator('[data-lp-summary]')).toHaveText('Passages found: 0 of 1.');
+  // The summary replaces the running count, so only one counter shows.
+  await expect(page.locator('[data-lp-count]')).toBeHidden();
   await expect(page.locator('[data-lp-chunk][aria-disabled="true"]')).toHaveCount(english.paragraphs.flat().length);
   const saved = { marked: ['withdraw', 'actions'], shown: true };
   expect(await page.evaluate(() => window.lpSaved)).toEqual(saved);
@@ -227,38 +229,38 @@ test('evidence check puts authored and default feedback in place, locks marks, a
   await page.keyboard.press('Space'); await page.keyboard.press('Enter');
   expect(await page.evaluate(() => window.lpSaved)).toEqual(saved);
   await expect(page.locator('[data-lp-check]')).toBeHidden();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You found 0 of 1 passages that answer the question.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Passages found: 0 of 1.']);
   await page.locator('[data-lp-restart]').click();
   await expect(page.locator('[data-lp-chunk]').first()).toBeFocused();
-  await expect(page.locator('[data-lp-summary]')).toBeHidden();
+  await expect(page.locator('[data-lp-summary]')).toBeHidden(); await expect(page.locator('[data-lp-count]')).toBeVisible();
   await expect(page.locator('[data-lp-chunk][aria-pressed="true"]')).toHaveCount(0);
   await expect(page.locator('[data-lp-check]')).toBeVisible();
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ marked: [], shown: false });
   // Reset empties the status, so the old count isn't read again.
   await expect(page.getByRole('status')).toHaveText('');
-  expect(await page.evaluate(() => window.lpAnnouncements.filter(Boolean))).toEqual(['You found 0 of 1 passages that answer the question.']);
+  expect(await page.evaluate(() => window.lpAnnouncements.filter(Boolean))).toEqual(['Passages found: 0 of 1.']);
   await chunk(page, 'ignored').click(); await page.locator('[data-lp-check]').click();
   await expect(feedback(page, 'ignored')).toHaveText('Correct');
   await expect(chunk(page, 'ignored')).toHaveAttribute('data-lp-outcome', 'correct');
-  expect(await page.evaluate(() => window.lpAnnouncements.filter(Boolean))).toEqual(['You found 0 of 1 passages that answer the question.', 'You found 1 of 1 passages that answer the question.']);
+  expect(await page.evaluate(() => window.lpAnnouncements.filter(Boolean))).toEqual(['Passages found: 0 of 1.', 'Passages found: 1 of 1.']);
 });
 
 test('pointer toggles preserve server passage nodes, count marks and use a warm clone highlighter', async ({ page }) => {
   await open(page);
   await page.evaluate(() => { window.lpPassage = document.querySelector('[data-lp-passage]'); window.lpChunk = document.querySelector('[data-lp-chunk]'); });
-  await chunk(page, 'ignored').click(); await expect(page.locator('[data-lp-count]')).toHaveText('1 of 1 marked');
+  await chunk(page, 'ignored').click(); await expect(page.locator('[data-lp-count]')).toHaveText('1 of 1 highlighted');
   const style = await chunk(page, 'ignored').evaluate(el => {
     const css = getComputedStyle(el); return { background: css.backgroundColor, clone: css.boxDecorationBreak || css.webkitBoxDecorationBreak };
   });
   expect(style).toEqual({ background: 'rgb(255, 228, 154)', clone: 'clone' });
-  await chunk(page, 'ignored').click(); await expect(page.locator('[data-lp-count]')).toHaveText('0 of 1 marked');
+  await chunk(page, 'ignored').click(); await expect(page.locator('[data-lp-count]')).toHaveText('0 of 1 highlighted');
   await page.locator('[data-lp-check]').click();
   expect(await page.evaluate(() => window.lpPassage === document.querySelector('[data-lp-passage]') && window.lpChunk === document.querySelector('[data-lp-chunk]'))).toBe(true);
 });
 
 for (const [lang, content, plural] of [
-  ['en', english, 'You can mark up to 2 passages. Unmark one to choose another.'],
-  ['fr', french, "Vous pouvez marquer jusqu’à 2 passages. Enlevez une marque pour en choisir un autre."]
+  ['en', english, 'You can highlight up to 2 passages. Remove a highlight to choose another.'],
+  ['fr', french, "Vous pouvez surligner jusqu’à 2 passages. Enlevez un surlignage pour en choisir un autre."]
 ]) {
   for (const max of [2]) {
     test(`mark cap refuses pointer and keyboard additions, announces once and clears on removal (${lang}, ${max})`, async ({ page }) => {
@@ -271,7 +273,7 @@ for (const [lang, content, plural] of [
       await observeStatus(page);
       await chunk(page, 'withdraw').click();
       if (max === 2) await chunk(page, 'actions').click();
-      await expect(page.locator('[data-lp-count]')).toHaveText(lang === 'en' ? `${max} of ${max} marked` : `Passages marqués : ${max} sur ${max}`);
+      await expect(page.locator('[data-lp-count]')).toHaveText(lang === 'en' ? `${max} of ${max} highlighted` : `Passages surlignés : ${max} sur ${max}`);
       const writes = await page.evaluate(() => window.lpWrites.length);
       await chunk(page, 'ignored').click(); await chunk(page, 'ignored').focus();
       const message = plural;
@@ -288,7 +290,7 @@ for (const [lang, content, plural] of [
       await chunk(page, 'ignored').click(); await expect(chunk(page, 'ignored')).toHaveAttribute('aria-pressed', 'true');
       await chunk(page, 'withdraw').click(); await expect(page.locator('[data-lp-limit]')).toBeVisible();
       await page.locator('[data-lp-restart]').click(); await expect(page.locator('[data-lp-limit]')).toBeHidden();
-      await expect(page.locator('[data-lp-count]')).toHaveText(lang === 'en' ? `0 of ${max} marked` : `Passages marqués : 0 sur ${max}`);
+      await expect(page.locator('[data-lp-count]')).toHaveText(lang === 'en' ? `0 of ${max} highlighted` : `Passages surlignés : 0 sur ${max}`);
     });
   }
 }
@@ -305,7 +307,7 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     await chunk(page, 'actions').focus(); await page.keyboard.press('Space');
     await expect(chunk(page, 'actions')).toHaveAttribute('aria-pressed', 'true');
     await expect(chunk(page, 'ignored')).toHaveAttribute('aria-pressed', 'false');
-    await expect(page.locator('[data-lp-count]')).toHaveText(lang === 'en' ? '1 of 1 marked' : 'Passages marqués : 1 sur 1');
+    await expect(page.locator('[data-lp-count]')).toHaveText(lang === 'en' ? '1 of 1 highlighted' : 'Passages surlignés : 1 sur 1');
     expect(await page.evaluate(() => window.lpSaved)).toEqual({ marked: ['actions'], shown: false });
     // Choosing the marked chunk again still removes the mark.
     await page.keyboard.press('Enter');
@@ -315,14 +317,15 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
 }
 
 test('mode defaults enforce target count for evidence and target count plus one for key ideas', async ({ page }) => {
-  for (const [content, max] of [[english, 1], [englishKey, 3]]) {
+  // The key example sets maxMarks to match its question; drop it to test the default.
+  for (const [content, max] of [[english, 1], [(({ maxMarks, ...rest }) => rest)(englishKey), 3]]) {
     await open(page); await mount(page, content);
     const all = page.locator('[data-lp-chunk]');
     for (let i = 0; i <= max; i++) await all.nth(i).click();
     await expect(page.locator('[data-lp-chunk][aria-pressed="true"]')).toHaveCount(max);
     // One allowed mark moves to the last chunk chosen; several stop at the limit.
     await expect(all.nth(max)).toHaveAttribute('aria-pressed', String(max === 1));
-    await expect(page.locator('[data-lp-count]')).toHaveText(`${max} of ${max} marked`);
+    await expect(page.locator('[data-lp-count]')).toHaveText(`${max} of ${max} highlighted`);
   }
 });
 
@@ -341,7 +344,7 @@ test('limit feedback clears on check and destroy, and missing limit markup fails
   await expect(page.locator('[data-lp-limit]')).toBeVisible();
   await page.locator('[data-lp-check]').click();
   await expect(page.locator('[data-lp-limit]')).toBeHidden();
-  await expect(page.locator('[role="status"]')).toHaveText('You found 0 of 1 passages that answer the question.');
+  await expect(page.locator('[role="status"]')).toHaveText('Passages found: 0 of 1.');
   await page.locator('[data-lp-restart]').click();
   await chunk(page, 'withdraw').click(); await chunk(page, 'actions').click(); await chunk(page, 'ignored').click();
   await expect(page.locator('[data-lp-limit]')).toBeVisible();
@@ -365,7 +368,7 @@ test('graded marks keep yellow non-targets, tint found targets and leave missed 
 });
 
 for (const [lang, content, correct, wrong, missed, summary] of [
-  ['en', englishKey, 'Correct', 'Incorrect', 'Correct answer', 'You found 1 of 2 key ideas.'],
+  ['en', englishKey, 'Correct', 'Incorrect', 'Correct answer', 'Key ideas found: 1 of 2.'],
   ['fr', frenchKey, 'Correct', 'Incorrect', 'Bonne réponse', 'Idées clés trouvées : 1 sur 2.']
 ]) {
   test(`key mode has inline success, neutral authored notes and dashed missed targets (${lang})`, async ({ page }) => {
@@ -414,7 +417,7 @@ test('French language and evidence feedback use French words and authored notes'
   await chunk(page, 'ignored').click(); await chunk(page, 'overwhelmed').click(); await page.locator('[data-lp-check]').click();
   await expect(feedback(page, 'ignored')).toHaveText('Correct');
   await expect(feedback(page, 'overwhelmed')).toHaveText(`Incorrect. ${french.paragraphs.flat().find(c => c.id === 'overwhelmed').note}`);
-  await expect(page.locator('[data-lp-summary]')).toHaveText('Passages trouvés pour cette question : 1 sur 1.');
+  await expect(page.locator('[data-lp-summary]')).toHaveText('Passages trouvés : 1 sur 1.');
 });
 
 for (const shown of [false, true]) {
@@ -422,8 +425,8 @@ for (const shown of [false, true]) {
     await page.addInitScript(value => { window.lpSeed = value; }, { marked: ['ignored'], shown });
     await open(page);
     await expect(chunk(page, 'ignored')).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.locator('[data-lp-count]')).toHaveText('1 of 1 marked');
-    if (shown) { await expect(feedback(page, 'ignored')).toHaveText('Correct'); await expect(page.locator('[data-lp-summary]')).toBeVisible(); }
+    await expect(page.locator('[data-lp-count]')).toHaveText('1 of 1 highlighted');
+    if (shown) { await expect(feedback(page, 'ignored')).toHaveText('Correct'); await expect(page.locator('[data-lp-summary]')).toBeVisible(); await expect(page.locator('[data-lp-count]')).toBeHidden(); }
     else await expect(page.locator('[data-lp-summary]')).toBeHidden();
     await expect(page.locator('[role="status"]')).toHaveText('');
     expect(await page.evaluate(() => document.activeElement.tagName)).toBe('BODY');
@@ -435,7 +438,7 @@ test('invalid saved marks are ignored and repeated enhance returns the same inst
   await expect(page.locator('[data-lp-chunk][aria-pressed="true"]')).toHaveCount(0);
   expect(await page.evaluate(() => window.lpEnhance() === window.lpEnhance())).toBe(true);
   await observeStatus(page); await page.locator('[data-lp-check]').click();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You found 0 of 1 passages that answer the question.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Passages found: 0 of 1.']);
 });
 
 test('destroy restores fallback and removes listeners; re-enhance survives repeated old destroy', async ({ page }) => {
@@ -451,7 +454,7 @@ test('destroy restores fallback and removes listeners; re-enhance survives repea
   await page.evaluate(() => { window.lpEnhance(); window.lpOldInstance.destroy(); });
   await expect(page.locator('[data-lp-flow]')).toBeVisible(); await observeStatus(page);
   await page.locator('[data-lp-restart]').click(); await page.locator('[data-lp-check]').click();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You found 0 of 1 passages that answer the question.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Passages found: 0 of 1.']);
 });
 
 test('two instances have unique IDs and independent marks and status', async ({ page }) => {
@@ -459,7 +462,7 @@ test('two instances have unique IDs and independent marks and status', async ({ 
   const ids = await page.locator('[id]').evaluateAll(elements => elements.map(el => el.id)); expect(new Set(ids).size).toBe(ids.length);
   const roots = page.locator('[data-lp-pattern]');
   await chunk(roots.first(), 'ignored').click(); await roots.first().locator('[data-lp-check]').click();
-  await expect(roots.nth(1).locator('[data-lp-count]')).toHaveText('0 of 1 marked');
+  await expect(roots.nth(1).locator('[data-lp-count]')).toHaveText('0 of 1 highlighted');
   await expect(roots.nth(1).locator('[role="status"]')).toHaveText('');
   await expect(roots.nth(1).locator('[data-lp-chunk][aria-disabled]')).toHaveCount(0);
   for (const root of await roots.all()) await expect(root.locator('[data-lp-chunk]').and(root.getByRole('button'))).toHaveCount(english.paragraphs.flat().length);

@@ -63,7 +63,7 @@ test('keyboard journey: error, a wrong try, a hint, the right answer, the questi
   await page.keyboard.press('Tab'); await expect(one.locator('[data-lp-check]')).toBeFocused();
   await page.keyboard.press('Enter');
   const error = one.locator('[data-lp-error]');
-  await expect(error).toBeVisible(); await expect(error).toHaveText('Choose an answer');
+  await expect(error).toBeVisible(); await expect(error).toHaveText('Choose an answer first.');
   await expect(error.locator('svg[aria-hidden="true"]')).toHaveCount(1);
   await expect(one.locator('fieldset')).toHaveAttribute('aria-describedby', await error.getAttribute('id'));
   await expect(one.locator('input[aria-invalid="true"]')).toHaveCount(4);
@@ -134,7 +134,7 @@ test('keyboard journey: error, a wrong try, a hint, the right answer, the questi
   await expect(two.locator('[data-lp-mark]')).toHaveCount(2);
   await expect(page.locator('input:disabled')).toHaveCount(8);
   await expect(page.locator('[data-lp-check]:visible')).toHaveCount(0);
-  const summary = 'You answered the first question correctly in 2 tries with 1 hint, then answered the question without hints incorrectly.';
+  const summary = 'First question: correct in 2 tries, with 1 hint. Question without hints: incorrect.';
   await expect(page.locator('[data-lp-summary]')).toHaveText(summary);
   expect(await announcements(page)).toEqual([wrong, summary]);
   expect(await saved(page)).toEqual({ tries: ['monday', 'wednesday'], opened: 1, followUp: 'friday' });
@@ -159,8 +159,8 @@ test('keyboard journey: error, a wrong try, a hint, the right answer, the questi
 });
 
 for (const [lang, content, labels] of [
-  ['en', english, { check: 'Check my answer', hint: n => `Show hint ${n} of 2`, hintLabel: n => `Hint ${n} of 2`, showWorked: 'Show the worked answer', worked: 'Worked answer', gate: 'The worked answer opens after you check an answer.', wrong: 'Incorrect', answer: 'Correct answer', next: 'Now try one without hints', correct: 'Correct. ', summary: 'You saw the worked answer to the first question after 1 try with 2 hints, then answered the question without hints correctly.', restart: 'Start over', cleared: 'Answers cleared.', choose: 'Choose an answer', show: 'Show the answer', reveal: option => `Correct answer: ${option}.` }],
-  ['fr', french, { check: 'Vérifier ma réponse', hint: n => `Afficher l’indice ${n} sur 2`, hintLabel: n => `Indice ${n} sur 2`, showWorked: 'Afficher la solution détaillée', worked: 'Solution détaillée', gate: 'La solution détaillée s’affiche une fois que vous avez vérifié une réponse.', wrong: 'Incorrect', answer: 'Bonne réponse', next: 'Maintenant, une question sans indice', correct: 'Correct. ', summary: 'Vous avez vu la solution détaillée de la première question après 1 essai avec 2 indices, puis vous avez répondu correctement à la question sans indice.', restart: 'Recommencer', cleared: 'Réponses effacées.', choose: 'Choisissez une réponse', show: 'Afficher la réponse', reveal: option => `Bonne réponse : ${option}.` }]
+  ['en', english, { check: 'Check my answer', hint: n => `Show hint ${n} of 2`, hintLabel: n => `Hint ${n} of 2`, showWorked: 'Show the worked answer', worked: 'Worked answer', gate: 'The worked answer opens after you check an answer.', wrong: 'Incorrect', answer: 'Correct answer', next: 'Now try one without hints', correct: 'Correct. ', summary: 'First question: worked answer shown after 1 try, with 2 hints. Question without hints: correct.', restart: 'Start over', cleared: 'Answers cleared.', choose: 'Choose an answer first.', show: 'Show the answer', reveal: option => `Correct answer: ${option}.` }],
+  ['fr', french, { check: 'Vérifier ma réponse', hint: n => `Afficher l’indice ${n} sur 2`, hintLabel: n => `Indice ${n} sur 2`, showWorked: 'Afficher la solution détaillée', worked: 'Solution détaillée', gate: 'La solution détaillée s’affiche une fois que vous avez vérifié une réponse.', wrong: 'Incorrect', answer: 'Bonne réponse', next: 'Maintenant, une question sans indice', correct: 'Correct. ', summary: 'Première question : solution détaillée affichée après 1 essai, avec 2 indices. Question sans indice : réussie.', restart: 'Recommencer', cleared: 'Réponses effacées.', choose: 'Choisissez d’abord une réponse.', show: 'Afficher la réponse', reveal: option => `Bonne réponse : ${option}.` }]
 ]) {
   test(`card order, the hint ladder and a worked answer that waits for one try (${lang})`, async ({ page }) => {
     await open(page, `/hint-ladder/${lang}.html`); await observe(page);
@@ -347,7 +347,7 @@ test('when only the correct option is left, the question ends and the worked ans
   await expect(one.locator('[data-lp-check]')).toBeHidden(); await expect(hintButton(page)).toBeHidden();
   expect(await saved(page)).toEqual({ tries: ['monday', 'tuesday', 'thursday'], opened: 0, followUp: null });
   await check(followUp(page), 'monday');
-  await expect(page.locator('[data-lp-summary]')).toHaveText('You saw the worked answer to the first question after 3 tries with no hints, then answered the question without hints incorrectly.');
+  await expect(page.locator('[data-lp-summary]')).toHaveText('First question: worked answer shown after 3 tries, with no hints. Question without hints: incorrect.');
 });
 
 test('a checked wrong option cannot be chosen or counted again', async ({ page }) => {
@@ -372,7 +372,7 @@ test('a checked wrong option cannot be chosen or counted again', async ({ page }
   await check(one, 'wednesday');
   await expect(tuesday.locator('[data-lp-reason]')).toBeVisible();
   await check(followUp(page), 'tuesday');
-  await expect(page.locator('[data-lp-summary]')).toHaveText('You answered the first question correctly in 2 tries with no hints, then answered the question without hints correctly.');
+  await expect(page.locator('[data-lp-summary]')).toHaveText('First question: correct in 2 tries, with no hints. Question without hints: correct.');
   // The second question takes one answer: a stray activation of its hidden button changes nothing.
   await followUp(page).locator('[data-lp-check]').evaluate(button => { button.hidden = false; button.disabled = false; button.click(); });
   expect(await saved(page)).toEqual({ tries: ['tuesday', 'wednesday'], opened: 0, followUp: 'tuesday' });
@@ -452,7 +452,7 @@ test('a finished saved card restores its marks, sentence and Start over without 
   await expect(page.locator('[data-lp-check]:visible, [data-lp-hint]:visible')).toHaveCount(0);
   await expect(steps(page).nth(2)).toBeVisible();
   await expect(followUp(page).locator('[data-lp-feedback]')).toHaveText(`Correct. ${english.followUp.explanation}`);
-  await expect(page.locator('[data-lp-summary]')).toHaveText('You answered the first question correctly in 1 try with no hints, then answered the question without hints correctly.');
+  await expect(page.locator('[data-lp-summary]')).toHaveText('First question: correct in 1 try, with no hints. Question without hints: correct.');
   await expect(page.locator('[data-lp-restart]')).toBeVisible();
   await expect(page.locator('[role="status"]')).toHaveText('');
   expect(await page.evaluate(() => document.activeElement === document.body)).toBe(true);
@@ -471,7 +471,7 @@ for (const seed of [{ tries: ['saturday'], opened: 0, followUp: null }, { tries:
 test('the pattern works in memory without a state adapter', async ({ page }) => {
   await mount(page, english);
   await check(first(page), 'wednesday'); await check(followUp(page), 'tuesday');
-  await expect(page.locator('[data-lp-summary]')).toHaveText('You answered the first question correctly in 1 try with no hints, then answered the question without hints correctly.');
+  await expect(page.locator('[data-lp-summary]')).toHaveText('First question: correct in 1 try, with no hints. Question without hints: correct.');
   await page.locator('[data-lp-restart]').click();
   await expect(followUp(page)).toBeHidden(); await expect(page.locator('[data-lp-mark]')).toHaveCount(0);
 });
@@ -496,7 +496,7 @@ test('three options, one hint and a two-option second question follow the same r
   await expect(row(one, 'wednesday')).toHaveAttribute('data-lp-mark', 'missed');
   await expect(followUp(page).getByRole('radio')).toHaveCount(2);
   await check(followUp(page), 'tuesday');
-  await expect(page.locator('[data-lp-summary]')).toHaveText('You saw the worked answer to the first question after 2 tries with 1 hint, then answered the question without hints correctly.');
+  await expect(page.locator('[data-lp-summary]')).toHaveText('First question: worked answer shown after 2 tries, with 1 hint. Question without hints: correct.');
 });
 
 test('three hints count to three before the worked answer', async ({ page }) => {
@@ -508,7 +508,7 @@ test('three hints count to three before the worked answer', async ({ page }) => 
   }
   await expect(hintButton(page)).toHaveText('Show the worked answer');
   await check(first(page), 'wednesday'); await check(followUp(page), 'tuesday');
-  await expect(page.locator('[data-lp-summary]')).toHaveText('You answered the first question correctly in 1 try with 3 hints, then answered the question without hints correctly.');
+  await expect(page.locator('[data-lp-summary]')).toHaveText('First question: correct in 1 try, with 3 hints. Question without hints: correct.');
 });
 
 test('worst-case authored text wraps inside the card at 320px', async ({ page }) => {
@@ -581,7 +581,7 @@ test('enhance twice returns one instance; destroy restores the no-JavaScript vie
   await expect(first(page).locator('[data-lp-mark]')).toHaveCount(2);
   await expect(page.locator('[data-lp-steps] > li:visible')).toHaveCount(2);
   await check(followUp(page), 'tuesday');
-  await expect(page.locator('[data-lp-summary]')).toHaveText('You answered the first question correctly in 2 tries with 1 hint, then answered the question without hints correctly.');
+  await expect(page.locator('[data-lp-summary]')).toHaveText('First question: correct in 2 tries, with 1 hint. Question without hints: correct.');
 });
 
 test('missing and mismatched markup fail loudly', async ({ page }) => {

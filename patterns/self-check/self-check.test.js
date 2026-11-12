@@ -37,9 +37,9 @@ test('feedback counts unique known ticks and returns labels and missed hints in 
   const result = feedback(content, ['reason', 'reason', 'no_blame']);
   assert.equal(result.count, 2);
   assert.equal(result.total, 4);
-  assert.deepEqual(result.items[0], { id: 'reason', included: true, label: 'Sales data arrived late', hint: null });
-  assert.deepEqual(result.items[3], { id: 'no_blame', included: true, label: 'Describe the delay without blame', hint: null });
-  assert.deepEqual(result.items[1], { id: 'new_date', included: false, label: 'Ask for Tuesday', hint: 'Ask to finish by Tuesday.' });
+  assert.deepEqual(result.items[0], { id: 'reason', included: true, label: 'Why you need more time', hint: null });
+  assert.deepEqual(result.items[3], { id: 'no_blame', included: true, label: 'No blame for the delay', hint: null });
+  assert.deepEqual(result.items[1], { id: 'new_date', included: false, label: "The day you'll finish", hint: 'Name the day. "More time" doesn\'t tell Sam how long.' });
   assert.equal(feedback(content, content.parts.map(part => part.id)).count, 4);
   assert.throws(() => feedback(content, ['unknown']), /Unknown part: unknown/);
 });
@@ -114,10 +114,10 @@ test('render without context keeps the escaped task and labelled answer without 
 });
 
 test('shared English and French instructions refer to answers with stable keys', () => {
-  const keys = ['to', 'subject', 'answer', 'check', 'empty', 'question', 'tick', 'meter', 'show', 'resultAll', 'resultOne', 'resultMany', 'mine', 'model', 'legend', 'included', 'notIncluded', 'whole', 'restart', 'cleared', 'checkOwn', 'summary'];
+  const keys = ['to', 'subject', 'answer', 'check', 'empty', 'question', 'meter', 'show', 'resultAll', 'resultOne', 'resultMany', 'mine', 'model', 'legend', 'included', 'notIncluded', 'whole', 'restart', 'cleared', 'checkOwn', 'summary'];
   const expected = {
-    en: { answer: 'Your answer', empty: 'Write your answer first.', tick: 'Tick each part your answer includes.', resultMany: 'Use the hints to add missing parts.', mine: 'Your answer', whole: 'Whole answer', checkOwn: 'Check for these parts.' },
-    fr: { answer: 'Votre réponse', empty: "Écrivez d’abord votre réponse.", tick: 'Cochez chaque élément présent dans votre réponse.', resultMany: 'Ajoutez les éléments manquants à l’aide des conseils.', mine: 'Votre réponse', whole: "Toute la réponse", checkOwn: 'Vérifiez ces éléments dans votre réponse.' }
+    en: { answer: 'Your answer', empty: 'Write your answer first.', resultOne: 'One part to add: {label}.', resultMany: 'Use the hints to add missing parts.', mine: 'Your answer', whole: 'Applies to the whole answer', checkOwn: 'Check for these parts.' },
+    fr: { answer: 'Votre réponse', empty: "Écrivez d’abord votre réponse.", resultOne: 'Un élément à ajouter : {label}.', resultMany: 'Ajoutez les éléments manquants à l’aide des conseils.', mine: 'Votre réponse', whole: 'S’applique à toute la réponse', checkOwn: 'Vérifiez ces éléments dans votre réponse.' }
   };
   for (const lang of ['en', 'fr']) {
     assert.deepEqual(Object.keys(strings[lang]), keys);
@@ -154,8 +154,8 @@ test('render escapes all plain text and attribute values and prefixes every id',
   assert.ok(ids.every(id => id.startsWith('a-') || id.startsWith('b-')));
   assert.equal((a.match(/role="status"/g) || []).length, 1);
   assert.ok(a.includes('rows="5"'));
-  assert.ok(a.includes('placeholder="Hi Sam,\n\nType your message here…"'));
-  for (const part of content.parts) assert.ok(a.includes(part.missed));
+  assert.equal(a.includes('placeholder='), false);
+  for (const part of content.parts) assert.ok(a.includes(part.missed.replaceAll('"', '&quot;').replaceAll("'", '&#39;')));
 });
 
 test('render keeps Start over hidden until the checklist step', () => {

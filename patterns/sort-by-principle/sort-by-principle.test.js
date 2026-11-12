@@ -129,7 +129,7 @@ test('mixed-up pairs ignore direction, count each pair and list the most frequen
 test('quoted principle names are split out whole, longest first', () => {
   assert.deepEqual(quoteParts(en, en.cases[1].looksLike), [
     { text: '"From now on" sounds like ', principle: false },
-    { text: 'Agree the next action', principle: true },
+    { text: 'Agree on the next action', principle: true },
     { text: '.', principle: false }
   ]);
   assert.deepEqual(quoteParts(en, 'No names here.'), [{ text: 'No names here.', principle: false }]);
@@ -161,7 +161,7 @@ test('server HTML: every case, its rows with rules, hidden checks and answers wi
   assert.ok(markup.includes('<span class="lp-sort-by-principle-name">Ask an open question</span><span class="lp-visually-hidden">. </span><span class="lp-sort-by-principle-rule">The facts are agreed, but the cause is not known. Ask what got in the way.</span>'));
   assert.ok(markup.includes('<summary>Answer for case 2</summary>'));
   assert.ok(markup.includes('<strong>Correct answer: Name the behaviour.</strong>'));
-  assert.ok(markup.includes('&quot;From now on&quot; sounds like <em>Agree the next action</em>.'));
+  assert.ok(markup.includes('&quot;From now on&quot; sounds like <em>Agree on the next action</em>.'));
   assert.match(markup, /<div class="lp-actions" data-lp-actions hidden>/);
   assert.match(markup, /<div class="lp-section" data-lp-result hidden>/);
   // Only the last case has no Next button.

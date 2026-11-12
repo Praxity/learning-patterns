@@ -4,12 +4,11 @@ export namespace strings {
         let resultOutline: string;
         let question: string;
         let instructions: string;
+        let instructionsOne: string;
         let start: string;
         let back: string;
         let next: string;
         let review: string;
-        let section: string;
-        let buildsOn: string;
         let todo: string;
         let passed: string;
         let check: string;
@@ -22,7 +21,6 @@ export namespace strings {
         let markCorrect: string;
         let markWrong: string;
         let markAnswer: string;
-        let policy: string;
         let required: string;
         let answers: string;
         let correct: string;
@@ -38,6 +36,8 @@ export namespace strings {
         export { question_1 as question };
         let instructions_1: string;
         export { instructions_1 as instructions };
+        let instructionsOne_1: string;
+        export { instructionsOne_1 as instructionsOne };
         let start_1: string;
         export { start_1 as start };
         let back_1: string;
@@ -46,10 +46,6 @@ export namespace strings {
         export { next_1 as next };
         let review_1: string;
         export { review_1 as review };
-        let section_1: string;
-        export { section_1 as section };
-        let buildsOn_1: string;
-        export { buildsOn_1 as buildsOn };
         let todo_1: string;
         export { todo_1 as todo };
         let passed_1: string;
@@ -74,8 +70,6 @@ export namespace strings {
         export { markWrong_1 as markWrong };
         let markAnswer_1: string;
         export { markAnswer_1 as markAnswer };
-        let policy_1: string;
-        export { policy_1 as policy };
         let required_1: string;
         export { required_1 as required };
         let answers_1: string;

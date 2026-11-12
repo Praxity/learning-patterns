@@ -1,6 +1,6 @@
 export const strings = {
   en: {
-    help: 'Drag a divider or tap the bar. A divider pushes any others in its way. With a keyboard, tab to a divider and use the arrow keys, Home or End. The bar always adds up to {total}.',
+    help: 'Drag the dividers or tap the bar. On a keyboard, tab to a divider and use the arrow keys.',
     divider: 'Divider between {left} and {right}',
     check: 'Check my split',
     untouched: 'Move at least one divider to show your split.',
@@ -8,7 +8,7 @@ export const strings = {
     real: 'Real split',
     caption: 'Your split and the real split',
     exact: 'Your split matches the real one exactly.',
-    close: 'Close: your biggest gap is on {label}, where you gave {mine} and the real share is {real}.',
+    close: 'You\'re close. Your biggest gap is on {label}, where you gave {mine} and the real share is {real}.',
     apart: 'Your biggest gap is on {label}, where you gave {mine} and the real share is {real}.',
     source: 'Source:',
     answers: 'Compare with the real split',
@@ -16,7 +16,7 @@ export const strings = {
     cleared: 'Split reset to the starting shares.'
   },
   fr: {
-    help: 'Faites glisser un séparateur ou touchez la barre. Un séparateur pousse les autres sur son passage. Au clavier, utilisez Tab pour atteindre un séparateur, puis les flèches, Début ou Fin. Le total reste toujours à {total}.',
+    help: 'Faites glisser les séparateurs ou touchez la barre. Au clavier, utilisez Tab pour atteindre un séparateur, puis les flèches.',
     divider: 'Séparateur entre {left} et {right}',
     check: 'Vérifier ma répartition',
     untouched: 'Déplacez au moins un séparateur pour indiquer votre répartition.',
@@ -24,7 +24,7 @@ export const strings = {
     real: 'Répartition réelle',
     caption: 'Votre répartition et la répartition réelle',
     exact: 'Votre répartition correspond exactement à la répartition réelle.',
-    close: 'Vous êtes proche. Votre plus grand écart porte sur « {label} » : vous avez indiqué {mine}, contre {real} en réalité.',
+    close: 'Vous y êtes presque. Votre plus grand écart porte sur « {label} » : vous avez indiqué {mine}, contre {real} en réalité.',
     apart: 'Votre plus grand écart porte sur « {label} » : vous avez indiqué {mine}, contre {real} en réalité.',
     source: 'Source :',
     answers: 'Comparer avec la répartition réelle',

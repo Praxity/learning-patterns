@@ -399,7 +399,7 @@ test('slow requests keep typing available, abort on edit and discard stale succe
   await page.evaluate(() => { window.lpTestCalls[3].resolve(Object.fromEntries(['three_actions', 'observable', 'when', 'commitments'].map(key => [key, { noul: 0 }]))); });
   await expect(page.locator('[data-lp-mark="todo"]')).toHaveCount(4);
   await expect(page.locator('[data-lp-checking]')).toBeHidden();
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Your plan includes all four items. 4 of 4 done', '0 of 4 done']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Your plan has everything on the checklist. 4 of 4 done', '0 of 4 done']);
 });
 
 for (const lang of ['en', 'fr']) {

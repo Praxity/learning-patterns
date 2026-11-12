@@ -79,7 +79,7 @@ Authored text is capped at 120 characters for titles and labels, 400 for questio
 
 Entries are `{ text, savedAt }`. Actions treat `null` state as empty and throw on invalid inputs.
 
-`render` accepts `stage: 'first' | 'end' | 'both'`, default `'both'`. First and end placements can sit on different course pages. Each has a notebook icon, the prompt as title, and dated saved answers. Headings are "Day one" and "End of the course".
+`render` accepts `stage: 'first' | 'end' | 'both'`, default `'both'`. First and end placements can sit on different course pages. Each has a notebook icon, the prompt as title, and dated saved answers. Headings are "Start of the course" and "End of the course".
 
 The demo shows both stages with a dashed timeline, a course note and Skip after saving. Skip opens and focuses the end heading. Restored answers open the end section directly. An end placement without a first answer explains the missing comparison and still accepts an answer.
 
@@ -105,7 +105,7 @@ import { enhance } from './patterns/first-answer/enhance.js';
 import { strings } from './patterns/first-answer/strings.js';
 const content = {
   prompt: 'What would you say to a colleague who keeps interrupting you?',
-  checks: [{ id: 'view', label: 'Asks how they see the situation' }]
+  checks: [{ id: 'view', label: 'Asks how your colleague sees the situation' }]
 };
 const markup = render(content, strings.en, { id: 'opening', lang: 'en', stage: 'first' });
 // Send markup to the browser, then:
@@ -120,7 +120,7 @@ Text fields keep the full draft, including text over the limit. Checking or savi
 
 - Saved entries show the date and time in the placement's language. First and current answers have separate labels.
 - Blank or long answers get errors linked to the text box. Saving focuses Skip in the demo, or the saved entry in a first-only placement.
-- Compare focuses the revealed Day one heading before the saved answer and improvement checks.
+- Compare focuses the revealed Start of the course heading before the saved answer and improvement checks.
 - Try again silently focuses the current-answer field. Reset focuses the first-answer field, or the current-answer field in an end-only placement.
 - Start over focuses an inline confirmation question, followed by Delete and Keep. Keep or Escape closes it and returns focus to Start over without an announcement. Delete announces the reset and focuses the answer field.
 - Storage problems show visible messages. Valid entries restore silently.

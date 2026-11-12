@@ -203,9 +203,9 @@ test('French render uses French text and nonbreaking punctuation', () => {
   assert.ok(output.includes('Vérifier ma répartition'));
   assert.ok(!output.includes('Contexte\u00a0:'));
   assert.ok(output.includes('35\u00a0%'));
-  assert.ok(output.includes('cause\u202f?'));
+  assert.ok(output.includes('sujet\u202f?'));
   assert.ok(output.includes('Registre des demandes de soutien du mois dernier.'));
-  assert.ok(output.includes('elle a traité 400 demandes.'));
+  assert.ok(output.includes('l’équipe a traité 400 demandes.'));
 });
 
 test('all six pattern colours meet the contrast floor with the shared default ink', async () => {

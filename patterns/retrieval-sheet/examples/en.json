@@ -1,9 +1,9 @@
 {
-  "title": "The four horsemen",
+  "title": "Gottman's four horsemen",
   "questions": [
     { "id": "four", "question": "Name the four horsemen.", "answer": "Criticism, defensiveness, contempt and stonewalling." },
     { "id": "eyes", "question": "A colleague rolls their eyes at an idea. Which horseman is this?", "answer": "Contempt. It is the most serious of the four." },
-    { "id": "criticism", "question": "How can you raise a concern without criticising the person?", "answer": "Raise the concern gently. Use \"I\" to explain how a specific behaviour affects you. Avoid judging the person." },
-    { "id": "pause", "question": "How is a time-out different from stonewalling?", "answer": "With stonewalling, you leave without a word and the other person feels ignored. For a time-out, say you need a few minutes to think. Then return to the conversation." }
+    { "id": "criticism", "question": "How can you raise a concern without criticising the person?", "answer": "Use \"I\" to say how a specific behaviour affects you, and leave out any judgement of the person." },
+    { "id": "pause", "question": "How is a time-out different from stonewalling?", "answer": "When you stonewall, you leave without a word and the other person feels ignored. In a time-out, you say you need a few minutes to think, then you return to the conversation." }
   ]
 }

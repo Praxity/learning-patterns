@@ -2,34 +2,33 @@
   "context": {
     "to": "Sam, votre gestionnaire",
     "initials": "S",
-    "subject": "Rapport client",
-    "placeholder": "Bonjour Sam,\n\nÉcrivez votre message ici…"
+    "subject": "Rapport client"
   },
   "scenario": "Votre rapport client est attendu vendredi. Les données de vente sont arrivées avec trois jours de retard. Il vous faut jusqu’à mardi pour le terminer.",
   "task": "Écrivez à votre gestionnaire pour demander plus de temps.",
   "parts": [
     {
       "id": "reason",
-      "label": "Données de vente arrivées en retard",
-      "missed": "Dites que les données de vente sont arrivées en retard.",
+      "label": "Pourquoi il vous faut plus de temps",
+      "missed": "Dites ce qui a retardé le rapport : les données de vente sont arrivées avec trois jours de retard.",
       "evidence": "les données de vente pour le rapport client sont arrivées avec trois jours de retard"
     },
     {
       "id": "new_date",
-      "label": "Demander un délai jusqu’à mardi",
-      "missed": "Demandez de terminer le rapport d’ici mardi.",
+      "label": "Le jour où vous aurez terminé",
+      "missed": "Nommez le jour. « Plus de temps » ne dit pas à Sam combien de temps il vous faut.",
       "evidence": "Il me faut donc jusqu’à mardi pour le terminer"
     },
     {
       "id": "agreement",
-      "label": "Vérifier si mardi convient",
-      "missed": "Demandez si mardi convient à votre gestionnaire.",
+      "label": "Une question pour savoir si ce jour convient à Sam",
+      "missed": "Terminez par une question, pour que Sam puisse accepter ou proposer un autre jour.",
       "evidence": "Est-ce que mardi vous conviendrait ?"
     },
     {
       "id": "no_blame",
-      "label": "Décrire le retard sans blâmer personne",
-      "missed": "Décrivez le retard sans blâmer personne.",
+      "label": "Aucun blâme pour le retard",
+      "missed": "Dites ce qui est arrivé en retard et quand. Ne dites pas qui en est responsable.",
       "evidence": null
     }
   ],

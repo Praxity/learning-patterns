@@ -24,7 +24,7 @@ export function render(content, strings, { id, lang }) {
           <span class="lp-small lp-test-out-status" data-lp-section-status="${s.id}" hidden></span>
         </div>
       </li>`).join('')}</ol>
-      <p class="lp-small" data-lp-intro>${html(content.allowTestOut ? strings.instructions : strings.required, lang)}</p>
+      <p class="lp-small" data-lp-intro>${html(!content.allowTestOut ? strings.required : content.questions.length === 1 ? strings.instructionsOne : format(strings.instructions, { total: content.questions.length }), lang)}</p>
       ${content.allowTestOut ? `<div class="lp-actions" data-lp-start-actions hidden><button class="lp-button" type="button" data-lp-start>${html(strings.start, lang)}</button></div>` : ''}
       <details class="lp-details lp-section" data-lp-review hidden><summary>${html(strings.review, lang)}</summary></details>
       <div class="lp-actions" data-lp-restart-actions hidden><button class="lp-button lp-button-quiet" type="button" data-lp-restart hidden>${icons.refresh}${html(strings.restart, lang)}</button></div>
@@ -46,7 +46,6 @@ export function render(content, strings, { id, lang }) {
     </div>
   </div>
   <div data-lp-error hidden></div>
-  <p class="lp-small lp-section" data-lp-policy>${html(strings.policy, lang)}</p>
   <details class="lp-details lp-section" data-lp-fallback>
     <summary>${html(strings.answers, lang)}</summary>
     <ul class="lp-test-out-fallback-list">${content.questions.map(q => `<li><strong class="lp-run-in">${html(q.text, lang)}</strong><p>${html(format(strings.correct, { option: q.options.find(o => o.id === q.correct)?.text ?? '' }))}</p><p class="lp-small">${html(q.explanation, lang)}</p></li>`).join('')}</ul>

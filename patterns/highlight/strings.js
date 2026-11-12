@@ -1,10 +1,10 @@
 export const strings = {
   en: {
     keyInstruction: 'Highlight the key ideas.',
-    evidenceInstruction: 'Highlight the text that answers this question. {question}',
-    controls: 'Click or tap a passage to mark or unmark it. Use Tab or Shift+Tab to move between passages, and Space or Enter to mark or unmark. Arrow keys, Home and End also work when your screen reader passes them to the page.',
-    count: '{n} of {max} marked',
-    limitMany: 'You can mark up to {n} passages. Unmark one to choose another.',
+    evidenceInstruction: 'Highlight what answers this question. {question}',
+    controls: 'Select a passage to highlight it. Select it again to remove the highlight. With a keyboard, press Tab to move and Space to highlight.',
+    count: '{n} of {max} highlighted',
+    limitMany: 'You can highlight up to {n} passages. Remove a highlight to choose another.',
     check: 'Check',
     restart: 'Start over',
     answer: 'Answer',
@@ -18,15 +18,15 @@ export const strings = {
     wrongKey: 'Incorrect',
     wrongEvidence: 'Incorrect',
     missed: 'Correct answer',
-    keySummary: 'You found {n} of {total} key ideas.',
-    evidenceSummary: 'You found {n} of {total} passages that answer the question.'
+    keySummary: 'Key ideas found: {n} of {total}.',
+    evidenceSummary: 'Passages found: {n} of {total}.'
   },
   fr: {
     keyInstruction: 'Surlignez les idées clés.',
-    evidenceInstruction: 'Surlignez le texte qui répond à cette question. {question}',
-    controls: 'Cliquez ou touchez un passage pour le marquer ou enlever sa marque. Utilisez Tab ou Maj+Tab pour changer de passage, et Espace ou Entrée pour marquer ou enlever la marque. Les flèches, Début et Fin fonctionnent aussi si votre lecteur d’écran les transmet à la page.',
-    count: 'Passages marqués : {n} sur {max}',
-    limitMany: "Vous pouvez marquer jusqu’à {n} passages. Enlevez une marque pour en choisir un autre.",
+    evidenceInstruction: 'Surlignez ce qui répond à cette question. {question}',
+    controls: 'Sélectionnez un passage pour le surligner. Sélectionnez-le de nouveau pour enlever le surlignage. Au clavier, appuyez sur Tab pour vous déplacer et sur Espace pour surligner.',
+    count: 'Passages surlignés : {n} sur {max}',
+    limitMany: "Vous pouvez surligner jusqu’à {n} passages. Enlevez un surlignage pour en choisir un autre.",
     check: 'Vérifier',
     restart: 'Recommencer',
     answer: 'Réponse',
@@ -41,7 +41,7 @@ export const strings = {
     wrongEvidence: 'Incorrect',
     missed: 'Bonne réponse',
     keySummary: 'Idées clés trouvées : {n} sur {total}.',
-    evidenceSummary: 'Passages trouvés pour cette question : {n} sur {total}.'
+    evidenceSummary: 'Passages trouvés : {n} sur {total}.'
   }
 };
 /** @typedef {typeof strings.en} Strings */

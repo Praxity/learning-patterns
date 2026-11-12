@@ -17,7 +17,8 @@ for (const name of ['misconception', 'self-check', 'dont-know', 'test-out']) {
         assert.ok(!legends[0].includes('data-lp-meter'));
         assert.doesNotMatch(markup, /data-lp-meter[^>]*role="status"/);
         assert.equal((markup.match(/role="status"/g) || []).length, 1);
-        assert.match(markup, /<fieldset[^>]*aria-describedby="quiz-hint"/);
+        // The legend asks the question; no hint repeats it.
+        assert.doesNotMatch(markup, /<fieldset[^>]*aria-describedby="quiz-hint"/);
       } else {
         assert.match(markup, /<p data-lp-explanation hidden>/);
         if (name === 'dont-know') {

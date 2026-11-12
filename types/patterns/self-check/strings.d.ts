@@ -6,7 +6,6 @@ export namespace strings {
         let check: string;
         let empty: string;
         let question: string;
-        let tick: string;
         let meter: string;
         let show: string;
         let resultAll: string;
@@ -36,8 +35,6 @@ export namespace strings {
         export { empty_1 as empty };
         let question_1: string;
         export { question_1 as question };
-        let tick_1: string;
-        export { tick_1 as tick };
         let meter_1: string;
         export { meter_1 as meter };
         let show_1: string;

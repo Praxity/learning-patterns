@@ -2,20 +2,20 @@ export const strings = {
   en: {
     tooLong: 'Your answer must be {max} characters or fewer.',
     placeholder: 'I will…', checking: 'Checking…',
-    summary: '{count} of {total} done', checklist: 'Your plan', done: 'Done:', todo: 'To add:',
-    complete: 'Your plan includes all four items.',
-    paused: 'Automatic checks are finished for this session. Tick the items in your plan.',
+    summary: '{count} of {total} done', checklist: 'Checklist for your plan', done: 'Done:', todo: 'To add:',
+    complete: 'Your plan has everything on the checklist.',
+    paused: 'Automatic checks have stopped for this session.',
     selfCheck: 'Tick each item your plan includes.',
-    fallback: "Automatic checking is unavailable. Tick the items in your plan."
+    fallback: "Automatic checking is unavailable. Tick each item your plan includes."
   },
   fr: {
     tooLong: 'Votre réponse doit contenir {max} caractères ou moins.',
     placeholder: 'Je vais…', checking: 'Vérification…',
-    summary: '{count} éléments sur {total} complétés', checklist: 'Votre plan', done: 'Fait :', todo: 'À ajouter :',
-    complete: 'Votre plan comprend les quatre éléments.',
-    paused: 'Les vérifications automatiques sont terminées pour cette session. Cochez les éléments dans votre plan.',
+    summary: 'Fait : {count} sur {total}', checklist: 'Liste de vérification de votre plan', done: 'Fait :', todo: 'À ajouter :',
+    complete: 'Votre plan contient tout ce qui est sur la liste.',
+    paused: 'Les vérifications automatiques sont arrêtées pour cette session.',
     selfCheck: 'Cochez chaque élément que contient votre plan.',
-    fallback: "La vérification automatique est indisponible. Cochez les éléments dans votre plan."
+    fallback: "La vérification automatique est indisponible. Cochez chaque élément que contient votre plan."
   }
 };
 /** @typedef {typeof strings.en} Strings */
