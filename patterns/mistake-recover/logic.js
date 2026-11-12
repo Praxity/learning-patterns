@@ -3,15 +3,15 @@ import { validateTextLengths } from '../../lib/text-limits.js';
 /** @typedef {{ id: string, text: string, correct: boolean, stops?: true, feedback: string }} Step */
 /** @typedef {{ title: string, summary: string, checks: Check[], held: string, approved: string, stopped: string, notStopped: string, steps: Step[] }} Request */
 /** @typedef {{ name: string, title: string, summary: string, checks: Check[], approved: string, stopped: string, notStopped: string, steps: Step[] }} Colleague */
-/** @typedef {{ title: string, context: string, requests: [Request, Request], colleague: Colleague }} Content */
+/** @typedef {{ title: string, context: string, request: Request, colleague: Colleague }} Content */
 /** @typedef {'approve' | 'hold'} Decision */
-/** `decisions` holds the choice on each request. `steps` holds the step ids checked on request 1,
- * request 2 and the colleague's payment, or null where no recovery was checked.
- * @typedef {{ decisions: (Decision | null)[], steps: (string[] | null)[] }} LearnerState */
+/** `decision` holds the choice on the request. `steps` holds the step ids checked on the request and
+ * on the colleague's payment, or null where no recovery was checked.
+ * @typedef {{ decision: Decision | null, steps: (string[] | null)[] }} LearnerState */
 /** What each payment's status line says, or null while it is not on screen.
  * @typedef {'pending' | 'held' | 'approved' | 'stopped' | 'notStopped' | null} Status */
-/** @typedef {{ stage: 'decide' | 'recover' | 'done', item: 0 | 1 | 2 | null, statuses: Status[] }} Progress */
-/** @typedef {{ heldBoth: string, approvedFirst: string, approvedSecond: string, approvedBoth: string, colleagueStopped: string, colleagueGoes: string, oneStopped: string, oneGoes: string, bothStopped: string, oneOfTwoStopped: string, bothGo: string, summary: string }} SummaryStrings */
+/** @typedef {{ stage: 'decide' | 'recover' | 'done', item: 0 | 1 | null, statuses: Status[] }} Progress */
+/** @typedef {{ approvedStopped: string, approvedGoes: string, heldStopped: string, heldGoes: string }} SummaryStrings */
 
 const ITEM = ['title', 'summary', 'checks', 'approved', 'stopped', 'notStopped', 'steps'];
 
@@ -66,114 +66,82 @@ function payment(item, path, allowed) {
 /** @param {unknown} content @returns {asserts content is Content} */
 export function validateContent(content) {
   const item = { title: 120, summary: 300, held: 300, approved: 300, stopped: 300, notStopped: 300, checks: [{ label: 60, value: 200 }], steps: [{ id: 120, text: 200, feedback: 300 }] };
-  validateTextLengths(content, { title: 120, context: 400, requests: [item], colleague: { ...item, name: 60 } });
+  validateTextLengths(content, { title: 120, context: 400, request: item, colleague: { ...item, name: 60 } });
   if (!object(content)) throw new Error('Invalid content');
-  fields(content, ['title', 'context', 'requests', 'colleague'], 'content');
+  fields(content, ['title', 'context', 'request', 'colleague'], 'content');
   text(content.title, 'title'); text(content.context, 'context');
-  // One request with its checks stated, then one without prompts. The summary counts on two.
-  if (!Array.isArray(content.requests) || content.requests.length !== 2) throw new Error('Invalid requests: write two');
-  content.requests.forEach((request, n) => payment(request, `requests[${n}]`, [...ITEM, 'held']));
+  payment(content.request, 'request', [...ITEM, 'held']);
   payment(content.colleague, 'colleague', [...ITEM, 'name']);
 }
 
 /** @returns {LearnerState} */
 export function start() {
-  return { decisions: [null, null], steps: [null, null, null] };
+  return { decision: null, steps: [null, null] };
 }
 
-/** @param {Content} content @param {0 | 1 | 2} item */
-function stepsOf(content, item) {
-  return item === 2 ? content.colleague.steps : content.requests[item].steps;
-}
-
-/** Where the learner is, and what each payment's status line says. Requests come in order; an
- * approved request is recovered before the next. Holding both opens the colleague's payment.
+/** Where the learner is, and what each payment's status line says. Approving opens the request's
+ * recovery; holding it opens the colleague's payment, so every learner recovers once.
  * @param {Content} content @param {LearnerState} state @returns {Progress} */
 export function progress(content, state) {
+  if (state.decision === null) return { stage: 'decide', item: 0, statuses: ['pending', null] };
+  const item = state.decision === 'approve' ? 0 : 1;
   /** @type {Status[]} */
-  const statuses = [null, null, null];
-  /** @param {0 | 1 | 2} item */
-  const recovered = item => {
-    const stop = stepsOf(content, item).find(step => step.stops)?.id;
-    return state.steps[item]?.includes(stop ?? '') ? 'stopped' : 'notStopped';
-  };
-  for (const item of /** @type {const} */ ([0, 1])) {
-    const decision = state.decisions[item];
-    if (decision === null) { statuses[item] = 'pending'; return { stage: 'decide', item, statuses }; }
-    if (decision === 'hold') { statuses[item] = 'held'; continue; }
-    if (state.steps[item] === null) { statuses[item] = 'approved'; return { stage: 'recover', item, statuses }; }
-    statuses[item] = recovered(item);
-  }
-  if (state.decisions.every(decision => decision === 'hold')) {
-    if (state.steps[2] === null) { statuses[2] = 'approved'; return { stage: 'recover', item: 2, statuses }; }
-    statuses[2] = recovered(2);
-  }
+  const statuses = [item ? 'held' : null, null];
+  const checked = state.steps[item];
+  if (checked === null) { statuses[item] = 'approved'; return { stage: 'recover', item, statuses }; }
+  const stop = (item ? content.colleague : content.request).steps.find(step => step.stops)?.id;
+  statuses[item] = checked.includes(stop ?? '') ? 'stopped' : 'notStopped';
   return { stage: 'done', item: null, statuses };
 }
 
-/** Approve or hold the request that is open.
- * @param {Content} content @param {LearnerState} state @param {0 | 1} item @param {Decision} decision @returns {LearnerState} */
-export function decide(content, state, item, decision) {
-  const now = progress(content, state);
-  if (now.stage !== 'decide' || now.item !== item) throw new Error('This request is not open');
+/** Approve or hold the request.
+ * @param {Content} content @param {LearnerState} state @param {Decision} decision @returns {LearnerState} */
+export function decide(content, state, decision) {
+  if (progress(content, state).stage !== 'decide') throw new Error('This request is not open');
   if (decision !== 'approve' && decision !== 'hold') throw new Error('Invalid decision');
-  const decisions = [...state.decisions];
-  decisions[item] = decision;
-  return { decisions, steps: [...state.steps] };
+  return { decision, steps: [...state.steps] };
 }
 
 /** Check the recovery steps chosen for the payment that is open. Recovery is checked once.
- * @param {Content} content @param {LearnerState} state @param {0 | 1 | 2} item @param {string[]} ids @returns {LearnerState} */
+ * @param {Content} content @param {LearnerState} state @param {0 | 1} item @param {string[]} ids @returns {LearnerState} */
 export function recover(content, state, item, ids) {
   const now = progress(content, state);
   if (now.stage !== 'recover' || now.item !== item) throw new Error('This recovery is not open');
-  const known = stepsOf(content, item).map(step => step.id);
+  const known = (item ? content.colleague : content.request).steps.map(step => step.id);
   if (!Array.isArray(ids) || ids.length === 0 || new Set(ids).size !== ids.length || ids.some(id => !known.includes(id))) throw new Error('Invalid steps');
   const steps = [...state.steps];
   steps[item] = [...ids];
-  return { decisions: [...state.decisions], steps };
+  return { decision: state.decision, steps };
 }
 
 /** Ignore invalid saved values and copy valid state. A value is valid when the learner's own steps
  * could have produced it.
  * @param {Content} content @param {unknown} value @returns {LearnerState | null} */
 export function validateState(content, value) {
-  if (!object(value) || Object.keys(value).length !== 2 || !Array.isArray(value.decisions) || value.decisions.length !== 2
-    || !Array.isArray(value.steps) || value.steps.length !== 3) return null;
-  const { decisions, steps } = value;
+  if (!object(value) || Object.keys(value).length !== 2 || !Array.isArray(value.steps) || value.steps.length !== 2) return null;
+  const { decision, steps } = value;
   try {
     let state = start();
     for (;;) {
       const { stage, item } = progress(content, state);
-      if (stage === 'decide' && item !== 2 && item !== null && decisions[item] !== null) state = decide(content, state, item, decisions[item]);
+      if (stage === 'decide' && decision !== null) state = decide(content, state, /** @type {Decision} */ (decision));
       else if (stage === 'recover' && item !== null && steps[item] !== null) state = recover(content, state, item, steps[item]);
       else break;
     }
     // Every saved value must have been replayed; anything left over could not have been reached.
-    return JSON.stringify(state) === JSON.stringify({ decisions, steps }) ? state : null;
+    return JSON.stringify(state) === JSON.stringify({ decision, steps }) ? state : null;
   } catch { return null; }
 }
 
-/** The closing sentence: each decision, then whether each payment that needed recovery was stopped.
+/** The closing sentence: the decision, then whether the payment it put at risk was stopped.
  * @param {Content} content @param {LearnerState} state @param {SummaryStrings} strings */
 export function summarize(content, state, strings) {
   const { stage, statuses } = progress(content, state);
   if (stage !== 'done') throw new Error('No summary before the last payment is settled');
-  const [first, second] = state.decisions;
-  const decisions = first === 'hold' && second === 'hold' ? strings.heldBoth
-    : first === 'approve' && second === 'approve' ? strings.approvedBoth
-      : first === 'approve' ? strings.approvedFirst : strings.approvedSecond;
-  let recovery;
-  if (statuses[2]) recovery = format(statuses[2] === 'stopped' ? strings.colleagueStopped : strings.colleagueGoes, { name: content.colleague.name });
-  else {
-    const approved = [0, 1].filter(item => state.decisions[item] === 'approve');
-    const stopped = approved.filter(item => statuses[item] === 'stopped');
-    if (approved.length === 1) recovery = format(stopped.length ? strings.oneStopped : strings.oneGoes, { number: approved[0] + 1 });
-    else if (stopped.length === 2) recovery = strings.bothStopped;
-    else if (stopped.length === 0) recovery = strings.bothGo;
-    else recovery = format(strings.oneOfTwoStopped, { stopped: stopped[0] + 1, missed: 2 - stopped[0] });
-  }
-  return format(strings.summary, { decisions, recovery });
+  const sentence = state.decision === 'approve'
+    ? statuses[0] === 'stopped' ? strings.approvedStopped : strings.approvedGoes
+    : statuses[1] === 'stopped' ? strings.heldStopped : strings.heldGoes;
+  return format(sentence, { name: content.colleague.name });
 }
 
 /** Replace authored placeholders in a single pass so inserted content stays literal.
