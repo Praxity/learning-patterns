@@ -84,7 +84,7 @@ async function mount(page, stages, value = undefined, mode = '') {
     const { render } = await import('../patterns/first-answer/render.js');
     const { enhance } = await import('../patterns/first-answer/enhance.js');
     const { strings } = await import('../patterns/first-answer/strings.js');
-    const content = { prompt: 'What would you say to a colleague who keeps interrupting you?', checks: [{ id: 'specific', label: 'Gives more detail about the interruptions' }, { id: 'behaviour', label: 'Describes the interruptions without judging the person' }, { id: 'view', label: 'Asks how they see the situation' }] };
+    const content = { prompt: 'What would you say to a colleague who keeps interrupting you?', checks: [{ id: 'specific', label: 'Gives more detail about the interruptions' }, { id: 'behaviour', label: 'Describes the interruptions without judging the person' }, { id: 'view', label: 'Asks how your colleague sees the situation' }] };
     window.lpInstances.forEach(instance => instance.destroy());
     document.querySelector('main').innerHTML = '<h1>Your first answer comes back</h1>' + stages.map((stage, index) => render(content, strings.en, { id: `stage-${index}`, lang: 'en', stage })).join('');
     window.lpSaved = value; window.lpWrites = 0; window.lpFailRead = mode === 'read'; window.lpFailWrite = mode === 'write';
@@ -98,8 +98,8 @@ async function mount(page, stages, value = undefined, mode = '') {
 }
 
 for (const [lang, journal, day, end, note] of [
-  ['en', 'Your journal', 'Day one', 'End of the course', 'It stays as you wrote it.'],
-  ['fr', 'Votre journal', 'Premier jour', 'Fin du cours', "Elle reste telle que vous l’avez écrite."]
+  ['en', 'Your journal', 'Start of the course', 'End of the course', 'It stays as you wrote it.'],
+  ['fr', 'Votre journal', 'Début du cours', 'Fin du cours', "Elle reste telle que vous l’avez écrite."]
 ]) {
   test(`journal scene, dated entry and course timeline (${lang})`, async ({ page }) => {
     await open(page, `/first-answer/${lang}.html`);
@@ -191,7 +191,7 @@ test('restoring now locks the comparison silently and reset clears the lock', as
 });
 
 for (const [lang, legend, announcement, retry] of [
-  ['en', 'What improved in your new answer?', 'Compare your answers. Tick the improvements.', 'Try again'],
+  ['en', "What does your new answer do that your first answer didn't?", 'Compare your answers. Tick the improvements.', 'Try again'],
   ['fr', "Qu’est-ce qui s’est amélioré dans votre nouvelle réponse ?", "Comparez vos réponses. Cochez les améliorations.", 'Réessayer']
 ]) {
   test(`comparison uses the improvement question and quiet icon actions (${lang})`, async ({ page }) => {
@@ -249,7 +249,7 @@ test('keyboard journey links blank errors and announces successful submissions o
   await expect(first).toBeFocused(); await expect(first).toHaveValue('');
   await expect(page.locator('[data-lp-restart]')).toBeHidden(); await expect(page.locator('[data-lp-result]')).toBeHidden();
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ first: null, now: null, checks });
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['First answer saved.', 'Compare your answers. Tick the improvements.', 'Compare your answers. Tick the improvements.', 'Started over.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['First answer saved.', 'Compare your answers. Tick the improvements.', 'Compare your answers. Tick the improvements.', 'Answers deleted.']);
 });
 
 for (const path of ['/first-answer/en.html', '/first-answer/fr.html', '/first-answer/two.html']) {
@@ -306,7 +306,9 @@ for (const [lang, savedNote, summary] of [['en', 'It stays as you wrote it.', 'Y
     await expect(page.locator('[data-lp-now-input]')).toHaveValue(seed.now.text);
     await expect(page.getByRole('checkbox').nth(2)).toBeChecked();
     await expect(page.locator('[data-lp-summary]')).toHaveText(summary);
-    const date = await page.evaluate(({ lang, first }) => new Intl.DateTimeFormat(lang, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(first)), { lang, first: FIRST });
+    const date = await page.evaluate(({ lang, first }) => new Intl.DateTimeFormat(lang === 'fr' ? 'fr-CA' : lang, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(first)), { lang, first: FIRST });
+    // Canadian French writes times as 21 h 57, like the cards.
+    if (lang === 'fr') expect(date).toMatch(/\d\s?h\s?\d/u);
     await expect(page.locator('[data-lp-panel-first-date]')).toHaveText(`${lang === 'en' ? 'Saved' : 'Enregistrée le'} ${date}`);
     await scan(page);
   });
@@ -339,8 +341,8 @@ test('thrown host reads block writes; a deliberate reset recovers', async ({ pag
 test('failed save, compare, checkbox and reset preserve record and expose visible errors', async ({ page }) => {
   await mount(page, ['both'], undefined, 'write'); await observe(page); await saveFirst(page);
   await expect(page.locator('[data-lp-first-input]')).toBeVisible();
-  await expect(page.locator('[data-lp-storage-error]')).toHaveText("Your answers couldn't be saved. Nothing changed. Try again.");
-  await expect(page.locator('[role="status"]')).toHaveText("Your answers couldn't be saved. Nothing changed. Try again.");
+  await expect(page.locator('[data-lp-storage-error]')).toHaveText("Your last change couldn't be saved. Make it again.");
+  await expect(page.locator('[role="status"]')).toHaveText("Your last change couldn't be saved. Make it again.");
   await page.evaluate(() => { window.lpFailWrite = false; }); await saveFirst(page);
   const first = await page.evaluate(() => window.lpSaved);
   await page.locator('[data-lp-skip]').click(); await page.evaluate(() => { window.lpFailWrite = true; }); await compare(page);
@@ -363,13 +365,13 @@ test('end only allows a current answer with no saved first; reset focuses curren
   await expect(page.locator('[data-lp-skip]')).toHaveCount(0); await expect(page.locator('[data-lp-missing]')).toBeVisible();
   await expect(page.locator('[data-lp-now-input]')).toBeVisible(); await scan(page); await compare(page);
   expect((await page.evaluate(() => window.lpSaved)).first).toBeNull();
-  await expect(page.locator('[data-lp-panel-first]')).toHaveText("Your first answer was not saved, so you cannot compare the two answers.");
+  await expect(page.locator('[data-lp-panel-first]')).toHaveText("Your first answer wasn't saved. You can still write and keep your new answer."); await expect(page.locator('[data-lp-missing]')).toBeHidden();
   await expect(page.locator('[data-lp-panel-first-date]')).toBeEmpty(); await expect(page.getByRole('checkbox')).toHaveCount(3); await scan(page);
   await expect(page.locator('[data-lp-panel-note]')).toBeHidden();
   await expect(page.locator('[data-lp-panel-first-card] .lp-first-answer-date')).toBeHidden();
   await page.getByRole('checkbox').nth(2).check(); await page.locator('[data-lp-restart]').click(); await page.getByRole('button', { name: 'Delete', exact: true }).click();
   await expect(page.locator('[data-lp-now-input]')).toBeFocused(); await expect(page.locator('[data-lp-now-input]')).toHaveValue('');
-  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Compare your answers. Tick the improvements.', 'Started over.']);
+  expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Compare your answers. Tick the improvements.', 'Answers deleted.']);
 });
 
 test('first and end placements share state across course pages', async ({ page }) => {
@@ -588,7 +590,7 @@ test('Delete clears saved answers, announces the reset and focuses the first fie
   await page.getByRole('button', { name: 'Delete', exact: true }).click();
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ first: null, now: null, checks });
   expect(await page.evaluate(() => window.lpWrites)).toBe(1);
-  await expect(page.locator('[role="status"]')).toHaveText('Started over.');
+  await expect(page.locator('[role="status"]')).toHaveText('Answers deleted.');
   await expect(page.locator('[data-lp-first-input]')).toBeFocused();
   await expect(page.locator('[data-lp-restart-confirmation]')).toBeHidden();
 });
@@ -624,7 +626,7 @@ for (const [lang, one, both, remove, keep] of [
     await page.locator('[data-lp-restart]').click();
     await expect(page.locator('.lp-first-answer-confirm-question')).toHaveText(both);
     await page.getByRole('button', { name: remove, exact: true }).click();
-    await expect(page.locator('[role="status"]')).toHaveText(lang === 'en' ? 'Started over.' : 'Vous avez recommencé.');
+    await expect(page.locator('[role="status"]')).toHaveText(lang === 'en' ? 'Answers deleted.' : 'Réponses supprimées.');
   });
 }
 

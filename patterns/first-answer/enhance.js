@@ -65,7 +65,7 @@ export function enhance(root, { content, strings, state }) {
   const status = required('[role="status"]');
   const boxes = end ? [...end.result.querySelectorAll('input')] : [];
   if (end && (boxes.length !== content.checks.length || boxes.some((box, index) => box.type !== 'checkbox' || box.value !== content.checks[index].id))) throw new Error('Invalid first-answer checks markup');
-  const format = new Intl.DateTimeFormat(root.lang, { dateStyle: 'medium', timeStyle: 'short' });
+  const format = new Intl.DateTimeFormat(root.lang === 'fr' ? 'fr-CA' : root.lang, { dateStyle: 'medium', timeStyle: 'short' });
   /** @param {string} iso */
   const when = iso => format.format(new Date(iso));
   let record = emptyState(content);
@@ -117,8 +117,9 @@ export function enhance(root, { content, strings, state }) {
     if (course) course.hidden = !record.first || endOpen;
     if (end) {
       end.step.hidden = !endOpen;
-      end.missing.hidden = record.first !== null;
       const locked = record.now !== null && !editing;
+      // After Compare the first-answer card carries the missing message, so it shows once.
+      end.missing.hidden = record.first !== null || locked;
       end.result.hidden = !locked;
       end.input.readOnly = locked;
       end.compare.hidden = locked;

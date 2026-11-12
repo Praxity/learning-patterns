@@ -30,7 +30,7 @@ Write the task, four checklist statements and revision hints. Changing the crite
 
 1. The learner writes a plan. Once it's 20 characters or longer, each pause in typing checks it.
 2. A checklist of four criteria updates after each check. Met criteria move to the top with a green check. Unmet criteria, and any the model isn't sure about, show a hint.
-3. When all four are met, "Your plan includes all four items." appears and checking stops until the next edit.
+3. When all four are met, "Your plan has everything on the checklist." appears and checking stops until the next edit.
 
 After 40 automatic checks on a page, or when a check fails, the learner ticks the criteria themselves. Without JavaScript, the learner gets the prompt, the answer box and the tick list.
 
@@ -80,7 +80,7 @@ Authored text is capped at 120 characters for titles and labels, 400 for questio
 
 `lib/typing-pause.js` owns the adaptive wait. Live feedback uses `typingPause({ minChars: MIN_CHARS, questionMark: false })`, with `key(time)`, `wait()` and `delay(text, checked, enter = false)`. Delay returns milliseconds or `null` when no check is due. Live feedback does not request an immediate check on Enter.
 
-Pass `state: { read, write }` to save drafts and checklist ticks. Check results are not saved. Repeated enhancement returns the same instance. `destroy()` removes listeners and the "Your plan includes all four items." line, cancels checks and restores the native checklist, keeping the draft and ticks. Re-enhancement keeps the remaining automatic allowance.
+Pass `state: { read, write }` to save drafts and checklist ticks. Check results are not saved. Repeated enhancement returns the same instance. `destroy()` removes listeners and the "Your plan has everything on the checklist." line, cancels checks and restores the native checklist, keeping the draft and ticks. Re-enhancement keeps the remaining automatic allowance.
 
 Stored drafts restore intact even above the send limit. The host owns its total storage budget; the send limit still applies before every proxy request. Self-check ticks survive restoration. Automated judgments are not restored.
 
@@ -110,8 +110,8 @@ The field keeps the full draft. After a typing pause, an oversized answer shows 
 
 Daily proxy caps show and announce the reason and midnight UTC reset once, keep focus in place and leave the fallback usable. Checks then stop until reload.
 
-- The list and checking line stay silent. The polite status region announces a changed count once. Reaching all four items announces "Your plan includes all four items. 4 of 4 done" once, and later checks that stay at four announce nothing. Focus stays in place.
-- The box never locks, so typing after "Your plan includes all four items." keeps every character.
+- The list and checking line stay silent. The polite status region announces a changed count once. Meeting all four criteria announces "Your plan has everything on the checklist. 4 of 4 done" once, and later checks that stay at four announce nothing. Focus stays in place.
+- The box never locks, so typing after "Your plan has everything on the checklist." keeps every character.
 - Checkmarks and open dashed circles show state through shape as well as colour. Each list item also has a screen-reader prefix, "Done:" or "To add:". Native fallback checkboxes expose their checked state.
 - Reordering uses a 200 ms transform transition. Reduced motion moves items instantly.
 - Native checkboxes work without JavaScript and after a failed check.

@@ -136,7 +136,7 @@ Authored text is capped at 120 characters for titles and labels, 400 for questio
 
 Without JavaScript, the passage is plain text. Native "Answer" details lists targets and all authored notes.
 
-Check locks marks until reset. Mark counts update silently. Use a unique id prefix per instance.
+Check locks marks until reset. Mark counts update silently, and after Check the result line replaces the count. Use a unique id prefix per instance.
 
 Optional `state: { read(), write(value) }` stores `{ marked, shown }`. Valid results restore silently; invalid values are ignored. Adapter errors propagate to the host.
 

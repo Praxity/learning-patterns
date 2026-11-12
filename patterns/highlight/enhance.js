@@ -102,6 +102,8 @@ export function enhance(root, { content, strings, state }) {
       chunk.setAttribute('aria-describedby', `${instructions.id} ${mark.id}`);
     });
     shown = true;
+    // The summary gives the result, so the running count would be a second counter.
+    count.hidden = true;
     summary.textContent = frenchTypography(message, root.lang); summary.hidden = false;
     // Check has done its job; Start over takes focus so it isn't lost with the hidden button.
     const hadFocus = root.contains(document.activeElement) && document.activeElement === submit;
@@ -121,6 +123,7 @@ export function enhance(root, { content, strings, state }) {
       feedback[i].removeAttribute('data-lp-outcome');
     }
     summary.replaceChildren(); summary.hidden = true;
+    count.hidden = false;
     status.replaceChildren();
     submit.hidden = false;
   }

@@ -7,18 +7,18 @@ import { strings } from './strings.js';
 import { blocks } from '../../proxy/src/registry.js';
 
 const content = {
-  prompt: 'What did you notice this week when you tried to stay assertive?',
+  prompt: 'What did you notice this week when you tried to be assertive?',
   questions: [
-    { id: 'situation', text: 'Want to describe one moment: where you were and what was said?' },
-    { id: 'action', text: 'Want to add what you said or did?' },
-    { id: 'next_step', text: "Want to name one thing you'll try next time?" },
-    { id: 'when', text: "Want to say when you'll try it?" }
+    { id: 'situation', text: 'Where were you, and what was said?' },
+    { id: 'action', text: 'What did you say or do?' },
+    { id: 'next_step', text: "What is one thing you'll try next time?" },
+    { id: 'when', text: 'When will you try it?' }
   ],
-  complete: "Great. You've named a moment, what you did, and a next step with a when.",
-  support: "If this is weighing on you, talk to someone you trust, your workplace's employee assistance programme or a local support service.",
-  supportNote: "If something is weighing on you, talk to someone you trust, your workplace's employee assistance programme, or a local support service.",
-  saved: 'Saved in this tab',
-  changed: 'Entry changed. Select Get a suggestion for the revised entry.'
+  complete: "Your entry names a moment, what you did, a next step and when you'll try it.",
+  support: "If this is weighing on you, talk to someone you trust, or contact your workplace's employee assistance program or a local support service.",
+  supportNote: "If something is weighing on you, talk to someone you trust, or contact your workplace's employee assistance program or a local support service.",
+  saved: 'Saved until you close this tab',
+  changed: 'You changed your entry. Select "Get a suggestion" again.'
 };
 const answers = (values = [1, 1, 1, 1, 0]) => Object.fromEntries(['situation', 'action', 'next_step', 'when', 'distress'].map((key, i) => [key, { noul: values[i] }]));
 
@@ -30,8 +30,8 @@ test('the proxy returns a complete decision and journal content owns its wording
 
 test('complete feedback uses authored bilingual content', async () => {
   for (const [lang, text] of [
-    ['en', "Great. You've named a moment, what you did, and a next step with a when."],
-    ['fr', "Très bien. Vous avez nommé un moment, ce que vous avez fait et une prochaine étape en précisant quand vous l’essaierez."]
+    ['en', "Your entry names a moment, what you did, a next step and when you'll try it."],
+    ['fr', "Votre entrée nomme un moment, ce que vous avez fait, une prochaine étape et le moment où vous l’essaierez."]
   ]) {
     const example = JSON.parse(await readFile(new URL(`./examples/${lang}.json`, import.meta.url)));
     assert.deepEqual(feedback(example, answers()), { kind: 'complete', text });

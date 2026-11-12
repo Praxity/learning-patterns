@@ -9,7 +9,7 @@ export const strings = {
     writeFailed: 'Saving failed. Copy your entry or try Save again.'
   },
   fr: {
-    placeholder: 'Cette semaine, j’ai…', save: 'Enregistrer', suggest: 'Obtenir une suggestion', reading: 'Lecture…',
+    placeholder: 'Cette semaine, j’ai…', save: 'Enregistrer', suggest: 'Obtenir une suggestion', reading: 'Lecture en cours…',
     showQuestions: 'Questions pour réfléchir', empty: 'Écrivez d’abord une entrée.', tooLong: 'Votre entrée doit contenir {max} caractères ou moins.',
     fallback: 'Utilisez les questions pour réfléchir à votre entrée.',
     noScript: 'JavaScript est nécessaire pour enregistrer. Vous pouvez quand même écrire et lire les questions.',

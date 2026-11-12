@@ -1,7 +1,6 @@
 export namespace strings {
     namespace en {
         let tooLong: string;
-        let placeholder: string;
         let check: string;
         let empty: string;
         let checking: string;
@@ -9,6 +8,7 @@ export namespace strings {
         let misconception: string;
         let unsure: string;
         let noMatch: string;
+        let misconceptionHeading: string;
         let model: string;
         let common: string;
         let fallback: string;
@@ -16,8 +16,6 @@ export namespace strings {
     namespace fr {
         let tooLong_1: string;
         export { tooLong_1 as tooLong };
-        let placeholder_1: string;
-        export { placeholder_1 as placeholder };
         let check_1: string;
         export { check_1 as check };
         let empty_1: string;
@@ -32,6 +30,8 @@ export namespace strings {
         export { unsure_1 as unsure };
         let noMatch_1: string;
         export { noMatch_1 as noMatch };
+        let misconceptionHeading_1: string;
+        export { misconceptionHeading_1 as misconceptionHeading };
         let model_1: string;
         export { model_1 as model };
         let common_1: string;

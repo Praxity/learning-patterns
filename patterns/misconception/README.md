@@ -57,7 +57,7 @@ Write a clear question, corrections and a model answer. Without JavaScript, lear
 | `noMatch` | A prompt to compare unmatched reasoning with the model answer. |
 | `misconceptions` | Exactly four entries, in order: `rereading`, `highlighting`, `cramming`, `watching`. |
 | `misconceptions[].id` | The proxy's fixed belief identity. |
-| `misconceptions[].label` | A short name for the wrong belief. |
+| `misconceptions[].label` | A short name for the wrong belief. Feedback shows it as the heading Common misconception: "label". |
 | `misconceptions[].idea` | The belief as a clause that fits the unsure template. |
 | `misconceptions[].why` | Correction and an action to try instead. |
 

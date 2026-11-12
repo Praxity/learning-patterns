@@ -13,7 +13,7 @@
     "options": [
       { "id": "open", "text": "poser une question ouverte avant de proposer quoi que ce soit" },
       { "id": "patient", "text": "faire preuve de plus de patience", "vague": "Personne ne peut vous voir ni vous entendre « faire preuve de plus de patience ». Choisissez une chose que vous diriez ou feriez." },
-      { "id": "tried", "text": "demander à Sam ce qui a déjà été essayé" },
+      { "id": "tried", "text": "demander ce que Sam a déjà essayé" },
       { "id": "repeat", "text": "reformuler ce que j’ai entendu avant de répondre" }
     ]
   },

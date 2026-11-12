@@ -8,18 +8,18 @@
     },
     {
       "id": "observable",
-      "done": "Actions others can see",
-      "todo": "Make each action something others could see you do"
+      "done": "Actions others can see or hear",
+      "todo": "Make each action something others could see or hear you do"
     },
     {
       "id": "when",
       "done": "A time or place to act",
-      "todo": "Say when you'll do it"
+      "todo": "Say when or where you'll act"
     },
     {
       "id": "commitments",
-      "done": "Your own actions",
-      "todo": "Keep to what you'll do yourself"
+      "done": "Only things you will do yourself",
+      "todo": "Describe what you will do, not what others should do"
     }
   ]
 }

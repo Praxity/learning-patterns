@@ -18,7 +18,7 @@
     {
       "id": "no_reason",
       "label": "The reason for the refusal",
-      "explanation": "The reply refuses without saying why, so Alex can't tell whether the answer is final and is likely to push back. Ask Priya to say that refunds end 30 days after purchase."
+      "explanation": "The reply refuses without saying why. Alex can't tell whether the answer is final, so Alex is likely to push back. Ask Priya to say that refunds end 30 days after purchase."
     },
     {
       "id": "no_alternative",
