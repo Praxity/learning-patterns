@@ -13,7 +13,6 @@ import { validateContent, targetOf, optionKey, OTHER } from './logic.js';
 export function renderQuestionPreview(content, strings, options, { author = false, matches = [], heading = true, lang = 'en' } = {}) {
   return `<div class="lp-stack lp-write-distractors-question" data-lp-preview="${author ? 'author' : 'yours'}">
     ${heading ? `<h3 class="lp-label">${html(author ? strings.authorQuestion : strings.yourQuestion, lang)}</h3>` : ''}
-    <p class="lp-run-in">${html(content.question, lang)}</p>
     <ol class="lp-write-distractors-preview">
       ${[{ text: content.rightAnswer }, ...options].map((item, index) => {
         const mark = index === 0 ? strings.correctAnswer : matches[index - 1] ? strings.match : '';

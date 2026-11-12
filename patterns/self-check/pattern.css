@@ -17,7 +17,7 @@
 .lp-self-check-composer-foot { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: flex-end; padding: 10px 12px; border-block-start: 1px solid var(--lp-rule); }
 .lp-self-check-composer-foot .lp-error-text { margin-inline-end: auto; }
 .lp-self-check [data-lp-ticks], .lp-self-check [data-lp-result] { margin: 0; padding-block: 24px; }
-.lp-self-check .lp-choices > :is(.lp-small, [data-lp-meter]) { grid-column: 1 / -1; }
+.lp-self-check .lp-choices > [data-lp-meter] { grid-column: 1 / -1; }
 .lp-self-check .lp-choices > legend { inline-size: 100%; font-size: var(--lp-type-title); }
 .lp-self-check-meter { display: inline-flex; gap: 8px; align-items: center; flex: none; color: var(--lp-ink-2); font-size: var(--lp-type-small); font-weight: 600; font-variant-numeric: tabular-nums; }
 .lp-self-check-ring { flex: none; }
@@ -28,7 +28,6 @@
 .lp-self-check-step-actions { justify-content: flex-end; }
 .lp-self-check-result-head { display: flex; gap: 16px; align-items: flex-start; }
 .lp-self-check-result-head .lp-self-check-ring-fill { stroke: var(--lp-success-ink); }
-.lp-self-check-result-head .lp-small { margin-block-start: 2px; }
 .lp-self-check-compare { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
 .lp-self-check-pane { min-inline-size: 0; border: 1px solid var(--lp-rule); border-radius: var(--lp-radius-control); }
 .lp-self-check-pane-model { background: var(--lp-paper-2); }

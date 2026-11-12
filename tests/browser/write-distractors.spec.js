@@ -52,9 +52,9 @@ async function open(page, lang = 'en', authoring = true) {
 async function fill(root, custom = false) {
   const rows = root.locator('[data-lp-option]');
   await rows.nth(0).locator('[data-lp-text]').fill('Yes, breaks slow you down.');
-  await rows.nth(0).locator('select').selectOption('push-through');
+  await rows.nth(0).locator('select').selectOption('momentum');
   await rows.nth(1).locator('[data-lp-text]').fill('Yes, breaks make you lose your place.');
-  await rows.nth(1).locator('select').selectOption(custom ? 'other' : 'phone');
+  await rows.nth(1).locator('select').selectOption(custom ? 'other' : 'tired');
   if (custom) await rows.nth(1).locator('input').fill('Breaks disrupt focus');
 }
 async function scan(page) {
@@ -116,7 +116,7 @@ for (const lang of ['en', 'fr']) {
   for (const shown of [false, true]) {
     test(`oversized saved answer restores as a recoverable draft (${lang}, shown=${shown})`, async ({ page }) => {
       const text = '😀'.repeat(1000) + 'x';
-      const options = [draft('Old B', 'busy'), draft('Old C', 'phone')];
+      const options = [draft('Old B', 'time-lost'), draft('Old C', 'tired')];
       await page.addInitScript(value => { window.lpSeed = value; }, { answer: text, hadIt: true, options, shown });
       await open(page, lang, false);
       const answer = page.locator('[data-lp-answer]');
@@ -146,7 +146,9 @@ test('question previews replace result lists and preserve keyed row alignment at
   await open(page); await fill(page, true); await page.locator('[data-lp-compare]').click();
   const result = page.locator('[data-lp-result]');
   await expect(result.locator('[data-lp-preview]')).toHaveCount(2);
-  await expect(result.locator('[data-lp-preview] h3')).toHaveText(['Your question', "The author's question"]);
+  await expect(result.locator('[data-lp-preview] h3')).toHaveText(['Your options', "The author's options"]);
+  // The card title already shows the question; the previews show only the options.
+  await expect(result.locator('[data-lp-preview]')).not.toContainText(english.question);
   await expect(result.locator('[data-lp-untargeted], [data-lp-yours], .lp-write-distractors-list')).toHaveCount(0);
   expect(await result.evaluate(el => el.firstElementChild.matches('[data-lp-summary]'))).toBe(true);
   await expect(result.locator('[data-lp-preview="yours"] .lp-choice-mark')).toHaveText(['Correct answer', 'Same mistaken idea as the author']);
@@ -181,7 +183,7 @@ test('Compare collapses builders to key, text and tag summaries; Start over rest
   await expect(builders.locator('textarea:visible, select:visible, input:visible')).toHaveCount(0);
   await expect(builders.nth(0)).toContainText('B');
   await expect(builders.nth(0)).toContainText('Yes, breaks slow you down.');
-  await expect(builders.nth(0)).toContainText(english.misconceptions.find(item => item.id === 'push-through').label);
+  await expect(builders.nth(0)).toContainText(english.misconceptions.find(item => item.id === 'momentum').label);
   await expect(builders.nth(1)).toContainText('C');
   await expect(builders.nth(1)).toContainText('Yes, breaks make you lose your place.');
   await expect(builders.nth(1)).toContainText('Breaks disrupt focus');
@@ -234,7 +236,7 @@ for (const lang of ['en', 'fr']) {
     await fill(page);
     await page.locator('[data-lp-compare]').click();
     const preview = page.locator('[data-lp-preview="yours"]');
-    await expect(preview).toContainText(content.question);
+    await expect(preview).not.toContainText(content.question);
     await expect(preview.locator('[data-lp-preview-key]')).toHaveText(['A', 'B', 'C']);
     await expect(preview.locator('li').first()).toContainText(content.rightAnswer);
     await expect(preview.locator('li').first()).toContainText(lang === 'en' ? 'Correct answer' : 'Bonne réponse');
@@ -253,7 +255,7 @@ for (const lang of ['en', 'fr']) {
 }
 
 test('old saved results restore as hidden drafts until retrieval is done', async ({ page }) => {
-  await page.addInitScript(value => { window.lpSeed = value; }, { options: [draft('Old B', 'busy'), draft('Old C', 'phone')], shown: true });
+  await page.addInitScript(value => { window.lpSeed = value; }, { options: [draft('Old B', 'time-lost'), draft('Old C', 'tired')], shown: true });
   await open(page, 'en', false);
   await expect(page.locator('[data-lp-answer]')).toHaveValue('');
   await expect(page.locator('[data-lp-flow]')).toBeHidden();
@@ -381,7 +383,7 @@ test('controls reveal in place, custom field toggles without a live Targets line
   await expect(row.locator('input')).toBeVisible();
   await expect(row.locator('input')).not.toHaveAttribute('maxlength');
   await row.locator('input').fill('My tag');
-  await row.locator('select').selectOption('phone');
+  await row.locator('select').selectOption('tired');
   await expect(row.locator('input')).toBeHidden();
   await expect(row.locator('[data-lp-selected]')).toHaveCount(0);
   await expect(row).not.toContainText('Targets:');
@@ -415,14 +417,14 @@ for (const lang of ['en', 'fr']) {
     expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
     await page.locator('[data-lp-compare]').click();
     await expectChoiceMarks(page);
-    const message = lang === 'en' ? "Your labels match 1 of the author's 3 mistaken ideas. You added 1 of your own."
+    const message = lang === 'en' ? "You named 1 of the author's 3 mistaken ideas and 1 of your own."
       : "Idées fausses en commun avec l’auteur : 1 sur 3. Autres idées fausses : 1.";
     await expect(page.locator('[data-lp-summary]')).toHaveText(message);
     await expect(page.locator('[role="status"]')).toHaveText(message);
     expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([message]);
     expect(await page.locator('[data-lp-summary]').evaluate(el => getComputedStyle(el).fontWeight)).toBe('600');
     await expect(page.locator('[data-lp-result]')).not.toContainText(lang === 'en' ? 'Compared' : 'comparées');
-    await expect(page.locator('[data-lp-result] [data-lp-preview] h3')).toHaveText(lang === 'en' ? ['Your question', "The author's question"] : ['Votre question', "La question de l’auteur"]);
+    await expect(page.locator('[data-lp-result] [data-lp-preview] h3')).toHaveText(lang === 'en' ? ['Your options', "The author's options"] : ['Vos réponses', 'Les réponses de l’auteur']);
     await expect(page.locator('[data-lp-result] [data-lp-preview="author"] .lp-small')).toHaveText(content.misconceptions.map(item => `${lang === 'en' ? 'Mistaken idea:' : 'Idée fausse :'} ${item.label}`));
     await expect(page.locator('[data-lp-result] [data-lp-preview="yours"] .lp-small')).toHaveText([`${lang === 'en' ? 'Mistaken idea:' : 'Idée fausse :'} ${content.misconceptions[1].label}`, `${lang === 'en' ? 'Mistaken idea:' : 'Idée fausse :'} Breaks disrupt focus`]);
     await expect(page.locator('[data-lp-result] [data-lp-untargeted], [data-lp-result] [data-lp-yours]')).toHaveCount(0);
@@ -430,8 +432,8 @@ for (const lang of ['en', 'fr']) {
 
   for (const fixture of [
     { name: 'zero author, two own', author: 0, total: 3, own: 2, targets: ['other', 'other'], customs: ['New one', 'New two'] },
-    { name: 'two author, zero own', author: 2, total: 3, own: 0, targets: ['busy', 'phone'] },
-    { name: 'one author with duplicate tags and a custom alias', author: 1, total: 1, own: 0, targets: ['busy', 'other'], alias: true },
+    { name: 'two author, zero own', author: 2, total: 3, own: 0, targets: ['time-lost', 'tired'] },
+    { name: 'one author with duplicate tags and a custom alias', author: 1, total: 1, own: 0, targets: ['time-lost', 'other'], alias: true },
     { name: 'zero of one author, repeated own tag', author: 0, total: 1, own: 1, targets: ['other', 'other'], customs: ['New tag', ' new TAG '] }
   ]) {
     test(`count grammar and unique author coverage: ${fixture.name} (${lang})`, async ({ page }) => {
@@ -455,7 +457,7 @@ for (const lang of ['en', 'fr']) {
         if (fixture.targets[index] === 'other') await row.locator('input').fill(fixture.alias ? `  ${content.misconceptions[0].label.toUpperCase()}  ` : fixture.customs[index]);
       }
       await page.locator('[data-lp-compare]').click();
-      const message = lang === 'en' ? `Your labels match ${fixture.author} of the author's ${fixture.total} ${fixture.total === 1 ? 'mistaken idea' : 'mistaken ideas'}. You added ${fixture.own} of your own.`
+      const message = lang === 'en' ? `You named ${fixture.author} of the author's ${fixture.total} ${fixture.total === 1 ? 'mistaken idea' : 'mistaken ideas'} and ${fixture.own} of your own.`
         : `${fixture.total === 1 ? 'Idée fausse' : 'Idées fausses'} en commun avec l’auteur : ${fixture.author} sur ${fixture.total}. Autres idées fausses : ${fixture.own}.`;
       await expect(page.locator('[data-lp-summary]')).toHaveText(message);
       expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([message]);
@@ -490,7 +492,7 @@ test('keyboard-only error, custom tag, comparison, repeated announcement and cle
   await expect(page.locator('[data-lp-compare]')).toBeFocused();
   const coverage = await page.locator('[data-lp-coverage]').innerText();
   await expect(page.locator('[role="status"]')).toHaveText(coverage);
-  await expect(page.locator('[data-lp-coverage]')).toHaveText("Your labels match 1 of the author's 3 mistaken ideas. You added 1 of your own.");
+  await expect(page.locator('[data-lp-coverage]')).toHaveText("You named 1 of the author's 3 mistaken ideas and 1 of your own.");
   await page.keyboard.press('Enter');
   await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-clear]')).toBeFocused();
   await page.keyboard.press('Enter'); await expect(page.locator('[data-lp-answer]')).toBeFocused();
@@ -542,7 +544,7 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     await expect(yours.locator('svg[aria-hidden="true"]')).toHaveCount(2);
     await expect(yours.locator('.lp-choice-key[aria-hidden="true"]')).toHaveCount(3);
     await expect(page.locator('[data-lp-summary]')).toHaveText(lang === 'en'
-      ? "Your labels match 1 of the author's 3 mistaken ideas. You added 1 of your own."
+      ? "You named 1 of the author's 3 mistaken ideas and 1 of your own."
       : "Idées fausses en commun avec l’auteur : 1 sur 3. Autres idées fausses : 1.");
   });
 
@@ -593,7 +595,7 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     await check(); await fill(page, true); await check();
     await page.locator('[data-lp-compare]').click(); await check();
     await page.locator('[data-lp-clear]').click(); await retrieve(page); await fill(page, true);
-    await page.locator('select').first().selectOption('phone');
+    await page.locator('select').first().selectOption('tired');
     await expect(page.locator('[data-lp-selected]')).toHaveCount(0); await check();
   });
 }
@@ -626,7 +628,7 @@ test('draft state saves every field, submitted state is clean, Start over clears
 
 for (const shown of [false, true]) {
   test(`valid saved custom state restores with shown=${shown}, silently`, async ({ page }) => {
-    await page.addInitScript(value => { window.lpSeed = value; }, { answer: 'No', hadIt: false, options: [draft('A', 'push-through'), draft('B', 'other', 'Focus lost')], shown });
+    await page.addInitScript(value => { window.lpSeed = value; }, { answer: 'No', hadIt: false, options: [draft('A', 'momentum'), draft('B', 'other', 'Focus lost')], shown });
     await open(page);
     await expect(page.locator('[data-lp-answer]')).toHaveValue('No');
     await expect(page.locator('[data-lp-answer]')).toHaveAttribute('readonly', '');

@@ -15,30 +15,30 @@
     },
     {
       "id": "agree",
-      "name": "Agree the next action",
-      "rule": "You both know the cause. Agree who does what, and when you will check."
+      "name": "Agree on the next action",
+      "rule": "You both know the cause. Agree on who does what, and when you will follow up."
     }
   ],
   "cases": [
     {
-      "text": "Sam agrees the last two handover notes did not say who owns each task, and you have both found why: the new template hides that field. You are about to ask, \"So what will you change?\"",
+      "text": "Sam agrees the last two handover notes did not say who owns each task, and you have both found the cause, a new template that hides that field. You are about to ask, \"So what will you change?\"",
       "correct": "agree",
       "lure": "ask",
       "looksLike": "Your line is a question, so it can look like Ask an open question.",
-      "decides": "Sam agrees what happened and you both know why, so asking what will change is the next step. Agree who changes the template and when you will check."
+      "decides": "Sam accepts the facts and you both know the cause, so asking what will change is right. Agree on who changes the template and when you'll follow up."
     },
     {
       "text": "Jo says, \"I didn't interrupt anyone in Monday's meeting.\" You are about to reply, \"From now on, let people finish.\"",
       "correct": "name",
       "lure": "agree",
-      "looksLike": "\"From now on\" sounds like Agree the next action.",
+      "looksLike": "\"From now on\" sounds like Agree on the next action.",
       "decides": "Jo disputes what happened, so the facts are not agreed. Say what you saw: who was speaking, and when Jo started talking."
     },
     {
-      "text": "Alex agrees they talked over Priya twice in Monday's meeting and offers to wait until the end next time. Neither of you knows why it happened.",
+      "text": "Alex agrees they talked over Priya twice in Monday's meeting, says \"I'm not sure why,\" and offers to wait until others finish next time.",
       "correct": "ask",
       "lure": "agree",
-      "looksLike": "Alex's offer sounds like Agree the next action.",
+      "looksLike": "Alex's offer sounds like Agree on the next action.",
       "decides": "The facts are agreed, but nobody knows why, so the offer may not stop it next time. Ask what was going on."
     },
     {
@@ -46,7 +46,7 @@
       "correct": "name",
       "lure": "ask",
       "looksLike": "Your line is a question, so it can look like Ask an open question.",
-      "decides": "Nothing has been raised, so the facts are not agreed, and \"don't care\" is a judgement. Start with the missing names."
+      "decides": "Nothing has been raised, so the facts are not agreed, and \"don't care\" is a judgement. Start with what you saw: neither note said who owns each task."
     }
   ]
 }

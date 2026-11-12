@@ -4,35 +4,35 @@
   "sections": [
     { "id": 1, "title": "Préparer un ordre du jour", "requires": [] },
     { "id": 3, "title": "Animer la discussion", "requires": [] },
-    { "id": 4, "title": "Les décisions et le suivi", "requires": [3] }
+    { "id": 4, "title": "Confirmer les décisions et les tâches", "requires": [3] }
   ],
   "questions": [
     {
-      "id": "agenda", "section": 1, "text": "Que devraient apprendre les participants en lisant l’ordre du jour avant une réunion ?",
+      "id": "agenda", "section": 1, "text": "Que devrait indiquer l’ordre du jour pour que les gens puissent se préparer ?",
       "options": [
-        { "id": "attendees", "text": "Seulement les personnes qui participeront" },
-        { "id": "outcomes", "text": "Les sujets, les objectifs et le temps prévu pour chaque point" },
-        { "id": "everything", "text": "Tout ce que la personne qui organise la réunion sait sur chaque sujet" }
+        { "id": "attendees", "text": "Les personnes invitées, la salle et le lien de visioconférence" },
+        { "id": "outcomes", "text": "Les sujets, l’objectif de chacun et le temps prévu" },
+        { "id": "last-notes", "text": "Les décisions de la dernière réunion et les responsables des tâches" }
       ],
-      "correct": "outcomes", "explanation": "Les gens peuvent se préparer quand ils connaissent les sujets, les objectifs et le temps prévu pour chaque point."
+      "correct": "outcomes", "explanation": "Les gens peuvent se préparer quand ils connaissent les sujets, l’objectif de chacun et le temps prévu. Les personnes invitées et le lieu figurent dans l’invitation. Les décisions passées et les responsables des tâches figurent dans le compte rendu de la dernière réunion."
     },
     {
-      "id": "discussion", "section": 3, "text": "Une personne parle beaucoup plus que les autres. Que devriez-vous faire si vous animez la réunion ?",
+      "id": "discussion", "section": 3, "text": "Une personne monopolise la parole. Que devriez-vous faire si vous animez la réunion ?",
       "options": [
-        { "id": "invite", "text": "Faire une pause et inviter les autres à parler" },
-        { "id": "wait", "text": "La laisser parler jusqu’à la fin de la réunion" },
-        { "id": "delegate", "text": "Demander à la personne qui prend les notes de décider pour tout le monde" }
+        { "id": "invite", "text": "La remercier, puis demander l’avis de chacune des autres personnes" },
+        { "id": "read-back", "text": "Faire relire à la personne qui prend les notes ce qui a été dit" },
+        { "id": "vote", "text": "Demander au groupe de voter sur le sujet maintenant et passer au suivant" }
       ],
-      "correct": "invite", "explanation": "Invitez les autres à parler pour que tout le monde puisse contribuer."
+      "correct": "invite", "explanation": "Remerciez la personne, puis demandez l’avis des autres, pour que le groupe entende plus d’un point de vue. Relire ce qui a été dit aide quand le groupe ne sait plus où il en est. Un vote convient quand tout le monde s’est déjà exprimé."
     },
     {
-      "id": "follow-up", "section": 4, "text": "Que devriez-vous confirmer avant la fin de la réunion ?",
+      "id": "follow-up", "section": 4, "text": "Que devriez-vous confirmer avant la fin de la réunion ?",
       "options": [
-        { "id": "equal-time", "text": "Que chaque personne a parlé aussi longtemps que les autres" },
-        { "id": "actions", "text": "Les décisions, qui fera chaque tâche et pour quand" },
-        { "id": "next-meeting", "text": "Qu’une autre réunion est déjà prévue" }
+        { "id": "next-agenda", "text": "Les sujets, les objectifs et le temps prévu au prochain ordre du jour" },
+        { "id": "actions", "text": "Chaque décision, qui fera chaque tâche et d’ici quelle date" },
+        { "id": "attendance", "text": "Le nom des personnes présentes et de celles qui se sont excusées" }
       ],
-      "correct": "actions", "explanation": "Confirmez les décisions, qui fera chaque tâche et pour quand."
+      "correct": "actions", "explanation": "Confirmez chaque décision, qui fera chaque tâche et d’ici quelle date, pendant que tout le monde peut encore corriger. Les sujets du prochain ordre du jour peuvent attendre, et les présences vont dans le compte rendu."
     }
   ]
 }

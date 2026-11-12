@@ -35,7 +35,7 @@ test('plan rules: transitive credit, direct pass precedence, lowest numeric sour
 
 test('score groups keyed answers and requires all of a section’s one or two questions', () => {
   assert.deepEqual(score(content, {}).unanswered, ['agenda', 'discussion', 'follow-up']);
-  const result = score(content, { agenda: 'attendees', discussion: 'wait', 'follow-up': 'actions' });
+  const result = score(content, { agenda: 'attendees', discussion: 'read-back', 'follow-up': 'actions' });
   assert.deepEqual(result.right, ['follow-up']);
   assert.deepEqual(result.wrong, ['agenda', 'discussion']);
   assert.deepEqual(result.passed, [4]); assert.equal(result.skip, 1);
@@ -120,18 +120,24 @@ test('server outline is clean, scene is shared, and Start is absent when require
   const output = render(content, strings.en, { id: 'stepper', lang: 'en' });
   for (const name of ['lp-scene', 'lp-scene-icon', 'lp-scene-title']) assert.ok(output.includes(`class="${name}"`));
   assert.ok(output.includes("What you&#39;ll cover"));
-  assert.ok(output.includes('Start the check'));
+  assert.ok(output.includes('Start the questions'));
+  assert.ok(output.includes('Answer 3 questions to see which sections you can skip.'));
+  assert.equal(output.includes('data-lp-policy'), false);
   assert.equal(output.includes('To do'), false);
   assert.equal((output.match(/data-lp-panel="question"/g) || []).length, 3);
   const required = render({ ...content, allowTestOut: false }, strings.en, { id: 'required', lang: 'en' });
   assert.equal(required.includes('data-lp-start'), false);
   assert.ok(required.includes(strings.en.required));
+  assert.equal(required.includes('Answer 3 questions'), false);
+  const one = render({ ...content, sections: [content.sections[0]], questions: [content.questions[0]] }, strings.en, { id: 'one', lang: 'en' });
+  assert.ok(one.includes('Answer 1 question to see which sections you can skip.'));
+  assert.ok(render(french, strings.fr, { id: 'fr', lang: 'fr' }).includes('Répondez à 3 questions pour voir quelles sections vous pouvez sauter.'));
 });
 
 test('server HTML has scene, outline, grouped keyed questions, native answers and one empty status', () => {
   const a = render(content, strings.en, { id: 'first', lang: 'en' });
   assert.match(a, /class="lp lp-test-out"/); assert.match(a, /data-lp-pattern="test-out" lang="en"/);
-  assert.doesNotMatch(a, /Placement check/); assert.match(a, /Meetings: a refresher/);
+  assert.doesNotMatch(a, /Placement check/); assert.match(a, /A refresher on meetings/);
   assert.equal((a.match(/data-lp-section-status/g) || []).length, 3);
   assert.equal((a.match(/class="lp-choices"/g) || []).length, 3);
   assert.equal((a.match(/class="lp-choice"/g) || []).length, 9);
@@ -149,10 +155,9 @@ test('advanced answer explanations describe answers only', () => {
   const fr = render(french, strings.fr, { id: 'fr', lang: 'fr' });
   assert.doesNotMatch(en, /Passing this section|credits/);
   assert.doesNotMatch(fr, /Réussir cette section|crédit/);
-  assert.ok(en.includes('Invite others to speak so everyone can contribute.'));
-  assert.ok(en.includes('Confirm what was decided, who will do each task and by when.'));
-  assert.ok(fr.includes('Invitez les autres à parler pour que tout le monde puisse contribuer.'));
-  assert.ok(fr.includes('Confirmez les décisions, qui fera chaque tâche et pour quand.'));
+  for (const [markup, examples] of [[en, content], [fr, french]]) for (const q of examples.questions) assert.ok(markup.includes(q.explanation.replaceAll("'", '&#39;')));
+  // Each explanation says why the other options don't fit, not only what the answer is.
+  assert.ok(content.questions.every(q => q.explanation.split('. ').length >= 2));
 });
 
 test('server counters carry section titles in both languages', () => {
@@ -216,7 +221,7 @@ test('owner audit: question carries its context and outline has no credit messag
 
 
 test('a directly failed prerequisite stays required after an advanced pass', () => {
-  const value = score(content, { agenda: 'attendees', discussion: 'wait', 'follow-up': 'actions' });
+  const value = score(content, { agenda: 'attendees', discussion: 'read-back', 'follow-up': 'actions' });
   assert.equal(value.rows.find(row => row.id === 3).action, 'take');
   assert.equal(value.skip, 1);
   assert.equal(plan(content.sections, [4], true, [3]).rows.find(row => row.id === 3).action, 'take');

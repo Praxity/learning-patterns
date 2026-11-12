@@ -1,7 +1,7 @@
 export const strings = {
   en: {
     readingTime: '{n} min read',
-    progress: '{count} of {total} questions checked',
+    progress: '{count} of {total} questions reviewed',
     commit: 'I have my answer',
     answer: 'Answer',
     show: 'Show the answer',

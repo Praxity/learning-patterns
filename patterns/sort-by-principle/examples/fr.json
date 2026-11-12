@@ -1,5 +1,5 @@
 {
-  "title": "Choisir un principe pour chaque échange de rétroaction",
+  "title": "Choisissez un principe pour chaque échange de rétroaction",
   "context": "Vous dirigez une petite équipe et donnez de la rétroaction à chaque personne en rencontre individuelle.",
   "question": "Quel principe devez-vous appliquer maintenant ?",
   "principles": [
@@ -21,11 +21,11 @@
   ],
   "cases": [
     {
-      "text": "Sam reconnaît que ses deux dernières notes de passation n’indiquaient pas qui est responsable de chaque tâche, et vous avez trouvé pourquoi : le nouveau gabarit cache ce champ. Vous allez demander : « Alors, qu’allez-vous changer ? »",
+      "text": "Sam reconnaît que ses deux dernières notes de passation n’indiquaient pas qui est responsable de chaque tâche, et vous avez trouvé ensemble pourquoi : le nouveau gabarit cache ce champ. Vous allez demander : « Alors, qu’allez-vous changer ? »",
       "correct": "agree",
       "lure": "ask",
       "looksLike": "Votre phrase est une question, ce qui peut la faire ressembler à Poser une question ouverte.",
-      "decides": "Sam reconnaît les faits et vous savez pourquoi : demander ce qui va changer est la bonne étape. Convenez de qui modifie le gabarit et du suivi."
+      "decides": "Vous connaissez tous deux les faits et la cause. Demandez ce qui va changer, puis convenez de qui modifie le gabarit et de la date du suivi."
     },
     {
       "text": "Jo dit : « Je n’ai interrompu personne à la réunion de lundi. » Vous allez répondre : « Dorénavant, laissez les gens finir. »",
@@ -35,7 +35,7 @@
       "decides": "Jo conteste ce qui s’est passé, donc vous ne vous entendez pas sur les faits. Dites ce que vous avez vu : qui parlait, et quand Jo a pris la parole."
     },
     {
-      "text": "Alex reconnaît avoir coupé la parole à Priya deux fois à la réunion de lundi et propose d’attendre la fin la prochaine fois. Ni vous ni Alex ne savez pourquoi c’est arrivé.",
+      "text": "Alex reconnaît avoir coupé la parole à Priya deux fois à la réunion de lundi, dit « Je ne sais pas trop pourquoi » et propose d’attendre que les autres aient fini la prochaine fois.",
       "correct": "ask",
       "lure": "agree",
       "looksLike": "La proposition d’Alex ressemble à Convenir de la prochaine action.",
@@ -46,7 +46,7 @@
       "correct": "name",
       "lure": "ask",
       "looksLike": "Votre phrase est une question, ce qui peut la faire ressembler à Poser une question ouverte.",
-      "decides": "Rien n’a été abordé, donc vous ne vous entendez pas sur les faits, et « ne vous intéressent pas » est un jugement. Commencez par les noms manquants."
+      "decides": "Rien n’a été abordé, donc vous ne vous entendez pas sur les faits, et « ne vous intéressent pas » est un jugement. Dites ce que les notes omettaient."
     }
   ]
 }

@@ -1,8 +1,8 @@
 {
-  "context": "Vous venez de rejoindre l’équipe de soutien. Le mois dernier, elle a traité 400 demandes.",
-  "question": "Quelle part de ces 400 demandes correspond à chaque cause?",
-  "resultTitle": "Les causes des 400 demandes du mois dernier",
-  "optionHeading": "Cause",
+  "context": "Vous venez de vous joindre à l’équipe de soutien d’une application de paie. Le mois dernier, l’équipe a traité 400 demandes.",
+  "question": "Quelle part de ces 400 demandes porte sur chaque sujet ?",
+  "resultTitle": "Les sujets des 400 demandes du mois dernier",
+  "optionHeading": "Sujet",
   "source": "Registre des demandes de soutien du mois dernier.",
   "total": 100,
   "unit": "%",

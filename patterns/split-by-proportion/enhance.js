@@ -57,8 +57,8 @@ export function enhance(root, { content, strings, state }) {
       segment.hidden = values[i] === 0;
       segment.style.inlineSize = `${values[i] / content.total * 100}%`;
       const value = segment.querySelector('[data-lp-segment-value]');
-      // Only result labels may wrap between the amount and its unit.
-      if (value) value.textContent = wrapUnits ? q(values[i]).replaceAll('\u00a0', ' ') : q(values[i]);
+      // Only result labels may wrap, and only before a unit word: a number stays joined to % and to its digit groups.
+      if (value) value.textContent = wrapUnits ? q(values[i]).replace(/\u00a0(?=\p{L})/gu, ' ') : q(values[i]);
     });
   }
   // Value text widens to every option a push changed, so each new value is heard once through the slider.

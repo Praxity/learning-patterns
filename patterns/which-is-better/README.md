@@ -27,7 +27,7 @@ Read two versions of the same email. For each quality, highlight the sentence th
 
 Write two complete versions of the same email: a subject, a greeting, a short body and a sign-off. Keep each body to two or three sentences in one paragraph, so learners highlight a sentence inside running text, as in Highlight the key passage, and each sentence is one a question is about: learners reread both bodies for every question. The schema allows up to six sentences in up to three paragraphs. Make both versions attempt the same things, so a learner has to read both to answer, not only the better one. Write a phone number with a word joiner (U+2060) after each hyphen, so it never breaks across lines.
 
-Write two to four questions, each about one quality both versions attempt, such as "Which sentence tells a customer with an urgent order exactly who to call?" Put the deciding word in the question ("exactly", "plainly"), so only one sentence can be defended from the card alone. Make at least one answer "Neither version does this", so learners can't score by always picking the better version.
+Write two to four questions, each about one quality both versions attempt, such as "Which sentence tells a customer who can't wait exactly who to contact?" Put the deciding word in the question ("exactly", "plainly"), so only one sentence can be defended from the card alone. Make at least one answer "Neither version does this", so learners can't score by always picking the better version.
 
 Every answer sentence is in the body of the better version. A pair where the weaker version does one thing better isn't supported yet. The subject, greeting and sign-off are context, not answers.
 

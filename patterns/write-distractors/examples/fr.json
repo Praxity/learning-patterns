@@ -1,15 +1,15 @@
 {
-  "question": "Les pauses pendant la journée de travail sont-elles une perte de temps ?",
-  "rightAnswer": "Non. Les courtes pauses vous aident à retrouver votre concentration et à faire moins d’erreurs.",
+  "question": "Quel effet les courtes pauses ont-elles sur une journée de travail concentré ?",
+  "rightAnswer": "Elles rétablissent votre attention, donc vous faites moins d’erreurs.",
   "misconceptions": [
-    { "id": "busy", "label": "Les gens occupés n’ont pas besoin de pauses" },
-    { "id": "push-through", "label": "Travailler sans pause permet toujours d’en faire plus" },
-    { "id": "phone", "label": "Consulter votre téléphone vous repose" }
+    { "id": "time-lost", "label": "Le temps passé loin d’une tâche est du temps perdu" },
+    { "id": "momentum", "label": "S’arrêter fait perdre son élan" },
+    { "id": "tired", "label": "Le repos sert seulement quand la fatigue se fait sentir" }
   ],
   "authorOptions": [
-    { "text": "Oui. Si vous êtes occupé, vous n’avez pas le temps de faire des pauses.", "misconception": "busy" },
-    { "text": "Oui. Travailler sans pause permet toujours d’en faire plus.", "misconception": "push-through" },
-    { "text": "Oui. Consulter votre téléphone en travaillant vous donne assez de repos.", "misconception": "phone" }
+    { "text": "Elles enlèvent du temps à la tâche, donc vous accomplissez moins.", "misconception": "time-lost" },
+    { "text": "Elles interrompent votre réflexion, donc chaque reprise est plus lente.", "misconception": "momentum" },
+    { "text": "Elles aident surtout quand la fatigue s’installe, donc elles peuvent attendre.", "misconception": "tired" }
   ],
   "count": 2
 }

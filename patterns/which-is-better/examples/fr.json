@@ -1,5 +1,5 @@
 {
-  "title": "Comparer deux messages d’absence",
+  "title": "Comparez deux messages d’absence",
   "context": "Vous êtes Sam Rivera. Vous êtes en congé pour une semaine, et la clientèle vous écrit au sujet de ses commandes.",
   "versions": {
     "a": {
@@ -28,7 +28,7 @@
   "better": "b",
   "qualities": [
     {
-      "question": "Quelle phrase indique exactement qui appeler pour une commande urgente ?",
+      "question": "Quelle phrase indique exactement à qui s’adresser quand la demande ne peut pas attendre ?",
       "sentence": 2,
       "reason": "Le nom et le numéro de Jo permettent d’agir dès aujourd’hui plutôt que dans une semaine. « Communiquer avec le bureau » ne donne ni nom ni numéro.",
       "note": "Qui appeler pour une commande urgente"

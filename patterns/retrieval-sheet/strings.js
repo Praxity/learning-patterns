@@ -1,7 +1,7 @@
 export const strings = {
   en: {
-    instruction: 'On your chosen date, answer from memory. Then check the back.',
-    dateLabel: 'Test myself on',
+    instruction: 'Answer from memory. Then check the back.',
+    dateLabel: 'Test yourself on',
     spacingLegend: 'When will you test yourself?',
     in2Days: 'In 2 days',
     in1Week: 'In 1 week',
@@ -18,12 +18,12 @@ export const strings = {
     answers: 'Answers',
     backInstruction: 'Check your answers. Review what you missed.',
     print: 'Print the sheet',
-    printHint: 'Questions print first, then answers. For one double-sided sheet, choose the long-edge flip in your print settings.',
+    printHint: 'To print one double-sided sheet, choose two-sided printing and "Flip on long edge" in your print settings.',
     printing: 'Print dialog opened.'
   },
   fr: {
-    instruction: "À la date choisie, répondez de mémoire. Vérifiez ensuite au verso.",
-    dateLabel: 'Me tester le',
+    instruction: 'Répondez de mémoire. Vérifiez ensuite au verso.',
+    dateLabel: 'Testez-vous le',
     spacingLegend: 'Quand voulez-vous vous tester ?',
     in2Days: 'Dans 2 jours',
     in1Week: 'Dans 1 semaine',
@@ -38,9 +38,9 @@ export const strings = {
     back: 'Verso',
     questions: 'Questions',
     answers: 'Réponses',
-    backInstruction: 'Vérifiez vos réponses. Revoyez ce que vous avez manqué.',
+    backInstruction: 'Vérifiez vos réponses. Revoyez celles qui vous ont échappé.',
     print: 'Imprimer la feuille',
-    printHint: "Les questions s’impriment avant les réponses. Pour une feuille recto verso, choisissez le retournement sur le bord long dans les réglages d’impression.",
+    printHint: 'Pour imprimer une seule feuille recto verso, choisissez l’impression recto verso et « Retourner sur le bord long » dans les réglages d’impression.',
     printing: "La boîte de dialogue d’impression est ouverte."
   }
 };
