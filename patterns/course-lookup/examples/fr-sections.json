@@ -20,7 +20,7 @@
     {
       "id": "boundaries",
       "title": "Fixez vos limites",
-      "summary": "Refusez du travail de plus et proposez une solution que vous pouvez gérer."
+      "summary": "Refusez du travail supplémentaire et proposez une solution que vous pouvez gérer."
     },
     {
       "id": "conflict",
@@ -30,7 +30,7 @@
     {
       "id": "practice",
       "title": "Préparez un plan d’action",
-      "summary": "Choisissez trois actions observables et décidez quand les pratiquer au travail."
+      "summary": "Choisissez trois actions observables et décidez quand les mettre en pratique au travail."
     }
   ],
   "seeds": [
@@ -42,7 +42,7 @@
     },
     {
       "id": "nerves",
-      "question": "Comment vous exercer quand vous êtes nerveux?",
+      "question": "Comment faites-vous pour vous exercer malgré la nervosité?",
       "author": "learner",
       "answer": "J’ai fait ma première demande à une collègue en qui j’ai confiance. La suivante était plus facile."
     }

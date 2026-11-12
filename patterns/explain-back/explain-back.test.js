@@ -64,8 +64,8 @@ test('server HTML is escaped, prefixed, bilingual and usable without JavaScript'
 test('the return and stonewalling lines say only what the learner wrote', async () => {
   const fr = JSON.parse(await readFile(new URL('./examples/fr.json', import.meta.url)));
   const line = (c, id, mark) => c.ideas.find(idea => idea.id === id)[mark];
-  assert.equal(line(content, 'return', 'unsure'), "You said to come back. Say when, too: agree on a time so they aren't left waiting.");
+  assert.equal(line(content, 'return', 'unsure'), "It's unclear whether you said when to come back. Say that you agree on a time, so the other person isn't left waiting.");
   assert.equal(line(content, 'stonewalling', 'met'), 'You explained that stonewalling means going silent or withdrawing.');
-  assert.equal(line(fr, 'return', 'unsure'), "Vous avez dit de revenir. Précisez aussi quand : convenez d’un moment pour que l’autre personne ne reste pas à attendre.");
-  assert.equal(line(fr, 'stonewalling', 'met'), "Vous avez expliqué que l’évitement consiste à se taire ou à se retirer.");
+  assert.equal(line(fr, 'return', 'unsure'), "On ne sait pas si vous avez dit quand revenir. Précisez que vous convenez d’un moment, pour que l’autre personne ne reste pas à attendre.");
+  assert.equal(line(fr, 'stonewalling', 'met'), "Vous avez expliqué que la dérobade consiste à se taire ou à se retirer.");
 });

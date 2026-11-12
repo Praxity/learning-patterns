@@ -4,11 +4,11 @@
   "unit": "calls a day",
   "top": 150,
   "step": 5,
-  "changeLabel": "Reset page live",
-  "realLabel": "Real calls",
-  "resultTitle": "Calls a day after the reset page went live",
-  "explanationLabel": "Why it levelled off:",
-  "explanation": "Most staff found the page within a month, so password calls fell from 45 a day to about 4. The other 75 calls a day were about other problems, and the page couldn't help with those.",
+  "changeLabel": "Password reset page goes live",
+  "realLabel": "Actual calls",
+  "resultTitle": "Calls a day after the password reset page went live",
+  "explanationLabel": "Why calls levelled off:",
+  "explanation": "Most staff found the page within a month, so password calls fell from 45 a day to about 4. The remaining 75 calls a day were about other problems, which the page couldn't solve.",
   "source": "IT help desk call log, December to July",
   "known": [
     {
@@ -55,11 +55,11 @@
     }
   ],
   "feedback": {
-    "changedDirection": "Your line changed direction; the real line fell then levelled off.",
-    "fell": "Your line fell; the real line fell then levelled off.",
-    "rose": "Your line rose; the real line fell then levelled off.",
-    "flat": "Your line stayed flat; the real line fell then levelled off.",
-    "fellThenFlat": "Your line fell then levelled off, as the real line did.",
-    "roseThenFlat": "Your line rose then levelled off; the real line fell then levelled off."
+    "changedDirection": "Your line changed direction. The actual line fell, then levelled off.",
+    "fell": "Your line kept falling. The actual line fell, then levelled off.",
+    "rose": "Your line rose. The actual line fell, then levelled off.",
+    "flat": "Your line stayed flat. The actual line fell, then levelled off.",
+    "fellThenFlat": "Your line fell, then levelled off, as the actual line did.",
+    "roseThenFlat": "Your line rose, then levelled off. The actual line fell, then levelled off."
   }
 }

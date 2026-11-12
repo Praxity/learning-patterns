@@ -134,7 +134,7 @@ test('French render and strings use identical keys and placeholders', () => {
   for (const key of Object.keys(strings.en)) assert.deepEqual(strings.en[key].match(/\{\w+\}/g), strings.fr[key].match(/\{\w+\}/g));
   const output = render(french, strings.fr, { id: 'fr', lang: 'fr' });
   assert.ok(output.includes('lang="fr"'));
-  assert.ok(output.includes('Estimez à partir des registres du bureau'));
+  assert.ok(output.includes('Estimez les chiffres de votre bureau'));
   assert.ok(output.includes('26\u202f000') || output.includes('26\u00a0000'));
   assert.ok(output.includes('100 à 1\u00a0000') || output.includes('100 à 1\u202f000'));
 });
@@ -202,14 +202,14 @@ test('formatting replaces placeholders once and localizes numbers and ratios', (
   assert.equal(numberText(1.5, 'fr'), '1,5');
   const expected = {
     en: {
-      10: 'Slide each range to hold your estimate. Each range is limited to ten times its low end.',
-      100: 'Slide each range to hold your estimate. Each range is limited to 100 times its low end.',
-      1000: 'Slide each range to hold your estimate. Each range is limited to 1,000 times its low end.'
+      10: 'Slide each range to where you think the answer is. The top of a range is at most ten times the bottom.',
+      100: 'Slide each range to where you think the answer is. The top of a range is at most 100 times the bottom.',
+      1000: 'Slide each range to where you think the answer is. The top of a range is at most 1,000 times the bottom.'
     },
     fr: {
-      10: 'Faites glisser chaque plage pour y inclure votre estimation. Chaque plage est limitée à dix fois sa borne inférieure.',
-      100: 'Faites glisser chaque plage pour y inclure votre estimation. Chaque plage est limitée à 100 fois sa borne inférieure.',
-      1000: 'Faites glisser chaque plage pour y inclure votre estimation. Chaque plage est limitée à 1\u00a0000 fois sa borne inférieure.'
+      10: 'Faites glisser chaque plage là où se trouve la réponse, selon vous. Le haut d’une plage vaut au plus dix fois le bas.',
+      100: 'Faites glisser chaque plage là où se trouve la réponse, selon vous. Le haut d’une plage vaut au plus 100 fois le bas.',
+      1000: 'Faites glisser chaque plage là où se trouve la réponse, selon vous. Le haut d’une plage vaut au plus 1\u00a0000 fois le bas.'
     }
   };
   for (const lang of ['en', 'fr']) {

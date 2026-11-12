@@ -1,7 +1,7 @@
 ---
 title: Draw your guess
 title_fr: Tracez votre estimation
-summary: Set the next few points of a line chart, then see the real line over your guess.
+summary: Set the next few points of a line chart, then see the actual line over your guess.
 section: question
 ai: no
 offline: yes
@@ -9,7 +9,7 @@ learners: not tried
 ---
 # Draw your guess
 
-Set the next few points of a line chart, then see the real line over your guess.
+Set the next few points of a line chart, then see the actual line over your guess.
 
 ## Use it when
 
@@ -28,7 +28,7 @@ Write the question, unit, three to six known points and three to six points to g
 
 1. The learner reads a short context and sees the known points on the chart.
 2. They guess a point for each remaining month by tapping its column or dragging across the columns. On a keyboard, they tab to each month and use the arrow keys, Home and End.
-3. Once every month has a point, "Show the real line" draws the real data over their guess, with an explanation and a summary.
+3. Once every month has a point, "Show the actual line" draws the actual data over their guess, with an explanation and a summary.
 4. "Try again" clears the guesses.
 
 ## Evidence
@@ -80,11 +80,11 @@ Titles and labels allow 120 characters, the question 400, and context, explanati
 | `format(template, values)` | String with known placeholders replaced once; inserted text stays literal. |
 | `trends` | The six supported comparison keys in the order listed above. |
 
-Trend comparison starts at the last known point. Both positive and negative changes mean `changedDirection`. All zero changes mean `flat`. Otherwise the line rose or fell; a final zero change adds `ThenFlat`. Real values supply the overlay and signed differences; authors describe their shape in the six feedback messages. The sample keeps "fell then levelled off" for the gradual flattening of its real line.
+Trend comparison starts at the last known point. Both positive and negative changes mean `changedDirection`. All zero changes mean `flat`. Otherwise the line rose or fell; a final zero change adds `ThenFlat`. Real values supply the overlay and signed differences; authors describe their shape in the six feedback messages. The sample keeps "fell, then levelled off" for the gradual flattening of its real line.
 
 The guess line stops at the first unset point, while each set point remains visible. An untouched slider starts at the last known value, snapped to the step, so the first arrow press moves from there. Real squares draw after guess circles so matching values remain distinguishable. Axis ticks use multiples of the authored step, including zero and the scale's top. Displayed numbers use `Intl.NumberFormat` with `fr-CA` for French and `en-CA` otherwise, preserving real-value precision.
 
-Without JavaScript, learners see the context and known line. Open "Show the real values" for all known and future values, the explanation and source. JavaScript-dependent controls stay hidden.
+Without JavaScript, learners see the context and known line. Open "Show the actual values" for all known and future values, the explanation and source. JavaScript-dependent controls stay hidden.
 
 Optional `state: { read, write }` stores `{ guesses: (number | null)[], shown: boolean }`. Invalid saved values are ignored. Input, check and Try again write state; host errors propagate. Repeated enhancement returns the same instance. `destroy()` removes listeners, cancels focus moves, unlocks controls and restores the native answer disclosure. Try again resets the existing DOM.
 

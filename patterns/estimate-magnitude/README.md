@@ -29,7 +29,7 @@ Write three to five questions, with answers and sources. Give enough context to 
 
 1. The learner reads a short context and three to five questions with numeric answers.
 2. For each question, they place a range on a logarithmic scale by dragging it, tapping the track, or using the arrow keys, Home and End.
-3. "Check my ranges" marks each real answer on its track, says "Caught" or "Missed", gives the source, and counts how many ranges caught their answer.
+3. "Check my ranges" marks each real answer on its track, says whether it is in the range, below it or above it, gives the source, and counts the answers that fell inside their ranges.
 4. "Try again" resets the ranges.
 
 ## Evidence

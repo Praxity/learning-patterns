@@ -44,7 +44,7 @@ for (const [values, trend] of [
 
 test('comparison returns signed differences without rounding real measurements', () => {
   assert.deepEqual(compare(content, [95, 85, 80, 80]).differences, [0, 1, 0, 1]);
-  assert.equal(compare(content, [100, 90, 80, 80]).summary, 'Your line fell then levelled off, as the real line did.');
+  assert.equal(compare(content, [100, 90, 80, 80]).summary, 'Your line fell, then levelled off, as the actual line did.');
   for (const guesses of [[], [5], [null, 5, 5, 5], [151, 5, 5, 5], [5, 5, 5, 79], [NaN, 5, 5, 5]]) assert.throws(() => compare(content, guesses), /guesses/);
 });
 
@@ -115,7 +115,7 @@ test('no-JavaScript markup contains every real value, explanation and source, an
   for (const point of [...content.known, ...content.future]) { assert.ok(fallback.includes(point.name)); assert.ok(fallback.includes(`<td>${point.value}</td>`)); }
   assert.ok(fallback.includes('password calls fell from 45 a day to about 4'));
   assert.ok(fallback.includes('IT help desk call log, December to July'));
-  assert.ok(fallback.includes('<caption>Real calls</caption>'));
+  assert.ok(fallback.includes('<caption>Actual calls</caption>'));
   assert.match(markup, /<fieldset class="lp-draw-your-guess-fieldset">/);
   assert.match(markup, /data-lp-future hidden/); assert.match(markup, /data-lp-check hidden/); assert.match(markup, /data-lp-try-again hidden/);
   const ids = [...markup.matchAll(/ id="([^"]+)"/g)].map(match => match[1]);

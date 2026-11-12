@@ -4,12 +4,12 @@
   "case": "Ma page de facturation affiche une facture au nom de Dana Okafor, carte se terminant par 4411. C’est mon nom. J’y vois des frais de 40 $ que je ne reconnais pas.",
   "question": "Où envoyez-vous ce message ?",
   "options": [
-    { "id": "billing", "text": "Facturation" },
-    { "id": "security", "text": "Sécurité" },
-    { "id": "ask", "text": "Réponse pour demander des précisions" }
+    { "id": "billing", "text": "À la facturation" },
+    { "id": "security", "text": "À la sécurité" },
+    { "id": "ask", "text": "À la personne qui l’a écrit, pour lui demander des précisions" }
   ],
   "correct": "billing",
-  "explanation": "La facture est bien celle de la personne qui écrit. Sa question porte donc sur des frais, et la facturation les vérifie.",
+  "explanation": "La facture est bien celle de la personne qui écrit. Sa question porte donc sur des frais, et la facturation les vérifie. Le message nomme déjà la facture et les frais, donc vous n’avez pas besoin de demander des précisions.",
   "changes": [
     {
       "from": "C’est mon nom.",
@@ -21,7 +21,7 @@
       "from": "40 $",
       "to": "400 $",
       "correct": "billing",
-      "explanation": "Un montant plus élevé reste des frais sur la facture de la personne qui écrit, donc le message va à la facturation."
+      "explanation": "Même plus élevés, ce sont toujours des frais sur la facture de la personne qui écrit. Le message va donc à la facturation."
     }
   ],
   "rule": "Un message va à la sécurité quand la personne a vu les renseignements de quelqu’un d’autre, et à la facturation quand les frais figurent sur sa propre facture, quel que soit le montant."

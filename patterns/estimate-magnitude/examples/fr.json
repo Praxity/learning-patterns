@@ -1,15 +1,15 @@
 {
-  "title": "Estimez à partir des registres du bureau",
-  "context": "Votre bureau compte 120 employés. Chaque réponse ci-dessous provient de ses registres.",
+  "title": "Estimez les chiffres de votre bureau",
+  "context": "Votre bureau compte 120 personnes.",
   "questions": [
     {
-      "question": "Combien d’employés sont absents pour maladie lors d’une journée typique?",
-      "unit": "employés",
+      "question": "Combien de personnes sont absentes pour maladie lors d’une journée typique?",
+      "unit": "personnes",
       "answer": 4,
       "source": "Registre des absences du bureau."
     },
     {
-      "question": "Combien de demandes de soutien informatique les employés ont-ils soumises le mois dernier?",
+      "question": "Combien de demandes de soutien informatique le personnel a-t-il soumises le mois dernier?",
       "unit": "demandes",
       "answer": 140,
       "source": "Registre mensuel du soutien informatique."

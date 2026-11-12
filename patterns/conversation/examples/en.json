@@ -10,37 +10,37 @@
     "acknowledge": {
       "line": "I need to know what changed and how we will avoid another last-minute change.",
       "endings": {
-        "acknowledge": "OK. If you check with me first, I can live with changes. Let's write that down.",
+        "acknowledge": "OK. If that's how changes will work, I can live with them. Let's write that down.",
         "defend": "Then nothing will change, and I'll keep redoing my work.",
         "attack": "I asked a fair question. I'll take this to the team lead.",
         "withdraw": "So we're leaving it. Then it'll happen again next month.",
-        "pause": "Fine. This afternoon, then."
+        "pause": "Fine. Come back to me when you've thought it through."
       },
-      "move": "You acknowledged the impact",
-      "debrief": "Accepting your part helps you and Michel agree what to do next."
+      "move": "Your reply acknowledged the effect on Michel",
+      "debrief": "Accepting your part helps you and Michel agree on what to do next."
     },
     "defend": {
       "line": "I hear your reasons, but I still had to redo my work. What will you do differently?",
       "endings": {
         "acknowledge": "Thank you. That's what I needed. Let's look at the new order together.",
         "defend": "Then this will keep happening, and I'll keep paying for it.",
-        "attack": "A few hours of my work. I'm done with this conversation.",
-        "withdraw": "Fine. Next item.",
-        "pause": "OK. Ten minutes."
+        "attack": "There's no need to talk to me like that. I'm done with this conversation.",
+        "withdraw": "Fine. We'll leave it.",
+        "pause": "OK. Take the time you need, then come back to me."
       },
-      "move": "You defended the change",
-      "debrief": "Blaming someone else doesn't resolve Michel's extra work."
+      "move": "Your reply defended the change",
+      "debrief": "Defending the change doesn't deal with the work Michel had to redo."
     },
     "attack": {
       "line": "I'm trying to talk about the plan. Can we discuss that without attacking each other?",
       "endings": {
-        "acknowledge": "Thank you. Then let's agree how changes work from now on.",
-        "defend": "It didn't sound like facts to me. Let's leave it for now.",
+        "acknowledge": "Thank you. Then let's agree on how changes work from now on.",
+        "defend": "It sounded like an attack to me. Let's leave it for now.",
         "attack": "I'm not doing this. Talk to me when you can be civil.",
         "withdraw": "Then I'll raise it with the team lead.",
-        "pause": "Yes. Three o'clock."
+        "pause": "Yes. Let's take a break and come back to it."
       },
-      "move": "You attacked Michel",
+      "move": "Your reply attacked Michel",
       "debrief": "Attacking Michel makes it harder to agree on the plan."
     },
     "withdraw": {
@@ -50,10 +50,10 @@
         "defend": "I redid hours of work. I'm not letting this go.",
         "attack": "I asked a simple question. I'll take this to the team lead.",
         "withdraw": "Right.",
-        "pause": "OK. After lunch, then."
+        "pause": "OK. I'll wait for you to come back to me."
       },
-      "move": "You closed the conversation",
-      "debrief": "Ending the discussion without agreeing to return leaves the problem unresolved."
+      "move": "Your reply ended the conversation",
+      "debrief": "Ending the discussion without agreeing to come back to it leaves the problem unresolved."
     },
     "pause": {
       "line": "All right. Let's take ten minutes and come back to agree on the plan.",
@@ -62,10 +62,10 @@
         "defend": "So the break changed nothing.",
         "attack": "Then the break was pointless.",
         "withdraw": "You said we'd come back to this. Leaving it is exactly the problem.",
-        "pause": "Tomorrow at nine, then. I'll hold you to it."
+        "pause": "One more break, then. I'll hold you to it."
       },
-      "move": "You asked for a pause",
-      "debrief": "Agreeing when to return gives you time to think without ending the discussion."
+      "move": "Your reply asked for a pause",
+      "debrief": "Agreeing on when to come back gives you time to think without ending the discussion."
     }
   },
   "examples": {

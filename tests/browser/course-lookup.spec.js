@@ -481,7 +481,7 @@ for (const lang of ['en', 'fr']) test(`bank shows the latest ten, expands and us
   await expect(bank.locator('li:visible').last().getByRole('button')).toHaveAccessibleName(lang === 'fr' ? 'Retirer la question 102' : 'Remove question 102');
   await expect(bank.locator('li:visible').last().getByRole('button')).toHaveText(lang === 'fr' ? 'Retirer la question' : 'Remove question');
   const toggle = root.locator('[data-lp-bank-toggle]');
-  await expect(toggle).toHaveAccessibleName(lang === 'fr' ? 'Tout afficher' : 'Show all');
+  await expect(toggle).toHaveAccessibleName(lang === 'fr' ? 'Afficher toutes les questions' : 'Show all questions');
   await toggle.focus(); await toggle.press('Enter');
   await expect(bank.locator('li:visible')).toHaveCount(102);
   await expect(toggle).toBeFocused(); await expect(toggle).toHaveAttribute('aria-expanded', 'true');

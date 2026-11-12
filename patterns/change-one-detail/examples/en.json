@@ -9,7 +9,7 @@
     { "id": "ask", "text": "Back to the customer for more detail" }
   ],
   "correct": "billing",
-  "explanation": "The bill is the customer's own, so this is a question about a charge. Billing reviews it.",
+  "explanation": "The bill is the customer's own, so this is a question about a charge, and billing reviews charges. The message already names the bill and the charge, so you don't need more detail.",
   "changes": [
     {
       "from": "That is my name.",

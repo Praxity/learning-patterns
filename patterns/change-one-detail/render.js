@@ -15,9 +15,10 @@ export function render(content, strings, { id, lang }) {
   const quote = (/** @type {import('./logic.js').Round} */ round) => `<p class="lp-quote lp-change-one-detail-case">${round.parts.map(part =>
     part.kind === 'before' ? `<del><span class="lp-visually-hidden">${h(strings.before)} </span>${h(part.text)}</del> `
       : part.kind === 'now' ? `<ins><span class="lp-visually-hidden">${h(strings.now)} </span>${h(part.text)}</ins>` : h(part.text)).join('')}</p>`;
+  // Under the first change the start is the only other version seen, so the reminder only helps from the second.
   const changed = (/** @type {import('./logic.js').Round} */ round, /** @type {number} */ i) => `<h3 class="lp-run-in">${h(i === 1 ? strings.changeFirst : strings.changeNext)}</h3>
     ${quote(round)}
-    <p class="lp-small">${h(strings.same)}</p>`;
+    ${i > 1 ? `<p class="lp-small">${h(strings.same)}</p>` : ''}`;
   const verdict = (/** @type {import('./logic.js').Round} */ round) => round.moves === null ? '' : `<strong>${h(round.moves ? strings.moves : strings.stays)}</strong> `;
   return `<section class="lp lp-change-one-detail" data-lp-pattern="change-one-detail" lang="${html(lang)}">
   <h2 class="lp-heading">${h(content.title)}</h2>

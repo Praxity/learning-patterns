@@ -230,7 +230,7 @@ test('render escapes authored text and sets French typography', () => {
   assert.match(fr, /lang="fr"/);
   // A no-break space before ":" and "$", a narrow one before "?" and inside numbers.
   const wide = String.fromCharCode(0xa0), narrow = String.fromCharCode(0x202f);
-  assert.ok(fr.includes(`Que faites-vous${narrow}?`));
+  assert.ok(fr.includes(`Que devez-vous faire${narrow}?`));
   assert.ok(fr.includes(`total 1${narrow}700${wide}$`));
   assert.ok(fr.includes(`Étape 3${wide}: Payer seulement ce qui est arrivé`));
   assert.match(fr, /Vous faites 1 des 3 étapes\./);

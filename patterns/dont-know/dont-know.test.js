@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { DONT_KNOW, displayPoints, score, validateContent, validateState } from './logic.js';
 import { render } from './render.js';
+import { escapeHtml } from '../../lib/html.js';
 import { strings } from './strings.js';
 
 const content = JSON.parse(await readFile(new URL('./examples/en.json', import.meta.url)));
@@ -32,11 +33,11 @@ test('three money questions retain their text, answers and descriptive option id
   assert.equal(content.title, 'Money basics');
   assert.equal(french.title, "Les bases des finances personnelles");
   assert.deepEqual(content.questions.map(q => q.text), [
-    'What is an emergency fund for?',
+    'Which of these costs should an emergency fund cover?',
     'What usually happens if you pay only the minimum on your credit card each month?',
     'How does compound interest grow your savings?'
   ]);
-  assert.deepEqual(content.questions.map(q => q.correct), ['unexpected-expenses', 'longer-more-interest', 'interest-on-interest']);
+  assert.deepEqual(content.questions.map(q => q.correct), ['car-repair', 'longer-more-interest', 'interest-on-interest']);
   assert.deepEqual(french.questions.map(q => q.options.map(o => o.id)), content.questions.map(q => q.options.map(o => o.id)));
 });
 
@@ -44,9 +45,9 @@ test('score distinguishes right, wrong, unknown and unanswered, in question orde
   assert.deepEqual(score(content, all(q => q.correct)), { points: 3, total: 3, right: ['q1', 'q2', 'q3'], wrong: [], unknown: [], unanswered: [] });
   assert.deepEqual(score(content, all(q => q.options.find(o => o.id !== q.correct).id)), { points: -3, total: 3, right: [], wrong: ['q1', 'q2', 'q3'], unknown: [], unanswered: [] });
   assert.deepEqual(score(content, all(() => DONT_KNOW)), { points: 0, total: 3, right: [], wrong: [], unknown: ['q1', 'q2', 'q3'], unanswered: [] });
-  assert.deepEqual(score(content, { q1: 'unexpected-expenses', q2: 'no-interest', q3: DONT_KNOW }), { points: 0, total: 3, right: ['q1'], wrong: ['q2'], unknown: ['q3'], unanswered: [] });
+  assert.deepEqual(score(content, { q1: 'car-repair', q2: 'no-interest', q3: DONT_KNOW }), { points: 0, total: 3, right: ['q1'], wrong: ['q2'], unknown: ['q3'], unanswered: [] });
   // Three questions cannot hold right, wrong, unknown and unanswered at once, so unanswered gets its own case.
-  assert.deepEqual(score(content, { q1: 'unexpected-expenses', q2: 'no-interest' }), { points: 0, total: 3, right: ['q1'], wrong: ['q2'], unknown: [], unanswered: ['q3'] });
+  assert.deepEqual(score(content, { q1: 'car-repair', q2: 'no-interest' }), { points: 0, total: 3, right: ['q1'], wrong: ['q2'], unknown: [], unanswered: ['q3'] });
   assert.deepEqual(score(content, {} ).unanswered, ['q1', 'q2', 'q3']);
 });
 
@@ -54,14 +55,14 @@ test('authored points determine score and total, including fractions and negativ
   const authored = { ...content, points: { right: 2.5, wrong: -0.5, unknown: 0.25 } };
   assert.equal(score(authored, all(q => q.correct)).points, 7.5);
   assert.equal(score(authored, all(() => DONT_KNOW)).points, 0.75);
-  assert.equal(score(authored, { q1: 'unexpected-expenses', q2: 'no-interest', q3: DONT_KNOW }).points, 2.25);
+  assert.equal(score(authored, { q1: 'car-repair', q2: 'no-interest', q3: DONT_KNOW }).points, 2.25);
   assert.equal(score(authored, {}).total, 7.5);
   assert.equal(score({ ...content, points: { right: -2, wrong: -3, unknown: -2.5 } }, {}).total, -6);
 });
 
 test('score rejects invalid picks and unknown question keys rather than hiding them', () => {
   for (const picks of [null, [], { q1: null }, { q1: 3 }, { q1: 'maybe' }, { other: 'dont-know' }, { q1: undefined }]) assert.throws(() => score(content, picks), /picks|q1|other/);
-  const inherited = Object.create({ q1: 'unexpected-expenses' });
+  const inherited = Object.create({ q1: 'car-repair' });
   assert.deepEqual(score(content, inherited).unanswered, ['q1', 'q2', 'q3']);
 });
 
@@ -96,12 +97,12 @@ test('content validator and schema agree, with planted violations for every guar
 });
 
 test('saved state must have valid own picks, and shown results need complete answers', () => {
-  for (const value of [null, [], {}, { picks: [], shown: false }, { picks: { q1: 'bad' }, shown: false }, { picks: { other: DONT_KNOW }, shown: false }, { picks: { q1: 3 }, shown: false }, { picks: {}, shown: 'yes' }, { picks: {}, shown: true }, { picks: { q1: 'unexpected-expenses' }, shown: true }, { picks: {}, shown: false, extra: 1 }]) assert.equal(validateState(content, value), null);
+  for (const value of [null, [], {}, { picks: [], shown: false }, { picks: { q1: 'bad' }, shown: false }, { picks: { other: DONT_KNOW }, shown: false }, { picks: { q1: 3 }, shown: false }, { picks: {}, shown: 'yes' }, { picks: {}, shown: true }, { picks: { q1: 'car-repair' }, shown: true }, { picks: {}, shown: false, extra: 1 }]) assert.equal(validateState(content, value), null);
   const saved = { picks: all(() => DONT_KNOW), shown: true };
   assert.deepEqual(validateState(content, saved), saved);
   assert.notEqual(validateState(content, saved).picks, saved.picks);
   assert.deepEqual(validateState(content, { picks: {}, shown: false }), { picks: {}, shown: false });
-  assert.deepEqual(validateState(content, { picks: { q1: 'unexpected-expenses' }, shown: false }), { picks: { q1: 'unexpected-expenses' }, shown: false });
+  assert.deepEqual(validateState(content, { picks: { q1: 'car-repair' }, shown: false }), { picks: { q1: 'car-repair' }, shown: false });
 });
 
 test('render escapes text, strings and attributes; ids and radio groups are instance-specific', () => {
@@ -124,7 +125,7 @@ test('render escapes text, strings and attributes; ids and radio groups are inst
   assert.match(a, /data-lp-restart hidden/);
   assert.match(a, /<details[^>]*data-lp-fallback/);
   assert.equal((a.match(/type="radio"/g) || []).length, 12);
-  for (const q of content.questions) assert.ok(a.includes(q.explanation));
+  for (const q of content.questions) assert.ok(a.includes(escapeHtml(q.explanation)));
 });
 
 test('render explains authored scoring in words, including sign, zero, singular and plural in both languages', () => {

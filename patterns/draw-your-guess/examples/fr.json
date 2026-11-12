@@ -55,11 +55,11 @@
     }
   ],
   "feedback": {
-    "changedDirection": "Votre courbe change de direction; la courbe réelle descend puis se stabilise.",
-    "fell": "Votre courbe descend; la courbe réelle descend puis se stabilise.",
-    "rose": "Votre courbe monte; la courbe réelle descend puis se stabilise.",
-    "flat": "Votre courbe reste stable; la courbe réelle descend puis se stabilise.",
-    "fellThenFlat": "Votre courbe descend puis se stabilise, comme la courbe réelle.",
-    "roseThenFlat": "Votre courbe monte puis se stabilise; la courbe réelle descend puis se stabilise."
+    "changedDirection": "Votre courbe change de direction. La courbe réelle descend, puis se stabilise.",
+    "fell": "Votre courbe continue de descendre. La courbe réelle descend, puis se stabilise.",
+    "rose": "Votre courbe monte. La courbe réelle descend, puis se stabilise.",
+    "flat": "Votre courbe reste stable. La courbe réelle descend, puis se stabilise.",
+    "fellThenFlat": "Votre courbe descend, puis se stabilise, comme la courbe réelle.",
+    "roseThenFlat": "Votre courbe monte, puis se stabilise. La courbe réelle descend, puis se stabilise."
   }
 }

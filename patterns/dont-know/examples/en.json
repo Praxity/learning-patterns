@@ -2,34 +2,34 @@
   "title": "Money basics",
   "questions": [
     {
-      "id": "q1", "text": "What is an emergency fund for?",
+      "id": "q1", "text": "Which of these costs should an emergency fund cover?",
       "options": [
-        { "id": "unexpected-expenses", "text": "Covering unexpected expenses" },
-        { "id": "planned-holidays", "text": "Paying for planned holidays" },
-        { "id": "before-payday", "text": "Buying things before payday" }
+        { "id": "car-repair", "text": "Repairs after your car breaks down" },
+        { "id": "booked-vacation", "text": "A vacation you've booked for next summer" },
+        { "id": "down-payment", "text": "The down payment on your first home" }
       ],
-      "correct": "unexpected-expenses",
-      "explanation": "An emergency fund covers unexpected expenses, such as an urgent repair."
+      "correct": "car-repair",
+      "explanation": "An emergency fund is money set aside for costs you can't plan, such as a car repair after a breakdown or a sudden loss of income. A booked vacation and a down payment are planned costs, so you save for them separately."
     },
     {
       "id": "q2", "text": "What usually happens if you pay only the minimum on your credit card each month?",
       "options": [
-        { "id": "no-interest", "text": "You avoid all interest charges" },
-        { "id": "longer-more-interest", "text": "You take longer to repay and pay more interest" },
-        { "id": "balance-disappears", "text": "The remaining balance disappears" }
+        { "id": "no-interest", "text": "You avoid interest charges" },
+        { "id": "longer-more-interest", "text": "You pay interest for much longer" },
+        { "id": "late-fee", "text": "You pay a late fee each month" }
       ],
       "correct": "longer-more-interest",
-      "explanation": "Paying only the minimum usually means more time to repay and more interest."
+      "explanation": "The minimum payment covers the month's interest and only a small part of what you owe. The balance shrinks slowly, so you pay interest for much longer. Only paying the full balance avoids interest, and a late fee applies only when you pay less than the minimum."
     },
     {
       "id": "q3", "text": "How does compound interest grow your savings?",
       "options": [
-        { "id": "interest-on-interest", "text": "You earn interest on your savings and on past interest" },
+        { "id": "interest-on-interest", "text": "You earn interest on your deposits and on past interest" },
         { "id": "initial-savings-only", "text": "You earn interest only on the money you first saved" },
-        { "id": "fixed-growth", "text": "Your savings grow by the same fixed amount forever" }
+        { "id": "rising-rate", "text": "Your interest rate rises each year you leave the money in" }
       ],
       "correct": "interest-on-interest",
-      "explanation": "You earn interest on the money you saved and on interest already added."
+      "explanation": "Each time interest is paid, it is added to your savings, and the next interest is worked out on that larger amount. The rate can stay the same the whole time. Interest worked out only on the money you first saved is simple interest."
     }
   ],
   "points": { "right": 1, "wrong": -1, "unknown": 0 }

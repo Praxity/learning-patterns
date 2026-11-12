@@ -1,6 +1,6 @@
 {
-  "task": "A new manager asks you what stonewalling is and how to take a time-out instead. Explain it to them in two sentences.",
-  "model": "Stonewalling means going quiet or pulling away without saying why, so the other person feels ignored. In a time-out you tell them you need a pause, agree when you'll come back, and then come back.",
+  "task": "A new manager asks you what stonewalling is and how to take a time-out instead. Explain both to them in two sentences.",
+  "model": "Stonewalling means going quiet or pulling away without saying why, so the other person feels ignored. To take a time-out, you tell them you need one, agree when you'll come back, and then come back.",
   "ideas": [
     {
       "id": "stonewalling",
@@ -8,17 +8,17 @@
       "body": "Stonewalling is going silent, withdrawing or changing the subject without saying why. The other person feels ignored or rejected.",
       "label": "Stonewalling is withdrawing without saying why.",
       "met": "You explained that stonewalling means going silent or withdrawing.",
-      "missed": "Describe stonewalling: going silent, withdrawing or changing the subject without saying why.",
+      "missed": "Add what stonewalling is.",
       "unsure": "It's unclear whether you explained stonewalling. Describe what the person does."
     },
     {
       "id": "pause",
       "heading": "Taking a time-out",
-      "body": "Tell the other person you need a pause, instead of going silent. For example, \"I need ten minutes to think about this.\"",
-      "label": "You tell the other person you need a pause.",
-      "met": "You said to tell the other person you need a pause.",
+      "body": "Tell the other person you need a time-out, instead of going silent. For example, \"I need ten minutes to think about this.\"",
+      "label": "You tell the other person you need a time-out.",
+      "met": "You said to tell the other person you need a time-out.",
       "missed": "Add how a time-out starts.",
-      "unsure": "It's unclear whether you said to announce the pause."
+      "unsure": "It's unclear whether you said to announce the time-out. Say that you tell the other person you need one."
     },
     {
       "id": "return",
@@ -27,7 +27,7 @@
       "label": "You agree when to come back, and then come back.",
       "met": "You said to agree when to come back, and then come back.",
       "missed": "Add how a time-out ends.",
-      "unsure": "You said to come back. Say when, too: agree on a time so they aren't left waiting."
+      "unsure": "It's unclear whether you said when to come back. Say that you agree on a time, so the other person isn't left waiting."
     }
   ]
 }
