@@ -15,9 +15,7 @@ function fields(value, keys, path) {
   for (const key of keys) if (typeof value[key] !== 'string' || !value[key].length) throw new Error(`Invalid ${path}.${key}`);
 }
 
-/** The catalogue identities match the proxy's evaluated study beliefs.
- * @param {unknown} content @returns {asserts content is Content}
- */
+/** @param {unknown} content @returns {asserts content is Content} */
 export function validateContent(content) {
   validateTextLengths(content, {
     question: 400,
@@ -40,10 +38,8 @@ export function validateContent(content) {
   });
 }
 
-/** Select authored feedback, never model-written text.
- * @param {Content} content @param {unknown} answers @param {string} [model]
- * @returns {{ kind: Kind, heading: string, text: string }}
- */
+/** @param {Content} content @param {unknown} answers @param {string} [model]
+ * @returns {{ kind: Kind, heading: string, text: string }} */
 export function feedback(content, answers, model = '') {
   validateContent(content);
   if (!object(answers) || !object(answers.misconception)) throw new Error('Invalid answers.misconception');
@@ -58,7 +54,6 @@ export function feedback(content, answers, model = '') {
 }
 
 /** @param {unknown} value @returns {LearnerState | null} */
-// Drafts have no send limit; the host owns its total storage budget, as in write-distractors W00.
 export function validateState(value) {
   if (!object(value) || typeof value.answer !== 'string' || !Array.isArray(value.ticked) || value.ticked.some(id => typeof id !== 'string' || !MISCONCEPTION_KEYS.includes(id)) || new Set(value.ticked).size !== value.ticked.length) return null;
   return { answer: value.answer, ticked: [...value.ticked] };

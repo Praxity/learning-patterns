@@ -12,10 +12,8 @@ export const MAX_ANSWER = 2000;
 export const MAX_OPTION = 300;
 export const MAX_CUSTOM = 120;
 
-/** Error keys let the host pick an authored translation. Count UTF-16 units after trim.
- * @param {unknown} text
- * @returns {{ ok: true, text: string } | { ok: false, error: 'emptyAnswer' | 'longAnswer' }}
- */
+/** @param {unknown} text
+ * @returns {{ ok: true, text: string } | { ok: false, error: 'emptyAnswer' | 'longAnswer' }} */
 export function validateAnswer(text) {
   const trimmed = typeof text === 'string' ? text.trim() : '';
   if (!trimmed) return { ok: false, error: 'emptyAnswer' };
@@ -23,9 +21,7 @@ export function validateAnswer(text) {
   return { ok: true, text: trimmed };
 }
 
-/** Key A belongs to the right answer; wrong options start at index 1.
- * @param {number} index @returns {string}
- */
+/** @param {number} index @returns {string} */
 export function optionKey(index) {
   if (!Number.isSafeInteger(index) || index < 0) throw new Error('Invalid option index');
   let value = index + 1, label = '';
@@ -49,9 +45,7 @@ const normal = value => value.trim().replace(/\s+/g, ' ');
 /** @param {string} value */
 const key = value => normal(value).toLowerCase();
 
-/** Validate plain authored content and its misconception references.
- * @param {unknown} content @returns {asserts content is Content}
- */
+/** @param {unknown} content @returns {asserts content is Content} */
 export function validateContent(content) {
   if (!object(content)) throw new Error('Invalid content');
   fields(content, ['question', 'rightAnswer', 'misconceptions', 'authorOptions', 'count'], 'content');
@@ -85,11 +79,8 @@ function isOption(value) {
     && typeof value.misconception === 'string' && typeof value.custom === 'string';
 }
 
-/** Field errors use codes so every learner-facing message lives in strings.js.
- * Length is checked before normalization so whitespace consumes the option limit.
- * @param {Content} content @param {LearnerOption[]} options
- * @returns {{ ok: false, errors: FieldError[] } | { ok: true, options: LearnerOption[] }}
- */
+/** @param {Content} content @param {LearnerOption[]} options
+ * @returns {{ ok: false, errors: FieldError[] } | { ok: true, options: LearnerOption[] }} */
 export function validateOptions(content, options) {
   validateContent(content);
   if (!Array.isArray(options) || options.length !== content.count) throw new Error('Invalid options.count');
@@ -123,9 +114,7 @@ export function targetOf(content, option) {
   return target.label;
 }
 
-/** Compare tags, never infer a misconception from the learner's answer text.
- * @param {Content} content @param {LearnerOption[]} options
- */
+/** @param {Content} content @param {LearnerOption[]} options */
 export function coverage(content, options) {
   const checked = validateOptions(content, options);
   if (!checked.ok) throw new Error('Invalid options for coverage');
@@ -138,7 +127,6 @@ export function coverage(content, options) {
   const targets = checked.options.map(item => targetOf(content, item));
   /** @type {Map<string, string>} */
   const unique = new Map();
-  // Preserve the first spelling when two custom tags name the same misconception.
   for (const target of targets) if (!unique.has(key(target))) unique.set(key(target), target);
   return {
     targeted: [...unique.values()],
@@ -148,10 +136,8 @@ export function coverage(content, options) {
   };
 }
 
-/** Return comparison counts and labels; the host formats learner-facing text.
- * @param {Content} content @param {LearnerOption[]} options
- * @returns {{ authorTargeted: number, authorTotal: number, ownExtra: number, untargeted: string[] }}
- */
+/** @param {Content} content @param {LearnerOption[]} options
+ * @returns {{ authorTargeted: number, authorTotal: number, ownExtra: number, untargeted: string[] }} */
 export function coverageMessage(content, options) {
   const result = coverage(content, options);
   const authorTargeted = result.targeted.length - result.extra.length;
@@ -163,11 +149,7 @@ export function coverageMessage(content, options) {
   };
 }
 
-/** Accept incomplete drafts; shown results must pass submission validation.
- * Drafts have no storage ceiling; the host owns its total storage budget.
- * Oversized options lose comparison results. Oversized answers keep their full text and options but return to the answer step.
- * @param {Content} content @param {unknown} value @returns {LearnerState | null}
- */
+/** @param {Content} content @param {unknown} value @returns {LearnerState | null} */
 export function validateState(content, value) {
   validateContent(content);
   if (!object(value) || typeof value.shown !== 'boolean' || !Array.isArray(value.options) || value.options.length !== content.count) return null;

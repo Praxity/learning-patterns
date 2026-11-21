@@ -59,11 +59,9 @@ for (const keyboard of [false, true]) test(`complete check and new set using ${k
   await expect(page.locator('[data-lp-result]')).toHaveText('1 set, 2 of 3 facts placed right.');
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['2 of 3 right in this set. So far: 1 set, 2 of 3 facts placed right.']);
   const before = await facts.locator('legend').allTextContents();
-  // Safari needs fresh fieldsets to discard the previous facts' accessible names.
   const oldFacts = await facts.elementHandles();
   await expect(page.getByRole('button')).toHaveCount(1);
   if (keyboard) await page.keyboard.press('Enter'); else await page.locator('[data-lp-next]').click();
-  // The first answer of the new set takes focus, not the whole question group (NVDA read it all at once).
   await expect(page.locator('[data-lp-fact]').first().getByRole('radio').first()).toBeFocused();
   await expect(check).toBeVisible();
   await expect(page.locator('input:checked, input:disabled, [data-lp-mark]')).toHaveCount(0);
@@ -138,7 +136,6 @@ test('two-part content uses two columns without inline styles and stacks in narr
   for (const selector of ['.lp-prolific-questions-worked', '.lp-prolific-questions-fact']) {
     expect(await page.locator(selector).first().evaluate(el => new Set([...el.children].filter(child => child.getClientRects().length).map(child => Math.round(child.getBoundingClientRect().left))).size)).toBe(1);
   }
-  // Stacked rows keep each slot name beside its key, not pushed to the far edge.
   for (const choice of await page.locator('.lp-prolific-questions-fact .lp-choice').all()) {
     const keyGap = await choice.evaluate(label => {
       const style = getComputedStyle(label), key = getComputedStyle(label, '::before');
@@ -226,7 +223,6 @@ for (const lang of ['en', 'fr']) {
 for (const checked of [false, true]) test(`saved deck, order, picks and counts restore silently, checked=${checked}`, async ({ page }) => {
   const saved = { ...seed(), picks: checked ? [2, 0, 1] : [2, null, null], checked, completed: checked ? 1 : 0, placed: checked ? 3 : 0 };
   await open(page, 'en', saved);
-  // Regression guard for restore focus; lock's own specs prove that focus: false suppresses movement.
   await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
   expect(await page.evaluate(() => document.activeElement === document.body)).toBe(true);
   await expect(page.locator('input:checked')).toHaveCount(checked ? 3 : 1);
@@ -282,6 +278,5 @@ test('forced colours retains native radios and keyboard focus', async ({ page, b
   await page.keyboard.press('Space'); await expect(radio).toBeChecked();
   await choose(page, [2, 0, 1]);
   await page.locator('[data-lp-check]').click();
-  // This mark layout belongs to the pattern's forced-colours rule, not base.css.
   expect(await page.locator('.lp-choice-mark').first().evaluate(el => getComputedStyle(el).flexBasis)).toBe('100%');
 });

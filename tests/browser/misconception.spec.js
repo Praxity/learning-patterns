@@ -73,7 +73,6 @@ for (const lang of ['en', 'fr']) {
       const expected = field === 'known' ? item.why : field === 'unsure' ? examples[lang].unsureMisconception.replaceAll('{idea}', item.idea).replaceAll('{why}', item.why) : examples[lang][field];
       await expect(page.locator('[data-lp-result]')).toContainText(expected);
       if (field === 'known') {
-        // The visible heading names the claim as a misconception, never the bare claim.
         await expect(page.locator('[data-lp-result] h3')).toHaveText(frenchTypography(strings[lang].misconceptionHeading.replaceAll('{label}', item.label), lang));
         await expect(page.locator('[data-lp-result] h3')).toHaveCSS('color', 'rgb(162, 74, 7)');
       } else await expect(page.locator('[data-lp-result] h3')).toHaveCount(0);
@@ -93,7 +92,6 @@ for (const lang of ['en', 'fr']) {
       await expect(page.locator('[data-lp-fallback]')).toBeHidden();
       await submit(page);
       await expect(page.locator('[data-lp-fallback] legend')).toContainText(strings[lang].common);
-      // The hint sits outside the legend and describes the group.
       await expect(page.locator('[data-lp-fallback] legend')).not.toContainText(strings[lang].fallback);
       const hint = page.locator('[data-lp-fallback] fieldset > p.lp-small');
       await expect(hint).toContainText(strings[lang].fallback);
@@ -155,7 +153,6 @@ for (const lang of ['en', 'fr']) test(`a pending check keeps its button and says
   await expect(status).toHaveText(busy);
   await expect(check).toBeFocused();
   await expect(check).toHaveAccessibleName(frenchTypography(strings[lang].check, lang));
-  // The visible note beside the button carries the wait on screen only.
   const note = page.locator('[data-lp-check] + span');
   await expect(note).toBeVisible();
   await expect(note).toHaveText(busy);
@@ -180,13 +177,11 @@ test('a stale result after the busy message clears it, and destroy cancels or cl
   await expect(status).toBeEmpty();
   await expect(note).toHaveCount(0);
   await expect(page.locator('[data-lp-result]')).toBeHidden();
-  // Destroy before the busy message: it never arrives.
   await submit(page);
   await page.evaluate(() => window.lpInstances[0].destroy());
   await page.waitForTimeout(1200);
   await expect(status).toBeEmpty();
   await expect(note).toHaveCount(0);
-  // Destroy after the busy message: the note goes too.
   await page.evaluate(() => { window.lpInstances[0] = window.lpEnhance(); });
   await expect(page.locator('[data-lp-check]')).toBeEnabled();
   await submit(page);

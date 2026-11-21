@@ -1,10 +1,9 @@
 import { validateTextLengths } from '../../lib/text-limits.js';
 /** @typedef {'a' | 'b'} Version */
 /** @typedef {{ question: string, sentence: number | null, reason: string, note: string }} Quality */
-/** An email: its body is paragraphs of sentences, and only body sentences can be picked.
- * @typedef {{ subject: string, greeting: string, body: string[][], signoff: string }} Email */
+/** @typedef {{ subject: string, greeting: string, body: string[][], signoff: string }} Email */
 /** @typedef {{ title: string, context: string, versions: { a: Email, b: Email }, better: Version, qualities: Quality[] }} Content */
-/** A pick is a sentence written as its version and number, such as "b2", or "neither". @typedef {string} Pick */
+/** @typedef {string} Pick */
 /** @typedef {{ at: number, picks: Pick[] }} LearnerState */
 
 export const NEITHER = 'neither';
@@ -63,31 +62,25 @@ export function validateContent(content) {
     if (!Object.hasOwn(quality, 'sentence')) throw new Error(`Invalid ${path}.sentence: give a number, or null for neither version`);
     const sentence = quality.sentence;
     if (sentence === null) return;
-    // The number counts sentences in the better version, so an answer can never sit in the weaker one.
     if (!Number.isInteger(sentence) || /** @type {number} */ (sentence) < 1 || /** @type {number} */ (sentence) > length) throw new Error(`Invalid ${path}.sentence: number a sentence in version ${content.better}`);
-    // The summary gives each highlighted sentence one note.
     if (used.has(sentence)) throw new Error(`Invalid ${path}.sentence: another quality already uses it`);
     used.add(sentence);
   });
-  // Without one, the summary would have nothing to highlight in the better version.
   if (used.size === 0) throw new Error('Invalid qualities: at least one must name a sentence');
 }
 
-/** An email's body sentences in reading order; a sentence's number counts from 1 in this list.
- * @param {Email} email */
+/** @param {Email} email */
 function sentences(email) {
   return email.body.flat();
 }
 
-/** The right pick for a quality. @param {Content} content @param {number} index @returns {Pick} */
+/** @param {Content} content @param {number} index @returns {Pick} */
 export function answer(content, index) {
   const sentence = content.qualities[index].sentence;
   return sentence === null ? NEITHER : `${content.better}${sentence}`;
 }
 
-/** Split a sentence pick into its version and 1-based number, or null for "neither" or anything unknown.
- * @param {Content} content @param {unknown} pick @returns {{ version: Version, sentence: number } | null}
- */
+/** @param {Content} content @param {unknown} pick @returns {{ version: Version, sentence: number } | null} */
 export function sentenceOf(content, pick) {
   const match = typeof pick === 'string' ? /^([ab])([1-9]\d*)$/.exec(pick) : null;
   if (!match) return null;
@@ -100,19 +93,14 @@ export function isPick(content, pick) {
   return pick === NEITHER || sentenceOf(content, pick) !== null;
 }
 
-/** A pick's name: the version a sentence is in, such as "Version B", or the Neither label.
- * @param {Content} content @param {import('./strings.js').Strings} strings @param {string} pick
- */
+/** @param {Content} content @param {import('./strings.js').Strings} strings @param {string} pick */
 export function pickName(content, strings, pick) {
   const sentence = sentenceOf(content, pick);
   if (!sentence) return strings.neither;
   return sentence.version === 'a' ? strings.versionA : strings.versionB;
 }
 
-/** The right answer as one line ending in punctuation, such as "Correct answer, in Version B: For an
- * urgent order, call …", or "Correct answer: Neither version does this."
- * @param {Content} content @param {import('./strings.js').Strings} strings @param {number} index
- */
+/** @param {Content} content @param {import('./strings.js').Strings} strings @param {number} index */
 export function answerText(content, strings, index) {
   const pick = answer(content, index), sentence = sentenceOf(content, pick);
   return sentence
@@ -120,9 +108,7 @@ export function answerText(content, strings, index) {
     : format(strings.correct, { answer: `${strings.neither}.` });
 }
 
-/** Score checked picks, in question order.
- * @param {Content} content @param {Pick[]} picks
- */
+/** @param {Content} content @param {Pick[]} picks */
 export function score(content, picks) {
   validateContent(content);
   if (!Array.isArray(picks) || picks.length > content.qualities.length) throw new Error('Invalid picks');
@@ -133,10 +119,7 @@ export function score(content, picks) {
   return { results, right: results.filter(Boolean).length, total: content.qualities.length, done: picks.length === content.qualities.length };
 }
 
-/** The better version's body, paragraph by paragraph, each sentence with the note of the quality it
- * shows, then the notes of the qualities neither version has.
- * @param {Content} content
- */
+/** @param {Content} content */
 export function summary(content) {
   validateContent(content);
   let n = 0;
@@ -150,10 +133,7 @@ export function summary(content) {
   };
 }
 
-/** Ignore invalid saved values and copy valid state. `at` is the open question, or the number of
- * questions once the summary shows. Every question before `at` is checked; `at` itself may be.
- * @param {Content} content @param {unknown} value @returns {LearnerState | null}
- */
+/** @param {Content} content @param {unknown} value @returns {LearnerState | null} */
 export function validateState(content, value) {
   if (!object(value) || Object.keys(value).some(key => key !== 'at' && key !== 'picks')) return null;
   const { at, picks } = value, total = content.qualities.length;
@@ -164,9 +144,7 @@ export function validateState(content, value) {
   return { at: open, picks: [...picks] };
 }
 
-/** Replace authored placeholders in a single pass so inserted content stays literal.
- * @param {string} template @param {Record<string, string | number>} values
- */
+/** @param {string} template @param {Record<string, string | number>} values */
 export function format(template, values) {
   return template.replace(/\{(\w+)\}/g, (token, key) => Object.hasOwn(values, key) ? String(values[key]) : token);
 }

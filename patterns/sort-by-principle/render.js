@@ -2,18 +2,14 @@ import { escapeHtml as html } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
 import { format, principleName, quoteParts, validateContent } from './logic.js';
 
-/** Every case in full, usable without JavaScript: each case is a radio group with its answer in a
- * disclosure. `enhance` shows one case at a time, checks each one and adds the result.
- * @param {import('./logic.js').Content} content
+/** @param {import('./logic.js').Content} content
  * @param {import('./strings.js').Strings} strings
- * @param {{ id: string, lang: string }} options
- */
+ * @param {{ id: string, lang: string }} options */
 export function render(content, strings, { id, lang }) {
   validateContent(content);
   const total = content.cases.length;
   /** @param {string} template @param {Record<string, string | number>} [values] */
   const t = (template, values = {}) => html(format(template, values), lang);
-  // Feedback sets each principle name it quotes in italics.
   const quoted = (/** @type {string} */ value) => quoteParts(content, value).map(part => part.principle ? `<em>${html(part.text, lang)}</em>` : html(part.text, lang)).join('');
   return `<section class="lp lp-sort-by-principle" data-lp-pattern="sort-by-principle" lang="${html(lang)}">
   <h2 class="lp-heading">${html(content.title, lang)}</h2>

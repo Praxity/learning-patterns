@@ -18,7 +18,6 @@
 }
 .lp-retrieval-sheet-tab[aria-selected="true"] { color: var(--lp-accent-ink); border-block-end-color: var(--lp-accent); }
 .lp-retrieval-sheet-pages { display: grid; gap: 24px; }
-/* The paper sheet can grow when text wraps or is enlarged. */
 .lp-retrieval-sheet-page {
   aspect-ratio: 210 / 297;
   padding: 32px;
@@ -47,8 +46,6 @@
 
 @page lp-retrieval-sheet { size: auto; margin: 12mm; }
 @media print {
-  /* The copied stylesheet hides host chrome without knowing its class names.
-     Ancestors of a sheet stay in flow. Multiple sheets print in document order. */
   body:has(.lp-retrieval-sheet) :not(.lp-retrieval-sheet, .lp-retrieval-sheet *, :has(.lp-retrieval-sheet)) { display: none !important; }
   body:has(.lp-retrieval-sheet), body:has(.lp-retrieval-sheet) :has(.lp-retrieval-sheet) {
     display: block !important;

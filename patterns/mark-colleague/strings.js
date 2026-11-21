@@ -1,4 +1,3 @@
-// {colleague} is the content's colleague name; {count}, {total} and {max} are numbers.
 export const strings = {
   en: {
     subject: 'Subject: {subject}',

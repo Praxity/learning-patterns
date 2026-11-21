@@ -56,7 +56,6 @@ test('quiz keys reserve A for the answer and continue after Z', () => {
   for (const index of [-1, 1.5, NaN, Infinity, Number.MAX_SAFE_INTEGER + 1, '1', null]) assert.throws(() => optionKey(index), /Invalid option index/);
 });
 
-// Check precisely the schema keywords and relational annotations this content uses.
 function matches(value, rule, root = value) {
   if (rule.type === 'object') {
     if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
@@ -77,7 +76,6 @@ function matches(value, rule, root = value) {
 test('example preserves the demo question, labels and author options with topic IDs', () => {
   assert.equal(content.question, 'How do short breaks affect a day of focused work?');
   assert.equal(content.rightAnswer, 'They give you time to recover, so you feel less tired.');
-  // No option shares an opening word with the correct answer alone, so form gives no cue to the key.
   assert.ok(content.authorOptions.every(item => item.text.split(' ')[0] === content.rightAnswer.split(' ')[0]));
   assert.ok(content.authorOptions.every(item => targetOf(content, item) !== item.text.replace(/\.$/, '')));
   assert.equal(content.count, 2);

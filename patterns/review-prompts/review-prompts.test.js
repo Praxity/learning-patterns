@@ -59,7 +59,6 @@ test('render includes an escaped article header, localized reading time, silent 
   }
 });
 
-// These are the schema keywords this content uses, including its uniqueness annotation.
 function matches(value, rule) {
   if (rule.type === 'object') {
     if (!value || typeof value !== 'object' || Array.isArray(value)) return false;

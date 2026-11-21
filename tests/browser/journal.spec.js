@@ -183,7 +183,6 @@ for (const lang of ['en', 'fr']) {
     test(`all questions and visible support when ask ${mode} (${lang})`, async ({ page }) => {
       await open(page, lang, [1, 1, 1, 1, 0], mode); await observe(page);
       if (mode !== 'missing') await submit(page);
-      // One way to the questions: the suggestion button hides and the disclosure opens.
       await expect(page.locator('[data-lp-suggest]')).toBeHidden();
       await expect(page.locator('[data-lp-questions]')).toHaveAttribute('open', '');
       await expect(page.locator('[data-lp-questions] li')).toHaveText(examples[lang].questions.map(q => q.text));
@@ -194,7 +193,6 @@ for (const lang of ['en', 'fr']) {
         ? 'Utilisez les questions pour réfléchir à votre entrée.'
         : 'Use the questions to reflect on your entry.');
       await expect(page.locator('[data-lp-result]')).toBeHidden();
-      // Without ask the questions are simply shown; a failed request announces the fallback once.
       expect(await page.evaluate(() => window.lpAnnouncements)).toHaveLength(mode === 'missing' ? 0 : 1);
       expect(await page.evaluate(() => window.lpTestCalls.length)).toBe(mode === 'missing' ? 0 : 1);
       await axe(page);
@@ -225,7 +223,6 @@ for (const mode of ['pending', 'pending-throws']) {
     await page.evaluate(() => window.lpResolve());
     await expect(page.locator('[data-lp-suggest]')).not.toHaveAttribute('aria-disabled');
     await expect(page.locator('[data-lp-result]')).toBeHidden();
-    // A failed request switches to the questions; a pending edit still hides the stale result.
     if (mode === 'pending') await expect(page.locator('[data-lp-questions]')).toBeHidden();
     else await expect(page.locator('[data-lp-questions]')).toBeVisible();
     await expect(page.locator('[data-lp-changed]')).toHaveText(examples.en.changed);
@@ -255,7 +252,6 @@ for (const lang of ['en', 'fr']) test(`a pending suggestion keeps its button and
   await expect(page.locator('[role="status"]')).toHaveText(frenchTypography(strings[lang].reading, lang));
   await expect(suggest).toBeFocused();
   await expect(suggest).toHaveAccessibleName(frenchTypography(strings[lang].suggest, lang));
-  // The visible note beside the button carries the wait on screen only.
   const note = page.locator('[data-lp-suggest] + span');
   await expect(note).toBeVisible();
   await expect(note).toHaveText(frenchTypography(strings[lang].reading, lang));
@@ -287,13 +283,11 @@ test('an authored result equal to the busy text stays in status, before and afte
   await observe(page);
   const status = page.locator('[role="status"]');
   await page.getByRole('textbox').fill('My reflection');
-  // Before the busy message: the result arrives at once.
   await page.locator('[data-lp-suggest]').click(); await page.evaluate(() => window.lpResolve());
   await expect(page.locator('[data-lp-result]')).toHaveText(strings.en.reading);
   await page.waitForTimeout(1200);
   await expect(status).toHaveText(strings.en.reading);
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([strings.en.reading]);
-  // After the busy message: the result replaces it with the same words.
   await page.locator('[data-lp-suggest]').click();
   await expect.poll(() => page.evaluate(() => window.lpAnnouncements.length)).toBe(2);
   await page.evaluate(() => window.lpResolve());
@@ -323,7 +317,6 @@ test('keyboard validates empty text, saves, suggests and opens native questions 
   await expect(page.locator('[data-lp-result]')).toBeVisible(); await expect(page.locator('[data-lp-suggest]')).toBeFocused();
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([strings.en.empty, examples.en.saved, examples.en.questions[2].text]);
   await open(page, 'en', [1, 1, 1, 1, 0], 'missing');
-  // Without ask there is no suggestion button; Tab goes from Save to the open questions.
   await page.locator('[data-lp-save]').focus(); await page.keyboard.press('Tab');
   await expect(page.locator('[data-lp-questions] summary')).toBeFocused(); await page.keyboard.press('Enter');
   await expect(page.locator('[data-lp-questions]')).not.toHaveAttribute('open'); await page.keyboard.press('Enter');

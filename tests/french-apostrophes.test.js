@@ -24,7 +24,6 @@ test('French catalogues, examples and shared notices use typographic apostrophes
       if (/^fr.*\.json$/.test(file)) check(JSON.parse(await readFile(new URL(file, examples), 'utf8')), `${entry.name}/examples/${file}`);
     }
   }
-  // The offline demo notices are literals inside the build script.
   const demo = await readFile(new URL('../scripts/build-demo.mjs', import.meta.url), 'utf8');
   for (const [, fr] of demo.matchAll(/fr: "([^"]*)"/g)) check(fr, 'scripts/build-demo.mjs');
   for (const [reason, messages] of Object.entries(CAP_MESSAGES)) check(messages.fr, `CAP_MESSAGES.${reason}`);

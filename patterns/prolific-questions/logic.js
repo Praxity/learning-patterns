@@ -38,8 +38,7 @@ export function validateContent(content) {
     labels.add(part.label);
   });
   const count = content.parts.length;
-  /** Each case stays complete and in part order; displayed facts may be shuffled.
-   * @param {unknown} value @param {string} path */
+  /** @param {unknown} value @param {string} path */
   function facts(value, path) {
     if (!Array.isArray(value) || value.length !== count) throw new Error(`Invalid ${path}: one fact per part`);
     Array.from(value).forEach((fact, i) => text(fact, `${path}[${i}]`));
@@ -67,8 +66,7 @@ function validDeck(value, count) {
     && Array.from(value.deck).every(n => index(n, count) && n !== value.last);
 }
 
-/** Shuffle a copy; the injected random source makes deal rules reproducible.
- * @template T @param {T[]} values @param {() => number} [random] @returns {T[]} */
+/** @template T @param {T[]} values @param {() => number} [random] @returns {T[]} */
 export function shuffle(values, random = Math.random) {
   const result = [...values];
   for (let i = result.length - 1; i > 0; i--) {
@@ -80,8 +78,7 @@ export function shuffle(values, random = Math.random) {
   return result;
 }
 
-/** Every case once before any repeats; a new round never starts with the case just shown.
- * @param {number} caseCount @param {Deck} [previous] @param {() => number} [random] @returns {Deck} */
+/** @param {number} caseCount @param {Deck} [previous] @param {() => number} [random] @returns {Deck} */
 export function deal(caseCount, previous = { deck: [], last: -1 }, random = Math.random) {
   if (!Number.isSafeInteger(caseCount) || caseCount < 2) throw new Error('Invalid caseCount');
   if (!validDeck(previous, caseCount)) throw new Error('Invalid deck');
@@ -90,8 +87,7 @@ export function deal(caseCount, previous = { deck: [], last: -1 }, random = Math
   return { deck, last: /** @type {number} */ (deck.pop()) };
 }
 
-/** Compare each displayed fact's part with the learner's choice. Null means unanswered.
- * @param {number[]} order @param {(number | null)[]} picks */
+/** @param {number[]} order @param {(number | null)[]} picks */
 export function score(order, picks) {
   if (!order.length || !permutation(order, order.length)) throw new Error('Invalid order');
   if (!Array.isArray(picks) || picks.length !== order.length || !Array.from(picks).every(n => n === null || index(n, order.length))) throw new Error('Invalid picks');
@@ -102,8 +98,7 @@ export function score(order, picks) {
   };
 }
 
-/** Format a checked set and its running count, choosing French plurals independently.
- * @param {import('./strings.js').Strings} strings
+/** @param {import('./strings.js').Strings} strings
  * @param {{ right: number, total: number, completed: number, placed: number }} counts */
 export function feedback(strings, { right, total, completed, placed }) {
   const placements = (placed < 2 ? strings.placedOne : strings.placedMany)
@@ -115,8 +110,7 @@ export function feedback(strings, { right, total, completed, placed }) {
   return { summary, announcement };
 }
 
-/** Ignore invalid saved values and copy valid arrays. Counts include the current set only when checked.
- * @param {Content} content @param {unknown} value @returns {LearnerState | null} */
+/** @param {Content} content @param {unknown} value @returns {LearnerState | null} */
 export function validateState(content, value) {
   const count = content.parts.length;
   if (!validDeck(value, content.cases.length) || value.last < 0) return null;

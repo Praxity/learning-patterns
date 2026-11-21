@@ -57,11 +57,9 @@ export function enhance(root, { content, strings, state }) {
       segment.hidden = values[i] === 0;
       segment.style.inlineSize = `${values[i] / content.total * 100}%`;
       const value = segment.querySelector('[data-lp-segment-value]');
-      // Only result labels may wrap, and only before a unit word: a number stays joined to % and to its digit groups.
       if (value) value.textContent = wrapUnits ? q(values[i]).replace(/\u00a0(?=\p{L})/gu, ' ') : q(values[i]);
     });
   }
-  // Value text widens to every option a push changed, so each new value is heard once through the slider.
   /** @param {number | null} [moved] @param {number[]} [changed] */
   function paint(moved = null, changed = []) {
     const values = shares(content, dividers);
@@ -129,7 +127,6 @@ export function enhance(root, { content, strings, state }) {
     split.classList.add('lp-split-by-proportion-pointer');
     inputs[i].focus({ preventScroll: true });
   };
-  // Tapping moves the nearest divider. At coincident dividers the tap side or drag direction chooses one.
   bar.addEventListener('pointerdown', event => {
     if (shown || inputs[0].disabled || event.button > 0 || drag) return;
     event.preventDefault();
@@ -180,7 +177,6 @@ export function enhance(root, { content, strings, state }) {
     result.querySelectorAll('[data-lp-mine], [data-lp-segment-value]').forEach(node => { node.textContent = ''; });
     split.classList.remove('lp-split-by-proportion-pointer');
     paint();
-    // Keep the focused action visible until the newly unlocked slider can receive focus.
     cancelFocus = focusAfterLayout(inputs[0], () => { again.hidden = true; }, lifetime.signal);
     status.textContent = text(strings.cleared);
     save();

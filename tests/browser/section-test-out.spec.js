@@ -21,14 +21,12 @@ async function observe(page) {
   await page.evaluate(() => {
     window.lpAnnouncements = [];
     new MutationObserver(records => records.forEach(record => {
-      // Clearing stale feedback produces no speech.
       if (record.target.textContent) window.lpAnnouncements.push(record.target.textContent);
     }))
       .observe(document.querySelector('[role="status"]'), { childList: true, characterData: true, subtree: true });
   });
 }
 async function scan(page) {
-  // Axe checks each completed panel, rather than sampling its entrance opacity.
   await page.waitForFunction(() => [...document.querySelectorAll('[data-lp-pattern]')].every(root => root.getAnimations({ subtree: true }).every(animation => animation.playState !== 'running')));
   expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()).violations).toEqual([]);
 }
@@ -129,7 +127,6 @@ test('keyboard validates only this panel, Back keeps picks, changes announce onc
   await page.keyboard.press('Enter');
   await expect(page.locator('[data-lp-question-error]:visible')).toHaveCount(1);
   await expect(page.locator('[data-lp-next]:visible')).toBeFocused();
-  // Only the radios carry the message; describing the fieldset as well made VoiceOver say it twice.
   const fieldset = page.locator('fieldset').first(), id = await fieldset.locator('input').first().getAttribute('aria-describedby');
   await expect(page.locator(`[id="${id}"]`)).toHaveText('Choose an answer');
   await expect(fieldset).not.toHaveAttribute('aria-describedby');
@@ -181,7 +178,6 @@ for (const [lang, content, correct, wrong, answer, summary, statuses] of [
     for (const n of [0, 1]) {
       await expect(qs.nth(n).locator('label:has(input:checked)')).toHaveAttribute('data-lp-mark', 'wrong');
       await expect(qs.nth(n).locator('label:has(input:checked) .lp-choice-mark')).toHaveText(wrong);
-      // The correct answer the learner didn't choose is neutral and dashed, not a green pick.
       await expect(qs.nth(n).locator(`label:has(input[value="${content.questions[n].correct}"])`)).toHaveAttribute('data-lp-mark', 'missed');
       await expect(qs.nth(n).locator(`label:has(input[value="${content.questions[n].correct}"]) .lp-choice-mark.lp-neutral`)).toHaveText(answer);
       await expect(qs.nth(n).locator(`label:has(input[value="${content.questions[n].correct}"])`)).toHaveCSS('border-top-style', 'dashed');
@@ -271,7 +267,6 @@ test('panels slide horizontally for 240ms, and reduced motion switches instantly
     document.querySelector('[data-lp-start]').click();
     const panel = document.querySelector('[data-lp-panel-heading]').parentElement;
     const animation = panel.getAnimations()[0];
-    // Capture entry in the same task as the click, before the 240 ms entrance can finish.
     animation.pause();
     return { from: animation.effect.getKeyframes()[0], duration: animation.effect.getTiming().duration };
   });

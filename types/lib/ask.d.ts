@@ -1,8 +1,5 @@
-/** Same-origin transport. No learner text is logged or kept by this client.
- * /config is read once, including failures. Create a new client to retry configuration.
- * @param {{ endpoint?: string, fetch?: typeof globalThis.fetch }} [options]
- * @returns {Ask}
- */
+/** @param {{ endpoint?: string, fetch?: typeof globalThis.fetch }} [options]
+ * @returns {Ask} */
 export function createAsk({ endpoint, fetch }?: {
     endpoint?: string;
     fetch?: typeof globalThis.fetch;

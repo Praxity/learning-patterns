@@ -83,7 +83,6 @@ export function enhance(root, { content, strings, state }) {
   function paint() {
     const now = stage();
     for (const name of NAMES) steps[name].fieldset.hidden = now !== name;
-    // The second step's legend carries the plan so far, so the sentence grows in one place.
     steps.will.stem.textContent = t(now === 'will' ? sentence(content, strings, record) : strings.willStem);
     stepsBox.hidden = now === 'done';
     add.hidden = now === 'done';
@@ -105,7 +104,6 @@ export function enhance(root, { content, strings, state }) {
     }
     const outcome = choose(content, name, picked.value);
     if (!outcome.ok) {
-      // A vague option stays in view with its reason and can't be chosen again; the others stay open.
       const row = /** @type {HTMLElement} */ (picked.closest('.lp-choice'));
       picked.checked = false; picked.disabled = true;
       row.dataset.lpVague = '';
@@ -115,7 +113,6 @@ export function enhance(root, { content, strings, state }) {
     }
     record = { ...record, [name]: picked.value };
     save();
-    // Focus reads the next step or the finished plan, so the status region stays quiet.
     status.textContent = '';
     paint();
     if (name === 'when') (steps.will.radios.find(radio => !radio.disabled) ?? steps.will.fieldset).focus();
@@ -129,7 +126,6 @@ export function enhance(root, { content, strings, state }) {
     calendar.disabled = problem !== null;
     save();
   });
-  // A past time is reported when the learner leaves the field, not on each keystroke.
   listen(start, 'change', () => {
     const past = startPast();
     showPast(past);
@@ -138,7 +134,6 @@ export function enhance(root, { content, strings, state }) {
   listen(calendar, 'click', () => {
     const time = startTime(), now = Date.now();
     if (startError(time, now)) {
-      // The time passed while the page was open.
       showPast(true); status.textContent = t(strings.past); start.focus(); calendar.disabled = true;
       return;
     }
@@ -146,7 +141,6 @@ export function enhance(root, { content, strings, state }) {
       plan: t(sentence(content, strings, record)), note: t(format(strings.eventNote, { title: content.title })),
       start: time, now, uid: `${now}-${Math.random().toString(36).slice(2)}@if-then-plan`
     });
-    // The file is built in the browser; the plan is not sent anywhere.
     if (fileUrl) URL.revokeObjectURL(fileUrl);
     fileUrl = URL.createObjectURL(new Blob([file], { type: 'text/calendar;charset=utf-8' }));
     const link = Object.assign(root.ownerDocument.createElement('a'), { href: fileUrl, download: strings.fileName, hidden: true });
@@ -171,7 +165,6 @@ export function enhance(root, { content, strings, state }) {
   start.value = record.start;
   fallback.hidden = true;
   paint();
-  // A restored past time explains the disabled button at once; leaving the unchanged field fires no change event.
   showPast(startPast());
   const instance = {
     destroy() {

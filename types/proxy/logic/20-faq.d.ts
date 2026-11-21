@@ -1,8 +1,5 @@
-/** Validate a complete Choice distribution, then choose at most two authored entries.
- * `none` winning always suppresses suggestions. Inclusive gates permit a split decision.
- * @param {unknown} answers @param {string[]} ids @param {number} gate
- * @returns {{ ids: string[] }}
- */
+/** @param {unknown} answers @param {string[]} ids @param {number} gate
+ * @returns {{ ids: string[] }} */
 export function selectLookup(answers: unknown, ids: string[], gate: number): {
     ids: string[];
 };

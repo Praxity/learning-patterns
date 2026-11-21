@@ -11,7 +11,6 @@ for (const lang of ['en', 'fr']) for (const kind of ['sections', 'faq']) {
     const unmatched = lang === 'fr' ? 'Quelle est la météo sur Mars' : 'What is the weather on Mars';
     const content = JSON.parse(await readFile(new URL(`../../patterns/course-lookup/examples/${lang}-sections.json`, import.meta.url), 'utf8'));
     const ids = kind === 'faq' ? faqIds : content.entries.map(entry => entry.id);
-    // The demo always selects its first entry. Inject fixed answers to exercise no-match too.
     await page.addInitScript(({ matched, ids }) => {
       window.lpAsk = async (block, { question }) => {
         const choice = block === '21-sections' && question === matched ? 'boundaries' : 'none';
@@ -56,7 +55,6 @@ for (const lang of ['en', 'fr']) for (const kind of ['sections', 'faq']) {
       }
       await writeFile(info.outputPath('journey-result.json'), JSON.stringify({ complete: true, pattern: 'course-lookup', kind, lang }));
     } catch (error) {
-      // A page or navigation finding is evidence, not a CI assertion failure.
       await writeFile(info.outputPath('journey-result.json'), JSON.stringify({ complete: false, pattern: 'course-lookup', kind, lang, error: error.stack }));
       await s.snapshot('blocked');
       console.error(`course-lookup ${kind} ${lang}: ${error.stack}`);

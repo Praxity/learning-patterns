@@ -48,7 +48,6 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     await expect(page.locator('[data-lp-comparison] li')).toHaveCount(4);
     expect((await page.locator('[data-lp-real]').getAttribute('points')).split(' ')).toHaveLength(8);
     await expect(sliders.first()).toHaveAttribute('aria-valuetext', lang === 'en' ? 'April: your guess 115, actual 95 calls a day' : 'avril\u00a0: votre estimation 115, valeur réelle 95 appels par jour');
-    // Record focus at the instant Try again is hidden, before any later focus can mask a gap.
     await page.evaluate(() => {
       const again = document.querySelector('[data-lp-try-again]');
       new MutationObserver(() => { if (again.hidden) window.lpFocusWhenRetryHidden = document.activeElement?.id; }).observe(again, { attributes: true, attributeFilter: ['hidden'] });
@@ -108,7 +107,6 @@ test('pointer taps and a drag across columns set points and preserve keyboard co
   await expect(page.getByRole('slider').last()).toBeFocused();
   await expect(page.locator('.lp-draw-your-guess-col').last()).toHaveCSS('outline-width', '3px');
   await expect(page.locator('[data-lp-chart]')).not.toHaveClass(/lp-draw-your-guess-pointer/);
-  // A host may move focus outside the chart without a keydown inside it.
   area = await page.locator('[data-lp-future]').boundingBox();
   await page.mouse.click(x(3), area.y + area.height / 2);
   await page.locator('[data-lp-check]').focus();
@@ -141,7 +139,6 @@ test('out-of-order guesses keep a gap in the line; Home and End reach boundaries
 test('the pattern itself sets Home and End, so they work when the browser default never runs', async ({ page }) => {
   await open(page);
   const june = page.getByRole('slider').nth(2);
-  // A synthetic keydown runs listeners but no default action, as when Safari with VoiceOver skipped End (VO run 2).
   const press = (/** @type {string} */ key, shiftKey = false) => june.evaluate((input, init) => input.dispatchEvent(new KeyboardEvent('keydown', { ...init, bubbles: true, cancelable: true })), { key, shiftKey });
   await press('End', true);
   await expect(june).toHaveAttribute('aria-valuetext', 'June, not set');
@@ -168,7 +165,6 @@ test('without JavaScript the answer disclosure contains all values and the sourc
 for (const shown of [false, true]) test(`valid saved state restores silently, shown=${shown}`, async ({ page }) => {
   await page.addInitScript(shown => { window.lpSeed = { guesses: [100, 90, 80, shown ? 80 : null], shown }; }, shown);
   await open(page); await expect(page.getByRole('slider').first()).toHaveValue('100');
-  // Lock defers focus by two frames. Wait past them before checking a silent restore.
   await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
   await expect(page.locator('body')).toBeFocused();
   await expect(page.locator('[role=status]')).toHaveText('');

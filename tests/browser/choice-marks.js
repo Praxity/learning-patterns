@@ -7,10 +7,8 @@ export async function expectChoiceMarks(page) {
     const results = [];
     for (const root of document.querySelectorAll('[data-lp-pattern]')) {
       const pattern = root.dataset.lpPattern, lang = root.lang;
-      // Explain-back's Found/To add/Not sure are explanation feedback, not answer marks.
       if (pattern === 'explain-back') continue;
       const { strings } = await import(`/patterns/${pattern}/strings.js`);
-      // Live-feedback's done/todo rows are not .lp-choice rows. Any other unknown mark value makes renderChoiceMark throw.
       for (const row of root.querySelectorAll('.lp-choice[data-lp-mark]')) {
         const kind = row.dataset.lpMark;
         const word = pattern === 'write-distractors'

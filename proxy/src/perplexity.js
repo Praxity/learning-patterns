@@ -1,7 +1,6 @@
 import { DEFAULT_MODEL } from './prices.js';
 import { PERPLEXITY_MAX_INPUT_TOKENS } from './limits.js';
 
-// Preserve the authored Jev wording. Decisions requires string instructions.
 export function perplexityRequest(state, questions) {
 	return { model: DEFAULT_MODEL, state, questions: Object.fromEntries(Object.entries(questions).map(([key, question]) => [key, {
 		...question,
@@ -12,7 +11,6 @@ export function perplexityRequest(state, questions) {
 function convertAnswers(data, questions) {
 	const valid = condition => { if (!condition) throw new Error('Invalid model response'); };
 	const probability = value => valid(Number.isFinite(value) && value >= 0 && value <= 1);
-	// Perplexity echoes the requested name, including after retiring and rerouting a version.
 	valid(data.model === DEFAULT_MODEL && data.answers && typeof data.answers === 'object' && !Array.isArray(data.answers));
 	valid(Object.keys(data.answers).length === Object.keys(questions).length);
 	return Object.fromEntries(Object.entries(questions).map(([key, question]) => {

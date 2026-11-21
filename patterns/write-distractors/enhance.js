@@ -50,7 +50,6 @@ export function enhance(root, { content, strings, state }) {
     },
     customWrap: /** @type {HTMLElement} */ (required(row, '[data-lp-custom-wrap]'))
   }));
-  // A throwing host read must not leave partially registered listeners.
   const saved = validateState(content, state?.read());
   let shown = false;
   let checkedAnswer = false;
@@ -66,7 +65,6 @@ export function enhance(root, { content, strings, state }) {
   }
   const options = () => fields.map(field => ({ text: field.inputs.text.value, misconception: field.inputs.misconception.value, custom: field.inputs.custom.value }));
   const save = () => state?.write({ answer: answer.value, hadIt, options: options(), shown });
-  // The error is linked only while it shows, so the field isn't described by a hidden message.
   function clearAnswerError() {
     answerError.hidden = true;
     answer.removeAttribute('aria-invalid'); answer.removeAttribute('aria-describedby');
@@ -126,7 +124,6 @@ export function enhance(root, { content, strings, state }) {
         ${renderQuestionPreview(content, strings, content.authorOptions, { author: true , lang: root.lang })}
       </div>`;
     result.hidden = false; clear.hidden = false; shown = true;
-    // A single replacement announces each submit, including an identical comparison.
     if (announce) status.textContent = frenchTypography(message, root.lang);
   }
   if (saved) {
@@ -183,7 +180,6 @@ export function enhance(root, { content, strings, state }) {
       for (const error of checked.errors) {
         const field = fields[error.option];
         const message = strings[error.code]
-          // Name the option by its visible letter (B, C…), not its position.
           .replaceAll('{n}', optionKey(error.option + 1))
           .replaceAll('{max}', String(error.field === 'text' ? MAX_OPTION : MAX_CUSTOM));
         field.errors[error.field].innerHTML = `${icons['alert-circle']}<span>${html(message, root.lang)}</span>`;
@@ -198,7 +194,6 @@ export function enhance(root, { content, strings, state }) {
     checked.options.forEach((option, index) => {
       for (const name of /** @type {const} */ (['text', 'misconception', 'custom'])) fields[index].inputs[name].value = option[name];
     });
-    // WebKit pointer clicks can leave focus in a builder that is about to hide.
     compare.focus(); show(checked.options, true); save();
   });
   listen(clear, 'click', () => {

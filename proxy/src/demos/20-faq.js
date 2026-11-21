@@ -1,6 +1,5 @@
 import { QUESTION_LIMIT } from '../../logic/20-faq.js';
 
-// The proxy owns the catalogue and wording. Browser requests contain only learner text.
 export const CATALOGUE = {
   deadline: 'When is the deadline? Finish Assertive at work within eight weeks of enrolment.',
   certificate: 'Will I get a certificate? Complete all six sections, including your action plan, to download a completion certificate.',

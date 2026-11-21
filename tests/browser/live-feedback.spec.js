@@ -56,13 +56,11 @@ async function open(page, { lang = 'en', mode = 'ok', two = false } = {}) {
       for (const record of records) if (record.target.textContent) window.lpAnnouncements.push(record.target.textContent);
     }).observe(document.querySelector('[role="status"]'), { childList: true, characterData: true, subtree: true });
   });
-  // Host and browser clocks can differ; freeze at a known future tick.
   const time = new Date(2026, 9, 6);
   await page.clock.install({ time });
   await page.clock.pauseAt(new Date(time.getTime() + 60_000));
 }
 const calls = page => page.evaluate(() => window.lpTestCalls.length);
-// Advance past the adaptive ceiling for checks whose exact timing is not under test.
 const settle = page => page.clock.runFor(900);
 const auto = async (page, text = draft, root = page) => {
   await root.getByRole('textbox').fill(text);
@@ -134,7 +132,6 @@ const summaryOf = (lang, count) => frenchTypography(strings[lang].summary.replac
 const completeOf = lang => frenchTypography(`${strings[lang].complete} ${strings[lang].summary.replace('{count}', '4').replace('{total}', '4')}`, lang);
 
 for (const lang of ['en', 'fr']) test(`typing after a pause at completion keeps every character (${lang})`, async ({ page }) => {
-  // A short viewport makes the page scrollable, so a Space that reached the page would move it.
   await page.setViewportSize({ width: 800, height: 300 });
   await open(page, { lang });
   const answer = page.getByRole('textbox');
@@ -143,7 +140,6 @@ for (const lang of ['en', 'fr']) test(`typing after a pause at completion keeps 
   await expect(page.locator('[data-lp-complete]')).toBeVisible();
   await page.clock.runFor(1500);
   await answer.press('End');
-  // With the box in full view, WebKit does not scroll to reveal the caret.
   await answer.evaluate(el => el.scrollIntoView({ block: 'center' }));
   const scrollY = await page.evaluate(() => scrollY);
   await page.keyboard.press('Space');
@@ -260,7 +256,6 @@ test('starting checklist uses four plain to-add rows, without a button', async (
   await expect(page.locator('[data-lp-items] > li [data-lp-item-text]')).toHaveText(examples.en.criteria.map(item => item.todo));
   await expect(page.locator('[data-lp-mark="todo"]')).toHaveCount(4);
   await expect(page.locator('.lp-live-feedback-bullet')).toHaveCount(4);
-  // The open circle is an icon, not a border on the line-tall bullet box, so it stays round.
   const circles = page.locator('[data-lp-mark="todo"] .lp-live-feedback-bullet .lp-icon');
   await expect(circles).toHaveCount(4);
   for (const circle of await circles.all()) {

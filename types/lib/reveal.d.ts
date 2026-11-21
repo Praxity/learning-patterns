@@ -1,4 +1,2 @@
-/** Show feedback, scrolling only if it crosses the viewport's visible bounds.
- * @param {HTMLElement} element
- */
+/** @param {HTMLElement} element */
 export function reveal(element: HTMLElement): void;

@@ -24,9 +24,7 @@ function text(value, field) {
   if (typeof value !== 'string' || !value.trim()) throw new Error(`Invalid ${field}`);
 }
 
-/** Validate authored content, including identities across every paragraph.
- * @param {unknown} content @returns {asserts content is Content}
- */
+/** @param {unknown} content @returns {asserts content is Content} */
 export function validateContent(content) {
   validateTextLengths(content, {
     title: 120,
@@ -64,17 +62,13 @@ export function validateContent(content) {
   if (!targets) throw new Error('Invalid paragraphs: at least one key is required');
 }
 
-/** Maximum selected chunks. Pass validated content.
- * @param {Content} content @returns {number}
- */
+/** @param {Content} content @returns {number} */
 export function markLimit(content) {
   return content.maxMarks ?? (content.paragraphs.flat().filter(chunk => chunk.key === true).length + (content.mode === 'key' ? 1 : 0));
 }
 
-/** Compare marks with the author's targets. Duplicate marks count once.
- * @param {Content} content @param {string[]} markedIds
- * @returns {{ found: number, total: number, marked: number, wrong: number, items: Outcome[] }}
- */
+/** @param {Content} content @param {string[]} markedIds
+ * @returns {{ found: number, total: number, marked: number, wrong: number, items: Outcome[] }} */
 export function check(content, markedIds) {
   validateContent(content);
   if (!Array.isArray(markedIds) || Array.from(markedIds).some(id => typeof id !== 'string')) throw new Error('Invalid markedIds');
@@ -94,9 +88,7 @@ export function check(content, markedIds) {
   };
 }
 
-/** Ignore invalid host state and copy valid marks.
- * @param {Content} content @param {unknown} value @returns {LearnerState | null}
- */
+/** @param {Content} content @param {unknown} value @returns {LearnerState | null} */
 export function validateState(content, value) {
   if (!object(value) || !Object.hasOwn(value, 'marked') || !Object.hasOwn(value, 'shown') || Object.keys(value).some(key => !['marked', 'shown'].includes(key)) || !Array.isArray(value.marked) || typeof value.shown !== 'boolean') return null;
   const known = new Set(content.paragraphs.flat().map(chunk => chunk.id));

@@ -1,20 +1,14 @@
-/** Content must describe the proxy's fixed three ideas, in lesson order.
- * @param {unknown} content @returns {asserts content is Content}
- */
+/** @param {unknown} content @returns {asserts content is Content} */
 export function validateContent(content: unknown): asserts content is Content;
-/** Choose authored lines. The proxy owns the confidence gate.
- * @param {Content} content @param {unknown} answers
- * @returns {{ count: number, total: number, allFound: boolean, items: FeedbackItem[] }}
- */
+/** @param {Content} content @param {unknown} answers
+ * @returns {{ count: number, total: number, allFound: boolean, items: FeedbackItem[] }} */
 export function feedback(content: Content, answers: unknown): {
     count: number;
     total: number;
     allFound: boolean;
     items: FeedbackItem[];
 };
-/** Restore drafts only, never persist automated judgments.
- * @param {unknown} value @returns {LearnerState | null}
- */
+/** @param {unknown} value @returns {LearnerState | null} */
 export function validateState(value: unknown): LearnerState | null;
 export { ANSWER_LIMIT };
 export type Idea = {

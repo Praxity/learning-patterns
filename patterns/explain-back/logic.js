@@ -16,9 +16,7 @@ function fields(value, keys, path) {
   for (const key of Object.keys(value)) if (!keys.includes(key)) throw new Error(`Invalid ${path}.${key}`);
 }
 
-/** Content must describe the proxy's fixed three ideas, in lesson order.
- * @param {unknown} content @returns {asserts content is Content}
- */
+/** @param {unknown} content @returns {asserts content is Content} */
 export function validateContent(content) {
   validateTextLengths(content, {
     task: 400,
@@ -39,10 +37,8 @@ export function validateContent(content) {
   });
 }
 
-/** Choose authored lines. The proxy owns the confidence gate.
- * @param {Content} content @param {unknown} answers
- * @returns {{ count: number, total: number, allFound: boolean, items: FeedbackItem[] }}
- */
+/** @param {Content} content @param {unknown} answers
+ * @returns {{ count: number, total: number, allFound: boolean, items: FeedbackItem[] }} */
 export function feedback(content, answers) {
   validateContent(content);
   if (!object(answers)) throw new Error('Invalid answers');
@@ -56,10 +52,7 @@ export function feedback(content, answers) {
   return { count, total: items.length, allFound: count === items.length, items };
 }
 
-/** Restore drafts only, never persist automated judgments.
- * @param {unknown} value @returns {LearnerState | null}
- */
-// Drafts have no send limit; the host owns its total storage budget, as in write-distractors W00.
+/** @param {unknown} value @returns {LearnerState | null} */
 export function validateState(value) {
   if (!object(value) || typeof value.answer !== 'string' || !Array.isArray(value.ticked) || value.ticked.some(id => typeof id !== 'string' || !IDEA_KEYS.includes(id)) || new Set(value.ticked).size !== value.ticked.length) return null;
   return { answer: value.answer, ticked: [...value.ticked] };

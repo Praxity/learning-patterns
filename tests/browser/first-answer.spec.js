@@ -14,7 +14,6 @@ test('shared scene spans the journal card and centres its tile on the prompt', a
     const geometry = await page.locator('.lp-scene').evaluate(el => {
       const scene = el.getBoundingClientRect(), card = el.parentElement.getBoundingClientRect();
       const tile = el.querySelector('.lp-scene-icon svg').getBoundingClientRect(), text = el.querySelector('div').getBoundingClientRect();
-      // Centred on the text up to two title lines, then level with the first two (lib/base.css).
       const title = el.querySelector('.lp-scene-title'), centre = Math.min(text.height / 2, title.getBoundingClientRect().top - text.top + parseFloat(getComputedStyle(title).lineHeight));
       return [scene.left - card.left, card.right - scene.right, tile.top + tile.height / 2 - text.top - centre];
     });
@@ -77,7 +76,6 @@ async function compare(root) {
 async function scan(page) {
   expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()).violations).toEqual([]);
 }
-// Exercise optional render placements through the exported interface, without new demo routes.
 async function mount(page, stages, value = undefined, mode = '') {
   await open(page);
   await page.evaluate(async ({ stages, value, mode }) => {
@@ -217,7 +215,6 @@ test('keyboard journey links blank errors and announces successful submissions o
   const errorId = await first.getAttribute('aria-describedby');
   await expect(page.locator(`[id="${errorId}"]`)).toHaveText('Write an answer first.');
   await page.keyboard.type('Stop interrupting me.');
-  // Feedback changes on submission, not typing.
   await expect(page.locator('[data-lp-first-error]')).toBeVisible();
   await page.keyboard.press('Tab'); await page.keyboard.press('Enter');
   await expect(page.locator('[data-lp-skip]')).toBeFocused(); await expect(page.locator('[data-lp-first-quote]')).toHaveText('Stop interrupting me.');
@@ -255,7 +252,6 @@ test('keyboard journey links blank errors and announces successful submissions o
 for (const path of ['/first-answer/en.html', '/first-answer/fr.html', '/first-answer/two.html']) {
   test(`axe at load, saved, end and comparison: ${path}`, async ({ page }) => {
     await open(page, path); await scan(page);
-    // The scaffold demo shares one host adapter; second instance sees its saved first.
     for (const root of await page.locator('[data-lp-pattern]').all()) await saveFirst(root);
     await scan(page);
     for (const root of await page.locator('[data-lp-pattern]').all()) {
@@ -307,7 +303,6 @@ for (const [lang, savedNote, summary] of [['en', 'It stays as you wrote it.', 'Y
     await expect(page.getByRole('checkbox').nth(2)).toBeChecked();
     await expect(page.locator('[data-lp-summary]')).toHaveText(summary);
     const date = await page.evaluate(({ lang, first }) => new Intl.DateTimeFormat(lang === 'fr' ? 'fr-CA' : lang, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(first)), { lang, first: FIRST });
-    // Canadian French writes times as 21 h 57, like the cards.
     if (lang === 'fr') expect(date).toMatch(/\d\s?h\s?\d/u);
     await expect(page.locator('[data-lp-panel-first-date]')).toHaveText(`${lang === 'en' ? 'Saved' : 'Enregistrée le'} ${date}`);
     await scan(page);
@@ -453,7 +448,6 @@ for (const lang of ['en', 'fr']) {
     await page.getByRole('textbox').fill('My offline draft');
     await expect(page.locator('[data-lp-fallback]')).toHaveText(lang === 'en' ? 'Saving your answer needs JavaScript.' : 'JavaScript est nécessaire pour enregistrer votre réponse.');
     await expect(page.getByRole('button')).toHaveCount(0); await expect(page.locator('[role="status"]')).toBeEmpty();
-    // Axe needs JavaScript. Audit the same server baseline with enhancement blocked.
     const auditContext = await browser.newContext(); const auditPage = await auditContext.newPage();
     await auditPage.route('**/enhance.js', route => route.abort());
     await auditPage.goto(`/first-answer/${lang}.html`);

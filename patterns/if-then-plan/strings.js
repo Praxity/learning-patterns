@@ -1,5 +1,3 @@
-// Option text completes whenStem and willStem, so the four sentence strings must stay in step:
-// soFar is the plan up to the action, and plan is the whole sentence.
 export const strings = {
   en: {
     whenStem: 'When…', willStem: 'I will…',

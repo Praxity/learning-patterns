@@ -59,7 +59,6 @@ async function axe(page) {
 async function observe(page) {
   await page.evaluate(() => {
     window.lpAnnouncements = [];
-    // Focus reads Michel's line once. The empty status region is for quiet nudges.
     document.addEventListener('focusin', event => { if (event.target.matches('[data-lp-michel]')) window.lpAnnouncements.push(event.target.textContent); });
     new MutationObserver(records => { for (const record of records) if (record.target.textContent) window.lpAnnouncements.push(record.target.textContent); })
       .observe(document.querySelector('[role="status"]'), { childList: true, characterData: true, subtree: true });
@@ -88,7 +87,6 @@ for (const lang of ['en', 'fr']) {
     await open(page, lang);
     for (const width of [1280, 390]) {
       await page.setViewportSize({ width, height: 900 });
-      // Compare each avatar's middle with the middle of the first rendered line, not with the text box.
       const middles = await page.evaluate(() => {
         const line = el => { const range = document.createRange(); range.selectNodeContents(el); const { top, height } = range.getClientRects()[0]; return top + height / 2; };
         const middle = el => { const { top, height } = el.getBoundingClientRect(); return top + height / 2; };
@@ -115,7 +113,6 @@ for (const lang of ['en', 'fr']) {
       await expect(page.locator('[data-lp-michel]').last()).toHaveText(examples[lang].branches[branch].endings[branch]);
       await expect(page.locator('[data-lp-michel]').last()).toBeFocused();
       await expect(page.locator('[data-lp-flow]')).toBeHidden();
-      // The same move at both rounds is named once.
       await expect(page.locator('[data-lp-debrief] li')).toHaveCount(1);
       await expect(page.locator('[data-lp-debrief] li').first()).toContainText(examples[lang].branches[branch].move);
       await expect(page.locator('[data-lp-debrief] li').last()).toContainText(examples[lang].branches[branch].debrief);
@@ -236,7 +233,6 @@ for (const lang of ['en', 'fr']) test(`a pending reply keeps its button, says it
   await expect(page.locator('[role="status"]')).toHaveText(frenchTypography(strings[lang].sending, lang));
   await expect(send).toBeFocused();
   await expect(send).toHaveAccessibleName(strings[lang].send);
-  // The visible note beside the button carries the wait on screen only.
   const note = page.locator('[data-lp-send] + span');
   await expect(note).toBeVisible();
   await expect(note).toHaveText(frenchTypography(strings[lang].sending, lang));
@@ -269,7 +265,6 @@ for (const lang of ['en', 'fr']) test(`a refused reply moves focus to the fallba
   await expect(message).toHaveText(strings[lang].fallback);
   await expect(page.locator('[data-lp-composer]')).toBeHidden();
   expect(await page.evaluate(() => window.lpFallbackFocus)).toEqual([{ from: true, composerVisible: true }]);
-  // Focus reads the message, so the status region stays quiet.
   await expect(page.locator('[role="status"]')).toBeEmpty();
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
   await page.keyboard.press('Tab');
@@ -287,7 +282,6 @@ for (const lang of ['en', 'fr']) test(`the final line takes focus from the contr
       });
     });
   });
-  // Keyboard activation: a WebKit click does not focus the button.
   await page.getByRole('textbox').fill('My reply');
   await page.locator('[data-lp-send]').focus(); await page.keyboard.press('Enter');
   await expect(page.locator('[data-lp-michel]').last()).toBeFocused();
@@ -297,7 +291,6 @@ for (const lang of ['en', 'fr']) test(`the final line takes focus from the contr
   await expect(page.locator('[data-lp-michel]').last()).toBeFocused();
   await expect(page.locator('[data-lp-flow]')).toBeHidden();
   await expect(page.locator(':focus')).toMatchAriaSnapshot(`- paragraph: ${JSON.stringify(line)}`);
-  // Restart, then end the conversation through the reply buttons.
   await page.locator('[data-lp-restart]').click();
   await page.locator('[data-lp-choices] summary').click();
   await page.locator('[data-lp-branch="defend"]').focus(); await page.keyboard.press('Enter');
@@ -307,32 +300,27 @@ for (const lang of ['en', 'fr']) test(`the final line takes focus from the contr
   await expect(page.locator('[data-lp-michel]').last()).toHaveText(examples[lang].branches.defend.endings.acknowledge);
   await expect(page.locator('[data-lp-michel]').last()).toBeFocused();
   const turn = { from: true, flowVisible: true };
-  // The third focus is Start over returning to the opening line.
   expect(await page.evaluate(() => window.lpLineFocus)).toEqual([turn, turn, { from: false, flowVisible: true }, turn, turn]);
 });
 
 test('restart during a pending reply clears the busy message and frees Say it, before and after the busy message', async ({ page }) => {
   await open(page, 'en', 'acknowledge', 1, 'pending'); await observe(page);
   const status = page.locator('[role="status"]'), note = page.locator('[data-lp-send] + span');
-  // Restart before the one-second message: it never arrives.
   await submit(page); await page.locator('[data-lp-restart]').click();
   await expect(note).toHaveCount(0);
   await page.waitForTimeout(1200);
   await expect(status).toBeEmpty();
-  // Restart after the message: it goes away.
   await submit(page);
   expect(await page.evaluate(() => window.lpTestCalls.length)).toBe(2);
   await expect(status).toHaveText(strings.en.sending);
   await page.locator('[data-lp-restart]').click();
   await expect(status).toBeEmpty();
   await expect(note).toHaveCount(0);
-  // Say it still sends.
   await submit(page);
   expect(await page.evaluate(() => window.lpTestCalls.length)).toBe(3);
   await page.evaluate(() => window.lpResolve());
   await expect(page.locator('[data-lp-michel]').last()).toHaveText(examples.en.branches.acknowledge.line);
   await expect(page.locator('[data-lp-michel]').last()).toBeFocused();
-  // Each restart focuses the opening line.
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([examples.en.opening, strings.en.sending, examples.en.opening, examples.en.branches.acknowledge.line]);
 });
 
@@ -443,7 +431,6 @@ test('forced colours preserve bubbles and visible keyboard focus', async ({ page
   await page.emulateMedia({ forcedColors: 'active' }); await open(page); await submit(page);
   await expect(page.locator('[data-lp-michel]').last()).toHaveCSS('border-style', 'solid');
   await expect(page.locator('[data-lp-you]')).toHaveCSS('border-style', 'dashed');
-  // The turn moves focus to the new line two frames after sending. Focus the box only once that has landed.
   await expect(page.locator('[data-lp-michel]').last()).toBeFocused();
   await page.getByRole('textbox').focus();
   await expect(page.locator('.lp-conversation-composer')).toHaveCSS('outline-style', 'solid');

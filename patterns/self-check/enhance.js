@@ -71,7 +71,6 @@ export function enhance(root, { content, strings, state }) {
     const displayModel = frenchTypography(content.model, root.lang);
     const segments = annotate(content.model, content.parts, ticked());
     let offset = 0;
-    // Typography changes only horizontal spaces; align them without changing evidence ownership.
     const horizontalSpace = /^[ \t\u00a0\u202f]$/;
     const model = segments.map((segment, index) => {
       const start = offset;
@@ -96,7 +95,6 @@ export function enhance(root, { content, strings, state }) {
       <ol class="lp-self-check-legend">${outcome.items.map((item, index) => `<li class="lp-self-check-legend-item" data-lp-included="${item.included}"><span class="lp-self-check-ann-n" aria-hidden="true">${index + 1}</span><div><p class="lp-self-check-legend-line"><span class="lp-self-check-legend-label">${html(item.label, root.lang)}${content.parts[index]?.evidence === null ? `<span class="lp-self-check-legend-where">${html(strings.whole, root.lang)}</span>` : ''}</span><span class="lp-self-check-legend-status">${item.included ? icons.check : icons['circle-plus']}${html(item.included ? strings.included : strings.notIncluded, root.lang)}</span></p>${item.hint === null ? '' : `<p class="lp-self-check-legend-hint">${html(item.hint, root.lang)}</p>`}</div></li>`).join('')}</ol>`;
     result.hidden = false;
     shown = true;
-    // One replacement also announces a repeated submission with the same count.
     if (announce) {
       status.textContent = frenchTypography(summary, root.lang);
       result.classList.remove('lp-reveal');

@@ -6,7 +6,6 @@ import { renderDataNotice, showCapNotice } from '../../lib/notice-ui.js';
 
 /** @type {WeakMap<HTMLElement, { destroy(): void }>} */
 const instances = new WeakMap();
-// All instances, including re-enhancement, share the page's in-memory allowance.
 /** @type {WeakMap<Document, { checks: number, stop: Set<() => void> }>} */
 const sessions = new WeakMap();
 
@@ -76,7 +75,6 @@ export function enhance(root, { content, strings, state, ask }) {
     answer.setAttribute('aria-describedby', answer.id.replace(/-answer$/, '-starter'));
   };
   const useLimit = () => {
-    // Keep the completion message until the learner edits a plan that completed on the last allowed check.
     if (complete && answer.value.trim() === lastChecked) return;
     useFallback(); paused.hidden = false; fallbackText.textContent = frenchTypography(strings.selfCheck, root.lang);
   };
@@ -99,7 +97,6 @@ export function enhance(root, { content, strings, state, ask }) {
       stateWord.textContent = frenchTypography(`${item.mark === 'done' ? strings.done : strings.todo} `, root.lang);
       items.append(row);
     }
-    // FLIP preserves each row's old position while the DOM takes its new order.
     const shifts = rows.map((row, index) => first[index] - row.getBoundingClientRect().top);
     if (motion) {
       rows.forEach((row, index) => {
@@ -126,7 +123,6 @@ export function enhance(root, { content, strings, state, ask }) {
       const outcome = feedback(content, answers, raw, previous);
       previous = outcome.items;
       updateItems(outcome.items);
-      // Announce the move into completion once; an unchanged count stays silent.
       const wasComplete = complete;
       complete = outcome.count === outcome.total; completion.hidden = !complete;
       if (complete ? !wasComplete : outcome.count !== count) {
@@ -138,7 +134,6 @@ export function enhance(root, { content, strings, state, ask }) {
       if (!destroyed) {
         if (showCapNotice(error, root, fallback, status)) useFallback();
         else if (my === seq) {
-          // The failed draft was never assessed, so an earlier completion message must not keep the limit from opening self-checks.
           complete = false; completion.hidden = true;
           if (session.checks >= AUTO_CHECK_LIMIT) stopAtLimit(); else useFallback();
           status.textContent = frenchTypography(strings.fallback, root.lang);
@@ -159,7 +154,6 @@ export function enhance(root, { content, strings, state, ask }) {
   };
   const onInput = () => {
     checkLength();
-    // Text too short to check cannot hold a complete plan; reaching four again is a new completion.
     if (answer.value.trim().length < MIN_CHARS) { complete = false; completion.hidden = true; }
     cancel(); save(); schedule();
   };

@@ -2,9 +2,7 @@
 export function validateContent(content: unknown): asserts content is Content;
 /** @param {Content} content @param {unknown} answers @returns {Entry[]} */
 export function lookup(content: Content, answers: unknown): Entry[];
-/** Only learner questions are stored; authored examples stay in content.
- * @param {unknown} value @returns {LearnerState | null}
- */
+/** @param {unknown} value @returns {LearnerState | null} */
 export function validateState(value: unknown): LearnerState | null;
 export { QUESTION_LIMIT };
 export const AUTO_CHECK_LIMIT: 30;

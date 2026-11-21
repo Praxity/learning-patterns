@@ -59,8 +59,7 @@ export function feedback(answers, model = '') {
   return confidence >= confidenceGate(model) ? /** @type {Branch} */ (choice) : 'unsure';
 }
 
-/** Restore only a coherent two-round conversation. @param {unknown} value @returns {LearnerState | null} */
-// Drafts have no send limit; the host owns its total storage budget, as in write-distractors W00.
+/** @param {unknown} value @returns {LearnerState | null} */
 export function validateState(value) {
   if (!object(value) || typeof value.draft !== 'string' || !object(value.conversation)) return null;
   const saved = value.conversation;

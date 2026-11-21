@@ -29,7 +29,6 @@ async function mount(page, name, lang, delayed = false, failConfig = false) {
   }, { name, lang, content, delayed, failConfig });
   if (name === 'explain-back') {
     await page.getByRole('button', { name: lang === 'en' ? /^I'm ready to explain it$/ : /^Passer à l[’']explication$/ }).click();
-    // Focus reaches the task heading after layout; typing before then is lost in Firefox.
     await expect(page.locator('#field-task')).toBeFocused();
   }
 }
@@ -103,7 +102,6 @@ for (const [name, limit] of [['live-feedback', 1200], ['course-lookup', 500]]) {
     await expect(page.locator('[data-lp-error]')).toBeVisible();
     await input.fill('x'.repeat(limit + 2));
     await input.fill('x'.repeat(limit + 1));
-    // Let both automatic typing-pause checks run while the error is already shown.
     await page.waitForTimeout(2000);
     expect(await page.evaluate(() => window.statusWrites.filter(text => text.includes('characters or fewer')).length)).toBe(1);
     await input.fill('short');

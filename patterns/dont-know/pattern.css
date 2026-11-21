@@ -1,7 +1,5 @@
-/* Dont-know specifics. Link lib/base.css first for shared styles and tokens. */
 .lp-dont-know > .lp-section:first-of-type { border-block-start: 0; padding-block-start: 0; }
 .lp-dont-know-question-number { display: block; margin-block-end: 6px; font-weight: 400; font-family: var(--lp-font-body); }
-/* Centred on the letter keys: 1px border, 14px padding and half the 26px key put its centre 28px in. */
 .lp-dont-know-choice-divider { inline-size: 56px; margin-block: 8px; text-align: center; }
 .lp-dont-know-result-head { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 16px; align-items: start; }
 .lp-dont-know-result-head [data-lp-counts] { margin-block-start: 4px; }
@@ -12,21 +10,17 @@
 .lp-dont-know-review ul { display: grid; gap: 8px; margin-block-start: 8px; padding: 0; list-style: none; }
 .lp-dont-know-review a { display: inline-flex; gap: 8px; align-items: flex-start; }
 .lp-dont-know-review .lp-icon { margin-block-start: .2em; }
-/* A review link only has to identify its question, so it shows two lines and the rest on hover or
-   keyboard focus. The clipped text stays in the link's accessible name. */
 .lp-dont-know-review span { display: -webkit-box; min-inline-size: 0; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
 .lp-dont-know-review a:is(:hover, :focus-visible) span { -webkit-line-clamp: none; line-clamp: none; }
 .lp-dont-know-fallback-list { display: grid; gap: 16px; padding-inline-start: 24px; }
 .lp-dont-know-fallback-list li > * + * { margin-block-start: 8px; }
 .lp-dont-know-unknown { flex-wrap: wrap; }
-/* Long French marks need their own line at 400% zoom and with text spacing. */
 .lp-dont-know .lp-choice-mark { flex-basis: 100%; max-inline-size: 100%; white-space: normal; }
 .lp-dont-know .lp-choice-mark > span { min-inline-size: 0; }
 .lp-dont-know .lp-choice > span:not(.lp-choice-mark) { min-inline-size: 0; flex: 1; white-space: pre-line; }
 .lp-dont-know .lp-stem { white-space: pre-line; }
 
 @media (forced-colors: active) {
-  /* Underlining keeps the quiet reset distinct when system colours replace button fills. */
   .lp-dont-know .lp-button-quiet { text-decoration: underline; text-underline-offset: 3px; }
   .lp-dont-know-ring-track { stroke: GrayText; }
   .lp-dont-know-ring-fill { stroke: CanvasText; }

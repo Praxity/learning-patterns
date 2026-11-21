@@ -5,7 +5,6 @@ import { CATALOGUE } from "../logic/06-misconceptions.js";
 import explainBack from "../src/demos/07-explain-back.js";
 import journal, { TASK as JOURNAL_TASK } from "../src/demos/13-journal.js";
 
-// The proxy keeps server-side copies of card terms; these fail when a card changes without them.
 const card = async (pattern, file) => JSON.parse(await readFile(new URL(`../../patterns/${pattern}/examples/${file}`, import.meta.url), "utf8"));
 
 test("misconception labels and ideas match the card", async () => {

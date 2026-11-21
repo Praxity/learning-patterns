@@ -2,9 +2,7 @@ import { escapeHtml as html } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
 import { format, learnerSteps, validateContent } from './logic.js';
 
-/** Every case in full, usable without JavaScript: the learner's steps are radio groups and each
- * case's answers sit in a disclosure. `enhance` shows one case at a time and checks each step.
- * @param {import('./logic.js').Content} content
+/** @param {import('./logic.js').Content} content
  * @param {import('./strings.js').Strings} strings
  * @param {{ id: string, lang: string }} options */
 export function render(content, strings, { id, lang }) {
@@ -27,7 +25,6 @@ export function render(content, strings, { id, lang }) {
       const label = t(strings.step, { number: s + 1 });
       const question = html(content.steps[s].question, lang);
       const group = html(`${id}-case-${c}-step-${s}`);
-      // A worked step after one of the learner's would give that answer away, so it starts hidden.
       if (step.worked) return `
       <li class="lp-finish-worked-example-step" data-lp-step>
         ${head('p', label, false)}

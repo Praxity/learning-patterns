@@ -3,13 +3,11 @@ import { icons } from '../../lib/write-distractors-icons.js';
 import { renderChoiceMark } from '../../lib/choice-mark.js';
 import { validateContent, targetOf, optionKey, OTHER } from './logic.js';
 
-/** Render keyed rows for both the native fallback and the enhanced comparison.
- * @param {import('./logic.js').Content} content
+/** @param {import('./logic.js').Content} content
  * @param {import('./strings.js').Strings} strings
  * @param {(import('./logic.js').AuthorOption | import('./logic.js').LearnerOption)[]} options
  * @param {{ author?: boolean, matches?: boolean[], heading?: boolean, lang?: string }} [settings]
- * @returns {string}
- */
+ * @returns {string} */
 export function renderQuestionPreview(content, strings, options, { author = false, matches = [], heading = true, lang = 'en' } = {}) {
   return `<div class="lp-stack lp-write-distractors-question" data-lp-preview="${author ? 'author' : 'yours'}">
     ${heading ? `<h3 class="lp-label">${html(author ? strings.authorQuestion : strings.yourQuestion, lang)}</h3>` : ''}

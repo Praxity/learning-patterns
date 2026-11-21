@@ -10,13 +10,11 @@ const french = JSON.parse(await readFile(new URL('./examples/fr.json', import.me
 const schema = JSON.parse(await readFile(new URL('./content.schema.json', import.meta.url)));
 const nbsp = /[  ]/g;
 
-/** Apply steps in order: 'approve' or 'hold' decides the request, an array checks recovery steps. */
 const play = (...moves) => moves.reduce((state, move) => {
   const { stage, item } = progress(content, state);
   return Array.isArray(move) ? recover(content, state, item, move) : stage === 'decide' ? decide(content, state, move) : assert.fail(`no decision at ${stage}`);
 }, start());
 
-// Mirror only the schema keywords used here, including the documented cross-field annotations.
 function matches(value, rule) {
   if (rule.$ref) rule = schema.$defs[rule.$ref.split('/').at(-1)];
   if (Object.hasOwn(rule, 'const')) return value === rule.const;
@@ -31,14 +29,12 @@ function matches(value, rule) {
     if (!Array.isArray(value) || value.length < rule.minItems || value.length > rule.maxItems) return false;
     if (rule['x-uniqueBy'] && new Set(value.map(item => item?.id)).size !== value.length) return false;
     if (!value.every(item => matches(item, rule.items))) return false;
-    // One step stops the harm, and it is a correct step; a list needs a correct and an incorrect step.
     if (rule['x-oneStoppingStep']) {
       const stopping = value.filter(step => step.stops);
       return stopping.length === 1 && stopping[0].correct && value.some(step => step.correct) && value.some(step => !step.correct);
     }
     return true;
   }
-  // JSON Schema counts code points and does not trim, so blank text must fail the field's pattern.
   return typeof value === 'string' && [...value].length >= rule.minLength && [...value].length <= rule.maxLength && (!rule.pattern || new RegExp(rule.pattern, 'u').test(value));
 }
 
@@ -49,9 +45,7 @@ test('the examples share ids, correct steps and stopping steps, and stay short',
   assert.deepEqual(shape(french), shape(content));
   for (const example of [content, french]) {
     assert.deepEqual([example.request, example.colleague].map(item => item.checks.length), [4, 3]);
-    // The setup is at most two sentences.
     assert.equal(example.context.split(/(?<=\.) /).length, 2);
-    // Recovery lists differ in length and in where the incorrect step sits, and only Cancel repeats across them.
     const lists = [example.request, example.colleague].map(item => item.steps);
     assert.deepEqual(lists.map(steps => steps.length), [3, 4]);
     assert.deepEqual(lists.map(steps => steps.findIndex(step => !step.correct)), [0, 2]);
@@ -71,7 +65,6 @@ test('content validator and schema agree, with planted violations for every guar
   const bad = (value, field) => fixtures.push([value, false, field]);
   bad(null, 'content'); bad([], 'content'); bad({ ...content, extra: '' }, 'extra');
   for (const field of ['title', 'context']) for (const value of ['', ' ', null, 3, undefined]) bad({ ...content, [field]: value }, field);
-  // The card takes exactly one request, as an object. A list of requests is rejected.
   for (const value of [[one], [one, one], null, 'request', undefined]) bad({ ...content, request: value }, 'request');
   bad({ ...noRequest, requests: [one] }, 'requests');
   bad(request({ extra: 1 }), 'request.extra');
@@ -89,7 +82,6 @@ test('content validator and schema agree, with planted violations for every guar
   for (const value of [false, 'yes', 1, null]) bad(steps([{ ...one.steps[0], stops: value }, ...one.steps.slice(1)]), 'request.steps[0].stops');
   bad(steps([{ ...one.steps[0], id: 'bad id' }, ...one.steps.slice(1)]), 'request.steps[0].id');
   bad(steps([one.steps[0], one.steps[0], one.steps[2]]), 'request.steps[1].id');
-  // Exactly one step stops the harm, and it is correct. A list needs a correct and an incorrect step.
   const { stops, ...cancel } = one.steps[2];
   bad(steps([one.steps[0], one.steps[1], cancel]), 'request.steps');
   bad(steps([one.steps[0], { ...one.steps[1], stops: true }, one.steps[2]]), 'request.steps');
@@ -121,13 +113,11 @@ test('approving the request opens its recovery; holding it opens the payment the
   assert.deepEqual(progress(content, fixed), { stage: 'done', item: null, statuses: ['stopped', null] });
   assert.throws(() => recover(content, fixed, 0, ['call']), /not open/);
   assert.deepEqual(progress(content, play('approve', ['call', 'update'])).statuses, ['notStopped', null]);
-  // A learner who holds the request still recovers once, on the colleague's payment.
   const held = play('hold');
   assert.deepEqual(progress(content, held), { stage: 'recover', item: 1, statuses: ['held', 'approved'] });
   assert.throws(() => recover(content, held, 0, ['cancel']), /not open/);
   assert.deepEqual(progress(content, recover(content, held, 1, ['cancel', 'leave'])), { stage: 'done', item: null, statuses: ['held', 'stopped'] });
   assert.deepEqual(progress(content, play('hold', ['tell'])).statuses, ['held', 'notStopped']);
-  // Transitions return new states and leave the old one alone.
   assert.deepEqual(approved, { decision: 'approve', steps: [null, null] });
 });
 
@@ -135,7 +125,6 @@ test('decisions and recovery steps are checked', () => {
   assert.throws(() => decide(content, start(), 'maybe'), /Invalid decision/);
   const approved = play('approve');
   for (const ids of [[], ['nope'], ['cancel', 'cancel'], 'cancel', [3]]) assert.throws(() => recover(content, approved, 0, ids), /Invalid steps/, JSON.stringify(ids));
-  // Each payment's steps are its own: telling Dana belongs to the colleague's payment only.
   assert.throws(() => recover(content, approved, 0, ['tell']), /Invalid steps/);
   assert.throws(() => recover(content, play('hold'), 1, ['call']), /Invalid steps/);
 });
@@ -165,7 +154,6 @@ test('every finished path has a complete sentence in both languages', () => {
     const ids = (item === 1 ? content.colleague : content.request).steps.map(step => step.id);
     return walk(recover(content, state, item, ids)) + walk(recover(content, state, item, ids.filter(id => id !== 'cancel')));
   };
-  // Approve or hold, then two recovery outcomes for the payment that needs one.
   assert.equal(walk(start()), 4);
 });
 
@@ -179,9 +167,7 @@ test('saved state is copied when the learner could have reached it, and ignored 
   const invalid = [
     null, [], 'state', {}, { decision: null }, { ...start(), extra: 1 },
     { decision: null, steps: [null] }, { decision: null, steps: [null, null, null] }, { decision: 'maybe', steps: [null, null] },
-    // The saved shape from when the card held two requests.
     { decisions: [null, null], steps: [null, null, null] }, { decisions: ['hold', 'hold'], steps: [null, null] },
-    // Recovery belongs to the approved request, or to the colleague's payment after a hold.
     { decision: null, steps: [['cancel'], null] }, { decision: 'hold', steps: [['cancel'], null] }, { decision: 'approve', steps: [null, ['cancel']] },
     { decision: 'approve', steps: [[], null] }, { decision: 'approve', steps: [['nope'], null] }, { decision: 'approve', steps: [['cancel', 'cancel'], null] }
   ];
@@ -210,15 +196,12 @@ for (const [lang, example] of [['en', content], ['fr', french]]) {
     assert.match(output, new RegExp(`^<section class="lp lp-mistake-recover" data-lp-pattern="mistake-recover" lang="${lang}">`));
     assert.doesNotMatch(output, /lp-scene|lp-quote|lp-box/);
     assert.ok(output.indexOf('<h2 class="lp-heading">') < output.indexOf('<p class="lp-context">'));
-    // Each record is a description list in its own section, with the payment's title as its heading.
     assert.equal((output.match(/<dl class="lp-mistake-recover-record">/g) || []).length, 2);
     assert.equal((output.match(/<h3 /g) || []).length, 2);
-    // Buttons, status lines, step groups, the colleague's payment and the result need JavaScript.
     assert.equal((output.match(/<button[^>]*data-lp-(approve|hold|check|restart)[^>]*>/g) || []).length, 2 + 2 + 1);
     for (const [tag] of output.matchAll(/<(?:div|p|section)[^>]*data-lp-(?:decide|status|recover|result|colleague)\b[^>]*>/g)) assert.match(tag, / hidden>$/, tag);
     assert.match(output, /<section class="lp-section lp-stack" aria-labelledby="pay-request-title" data-lp-item="0">/);
     assert.doesNotMatch(output, /<input[^>]*(checked|disabled)/);
-    // Two closed disclosures on the request: what approving does, and every step marked with its reason.
     assert.equal((output.match(/<details class="lp-details" data-lp-fallback>/g) || []).length, 2);
     assert.doesNotMatch(output, /<details[^>]* open/);
     const summaries = [...output.matchAll(/<summary>(.*?)<\/summary>/g)].map(match => match[1].replace(nbsp, ' '));
@@ -226,7 +209,6 @@ for (const [lang, example] of [['en', content], ['fr', french]]) {
     assert.ok(text.includes(`<p>${example.request.approved.replace(nbsp, ' ').replace(/'/g, '&#39;')}</p>`), example.request.approved);
     assert.equal((output.match(/lp-choice-mark lp-met/g) || []).length, 2);
     assert.equal((output.match(/lp-choice-mark lp-missed/g) || []).length, 1);
-    // One empty status region, and icons that stay out of the accessibility tree.
     assert.equal((output.match(/role="status"/g) || []).length, 1);
     assert.match(output, /<p class="lp-visually-hidden" role="status" aria-atomic="true"><\/p>/);
     for (const [svg] of output.matchAll(/<svg[^>]*>/g)) assert.match(svg, /aria-hidden="true"/);
@@ -236,7 +218,6 @@ for (const [lang, example] of [['en', content], ['fr', french]]) {
 test('English and French strings have the same keys, and French uses its spacing', () => {
   assert.deepEqual(Object.keys(strings.fr), Object.keys(strings.en));
   for (const lang of ['en', 'fr']) for (const [key, value] of Object.entries(strings[lang])) assert.ok(value.trim(), `${lang}.${key}`);
-  // The status before a decision shares no words with Hold, so holding visibly changes it.
   assert.doesNotMatch(strings.fr.pending, /attente/i);
   assert.doesNotMatch(strings.en.pending, /hold/i);
   const output = render(french, strings.fr, { id: 'pay', lang: 'fr' });

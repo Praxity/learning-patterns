@@ -8,10 +8,8 @@ import { strings } from './strings.js';
 const content = JSON.parse(await readFile(new URL('./examples/en.json', import.meta.url)));
 const french = JSON.parse(await readFile(new URL('./examples/fr.json', import.meta.url)));
 const schema = JSON.parse(await readFile(new URL('./content.schema.json', import.meta.url)));
-/** Apply steps in order: an option id checks the first question, 'help' opens the next help step. */
 const play = (...steps) => steps.reduce((state, step) => step === 'help' ? openHelp(content, state) : tryFirst(content, state, step), start());
 
-// Mirror only the schema keywords used here, including the documented cross-field annotations.
 function matches(value, rule) {
   if (rule.type === 'object') {
     if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
@@ -40,7 +38,6 @@ test('the examples share ids and answers, and stay short', () => {
   for (const example of [content, french]) {
     assert.equal(example.options.length, 4);
     assert.equal(example.hints.length, 2);
-    // The setup is the situation plus one short sentence per rule, and no hint names the answer.
     const sentences = example.context.split(/(?<=\.) /);
     assert.ok(sentences.length <= 4, example.context);
     for (const sentence of sentences) assert.ok(sentence.split(/\s+/).length <= 20, sentence);
@@ -69,7 +66,6 @@ test('content validator and schema agree, with planted violations for every guar
   bad({ ...content, options: [{ ...wrong, id: 'bad id' }, right, content.options[3]] }, 'id');
   bad({ ...content, options: [wrong, wrong, right] }, 'id');
   for (const value of ['missing', '', null, undefined]) bad({ ...content, correct: value }, 'correct');
-  // Every wrong option needs its reason, and the correct option takes none.
   for (const value of ['', ' ', null, 3]) bad({ ...content, options: [{ ...wrong, feedback: value }, right, content.options[3]] }, 'options[0].feedback');
   bad({ ...content, options: [{ id: wrong.id, text: wrong.text }, right, content.options[3]] }, 'options[0].feedback');
   bad({ ...content, options: [wrong, { ...right, feedback: 'Yes.' }, content.options[3]] }, 'options[1].feedback');
@@ -96,14 +92,12 @@ test('a wrong try closes that option and leaves the question open; the right ans
   const one = play('tuesday');
   assert.deepEqual(one, { tries: ['tuesday'], opened: 0, followUp: null });
   assert.equal(progress(content, one).first, 'open');
-  // Checking the same wrong option again is refused, so it can never count as another try.
   assert.throws(() => tryFirst(content, one, 'tuesday'), /Invalid try/);
   assert.throws(() => tryFirst(content, one, 'saturday'), /Invalid try/);
   const solved = tryFirst(content, one, 'wednesday');
   assert.deepEqual(progress(content, solved), { first: 'solved', tries: 2, hints: 0, next: null, gated: false, followUp: null, done: false });
   assert.throws(() => tryFirst(content, solved, 'monday'), /closed/);
   assert.throws(() => openHelp(content, solved), /closed/);
-  // Transitions return new states and leave the old one alone.
   assert.deepEqual(one, { tries: ['tuesday'], opened: 0, followUp: null });
 });
 
@@ -118,7 +112,6 @@ test('hints open in order at any time; the worked answer waits for one checked a
   assert.deepEqual(progress(content, shown), { first: 'shown', tries: 1, hints: 2, next: null, gated: false, followUp: null, done: false });
   assert.throws(() => tryFirst(content, shown, 'wednesday'), /closed/);
   assert.throws(() => openHelp(content, shown), /closed/);
-  // One hint then the right answer: the hint count is what the learner opened.
   assert.deepEqual(progress(content, play('help', 'wednesday')), { first: 'solved', tries: 1, hints: 1, next: null, gated: false, followUp: null, done: false });
 });
 
@@ -128,10 +121,8 @@ test('when only the correct option is left, the question ends with the worked an
   const out = tryFirst(content, two, 'thursday');
   assert.deepEqual(progress(content, out), { first: 'shown', tries: 3, hints: 0, next: null, gated: false, followUp: null, done: false });
   assert.throws(() => tryFirst(content, out, 'wednesday'), /closed/);
-  // With three options the second wrong try is the last.
   const three = { ...content, options: content.options.slice(0, 3) };
   assert.equal(progress(three, tryFirst(three, tryFirst(three, start(), 'monday'), 'tuesday')).first, 'shown');
-  // The correct option on the last possible try still counts as solved.
   assert.equal(progress(content, play('monday', 'tuesday', 'wednesday')).first, 'solved');
 });
 
@@ -151,7 +142,6 @@ test('the closing sentence gives tries and hints for the first question and the 
   assert.equal(end(play('monday', 'help', 'wednesday'), 'monday'), 'First question: correct in 2 tries, with 1 hint. Question without hints: incorrect.');
   assert.equal(end(play('help', 'monday', 'help', 'tuesday', 'wednesday'), 'tuesday'), 'First question: correct in 3 tries, with 2 hints. Question without hints: correct.');
   assert.equal(end(play('help', 'help', 'thursday', 'help'), 'tuesday'), 'First question: worked answer shown after 1 try, with 2 hints. Question without hints: correct.');
-  // The worked answer also shows when only the correct option is left, with however many hints were open.
   assert.equal(end(play('monday', 'tuesday', 'thursday'), 'friday'), 'First question: worked answer shown after 3 tries, with no hints. Question without hints: incorrect.');
   assert.equal(end(play('monday', 'help', 'tuesday', 'thursday'), 'tuesday'), 'First question: worked answer shown after 3 tries, with 1 hint. Question without hints: correct.');
   const fin = (state, option) => summarize(french, tryFollowUp(french, state, option), strings.fr);
@@ -164,7 +154,6 @@ test('the closing sentence gives tries and hints for the first question and the 
 });
 
 test('every state a learner can reach has a complete sentence, whatever the option and hint counts', () => {
-  // The gallery prototype read "Right on your undefined try" after a fifth check.
   for (const options of [content.options.slice(0, 3), content.options]) for (const hints of [['a'], ['a', 'b'], ['a', 'b', 'c']]) {
     const sample = { ...content, options, hints };
     const walk = state => {
@@ -198,15 +187,12 @@ test('saved state is copied when the learner could have reached it, and ignored 
     null, [], 'state', {}, { tries: [], opened: 0 }, { tries: [], opened: 0, followUp: null, extra: 1 },
     { tries: 'monday', opened: 0, followUp: null }, { tries: ['saturday'], opened: 0, followUp: null }, { tries: [3], opened: 0, followUp: null },
     { tries: ['monday', 'monday'], opened: 0, followUp: null },
-    // Nothing follows the right answer, the worked answer or the last wrong option.
     { tries: ['wednesday', 'monday'], opened: 0, followUp: null },
     { tries: ['monday', 'tuesday', 'thursday', 'wednesday'], opened: 0, followUp: null },
     { tries: ['wednesday'], opened: 3, followUp: null },
     { tries: ['monday', 'tuesday', 'thursday'], opened: 3, followUp: null },
-    // The worked answer needs a checked answer.
     { tries: [], opened: 3, followUp: null },
     { tries: [], opened: -1, followUp: null }, { tries: [], opened: 4, followUp: null }, { tries: [], opened: 1.5, followUp: null }, { tries: [], opened: '1', followUp: null },
-    // The second question needs the first to have ended, and an option of its own.
     { tries: ['monday'], opened: 0, followUp: 'tuesday' }, { tries: ['wednesday'], opened: 0, followUp: 'thursday' }, { tries: ['wednesday'], opened: 0, followUp: 2 }
   ];
   for (const value of invalid) assert.equal(validateState(content, value), null, JSON.stringify(value));
@@ -235,20 +221,17 @@ for (const [lang, example] of [['en', content], ['fr', french]]) {
   test(`server HTML works without JavaScript: both questions, hints and answers behind closed disclosures (${lang})`, () => {
     const s = strings[lang], output = render(example, s, { id: 'quiz', lang });
     assert.match(output, new RegExp(`^<section class="lp lp-hint-ladder" data-lp-pattern="hint-ladder" lang="${lang}">`));
-    // No scene bar: the title, the context, then the question as the group's legend.
     assert.doesNotMatch(output, /lp-scene/);
     assert.ok(output.indexOf('<h2 class="lp-heading">') < output.indexOf('<p class="lp-context">'));
     assert.ok(output.indexOf('<p class="lp-context">') < output.indexOf('<fieldset'));
     assert.equal((output.match(/<fieldset/g) || []).length, 2);
     assert.equal((output.match(/type="radio"/g) || []).length, 8);
     assert.doesNotMatch(output, /<input[^>]*(checked|disabled)/);
-    // Buttons need JavaScript, so they start hidden, and so does everything a check or hint reveals.
     assert.equal((output.match(/<button[^>]*data-lp-(check|hint)[^>]* hidden>/g) || []).length, 3);
     assert.equal((output.match(/data-lp-reason hidden>/g) || []).length, 3);
     assert.match(output, /<ol class="lp-hint-ladder-steps" role="list" data-lp-steps hidden>/);
     assert.equal((output.match(/<li tabindex="-1" hidden>/g) || []).length, 3);
     assert.match(output, /data-lp-gate hidden>/); assert.match(output, /data-lp-feedback hidden>/); assert.match(output, /data-lp-result hidden>/);
-    // The follow-up question is on the page, and nothing is open until the learner opens it.
     assert.match(output, /<div class="lp-section" data-lp-follow-up>/);
     assert.equal((output.match(/<details class="lp-details"/g) || []).length, 4);
     assert.doesNotMatch(output, /<details[^>]* open/);
@@ -256,7 +239,6 @@ for (const [lang, example] of [['en', content], ['fr', french]]) {
     assert.deepEqual(summaries, lang === 'en' ? ['Hint 1 of 2', 'Hint 2 of 2', 'Worked answer', 'Show the answer'] : ['Indice 1 sur 2', 'Indice 2 sur 2', 'Solution détaillée', 'Afficher la réponse']);
     assert.match(output.replace(/ /g, ' '), lang === 'en' ? /<p>Correct answer: Wednesday\.<\/p>/ : /<p>Bonne réponse : Mercredi\.<\/p>/);
     assert.match(output.replace(/ /g, ' '), lang === 'en' ? /<p>Correct answer: Tuesday\.<\/p>/ : /<p>Bonne réponse : Mardi\.<\/p>/);
-    // One empty status region, and icons that stay out of the accessibility tree.
     assert.equal((output.match(/role="status"/g) || []).length, 1);
     assert.match(output, /<p class="lp-visually-hidden" role="status" aria-atomic="true"><\/p>/);
     for (const [svg] of output.matchAll(/<svg[^>]*>/g)) assert.match(svg, /aria-hidden="true"/);

@@ -43,7 +43,6 @@ test('server spacing choices have named radios and stay hidden without JavaScrip
   assert.ok(markup.indexOf('data-lp-tabs') > markup.indexOf('</fieldset>'));
 });
 
-// The schema keywords used by this pattern, including the identity annotation.
 function matches(value, rule) {
   if (rule.type === 'object') {
     if (!value || typeof value !== 'object' || Array.isArray(value)) return false;

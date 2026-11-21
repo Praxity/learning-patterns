@@ -1,4 +1,3 @@
-// Web-content entry follows Guidepup's MIT Playwright fixture at d5c9d805.
 import { voiceOver, MacOSKeyCodes, voiceOverKeyCodeCommands } from '@guidepup/guidepup';
 import { appendFile, writeFile } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
@@ -37,7 +36,6 @@ export async function startSession(page, info) {
     return row;
   }
   async function focusBrowser() {
-    // Repeated AppleScript application activation stalled WebKit during typing.
     const { stdout } = await run('/usr/bin/osascript', ['-e', 'with timeout of 5 seconds\ntell application "System Events"\nset frontmost of process "Playwright" to true\nreturn name of first application process whose frontmost is true\nend tell\nend timeout'], { timeout: 6000 });
     if (stdout.trim() !== 'Playwright') throw new Error(`Native keyboard target is ${stdout.trim()}`);
   }
@@ -92,7 +90,6 @@ export async function startSession(page, info) {
       await key(backwards ? 'Shift+Tab' : 'Tab', `${label}: ${backwards ? 'Shift+Tab' : 'Tab'} ${i + 1}`, 'initial');
     }
     if (await target.evaluate(el => el === document.activeElement)) return;
-    // WebKit's default Tab policy skips some buttons. VO navigation reaches them.
     await enter(`${label}: VO beginning`, 'initial');
     for (let i = 0; i < 100; i++) {
       await next(`${label}: VO+Right ${i + 1}`);
@@ -110,13 +107,11 @@ export async function startSession(page, info) {
     await writeFile(info.outputPath(`${label}-aria.txt`), await page.locator('body').ariaSnapshot());
     await page.screenshot({ path: info.outputPath(`${label}.png`), fullPage: true });
   }
-  // Explicit rereads are separate steps; they are not spontaneous duplicate announcements.
   async function read(label, limit = 70) {
     await enter(`${label}: beginning`, 'initial');
     for (let i = 0; i < limit; i++) {
       const row = await next(`${label}: VO+Right ${i + 1}`);
       if (row.cursor.some(text => /end of web content|bottom of web content/i.test(text)) || row.speech.some(text => /end of web content|bottom of web content/i.test(text))) break;
-      // VoiceOver reports tab items as empty cursor strings; only a repeated non-empty cursor means the end.
       const cursor = row.cursor.filter(Boolean);
       if (i > 1 && cursor.length && JSON.stringify(cursor) === JSON.stringify(rows.at(-2)?.cursor.filter(Boolean))) break;
     }

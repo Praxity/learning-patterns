@@ -1,6 +1,4 @@
-/** The configured model determines which evaluated Choice gate applies.
- * @param {string} model @returns {number}
- */
+/** @param {string} model @returns {number} */
 export function confidenceGate(model: string): number;
 /** @param {{ choice: string, confidence: number }} answer @param {string} model */
 export function misconceptionFeedback({ choice, confidence }: {

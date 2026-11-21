@@ -1,5 +1,3 @@
-// Input-only list prices. Perplexity: docs.perplexity.ai/docs/decisions/quickstart
-// (output free); Jev: docs.typesafe.ai/models; Clef: Cloudflare model pages.
 export const DEFAULT_MODEL = "pplx-decider-v1.2";
 export const CLEF_MODEL = "@cf/cloudflare/clef";
 export const JEV_MODEL = "jev-1.13.0";
@@ -10,8 +8,6 @@ export const PRICES = Object.freeze({
 	"@cf/cloudflare/clef": 0.24,
 });
 
-// Keep the calculation inside a self-contained function so its browser exports
-// survive bundler renaming and minification. Only table data crosses that boundary.
 function pricing(prices, defaultModel) {
 	const api = {
 		costNanoUsd(tokens, model = defaultModel) {
@@ -30,7 +26,6 @@ function pricing(prices, defaultModel) {
 
 export const { costNanoUsd, costOf } = pricing(PRICES, DEFAULT_MODEL);
 
-// The Worker serves this same owner's exports to the browser. No copied price table.
 export function browserPrices() {
 	return `export const DEFAULT_MODEL = ${JSON.stringify(DEFAULT_MODEL)};\nexport const PRICES = Object.freeze(${JSON.stringify(PRICES)});\nconst pricing = ${pricing.toString()};\nexport const { costNanoUsd, costOf } = pricing(PRICES, DEFAULT_MODEL);\n`;
 }

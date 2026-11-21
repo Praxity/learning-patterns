@@ -8,7 +8,6 @@ const english = JSON.parse(await readFile(new URL('../../patterns/finish-worked-
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'];
 const TEXT_SPACING = '.lp, .lp * { line-height: 1.5 !important; letter-spacing: .12em !important; word-spacing: .16em !important; } .lp p { margin-bottom: 2em !important; }';
 const EMPTY = [[null, null, null], [null, null, null], [null, null, null]];
-// Case 2 answered, case 3 open on its first step.
 const AT_CASE_3 = { at: 2, picks: [[null, null, null], [null, null, 1], [null, null, null]] };
 
 async function open(page, lang = 'en', saved) {
@@ -17,7 +16,6 @@ async function open(page, lang = 'en', saved) {
   await page.waitForFunction(() => window.lpReady);
 }
 
-// Replace the demo with other content through the public render and enhance interface.
 async function mount(page, content, { lang = 'en', width = 1280 } = {}) {
   await page.setViewportSize({ width, height: 900 });
   await open(page, lang);
@@ -44,7 +42,6 @@ const panel = (page, c) => page.locator('[data-lp-case]').nth(c);
 const step = (page, c, s) => panel(page, c).locator('[data-lp-step]').nth(s);
 const axe = async page => (await new AxeBuilder({ page }).withTags(TAGS).analyze()).violations;
 
-/** Choose an option and check the step. By keyboard, focus starts just before the step. */
 async function answerStep(page, c, s, option, keyboard = false) {
   const item = step(page, c, s), radios = item.getByRole('radio');
   if (keyboard) {
@@ -95,7 +92,6 @@ for (const keyboard of [false, true]) test(`whole journey by ${keyboard ? 'keybo
   const next = panel(page, 0).locator('[data-lp-next]');
   if (keyboard) { await next.focus(); await page.keyboard.press('Enter'); } else await next.click();
 
-  // Case 2: two steps done, the last one is the learner's.
   const second = panel(page, 1);
   await expect(second.locator('[data-lp-case-heading]')).toBeFocused();
   await expect(second.locator('[data-lp-case-heading]')).toHaveText('Case 2 of 3. You do 1 of the 3 steps.');
@@ -104,10 +100,8 @@ for (const keyboard of [false, true]) test(`whole journey by ${keyboard ? 'keybo
   await expect(second.getByRole('group', { name: /^Step 3\s*,\s*Your step\s*,\s*What do you do\?$/ })).toBeVisible();
   await expect(second.getByRole('radio')).toHaveCount(3);
   await expect(second.getByRole('button')).toHaveText(['Check step 3', 'Previous case']);
-  // The learner's steps carry the accent label; the worked ones stay quiet.
   expect(await second.locator('.lp-finish-worked-example-tag').evaluateAll(tags => tags.map(tag => getComputedStyle(tag).backgroundColor))).toEqual(['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)', 'rgb(238, 242, 253)']);
 
-  // Checking with no choice explains what is missing at the step.
   const third = step(page, 1, 2), check = third.locator('[data-lp-check]');
   await check.click();
   const error = third.locator('[data-lp-question-error]');
@@ -120,7 +114,6 @@ for (const keyboard of [false, true]) test(`whole journey by ${keyboard ? 'keybo
   expect(await axe(page)).toEqual([]);
   expect(await page.evaluate(() => window.lpSaved.picks)).toEqual(EMPTY);
 
-  // A wrong answer: marked, the correct one shown, the reason beside it, and the next case opens.
   if (keyboard) {
     await page.keyboard.press('Space');
     await expect(error).toBeHidden();
@@ -145,7 +138,6 @@ for (const keyboard of [false, true]) test(`whole journey by ${keyboard ? 'keybo
   await expect(check).toBeHidden();
   await expectChoiceMarks(page);
   expect(await axe(page)).toEqual([]);
-  // The focused reason is the only announcement for a step.
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ at: 1, picks: [[null, null, null], [null, null, 0], [null, null, null]] });
 
@@ -153,7 +145,6 @@ for (const keyboard of [false, true]) test(`whole journey by ${keyboard ? 'keybo
   await expect(onward).toBeVisible();
   if (keyboard) { await page.keyboard.press('Tab'); await expect(onward).toBeFocused(); await page.keyboard.press('Enter'); } else await onward.click();
 
-  // Case 3: every step is the learner's, one at a time.
   const last = panel(page, 2);
   await expect(last.locator('[data-lp-case-heading]')).toBeFocused();
   await expect(last.locator('[data-lp-case-heading]')).toHaveText('Case 3 of 3. You do all 3 steps.');
@@ -172,7 +163,6 @@ for (const keyboard of [false, true]) test(`whole journey by ${keyboard ? 'keybo
   await expect(last.locator('[data-lp-result]')).toBeHidden();
   await answerStep(page, 2, 2, 2, keyboard);
 
-  // The end: one sentence, announced once, and the answers are locked.
   await expect(last.locator('[data-lp-result]')).toHaveText('You got 3 of your 4 steps right.');
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['You got 3 of your 4 steps right.']);
   await expect(last.getByRole('button')).toHaveText(['Start over', 'Previous case']);
@@ -181,7 +171,6 @@ for (const keyboard of [false, true]) test(`whole journey by ${keyboard ? 'keybo
   await expectChoiceMarks(page);
   expect(await axe(page)).toEqual([]);
 
-  // Earlier cases stay open for reference, with what the learner did.
   if (keyboard) { await page.keyboard.press('Tab'); await page.keyboard.press('Tab'); await expect(last.locator('[data-lp-back]')).toBeFocused(); await page.keyboard.press('Enter'); } else await last.locator('[data-lp-back]').click();
   await expect(second.locator('[data-lp-case-heading]')).toBeFocused();
   await expect(third.locator('.lp-choice-mark')).toHaveText(['Incorrect', 'Correct answer']);
@@ -193,7 +182,6 @@ for (const keyboard of [false, true]) test(`whole journey by ${keyboard ? 'keybo
   await panel(page, 0).locator('[data-lp-next]').click();
   await second.locator('[data-lp-next]').click();
 
-  // Start over clears every answer and returns to the worked case.
   const restart = last.locator('[data-lp-restart]');
   if (keyboard) { await restart.focus(); await page.keyboard.press('Enter'); } else await restart.click();
   await expect(panel(page, 0).locator('[data-lp-case-heading]')).toBeFocused();
@@ -280,7 +268,6 @@ test('a worked step after one of the learner’s waits until that step is checke
   await panel(page, 0).locator('[data-lp-next]').click();
   await expect(panel(page, 1).locator('.lp-finish-worked-example-tag')).toHaveText(['Your step', 'Done for you', 'Done for you']);
   await expect(panel(page, 1).locator('[data-lp-body]:visible')).toHaveCount(0);
-  // Rendered text only: the hidden result must not show.
   await expect(step(page, 1, 1)).toHaveText(/^Step 2\s*,\s*Done for you\s+Did everything arrive\?$/, { useInnerText: true });
   await expect(panel(page, 1).locator('[data-lp-next]')).toBeHidden();
   await answerStep(page, 1, 0, 0);
@@ -305,7 +292,6 @@ test('without JavaScript every case is readable and each case’s answers open o
       : [frenchTypography('Étape 3 : Payer seulement ce qui est arrivé La facture correspond au bon de commande, donc vous ne la retenez pas. Vous payez 320 $ pour les 8 cartouches arrivées.', 'fr')], { useInnerText: true });
     await page.locator('summary').nth(1).click();
     await expect(page.locator('details').nth(1).locator('li')).toHaveCount(3);
-    // axe needs page scripts, so it checks this same markup after destroy() in the last test.
     expect(await overflowing(page)).toEqual({ page: 0, clipped: [] });
   }
   await context.close();
@@ -313,15 +299,12 @@ test('without JavaScript every case is readable and each case’s answers open o
 
 for (const lang of ['en', 'fr']) for (const textSpacing of [false, true]) {
   test(`400% reflow keeps every case inside the card (${lang}, text spacing ${textSpacing})`, async ({ page }) => {
-    // 320 CSS px represents reflow at 400% zoom from a 1280px viewport.
     await page.setViewportSize({ width: 320, height: 900 });
     await open(page, lang, AT_CASE_3);
     if (textSpacing) await page.addStyleTag({ content: TEXT_SPACING });
-    // Wrong answers show both marks, the longest state of a step.
     for (const [s, option] of [0, 1, 0].entries()) await answerStep(page, 2, s, option);
     await expect(panel(page, 2).locator('[data-lp-result]')).toBeVisible();
     expect(await overflowing(page)).toEqual({ page: 0, clipped: [] });
-    // Facts stack under their labels when the card is narrow.
     const fact = await panel(page, 2).locator('.lp-finish-worked-example-facts > div').first().evaluate(row => {
       const [label, value] = [row.querySelector('dt'), row.querySelector('dd')].map(el => el.getBoundingClientRect());
       return value.top >= label.bottom - 1;
@@ -336,7 +319,6 @@ for (const lang of ['en', 'fr']) for (const textSpacing of [false, true]) {
 
 test('the longest allowed content stays inside the card at 320px', async ({ page }) => {
   const token = 'Q3-Client-Report_Northwind_Industries_Holdings_FINAL_v12_approved-by-legal.xlsx';
-  // The name comes first so options stay unique after the cut.
   const fill = (text, limit) => `${text} ${token} `.repeat(10).slice(0, limit).trim();
   const long = structuredClone(english);
   long.title = fill('title', 120); long.context = fill('context', 300);
@@ -376,7 +358,6 @@ test('the card is the only box: the facts have no panel and a rule sets the step
   const look = await panel(page, 2).evaluate(root => {
     const facts = getComputedStyle(root.querySelector('.lp-finish-worked-example-facts'));
     const steps = getComputedStyle(root.querySelector('.lp-finish-worked-example-steps'));
-    // Choice rows and the status pills are shared roles from lib/base.css; nothing else inside the card is filled or bordered.
     const boxed = [...root.querySelectorAll('*')].filter(el => !el.closest('.lp-choice, .lp-button, .lp-finish-worked-example-tag') && el.getClientRects().length
       && (getComputedStyle(el).backgroundColor !== 'rgba(0, 0, 0, 0)' || ['Top', 'Right', 'Bottom', 'Left'].filter(side => parseFloat(getComputedStyle(el)[`border${side}Width`]) > 0).length > 1)).map(el => el.className);
     const [first, second] = [...root.querySelectorAll('[data-lp-step]')].map(el => el.getBoundingClientRect());
@@ -489,7 +470,6 @@ test('enhance is idempotent and destroy restores the no-JavaScript view', async 
   await expect(page.locator('[role="status"]')).toHaveText('');
   for (const summary of await page.locator('summary').all()) await summary.click();
   expect(await axe(page)).toEqual([]);
-  // Enhancing again reads the saved progress and builds on the same markup.
   await page.evaluate(() => { window.lpInstances = [window.lpEnhance()]; });
   await expect(page.locator('[data-lp-case]:visible')).toHaveCount(1);
   await expect(step(page, 1, 2).locator('.lp-choice').nth(1)).toHaveAttribute('data-lp-mark', 'correct');

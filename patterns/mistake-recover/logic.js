@@ -5,11 +5,8 @@ import { validateTextLengths } from '../../lib/text-limits.js';
 /** @typedef {{ name: string, title: string, summary: string, checks: Check[], approved: string, stopped: string, notStopped: string, steps: Step[] }} Colleague */
 /** @typedef {{ title: string, context: string, request: Request, colleague: Colleague }} Content */
 /** @typedef {'approve' | 'hold'} Decision */
-/** `decision` holds the choice on the request. `steps` holds the step ids checked on the request and
- * on the colleague's payment, or null where no recovery was checked.
- * @typedef {{ decision: Decision | null, steps: (string[] | null)[] }} LearnerState */
-/** What each payment's status line says, or null while it is not on screen.
- * @typedef {'pending' | 'held' | 'approved' | 'stopped' | 'notStopped' | null} Status */
+/** @typedef {{ decision: Decision | null, steps: (string[] | null)[] }} LearnerState */
+/** @typedef {'pending' | 'held' | 'approved' | 'stopped' | 'notStopped' | null} Status */
 /** @typedef {{ stage: 'decide' | 'recover' | 'done', item: 0 | 1 | null, statuses: Status[] }} Progress */
 /** @typedef {{ approvedStopped: string, approvedGoes: string, heldStopped: string, heldGoes: string }} SummaryStrings */
 
@@ -30,8 +27,7 @@ function text(value, path) {
   if (typeof value !== 'string' || value.trim().length === 0) throw new Error(`Invalid ${path}`);
 }
 
-/** A request or the colleague's payment: its record, its status lines and its recovery steps.
- * @param {unknown} item @param {string} path @param {string[]} allowed */
+/** @param {unknown} item @param {string} path @param {string[]} allowed */
 function payment(item, path, allowed) {
   if (!object(item)) throw new Error(`Invalid ${path}`);
   fields(item, allowed, path);
@@ -56,8 +52,6 @@ function payment(item, path, allowed) {
     if (typeof step.correct !== 'boolean') throw new Error(`Invalid ${at}.correct`);
     if (Object.hasOwn(step, 'stops') && step.stops !== true) throw new Error(`Invalid ${at}.stops`);
   });
-  // The status line changes when the learner chooses the one step that stops the harm, so there is
-  // exactly one and it is correct. A list with every step correct, or none, is not a choice.
   const stopping = steps.filter(step => step.stops);
   if (stopping.length !== 1 || !stopping[0].correct) throw new Error(`Invalid ${path}.steps: mark one correct step with stops`);
   if (!steps.some(step => step.correct) || steps.every(step => step.correct)) throw new Error(`Invalid ${path}.steps: write a correct and an incorrect step`);
@@ -79,9 +73,7 @@ export function start() {
   return { decision: null, steps: [null, null] };
 }
 
-/** Where the learner is, and what each payment's status line says. Approving opens the request's
- * recovery; holding it opens the colleague's payment, so every learner recovers once.
- * @param {Content} content @param {LearnerState} state @returns {Progress} */
+/** @param {Content} content @param {LearnerState} state @returns {Progress} */
 export function progress(content, state) {
   if (state.decision === null) return { stage: 'decide', item: 0, statuses: ['pending', null] };
   const item = state.decision === 'approve' ? 0 : 1;
@@ -94,16 +86,14 @@ export function progress(content, state) {
   return { stage: 'done', item: null, statuses };
 }
 
-/** Approve or hold the request.
- * @param {Content} content @param {LearnerState} state @param {Decision} decision @returns {LearnerState} */
+/** @param {Content} content @param {LearnerState} state @param {Decision} decision @returns {LearnerState} */
 export function decide(content, state, decision) {
   if (progress(content, state).stage !== 'decide') throw new Error('This request is not open');
   if (decision !== 'approve' && decision !== 'hold') throw new Error('Invalid decision');
   return { decision, steps: [...state.steps] };
 }
 
-/** Check the recovery steps chosen for the payment that is open. Recovery is checked once.
- * @param {Content} content @param {LearnerState} state @param {0 | 1} item @param {string[]} ids @returns {LearnerState} */
+/** @param {Content} content @param {LearnerState} state @param {0 | 1} item @param {string[]} ids @returns {LearnerState} */
 export function recover(content, state, item, ids) {
   const now = progress(content, state);
   if (now.stage !== 'recover' || now.item !== item) throw new Error('This recovery is not open');
@@ -114,9 +104,7 @@ export function recover(content, state, item, ids) {
   return { decision: state.decision, steps };
 }
 
-/** Ignore invalid saved values and copy valid state. A value is valid when the learner's own steps
- * could have produced it.
- * @param {Content} content @param {unknown} value @returns {LearnerState | null} */
+/** @param {Content} content @param {unknown} value @returns {LearnerState | null} */
 export function validateState(content, value) {
   if (!object(value) || Object.keys(value).length !== 2 || !Array.isArray(value.steps) || value.steps.length !== 2) return null;
   const { decision, steps } = value;
@@ -128,13 +116,11 @@ export function validateState(content, value) {
       else if (stage === 'recover' && item !== null && steps[item] !== null) state = recover(content, state, item, steps[item]);
       else break;
     }
-    // Every saved value must have been replayed; anything left over could not have been reached.
     return JSON.stringify(state) === JSON.stringify({ decision, steps }) ? state : null;
   } catch { return null; }
 }
 
-/** The closing sentence: the decision, then whether the payment it put at risk was stopped.
- * @param {Content} content @param {LearnerState} state @param {SummaryStrings} strings */
+/** @param {Content} content @param {LearnerState} state @param {SummaryStrings} strings */
 export function summarize(content, state, strings) {
   const { stage, statuses } = progress(content, state);
   if (stage !== 'done') throw new Error('No summary before the last payment is settled');
@@ -144,9 +130,7 @@ export function summarize(content, state, strings) {
   return format(sentence, { name: content.colleague.name });
 }
 
-/** Replace authored placeholders in a single pass so inserted content stays literal.
- * @param {string} template @param {Record<string, string | number>} values
- */
+/** @param {string} template @param {Record<string, string | number>} values */
 export function format(template, values) {
   return template.replace(/\{(\w+)\}/g, (token, key) => Object.hasOwn(values, key) ? String(values[key]) : token);
 }

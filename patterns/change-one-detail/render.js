@@ -10,12 +10,9 @@ export function render(content, strings, { id, lang }) {
   const all = rounds(content);
   const h = (/** @type {string} */ text) => html(text, lang);
   const answer = (/** @type {string} */ option) => h(format(strings.correct, { option: content.options.find(o => o.id === option)?.text ?? '' }));
-  // The hidden labels give screen readers the change in words; struck and highlighted text shows it.
-  // One line: paragraphs keep authored line breaks, so a break in this markup would show.
   const quote = (/** @type {import('./logic.js').Round} */ round) => `<p class="lp-quote lp-change-one-detail-case">${round.parts.map(part =>
     part.kind === 'before' ? `<del><span class="lp-visually-hidden">${h(strings.before)} </span>${h(part.text)}</del> `
       : part.kind === 'now' ? `<ins><span class="lp-visually-hidden">${h(strings.now)} </span>${h(part.text)}</ins>` : h(part.text)).join('')}</p>`;
-  // Under the first change the start is the only other version seen, so the reminder only helps from the second.
   const changed = (/** @type {import('./logic.js').Round} */ round, /** @type {number} */ i) => `<h3 class="lp-run-in">${h(i === 1 ? strings.changeFirst : strings.changeNext)}</h3>
     ${quote(round)}
     ${i > 1 ? `<p class="lp-small">${h(strings.same)}</p>` : ''}`;

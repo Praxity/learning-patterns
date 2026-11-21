@@ -1,6 +1,5 @@
 import { defineConfig } from '@playwright/test';
 
-// Parallel worktrees on one machine each need their own port: LP_PORT=4174 npm run test:browser.
 const port = Number(process.env.LP_PORT ?? 4173);
 
 export default defineConfig({

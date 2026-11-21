@@ -45,7 +45,6 @@ for (const lang of ['en', 'fr']) test(`"or" is centred on the letter keys (${lan
 test('shared scene spans the card and centres its tile on the title', async ({ page }) => {
   await open(page);
   await expect(page.locator('.lp-scene-title')).toHaveText(english.title);
-  // The header holds the title only; the scoring rule is the first line under it.
   await expect(page.locator('.lp-scene-sub')).toHaveCount(0);
   await expect(page.locator('.lp-scene + p')).toContainText("I don't know");
   for (const width of [1280, 390, 320]) {
@@ -53,7 +52,6 @@ test('shared scene spans the card and centres its tile on the title', async ({ p
     const geometry = await page.locator('.lp-scene').evaluate(el => {
       const scene = el.getBoundingClientRect(), card = el.parentElement.getBoundingClientRect();
       const tile = el.querySelector('.lp-scene-icon svg').getBoundingClientRect(), text = el.querySelector('div').getBoundingClientRect();
-      // Centred on the text up to two title lines, then level with the first two (lib/base.css).
       const title = el.querySelector('.lp-scene-title'), centre = Math.min(text.height / 2, title.getBoundingClientRect().top - text.top + parseFloat(getComputedStyle(title).lineHeight));
       return [scene.left - card.left, card.right - scene.right, tile.top + tile.height / 2 - text.top - centre];
     });
@@ -121,7 +119,6 @@ test('shared v2 styles give one card, sans stems, keyed full-width choices and a
   const selected = page.locator('label:has(input:checked)');
   await expect(selected).toHaveCSS('border-top-width', '2px');
   await expect(selected).toHaveCSS('border-top-color', 'rgb(44, 85, 201)');
-  // A real 2px border with 1px less padding, no shadow ring (shared rule with Studio).
   await expect(selected).toHaveCSS('box-shadow', 'none');
   await expect(selected).toHaveCSS('padding-top', '9px');
   await expect(selected).toHaveCSS('background-color', 'rgb(238, 242, 253)');
@@ -139,7 +136,6 @@ test('keyboard journey associates each unanswered error, focuses first missing r
   const questions = page.locator('fieldset');
   const check = page.locator('[data-lp-check]');
   await page.keyboard.press('Tab'); await expect(questions.nth(0).locator('input').first()).toBeFocused();
-  // Select only the first question, then tab past the remaining radio groups.
   await page.keyboard.press('Space');
   for (let n = 0; n < 3; n++) await page.keyboard.press('Tab');
   await expect(check).toBeFocused(); await page.keyboard.press('Enter');
@@ -168,7 +164,6 @@ test('keyboard journey associates each unanswered error, focuses first missing r
   await page.keyboard.press('Enter'); await expect(questions.first().locator('input').first()).toBeFocused();
   await expect(page.locator('input:checked')).toHaveCount(0);
   await expect(page.locator('[data-lp-result]')).toBeHidden(); await expect(page.locator('[data-lp-restart]')).toBeHidden();
-  // Focusing the score supplies the result speech; the status must not repeat it.
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Answers cleared.']);
 });
 
@@ -218,7 +213,6 @@ for (const [lang, content, correct, wrong, answer, unknown, counts] of [
     await expect(questions.nth(2).locator('label:has(input:checked) .lp-choice-mark.lp-neutral')).toHaveText(unknown);
     await expect(questions.nth(2).locator('label:has(input:checked)')).not.toHaveAttribute('data-lp-mark');
     for (const index of [1, 2]) {
-      // The correct answer the learner didn't choose is neutral and dashed, not a green pick.
       await expect(questions.nth(index).locator(`label:has(input[value="${content.questions[index].correct}"])`)).toHaveAttribute('data-lp-mark', 'missed');
       await expect(questions.nth(index).locator(`label:has(input[value="${content.questions[index].correct}"]) .lp-choice-mark.lp-neutral`)).toHaveText(answer);
       await expect(questions.nth(index).locator(`label:has(input[value="${content.questions[index].correct}"])`)).toHaveCSS('border-top-style', 'dashed');
@@ -247,7 +241,6 @@ for (const [lang, content, correct, wrong, answer, unknown, counts] of [
   });
 
   test(`axe on unchanged server HTML with native answers open (${lang})`, async ({ page }) => {
-    // axe needs scripting enabled. Block enhancement to audit the same native baseline.
     await page.route('**/dont-know/enhance.js', route => route.fulfill({ contentType: 'text/javascript', body: 'export function enhance() { return { destroy() {} }; }' }));
     await open(page, `/dont-know/${lang}.html`);
     await scan(page); await page.locator('summary').click(); await scan(page);
@@ -398,7 +391,6 @@ test('answers lock on submit; Start over clears marks, explanations and host sta
   await expect(page.locator('input').first()).toBeFocused();
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ picks: {}, shown: false });
   await pick(page); await page.locator('[data-lp-check]').click();
-  // The new result replaces "Answers cleared.", so reading to the end doesn't hear it after the score.
   await expect(page.getByRole('status')).toHaveText('');
   expect(await page.evaluate(() => window.lpAnnouncements.filter(Boolean))).toEqual(['Answers cleared.']);
 });
@@ -487,12 +479,10 @@ test('quiet reset and forced colours preserve focus rings and button distinction
   test.skip(browserName !== 'chromium', 'Forced colours emulation checked in Chromium.');
   await page.emulateMedia({ forcedColors: 'active' }); await open(page); await pick(page); await page.locator('[data-lp-check]').click();
   await expect(page.locator('[data-lp-mark]').first()).toHaveCSS('border-style', 'double');
-  // The unchosen correct answer stays dashed, so it doesn't read as a pick.
   await expect(page.locator('[data-lp-mark="missed"]').first()).toHaveCSS('border-top-style', 'dashed');
   await page.locator('[data-lp-restart]').focus();
   await expect(page.locator('[data-lp-restart]')).toHaveCSS('text-decoration-line', 'underline');
   await page.locator('[data-lp-restart]').click();
-  // Programmatic question focus inherits the current input modality. Exercise keyboard focus.
   await page.keyboard.press('Tab');
   for (const locator of [page.locator('input').first(), page.locator('[data-lp-check]'), page.locator('fieldset').first()]) {
     await locator.focus();

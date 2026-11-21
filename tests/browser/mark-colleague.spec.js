@@ -54,20 +54,17 @@ for (const lang of ['en', 'fr']) {
     await page.keyboard.press('Tab');
     await expect(check(page)).toBeFocused();
     await page.keyboard.press('Enter');
-    // Focus reads the checklist question and the first part to look at.
     await expect(box(page, 'no_reason')).toBeFocused();
     await expect(page.getByRole('group', { name: fill(lang, 'legend', { colleague: 'Priya' }) })).toBeVisible();
     await expect(page.locator('[data-lp-ticks] label')).toHaveText(content.issues.map(issue => t(lang, issue.label)));
     await expect(check(page)).toBeHidden();
     await expect(page.locator('[data-lp-restart]')).toBeVisible();
-    // Explanations wait for the second check.
     await expect(page.locator('[data-lp-issues] > li')).toHaveCount(0);
     await expect(page.getByText(t(lang, content.issues[0].explanation))).toBeHidden();
     await page.keyboard.press('Space');
     await expect(box(page, 'no_reason')).toBeChecked();
     expect(await page.evaluate(() => window.lpSaved)).toEqual({ feedback: FEEDBACK[lang], ticked: ['no_reason'], stage: 'compare' });
 
-    // The one chance to add: the field is still open between the checks.
     await field(page).focus();
     await page.keyboard.press('End');
     await page.keyboard.type(' Offer the credit.');
@@ -87,17 +84,14 @@ for (const lang of ['en', 'fr']) {
     }
     await expect(items.locator('.lp-mark-colleague-mark')).toHaveText([strings[lang].raised, strings[lang].raised, strings[lang].notRaised]);
     await expect(items.locator('.lp-mark-colleague-mark svg[aria-hidden="true"]')).toHaveCount(3);
-    // The sentence sits above the list.
     const [above, below] = await Promise.all([summary.boundingBox(), items.first().boundingBox()]);
     expect(above.y).toBeLessThan(below.y);
-    // It ends here: feedback read-only, checklist and buttons gone, Start over still usable.
     await expect(field(page)).toHaveValue(`${FEEDBACK[lang]} Offer the credit.`);
     await expect(field(page)).toHaveJSProperty('readOnly', true);
     await expect(page.locator('[data-lp-ticks]')).toBeHidden();
     await expect(show(page)).toBeHidden();
     await expect(check(page)).toBeHidden();
     await expect(page.locator('[data-lp-restart]')).toBeEnabled();
-    // Every result was read through focus.
     expect(await page.evaluate(() => window.announcements)).toEqual([]);
     expect(await page.evaluate(() => window.lpSaved)).toEqual({ feedback: `${FEEDBACK[lang]} Offer the credit.`, ticked: ['no_reason', 'no_alternative'], stage: 'done' });
     await page.keyboard.press('Tab');
@@ -125,7 +119,6 @@ for (const lang of ['en', 'fr']) {
     await expect(error).toHaveText(fill(lang, 'empty'));
     await expect(field(page)).toBeFocused();
     await expect(page.locator('[data-lp-result]')).toBeHidden();
-    // The linked error is read with the field, so nothing is announced.
     expect(await page.evaluate(() => window.announcements)).toEqual([]);
   });
 
@@ -200,7 +193,6 @@ test('start over clears the feedback and the ticks and announces it once', async
   await expect(page.locator('[data-lp-pattern] input:checked')).toHaveCount(0);
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ feedback: '', ticked: [], stage: 'write' });
   expect(await page.evaluate(() => window.announcements)).toEqual([strings.en.cleared]);
-  // The whole sequence runs again.
   await finish(page, 'en', ['vague_next_step']);
   await expect(page.locator('[data-lp-summary]')).toHaveText('Your feedback raised 1 of 3 issues.');
 });
@@ -215,7 +207,6 @@ test('the emails and the result are set apart without a box inside the card', as
         || css.backgroundColor !== 'rgba(0, 0, 0, 0)' || css.boxShadow !== 'none';
     }).map(el => el.outerHTML.slice(0, 80)));
   expect(await boxed('.lp-mark-colleague-mail')).toEqual([]);
-  // A rule above each email separates the two messages and the field.
   await expect(page.locator('.lp-mark-colleague-mail').nth(1)).toHaveCSS('border-top-width', '1px');
   await finish(page, 'en', ['no_reason']);
   expect(await boxed('[data-lp-result]')).toEqual([]);
@@ -254,7 +245,6 @@ test('destroy stops saving, and a fresh enhance saves once per event', async ({ 
     const state = { read: () => null, write: value => log.push(value) };
     window.lpInstances[0].destroy();
     enhance(root, { content, strings: strings.en, state }).destroy();
-    // A destroyed instance hears nothing.
     field.value = 'Say why.';
     field.dispatchEvent(new Event('input'));
     root.querySelector('[data-lp-check]').click();

@@ -1,6 +1,4 @@
-/** Replace placeholders without interpreting inserted text as another placeholder.
- * @param {string} template @param {Record<string, string | number>} values
- */
+/** @param {string} template @param {Record<string, string | number>} values */
 export function format(template: string, values: Record<string, string | number>): string;
 /** @param {number} value @param {string} lang */
 export function numberText(value: number, lang: string): string;

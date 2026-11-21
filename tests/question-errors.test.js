@@ -2,7 +2,6 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { clearQuestionLink, focusQuestion, questionLinks } from '../lib/question-errors.js';
 
-// Only the DOM operations used by the helper; pattern interactions run in browser specs.
 function element(tag, document) {
   return {
     tag, ownerDocument: document, dataset: {}, children: [], hidden: false,

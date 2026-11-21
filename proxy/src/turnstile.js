@@ -1,6 +1,5 @@
 const COOKIE = "live_clearance";
 const HOUR = 3_600_000;
-// Cloudflare's always-pass test secret returns a dummy hostname such as example.com.
 const TEST_SECRET = "1x0000000000000000000000000000000AA";
 const TEST_SECRETS = new Set([TEST_SECRET, "2x0000000000000000000000000000000AA", "3x0000000000000000000000000000000AA"]);
 const encoder = new TextEncoder();

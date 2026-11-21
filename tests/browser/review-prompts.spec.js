@@ -101,7 +101,6 @@ for (const width of [1280, 390]) {
       for (const paragraph of await paragraphs.all()) {
         await expect(paragraph).toHaveCSS('border-top-width', '0px');
         await expect(paragraph).toHaveCSS('font-size', '17px');
-        // WebKit serializes this computed value as 28.049999px.
         expect(await paragraph.evaluate(el => {
           const css = getComputedStyle(el);
           return Number((parseFloat(css.lineHeight) / parseFloat(css.fontSize)).toFixed(6));
@@ -151,7 +150,6 @@ test('rating toggles keep their labels, use the v2 accent and add a calendar rev
     await expect(button).toHaveCSS('background-color', 'rgb(255, 255, 255)');
   }
   for (const [selected, other, label] of [[remembered, forgot, 'I remembered'], [forgot, remembered, 'I forgot']]) {
-    // Activate from the keyboard so every engine starts with focus on the control.
     await selected.focus(); await selected.press('Enter'); await expect(selected).toBeFocused();
     await expect(selected).toHaveText(label);
     await expect(selected).toHaveAttribute('aria-pressed', 'true');
@@ -166,7 +164,6 @@ test('rating toggles keep their labels, use the v2 accent and add a calendar rev
     await expect(part(page).locator('[data-lp-mark]')).toHaveCount(0);
   }
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual(['Review again on Friday, October 9, 2026', 'Review again on Wednesday, October 7, 2026']);
-  // The shared token also controls the pressed border for hosts that change their accent.
   await page.locator('[data-lp-pattern]').evaluate(el => el.style.setProperty('--lp-accent', '#123456'));
   await expect(forgot).toHaveCSS('border-top-color', 'rgb(18, 52, 86)');
 });
@@ -265,7 +262,6 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
       await expect(block.locator('[data-lp-rating]')).toBeHidden();
     }
     await expect(page.getByRole('status')).toHaveText(''); await context.close();
-    // Axe needs script execution. Scan the same native HTML with the enhancer blocked.
     const auditContext = await browser.newContext();
     await auditContext.route('**/patterns/review-prompts/enhance.js', route => route.abort());
     const auditPage = await auditContext.newPage(); await auditPage.goto(`/review-prompts/${lang}.html`);

@@ -34,7 +34,6 @@ test('refuses missing front matter, missing keys, bad values and unknown keys', 
   assert.throws(() => readMeta('x', valid.replace('learners: not tried', 'learners: not tried\nicon: bulb')), /unknown front matter key icon/);
 });
 
-// GitHub and site builds parse front matter as YAML, so values must mean the same there.
 test('reads quoted values as YAML does and refuses values YAML would misread', () => {
   const meta = (title) => readMeta('x', valid.replace('title: Check your own answer', `title: ${title}`));
   assert.equal(meta(`'"I don''t know" as an answer'`).title.en, `"I don't know" as an answer`);
@@ -64,7 +63,6 @@ const README_SECTIONS = [
 function checkReadmeStructure(readme, name = 'pattern') {
   const meta = readMeta(name, readme);
   assert.match(readme, /^---\r?\n[\s\S]*?\r?\n---\r?\n# [^\r\n]+\r?\n/);
-  // Code examples may contain Markdown headings; they are not README sections.
   const prose = readme.replace(/^```[^\n]*\n[\s\S]*?^```[^\n]*$/gm, '');
   const sections = [...prose.matchAll(/^## ([^\r\n]+)\r?$/gm)].map(match => match[1]);
   const expected = [...README_SECTIONS];
@@ -79,7 +77,6 @@ function checkReadmeStructure(readme, name = 'pattern') {
     }
   }
   const avoid = prose.split('## Avoid it when')[1].split(/^## /m)[0].trim().split(/\r?\n/);
-  // An explicit If/When clause distinguishes a use condition from a property, without parsing English.
   assert.ok(avoid.every(item => /^- (?:If|When)\s+\S[^\r\n]*[.!?]$/.test(item)), 'Each Avoid it when bullet must be a condition starting with If or When');
   if (meta.ai) {
     const before = prose.split('## Before you use it')[1].split(/^## /m)[0].trim();
@@ -97,7 +94,6 @@ function checkReadmeStructure(readme, name = 'pattern') {
   const details = prose.match(/^### Accessibility details\r?$/gm) ?? [];
   assert.ok(details.length === 0 || (details.length === 1 && /^### Accessibility details\r?$/m.test(useIt)), 'Accessibility details belongs under Use it');
   assert.doesNotMatch(readme, /still to come|separate human check|requires a separate human|checks remain separate/i, 'README contains stale screen reader wording');
-  // READMEs are public. They never mention how they were written or where files sit on a machine.
   assert.doesNotMatch(prose, INTERNAL, 'README contains internal phrasing');
   assert.doesNotMatch(prose, /—/, 'README contains an em dash');
 }
@@ -167,7 +163,7 @@ test('every pattern README has the shared structure and plain learner steps', as
   }
 });
 
-/** A section's bullet lines. @param {string} markdown @param {string} heading */
+/** @param {string} markdown @param {string} heading */
 function bullets(markdown, heading) {
   const part = markdown.split(new RegExp(`^## ${heading}\\r?$`, 'm'))[1];
   return part === undefined ? [] : part.split(/^## /m)[0].trim().split(/\r?\n/).filter(Boolean);
@@ -176,11 +172,7 @@ function bullets(markdown, heading) {
 const FRENCH = [['Quand l’utiliser', 'Use it when'], ['Quand l’éviter', 'Avoid it when']];
 const PATTERN_LINK = /\[([^\]]*)\]\(\.\.\/([^/]+)\/README\.md\)/g;
 
-/**
- * README.fr.md holds the French "Use it when" and "Avoid it when", which praxity.io shows on French
- * pages. Each bullet translates the English one in the same place, so counts and links must match.
- * @param {string} fr @param {string} readme @param {Record<string, string>} titlesFr title_fr by folder
- */
+/** @param {string} fr @param {string} readme @param {Record<string, string>} titlesFr title_fr by folder */
 function checkFrenchSections(fr, readme, titlesFr) {
   assert.deepEqual([...fr.matchAll(/^## ([^\r\n]+)\r?$/gm)].map(match => match[1]), FRENCH.map(([heading]) => heading));
   assert.match(fr, /^## /, 'README.fr.md has text before its first section');
@@ -192,7 +184,6 @@ function checkFrenchSections(fr, readme, titlesFr) {
       const links = [...item.matchAll(PATTERN_LINK)];
       assert.deepEqual(links.map(link => link[2]), [...bullets(readme, english)[i].matchAll(PATTERN_LINK)].map(link => link[2]), `${heading} bullet ${i + 1} links other patterns than the English`);
       for (const [, text, name] of links) assert.equal(text, titlesFr[name], `${heading}: link to ${name} needs its title_fr`);
-      // Link text is title_fr, which the front matter owns, so only the bullet's own words are checked.
       const words = item.replace(PATTERN_LINK, 'X');
       assert.doesNotMatch(words, /\p{L}'\p{L}/u, `${heading}: straight apostrophe`);
       assert.doesNotMatch(words, /[^ ]:|[^ ][;!?]|«[^ ]|[^ ]»/u, `${heading}: French spacing needs a no-break space before ":" and a narrow one before ";!?" and inside « »`);
@@ -231,7 +222,6 @@ test('every pattern has French Use it when and Avoid it when sections', async ()
   for (const name of folders) titlesFr[name] = readMeta(name, await readFile(new URL(`${name}/README.md`, root), 'utf8')).title.fr;
   for (const name of folders) {
     const readme = await readFile(new URL(`${name}/README.md`, root), 'utf8');
-    // A missing README.fr.md rejects here, so a new pattern can't ship without its French sections.
     const fr = await readFile(new URL(`${name}/README.fr.md`, root), 'utf8');
     assert.doesNotThrow(() => checkFrenchSections(fr, readme, titlesFr), `${name}/README.fr.md`);
   }

@@ -26,8 +26,6 @@ for (const lang of ['en', 'fr']) test(`Add focuses the new question; Remove focu
   await expect(bank.locator('li')).toHaveCount(2);
 });
 
-// VoiceOver keeps its cursor on a control that hides before focus moves. Add focuses the new question
-// after layout, while Add is still visible, and only then hides Add.
 for (const lang of ['en', 'fr']) test(`Add focuses the new question after layout, before hiding Add (${lang})`, async ({ page }) => {
   await open(page, { lang }); await scores(page, { none: 1 });
   const root = faq(page), add = root.locator('[data-lp-add]');
@@ -59,10 +57,8 @@ for (const lang of ['en', 'fr']) test(`a refused lookup focuses the fallback mes
     await expect(message).toBeFocused();
     await expect(message).toHaveText(strings[lang].fallback);
     await expect(root.locator('[data-lp-controls]')).toBeHidden();
-    // Focus reads the message, so the status region stays quiet, now and later.
     await page.clock.runFor(1000);
     expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
-    // WebKit skips links on Tab by default, so check the next Tab on the FAQ disclosures.
     if (kind === 'faq') { await page.keyboard.press('Tab'); await expect(root.locator('[data-lp-fallback] summary').first()).toBeFocused(); }
   }
 });
@@ -161,7 +157,6 @@ async function open(page, { mode = 'ok', lang = 'en', two = false } = {}) {
       for (const record of records) if (record.target.textContent) window.lpAnnouncements.push(record.target.textContent);
     }).observe(status, { childList: true, characterData: true, subtree: true });
   });
-  // Host and browser clocks can differ; freeze at a known future tick.
   const time = new Date(2026, 9, 6);
   await page.clock.install({ time });
   await page.clock.pauseAt(new Date(time.getTime() + 60_000));
@@ -200,7 +195,6 @@ test('actual keystrokes adapt the wait and composing text waits for completion',
   await input.dispatchEvent('compositionstart');
   await input.dispatchEvent('input', { isComposing: true });
   await page.clock.runFor(1000);
-  // Composition must not start checks on unfinished text.
   expect(await calls(page)).toBe(1);
   await input.dispatchEvent('compositionend');
   await page.clock.runFor(900); expect(await calls(page)).toBe(2);
@@ -362,7 +356,6 @@ test('no-JS page includes eight readable FAQ answers and six outline anchors',as
   await expect(faq(page).locator('details').first()).toContainText('eight weeks');
   await expect(sections(page).locator('[data-lp-fallback] a')).toHaveCount(6);
   await expect(page.getByRole('textbox')).toHaveCount(0);
-  // axe needs page scripts. The same fallback receives axe checks with scripts enabled.
   await context.close();
 });
 

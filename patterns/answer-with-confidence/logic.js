@@ -41,7 +41,6 @@ export function validateContent(content) {
   if (Object.hasOwn(content, 'context')) text(content.context, 'context');
   if (Object.hasOwn(content, 'dontKnow') && typeof content.dontKnow !== 'boolean') throw new Error('Invalid dontKnow');
   if (!Array.isArray(content.questions) || content.questions.length === 0) throw new Error('Invalid questions');
-  // One question is its own heading. Several need a title above them.
   if (content.questions.length > 1 && !Object.hasOwn(content, 'title')) throw new Error('Invalid title: required with several questions');
   const ids = new Set();
   content.questions.forEach((q, index) => {
@@ -65,7 +64,6 @@ export function validateContent(content) {
       text(option.feedback, `${optionPath}.feedback`);
       if (Object.hasOwn(option, 'rightWhen')) {
         text(option.rightWhen, `${optionPath}.rightWhen`);
-        // The line says why a wrong option can seem right, so the correct option has nowhere to show one.
         if (option.id === q.correct) throw new Error(`Invalid ${optionPath}.rightWhen: the correct option takes none`);
       }
     });
@@ -73,16 +71,12 @@ export function validateContent(content) {
   });
 }
 
-/** An answer is one of the question's options, or "Don't know" when the content turns it on.
- * @param {Content} content @param {Question} question @param {unknown} answer @returns {answer is string}
- */
+/** @param {Content} content @param {Question} question @param {unknown} answer @returns {answer is string} */
 function answerable(content, question, answer) {
   return typeof answer === 'string' && (answer === DONT_KNOW ? content.dontKnow === true : question.options.some(o => o.id === answer));
 }
 
-/** Validate answers at the host boundary. Missing own keys mean unanswered.
- * @param {Content} content @param {unknown} answers @returns {asserts answers is Record<string, string>}
- */
+/** @param {Content} content @param {unknown} answers @returns {asserts answers is Record<string, string>} */
 function validateAnswers(content, answers) {
   if (!object(answers)) throw new Error('Invalid answers');
   const questions = new Map(content.questions.map(q => [q.id, q]));
@@ -93,12 +87,8 @@ function validateAnswers(content, answers) {
   }
 }
 
-/** What to show after one submitted answer: the result and the chosen option's feedback.
- * After "Don't know" the feedback is the correct option's. `rightWhen` is the chosen option's
- * line only after a wrong answer the learner said they were sure of; otherwise it is null.
- * @param {Content} content @param {string} questionId @param {string} answer @param {Certainty} [certainty]
- * @returns {{ result: 'right' | 'wrong' | 'unknown', correct: Option, feedback: string, rightWhen: string | null }}
- */
+/** @param {Content} content @param {string} questionId @param {string} answer @param {Certainty} [certainty]
+ * @returns {{ result: 'right' | 'wrong' | 'unknown', correct: Option, feedback: string, rightWhen: string | null }} */
 export function feedback(content, questionId, answer, certainty) {
   validateContent(content);
   const question = content.questions.find(q => q.id === questionId);
@@ -112,10 +102,7 @@ export function feedback(content, questionId, answer, certainty) {
   return { result: wrong ? 'wrong' : 'right', correct, feedback: chosen.feedback, rightWhen: wrong && certainty === SURE ? chosen.rightWhen ?? null : null };
 }
 
-/** Group question identities in content order. Certainty only fills `sureWrong` and `unsureRight`;
- * it never moves a question between right and wrong.
- * @param {Content} content @param {Record<string, string>} answers @param {Record<string, Certainty>} [certainties]
- */
+/** @param {Content} content @param {Record<string, string>} answers @param {Record<string, Certainty>} [certainties] */
 export function summarize(content, answers, certainties = {}) {
   validateContent(content);
   validateAnswers(content, answers);
@@ -135,19 +122,14 @@ export function summarize(content, answers, certainties = {}) {
   return result;
 }
 
-/** Ignore invalid saved values and copy valid state. Saved state holds answers only, so a value
- * that carries anything else, certainty included, is rejected.
- * @param {Content} content @param {unknown} value @returns {LearnerState | null}
- */
+/** @param {Content} content @param {unknown} value @returns {LearnerState | null} */
 export function validateState(content, value) {
   if (!object(value) || Object.keys(value).some(key => key !== 'answers')) return null;
   try { validateAnswers(content, value.answers); } catch { return null; }
   return { answers: { ...value.answers } };
 }
 
-/** Replace authored placeholders in a single pass so inserted content stays literal.
- * @param {string} template @param {Record<string, string | number>} values
- */
+/** @param {string} template @param {Record<string, string | number>} values */
 export function format(template, values) {
   return template.replace(/\{(\w+)\}/g, (token, key) => Object.hasOwn(values, key) ? String(values[key]) : token);
 }

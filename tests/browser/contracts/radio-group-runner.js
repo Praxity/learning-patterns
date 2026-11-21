@@ -12,10 +12,8 @@ const expect = baseExpect.configure({ timeout: 1000 });
  * @property {number|null} selected
  */
 
-/** Compare browser semantics with the independent binding and native painted state.
- * @param {Subject} subject
- * @param {number|null} selected
- */
+/** @param {Subject} subject
+ * @param {number|null} selected */
 async function selection({ group, names }, selected) {
   const radios = group.getByRole('radio');
   await expect(radios).toHaveCount(names.length);
@@ -29,15 +27,12 @@ async function selection({ group, names }, selected) {
   }
 }
 
-/** Run exactly one expectation, also used unchanged by planted violations.
- * @param {string} id
+/** @param {string} id
  * @param {import('@playwright/test').Page} page
- * @param {Subject} subject
- */
+ * @param {Subject} subject */
 export async function assertRadioExpectation(id, page, subject) {
   const { group, legend, names, selected } = subject;
   const radios = group.getByRole('radio');
-  // An empty subject must fail, including focus loops over all radios.
   await expect(radios).toHaveCount(names.length);
   switch (id) {
     case 'group-name':
@@ -52,7 +47,6 @@ export async function assertRadioExpectation(id, page, subject) {
       await selection(subject, selected);
       break;
     case 'tab': {
-      // Sentinels isolate group entry/exit from unrelated fixture controls.
       await group.evaluate(el => {
         for (const side of ['before', 'after']) {
           const button = document.createElement('button');
@@ -68,8 +62,6 @@ export async function assertRadioExpectation(id, page, subject) {
         await expect(radios.nth(selected ?? 0)).toBeFocused();
         await page.keyboard.press('Tab');
         await expect(after).toBeFocused();
-        // APG notes native reverse entry can differ when no radio is selected.
-        // Check reverse entry with a selection, for which APG specifies one target.
         await radios.nth(names.length - 1).check();
         await after.focus();
         await page.keyboard.press('Shift+Tab');
@@ -120,8 +112,6 @@ export async function assertRadioExpectation(id, page, subject) {
       for (const [i, radio] of all.entries()) {
         await radio.focus();
         await expect(radio).toBeFocused();
-        // Native labels may paint the ring around a visually hidden input.
-        // Only the focused radio may show it: a ring that never leaves is not a focus indicator.
         const rings = await radios.evaluateAll(elements => elements.map(el => [el, ...(el.labels ?? [])].some(target => {
           const css = getComputedStyle(target), box = target.getBoundingClientRect();
           return box.width > 0 && box.height > 0 && Number(css.opacity) > 0 &&
@@ -150,8 +140,6 @@ export function bindRadioContract(binding) {
           const subject = await state.load(page, javaScriptEnabled);
           for (const expectation of radioGroupContract) {
             await test.step(`${expectation.id}, ${state.name}: ${expectation.outcome} (${expectation.sources.join(', ')})`, async () => {
-              // Fixture setup resets native selection without navigation or synthetic events.
-              // Each expectation still starts from the binding's declared state.
               await subject.group.getByRole('radio').evaluateAll((elements, selected) => {
                 for (const [i, element] of elements.entries()) {
                   if (!(element instanceof HTMLInputElement)) throw new Error('Expected native radio fixture');

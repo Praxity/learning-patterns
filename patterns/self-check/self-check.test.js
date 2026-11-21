@@ -8,7 +8,6 @@ import { strings } from './strings.js';
 const content = JSON.parse(await readFile(new URL('./examples/en.json', import.meta.url)));
 const schema = JSON.parse(await readFile(new URL('./content.schema.json', import.meta.url)));
 
-// Only the schema keywords used by this pattern. x-uniqueBy checks part identities.
 function matches(value, rule, root = value) {
   if (Array.isArray(rule.type)) return rule.type.some(type => matches(value, { ...rule, type }, root));
   if (rule.type === 'null') return value === null;

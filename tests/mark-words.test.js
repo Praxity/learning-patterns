@@ -1,9 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-// One set of answer marks across patterns (owner, 2026-10-22): a chosen correct answer, a chosen
-// incorrect answer, and a correct answer the learner didn't choose. Explanations go in the feedback
-// text, never in the mark.
 const MARKS = {
   en: { markCorrect: 'Correct', markWrong: 'Incorrect', markAnswer: 'Correct answer' },
   fr: { markCorrect: 'Correct', markWrong: 'Incorrect', markAnswer: 'Bonne réponse' }

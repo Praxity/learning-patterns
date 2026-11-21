@@ -1,6 +1,3 @@
-// Builds the static demo site: one folder per pattern with English, French and two-instance pages,
-// an index of every pattern, each pattern's raw README for agents, and headers that keep the
-// unlisted preview out of search. Browser tests and the live preview both use this output.
 import { copyFile, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -42,7 +39,6 @@ await copyInto('proxy/logic/03-contract.js');
 await copyInto('proxy/logic/13-journal.js');
 await copyInto('proxy/logic/shared.js');
 await copyInto('proxy/logic/rubric.js');
-// The demo pages load the course fonts the base styles name. They are dev dependencies (OFL), not part of a pattern.
 const FONTS = ['source-sans-3-latin-400-normal', 'source-sans-3-latin-600-normal', 'source-serif-4-latin-400-normal', 'source-serif-4-latin-600-normal'];
 await mkdir(join(output, 'fonts'), { recursive: true });
 for (const font of FONTS) {

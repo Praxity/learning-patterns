@@ -20,7 +20,6 @@ for (const pattern of patterns) for (const lang of ['en', 'fr']) {
       await s.read('Local feedback and closing summary');
       await writeFile(info.outputPath('journey-result.json'), JSON.stringify({ complete: true, pattern, lang }));
     } catch (error) {
-      // A page or navigation finding is evidence, not a CI assertion failure.
       await writeFile(info.outputPath('journey-result.json'), JSON.stringify({ complete: false, pattern, lang, error: error.stack }));
       await s.snapshot('blocked');
       console.error(`${pattern} ${lang}: ${error.stack}`);
@@ -35,7 +34,6 @@ async function journey(s, page, pattern, lang, content) {
     if (inspect) for (let i = 1; i < await inputs.count(); i++) await s.key('ArrowDown', `${label}: option ${i + 1}`);
     const active = await inputs.evaluateAll(elements => elements.indexOf(document.activeElement));
     if (active < 0) throw new Error(`${label}: radio focus lost`);
-    // Native WebKit radio groups stop at their ends rather than wrapping.
     const distance = index - active;
     for (let i = 0; i < Math.abs(distance); i++) await s.key(distance < 0 ? 'ArrowUp' : 'ArrowDown', `${label}: choose answer ${i + 1}`);
     await s.key('Space', `${label}: confirm`);
@@ -106,7 +104,6 @@ async function journey(s, page, pattern, lang, content) {
     assert.equal(await radios.last().isChecked(), true, 'Another date not selected');
     assert.equal(await date.isVisible(), true, 'Date field not revealed');
     await s.key('Tab', 'Date field revealed');
-    // Shift+Tab into WebKit's date control lands on the year segment, which run 7 proved recoverable by typing.
     const year = Number((await date.inputValue()).slice(0, 4)), rest = (await date.inputValue()).slice(4);
     for (const [cycle, typed] of [['Different date', year + 1], ['Same date', year + 1]]) {
       await s.seek('[data-lp-tab][aria-selected="true"]', `${cycle}: leave Date field`);
@@ -124,7 +121,6 @@ async function journey(s, page, pattern, lang, content) {
     await s.key('ArrowRight', 'Back tab'); await s.key('ArrowLeft', 'Front tab');
     await s.key('End', 'Back tab End'); await s.key('Home', 'Front tab Home');
     await s.key('ArrowRight', 'Back answers');
-    // Harness-owned: the native print sheet would block WebKit; the page's status write still runs.
     await page.evaluate(() => { window.print = () => {}; });
     await s.activate('[data-lp-print]', 'Print');
   } else if (pattern === 'test-out') {

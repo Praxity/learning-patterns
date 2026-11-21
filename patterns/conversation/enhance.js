@@ -63,8 +63,6 @@ export function enhance(root, { content, strings, state, ask }) {
   const append = (reply, line, note) => {
     chat.insertAdjacentHTML('beforeend', `<li class="lp-conversation-turn lp-conversation-turn-you"><p class="lp-conversation-bubble" data-lp-you><span class="lp-conversation-speaker">${html(strings.you, root.lang)}</span>${html(reply, root.lang)}</p></li>${renderMichel(content, line, `${prefix}-line-${conversation.round}`, root.lang)}${note ? `<li class="lp-conversation-note" data-lp-note><em>${html(note, root.lang)}</em></li>` : ''}`);
   };
-  /** Focus is the one announcement for a completed turn; never repeat it in status.
-   * Controls update after focus moves: focus on the body makes Chrome with NVDA read the whole activity. */
   const focusMichel = () => {
     cancelFocus();
     cancelFocus = focusAfterLayout(/** @type {HTMLElement} */ (chat.querySelectorAll('[data-lp-michel]')[conversation.round]), refresh, lifetime.signal);
@@ -106,7 +104,6 @@ export function enhance(root, { content, strings, state, ask }) {
       conversation = result.state; append(move.reply, result.line, result.note);
     }
   }
-  // Firefox may restore a form value after reload; only the validated host draft wins.
   input.value = saved?.draft ?? '';
   refresh();
   let configReady = Promise.resolve();
@@ -134,7 +131,6 @@ export function enhance(root, { content, strings, state, ask }) {
       errorText.textContent = frenchTypography(text, root.lang);
       error.hidden = false; input.setAttribute('aria-invalid', 'true');
       input.setAttribute('aria-describedby', `${error.id}${notice.hidden ? '' : ` ${notice.id}-text`}`);
-      // Focus and description announce the error once.
       input.focus(); return;
     }
     const mine = generation;
@@ -159,7 +155,6 @@ export function enhance(root, { content, strings, state, ask }) {
   /** @param {MouseEvent} event */
   const onChoose = event => {
     const button = event.target instanceof Element ? event.target.closest('[data-lp-branch]') : null;
-    // Last round's replies stay until focus moves; they take no turn.
     if (!button || pending.active || conversation.end || shownRound !== conversation.round) return;
     const branch = /** @type {import('./logic.js').Branch} */ (button.getAttribute('data-lp-branch'));
     take(branch, content.examples[conversation.node][branch]);

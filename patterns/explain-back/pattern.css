@@ -4,9 +4,6 @@
 .lp-explain-back [data-lp-mark="missing"] > .lp-choice-key { color: var(--lp-on-accent); background: var(--lp-warning-ink); border-color: var(--lp-warning-ink); }
 .lp-explain-back-to-add { color: var(--lp-warning-ink); }
 .lp-explain-back [data-lp-challenge] { min-inline-size: 0; }
-/* Closed chevron only: its point sits .16em right of the box centre, so the drawn mark shifts onto the text.
-   base.css has no closed-state shift; the open state uses its shared transform. */
-/* Feedback links are touch targets, at least 24 px tall. */
 .lp-explain-back [data-lp-reread] { display: inline-flex; align-items: center; min-block-size: 24px; }
 @media (forced-colors: active) {
   .lp-explain-back [data-lp-mark="missing"] { border: 3px double CanvasText; }

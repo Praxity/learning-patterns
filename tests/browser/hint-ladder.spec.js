@@ -7,7 +7,6 @@ const english = JSON.parse(await readFile(new URL('../../patterns/hint-ladder/ex
 const french = JSON.parse(await readFile(new URL('../../patterns/hint-ladder/examples/fr.json', import.meta.url)));
 const TEXT_SPACING = '*{line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important}p{margin-bottom:2em!important}';
 const START = { tries: [], opened: 0, followUp: null };
-// Authored text carries no-break spaces, and French rendering adds more. Compare words, not spaces.
 const plain = value => value.replace(/\s+/g, ' ').trim();
 
 async function open(page, path = '/hint-ladder/en.html') {
@@ -22,7 +21,6 @@ async function observe(page) {
     }).observe(document.querySelector('[role="status"]'), { childList: true, characterData: true, subtree: true });
   });
 }
-// Clearing the region is not speech, so empty entries are dropped.
 const announcements = async page => (await page.evaluate(() => window.lpAnnouncements)).map(plain).filter(Boolean);
 const saved = page => page.evaluate(() => window.lpSaved);
 const scan = async page => expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()).violations).toEqual([]);
@@ -31,12 +29,10 @@ const followUp = root => root.locator('[data-lp-follow-up]');
 const row = (section, value) => section.locator(`label:has(input[value="${value}"])`);
 const steps = root => root.locator('[data-lp-steps] > li');
 const hintButton = root => root.locator('[data-lp-hint]');
-/** Choose an option in a question and check it. */
 async function check(section, value) {
   await section.locator(`input[value="${value}"]`).check();
   await section.locator('[data-lp-check]').click();
 }
-// Replace the demo with other content through the public render and enhance interface.
 async function mount(page, content, { lang = 'en', state } = {}) {
   await open(page, `/hint-ladder/${lang}.html`);
   await page.evaluate(async ({ content, lang, state }) => {
@@ -58,7 +54,6 @@ test('keyboard journey: error, a wrong try, a hint, the right answer, the questi
   await expect(steps(page)).toHaveCount(3);
   await expect(page.locator('[data-lp-steps]')).toBeHidden();
 
-  // Checking with nothing chosen names the problem in the group and focuses its first option.
   await page.keyboard.press('Tab'); await expect(one.locator('input').first()).toBeFocused();
   await page.keyboard.press('Tab'); await expect(one.locator('[data-lp-check]')).toBeFocused();
   await page.keyboard.press('Enter');
@@ -70,7 +65,6 @@ test('keyboard journey: error, a wrong try, a hint, the right answer, the questi
   await expect(one.locator('input').first()).toBeFocused();
   expect(await announcements(page)).toEqual([]);
 
-  // A choice clears the error. Monday is wrong: it is marked, gets its reason and closes.
   await page.keyboard.press('Space');
   await expect(error).toBeHidden();
   await expect(one.locator('fieldset')).not.toHaveAttribute('aria-describedby');
@@ -81,7 +75,6 @@ test('keyboard journey: error, a wrong try, a hint, the right answer, the questi
   await expect(monday.locator('[data-lp-reason]')).toBeVisible();
   await expect(monday.locator('[data-lp-reason]')).toHaveText(english.options[0].feedback);
   await expect(monday.locator('input')).toBeDisabled(); await expect(monday.locator('input')).not.toBeChecked();
-  // The other options stay open, focus stays on the button and the status region speaks once.
   await expect(one.locator('input:disabled')).toHaveCount(1);
   await expect(one.locator('[data-lp-mark]')).toHaveCount(1);
   await expect(one.locator('[data-lp-check]')).toBeFocused();
@@ -90,7 +83,6 @@ test('keyboard journey: error, a wrong try, a hint, the right answer, the questi
   expect(await saved(page)).toEqual({ tries: ['monday'], opened: 0, followUp: null });
   await expect(two).toBeHidden();
 
-  // The hint button is the next stop. Its name carries the count, and the hint it opens takes focus.
   await page.keyboard.press('Tab'); await expect(hintButton(page)).toBeFocused();
   await expect(hintButton(page)).toHaveText('Show hint 1 of 2');
   await page.keyboard.press('Enter');
@@ -101,10 +93,8 @@ test('keyboard journey: error, a wrong try, a hint, the right answer, the questi
   await expect(hintButton(page)).toHaveText('Show hint 2 of 2');
   await expect(page.locator('[role="status"]')).toHaveText('');
   expect(await saved(page)).toEqual({ tries: ['monday'], opened: 1, followUp: null });
-  // From the hint, Tab reaches the check button.
   await page.keyboard.press('Tab'); await expect(one.locator('[data-lp-check]')).toBeFocused();
 
-  // The right answer ends the first question: focus reads the worked answer and the next question opens.
   await one.locator('input[value="wednesday"]').check();
   await one.locator('[data-lp-check]').focus(); await page.keyboard.press('Enter');
   const worked = steps(page).nth(2);
@@ -123,7 +113,6 @@ test('keyboard journey: error, a wrong try, a hint, the right answer, the questi
   await expect(page.locator('[data-lp-result]')).toBeHidden();
   expect(await announcements(page)).toEqual([wrong]);
 
-  // Tab skips the closed question. The question without hints takes one answer.
   await page.keyboard.press('Tab'); await expect(two.locator('input').first()).toBeFocused();
   await page.keyboard.press('Space'); await page.keyboard.press('Tab'); await page.keyboard.press('Enter');
   const feedback = two.locator('[data-lp-feedback]');
@@ -140,7 +129,6 @@ test('keyboard journey: error, a wrong try, a hint, the right answer, the questi
   expect(await saved(page)).toEqual({ tries: ['monday', 'wednesday'], opened: 1, followUp: 'friday' });
   await expectChoiceMarks(page);
 
-  // Start over is the only control left.
   await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-restart]')).toBeFocused();
   await expect(page.locator('[data-lp-restart]')).toHaveText('Start over');
   await page.keyboard.press('Enter');
@@ -152,7 +140,6 @@ test('keyboard journey: error, a wrong try, a hint, the right answer, the questi
   await expect(hintButton(page)).toHaveText('Show hint 1 of 2');
   expect((await announcements(page)).at(-1)).toBe('Answers cleared.');
   expect(await saved(page)).toEqual(START);
-  // A second pass works after the reset.
   await check(one, 'wednesday');
   await expect(steps(page).nth(2).locator('[data-lp-verdict]')).toHaveText('Correct.');
   await expect(page.locator('[role="status"]')).toHaveText('');
@@ -166,7 +153,6 @@ for (const [lang, content, labels] of [
     await open(page, `/hint-ladder/${lang}.html`); await observe(page);
     const root = page.locator('[data-lp-pattern]'), one = first(root), two = followUp(root);
     await expect(root).toHaveAttribute('lang', lang);
-    // No scene bar: the title, the context, then the question as the group's name.
     await expect(root.locator('.lp-scene')).toHaveCount(0);
     await expect(root.locator('> h2.lp-heading')).toHaveText(content.title);
     await expect(root.locator('> .lp-context')).toHaveText(content.context);
@@ -174,7 +160,6 @@ for (const [lang, content, labels] of [
     await expect(one.locator('[data-lp-check]')).toHaveText(labels.check);
     for (const [n, option] of content.options.entries()) await expect(one.getByRole('radio').nth(n)).toHaveAccessibleName(option.text);
 
-    // Both hints open before any answer is checked.
     for (const n of [1, 2]) {
       await expect(hintButton(root)).toHaveText(labels.hint(n));
       await expect(hintButton(root)).not.toHaveAttribute('aria-disabled');
@@ -182,14 +167,11 @@ for (const [lang, content, labels] of [
       await expect(steps(root).nth(n - 1).locator('p').first()).toHaveText(labels.hintLabel(n));
       await expect(steps(root).nth(n - 1).locator('p').last()).toHaveText(content.hints[n - 1]);
     }
-    // The worked answer waits: the button stays focusable, says why, and does nothing yet.
     const gate = one.locator('[data-lp-gate]');
     await expect(hintButton(root)).toHaveText(labels.showWorked);
     await expect(hintButton(root)).toHaveAttribute('aria-disabled', 'true');
     await expect(hintButton(root)).toHaveAttribute('aria-describedby', await gate.getAttribute('id'));
     await expect(gate).toBeVisible(); await expect(gate).toHaveText(labels.gate);
-    // Playwright waits for an enabled control, and this one reports itself unavailable. A person can
-    // still click it or press Enter on it, so do both.
     await hintButton(root).click({ force: true });
     await expect(steps(root).nth(2)).toBeHidden(); await expect(two).toBeHidden();
     await hintButton(root).focus(); await expect(hintButton(root)).toBeFocused();
@@ -199,7 +181,6 @@ for (const [lang, content, labels] of [
     await expect(gate).toBeVisible();
     expect(await saved(page)).toEqual({ tries: [], opened: 2, followUp: null });
 
-    // One checked answer opens it.
     await check(one, 'thursday');
     await expect(row(one, 'thursday').locator('.lp-choice-mark')).toHaveText(labels.wrong);
     expect(await announcements(page)).toEqual([plain(`${labels.wrong}. ${content.options[3].feedback}`)]);
@@ -211,7 +192,6 @@ for (const [lang, content, labels] of [
     await expect(worked.locator('[data-lp-verdict]')).toHaveText('');
     await expect(worked.locator('p').first()).toHaveText(labels.worked);
     await expect(worked.locator('p').last()).toHaveText(content.worked);
-    // The learner did not choose the correct option, so it gets the neutral mark.
     await expect(row(one, 'wednesday')).toHaveAttribute('data-lp-mark', 'missed');
     await expect(row(one, 'wednesday').locator('.lp-choice-mark')).toHaveText(labels.answer);
     await expect(one.locator('input:checked')).toHaveCount(0);
@@ -251,7 +231,6 @@ for (const [lang, content, labels] of [
     await expect(details).toHaveCount(4);
     await expect(page.locator('details[open]')).toHaveCount(0);
     await expect(page.locator('summary')).toHaveText([labels.hintLabel(1), labels.hintLabel(2), labels.worked, labels.show]);
-    // Nothing gives the answer away until its disclosure is opened.
     await expect(details.nth(2).getByText(content.worked)).toBeHidden();
     for (const summary of await page.locator('summary').all()) await summary.click();
     const option = (options, id) => options.find(o => o.id === id).text;
@@ -270,7 +249,6 @@ for (const [lang, content, labels] of [
   });
 
   test(`axe on unchanged server HTML with the disclosures open (${lang})`, async ({ page }) => {
-    // axe needs scripting enabled. Block enhancement to audit the same native baseline.
     await page.route('**/hint-ladder/enhance.js', route => route.fulfill({ contentType: 'text/javascript', body: 'export function enhance() { return { destroy() {} }; }' }));
     await open(page, `/hint-ladder/${lang}.html`);
     await scan(page);
@@ -299,7 +277,6 @@ for (const [lang, content, labels] of [
       });
       expect(problems, stage).toEqual([]);
     }
-    // Two wrong tries and the neutral answer on the first question, a wrong pick and the answer on the second.
     await expect(page.locator('[data-lp-mark]')).toHaveCount(5);
   });
 }
@@ -334,7 +311,6 @@ test('when only the correct option is left, the question ends and the worked ans
   await check(one, 'thursday');
   const worked = steps(page).nth(2);
   await expect(worked).toBeFocused();
-  // The last reason is read with the worked answer, so the status region stays quiet for this check.
   await expect(worked.locator('[data-lp-verdict]')).toHaveText(`Incorrect. ${english.options[3].feedback}`);
   await expect(worked.locator('p').last()).toHaveText(english.worked);
   expect(await announcements(page)).toEqual(['monday', 'tuesday'].map(id => plain(`Incorrect. ${english.options.find(o => o.id === id).feedback}`)));
@@ -356,24 +332,20 @@ test('a checked wrong option cannot be chosen or counted again', async ({ page }
   await check(one, 'tuesday');
   const tuesday = row(one, 'tuesday');
   await expect(tuesday.locator('input')).toBeDisabled(); await expect(tuesday.locator('input')).not.toBeChecked();
-  // The gallery prototype counted a second check of the same option as another try.
   await tuesday.click({ force: true });
   await expect(tuesday.locator('input')).not.toBeChecked();
   await one.locator('[data-lp-check]').click();
   await expect(one.locator('[data-lp-error]')).toBeVisible();
   await expect(one.locator('input[aria-invalid="true"]')).toHaveCount(3);
   await expect(tuesday.locator('input')).not.toHaveAttribute('aria-invalid');
-  // Focus goes to the first option still open.
   await expect(row(one, 'monday').locator('input')).toBeFocused();
   expect(await saved(page)).toEqual({ tries: ['tuesday'], opened: 0, followUp: null });
   await expect(tuesday).toHaveAttribute('data-lp-mark', 'wrong'); await expect(tuesday.locator('.lp-choice-mark')).toHaveCount(1);
-  // The closed row shows no pointer, and its reason stays while the learner chooses again.
   await expect(tuesday).toHaveCSS('cursor', 'default');
   await check(one, 'wednesday');
   await expect(tuesday.locator('[data-lp-reason]')).toBeVisible();
   await check(followUp(page), 'tuesday');
   await expect(page.locator('[data-lp-summary]')).toHaveText('First question: correct in 2 tries, with no hints. Question without hints: correct.');
-  // The second question takes one answer: a stray activation of its hidden button changes nothing.
   await followUp(page).locator('[data-lp-check]').evaluate(button => { button.hidden = false; button.disabled = false; button.click(); });
   expect(await saved(page)).toEqual({ tries: ['tuesday', 'wednesday'], opened: 0, followUp: 'tuesday' });
 });
@@ -383,13 +355,10 @@ test('a wrong check puts focus on the check button when the checked option held 
   const one = first(page), tuesday = one.locator('input[value="tuesday"]');
   await tuesday.focus(); await page.keyboard.press('Space');
   await expect(tuesday).toBeChecked(); await expect(tuesday).toBeFocused();
-  // Safari does not focus a button on a pointer click. A scripted click activates it the same way,
-  // with focus left on the option that the check is about to close.
   await one.locator('[data-lp-check]').evaluate(button => button.click());
   await expect(tuesday).toBeDisabled();
   await expect(one.locator('[data-lp-check]')).toBeFocused();
   expect(await announcements(page)).toEqual([plain(`Incorrect. ${english.options[1].feedback}`)]);
-  // The next try works from there: the learner is not left with focus on nothing.
   expect(await page.evaluate(() => document.activeElement !== document.body)).toBe(true);
 });
 
@@ -401,7 +370,6 @@ for (const width of [1280, 390]) test(`hints, the worked answer and the result c
   await expect(steps(page).nth(0)).toBeInViewport({ ratio: .95 });
   await hintButton(page).click();
   await expect(steps(page).nth(1)).toBeInViewport({ ratio: .95 });
-  // The hints sit between the options and the buttons, a group's gap under the last row.
   const gap = await first(page).evaluate(section => section.querySelector('[data-lp-steps]').getBoundingClientRect().top - section.querySelector('fieldset').getBoundingClientRect().bottom);
   expect(gap).toBeGreaterThanOrEqual(20); expect(gap).toBeLessThanOrEqual(28);
   await check(first(page), 'wednesday');
@@ -432,7 +400,6 @@ for (const [name, seed, expected] of [
     await expect(page.locator('[data-lp-result]')).toBeHidden();
     await expect(page.locator('[role="status"]')).toHaveText('');
     expect(await page.evaluate(() => document.activeElement === document.body && scrollY === 0)).toBe(true);
-    // The restored learner carries on from where they stopped.
     if (expected.followUp) {
       await check(followUp(page), 'tuesday');
       expect(await saved(page)).toEqual({ ...seed, followUp: 'tuesday' });
@@ -488,7 +455,6 @@ test('three options, one hint and a two-option second question follow the same r
   await expect(steps(page).nth(0).locator('p').first()).toHaveText('Hint 1 of 1');
   await expect(hintButton(page)).toHaveText('Show the worked answer');
   await expect(hintButton(page)).toHaveAttribute('aria-disabled', 'true');
-  // With three options the second wrong try leaves only the correct one, so it ends the question.
   await check(one, 'monday');
   await expect(followUp(page)).toBeHidden();
   await check(one, 'tuesday');
@@ -529,7 +495,6 @@ test('worst-case authored text wraps inside the card at 320px', async ({ page })
     return Math.max(...[...document.querySelectorAll('[data-lp-pattern] *')].filter(el => el.getClientRects().length && !el.closest('.lp-visually-hidden')).map(el => el.getBoundingClientRect().right - card.right));
   });
   expect(overflow).toBeLessThanOrEqual(0);
-  // The mark drops under the option text and the reason follows it, both in the text column.
   const places = await row(first(page), 'monday').evaluate(label => {
     const [text, reason] = [...label.querySelectorAll(':scope > span:not(.lp-choice-mark)')].map(el => el.getBoundingClientRect()), mark = label.querySelector('.lp-choice-mark').getBoundingClientRect();
     return { markBelow: mark.top - text.bottom, reasonBelow: reason.top - mark.bottom, markIndent: mark.left - text.left, reasonIndent: reason.left - text.left };
@@ -551,7 +516,6 @@ test('two instances have unique ids and independent progress', async ({ page }) 
   await first(roots.nth(1)).locator('[data-lp-check]').click();
   await expect(roots.nth(1).locator('[data-lp-error]:visible')).toHaveCount(1);
   await expect(roots.first().locator('[data-lp-error]:visible')).toHaveCount(0);
-  // Each waiting button points at its own card's line.
   await hintButton(roots.nth(1)).click(); await hintButton(roots.nth(1)).click();
   await expect(hintButton(roots.nth(1))).toHaveAttribute('aria-describedby', 'second-gate');
   await expect(hintButton(roots.first())).not.toHaveAttribute('aria-describedby');
@@ -570,12 +534,10 @@ test('enhance twice returns one instance; destroy restores the no-JavaScript vie
   await expect(page.locator('[aria-disabled], [aria-describedby], [aria-invalid]')).toHaveCount(0);
   await expect(page.locator('[role="status"]')).toHaveText('');
   expect(await page.locator('[data-lp-pattern] *').count()).toBe(nodes);
-  // Listeners are gone: a destroyed instance writes nothing.
   const before = await saved(page);
   await page.locator('input').first().check();
   for (const button of await page.locator('[data-lp-check], [data-lp-hint]').all()) await button.evaluate(el => { el.hidden = false; el.click(); el.hidden = true; });
   expect(await saved(page)).toEqual(before);
-  // The page's adapter still holds the progress, so a new instance restores it.
   expect(await page.evaluate(() => { const instance = window.lpEnhance(); return instance === window.lpEnhance() && instance !== window.lpInstances[0]; })).toBe(true);
   for (const fallback of await page.locator('[data-lp-fallback]').all()) await expect(fallback).toBeHidden();
   await expect(first(page).locator('[data-lp-mark]')).toHaveCount(2);
@@ -629,7 +591,6 @@ test('shared look: one card with no panel inside it, keyed rows, a secondary hin
   const root = page.locator('[data-lp-pattern]'), one = first(root), two = followUp(root);
   await expect(root.locator('.lp-box, .lp-scene, .lp-quote')).toHaveCount(0);
   await expect(root.locator('h2.lp-heading')).toHaveCSS('font-size', '21px');
-  // Under a card title the questions step down one size.
   await expect(one.locator('legend')).toHaveCSS('font-size', '19px');
   await expect(one.locator('legend')).toHaveCSS('font-weight', '600');
   await expect(hintButton(root)).toHaveClass(/lp-button-secondary/);
@@ -637,8 +598,6 @@ test('shared look: one card with no panel inside it, keyed rows, a secondary hin
   await hintButton(root).click(); await hintButton(root).click();
   await expect(one.locator('[data-lp-gate]')).toHaveCSS('font-size', '16px');
   await check(one, 'tuesday'); await check(one, 'wednesday'); await check(two, 'monday');
-  // The card is the only box: hints, the worked answer, the second question, its explanation and the
-  // result are set apart by space, a rule, an icon and a label, never by a border or a fill of their own.
   for (const part of [root.locator('[data-lp-steps]'), ...await steps(root).all(), one, two.locator('fieldset'), two.locator('[data-lp-feedback]'), root.locator('[data-lp-summary]')]) {
     await expect(part).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
     for (const side of ['top', 'right', 'bottom', 'left']) await expect(part).toHaveCSS(`border-${side}-width`, '0px');
@@ -649,12 +608,10 @@ test('shared look: one card with no panel inside it, keyed rows, a secondary hin
     await expect(section).toHaveCSS('border-top-width', '1px');
     for (const side of ['right', 'bottom', 'left']) await expect(section).toHaveCSS(`border-${side}-width`, '0px');
   }
-  // Each step has a decorative icon, a label and its text; the label is body size and semibold.
   for (const step of await steps(root).all()) {
     await expect(step.locator('svg[aria-hidden="true"]')).toHaveCount(1);
     await expect(step.locator('p').first()).toHaveCSS('font-weight', '600');
     for (const text of await step.locator('p').all()) await expect(text).toHaveCSS('font-size', '17px');
-    // The icon sits on the label's line and the text hangs under the label.
     const places = await step.evaluate(li => { const [icon, label, text] = [li.querySelector('svg'), ...li.querySelectorAll('p')].map(el => el.getBoundingClientRect()); return { centre: Math.abs((icon.top + icon.bottom) / 2 - (label.top + label.bottom) / 2), indent: text.left - label.left, after: label.left - icon.right }; });
     expect(places.centre).toBeLessThanOrEqual(1.5); expect(Math.abs(places.indent)).toBeLessThanOrEqual(.5); expect(places.after).toBeGreaterThanOrEqual(8);
   }
@@ -662,7 +619,6 @@ test('shared look: one card with no panel inside it, keyed rows, a secondary hin
   for (const locator of [two.locator('[data-lp-feedback]'), root.locator('[data-lp-summary]')]) await expect(locator).toHaveCSS('font-size', '17px');
   await expect(root.locator('[data-lp-restart]')).toHaveClass(/lp-button-quiet/);
   await expect(root.locator('[data-lp-restart] svg[aria-hidden="true"]')).toHaveCount(1);
-  // Keyboard focus on a step or on feedback draws the shared ring.
   await page.keyboard.press('Tab');
   for (const locator of [steps(root).nth(2), two.locator('[data-lp-feedback]')]) {
     await locator.focus();
@@ -675,7 +631,6 @@ test('forced colours keep the marks, the waiting button, the reset and focus dis
   await page.emulateMedia({ forcedColors: 'active' }); await open(page);
   const one = first(page), two = followUp(page);
   await hintButton(page).click(); await hintButton(page).click();
-  // The waiting button keeps a border and its visible reason.
   await expect(hintButton(page)).not.toHaveCSS('border-top-width', '0px');
   await expect(one.locator('[data-lp-gate]')).toBeVisible();
   await check(one, 'tuesday'); await hintButton(page).click(); await check(two, 'monday');

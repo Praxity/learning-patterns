@@ -1,14 +1,11 @@
 import { validateTextLengths } from '../../lib/text-limits.js';
 
-/** An option with `vague` is too vague to plan with; `vague` is the reason shown when it is chosen.
- * @typedef {{ id: string, text: string, vague?: string }} Option */
+/** @typedef {{ id: string, text: string, vague?: string }} Option */
 /** @typedef {{ options: Option[] }} Step */
 /** @typedef {{ title: string, context: string, when: Step, will: Step, dateLabel: string }} Content */
-/** `when` and `will` hold the ids of accepted options; `start` is the date field's value.
- * @typedef {{ when: string | null, will: string | null, start: string }} LearnerState */
+/** @typedef {{ when: string | null, will: string | null, start: string }} LearnerState */
 /** @typedef {'when' | 'will'} StepName */
 
-/** The calendar entry starts this long before the time the learner sets, and ends at it. */
 export const REMINDER_MINUTES = 10;
 const STEPS = /** @type {const} */ (['when', 'will']);
 const LOCAL_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?$/;
@@ -40,22 +37,17 @@ export function validateContent(content) {
       if ('vague' in item && !text(item.vague)) throw new Error(`Invalid ${path}.vague`);
       ids.add(item.id);
     });
-    // With one concrete option the step would have a single right answer, and the plan would not be the learner's.
     if (options.filter(item => !('vague' in item)).length < 2) throw new Error(`Invalid ${name}.options: at least two options without vague`);
   }
 }
 
-/** Placeholder substitution that keeps inserted text literal.
- * @param {string} template @param {Record<string, string | number>} values
- */
+/** @param {string} template @param {Record<string, string | number>} values */
 export function format(template, values) {
   return template.replace(/\{(\w+)\}/g, (match, key) => Object.hasOwn(values, key) ? String(values[key]) : match);
 }
 
-/** What choosing an option does: a concrete one joins the plan, a vague one returns its reason.
- * @param {Content} content @param {StepName} step @param {string} id
- * @returns {{ ok: true, text: string } | { ok: false, reason: string }}
- */
+/** @param {Content} content @param {StepName} step @param {string} id
+ * @returns {{ ok: true, text: string } | { ok: false, reason: string }} */
 export function choose(content, step, id) {
   const option = content[step].options.find(item => item.id === id);
   if (!option) throw new Error(`Unknown ${step} option`);
@@ -67,9 +59,7 @@ export function emptyState() {
   return { when: null, will: null, start: '' };
 }
 
-/** Return a copy, or null for damaged host state.
- * @param {Content} content @param {unknown} value @returns {LearnerState | null}
- */
+/** @param {Content} content @param {unknown} value @returns {LearnerState | null} */
 export function validateState(content, value) {
   if (!object(value) || Object.keys(value).some(key => !['when', 'will', 'start'].includes(key))) return null;
   const { when, will, start } = value;
@@ -82,11 +72,8 @@ export function validateState(content, value) {
   return { when: /** @type {string | null} */ (when), will: /** @type {string | null} */ (will), start };
 }
 
-/** The sentence as far as the learner has built it: the opening stem, the moment with the
- * second stem, or the whole plan.
- * @param {Content} content @param {{ whenStem: string, soFar: string, plan: string }} strings
- * @param {Pick<LearnerState, 'when' | 'will'>} state
- */
+/** @param {Content} content @param {{ whenStem: string, soFar: string, plan: string }} strings
+ * @param {Pick<LearnerState, 'when' | 'will'>} state */
 export function sentence(content, strings, state) {
   if (state.when === null) return strings.whenStem;
   const when = choose(content, 'when', state.when);
@@ -97,26 +84,19 @@ export function sentence(content, strings, state) {
   return format(strings.plan, { when: when.text, will: will.text });
 }
 
-/** Why a start time cannot go in a calendar, or null when it can.
- * @param {number} start Milliseconds since the epoch; NaN for an empty or unreadable field.
+/** @param {number} start Milliseconds since the epoch; NaN for an empty or unreadable field.
  * @param {number} now
- * @returns {'invalid' | 'past' | null}
- */
+ * @returns {'invalid' | 'past' | null} */
 export function startError(start, now) {
   if (!Number.isFinite(start)) return 'invalid';
   return start <= now ? 'past' : null;
 }
 
-/** RFC 5545 TEXT (section 3.3.11): escape backslash, semicolon and comma, write every line break as
- * an escaped n, and turn the other control characters, which TEXT does not allow, into spaces.
- * @param {string} value */
+/** @param {string} value */
 const escapeText = value => value.replace(/[\\;,]/g, '\\$&').replace(/\r\n|\r|\n/g, '\\n').replace(/[\x00-\x08\x0b-\x1f\x7f]/g, ' ');
-/** UTC date-time, so the entry lands on the same instant whatever zone the calendar is in.
- * @param {number} time */
+/** @param {number} time */
 const utc = time => new Date(time).toISOString().replace(/[-:]|\.\d{3}/g, '');
-/** Fold at 75 octets without splitting a character, as RFC 5545 section 3.1 requires.
- * A fold may fall inside an escape; readers unfold before they unescape.
- * @param {string} line */
+/** @param {string} line */
 function fold(line) {
   let out = '', octets = 0;
   for (const character of line) {
@@ -128,12 +108,8 @@ function fold(line) {
   return out;
 }
 
-/** An iCalendar file with one entry that shows the plan just before the moment it is for.
- * The entry starts REMINDER_MINUTES before `start`, ends at `start` and raises a notice when it begins.
- * @param {{ plan: string, note: string, start: number, now: number, uid: string }} event
- * `plan` is the entry's title, `note` follows it in the description, and `uid` must be unique per file.
- * @returns {string}
- */
+/** @param {{ plan: string, note: string, start: number, now: number, uid: string }} event
+ * @returns {string} */
 export function calendarFile({ plan, note, start, now, uid }) {
   const problem = startError(start, now);
   if (problem) throw new Error(`Invalid start: ${problem}`);

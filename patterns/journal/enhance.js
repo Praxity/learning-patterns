@@ -56,7 +56,6 @@ export function enhance(root, { content, strings, state, ask }) {
     } catch { readFailed = true; storageMessage(strings.unreadable); }
   }
   const useFallback = () => {
-    // Without the decision model the questions show at once; a button that only opened them would repeat the disclosure.
     automatic = false;
     notice.hidden = true; suggest.removeAttribute('aria-describedby');
     support.hidden = false; offline.hidden = false; showQuestions();

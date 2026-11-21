@@ -43,8 +43,7 @@ export function enhance(root, { content, strings, state }) {
     };
   });
   const lifetime = new AbortController();
-  /** Checked decisions, in round order. The round being answered keeps its choice in the radios only.
-   * @type {string[]} */
+  /** @type {string[]} */
   let picks = [];
   /** @type {(() => void)[]} */
   let unlocks = [];
@@ -58,18 +57,15 @@ export function enhance(root, { content, strings, state }) {
     fieldset.removeAttribute('aria-describedby');
     for (const radio of radios) radio.removeAttribute('aria-invalid');
   }
-  /** Mark the checked round, lock it and open what follows: the next round, or the summary.
-   * @param {number} i @param {boolean} announce */
+  /** @param {number} i @param {boolean} announce */
   function show(i, announce) {
     const { section, radios, rows, feedback, verdict } = parts[i];
     const right = picks[i] === all[i].correct;
     radios.forEach((radio, n) => {
       radio.checked = radio.value === picks[i];
-      // Mark only what the learner chose; a correct answer they missed is neutral.
       if (radio.checked) markChoice(rows[n], right ? 'correct' : 'wrong', strings, root.lang);
       else if (radio.value === all[i].correct) markChoice(rows[n], 'missed', strings, root.lang);
     });
-    // The marks sit on the rows; screen readers get the same result at the start of the feedback.
     verdict.textContent = text(right ? `${strings.markCorrect}. ` : `${strings.markWrong}. ${format(strings.correct, { option: content.options.find(o => o.id === all[i].correct)?.text ?? '' })} `);
     feedback.hidden = false;
     unlocks.push(lock(section, { focus: false }));
@@ -80,7 +76,6 @@ export function enhance(root, { content, strings, state }) {
     }
     const next = last ? result : parts[i + 1].section;
     if (!announce) { next.hidden = false; return; }
-    // Focus reads this decision's feedback once. The status region adds only the closing summary.
     feedback.focus({ preventScroll: true });
     reveal(next);
     status.textContent = last ? `${total.textContent} ${text(content.rule)}` : '';
@@ -122,7 +117,6 @@ export function enhance(root, { content, strings, state }) {
   });
   restart.addEventListener('click', () => {
     reset();
-    // Back to the top of the card: the title and context frame the first case.
     reveal(root);
     parts[0].radios[0].focus({ preventScroll: true });
     status.textContent = text(strings.cleared);

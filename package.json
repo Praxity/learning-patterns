@@ -6,7 +6,9 @@
   "license": "MIT",
   "typesVersions": {
     "*": {
-      "*.js": ["types/*.d.ts"]
+      "*.js": [
+        "types/*.d.ts"
+      ]
     }
   },
   "engines": {
@@ -24,7 +26,8 @@
     "preview:deploy": "node scripts/check-deploy-account.mjs && npm run demo:live && npx wrangler@4 deploy",
     "icons": "node scripts/build-icons.mjs",
     "test:proxy": "node --test proxy/test/*.test.js",
-    "test:voiceover": "playwright test --config=playwright.voiceover.config.js"
+    "test:voiceover": "playwright test --config=playwright.voiceover.config.js",
+    "lint": "node scripts/check-comments.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",

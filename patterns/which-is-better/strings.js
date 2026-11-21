@@ -1,4 +1,3 @@
-// {n}, {right} and {total} are numbers; {version} is a version name and {letter} its letter, A or B; {answer} is a sentence, or the Neither label, with its closing punctuation.
 export const strings = {
   en: {
     versionA: 'Version A',

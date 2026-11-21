@@ -27,7 +27,6 @@ export function enhance(root, { content, strings, state }) {
   const display = value => frenchTypography(value, root.lang);
   const status = required(root, '[role="status"]');
   const last = content.cases.length - 1;
-  // Counts are checked before the parts, so an extra or missing case or step is named as that.
   const panels = [...root.querySelectorAll('[data-lp-case]')];
   if (panels.length !== content.cases.length) throw new Error('Invalid finish-worked-example cases markup');
   const cases = panels.map((panel, c) => {
@@ -65,9 +64,7 @@ export function enhance(root, { content, strings, state }) {
     message.hidden = true;
     for (const radio of radios) { radio.removeAttribute('aria-describedby'); radio.removeAttribute('aria-invalid'); }
   }
-  /** Show which steps are open. A step waits for the learner's steps before it, so its answer
-   * can still be their own; a waiting step shows its number and question only.
-   * @param {number} c */
+  /** @param {number} c */
   function paint(c) {
     const { steps, next, restart, summary } = cases[c];
     const active = nextStep(content, current, c);
@@ -86,18 +83,15 @@ export function enhance(root, { content, strings, state }) {
       summary.textContent = outcome.done ? display(format(strings.result, { right: outcome.right, total: outcome.total })) : '';
     }
   }
-  /** Mark the learner's checked step and put the reason beside it.
-   * @param {number} c @param {number} s @param {boolean} restoring */
+  /** @param {number} c @param {number} s @param {boolean} restoring */
   function showAnswer(c, s, restoring) {
     const { question } = cases[c].steps[s];
     const pick = current.picks[c][s];
     if (!question || pick === null) return;
     const { answer: correct, reason } = content.cases[c].steps[s];
     question.radios[pick].checked = true;
-    // Mark only what the learner chose; a missed correct answer is neutral.
     markChoice(question.rows[pick], pick === correct ? 'correct' : 'wrong', strings, root.lang);
     if (pick !== correct) markChoice(question.rows[correct], 'missed', strings, root.lang);
-    // The rows already show the verdict. Focus reads this line, so it repeats the verdict for screen readers only.
     const verdict = root.ownerDocument.createElement('span');
     verdict.className = 'lp-visually-hidden';
     verdict.textContent = `${display(pick === correct ? strings.feedbackCorrect : format(strings.feedbackWrong, { answer: content.steps[s].options[correct] }))} `;
@@ -115,18 +109,15 @@ export function enhance(root, { content, strings, state }) {
       question.feedback.replaceChildren(); question.feedback.hidden = true;
     }
   }
-  /** Switch cases. Hidden cases hold no focusable controls. Restore is silent.
-   * @param {number} c @param {number} [from] The case the learner left; omit when restoring. */
+  /** @param {number} c @param {number} [from] The case the learner left; omit when restoring. */
   function show(c, from) {
     for (const [i, { panel }] of cases.entries()) { panel.hidden = i !== c; panel.classList.remove(ENTER); }
     paint(c);
     if (from === undefined) return;
     const { panel, heading } = cases[c];
     panel.style.setProperty('--lp-finish-worked-example-enter-x', c < from ? '-16px' : '16px');
-    // Reflow lets a revisited case run the same entrance again.
     void panel.offsetWidth;
     panel.classList.add(ENTER);
-    // The heading holds the case number and how many steps are the learner's, so focus reads both.
     heading.focus();
     status.replaceChildren();
   }
@@ -142,7 +133,6 @@ export function enhance(root, { content, strings, state }) {
     if (!question || current.picks[c][s] !== null) return;
     const pick = question.radios.findIndex(radio => radio.checked);
     if (pick === -1) {
-      // Each radio carries the message, so focus on the first one reads it once.
       question.message.hidden = false;
       for (const radio of question.radios) { radio.setAttribute('aria-describedby', question.message.id); radio.setAttribute('aria-invalid', 'true'); }
       focusQuestion(question.fieldset);
@@ -151,7 +141,6 @@ export function enhance(root, { content, strings, state }) {
     current = answer(content, current, c, s, pick);
     showAnswer(c, s, false);
     paint(c);
-    // Focus moves to the reason before the controls freeze, so it is read once and Tab continues to the next step.
     reveal(question.feedback);
     question.feedback.focus({ preventScroll: true });
     unlocks.push(lock(question.item));
@@ -186,7 +175,6 @@ export function enhance(root, { content, strings, state }) {
       destroyed = true;
       lifetime.abort();
       clearAnswers();
-      // Back to the server markup: every case open, answers in their disclosures.
       for (const [c, { panel, steps, nav, next, restart, summary, fallback }] of cases.entries()) {
         panel.hidden = false; panel.classList.remove(ENTER); panel.style.removeProperty('--lp-finish-worked-example-enter-x');
         nav.hidden = true;

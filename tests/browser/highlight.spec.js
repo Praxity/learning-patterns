@@ -21,7 +21,6 @@ test('scene has a title and centred file tile, with one task instruction', async
       const geometry = await page.locator('.lp-scene').evaluate(el => {
         const scene = el.getBoundingClientRect(), card = el.parentElement.getBoundingClientRect();
         const tile = el.querySelector('.lp-scene-icon svg').getBoundingClientRect(), text = el.querySelector('div').getBoundingClientRect();
-        // Centred on the text up to two title lines, then level with the first two (lib/base.css).
         const title = el.querySelector('.lp-scene-title'), centre = Math.min(text.height / 2, title.getBoundingClientRect().top - text.top + parseFloat(getComputedStyle(title).lineHeight));
         return [scene.left - card.left, card.right - scene.right, tile.top + tile.height / 2 - text.top - centre];
       });
@@ -45,7 +44,6 @@ async function observeStatus(page) {
   });
 }
 
-// Mount the second authored example through the same public render/enhance interface.
 async function mount(page, content, lang = 'en') {
   await page.evaluate(async ({ content, lang }) => {
     window.lpInstances[0].destroy();
@@ -100,7 +98,6 @@ for (const lang of ['fr', 'fr-CA']) {
       });
     }, { content: punctuation, lang });
     const roots = page.locator('[data-lp-pattern]');
-    // Read textContent exactly; whitespace-folding matchers hide NBSP regressions.
     expect(await roots.first().locator('[data-lp-chunk]').allTextContents()).toEqual(formattedPunctuation);
     expect(await roots.nth(1).locator('[data-lp-chunk]').allTextContents()).toEqual(punctuation.paragraphs[0].map(chunk => chunk.text));
     await chunk(roots.first(), 'answer').press('Space');
@@ -147,12 +144,10 @@ test('chunks flow like the source paragraphs across inline boundaries', async ({
   });
   expect(lines.next.top).toBeCloseTo(lines.first.top, 1);
   expect(lines.next.left).toBeGreaterThan(lines.first.right);
-  // Removing enhancement exposes the source layout without changing text or paragraph styles.
   const layout = () => paragraphs.evaluateAll(elements => elements.map(paragraph => {
     const bounds = paragraph.getBoundingClientRect();
     return { height: Math.round(bounds.height * 100) / 100, chunks: [...paragraph.querySelectorAll('[data-lp-chunk]')].map(chunk => {
       const range = document.createRange(); range.selectNodeContents(chunk);
-      // Vertical page shifts can change Firefox's fractional coordinates by less than 0.01px.
       return [...range.getClientRects()].map(rect => [rect.left - bounds.left, rect.top - bounds.top, rect.width, rect.height].map(value => Math.round(value * 100) / 100));
     }) };
   }));
@@ -219,12 +214,10 @@ test('evidence check puts authored and default feedback in place, locks marks, a
   await expect(chunk(page, 'ignored')).toHaveAttribute('data-lp-outcome', 'missed');
   await expect(feedback(page, 'overwhelmed')).toBeHidden();
   await expect(page.locator('[data-lp-summary]')).toHaveText('Passages found: 0 of 1.');
-  // The summary replaces the running count, so only one counter shows.
   await expect(page.locator('[data-lp-count]')).toBeHidden();
   await expect(page.locator('[data-lp-chunk][aria-disabled="true"]')).toHaveCount(english.paragraphs.flat().length);
   const saved = { marked: ['withdraw', 'actions'], shown: true };
   expect(await page.evaluate(() => window.lpSaved)).toEqual(saved);
-  // Send an actual pointer event despite Playwright's aria-disabled actionability guard.
   await chunk(page, 'ignored').click({ force: true }); await chunk(page, 'ignored').focus();
   await page.keyboard.press('Space'); await page.keyboard.press('Enter');
   expect(await page.evaluate(() => window.lpSaved)).toEqual(saved);
@@ -236,7 +229,6 @@ test('evidence check puts authored and default feedback in place, locks marks, a
   await expect(page.locator('[data-lp-chunk][aria-pressed="true"]')).toHaveCount(0);
   await expect(page.locator('[data-lp-check]')).toBeVisible();
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ marked: [], shown: false });
-  // Reset empties the status, so the old count isn't read again.
   await expect(page.getByRole('status')).toHaveText('');
   expect(await page.evaluate(() => window.lpAnnouncements.filter(Boolean))).toEqual(['Passages found: 0 of 1.']);
   await chunk(page, 'ignored').click(); await page.locator('[data-lp-check]').click();
@@ -309,7 +301,6 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     await expect(chunk(page, 'ignored')).toHaveAttribute('aria-pressed', 'false');
     await expect(page.locator('[data-lp-count]')).toHaveText(lang === 'en' ? '1 of 1 highlighted' : 'Passages surlignés : 1 sur 1');
     expect(await page.evaluate(() => window.lpSaved)).toEqual({ marked: ['actions'], shown: false });
-    // Choosing the marked chunk again still removes the mark.
     await page.keyboard.press('Enter');
     await expect(page.locator('[data-lp-chunk][aria-pressed="true"]')).toHaveCount(0);
     expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
@@ -317,13 +308,11 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
 }
 
 test('mode defaults enforce target count for evidence and target count plus one for key ideas', async ({ page }) => {
-  // The key example sets maxMarks to match its question; drop it to test the default.
   for (const [content, max] of [[english, 1], [(({ maxMarks, ...rest }) => rest)(englishKey), 3]]) {
     await open(page); await mount(page, content);
     const all = page.locator('[data-lp-chunk]');
     for (let i = 0; i <= max; i++) await all.nth(i).click();
     await expect(page.locator('[data-lp-chunk][aria-pressed="true"]')).toHaveCount(max);
-    // One allowed mark moves to the last chunk chosen; several stop at the limit.
     await expect(all.nth(max)).toHaveAttribute('aria-pressed', String(max === 1));
     await expect(page.locator('[data-lp-count]')).toHaveText(`${max} of ${max} highlighted`);
   }
@@ -361,7 +350,6 @@ test('graded marks keep yellow non-targets, tint found targets and leave missed 
   const style = id => chunk(page, id).evaluate(el => { const css = getComputedStyle(el); return [css.backgroundColor, css.textDecorationLine, css.textDecorationStyle, css.textDecorationColor]; });
   expect(await style('overwhelmed')).toEqual(['rgb(255, 228, 154)', 'none', 'solid', 'rgb(22, 24, 29)']);
   expect(await style('withdraw')).toEqual(['rgb(230, 244, 238)', 'underline', 'solid', 'rgb(18, 112, 79)']);
-  // A missed target is neutral grey, not a warning (owner, 2026-10-22).
   expect(await style('ignored')).toEqual(['rgba(0, 0, 0, 0)', 'underline', 'dashed', 'rgb(85, 92, 103)']);
   expect(await feedback(page, 'overwhelmed').evaluate(el => { const css = getComputedStyle(el); return [css.color, css.backgroundColor, css.fontSize]; })).toEqual(['rgb(22, 24, 29)', 'rgb(247, 248, 250)', '17px']);
   await expect(feedback(page, 'overwhelmed').locator('svg')).toHaveAttribute('aria-hidden', 'true');
@@ -403,7 +391,6 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     const problems = await page.evaluate(() => [...document.querySelectorAll('.lp-highlight p, .lp-highlight button, .lp-highlight h2')].filter(el => el.getClientRects().length && !el.matches('[role="status"]')).filter(el => el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1).map(el => el.textContent));
     expect(problems).toEqual([]);
-    // CSS zoom at a 1280px viewport leaves the same 320 CSS-pixel reading width.
     await page.setViewportSize({ width: 1280, height: 1000 }); await page.addStyleTag({ content: 'html{zoom:4}' });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await expect(feedback(page, 'actions')).toBeVisible(); await expect(page.locator('[data-lp-summary]')).toBeVisible();
