@@ -83,7 +83,6 @@ for (const [lang, placeholder] of [
 
   test(`an authored placeholder is empty, labelled and has 4.5:1 contrast (${lang})`, async ({ page }) => {
     await open(page, `/self-check/${lang}.html`);
-    // The examples set no placeholder, so render one an author could supply.
     await page.evaluate(async ({ lang, placeholder, example }) => {
       const { render } = await import('/patterns/self-check/render.js');
       const { enhance } = await import('/patterns/self-check/enhance.js');
@@ -153,7 +152,6 @@ test('number keys stay at the first line of long part labels, and badges too unt
       return { label: label.getBoundingClientRect().top, labelBottom: label.getBoundingClientRect().bottom, labelWidth: label.getBoundingClientRect().width, key: key.getBoundingClientRect().top, badge: badge.getBoundingClientRect().top };
     });
     expect(Math.abs(positions.key - positions.label)).toBeLessThanOrEqual(4);
-    // The badge sits on the label's first line while the label keeps 12rem, and drops under it otherwise.
     const beside = Math.abs(positions.badge - positions.label) <= 4;
     if (width === 1280) expect(beside).toBe(true);
     if (width === 320) expect(beside).toBe(false);
@@ -383,7 +381,6 @@ test('Start over is a quiet text button with an icon, the same target size and f
   for (const name of ['check', 'show', 'restart']) {
     const button = page.locator(`[data-lp-${name}]`);
     if (name !== 'restart') {
-      // Wait for the hover transition to finish before checking its exact final colour.
       await expect(button).toHaveCSS('background-color', 'rgb(44, 85, 201)');
       await expect(button).toHaveCSS('color', 'rgb(255, 255, 255)');
     }
@@ -391,7 +388,6 @@ test('Start over is a quiet text button with an icon, the same target size and f
     const outline = await button.evaluate(el => { const css = getComputedStyle(el); return [css.outlineWidth, css.outlineStyle, css.outlineOffset, css.outlineColor]; });
     expect(outline).toEqual(['3px', 'solid', '2px', 'rgb(44, 85, 201)']);
   }
-  // Theme overrides reach the quiet button too.
   await page.locator('[data-lp-pattern]').evaluate(el => el.style.setProperty('--lp-ink-2', '#123456'));
   expect(await restart.evaluate(el => getComputedStyle(el).color)).toBe('rgb(18, 52, 86)');
 });
@@ -451,13 +447,11 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     await page.addStyleTag({ content: '*{line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important}p{margin-bottom:2em!important}' });
     await page.getByRole('textbox').fill('Draft'); await page.locator('[data-lp-check]').click(); await page.locator('[data-lp-show]').click();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    // The status region is deliberately clipped for screen readers. Check visible text.
     const problems = await page.evaluate(() => [...document.querySelectorAll('p, label, legend, button, li, h2')].filter(el => el.getClientRects().length && !el.matches('.lp-visually-hidden')).flatMap(el => {
       const failures = [];
       if (el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1) failures.push(el.textContent);
       const children = [...el.children].filter(child => child.getClientRects().length);
       for (let i = 1; i < children.length; i++) {
-        // Inline annotation spans can wrap. Compare their painted fragments, not the enclosing rectangles.
         for (const a of children[i - 1].getClientRects()) for (const b of children[i].getClientRects()) {
           if (Math.min(a.right, b.right) > Math.max(a.left, b.left) + 1 && Math.min(a.bottom, b.bottom) > Math.max(a.top, b.top) + 1) failures.push('overlap: ' + el.textContent);
         }
@@ -558,14 +552,12 @@ test('forced colours keeps a 3px focus outline on buttons and checkboxes', async
     const css = getComputedStyle(el);
     return { color: css.color, background: css.backgroundColor, borderColor: css.borderColor, borderStyle: css.borderStyle, borderWidth: css.borderWidth };
   }));
-  // Resolve system colours in the active palette, without hardcoding a theme.
   const system = await page.evaluate(() => {
     const probe = document.createElement('span'); document.body.append(probe);
     const colors = {};
     for (const name of ['ButtonText', 'ButtonFace', 'LinkText']) { probe.style.color = name; colors[name] = getComputedStyle(probe).color; }
     probe.remove(); return colors;
   });
-  // Primary buttons draw a system border; the quiet restart button reads as a link.
   for (const style of styles.slice(0, 2)) {
     expect(style.color).toBe(system.ButtonText); expect(style.background).toBe(system.ButtonFace);
     expect(style.borderColor).toBe(system.ButtonText); expect(style.borderWidth).toBe('1px'); expect(style.borderStyle).toBe('solid');

@@ -28,9 +28,7 @@ function validateReviewDays(value) {
 /** @param {unknown} value @returns {value is Result} */
 function result(value) { return value === 'remembered' || value === 'forgot'; }
 
-/** Validate authored plain text. Empty strings are rejected; whitespace is allowed.
- * @param {unknown} content @returns {asserts content is Content}
- */
+/** @param {unknown} content @returns {asserts content is Content} */
 export function validateContent(content) {
   validateTextLengths(content, {
     title: 120,
@@ -58,18 +56,14 @@ export function validateContent(content) {
   });
 }
 
-/** Estimate reading time from all authored text, excluding interface labels.
- * @param {Content} content @returns {number} Whole minutes, at least one.
- */
+/** @param {Content} content @returns {number} Whole minutes, at least one. */
 export function readingMinutes(content) {
   validateContent(content);
   const text = [content.title, ...content.parts.flatMap(part => [part.heading, ...part.paragraphs, part.question, part.answer])].join(' ');
   return Math.max(1, Math.ceil((text.match(/\S+/gu)?.length ?? 0) / 200));
 }
 
-/** Local calendar date for the datetime attribute and host state.
- * @param {Date} date @returns {string}
- */
+/** @param {Date} date @returns {string} */
 export function isoDate(date) {
   if (!(date instanceof Date) || Number.isNaN(date.getTime())) throw new TypeError('isoDate needs a valid Date');
   const year = date.getFullYear();
@@ -77,25 +71,20 @@ export function isoDate(date) {
   return `${String(year).padStart(4, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
 
-/** Returns a new date at local midnight after the configured calendar days.
- * @param {Date} date @param {Result} choice @param {ReviewDays} [reviewDays]
- * @returns {Date}
- */
+/** @param {Date} date @param {Result} choice @param {ReviewDays} [reviewDays]
+ * @returns {Date} */
 export function scheduleReview(date, choice, reviewDays = REVIEW_DAYS) {
   if (!(date instanceof Date) || Number.isNaN(date.getTime())) throw new TypeError('scheduleReview needs a valid Date');
   if (!result(choice)) throw new RangeError(`Unsupported result: ${String(choice)}`);
   validateReviewDays(reviewDays);
   const next = new Date(date.getTime());
   next.setDate(next.getDate() + reviewDays[choice]);
-  // Set midnight on the target day: the source day may have a DST gap at midnight.
   next.setHours(0, 0, 0, 0);
   if (Number.isNaN(next.getTime()) || next.getFullYear() < 0 || next.getFullYear() > 9999) throw new RangeError('Unsupported date range');
   return next;
 }
 
-/** Ignore invalid host state and copy valid records. Dates are civil dates, not timestamps.
- * @param {Content} content @param {unknown} value @returns {LearnerState | null}
- */
+/** @param {Content} content @param {unknown} value @returns {LearnerState | null} */
 export function validateState(content, value) {
   if (!object(value) || Object.keys(value).some(key => key !== 'results') || !object(value.results)) return null;
   const known = new Set(content.parts.map(part => part.id));

@@ -1,15 +1,10 @@
 import { CLEF_CHOICE_CONFIDENT } from "./shared.js";
 
-// Below this Choice confidence the demo hedges instead of naming a misconception, and logs the answer for the designer.
 export const CONFIDENT = 0.65;
-// The revised wording classifies all 27B train beliefs correctly, with confidence
-// at least 0.527. Retain the earlier 0.50 gate for flash; 27B now uses the shared
-// three-group Choice calibration. Jev keeps its original gate.
 export const CLEF_CONFIDENT = 0.5;
 export const INBOX_KEY = "jev-demos:06-inbox";
 export const ANSWER_LIMIT = 1500;
 
-// Authored refutations. Each names the wrong idea, says why it's wrong and gives the right idea.
 export const CATALOGUE = {
 	rereading: {
 		label: "Rereading is enough",
@@ -43,14 +38,11 @@ const MODEL = "Not on its own. Rereading feels familiar but doesn't show what yo
 export const MISCONCEPTION_KEYS = Object.keys(CATALOGUE);
 const OPTIONS = ["correct", ...MISCONCEPTION_KEYS, "none"];
 
-/** The configured model determines which evaluated Choice gate applies.
- * @param {string} model @returns {number}
- */
+/** @param {string} model @returns {number} */
 export function confidenceGate(model) {
 	return model === "@cf/cloudflare/clef" ? CLEF_CHOICE_CONFIDENT : model === "@cf/cloudflare/clef-flash" ? CLEF_CONFIDENT : CONFIDENT;
 }
 
-// Turns Jev's Choice answer into authored feedback. Pure, so tests can call it.
 /** @param {{ choice: string, confidence: number }} answer @param {string} model */
 export function misconceptionFeedback({ choice, confidence }, model) {
 	if (!OPTIONS.includes(choice)) throw new Error(`Unexpected label "${choice}"`);

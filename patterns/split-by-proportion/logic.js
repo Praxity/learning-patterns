@@ -42,7 +42,7 @@ export function validateContent(content) {
   if (!equal(content.options.reduce((sum, option) => sum + option.share, 0), total)) throw new Error('Invalid options.share: must sum to total');
 }
 
-/** Start near an equal split. @param {Content} content @returns {number[]} */
+/** @param {Content} content @returns {number[]} */
 export function initialDividers(content) {
   return Array.from({ length: content.options.length - 1 }, (_, i) => clean(Math.round((i + 1) * (content.total / content.step) / content.options.length) * content.step));
 }
@@ -52,7 +52,6 @@ export function shares(content, dividers) {
   return content.options.map((_, i) => clean((dividers[i] ?? content.total) - (dividers[i - 1] ?? 0)));
 }
 
-// Every divider spans the whole bar. Crossing neighbours pushes them, so one move can give A the whole total.
 /** @param {Content} content @param {number[]} dividers @param {number} index @param {number} value */
 export function moveDivider(content, dividers, index, value) {
   if (!Number.isInteger(index) || index < 0 || index >= dividers.length) throw new Error('Invalid divider index');
@@ -76,7 +75,7 @@ export function validateState(content, value) {
   return { dividers: [...dividers], touched: value.touched, shown: value.shown };
 }
 
-/** Largest absolute gap; the first option wins ties. @param {Content} content @param {number[]} dividers */
+/** @param {Content} content @param {number[]} dividers */
 export function compare(content, dividers) {
   validateContent(content);
   if (!validateState(content, { dividers, touched: true, shown: false })) throw new Error('Invalid dividers');
@@ -87,7 +86,7 @@ export function compare(content, dividers) {
   return { mine, real, gaps, biggest: gaps.indexOf(gap), exact: gap === 0, close: gap <= content.close };
 }
 
-/** Insert values once, keeping inserted braces literal. @param {string} template @param {Record<string, string | number>} values */
+/** @param {string} template @param {Record<string, string | number>} values */
 export function format(template, values) {
   return template.replace(/\{(\w+)\}/g, (match, key) => Object.hasOwn(values, key) ? String(values[key]) : match);
 }

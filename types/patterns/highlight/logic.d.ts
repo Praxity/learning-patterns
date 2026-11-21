@@ -1,15 +1,9 @@
-/** Validate authored content, including identities across every paragraph.
- * @param {unknown} content @returns {asserts content is Content}
- */
+/** @param {unknown} content @returns {asserts content is Content} */
 export function validateContent(content: unknown): asserts content is Content;
-/** Maximum selected chunks. Pass validated content.
- * @param {Content} content @returns {number}
- */
+/** @param {Content} content @returns {number} */
 export function markLimit(content: Content): number;
-/** Compare marks with the author's targets. Duplicate marks count once.
- * @param {Content} content @param {string[]} markedIds
- * @returns {{ found: number, total: number, marked: number, wrong: number, items: Outcome[] }}
- */
+/** @param {Content} content @param {string[]} markedIds
+ * @returns {{ found: number, total: number, marked: number, wrong: number, items: Outcome[] }} */
 export function check(content: Content, markedIds: string[]): {
     found: number;
     total: number;
@@ -17,9 +11,7 @@ export function check(content: Content, markedIds: string[]): {
     wrong: number;
     items: Outcome[];
 };
-/** Ignore invalid host state and copy valid marks.
- * @param {Content} content @param {unknown} value @returns {LearnerState | null}
- */
+/** @param {Content} content @param {unknown} value @returns {LearnerState | null} */
 export function validateState(content: Content, value: unknown): LearnerState | null;
 export type Chunk = {
     id: string;

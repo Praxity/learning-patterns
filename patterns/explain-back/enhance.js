@@ -43,7 +43,6 @@ export function enhance(root, { content, strings, state, ask }) {
   ready.type = 'button'; ready.className = 'lp-button'; ready.textContent = frenchTypography(strings.ready, root.lang);
   const readAgain = root.ownerDocument.createElement('button');
   readAgain.type = 'button'; readAgain.className = 'lp-button lp-button-secondary'; readAgain.textContent = frenchTypography(strings.readAgain, root.lang);
-  // Both primary buttons sit in .lp-actions rows, so each goes full width on narrow screens.
   const checkRow = required('.lp-actions');
   const readyRow = root.ownerDocument.createElement('div');
   readyRow.className = 'lp-actions'; readyRow.append(ready);
@@ -75,7 +74,6 @@ export function enhance(root, { content, strings, state, ask }) {
     model.hidden = false; model.open = true; notice.hidden = true;
     if (error.hidden) answer.removeAttribute('aria-describedby');
     else answer.setAttribute('aria-describedby', error.id);
-    // Hide the focused button only once focus has reached the first idea, so focus never falls to the page body.
     if (moveFocus) { cancelFocus(); cancelFocus = focusAfterLayout(boxes[0], () => { check.hidden = true; }, lifetime.signal); }
     else check.hidden = !capped;
     return moveFocus;
@@ -116,7 +114,6 @@ export function enhance(root, { content, strings, state, ask }) {
       if (answer.value.trim() !== draft) return;
       const answers = await ask('07-explain-back', { answer: draft }, { challengeSlot, signal: lifetime.signal });
       if (destroyed) return;
-      // A judgment belongs to the submitted draft. Discard it if the learner has edited.
       if (answer.value.trim() !== draft) return;
       const outcome = feedback(content, answers);
       const summary = strings.summary.replaceAll('{count}', String(outcome.count)).replaceAll('{total}', String(outcome.total));

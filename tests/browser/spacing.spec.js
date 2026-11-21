@@ -77,7 +77,6 @@ for (const width of [1280, 390]) {
     await expect(ticks).toBeVisible();
     await expect(ticks).toHaveCSS('border-top-width', '1px');
     const choices = ticks.locator('.lp-choice');
-    // The tick hint was cut (card writing audit), so the meter follows the legend at the legend's 12px gap.
     expect(await gap(ticks.locator('legend'), ticks.locator('[data-lp-meter]'))).toBeCloseTo(12, 1);
     expect(await gap(ticks.locator('[data-lp-meter]'), choices.first())).toBeCloseTo(10, 1);
     if (width === 1280) {
@@ -168,7 +167,6 @@ for (const width of [1280, 390]) {
     await page.setViewportSize({ width, height: 900 });
     for (const name of ['misconception', 'explain-back']) {
       await open(page, name);
-      // Exercise the rendered field/error pair with its optional notice absent, then present.
       await page.evaluate(() => {
         window.lpInstances.forEach(instance => instance.destroy());
         document.querySelector('[data-lp-error]').hidden = false;
@@ -218,7 +216,6 @@ for (const width of [1280, 390]) {
     await open(page, 'course-lookup');
     for (const root of await page.locator('[data-lp-pattern="course-lookup"]').all()) {
       await expect(root.locator('textarea')).toBeVisible();
-      // Isolate each transient note with and without the optional data notice.
       for (const noticeVisible of [false, true]) for (const note of ['checking', 'paused']) {
         await root.evaluate((el, { note, noticeVisible }) => {
           for (const name of ['checking', 'paused']) el.querySelector(`[data-lp-${name}]`).hidden = name !== note;
@@ -234,7 +231,6 @@ for (const width of [1280, 390]) {
     await page.setViewportSize({ width, height: 900 });
     await open(page, role === 'stem' ? 'journal' : 'first-answer');
     const label = page.locator(role === 'stem' ? '.lp-stem' : '[data-lp-first-editor] .lp-label');
-    // The journal renders its own starter hint; elsewhere a host can supply one without pattern-specific CSS.
     if (role === 'label') await label.evaluate(el => el.insertAdjacentHTML('afterend', '<p class="lp-small" data-spacing-hint>Give one example.</p>'));
     const hint = page.locator(role === 'stem' ? '.lp-stem + .lp-small' : '[data-spacing-hint]');
     const field = page.locator(role === 'stem' ? 'textarea' : '[data-lp-first-input]');
@@ -294,7 +290,6 @@ test('pattern relationships scale with a 20px default font', async ({ page }) =>
   expect(await gap(heading, outline)).toBeCloseTo(15, 1);
 });
 
-// 320 CSS px represents reflow at 400% zoom from a 1280px viewport.
 for (const lang of ['en', 'fr']) for (const textSpacing of [false, true]) {
   test(`400% reflow preserves fields and choices (${lang}, text spacing ${textSpacing})`, async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 900 });

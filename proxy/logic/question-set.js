@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-// Question-set v1 originated in Praxity runtime, copyright 2026 Ariel Harlap.
 
 /** @typedef {Record<string, {type: 'noul', instructions: string | {situation: string, question: string}, criteria?: {true: string, false: string}} | {type: 'choice', instructions: string | {situation: string, question: string}, criteria: Record<string, string>}>} Questions */
 /** @typedef {'perplexity' | 'clef'} ProviderName */
@@ -258,7 +257,6 @@ function validateSets(sets, state, version) {
       const count = Object.keys(variant.questions).length;
       if (!count || count > 128 || inputTokenBound(set, name) >= 65536) issue(['providers', name, 'questions']);
       if (Object.keys(variant.confidenceGates).length !== count) issue(['providers', name, 'confidenceGates']);
-      // Provider wording and thresholds can differ; outcome meanings must agree.
       if (Object.keys(base).length !== count) issue(['providers', name, 'questions']);
       for (const [key, question] of Object.entries(variant.questions)) {
         const gate = own(variant.confidenceGates, key), original = own(base, key);
@@ -339,12 +337,9 @@ export function requestQuestions(set, provider) {
   const variant = providerVariant(set, provider);
   if (!own(variant, 'questionOrder')) return variant.questions;
   const entries = orderedQuestions(variant);
-  // Proxy enumeration keeps numeric IDs in authored order when JSON.stringify builds the request.
   return new Proxy(Object.fromEntries(entries), { ownKeys: () => entries.map(([key]) => key) });
 }
 
-// Object keys sort by UTF-16 code units; array order and Unicode strings stay unchanged.
-// Emit objects directly: rebuilding one would reorder all-digit keys again.
 /** @param {unknown} value @returns {string} */
 export function canonicalJson(value) {
   const ancestors = new Set();
@@ -372,7 +367,6 @@ async function canonicalHash(value) {
   return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
-// This array is the fingerprint preimage, including the bar's fixed field order.
 /** @param {Pick<AcceptanceRecord, 'publicDigest' | 'holdoutDigest' | 'bar' | 'generation'>} record */
 export function acceptanceFingerprint(record) {
   const value = parse(object({ publicDigest: digest, holdoutDigest: digest, bar: barSchema, generation: id }, false), record);
@@ -385,7 +379,6 @@ export function acceptanceFingerprint(record) {
 export function questionSetDigest(set, provider, language, authoring) {
   const variant = providerVariant(set, provider);
   if (!own(variant, 'model') || !own(variant, 'questionOrder') || !['en', 'fr'].includes(language) || !own(authoring, 'requestTemplateVersion') || !own(authoring, 'selfCheckContentRevision')) throw new Error('Invalid public digest inputs');
-  // Question IDs and field IDs are values in arrays, never keys whose order JavaScript changes.
   const questions = orderedQuestions(variant);
   return canonicalHash([
     ['formatVersion', 2], ['requestTemplateVersion', authoring.requestTemplateVersion],
@@ -402,7 +395,6 @@ export function questionSetDigest(set, provider, language, authoring) {
   ]);
 }
 
-// JSON can escape each UTF-16 code unit to six bytes. Count shared state per question.
 /** @param {QuestionSet} set @param {keyof QuestionSet['providers']} [provider] */
 export function inputTokenBound(set, provider) {
   const emptyFields = Object.fromEntries(Object.keys(set.fields).map(key => [key, '']));
@@ -411,7 +403,6 @@ export function inputTokenBound(set, provider) {
   return Object.values(providerVariant(set, provider).questions).reduce((sum, question) => sum + stateBytes + new TextEncoder().encode(JSON.stringify(question)).length + 1024, 0);
 }
 
-// Bound compact JSON with six bytes per UTF-16 unit, and URL-encoded forms with nine.
 /** @param {QuestionSet[]} sets */
 export function checkBodyLimit(sets) {
   return Math.max(1024, ...sets.map(set => {
@@ -449,7 +440,6 @@ export function checkInput(sets, input) {
   return { set, fields: body.fields };
 }
 
-// Only typed answers leave the provider seam. Discard echoed state and other extra values.
 /** @param {unknown} value @param {Questions} questions @param {boolean} [strictProvider] @returns {Answers} */
 export function readAnswers(value, questions, strictProvider = false) {
   const raw = parse(record(string(0, Infinity), value => value), value);

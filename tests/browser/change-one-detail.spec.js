@@ -22,12 +22,10 @@ async function observe(page) {
 const announcements = page => page.evaluate(() => window.lpAnnouncements);
 const scan = async page => expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()).violations).toEqual([]);
 const round = (root, i) => root.locator('[data-lp-round]').nth(i);
-/** Choose an option in round i and check it. */
 async function decide(root, i, value) {
   await round(root, i).locator(`input[value="${value}"]`).check();
   await round(root, i).locator('[data-lp-check]').click();
 }
-// Replace the demo with other content through the public render and enhance interface.
 async function mount(page, content, { lang = 'en', state } = {}) {
   await open(page, `/change-one-detail/${lang}.html`);
   await page.evaluate(async ({ content, lang, state }) => {
@@ -47,7 +45,6 @@ test('keyboard journey: error, three locked decisions, one closing announcement 
   await expect(rounds.nth(0)).toBeVisible(); await expect(rounds.nth(1)).toBeHidden(); await expect(rounds.nth(2)).toBeHidden();
   await expect(page.locator('[data-lp-fallback]')).toBeHidden();
 
-  // Checking with nothing chosen names the problem in the group and focuses its first option.
   await page.keyboard.press('Tab'); await expect(rounds.nth(0).locator('input').first()).toBeFocused();
   await page.keyboard.press('Tab'); await expect(rounds.nth(0).locator('[data-lp-check]')).toBeFocused();
   await page.keyboard.press('Enter');
@@ -60,7 +57,6 @@ test('keyboard journey: error, three locked decisions, one closing announcement 
   await expect(rounds.nth(1)).toBeHidden();
   expect(await announcements(page)).toEqual([]);
 
-  // A choice clears the error. Billing is right for the first case.
   await page.keyboard.press('Space');
   await expect(error).toBeHidden();
   await expect(rounds.nth(0).locator('fieldset')).not.toHaveAttribute('aria-describedby');
@@ -75,13 +71,11 @@ test('keyboard journey: error, three locked decisions, one closing announcement 
   await expect(rounds.nth(0).locator('label:has(input[value="billing"])')).toHaveAttribute('data-lp-mark', 'correct');
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ picks: ['billing'] });
 
-  // The first change opens under the locked decision; the result so far was read by focus alone.
   await expect(rounds.nth(1)).toBeVisible(); await expect(rounds.nth(2)).toBeHidden();
   await expect(rounds.nth(1).locator('h3')).toHaveText('Now one detail changes');
   await expect(page.locator('[data-lp-result]')).toBeHidden();
   expect(await announcements(page)).toEqual([]);
 
-  // Tab skips the locked round. Billing again is now wrong: the answer moved to security.
   await page.keyboard.press('Tab'); await expect(rounds.nth(1).locator('input').first()).toBeFocused();
   await page.keyboard.press('Space'); await page.keyboard.press('Tab'); await page.keyboard.press('Enter');
   await expect(feedback(1)).toBeFocused();
@@ -92,7 +86,6 @@ test('keyboard journey: error, three locked decisions, one closing announcement 
   await expect(rounds.nth(2).locator('h3')).toHaveText('Now a different detail changes instead');
   expect(await announcements(page)).toEqual([]);
 
-  // The last decision: focus reads its feedback and the status region adds the score and the rule once.
   await page.keyboard.press('Tab'); await expect(rounds.nth(2).locator('input').first()).toBeFocused();
   await page.keyboard.press('Space'); await page.keyboard.press('Tab'); await page.keyboard.press('Enter');
   await expect(feedback(2)).toBeFocused();
@@ -108,7 +101,6 @@ test('keyboard journey: error, three locked decisions, one closing announcement 
   await expect(page.locator('[data-lp-check]:visible')).toHaveCount(0);
   await expectChoiceMarks(page);
 
-  // Start over is the only control left.
   await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-restart]')).toBeFocused();
   await expect(page.locator('[data-lp-restart]')).toHaveText('Start over');
   await page.keyboard.press('Enter');
@@ -120,7 +112,6 @@ test('keyboard journey: error, three locked decisions, one closing announcement 
   await expect(rounds.nth(0).locator('[data-lp-check]')).toBeVisible();
   expect(await announcements(page)).toEqual([`You got 2 of 3 right. ${english.rule}`, 'Answers cleared.']);
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ picks: [] });
-  // A second pass works after the reset, and a new result replaces the stale status.
   await decide(page, 0, 'security');
   await expect(feedback(0)).toHaveText(`Incorrect. Correct answer: Billing. ${english.explanation}`);
   await expect(page.locator('[role="status"]')).toHaveText('');
@@ -136,7 +127,6 @@ for (const [lang, content, labels] of [
     await open(page, `/change-one-detail/${lang}.html`); await observe(page);
     const root = page.locator('[data-lp-pattern]');
     await expect(root).toHaveAttribute('lang', lang);
-    // No scene bar: the title, the context, the case, then the question as the group's name.
     await expect(root.locator('.lp-scene')).toHaveCount(0);
     await expect(root.locator('> h2.lp-heading')).toHaveText(content.title);
     await expect(root.locator('> .lp-context')).toHaveText(content.context);
@@ -150,7 +140,6 @@ for (const [lang, content, labels] of [
     for (const [i, change] of content.changes.entries()) {
       const section = round(root, i + 1);
       await expect(section.locator('h3')).toHaveText(i ? labels.next : labels.first);
-      // Old wording struck through, new wording highlighted and heavier; hidden words say which is which.
       const old = section.locator('.lp-quote del'), fresh = section.locator('.lp-quote ins');
       await expect(old).toHaveText(labels.before + typeset(change.from));
       await expect(fresh).toHaveText(labels.now + typeset(change.to));
@@ -159,9 +148,7 @@ for (const [lang, content, labels] of [
       await expect(fresh).toHaveCSS('background-color', 'rgb(255, 228, 154)');
       await expect(fresh).toHaveCSS('text-decoration-line', 'none');
       for (const label of [old.locator('.lp-visually-hidden'), fresh.locator('.lp-visually-hidden')]) expect((await label.boundingBox()).width).toBeLessThanOrEqual(1);
-      // Each change starts from the first case: with the old wording put back, the rest matches it.
       expect(await section.locator('.lp-quote').evaluate(quote => { const copy = quote.cloneNode(true); copy.querySelectorAll('.lp-visually-hidden, ins').forEach(node => node.remove()); return copy.textContent.replace(/ (?= )/, ''); })).toBe(typeset(content.case));
-      // The first change follows the start directly, so only later changes say the rest is as it was.
       if (i) await expect(section.locator('.lp-quote + .lp-small')).toHaveText(labels.same);
       else await expect(section.locator('.lp-quote + .lp-small')).toHaveCount(0);
       await expect(section.getByRole('group', { name: typeset(content.question) })).toBeVisible();
@@ -193,7 +180,6 @@ for (const [lang, content, labels] of [
     await expect(fallback.locator('details[open]')).toHaveCount(0);
     await expect(fallback.locator('h3')).toHaveText([labels.first, labels.next]);
     await expect(fallback.locator('.lp-quote ins')).toHaveText(content.changes.map(change => labels.now + typeset(change.to)));
-    // Answers are not on screen until their disclosure is opened.
     await expect(fallback.getByText(typeset(content.changes[0].explanation))).toBeHidden();
     for (const summary of await fallback.locator('summary').all()) await summary.click();
     const option = id => content.options.find(o => o.id === id).text;
@@ -210,7 +196,6 @@ for (const [lang, content, labels] of [
   });
 
   test(`axe on unchanged server HTML with the answers open (${lang})`, async ({ page }) => {
-    // axe needs scripting enabled. Block enhancement to audit the same native baseline.
     await page.route('**/change-one-detail/enhance.js', route => route.fulfill({ contentType: 'text/javascript', body: 'export function enhance() { return { destroy() {} }; }' }));
     await open(page, `/change-one-detail/${lang}.html`);
     await scan(page);
@@ -236,7 +221,6 @@ for (const [lang, content, labels] of [
       });
       expect(problems, stage).toEqual([]);
     }
-    // Wrong, missed and correct marks all fit inside their rows at this width.
     await expect(page.locator('[data-lp-mark]')).toHaveCount(6);
   });
 }
@@ -264,11 +248,9 @@ test('a checked decision cannot be changed or checked twice', async ({ page }) =
   const first = round(page, 0);
   await expect(first.locator('input[value="security"]')).toBeChecked();
   for (const radio of await first.locator('input').all()) await expect(radio).toBeDisabled();
-  // A stray activation of the hidden button changes nothing.
   await first.locator('[data-lp-check]').evaluate(button => { button.hidden = false; button.disabled = false; button.click(); });
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ picks: ['security'] });
   await expect(first.locator('.lp-choice-mark')).toHaveCount(2);
-  // Locked rows show no pointer, and the earlier decision stays visible while the next is made.
   await expect(first.locator('label').first()).toHaveCSS('cursor', 'default');
   await round(page, 1).locator('input[value="ask"]').check();
   await expect(first.locator('[data-lp-feedback]')).toBeVisible();
@@ -281,11 +263,9 @@ for (const width of [1280, 390]) test(`checking brings the next change into view
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await decide(page, 0, 'billing');
   await decide(page, 1, 'security');
-  // Scroll positions are whole pixels, so an edge can sit a fraction of a pixel outside.
   for (const locator of [round(page, 1).locator('[data-lp-feedback]'), round(page, 2).locator('h3'), round(page, 2).locator('[data-lp-check]')]) await expect(locator).toBeInViewport({ ratio: .95 });
   await decide(page, 2, 'billing');
   for (const locator of [round(page, 2).locator('[data-lp-feedback]'), page.locator('[data-lp-result] h3 + p'), page.locator('[data-lp-restart]')]) await expect(locator).toBeInViewport({ ratio: .95 });
-  // Feedback sits beside its options: inside the group, right under the last row.
   const gap = await round(page, 2).evaluate(section => section.querySelector('[data-lp-feedback]').getBoundingClientRect().top - section.querySelector('label:last-of-type').getBoundingClientRect().bottom);
   expect(gap).toBeGreaterThanOrEqual(8); expect(gap).toBeLessThanOrEqual(16);
   await page.locator('[data-lp-restart]').click();
@@ -305,7 +285,6 @@ for (const [picks, open_, locked] of [[['billing'], 2, 3], [['ask', 'security'],
     await expect(page.locator('[data-lp-result]')).toBeHidden(); await expect(page.locator('[data-lp-restart]')).toBeHidden();
     await expect(page.locator('[role="status"]')).toHaveText('');
     expect(await page.evaluate(() => document.activeElement === document.body && scrollY === 0)).toBe(true);
-    // The restored learner carries on from the open round.
     await decide(page, picks.length, 'billing');
     expect(await page.evaluate(() => window.lpSaved)).toEqual({ picks: [...picks, 'billing'] });
   });
@@ -370,7 +349,6 @@ test('worst-case authored text wraps inside the card at 320px', async ({ page })
     return Math.max(...[...document.querySelectorAll('[data-lp-pattern] *')].filter(el => el.getClientRects().length && !el.closest('.lp-visually-hidden')).map(el => el.getBoundingClientRect().right - card.right));
   });
   expect(overflow).toBeLessThanOrEqual(0);
-  // A mark that cannot share the first line drops under the option text, never under the key.
   const mark = await round(page, 0).locator('label:has(input[value="ask"])').evaluate(row => {
     const text = row.querySelector('span:not(.lp-choice-mark)').getBoundingClientRect(), mark = row.querySelector('.lp-choice-mark').getBoundingClientRect();
     return { below: mark.top - text.bottom, indent: mark.left - text.left };
@@ -404,12 +382,10 @@ test('enhance twice returns one instance; destroy restores the no-JavaScript vie
   await expect(page.locator('[data-lp-feedback]:visible')).toHaveCount(0);
   await expect(page.locator('[role="status"]')).toHaveText('');
   expect(await page.locator('[data-lp-pattern] *').count()).toBe(nodes);
-  // Listeners are gone: a destroyed instance writes nothing.
   const before = await page.evaluate(() => window.lpSaved);
   await page.locator('input').first().check();
   await round(page, 0).locator('[data-lp-check]').evaluate(button => { button.hidden = false; button.click(); button.hidden = true; });
   expect(await page.evaluate(() => window.lpSaved)).toEqual(before);
-  // The page's adapter still holds the two decisions, so a new instance restores them.
   expect(await page.evaluate(() => { const instance = window.lpEnhance(); return instance === window.lpEnhance() && instance !== window.lpInstances[0]; })).toBe(true);
   await expect(page.locator('[data-lp-fallback]')).toBeHidden();
   await expect(page.locator('[data-lp-round]:visible')).toHaveCount(3);
@@ -453,7 +429,6 @@ test('shared look: one card, sans headings, keyed rows, a quiet reset and body-s
   const root = page.locator('[data-lp-pattern]');
   await expect(root.locator('.lp-box, .lp-scene')).toHaveCount(0);
   await expect(root.locator('h2.lp-heading')).toHaveCSS('font-size', '21px');
-  // Under a card title the repeated question steps down one size.
   await expect(round(root, 0).locator('legend')).toHaveCSS('font-size', '19px');
   await expect(round(root, 0).locator('legend')).toHaveCSS('font-weight', '600');
   await decide(root, 0, 'billing'); await decide(root, 1, 'billing'); await decide(root, 2, 'billing');
@@ -462,14 +437,11 @@ test('shared look: one card, sans headings, keyed rows, a quiet reset and body-s
   await expect(round(root, 1).locator('h3')).toHaveCSS('font-weight', '600');
   await expect(root.locator('[data-lp-restart]')).toHaveClass(/lp-button-quiet/);
   await expect(root.locator('[data-lp-restart] svg[aria-hidden="true"]')).toHaveCount(1);
-  // Later rounds and the summary are sections with a top rule; the first round has none.
   await expect(round(root, 0)).toHaveCSS('border-top-width', '0px');
   for (const section of [round(root, 1), round(root, 2), root.locator('[data-lp-result]')]) await expect(section).toHaveCSS('border-top-width', '1px');
-  // Keyboard focus on feedback draws the shared ring.
   await page.keyboard.press('Tab');
   await round(root, 2).locator('[data-lp-feedback]').focus();
   await expect(round(root, 2).locator('[data-lp-feedback]')).toHaveCSS('outline-width', '3px');
-  // The highlight keeps AA contrast against the ink.
   const contrast = await round(root, 1).locator('ins').evaluate(el => {
     const lum = value => { const [r, g, b] = value.match(/[\d.]+/g).slice(0, 3).map(v => v / 255).map(v => v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4); return .2126 * r + .7152 * g + .0722 * b; };
     const css = getComputedStyle(el), a = lum(css.color), b = lum(css.backgroundColor);

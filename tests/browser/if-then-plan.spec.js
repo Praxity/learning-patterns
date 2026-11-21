@@ -7,7 +7,6 @@ import { strings } from '../../patterns/if-then-plan/strings.js';
 const examples = Object.fromEntries(await Promise.all(['en', 'fr'].map(async lang => [lang,
   JSON.parse(await readFile(new URL(`../../patterns/if-then-plan/examples/${lang}.json`, import.meta.url), 'utf8'))
 ])));
-// The calendar file is written in UTC, so the expected times need a fixed zone: 10:00 in Toronto on 12 November is 15:00 UTC.
 test.use({ timezoneId: 'America/Toronto' });
 
 const PLAN = {
@@ -33,7 +32,6 @@ async function observeStatus(page) {
     }).observe(status, { childList: true, characterData: true, subtree: true });
   });
 }
-// Choose with the keyboard, then move to the button and press it.
 async function chooseAndAdd(page, id) {
   await option(page, id).focus();
   await page.keyboard.press('Space');
@@ -71,7 +69,6 @@ for (const lang of ['en', 'fr']) {
     await expect(option(page, 'spare')).toBeDisabled();
     await expect(option(page, 'spare')).not.toBeChecked();
     for (const id of ['problem', 'asks', 'quiet']) await expect(option(page, id)).toBeEnabled();
-    // Plan feedback is not an answer mark: no Correct or Incorrect anywhere.
     await expect(page.locator('[data-lp-mark]')).toHaveCount(0);
     await expect(step(page, 'will')).toBeHidden();
 
@@ -85,14 +82,12 @@ for (const lang of ['en', 'fr']) {
 
     await chooseAndAdd(page, 'open');
     await expect(page.locator('[data-lp-plan]')).toBeFocused();
-    // The focused block holds the label and the sentence, so both are read.
     await expect(page.locator('[data-lp-plan]')).toContainText(t(lang, 'planLabel'));
     await expect(page.locator('[data-lp-plan-text]')).toHaveText(frenchTypography(PLAN[lang], lang));
     await expect(page.locator('[data-lp-steps]')).toBeHidden();
     await expect(add(page)).toBeHidden();
     await expect(page.locator('[data-lp-calendar]')).toBeDisabled();
     await expect(page.getByRole('status')).toBeEmpty();
-    // The two accepted steps are read through focus, so only the vague choice was announced.
     expect(await page.evaluate(() => window.announcements)).toEqual([announced]);
     await page.keyboard.press('Tab');
     await expect(page.locator('[data-lp-start]')).toBeFocused();
@@ -150,7 +145,6 @@ for (const lang of ['en', 'fr']) {
     expect(file.startsWith('BEGIN:VCALENDAR\r\nVERSION:2.0\r\n')).toBe(true);
     expect(file.endsWith('END:VEVENT\r\nEND:VCALENDAR\r\n')).toBe(true);
     const lines = file.replaceAll('\r\n ', '').split('\r\n');
-    // The entry is the ten minutes before the chosen time.
     expect(lines).toContain('DTSTART:20301112T145000Z');
     expect(lines).toContain('DTEND:20301112T150000Z');
     expect(lines).toContain(`SUMMARY:${frenchTypography(PLAN[lang], lang).replaceAll(',', '\\,')}`);
@@ -159,7 +153,6 @@ for (const lang of ['en', 'fr']) {
     await expect(page.locator('[data-lp-downloaded]')).toHaveText(t(lang, 'downloaded'));
     await expect(page.getByRole('status')).toHaveText(t(lang, 'downloaded'));
     expect(await page.evaluate(() => window.announcements)).toEqual([t(lang, 'past'), t(lang, 'downloaded')]);
-    // Changing the time withdraws the note about the earlier file.
     await field.fill('2030-11-13T09:00');
     await expect(page.locator('[data-lp-downloaded]')).toBeHidden();
   });
@@ -258,7 +251,6 @@ test('the plan and the steps are set apart without a box inside the card', async
   expect(await boxed('[data-lp-steps]')).toEqual([]);
   await buildPlan(page);
   expect(await boxed('[data-lp-result]')).toEqual([]);
-  // A rule and larger type do the separating.
   await expect(page.locator('[data-lp-result]')).toHaveCSS('border-top-width', '1px');
   await expect(page.locator('[data-lp-plan-text]')).toHaveCSS('font-size', '21px');
   await expect(page.locator('[data-lp-plan-text]')).toHaveCSS('font-weight', '600');
@@ -302,7 +294,6 @@ test('a restored past time shows its linked error at once, without an announceme
   await open(page);
   const field = page.locator('[data-lp-start]');
   await expect(field).toHaveValue('2020-01-01T10:00');
-  // The button is disabled, so the reason has to be on the page before the learner touches the field.
   await expect(page.locator('[data-lp-calendar]')).toBeDisabled();
   await expect(page.locator('[data-lp-start-error]')).toBeVisible();
   await expect(page.locator('[data-lp-start-error]')).toHaveText(strings.en.past);
@@ -333,7 +324,6 @@ test('destroy after a finished plan restores the server render', async ({ page }
     fresh.innerHTML = render(content, strings.en, { id: 'example', lang: 'en' });
     return {
       markup: root.outerHTML, server: fresh.content.firstElementChild.outerHTML,
-      // Values a serialised tree does not show.
       checked: root.querySelectorAll('input:checked').length, start: root.querySelector('[data-lp-start]').value,
       calendarDisabled: root.querySelector('[data-lp-calendar]').disabled
     };

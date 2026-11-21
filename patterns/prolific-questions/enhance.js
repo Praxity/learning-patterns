@@ -48,7 +48,6 @@ export function enhance(root, { content, strings, state }) {
   let unlock = () => {};
   let learner = validateState(content, state?.read());
   if (!learner) learner = { ...deal(content.cases.length), order: shuffle(content.parts.map((_, i) => i)), picks: content.parts.map(() => null), checked: false, completed: 0, placed: 0 };
-  // A valid state is assigned above; keeping one local object makes every host write a snapshot.
   let current = learner;
   const save = () => state?.write({ ...current, deck: [...current.deck], order: [...current.order], picks: [...current.picks] });
   /** @param {string} text */
@@ -92,7 +91,6 @@ export function enhance(root, { content, strings, state }) {
   function showResult(announce) {
     const outcome = score(current.order, current.picks);
     current.order.forEach((part, i) => {
-      // Mark only what the learner did; the right slot of a miss supplies the label reveal.
       inputs[i].forEach((input, slot) => {
         if (input.checked) markChoice(rows[i][slot], slot === part ? 'correct' : 'wrong', strings, root.lang);
         else if (slot === part) markChoice(rows[i][slot], 'missed', strings, root.lang);
@@ -152,9 +150,7 @@ export function enhance(root, { content, strings, state }) {
     if (!current.checked) return;
     clearResult();
     current = { ...current, ...deal(content.cases.length, current), order: shuffle(content.parts.map((_, i) => i)), picks: content.parts.map(() => null), checked: false };
-    // Replace fieldsets because Safari kept the old legend as the group name in VoiceOver run 2.
     paintFacts(true); save();
-    // Wait for the replacement fieldsets before scrolling and focusing the first question.
     cancelFocus = focusAfterLayout(inputs[0][0], () => {}, lifetime.signal, () => focusQuestion(facts[0]));
     status.textContent = '';
   }

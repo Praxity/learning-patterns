@@ -99,7 +99,6 @@ export function enhance(root, { content, strings, state, ask }) {
     fallbackMessage.hidden = false; notice.hidden = true;
     input.removeAttribute('aria-describedby');
     if (capped) controls.hidden = false;
-    // Focus reads the message, so status stays quiet: a status write next to a focus move gets cut off.
     else if (moveFocus) { fallbackMessage.tabIndex = -1; focusAfterLayout(fallbackMessage, () => { controls.hidden = true; }, lifetime.signal); }
     else { controls.hidden = true; if (announce) status.textContent = frenchTypography(strings.fallback, root.lang); }
   };
@@ -202,8 +201,6 @@ export function enhance(root, { content, strings, state, ask }) {
     if (link) {
       fallback.hidden = false;
       const entryLink = required(`#${CSS.escape((link.getAttribute('href') ?? '').slice(1))} a`);
-      // Safari leaves focus on the page for an unfocusable fragment target; VoiceOver, 2026-10-29.
-      // A modified click opens another tab or window, so this page keeps its place.
       const plain = event.button === 0 && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey && !event.defaultPrevented;
       if (plain) focusAfterLayout(entryLink, () => {}, lifetime.signal);
     }

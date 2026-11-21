@@ -7,7 +7,6 @@ export const strings = {
     cleared: 'Cleared. Start again.',
     empty: 'Slide this range to set your estimate.',
     missing: 'Set a range for every question first.',
-    // The fieldset legend already names the question; the slider names only itself, by number, so NVDA does not read the question twice.
     band: 'Range for question {number}',
     range: '{low} to {high}',
     caught: 'In your range: {answer} {unit}.',

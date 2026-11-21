@@ -14,9 +14,7 @@ function textFields(value, keys, path) {
   for (const key of keys) if (typeof value[key] !== 'string' || !value[key].trim()) throw new Error(`Invalid ${path}.${key}`);
 }
 
-/** Questions follow the proxy's fixed criteria, in its order.
- * @param {unknown} content @returns {asserts content is Content}
- */
+/** @param {unknown} content @returns {asserts content is Content} */
 export function validateContent(content) {
   validateTextLengths(content, {
     prompt: 400,
@@ -38,10 +36,8 @@ export function validateContent(content) {
   });
 }
 
-/** Select one authored line. The proxy owns every threshold and the decision order.
- * @param {Content} content @param {unknown} answers
- * @returns {{ kind: 'support' | 'complete', text: string } | { kind: 'nudge', key: typeof NUDGE_KEYS[number], text: string }}
- */
+/** @param {Content} content @param {unknown} answers
+ * @returns {{ kind: 'support' | 'complete', text: string } | { kind: 'nudge', key: typeof NUDGE_KEYS[number], text: string }} */
 export function feedback(content, answers) {
   validateContent(content);
   if (!object(answers)) throw new Error('Invalid answers');
@@ -57,18 +53,14 @@ export function feedback(content, answers) {
   return { ...outcome, text: outcome.kind === 'support' ? content.support : content.complete };
 }
 
-/** Preserve the writer's whitespace when saving.
- * @param {unknown} text @returns {{ ok: true, text: string } | { ok: false, error: 'empty' | 'tooLong' }}
- */
+/** @param {unknown} text @returns {{ ok: true, text: string } | { ok: false, error: 'empty' | 'tooLong' }} */
 export function validateAnswer(text) {
   if (typeof text !== 'string' || !text.trim()) return { ok: false, error: 'empty' };
   if (text.length > ANSWER_LIMIT) return { ok: false, error: 'tooLong' };
   return { ok: true, text };
 }
 
-/** Only submitted entries are saved, with canonical UTC timestamps. No model judgments.
- * @param {unknown} value @returns {LearnerState | null}
- */
+/** @param {unknown} value @returns {LearnerState | null} */
 export function validateState(value) {
   if (!object(value) || Object.keys(value).some(key => !['text', 'savedAt'].includes(key))) return null;
   const answer = validateAnswer(value.text);

@@ -20,7 +20,6 @@ export class CostGuard {
 		this.sql.exec("CREATE TABLE IF NOT EXISTS ip_calls (day INTEGER NOT NULL, ip_hash TEXT NOT NULL, calls INTEGER NOT NULL, PRIMARY KEY(day, ip_hash))");
 		this.sql.exec("CREATE TABLE IF NOT EXISTS spend (day INTEGER PRIMARY KEY, nano_usd INTEGER NOT NULL)");
 		this.pending = new Map();
-		// Only initial alarm setup holds the startup gate, never provider I/O.
 		this.ready = ctx.blockConcurrencyWhile(async () => {
 			if (await ctx.storage.getAlarm() === null) await ctx.storage.setAlarm((Math.floor(Date.now() / DAY) + 1) * DAY);
 		});
@@ -31,7 +30,6 @@ export class CostGuard {
 		const body = await request.json();
 		if (typeof this.env.CACHE_KEY_SECRET !== "string" || this.env.CACHE_KEY_SECRET.length < 32) return json({ error: "Live checks are misconfigured." }, 503);
 		const key = body.cache === false ? undefined : await hmac(this.env.CACHE_KEY_SECRET, JSON.stringify([body.model, body.state, body.questions]));
-		// Identical in-flight requests share a charge; unrelated keys run independently.
 		if (key && this.pending.has(key)) return (await this.pending.get(key)).clone();
 		const call = this.ask(body, key).catch(error => error.status === 429
 			? json({ error: "Too many requests. Wait a minute and try again." }, 429)
@@ -53,10 +51,6 @@ export class CostGuard {
 		const budget = Math.floor(Number(this.env.DAILY_BUDGET_USD ?? DEFAULT_DAILY_BUDGET_USD) * 1e9);
 		if (!Number.isSafeInteger(budget) || budget < 0) return json({ error: "Invalid daily budget." }, 503);
 		const reservation = costNanoUsd(maxInputTokens, model);
-		// Check and reserve both daily counters and spend in one transaction.
-		// Persist the bound before external I/O.
-		// A timeout or object restart keeps it charged, since the provider may have
-		// billed a request we never heard back from.
 		const refused = this.ctx.storage.transactionSync(() => {
 			for (const [hash, cap] of [[ipHash, limit], [networkHash, limit * 3]]) {
 				const calls = this.sql.exec("SELECT calls FROM ip_calls WHERE day = ? AND ip_hash = ?", day, hash).toArray()[0]?.calls ?? 0;
@@ -85,7 +79,6 @@ export class CostGuard {
 				data = { answers: responseData.answers, tokens: responseData.usage?.input_tokens };
 			}
 		} catch (error) {
-			// A provider 429 refuses the request before inference, so nothing was billed.
 			if (error.status === 429) this.ctx.storage.transactionSync(() => {
 				this.sql.exec("UPDATE spend SET nano_usd = nano_usd - ? WHERE day = ?", reservation, day);
 				for (const hash of [ipHash, networkHash]) this.sql.exec("UPDATE ip_calls SET calls = calls - 1 WHERE day = ? AND ip_hash = ?", day, hash);

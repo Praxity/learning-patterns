@@ -1,6 +1,5 @@
 import { validateTextLengths } from '../../lib/text-limits.js';
 
-// Authors set the known points, real values, scale and step.
 /** @typedef {{ label: string, name: string, value: number }} Point */
 /** @typedef {'changedDirection' | 'fell' | 'rose' | 'flat' | 'fellThenFlat' | 'roseThenFlat'} Trend */
 /** @typedef {{ title?: string, context: string, question: string, unit: string, known: Point[], future: Point[], top: number, step: number, changeLabel: string, realLabel: string, resultTitle: string, explanationLabel: string, explanation: string, source: string, feedback: Record<Trend, string> }} Content */
@@ -49,23 +48,19 @@ export function validateContent(content) {
   for (const key of trends) if (typeof content.feedback[key] !== 'string' || !content.feedback[key].trim()) throw new Error(`Invalid feedback.${key}`);
 }
 
-/** Snap pointer input to the authored scale, including its boundaries.
- * @param {Content} content @param {number} value */
+/** @param {Content} content @param {number} value */
 export function snap(content, value) {
   if (!Number.isFinite(value)) throw new Error('Invalid value');
   return Math.min(content.top, Math.max(0, Math.round(value / content.step) * content.step));
 }
 
-/** Horizontal point centre as a fraction of the plot width.
- * @param {number} i @param {number} count */
+/** @param {number} i @param {number} count */
 export function x(i, count) { return (i + .5) / count; }
 
-/** Vertical point position as a fraction of the plot height, measured from the top.
- * @param {number} value @param {number} top */
+/** @param {number} value @param {number} top */
 export function y(value, top) { return 1 - value / top; }
 
-/** Compare a complete guess with the last known point. No numeric grade is assigned.
- * @param {Content} content @param {number[]} guesses
+/** @param {Content} content @param {number[]} guesses
  * @returns {{ trend: Trend, summary: string, differences: number[] }} */
 export function compare(content, guesses) {
   validateContent(content);
@@ -77,8 +72,7 @@ export function compare(content, guesses) {
   return { trend, summary: content.feedback[trend], differences: guesses.map((value, i) => value - content.future[i].value) };
 }
 
-/** Ignore invalid saved values and copy valid ones.
- * @param {Content} content @param {unknown} value @returns {LearnerState | null} */
+/** @param {Content} content @param {unknown} value @returns {LearnerState | null} */
 export function validateState(content, value) {
   if (!object(value) || typeof value.shown !== 'boolean' || !Array.isArray(value.guesses) || value.guesses.length !== content.future.length) return null;
   const guesses = value.guesses;
@@ -90,8 +84,7 @@ export function validateState(content, value) {
   return { guesses: [...guesses], shown: value.shown };
 }
 
-/** Replace placeholders without interpreting inserted author text.
- * @param {string} template @param {Record<string, string | number>} values */
+/** @param {string} template @param {Record<string, string | number>} values */
 export function format(template, values) {
   return template.replace(/\{(\w+)\}/g, (match, key) => Object.hasOwn(values, key) ? String(values[key]) : match);
 }

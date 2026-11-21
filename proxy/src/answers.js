@@ -1,5 +1,3 @@
-// Keep only typed answers to server-owned questions. Providers may echo state in
-// extra fields; persisting their raw response would break the no-text promise.
 export function readAnswers(answers, questions) {
 	if (!answers || typeof answers !== "object" || Array.isArray(answers)) throw new Error("Invalid model answers");
 	const probability = value => {

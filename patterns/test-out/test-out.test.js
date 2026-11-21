@@ -156,7 +156,6 @@ test('advanced answer explanations describe answers only', () => {
   assert.doesNotMatch(en, /Passing this section|credits/);
   assert.doesNotMatch(fr, /Réussir cette section|crédit/);
   for (const [markup, examples] of [[en, content], [fr, french]]) for (const q of examples.questions) assert.ok(markup.includes(q.explanation.replaceAll("'", '&#39;')));
-  // Each explanation says why the other options don't fit, not only what the answer is.
   assert.ok(content.questions.every(q => q.explanation.split('. ').length >= 2));
 });
 

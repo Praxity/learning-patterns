@@ -48,8 +48,7 @@ export function enhance(root, { content, strings, state }) {
   });
   const lifetime = new AbortController();
   const document = root.ownerDocument;
-  /** Checked cases, in order. The open case keeps its choice in the radios only.
-   * @type {string[]} */
+  /** @type {string[]} */
   let picks = [];
   /** @type {(() => void)[]} */
   let unlocks = [];
@@ -58,7 +57,7 @@ export function enhance(root, { content, strings, state }) {
   const save = () => state?.write({ picks: [...picks] });
   /** @param {string} value */
   const em = value => { const node = document.createElement('em'); node.textContent = text(value); return node; };
-  /** Text with each quoted principle name in italics. @param {string} value */
+  /** @param {string} value */
   const quoted = value => quoteParts(content, value).map(part => part.principle ? em(part.text) : text(part.text));
 
   /** @param {typeof cases[number]} part */
@@ -67,7 +66,7 @@ export function enhance(root, { content, strings, state }) {
     fieldset.removeAttribute('aria-describedby');
     for (const radio of radios) radio.removeAttribute('aria-invalid');
   }
-  /** Mark a checked case and write its feedback beside the rows. @param {number} c */
+  /** @param {number} c */
   function mark(c) {
     const { radios, rows, feedback: line, next } = cases[c];
     const outcome = feedback(content, c, picks[c]);
@@ -76,7 +75,6 @@ export function enhance(root, { content, strings, state }) {
       if (radio.checked) markChoice(rows[n], outcome.right ? 'correct' : 'wrong', strings, root.lang);
       else if (radio.value === outcome.correct) markChoice(rows[n], 'missed', strings, root.lang);
     });
-    // The rows show the verdict; focus reads this line, so it repeats the verdict for screen readers only.
     const verdict = document.createElement('span');
     verdict.className = 'lp-visually-hidden';
     verdict.textContent = `${text(outcome.right ? strings.feedbackCorrect : format(strings.feedbackWrong, { answer: principleName(content, outcome.correct) }))} `;
@@ -84,7 +82,6 @@ export function enhance(root, { content, strings, state }) {
     line.hidden = false;
     if (next) next.hidden = false;
   }
-  /** The result sentence and the pairs of principles mixed up. Returns what the status region says. */
   function finish() {
     const outcome = score(content, picks);
     total.textContent = text(format(strings.result, { right: outcome.right, total: outcome.total }));
@@ -102,11 +99,10 @@ export function enhance(root, { content, strings, state }) {
     result.hidden = false;
     return [total.textContent, ...(mixed.length ? [text(`${strings.pairsLabel}:`), ...[...pairList.children].map(item => `${item.textContent}.`)] : [])].join(' ');
   }
-  /** Show one case. A case change slides in; restore and Start over don't. @param {number} c @param {boolean} [slide] */
+  /** @param {number} c @param {boolean} [slide] */
   function show(c, slide = false) {
     panels.forEach((panel, i) => { panel.hidden = i !== c; panel.classList.remove(ENTER); });
     if (!slide) return;
-    // Reflow lets each case run the entrance.
     void panels[c].offsetWidth;
     panels[c].classList.add(ENTER);
   }
@@ -143,9 +139,6 @@ export function enhance(root, { content, strings, state }) {
       }
       picks.push(chosen.value);
       mark(c);
-      // Focus reads the feedback once, then the controls freeze. Only the final result uses the status region.
-      // Before the last case, Next case comes into view with the feedback just above it; on a narrow
-      // screen, revealing the feedback alone left the button below the fold.
       reveal(c === last ? part.feedback : part.actions);
       part.feedback.focus({ preventScroll: true });
       unlocks.push(lock(part.panel));
@@ -158,10 +151,7 @@ export function enhance(root, { content, strings, state }) {
     }, options);
     part.next?.addEventListener('click', () => {
       show(c + 1, true);
-      // The heading holds the case number, so focus reads where the learner is.
       cases[c + 1].heading.focus({ preventScroll: true });
-      // On a phone the new case replaces a taller one and can land partly above or below the view. If any
-      // part of it, heading to Check, is outside the view, it moves to the top; otherwise nothing moves.
       const view = document.defaultView;
       const top = cases[c + 1].heading.getBoundingClientRect().top, bottom = cases[c + 1].actions.getBoundingClientRect().bottom;
       if (view && (top < 0 || bottom > view.innerHeight)) {
@@ -195,7 +185,6 @@ export function enhance(root, { content, strings, state }) {
       destroyed = true;
       lifetime.abort();
       reset();
-      // Back to the server markup: every case open, answers in their disclosures.
       for (const part of cases) {
         part.panel.hidden = false;
         part.panel.classList.remove(ENTER);

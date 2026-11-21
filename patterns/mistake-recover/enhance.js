@@ -69,12 +69,10 @@ export function enhance(root, { content, strings, state }) {
     for (const box of boxes) box.removeAttribute('aria-invalid');
   }
 
-  /** Draw the whole card from the state. Handlers change the state, call this, then move focus or announce. */
   function paint() {
     const now = progress(content, current);
     items.forEach((item, n) => {
       const shown = now.statuses[n];
-      // The request is always on screen; the colleague's payment appears after Hold.
       item.section.hidden = n > 0 && shown === null;
       item.status.hidden = shown === null;
       const record = records[n];
@@ -84,7 +82,6 @@ export function enhance(root, { content, strings, state }) {
       item.recovery.hidden = !(now.stage === 'recover' && now.item === n) && checked === null;
       item.boxes.forEach((box, s) => {
         const step = record.steps[s], chosen = checked?.includes(step.id) ?? false;
-        // Mark what the learner chose, and each correct step they left out.
         const kind = checked === null ? null : chosen ? step.correct ? 'correct' : 'wrong' : step.correct ? 'missed' : null;
         mark(item.rows[s], kind);
         item.reasons[s].hidden = kind === null;
@@ -96,14 +93,10 @@ export function enhance(root, { content, strings, state }) {
     total.textContent = now.stage === 'done' ? text(summarize(content, current, strings)) : '';
     return now;
   }
-  /** A payment's status line changed. Focus reads that line once; the decision buttons or the check
-   * that held focus are gone. The region speaks only the closing sentence, after the focus move.
-   * @param {number} n */
+  /** @param {number} n */
   function settled(n) {
     const now = paint(), line = items[n].status, view = root.ownerDocument.defaultView;
     line.focus({ preventScroll: true });
-    // Keep the line and its marked steps in view; after Hold the colleague's payment appears below without scrolling.
-    // When the marked steps run past the bottom, the line goes to the top so as many as fit show under it.
     const marked = items[n].rows.filter(row => row.dataset.lpMark).at(-1);
     if (view && marked && marked.getBoundingClientRect().bottom > view.innerHeight) {
       line.scrollIntoView({ block: 'start', behavior: view.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
@@ -147,7 +140,6 @@ export function enhance(root, { content, strings, state }) {
   });
   restart.addEventListener('click', () => {
     reset();
-    // Back to the top of the card: the title and context frame the request.
     reveal(root);
     items[0].approve?.focus({ preventScroll: true });
     status.textContent = text(strings.cleared);
@@ -163,7 +155,6 @@ export function enhance(root, { content, strings, state }) {
       destroyed = true;
       lifetime.abort();
       reset();
-      // Without JavaScript the request is on the page with its disclosures, and nothing else.
       for (const item of items) {
         item.section.hidden = item === items[1];
         item.status.hidden = true;

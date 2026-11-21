@@ -7,7 +7,6 @@
 .lp-prolific-questions-deal:focus-visible { outline-offset: 4px; }
 .lp-prolific-questions-fact { margin-block-start: var(--lp-gap-flow); }
 .lp-prolific-questions-fact > legend { margin-block-end: var(--lp-gap-label); font-weight: 600; }
-/* Short slot names on one row, each under its A, B, C key. */
 .lp-prolific-questions-fact { grid-template-columns: repeat(var(--lp-prolific-questions-parts), minmax(0, 1fr)); }
 .lp-prolific-questions-fact > legend, .lp-prolific-questions-fact > [data-lp-question-error] { grid-column: 1 / -1; }
 .lp-prolific-questions-fact .lp-choice { display: flex; flex-direction: column; gap: var(--lp-gap-hint); align-items: flex-start; justify-content: center; padding: 10px 12px; }
@@ -20,13 +19,11 @@
   .lp-prolific-questions-worked { grid-auto-flow: row; row-gap: var(--lp-gap-label); }
   .lp-prolific-questions-component + .lp-prolific-questions-component { margin-block-start: var(--lp-gap-label); padding-block-start: var(--lp-gap-flow); border-block-start: 1px solid var(--lp-rule); }
 }
-/* Stacked on narrow screens: key then text, with the mark at the row's end to save height. */
 @container (max-width: 24rem) {
   .lp-prolific-questions-fact { grid-template-columns: minmax(0, 1fr); }
   .lp-prolific-questions-fact .lp-choice { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: flex-start; }
   .lp-prolific-questions-fact .lp-choice-mark { margin-inline-start: auto; }
 }
-/* Forced colours show the native radio beside the slot name, with the mark on its own line. */
 @media (forced-colors: active) {
   .lp-prolific-questions-fact .lp-choice { flex-direction: row; flex-wrap: wrap; align-items: center; gap: var(--lp-gap-hint) var(--lp-gap-label); }
   .lp-prolific-questions-fact .lp-choice > input { position: static; inset: auto; inline-size: auto; block-size: auto; }

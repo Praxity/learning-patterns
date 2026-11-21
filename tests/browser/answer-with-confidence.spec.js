@@ -14,7 +14,6 @@ async function open(page, path = `/${NAME}/en.html`) {
   await page.goto(path);
   await page.waitForFunction(() => window.lpReady);
 }
-// Replace the demo with this content through the public render/enhance interface.
 async function mount(page, content, { lang = 'en', seed } = {}) {
   await open(page, `/${NAME}/${lang}.html`);
   await page.evaluate(async ({ content, lang, seed }) => {
@@ -38,13 +37,11 @@ async function observe(page) {
 const announced = page => page.evaluate(() => window.lpAnnouncements.filter(Boolean));
 const scan = async page => expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()).violations).toEqual([]);
 const question = (root, n) => root.locator('[data-lp-question]').nth(n);
-/** Answer question n. `how` is sure, unsure or dont-know; no option submits with nothing chosen. */
 async function answer(root, n, option, how) {
   const q = question(root, n);
   if (option) await q.locator(`input[value="${option}"]`).check();
   await q.locator(how === 'dont-know' ? '[data-lp-dont-know]' : `[data-lp-certainty="${how}"]`).click();
 }
-// Sure and wrong, unsure and right, sure and right.
 async function finish(root) {
   await answer(root, 0, 'sender', 'sure');
   await answer(root, 1, 'lower', 'unsure');
@@ -63,14 +60,12 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     await expect(page.locator('[data-lp-intro]')).toHaveText(t(s.intro));
     await expect(page.locator('[data-lp-fallback]')).toBeHidden();
     await expect(page.locator('.lp-answer-with-confidence-question-number')).toHaveText([1, 2, 3].map(n => t(s.questionNumber.replace('{number}', n).replace('{total}', 3))));
-    // The option list is the question's own; the submit control is one named group of two buttons.
     await expect(first.getByRole('radio')).toHaveCount(3);
     const group = first.getByRole('group', { name: s.submitGroupTo.replace('{number}', 1), exact: true });
     await expect(group.getByRole('button')).toHaveText([s.sure, s.unsure]);
     await expect(group.locator('.lp-answer-with-confidence-submit-label')).toHaveText(t(s.submit));
     for (const button of await group.getByRole('button').all()) await expect(button).not.toHaveAttribute('aria-pressed');
 
-    // Question 1: sure and wrong.
     await first.locator('input').first().focus();
     await page.keyboard.press('Space');
     await page.keyboard.press('Tab'); await expect(group.getByRole('button').nth(0)).toBeFocused();
@@ -92,12 +87,10 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     await expect(first.locator('label').nth(1)).toHaveAttribute('data-lp-mark', 'missed');
     await expect(first.getByRole('radio').nth(0)).toHaveAccessibleName(new RegExp(`^${t(content.questions[0].options[0].text)}\\s*${s.markWrong}$`));
     await expectChoiceMarks(page);
-    // Focus on the feedback reads it once; the status region stays silent, and so does the summary.
     expect(await announced(page)).toEqual([]);
     await expect(page.locator('[data-lp-result]')).toBeHidden();
     expect(await page.evaluate(() => window.lpSaved)).toEqual({ answers: { 'reply-all': 'sender' } });
 
-    // Question 2: unsure and right. Tab from the feedback lands on the next question's options.
     await page.keyboard.press('Tab'); await expect(second.locator('input').first()).toBeFocused();
     await page.keyboard.press('ArrowDown'); await page.keyboard.press('ArrowDown');
     await expect(second.locator('input[value="lower"]')).toBeChecked();
@@ -109,14 +102,12 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     await expect(second.locator('[data-lp-mark]')).toHaveCount(1);
     await expect(second.locator('[data-lp-feedback="lower"] .lp-visually-hidden')).toHaveCount(0);
 
-    // Question 3: unsure and wrong shows the feedback without "Why it can seem right".
     await answer(page, 2, 'covered', 'unsure');
     const last = third.locator('[data-lp-feedback="covered"]');
     await expect(last).toBeFocused();
     await expect(last.locator('[data-lp-verdict]:visible')).toHaveText([t(s.verdictUnsureWrong)]);
     await expect(last.locator('[data-lp-right-when]')).toBeHidden();
 
-    // The summary: one sentence, then only the questions where certainty and result disagreed.
     const result = page.locator('[data-lp-result]');
     const sentence = t(s.summaryOne.replace('{right}', 1).replace('{total}', 3));
     await expect(result.locator('[data-lp-summary]')).toHaveText(sentence);
@@ -125,7 +116,6 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     await expect(lists.locator('[data-lp-review-hint]')).toHaveText([t(s.sureWrongOne), t(s.unsureRightOne)]);
     await expect(lists.getByRole('button')).toHaveText([t(content.questions[0].text), t(content.questions[1].text)]);
     expect(await announced(page)).toEqual([`${sentence} ${t(s.listCount.replace('{heading}', s.verdictSureWrong).replace('{count}', 1))} ${t(s.listCount.replace('{heading}', s.verdictUnsureRight).replace('{count}', 1))}`]);
-    // Certainty is never written through the state adapter.
     expect(await page.evaluate(() => window.lpSaved)).toEqual({ answers: { 'reply-all': 'sender', percent: 'lower', redact: 'covered' } });
     await expect(page.locator('input:disabled')).toHaveCount(9);
 
@@ -167,7 +157,6 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     await expect(first.getByRole('group').getByRole('button')).toHaveText([s.sure, s.unsure, s.dontKnow]);
     await answer(page, 0, null, 'unsure');
     await expect(first.locator('[data-lp-question-error]')).toHaveText(t(s.chooseOrDontKnow));
-    // A chosen option is dropped: "Don't know" is a way to submit, not an answer.
     await answer(page, 0, 'sender', 'dont-know');
     const box = first.locator('[data-lp-feedback="dont-know"]');
     await expect(box).toBeFocused();
@@ -180,7 +169,6 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     await expect(first.locator('[data-lp-question-error]')).toBeHidden();
     expect(await page.evaluate(() => window.lpSaved)).toEqual({ answers: { 'reply-all': 'dont-know' } });
     await answer(page, 1, 'lower', 'sure'); await answer(page, 2, 'still-there', 'sure');
-    // Sure and right twice: nothing to list.
     await expect(page.locator('[data-lp-summary]')).toHaveText(t(s.summaryMany.replace('{right}', 2).replace('{total}', 3)));
     await expect(page.locator('[data-lp-review]:visible')).toHaveCount(0);
     expect(await announced(page)).toEqual([t(s.summaryMany.replace('{right}', 2).replace('{total}', 3))]);
@@ -204,7 +192,6 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
   });
 
   test(`axe on unchanged server HTML with native answers open (${lang})`, async ({ page }) => {
-    // axe needs scripting enabled. Block enhancement to audit the same native baseline.
     await page.route(`**/${NAME}/enhance.js`, route => route.fulfill({ contentType: 'text/javascript', body: 'export function enhance() { return { destroy() {} }; }' }));
     await open(page, `/${NAME}/${lang}.html`);
     await scan(page); await page.locator('summary').click(); await scan(page);
@@ -238,7 +225,6 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
       await mount(page, { ...content, dontKnow: true }, { lang });
       if (spacing) await page.addStyleTag({ content: TEXT_SPACING });
       await page.evaluate(() => document.fonts.ready);
-      // Every answer and certainty leaves each box as tall as it was, and where it was in a wide card.
       const cases = [['sender', 'sure'], ['sender', 'unsure'], ['to-cc', 'sure'], ['to-cc', 'unsure'], ['all-bcc', 'sure'], [null, 'dont-know']];
       for (const [option, how] of cases) {
         const before = await boxes(page, '[data-lp-stage]');
@@ -248,16 +234,12 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
         await answer(page, 0, option, how);
         await expect(question(page, 0).locator('[data-lp-feedback]:visible')).toHaveCount(1);
         const after = await boxes(page, '[data-lp-stage]');
-        // The box keeps its height at every width.
         near(after.map(([, height]) => height), before.map(([, height]) => height), `${option} ${how} height`);
         const rowsAfter = await rowHeights();
         if (width >= 1280) {
-          // A wide card keeps room for a mark beside each option, so no row grows and nothing moves.
           near(rowsAfter, rowsBefore, `${option} ${how} rows`);
           near(after.map(([top]) => top), before.map(([top]) => top), `${option} ${how} top`);
         } else {
-          // A narrow card puts a mark under the text and keeps no empty line for it: the options that
-          // get a mark grow, and the others keep their height.
           const marked = await rows.evaluateAll(els => els.map(el => el.hasAttribute('data-lp-mark')));
           expect(marked, `${option} ${how} marks`).toContain(true);
           rowsAfter.forEach((height, i) => {
@@ -265,12 +247,9 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
             else expect(Math.abs(height - rowsBefore[i]), `${option} ${how} unmarked row ${i}`).toBeLessThan(0.5);
           });
         }
-        // Fresh question for the next case.
         await answer(page, 1, 'lower', 'sure'); await answer(page, 2, 'still-there', 'sure');
         await page.locator('[data-lp-restart]').click();
       }
-      // An empty submit shows its message in the same space. In a wide card it fits; in a narrow one the
-      // stacked buttons already fill the space, so the message may add lines. It is not feedback.
       const before = await boxes(page, '[data-lp-stage]');
       await answer(page, 0, null, 'sure');
       await expect(question(page, 0).locator('[data-lp-question-error]')).toBeVisible();
@@ -302,7 +281,6 @@ test('the submit control is joined segments of equal weight, stacked in a narrow
   expect(new Set(wide.map(({ color, background, border, weight, size }) => [color, background, border, weight, size].join())).size).toBe(1);
   expect(wide[0].size).toBe('16px');
   expect(wide[0].height).toBeGreaterThanOrEqual(44);
-  // Joined: the second segment overlaps the first one's border by a pixel.
   expect(wide[1].left - wide[0].right).toBeCloseTo(-1, 0);
   expect(wide[1].top).toBeCloseTo(wide[0].top, 0);
   await expect(segments.nth(0)).toHaveCSS('border-top-left-radius', '10px');
@@ -313,7 +291,6 @@ test('the submit control is joined segments of equal weight, stacked in a narrow
   expect(narrow[1].top - narrow[0].bottom).toBeCloseTo(-1, 0);
   expect(narrow[1].left).toBeCloseTo(narrow[0].left, 0);
   expect(narrow[1].right).toBeCloseTo(narrow[0].right, 0);
-  // Keyboard focus draws the shared ring above the neighbouring segment.
   await question(page, 0).locator('input').first().focus();
   await page.keyboard.press('Tab');
   await expect(segments.nth(0)).toHaveCSS('outline-width', '3px');
@@ -335,7 +312,6 @@ test('every result has its own verdict, and feedback text is the chosen option\'
     await answer(page, 1, 'lower', 'sure'); await answer(page, 2, 'still-there', 'sure');
     await page.locator('[data-lp-restart]').click();
   }
-  // A sure wrong answer whose option has no authored line shows the feedback alone.
   await answer(page, 1, 'higher', 'sure');
   await expect(question(page, 1).locator('[data-lp-feedback="higher"] [data-lp-right-when]')).toHaveCount(0);
 });
@@ -356,7 +332,6 @@ test('saved answers restore silently without certainty; the rest of the set stil
   await expect(page.locator('[data-lp-result]')).toBeHidden();
   await answer(page, 2, 'covered', 'sure');
   await expect(page.locator('[data-lp-summary]')).toHaveText('You answered 1 of 3 correctly.');
-  // Only the question answered since the page loaded has a certainty to list.
   await expect(page.locator('[data-lp-review]:visible').getByRole('button')).toHaveText([english.questions[2].text]);
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ answers: { 'reply-all': 'sender', percent: 'lower', redact: 'covered' } });
 });
@@ -388,11 +363,9 @@ test('one question: context, then the question as the card heading, and no summa
   await expect(page.locator('[data-lp-pattern]').getByRole('heading')).toHaveText([english.questions[0].text]);
   const order = await page.locator('[data-lp-pattern]').evaluate(card => ['.lp-context', '[data-lp-intro]', 'legend h2'].map(selector => card.querySelector(selector).getBoundingClientRect().top));
   expect(order).toEqual([...order].sort((a, b) => a - b));
-  // The question is the largest text on the card.
   await expect(page.locator('legend h2')).toHaveCSS('font-size', '21px');
   await expect(page.getByRole('group', { name: strings.en.submitGroup, exact: true })).toBeVisible();
   await answer(page, 0, 'to-cc', 'unsure');
-  // The feedback is the whole result, so the end shows Start over alone and announces nothing more.
   await expect(page.locator('[data-lp-feedback="to-cc"]')).toBeFocused();
   await expect(page.locator('[data-lp-restart]')).toBeVisible();
   await expect(page.locator('[data-lp-summary]:visible, [data-lp-review]:visible')).toHaveCount(0);
@@ -426,7 +399,6 @@ test('enhance twice returns one instance; destroy removes listeners and restores
   await page.locator('[data-lp-certainty="sure"]').first().evaluate(button => button.click());
   expect(await page.evaluate(() => window.lpSaved)).toEqual(before);
   await expect(page.locator('[data-lp-mark]')).toHaveCount(0);
-  // Enhancing again restores what the host saved.
   await page.evaluate(() => { window.lpSeed = window.lpSaved; window.lpEnhance(); });
   await expect(page.locator('[data-lp-fallback]')).toBeHidden();
   await expect(page.locator('[data-lp-summary]')).toHaveText('You answered 2 of 3 correctly.');
@@ -434,7 +406,6 @@ test('enhance twice returns one instance; destroy removes listeners and restores
 });
 
 test('question ids that are Object.prototype names submit, save and restore like any other', async ({ page }) => {
-  // Built in the page from JSON, so "__proto__" stays an own key.
   const json = JSON.stringify(english).replace('"id":"reply-all"', '"id":"__proto__"').replace('"id":"percent"', '"id":"constructor"').replace('"id":"redact"', '"id":"toString"');
   const start = seed => page.evaluate(async ({ json, seed }) => {
     const { render } = await import('/patterns/answer-with-confidence/render.js');
@@ -455,11 +426,9 @@ test('question ids that are Object.prototype names submit, save and restore like
   await expect(page.locator('[data-lp-review="sureWrong"]').getByRole('button')).toHaveCount(2);
   const saved = await page.evaluate(() => window.lpSavedJson);
   expect(saved).toBe('{"answers":{"__proto__":"sender","constructor":"lower","toString":"covered"}}');
-  // Start over leaves the dictionaries prototype-free too.
   await page.locator('[data-lp-restart]').click();
   await answer(page, 0, 'to-cc', 'sure');
   expect(await page.evaluate(() => window.lpSavedJson)).toBe('{"answers":{"__proto__":"to-cc"}}');
-  // Restore every answer, then a partial set that still collects certainty.
   await start(saved);
   await expect(page.locator('[data-lp-verdict]:visible')).toHaveText([strings.en.verdictWrong, strings.en.verdictRight, strings.en.verdictWrong]);
   await expect(page.locator('[data-lp-summary]')).toHaveText('You answered 1 of 3 correctly.');
@@ -523,7 +492,6 @@ test('forced colours keep the segments, the feedback box and focus rings visible
   await page.keyboard.press('Enter');
   const box = question(page, 0).locator('[data-lp-feedback="sender"]');
   await expect(box).toBeFocused();
-  // The reserved space is unpainted: no box inside the activity box.
   await expect(question(page, 0).locator('[data-lp-stage]')).toHaveCSS('border-top-width', '0px');
   await expect(box).toHaveCSS('outline-width', '3px');
   await expect(question(page, 0).locator('[data-lp-mark]').first()).toHaveCSS('border-style', 'double');

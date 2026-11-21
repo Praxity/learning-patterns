@@ -9,17 +9,11 @@ export function score(content: Content, picks: Record<string, string>): {
     unknown: string[];
     unanswered: string[];
 };
-/** Ignore invalid saved values and copy valid state.
- * @param {Content} content @param {unknown} value @returns {LearnerState | null}
- */
+/** @param {Content} content @param {unknown} value @returns {LearnerState | null} */
 export function validateState(content: Content, value: unknown): LearnerState | null;
-/** Format hundredths in the page language, with a mathematical minus and optional plus.
- * @param {number} value @param {boolean} [positive] @param {string} [lang]
- */
+/** @param {number} value @param {boolean} [positive] @param {string} [lang] */
 export function displayPoints(value: number, positive?: boolean, lang?: string): string;
-/** Replace authored placeholders in a single pass so inserted content stays literal.
- * @param {string} template @param {Record<string, string | number>} values
- */
+/** @param {string} template @param {Record<string, string | number>} values */
 export function format(template: string, values: Record<string, string | number>): string;
 /** @typedef {{ id: string, text: string }} Option */
 /** @typedef {{ id: string, text: string, options: Option[], correct: string, explanation: string }} Question */

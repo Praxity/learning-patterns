@@ -1,13 +1,8 @@
-/** Validate authored plain text. Whitespace is allowed; empty strings are not.
- * @param {unknown} content
- * @returns {asserts content is Content}
- */
+/** @param {unknown} content
+ * @returns {asserts content is Content} */
 export function validateContent(content: unknown): asserts content is Content;
-/** Segment validated model text in reading order. Whole-answer parts stay in the legend.
- * When evidence overlaps, the first span in model order owns that text.
- * @param {string} model @param {Part[]} parts @param {string[]} includedIds
- * @returns {Segment[]}
- */
+/** @param {string} model @param {Part[]} parts @param {string[]} includedIds
+ * @returns {Segment[]} */
 export function annotate(model: string, parts: Part[], includedIds: string[]): Segment[];
 /** @param {Content} content @param {string[]} ticked */
 export function feedback(content: Content, ticked: string[]): {
@@ -20,9 +15,7 @@ export function feedback(content: Content, ticked: string[]): {
         hint: string | null;
     }[];
 };
-/** Ignore invalid host state; return an independent copy of a valid value.
- * @param {Content} content @param {unknown} value @returns {LearnerState | null}
- */
+/** @param {Content} content @param {unknown} value @returns {LearnerState | null} */
 export function validateState(content: Content, value: unknown): LearnerState | null;
 export type Part = {
     id: string;

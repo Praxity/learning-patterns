@@ -172,7 +172,6 @@ for (const lang of ['en', 'fr']) {
   for (const mode of ['missing', 'throws']) {
     test(`self-check fallback when ask ${mode} (${lang})`, async ({ page }) => {
       await open(page, lang, [1, 1, 1], mode);
-      // A click that leaves focus in the text box: the status region carries the message.
       if (mode === 'throws') { await observe(page); await page.getByRole('textbox').fill('My explanation'); await page.locator('[data-lp-check]').dispatchEvent('click'); }
       await expect(page.locator('[data-lp-check]')).toBeHidden();
       await expect(page.locator('[data-lp-fallback]')).toBeVisible();
@@ -243,7 +242,6 @@ for (const lang of ['en', 'fr']) test(`pending check keeps focus and its label, 
   await expect(page.locator('[role="status"]')).toHaveText(frenchTypography(strings[lang].checking, lang));
   await expect(check).toBeFocused();
   await expect(check).toHaveAccessibleName(frenchTypography(strings[lang].check, lang));
-  // The visible note beside the button carries the wait on screen only.
   const note = page.locator('[data-lp-check] + span');
   await expect(note).toBeVisible();
   await expect(note).toHaveText(frenchTypography(strings[lang].checking, lang));
@@ -276,7 +274,6 @@ for (const lang of ['en', 'fr']) test(`a refused check moves focus into the labe
   await expect(group.getByRole('checkbox').first()).toBeFocused();
   await expect(page.locator('[data-lp-check]')).toBeHidden();
   expect(await page.evaluate(() => window.lpFallbackFocus)).toEqual([{ from: true, checkVisible: true }]);
-  // Entering the group reads its legend, which is the message, so the status region stays quiet.
   await expect(page.locator('[role="status"]')).toBeEmpty();
   expect(await page.evaluate(() => window.lpAnnouncements)).toEqual([]);
   await page.keyboard.press('Tab');
@@ -321,7 +318,6 @@ test('shared client renders the configured data notice and completes inline clea
   }, examples.en);
   await expect(page.locator('[data-lp-check]')).toBeEnabled();
   await page.getByRole('button', { name: "I'm ready to explain it" }).click();
-  // Hiding the lesson moves the check button up the page, so wait for the step switch before clicking it.
   await expect(page.locator('.lp-explain-back-lesson')).toBeHidden();
   await expect(page.locator('[data-lp-notice]')).toHaveText('Your answer is sent to a decision model to give instant feedback.');
   await expect(page.locator('[data-lp-challenge]')).toBeHidden();
@@ -393,7 +389,6 @@ test('forced colours preserve row marks and keyboard focus', async ({ page, brow
   }
 });
 
-// Keys and text align to the row's top; choice-rows.spec.js checks the text is optically centred on the key.
 test('choice keys and text align to the top of the row at wide and narrow widths', async ({ page }) => {
   await open(page, 'en', [1, 0, .5]); await submit(page); await page.evaluate(() => document.fonts.ready);
   for (const width of [1280, 390, 320]) {

@@ -62,11 +62,9 @@ test('content rejects unknown fields, blank text and wrong shapes', () => {
 
 test('every sentence answer is a body sentence of the better version, counted across paragraphs, used once, and one must exist', () => {
   for (const sentence of [0, 3, 1.5, '2']) assert.throws(() => validateContent(edited(c => { c.qualities[0].sentence = sentence; })), /qualities\[0\]\.sentence/);
-  // A sentence in a second paragraph of Version B is sentence 3: numbers count across paragraphs.
   assert.doesNotThrow(() => validateContent(edited(c => { c.versions.b.body.push(['Three.']); c.qualities[0].sentence = 3; })));
   assert.throws(() => validateContent(edited(c => { c.qualities[2].sentence = 2; })), /qualities\[2\]\.sentence: another quality/);
   assert.throws(() => validateContent(edited(c => { for (const q of c.qualities) q.sentence = null; })), /at least one/);
-  // Counting follows the better version: Version A has two sentences here, so a fourth fails.
   const longer = edited(c => { c.versions.b.body.push(['Three.', 'Four.']); c.qualities[0].sentence = 4; });
   assert.doesNotThrow(() => validateContent(longer));
   assert.throws(() => validateContent({ ...longer, better: 'a' }), /qualities\[0\]\.sentence/);
@@ -92,9 +90,7 @@ test('answers, names and the answer text', () => {
   assert.equal(answerText(en, strings.en, 2), "Correct answer, in Version B: I'm away until Monday, October 14, and not reading email.");
   assert.equal(answerText(en, strings.en, 1), 'Correct answer: Neither version does this.');
   assert.equal(answerText(fr, strings.fr, 1), 'Bonne réponse : Aucune des deux versions ne le fait.');
-  // French names the version in lower case inside the sentence, as the summary heading does.
   assert.equal(answerText(fr, strings.fr, 2), `Bonne réponse, dans la version B : ${fr.versions.b.body[0][0]}`);
-  // Sentences count across paragraphs: Version A's second is the only sentence of its second paragraph.
   for (const pick of ['a1', 'a2', 'b2', 'neither']) assert.equal(isPick(en, pick), true, pick);
   for (const pick of ['a0', 'a3', 'b3', 'c1', 'b01', 'B1', '', null, 2]) assert.equal(isPick(en, pick), false, String(pick));
 });
@@ -102,7 +98,6 @@ test('answers, names and the answer text', () => {
 test('score gives one count: a pick is right only when it is the answer sentence, or Neither when neither does it', () => {
   assert.deepEqual(score(en, []), { results: [], right: 0, total: 3, done: false });
   assert.deepEqual(score(en, ['b2', 'neither', 'b1']), { results: [true, true, true], right: 3, total: 3, done: true });
-  // The right version with the wrong sentence, and a sentence where neither version does it, both count as wrong.
   assert.deepEqual(score(en, ['b1', 'a2', 'b1']), { results: [false, false, true], right: 1, total: 3, done: true });
   assert.deepEqual(score(en, ['neither', 'b2']), { results: [false, false], right: 0, total: 3, done: false });
   assert.throws(() => score(en, ['b3']), /picks\[0\]/);
@@ -116,7 +111,6 @@ test('the summary gives the better version paragraph by paragraph with a note on
     paragraphs: [[{ text: first, note: 'Whether you\'ll read email' }, { text: second, note: 'Who to call for an urgent order' }]],
     missing: ['What counts as urgent']
   });
-  // A sentence no question names has no note, and a second paragraph keeps its own list.
   const third = edited(c => { c.versions.b.body.push(['Three.']); });
   assert.deepEqual(summary(third).paragraphs[1], [{ text: 'Three.', note: null }]);
   assert.deepEqual(summary(edited(c => { c.versions.b.body.push(['Three.']); c.qualities[1].sentence = 3; })).missing, []);
@@ -148,14 +142,12 @@ for (const [lang, content] of [['en', en], ['fr', fr]]) {
     assert.match(output, /<div class="lp-stack" data-lp-step hidden>/);
     assert.match(output, /<div class="lp-stack" data-lp-summary hidden>/);
     const fallback = output.slice(output.indexOf('data-lp-fallback'), output.indexOf('data-lp-step'));
-    // Both versions as emails in running text, then each question with its answer behind a closed disclosure.
     assert.equal((fallback.match(/<div class="lp-which-is-better-email">/g) ?? []).length, 2);
     assert.equal((fallback.match(/<div class="lp-quote lp-which-is-better-body">/g) ?? []).length, 2);
     assert.equal((fallback.match(/<details class="lp-details">/g) ?? []).length, 3);
     assert.doesNotMatch(fallback, /<button|role="button"|tabindex|<details[^>]*open/);
     const ids = [...output.matchAll(/ id="([^"]+)"/g)].map(match => match[1]);
     assert.deepEqual(ids, ['pair-question', 'pair-hint', 'pair-a', 'pair-b', 'pair-error']);
-    // "Question 1 of 3, " then the question: the comma stays inside the block label.
     assert.match(output, /<span class="lp-label"><span data-lp-progress>[^<]+<\/span><span class="lp-visually-hidden">, <\/span><\/span><span data-lp-question-text>/);
   });
 
@@ -164,22 +156,15 @@ for (const [lang, content] of [['en', en], ['fr', fr]]) {
     const step = output.slice(output.indexOf('data-lp-step'), output.indexOf('data-lp-summary'));
     const toggles = [...step.matchAll(/<span class="lp-which-is-better-chunk" role="button" tabindex="0" aria-pressed="false" data-lp-pick="([^"]+)">([^<]*)<\/span>/g)];
     assert.deepEqual(toggles.map(match => match[1]), ['a1', 'a2', 'b1', 'b2']);
-    // A toggle's name is its own words.
     assert.equal(toggles[3][2], html(content.versions.b.body[0][1], lang));
     const b = content.versions.b, subject = lang === 'fr' ? 'Objet\u00a0:' : 'Subject:';
     assert.ok(step.includes(`<div class="lp-which-is-better-email" role="group" aria-labelledby="pair-b"><h3 class="lp-run-in" id="pair-b">Version B</h3><p class="lp-which-is-better-subject"><span class="lp-which-is-better-field">${subject}</span> ${html(b.subject, lang)}</p><div class="lp-quote lp-which-is-better-body"><p>${html(b.greeting, lang)}</p><p><span class="lp-which-is-better-chunk"`));
-    // The paragraphs keep their sentences together, and the sign-off closes the body as text.
-    // Each body is one paragraph, so its two sentences run on in the same text, as in Highlight the key passage.
     assert.equal((step.match(/<p><span class="lp-which-is-better-chunk"/g) ?? []).length, 2);
     assert.equal((step.match(/<\/span> <span class="lp-which-is-better-chunk"/g) ?? []).length, 2);
     assert.ok(step.includes(`</span></p><p>${html(b.signoff, lang)}</p></div></div>`));
-    // Neither has an empty key, so it reads as an option you can choose.
-    // Neither keeps the key box, holding the check and x icons that the row's state shows.
     assert.match(step, new RegExp(`<button class="lp-choice lp-which-is-better-neither" type="button" aria-pressed="false" data-lp-pick="neither"><span class="lp-choice-key" aria-hidden="true"><svg[^]*?</svg><svg[^]*?</svg></span><span>${strings[lang].neither}</span></button>`));
     assert.equal((step.match(/lp-choice-key/g) ?? []).length, 1);
-    // The instruction is a run-in line like Highlight's, and describes the group.
     assert.match(step, /<p class="lp-run-in lp-which-is-better-hint" id="pair-hint">[^<]+<\/p>\s*<div class="lp-which-is-better-choices" role="group" data-lp-choices aria-labelledby="pair-question" aria-describedby="pair-hint">\s*<div class="lp-which-is-better-pair">/);
-    // The error sits just above Check, outside the emails' group.
     assert.match(step, /<\/div>\s*<p class="lp-error-text" id="pair-error" data-lp-error hidden>.*?<\/p>\s*<div class="lp-actions"><button class="lp-button" type="button" data-lp-check>/s);
   });
 
@@ -204,7 +189,6 @@ test('authored text is escaped, and French typography applies', () => {
 });
 
 test('a sign-off keeps its line break', () => {
-  // base.css keeps line breaks in paragraphs, so "Thanks,\nSam Rivera" shows on two lines.
   assert.ok(render(en, strings.en, { id: 's', lang: 'en' }).includes('<p>Thanks,\nSam Rivera</p>'));
 });
 
@@ -212,19 +196,15 @@ test('the summary shows the better email with each answer sentence marked and it
   const output = render(en, strings.en, { id: 's', lang: 'en' });
   const end = output.slice(output.indexOf('data-lp-summary'));
   assert.match(end, /<h3 class="lp-stem">What makes Version B better<\/h3>/);
-  // The score comes first, then the heading that introduces the email.
   assert.match(end, /^data-lp-summary hidden>\s*<p tabindex="-1" data-lp-result><\/p>\s*<h3 class="lp-stem">/);
   assert.equal((end.match(/<mark>/g) ?? []).length, 2);
-  // "Version B" is said to screen readers only; the heading above already names it.
   assert.match(end, /<div class="lp-which-is-better-email"><p class="lp-visually-hidden">Version B<\/p><p class="lp-which-is-better-subject">/);
   const [[first, second]] = en.versions.b.body;
   const noted = (text, note) => `<mark>${html(text)}</mark><span class="lp-which-is-better-note"><span class="lp-visually-hidden">This sentence shows: </span>${html(note)}</span>`;
   assert.ok(end.includes(`<p>${noted(first, en.qualities[2].note)} ${noted(second, en.qualities[0].note)}</p>`));
-  // A sentence with no note stays plain text in its paragraph.
   const plain = render(edited(c => { c.versions.b.body[0].push('Three.'); }), strings.en, { id: 's', lang: 'en' });
   assert.ok(plain.includes(`${noted(second, en.qualities[0].note)} Three.</p>`));
   assert.ok(end.includes('<p class="lp-label">Missing from both versions</p>\n      <ul class="lp-which-is-better-missing" role="list"><li>What counts as urgent</li></ul>'));
-  // With no Neither question there is nothing missing to list.
   assert.doesNotMatch(render(edited(c => { c.versions.b.body[0].push('Three.'); c.qualities[1].sentence = 3; }), strings.en, { id: 's', lang: 'en' }), /Missing from both/);
   const better = render({ ...en, better: 'a', qualities: en.qualities.map(q => ({ ...q, sentence: q.sentence && 3 - q.sentence })) }, strings.en, { id: 's', lang: 'en' });
   assert.match(better, /What makes Version A better/);
@@ -234,30 +214,21 @@ test('the summary shows the better email with each answer sentence marked and it
 test('the pattern stylesheet keeps its prefix, the highlighter and forced-colour cues', async () => {
   const css = await readFile(new URL('./pattern.css', import.meta.url), 'utf8');
   assert.match(css, /--lp-which-is-better-mark: #ffe49a/);
-  // Results follow Highlight the key passage: the learner's sentence keeps its highlighter, right or
-  // wrong; the missed answer has a dashed underline and no fill; a wrong choice has no underline.
   assert.match(css, /\.lp-which-is-better-chunk\[aria-pressed="true"\],\s*\.lp-which-is-better-body mark \{[^}]*background: var\(--lp-which-is-better-mark\)/);
   assert.match(css, /\.lp-which-is-better-chunk\[data-lp-mark="correct"\] \{ text-decoration: underline solid var\(--lp-success-ink\)/);
   assert.match(css, /\.lp-which-is-better-chunk\[data-lp-mark="missed"\] \{ text-decoration: underline dashed/);
   assert.doesNotMatch(css, /data-lp-mark="missed"\][^{]*\{[^}]*background/);
   assert.doesNotMatch(css, /\.lp-which-is-better-chunk\[data-lp-mark="wrong"\]/);
-  // A sentence's mark sits on its own line under it, like a summary note, with no pill.
   assert.match(css, /\.lp-which-is-better-body \.lp-choice-mark,\s*\.lp-which-is-better-note \{ display: block;[^}]*margin: 2px 0 var\(--lp-gap-stem\) 12px;[^}]*background: none;/);
   assert.match(css, /\.lp-which-is-better-body \.lp-choice-mark \{ display: flex;/);
-  // Each side-by-side email's column can shrink below a long word, so the word wraps inside the card.
   assert.match(css, /\.lp-which-is-better-pair > \.lp-which-is-better-email \{[^}]*grid-template-columns: minmax\(0, 1fr\);/);
-  // The highlight pads only above and below, as in Highlight the key passage.
   assert.doesNotMatch(css, /\.lp-which-is-better-(chunk|body mark)[^{]*\{[^}]*padding: \d+px \d+px/);
   assert.doesNotMatch(css, /2060/);
-  // The instruction is regular weight, with a group gap before the emails.
   assert.match(css, /\.lp-which-is-better-hint \{[^}]*font-weight: 400;/);
   assert.match(css, /\.lp-which-is-better-hint \+ \.lp-which-is-better-choices \{ margin-block-start: var\(--lp-gap-group\); \}/);
-  // Neither's key shows the check when chosen or correct and the x when wrong; its label balances.
   assert.match(css, /\.lp-which-is-better-neither:is\(\[aria-pressed="true"\]:not\(\[data-lp-mark\]\), \[data-lp-mark="correct"\]\) > \.lp-choice-key > \.lp-icon:first-child,\s*\.lp-which-is-better-neither\[data-lp-mark="wrong"\] > \.lp-choice-key > \.lp-icon:last-child \{ display: block; \}/);
   assert.match(css, /\.lp-which-is-better-neither > span:not\(\.lp-choice-key, \.lp-choice-mark\) \{ text-wrap: balance; \}/);
-  // The summary highlight stays inline, hugging its text; a block one reads as a filled panel.
   assert.doesNotMatch(css, /\.lp-which-is-better-body mark \{[^}]*display: block/);
-  // An email is never a card of its own inside the pattern card.
   assert.doesNotMatch(css, /\.lp-which-is-better-(email|body) \{[^}]*(border:|box-shadow)/);
   assert.match(css, /@container \(max-width: 40rem\)/);
   assert.match(css, /forced-colors: active[^]*\.lp-which-is-better-chunk\[aria-pressed="true"\],\s*\.lp-which-is-better-body mark \{ forced-color-adjust: none; color: MarkText; background: Mark/);

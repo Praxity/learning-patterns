@@ -25,7 +25,6 @@ export const strings = {
     hold: 'Mettre en attente',
     status: 'Statut :',
     pending: 'Soumis pour approbation',
-    // A no-break hyphen keeps « prenez‑vous » on one line on a phone.
     stepsLegend: 'Quelles mesures prenez‑vous maintenant ?',
     stepsHint: 'Choisissez toutes les réponses qui s’appliquent.',
     check: 'Vérifier mes choix',

@@ -1,12 +1,9 @@
 import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
-// Layout under worst-case content: long names, pasted file names and URLs, long titles and French
-// marks at 320px, where the card is narrowest.
 const example = async (name, lang = 'en') => JSON.parse(await readFile(new URL(`../../patterns/${name}/examples/${lang}.json`, import.meta.url)));
 const token = 'Q3-Client-Report_Northwind_Industries_Holdings_FINAL_v12_approved-by-legal.xlsx';
 
-// Replace the demo with this content through the public render/enhance interface, with optional saved state.
 async function mount(page, name, content, { lang = 'en', state, enhance = true, width = 320 } = {}) {
   await page.setViewportSize({ width, height: 900 });
   await page.goto(`/${name}/${lang}.html`);
@@ -30,7 +27,6 @@ const overflow = page => page.evaluate(() => {
 
 for (const width of [320, 1280]) test(`a long recipient wraps inside its pill at ${width}px`, async ({ page }) => {
   const content = await example('self-check');
-  // A recipient inside the schema's 120-character limit still overflows a one-line pill.
   content.context = { ...content.context, to: 'Bartholomew Fitzgerald, Customer Operations (bartholomew.fitzgerald@northwind-industries-holdings.example.com)' };
   await mount(page, 'self-check', content, { width });
   const geometry = await page.locator('.lp-self-check-recipient').evaluate(pill => {
@@ -39,7 +35,6 @@ for (const width of [320, 1280]) test(`a long recipient wraps inside its pill at
   });
   expect(geometry.right).toBeLessThanOrEqual(0);
   expect(geometry.height).toBeGreaterThan(40);
-  // A rounded box rather than a lozenge, with the avatar on the first line.
   expect(geometry.radius).toBeLessThanOrEqual(geometry.height / 3);
   expect(geometry.avatar).toBeLessThanOrEqual(3);
   expect((await overflow(page)).page).toBeLessThanOrEqual(0);
@@ -66,7 +61,6 @@ test('a pasted file name in a question breaks instead of widening the column', a
   expect(card).toBeLessThanOrEqual(0);
 });
 
-// The tile centres on the text block up to two title lines; past that it stays level with the first two.
 for (const [name, field] of [['answer-with-confidence', 'title'], ['dont-know', 'title'], ['first-answer', 'prompt'], ['highlight', 'title'], ['retrieval-sheet', 'title'], ['test-out', 'title'], ['write-distractors', 'question']]) {
   test(`a long ${name} title keeps the scene tile level with its first lines`, async ({ page }) => {
     const content = await example(name);
@@ -84,7 +78,6 @@ for (const [name, field] of [['answer-with-confidence', 'title'], ['dont-know', 
 
 test('a long French mark wraps inside its row with its icon on the first line', async ({ page }) => {
   await mount(page, 'dont-know', await example('dont-know', 'fr'), { lang: 'fr' });
-  // A shared row with the default no-wrap mark, as idea demos and hosts use it.
   await page.locator('[data-lp-pattern]').evaluate(card => card.insertAdjacentHTML('beforeend', `<div class="lp-choices"><label class="lp-choice" data-lp-mark="correct"><input type="radio" checked disabled><span>Une réponse</span><span class="lp-choice-mark lp-met" id="fixture-mark">${card.querySelector('.lp-scene-icon svg').outerHTML}Même réponse que l’auteur, mot pour mot</span></label></div>`));
   const geometry = await page.locator('#fixture-mark').evaluate(mark => {
     const box = mark.getBoundingClientRect(), row = mark.closest('.lp-choice').getBoundingClientRect(), icon = mark.querySelector('svg').getBoundingClientRect();

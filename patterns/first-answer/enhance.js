@@ -71,7 +71,6 @@ export function enhance(root, { content, strings, state }) {
   let record = emptyState(content);
   let blocked = false;
   let endOpen = stage === 'end';
-  // Retrying edits a local draft; the saved now answer survives until Compare succeeds.
   let editing = false;
   let destroyed = false;
   /** @type {(() => void)[]} */
@@ -101,9 +100,7 @@ export function enhance(root, { content, strings, state }) {
     return result;
   }
 
-  /** Preserve elements and drafts. Only submitted records update quotes and summary.
-   * @param {boolean} [restoreDraft]
-   */
+  /** @param {boolean} [restoreDraft] */
   function paint(restoreDraft = false) {
     if (first) {
       first.step.hidden = (record.first === null && record.now !== null) || (stage === 'both' && endOpen);
@@ -118,7 +115,6 @@ export function enhance(root, { content, strings, state }) {
     if (end) {
       end.step.hidden = !endOpen;
       const locked = record.now !== null && !editing;
-      // After Compare the first-answer card carries the missing message, so it shows once.
       end.missing.hidden = record.first !== null || locked;
       end.result.hidden = !locked;
       end.input.readOnly = locked;
@@ -131,12 +127,9 @@ export function enhance(root, { content, strings, state }) {
       if (restoreDraft) end.input.value = record.now?.text ?? '';
     }
     restart.hidden = !confirmation.hidden || (!record.first && !record.now && !blocked);
-    // Saved answers can change while the question is open, so its wording follows each paint.
     if (!confirmation.hidden) question.textContent = frenchTypography(blocked || (record.first && record.now) ? strings.confirmDeleteBoth : strings.confirmDeleteOne, root.lang);
   }
 
-  // Reread before writes so two course placements cannot overwrite a saved first.
-  // Cross-tab/device races need an atomic adapter supplied by the host.
   function readHost() {
     if (blocked) return false;
     if (!state) return true;
@@ -149,9 +142,7 @@ export function enhance(root, { content, strings, state }) {
     return true;
   }
 
-  /** Commit before changing displayed state. A failed write leaves the old record.
-   * @param {import('./logic.js').LearnerState} next @param {string | null} message
-   */
+  /** @param {import('./logic.js').LearnerState} next @param {string | null} message */
   function persist(next, message) {
     const copy = validateState(content, next);
     if (!copy) throw new Error('Invalid next state');
@@ -172,7 +163,6 @@ export function enhance(root, { content, strings, state }) {
     }
     if (!persist(withFirstAnswer(content, record, result.text, new Date().toISOString()), strings.firstSaved)) return;
     paint();
-    // The save button hides with its editor, so focus moves on: to Skip in the demo, else to the saved answer.
     if (skip && !skip.hidden) skip.focus();
     else { first.saved.tabIndex = -1; first.saved.focus(); }
   });
@@ -202,7 +192,6 @@ export function enhance(root, { content, strings, state }) {
   }
   function keep() {
     confirmation.hidden = true;
-    // Another placement may have cleared the shared answers; then Start over stays hidden.
     readHost(); paint();
     (restart.hidden ? (stage === 'end' && end ? end.input : firstInput) : restart).focus();
   }
@@ -228,7 +217,6 @@ export function enhance(root, { content, strings, state }) {
     (stage === 'end' && end ? end.input : firstInput).focus();
   });
 
-  // Below the button row, so the question gets the full width instead of sitting beside Try again.
   (restart.closest('.lp-actions') ?? restart).after(confirmation);
   readHost();
   if (record.first || record.now) endOpen = stage !== 'first';

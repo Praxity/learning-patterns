@@ -1,7 +1,4 @@
-/** Adapt after three gaps; keep nine so a long thinking pause cannot dominate.
- * Timing evidence and limits are in patterns/course-lookup/README.md.
- * @param {{ minChars?: number, questionMark?: boolean }} [options]
- */
+/** @param {{ minChars?: number, questionMark?: boolean }} [options] */
 export function typingPause({ minChars, questionMark }?: {
     minChars?: number;
     questionMark?: boolean;

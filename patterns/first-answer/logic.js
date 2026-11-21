@@ -36,10 +36,8 @@ export function validateContent(content) {
   });
 }
 
-/** Error keys let the host pick an authored translation.
- * @param {unknown} text
- * @returns {{ ok: true, text: string } | { ok: false, error: 'empty' | 'tooLong' }}
- */
+/** @param {unknown} text
+ * @returns {{ ok: true, text: string } | { ok: false, error: 'empty' | 'tooLong' }} */
 export function validateAnswer(text) {
   const trimmed = typeof text === 'string' ? text.trim() : '';
   if (!trimmed) return { ok: false, error: 'empty' };
@@ -47,9 +45,7 @@ export function validateAnswer(text) {
   return { ok: true, text: trimmed };
 }
 
-/** Full ISO timestamps, including offsets. Date.parse alone normalizes invalid days.
- * @param {unknown} value @returns {value is string}
- */
+/** @param {unknown} value @returns {value is string} */
 function isDate(value) {
   if (typeof value !== 'string') return false;
   const match = /^(\d{4})-(\d{2})-(\d{2})T([01]\d|2[0-3]):([0-5]\d):([0-5]\d)(?:\.\d{1,3})?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)$/.exec(value);
@@ -68,9 +64,7 @@ function entry(value) {
   return answer.ok && answer.text === value.text && isDate(value.savedAt);
 }
 
-/** Return a copy, or null for damaged host state. Null is distinct from emptyState.
- * @param {Content} content @param {unknown} value @returns {LearnerState | null}
- */
+/** @param {Content} content @param {unknown} value @returns {LearnerState | null} */
 export function validateState(content, value) {
   validateContent(content);
   if (!object(value) || !only(value, ['first', 'now', 'checks'])) return null;
@@ -108,10 +102,8 @@ function answerEntry(text, savedAt) {
   return { text: answer.text, savedAt };
 }
 
-/** Save once. An end-only attempt cannot later become a first attempt.
- * @param {Content} content @param {LearnerState | null} value @param {string} text @param {string} savedAt
- * @returns {LearnerState}
- */
+/** @param {Content} content @param {LearnerState | null} value @param {string} text @param {string} savedAt
+ * @returns {LearnerState} */
 export function withFirstAnswer(content, value, text, savedAt) {
   const copy = record(content, value);
   if (copy.first) throw new Error('First answer already saved');
@@ -119,10 +111,8 @@ export function withFirstAnswer(content, value, text, savedAt) {
   return { ...copy, first: answerEntry(text, savedAt) };
 }
 
-/** Repeating comparison replaces only now; first and checks keep their values.
- * @param {Content} content @param {LearnerState | null} value @param {string} text @param {string} savedAt
- * @returns {LearnerState}
- */
+/** @param {Content} content @param {LearnerState | null} value @param {string} text @param {string} savedAt
+ * @returns {LearnerState} */
 export function withAnswerNow(content, value, text, savedAt) {
   return { ...record(content, value), now: answerEntry(text, savedAt) };
 }

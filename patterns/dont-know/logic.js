@@ -62,9 +62,7 @@ export function validateContent(content) {
   if (!(points.right > points.unknown && points.unknown >= points.wrong)) throw new Error('Invalid points: require right > unknown >= wrong');
 }
 
-/** Validate picks at the host boundary. Missing own keys mean unanswered.
- * @param {Content} content @param {unknown} picks @returns {asserts picks is Record<string, string>}
- */
+/** @param {Content} content @param {unknown} picks @returns {asserts picks is Record<string, string>} */
 function validatePicks(content, picks) {
   if (!object(picks)) throw new Error('Invalid picks');
   const questions = new Map(content.questions.map(q => [q.id, q]));
@@ -90,9 +88,7 @@ export function score(content, picks) {
   return result;
 }
 
-/** Ignore invalid saved values and copy valid state.
- * @param {Content} content @param {unknown} value @returns {LearnerState | null}
- */
+/** @param {Content} content @param {unknown} value @returns {LearnerState | null} */
 export function validateState(content, value) {
   if (!object(value) || typeof value.shown !== 'boolean' || Object.keys(value).some(key => !['picks', 'shown'].includes(key))) return null;
   try { validatePicks(content, value.picks); } catch { return null; }
@@ -101,18 +97,14 @@ export function validateState(content, value) {
   return { picks: { ...picks }, shown: value.shown };
 }
 
-/** Format hundredths in the page language, with a mathematical minus and optional plus.
- * @param {number} value @param {boolean} [positive] @param {string} [lang]
- */
+/** @param {number} value @param {boolean} [positive] @param {string} [lang] */
 export function displayPoints(value, positive = false, lang = 'en') {
   const rounded = Number(value.toFixed(2));
   const number = new Intl.NumberFormat(lang, { maximumFractionDigits: 2 }).format(Math.abs(rounded));
   return `${rounded < 0 ? '−' : positive && rounded > 0 ? '+' : ''}${number}`;
 }
 
-/** Replace authored placeholders in a single pass so inserted content stays literal.
- * @param {string} template @param {Record<string, string | number>} values
- */
+/** @param {string} template @param {Record<string, string | number>} values */
 export function format(template, values) {
   return template.replace(/\{(\w+)\}/g, (token, key) => Object.hasOwn(values, key) ? String(values[key]) : token);
 }

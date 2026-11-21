@@ -27,7 +27,6 @@ test('supplied context and evidence are validated and invalid authored values na
   for (const evidence of [undefined, '', 2, 'Absent', 'a']) {
     assert.throws(() => logic.validateContent({ ...content, parts: [{ ...content.parts[0], evidence }] }), /parts\[0\]\.evidence/);
   }
-  // Overlapping occurrences count too: "aa" occurs twice in "aaa".
   assert.throws(() => logic.validateContent({ ...content, model: 'aaa', parts: [{ ...content.parts[0], evidence: 'aa' }] }), /evidence/);
   assert.doesNotThrow(() => logic.validateContent({ ...content, parts: [{ ...content.parts[0], evidence: null }] }));
 });

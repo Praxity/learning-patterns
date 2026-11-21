@@ -10,7 +10,6 @@ const content = JSON.parse(await readFile(new URL('./examples/en.json', import.m
 const french = JSON.parse(await readFile(new URL('./examples/fr.json', import.meta.url)));
 const schema = JSON.parse(await readFile(new URL('./content.schema.json', import.meta.url)));
 
-// Covers this schema's keywords plus its documented cross-field annotations.
 function matches(value, rule, root = value) {
   if (rule.type === 'object') {
     return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -28,7 +27,6 @@ function matches(value, rule, root = value) {
 }
 
 test('each case is dealt once per round, with no repeat across round boundaries', () => {
-  // Exercise both ends of the random interval, including a forced boundary collision.
   for (const random of [() => 0, () => 1 - Number.EPSILON, Math.random]) {
     let previous = -1;
     let deck = { deck: [], last: -1 };

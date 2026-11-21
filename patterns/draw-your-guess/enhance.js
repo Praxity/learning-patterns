@@ -65,11 +65,9 @@ export function enhance(root, { content, strings, state }) {
     const realPoints = content.known.map((p, i) => /** @type {[number, number]} */ ([i, p.value]));
     if (shown) realPoints.push(...content.future.map((p, i) => /** @type {[number, number]} */ ([k + i, p.value])));
     real.setAttribute('points', points(realPoints));
-    // The guess line starts at the last known point and stops at the first unset month.
     const line = [/** @type {[number, number]} */ ([k - 1, content.known[content.known.length - 1].value])];
     for (let i = 0; i < guesses.length && guesses[i] !== null; i++) line.push([k + i, /** @type {number} */ (guesses[i])]);
     guessLine.setAttribute('points', line.length > 1 ? points(line) : '');
-    // Squares go last, so a real point stays visible inside a guess that matches it.
     marks.replaceChildren(...guesses.flatMap((v, i) => v === null ? [] : [mark('dot', k + i, v), mark('val', k + i, v, numbers.format(v))]), ...realPoints.map(([i, v]) => mark('sq', i, v)));
     inputs.forEach((input, i) => {
       input.value = String(guesses[i] ?? initial);
@@ -91,7 +89,6 @@ export function enhance(root, { content, strings, state }) {
     if (guesses[i] === next) return;
     guesses[i] = next;
     clearError(); paint(); save();
-    // Native range value changes announce themselves; the status region stays quiet here.
   }
   /** @param {boolean} announce */
   function show(announce) {
@@ -105,7 +102,6 @@ export function enhance(root, { content, strings, state }) {
     comparison.hidden = false;
     summary.textContent = text(outcome.summary); summary.hidden = false;
     again.hidden = false;
-    // One check completes the interaction. Expose Try again before locking controls.
     unlock = lock(root, { focus: announce });
     if (announce) { reveal(result); status.textContent = text(outcome.summary); }
     else result.hidden = false;
@@ -119,8 +115,7 @@ export function enhance(root, { content, strings, state }) {
       set(i, event.key === 'Home' ? 0 : content.top);
     }, { signal: lifetime.signal });
   });
-  /** A tap sets a point without dragging. Pointer focus lets arrow keys continue from it.
-   * @param {PointerEvent} event */
+  /** @param {PointerEvent} event */
   function at(event) {
     const rect = future.getBoundingClientRect();
     if (!rect.width || !rect.height) return;

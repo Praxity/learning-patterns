@@ -45,7 +45,6 @@ export function enhance(root, { content, strings, state }) {
   if (times.length !== 2) throw new Error('Invalid retrieval-sheet markup: printed dates');
   const view = root.ownerDocument.defaultView;
   if (!view) throw new Error('Invalid retrieval-sheet markup: document window');
-  // Validate all required markup and read host state before changing the server sheet.
   const today = new Date();
   let current = validateState(state?.read()) ?? { date: defaultDate(today), side: 'front' };
   const dates = presetDays.map(days => dateAfterDays(today, days));
@@ -65,7 +64,7 @@ export function enhance(root, { content, strings, state }) {
   function clearError() {
     input.removeAttribute('aria-invalid'); input.removeAttribute('aria-describedby'); error.hidden = true; print.disabled = false;
   }
-  /** Announce a date change; `announce` also speaks an unchanged date, for leaving the error state or opening the Date field. @param {string} date @param {boolean} [announce] */
+  /** @param {string} date @param {boolean} [announce] */
   function changeDate(date, announce = false) {
     const message = strings.dateChanged.replaceAll('{date}', formatDate(date, root.lang));
     if (current.date === date) {
@@ -124,7 +123,6 @@ export function enhance(root, { content, strings, state }) {
       else if (key === 'End') target = panels[1];
       else return;
       event.preventDefault();
-      // The destination must already be selected when assistive technology sees focus.
       if (target) { select(target.side); target.tab.focus(); }
     });
   }
@@ -132,11 +130,8 @@ export function enhance(root, { content, strings, state }) {
     if (customField.hidden) return;
     if (!isDate(input.value) || isPartialYear(input.value)) {
       setChoiceDate(custom, '');
-      // Native date segments can emit several changes while the field stays invalid.
       if (!error.hidden) return;
       input.setAttribute('aria-invalid', 'true'); error.hidden = false; print.disabled = true;
-      // The status region speaks the error once in every browser. Firefox with NVDA ignores a new description on the
-      // focused field and Chrome speaks it as well, so the description is added only once focus leaves.
       if (root.ownerDocument.activeElement !== input) input.setAttribute('aria-describedby', error.id);
       status.textContent = frenchTypography(strings.dateError, root.lang);
       return;
@@ -144,10 +139,8 @@ export function enhance(root, { content, strings, state }) {
     const recovered = !error.hidden;
     clearError();
     setChoiceDate(custom, formatShortDate(input.value, root.lang));
-    // Native date controls may emit more than one change for the same value; leaving the error always speaks the date.
     changeDate(input.value, recovered);
   }
-  // While a year is being typed, nothing changes; leaving the field with a partial year shows the error.
   listen(input, 'change', () => { if (!(isPartialYear(input.value) && root.ownerDocument.activeElement === input)) checkInput(); });
   listen(input, 'blur', () => {
     if (isPartialYear(input.value)) checkInput();

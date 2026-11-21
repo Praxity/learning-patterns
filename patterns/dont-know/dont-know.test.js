@@ -11,7 +11,6 @@ const french = JSON.parse(await readFile(new URL('./examples/fr.json', import.me
 const schema = JSON.parse(await readFile(new URL('./content.schema.json', import.meta.url)));
 const all = pick => Object.fromEntries(content.questions.map(q => [q.id, pick(q)]));
 
-// These are the schema keywords used here, including documented identity/reference extensions.
 function matches(value, rule) {
   if (rule.type === 'object') {
     if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
@@ -46,7 +45,6 @@ test('score distinguishes right, wrong, unknown and unanswered, in question orde
   assert.deepEqual(score(content, all(q => q.options.find(o => o.id !== q.correct).id)), { points: -3, total: 3, right: [], wrong: ['q1', 'q2', 'q3'], unknown: [], unanswered: [] });
   assert.deepEqual(score(content, all(() => DONT_KNOW)), { points: 0, total: 3, right: [], wrong: [], unknown: ['q1', 'q2', 'q3'], unanswered: [] });
   assert.deepEqual(score(content, { q1: 'car-repair', q2: 'no-interest', q3: DONT_KNOW }), { points: 0, total: 3, right: ['q1'], wrong: ['q2'], unknown: ['q3'], unanswered: [] });
-  // Three questions cannot hold right, wrong, unknown and unanswered at once, so unanswered gets its own case.
   assert.deepEqual(score(content, { q1: 'car-repair', q2: 'no-interest' }), { points: 0, total: 3, right: ['q1'], wrong: ['q2'], unknown: [], unanswered: ['q3'] });
   assert.deepEqual(score(content, {} ).unanswered, ['q1', 'q2', 'q3']);
 });

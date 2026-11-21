@@ -16,7 +16,6 @@ test('shared scene spans the quiz builder card and centres its tile on the quest
     const geometry = await page.locator('.lp-scene').evaluate(el => {
       const scene = el.getBoundingClientRect(), card = el.parentElement.getBoundingClientRect();
       const tile = el.querySelector('.lp-scene-icon svg').getBoundingClientRect(), text = el.querySelector('div').getBoundingClientRect();
-      // Centred on the text up to two title lines, then level with the first two (lib/base.css).
       const title = el.querySelector('.lp-scene-title'), centre = Math.min(text.height / 2, title.getBoundingClientRect().top - text.top + parseFloat(getComputedStyle(title).lineHeight));
       return [scene.left - card.left, card.right - scene.right, tile.top + tile.height / 2 - text.top - centre];
     });
@@ -147,7 +146,6 @@ test('question previews replace result lists and preserve keyed row alignment at
   const result = page.locator('[data-lp-result]');
   await expect(result.locator('[data-lp-preview]')).toHaveCount(2);
   await expect(result.locator('[data-lp-preview] h3')).toHaveText(['Your options', "The author's options"]);
-  // The card title already shows the question; the previews show only the options.
   for (const preview of await result.locator('[data-lp-preview]').all()) await expect(preview).not.toContainText(english.question);
   await expect(result.locator('[data-lp-untargeted], [data-lp-yours], .lp-write-distractors-list')).toHaveCount(0);
   expect(await result.evaluate(el => el.firstElementChild.matches('[data-lp-summary]'))).toBe(true);
@@ -211,7 +209,6 @@ for (const lang of ['en', 'fr']) {
     await expect(page.locator('[data-lp-answer-error]')).toBeVisible();
     await answer.fill('My attempt');
     await expect(answer).not.toHaveAttribute('aria-invalid');
-    // Check by keyboard so focus retention is independent of native pointer behaviour.
     await check.focus();
     await observe(page);
     await check.press('Enter');
@@ -270,7 +267,6 @@ test('old saved results restore as hidden drafts until retrieval is done', async
 
 test('retrieval guards reject blank answers and prevent skipping or repeating steps', async ({ page }) => {
   await open(page, 'en', false); await observe(page);
-  // The hidden error isn't linked until it shows, so VoiceOver doesn't read it on arrival.
   await expect(page.locator('[data-lp-answer]')).not.toHaveAttribute('aria-describedby');
   await page.locator('[data-lp-answer]').fill(' \n ');
   await page.locator('[data-lp-check]').click();
@@ -396,7 +392,6 @@ test('empty submit announces field count, links each error and focuses first tex
   await page.locator('[data-lp-compare]').click();
   await expect(page.locator('[data-lp-text]').first()).toBeFocused();
   await expect(page.locator('[role="status"]')).toHaveText('4 fields need attention.');
-  // Errors name each option by the letter its legend shows (B, C), not its position.
   await expect(page.locator('[data-lp-text-error]')).toHaveText(['Write wrong option B.', 'Write wrong option C.']);
   const inputs = page.locator('[aria-invalid="true"]');
   await expect(inputs).toHaveCount(4);
@@ -562,8 +557,6 @@ for (const [lang, content] of [['en', english], ['fr', french]]) {
     for (const item of content.authorOptions) await expect(page.locator('[data-lp-fallback]')).toContainText(item.text);
     for (const item of content.misconceptions) await expect(page.locator('[data-lp-fallback]')).toContainText(item.label);
     await expect(page.locator('[data-lp-flow]')).toBeHidden(); await expect(page.locator('[role="status"]')).toHaveText('');
-    // axe schedules script callbacks, which cannot run with JavaScript disabled.
-    // Scan an exact copy of the baseline DOM, with its scripts removed.
     const baseline = await page.evaluate(() => {
       const clone = document.documentElement.cloneNode(true);
       for (const script of clone.querySelectorAll('script')) script.remove();
@@ -768,8 +761,6 @@ test('forced colours keeps focus rings and quiet Start over', async ({ page, bro
     probe.style.color = 'ButtonFace'; const face = getComputedStyle(probe).color;
     probe.style.color = 'LinkText'; const link = getComputedStyle(probe).color;
     probe.remove();
-    // Chromium replaces a focused transparent button border in forced colours.
-    // Resolve that native border in the active palette, just like system ink.
     const button = document.createElement('button');
     button.style.cssText = 'border:1px solid transparent;color:LinkText;background:ButtonFace';
     document.body.append(button); button.focus();

@@ -85,8 +85,6 @@ export function enhance(root, { content, strings, state }) {
       event.preventDefault();
       set(event.key === 'Home' ? 0 : event.key === 'End' ? bands.length - 1 : ranges[index] + (delta ?? 0));
     }, { signal });
-    // A button with slider semantics participates in the shared lock helper.
-    // Tapping the track moves the band too, so dragging is optional.
     let dragging = false, offset = 0;
     /** @param {PointerEvent} event */
     function at(event) {
@@ -130,7 +128,6 @@ export function enhance(root, { content, strings, state }) {
     const summary = format(strings.summary, { count: outcome.count, total: outcome.total });
     result.textContent = frenchTypography(summary, root.lang);
     shown = true;
-    // One check completes the interaction. Expose Try again before locking and revealing.
     again.hidden = false;
     unlock = shouldAnnounce ? lock(root) : lock(root, { focus: false });
     if (shouldAnnounce) { reveal(result); announce(summary); }

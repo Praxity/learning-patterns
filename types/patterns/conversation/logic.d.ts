@@ -2,7 +2,7 @@
 export function validateContent(content: unknown): asserts content is Content;
 /** @param {unknown} answers @param {string} [model] @returns {Branch | 'unsure' | 'off_script'} */
 export function feedback(answers: unknown, model?: string): Branch | "unsure" | "off_script";
-/** Restore only a coherent two-round conversation. @param {unknown} value @returns {LearnerState | null} */
+/** @param {unknown} value @returns {LearnerState | null} */
 export function validateState(value: unknown): LearnerState | null;
 /** @returns {ConversationState} */
 export function start(): ConversationState;

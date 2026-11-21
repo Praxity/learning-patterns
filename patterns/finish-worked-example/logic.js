@@ -32,8 +32,7 @@ function index(value, count) {
   return typeof value === 'number' && Number.isInteger(value) && value >= 0 && value < count;
 }
 
-/** The limits keep a case short enough to finish: two to four steps, three or four cases, one-line facts.
- * @param {unknown} content @returns {asserts content is Content} */
+/** @param {unknown} content @returns {asserts content is Content} */
 export function validateContent(content) {
   validateTextLengths(content, {
     title: 120, context: 300,
@@ -57,7 +56,6 @@ export function validateContent(content) {
     if (new Set(options).size !== options.length) throw new Error(`Invalid ${path}.options: duplicate`);
     optionCounts.push(options.length);
   });
-  // Two cases would be an example and a problem, with nothing faded in between.
   const cases = list(content.cases, 3, 4, 'cases');
   /** @type {boolean[]} */
   let before = steps.map(() => true);
@@ -90,8 +88,7 @@ export function validateContent(content) {
   });
 }
 
-/** Steps of one case the learner does, in order.
- * @param {Content} content @param {number} caseIndex @returns {number[]} */
+/** @param {Content} content @param {number} caseIndex @returns {number[]} */
 export function learnerSteps(content, caseIndex) {
   return content.cases[caseIndex].steps.flatMap((step, s) => step.worked ? [] : [s]);
 }
@@ -101,14 +98,12 @@ export function emptyState(content) {
   return { at: 0, picks: content.cases.map(item => item.steps.map(() => null)) };
 }
 
-/** The step the learner answers next in a case, or -1 once the case is finished.
- * @param {Content} content @param {LearnerState} state @param {number} caseIndex @returns {number} */
+/** @param {Content} content @param {LearnerState} state @param {number} caseIndex @returns {number} */
 export function nextStep(content, state, caseIndex) {
   return learnerSteps(content, caseIndex).find(s => state.picks[caseIndex][s] === null) ?? -1;
 }
 
-/** The furthest case the learner may open: the first unfinished one, or the last.
- * @param {Content} content @param {LearnerState} state @returns {number} */
+/** @param {Content} content @param {LearnerState} state @returns {number} */
 export function reach(content, state) {
   const open = content.cases.findIndex((_, c) => nextStep(content, state, c) !== -1);
   return open === -1 ? content.cases.length - 1 : open;
@@ -119,8 +114,7 @@ function copy(state) {
   return { at: state.at, picks: state.picks.map(row => [...row]) };
 }
 
-/** Record the learner's answer to the next step. Steps are answered in order and never changed.
- * @param {Content} content @param {LearnerState} state @param {number} caseIndex @param {number} step @param {number} pick
+/** @param {Content} content @param {LearnerState} state @param {number} caseIndex @param {number} step @param {number} pick
  * @returns {LearnerState} */
 export function answer(content, state, caseIndex, step, pick) {
   if (caseIndex !== reach(content, state) || step !== nextStep(content, state, caseIndex)) throw new RangeError('Not the next step');
@@ -130,15 +124,13 @@ export function answer(content, state, caseIndex, step, pick) {
   return next;
 }
 
-/** Open a case the learner has reached.
- * @param {Content} content @param {LearnerState} state @param {number} caseIndex @returns {LearnerState} */
+/** @param {Content} content @param {LearnerState} state @param {number} caseIndex @returns {LearnerState} */
 export function move(content, state, caseIndex) {
   if (!index(caseIndex, reach(content, state) + 1)) throw new RangeError('Case not reached');
   return { ...copy(state), at: caseIndex };
 }
 
-/** Count the learner's own steps across every case.
- * @param {Content} content @param {LearnerState} state @returns {{ right: number, total: number, done: boolean }} */
+/** @param {Content} content @param {LearnerState} state @returns {{ right: number, total: number, done: boolean }} */
 export function result(content, state) {
   let right = 0, total = 0, answered = 0;
   content.cases.forEach((item, c) => {
@@ -151,8 +143,7 @@ export function result(content, state) {
   return { right, total, done: answered === total };
 }
 
-/** Copy valid saved state, or return null. Answers must follow the order the pattern allows.
- * @param {Content} content @param {unknown} value @returns {LearnerState | null} */
+/** @param {Content} content @param {unknown} value @returns {LearnerState | null} */
 export function validateState(content, value) {
   if (!object(value) || !Array.isArray(value.picks) || value.picks.length !== content.cases.length) return null;
   let blocked = false;
@@ -172,8 +163,7 @@ export function validateState(content, value) {
   return index(value.at, reach(content, state) + 1) ? { at: value.at, picks } : null;
 }
 
-/** Replace `{name}` placeholders; inserted text is kept literally.
- * @param {string} template @param {Record<string, string | number>} values @returns {string} */
+/** @param {string} template @param {Record<string, string | number>} values @returns {string} */
 export function format(template, values) {
   return template.replace(/\{(\w+)\}/g, (match, key) => Object.hasOwn(values, key) ? String(values[key]) : match);
 }

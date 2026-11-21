@@ -6,7 +6,6 @@ import { expectChoiceMarks } from './choice-marks.js';
 const english = JSON.parse(await readFile(new URL('../../patterns/mistake-recover/examples/en.json', import.meta.url)));
 const french = JSON.parse(await readFile(new URL('../../patterns/mistake-recover/examples/fr.json', import.meta.url)));
 const TEXT_SPACING = '*{line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important}p{margin-bottom:2em!important}';
-// Authored text carries no-break spaces, and French rendering adds more. Compare words, not spaces.
 const plain = value => value.replace(/\s+/g, ' ').trim();
 const request = english.request, dana = english.colleague;
 
@@ -22,21 +21,18 @@ async function observe(page) {
     }).observe(document.querySelector('[role="status"]'), { childList: true, characterData: true, subtree: true });
   });
 }
-// Clearing the region is not speech, so empty entries are dropped.
 const announcements = async page => (await page.evaluate(() => window.lpAnnouncements)).map(plain).filter(Boolean);
 const saved = page => page.evaluate(() => window.lpSaved);
 const scan = async page => expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()).violations).toEqual([]);
 const item = (root, n) => root.locator(`[data-lp-item="${n}"]`);
 const line = (root, n) => item(root, n).locator('[data-lp-status]');
 const row = (section, value) => section.locator(`label:has(input[value="${value}"])`);
-/** Tick these steps and check them. */
 async function recover(section, values) {
   for (const value of values) await section.locator(`input[value="${value}"]`).check();
   await section.locator('[data-lp-check]').click();
 }
 const approve = section => section.locator('[data-lp-approve]').click();
 const hold = section => section.locator('[data-lp-hold]').click();
-// Replace the demo with other content through the public render and enhance interface.
 async function mount(page, content, { lang = 'en', state } = {}) {
   await open(page, `/mistake-recover/${lang}.html`);
   await page.evaluate(async ({ content, lang, state }) => {
@@ -57,7 +53,6 @@ test('keyboard journey: approve, an empty check, recovery, the result and Start 
   await expect(line(page, 0)).toHaveText('Status: Waiting for your approval');
   await expect(first.locator('[data-lp-recover]')).toBeHidden();
 
-  // Approve is the first stop. Approving states the cost on the status line, which takes focus.
   await page.keyboard.press('Tab'); await expect(first.locator('[data-lp-approve]')).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(line(page, 0)).toBeFocused();
@@ -67,7 +62,6 @@ test('keyboard journey: approve, an empty check, recovery, the result and Start 
   expect(await announcements(page)).toEqual([]);
   expect(await saved(page)).toEqual({ decision: 'approve', steps: [null, null] });
 
-  // The next stop is the first step. Checking with none ticked names the problem and focuses it.
   await page.keyboard.press('Tab'); await expect(first.locator('input').first()).toBeFocused();
   for (let n = 0; n < 3; n++) await page.keyboard.press('Tab');
   await expect(first.locator('[data-lp-check]')).toBeFocused();
@@ -79,8 +73,6 @@ test('keyboard journey: approve, an empty check, recovery, the result and Start 
   await expect(first.locator('input').first()).toBeFocused();
   expect(await announcements(page)).toEqual([]);
 
-  // Tick the trap step "Change the supplier file" and Cancel, leave Call. The check marks each and
-  // shows its reason; the status line changes and takes focus again, and the card ends.
   await page.keyboard.press('Space');
   await expect(error).toBeHidden();
   await expect(first.locator('fieldset')).toHaveAttribute('aria-describedby', 'example-request-hint');
@@ -96,7 +88,6 @@ test('keyboard journey: approve, an empty check, recovery, the result and Start 
   await expect(first.locator('input:disabled')).toHaveCount(3);
   await expect(first.locator('[data-lp-check]')).toBeHidden();
   await expectChoiceMarks(page);
-  // Focus reads the line, then the region speaks the closing sentence once.
   const sentence = 'You approved the request, then stopped it before it went through.';
   await expect(page.locator('[data-lp-summary]')).toHaveText(sentence);
   expect(await announcements(page)).toEqual([sentence]);
@@ -116,7 +107,6 @@ test('keyboard journey: approve, an empty check, recovery, the result and Start 
 
 test('holding the request opens the payment the colleague approved, and recovering it ends the card', async ({ page }) => {
   await open(page); await observe(page);
-  // Approve, then Hold, by keyboard. Hold reveals the colleague's payment, so Tab from the status line goes there next.
   await page.keyboard.press('Tab'); await page.keyboard.press('Tab');
   await expect(item(page, 0).locator('[data-lp-hold]')).toBeFocused();
   await page.keyboard.press('Enter');
@@ -131,7 +121,6 @@ test('holding the request opens the payment the colleague approved, and recoveri
   await page.keyboard.press('Tab'); await expect(second.locator('input').first()).toBeFocused();
   await expect(page.locator('[data-lp-result]')).toBeHidden();
   expect(await announcements(page)).toEqual([]);
-  // Leaving out Cancel leaves the payment approved, in different words, so the check visibly did something.
   await recover(second, ['leave', 'tell']);
   await expect(line(page, 1)).toBeFocused();
   await expect(line(page, 1)).toHaveText(plain(`Status: ${dana.notStopped}`));
@@ -183,7 +172,6 @@ for (const [lang, content, labels] of [
   });
 
   test(`axe on unchanged server HTML with the disclosures open (${lang})`, async ({ page }) => {
-    // axe needs scripting enabled. Block enhancement to audit the same native baseline.
     await page.route('**/mistake-recover/enhance.js', route => route.fulfill({ contentType: 'text/javascript', body: 'export function enhance() { return { destroy() {} }; }' }));
     await open(page, `/mistake-recover/${lang}.html`);
     await scan(page);
@@ -210,7 +198,6 @@ for (const [lang, content, labels] of [
       });
       expect(problems, stage).toEqual([]);
     }
-    // Cancel correct, Leave incorrect, Invoice and Tell missed.
     await expect(page.locator('[data-lp-mark]')).toHaveCount(4);
   });
 }
@@ -242,7 +229,6 @@ for (const width of [1280, 390]) test(`the status line and its marked steps stay
   for (const locator of [line(page, 0), ...await item(page, 0).locator('[data-lp-mark]').all()]) await expect(locator).toBeInViewport({ ratio: .95 });
   await page.locator('[data-lp-restart]').click();
   await expect(page.locator('h2.lp-heading')).toBeInViewport();
-  // Holding opens the colleague's payment below; the held request's line stays in view.
   await hold(item(page, 0));
   await expect(line(page, 0)).toBeInViewport({ ratio: .95 });
   await recover(item(page, 1), ['cancel']);
@@ -301,14 +287,12 @@ test('a double activation of a decision or a check makes one transition, one sav
   }, english);
   await observe(page);
   const writes = () => page.evaluate(() => window.lpWrites);
-  // Two clicks in one task, as a double click or a bouncing key delivers them.
   const twice = locator => locator.evaluate(button => { button.click(); button.click(); });
   await twice(item(page, 0).locator('[data-lp-approve]'));
   expect(await writes()).toEqual([{ decision: 'approve', steps: [null, null] }]);
   await item(page, 0).locator('input[value="cancel"]').check();
   await twice(item(page, 0).locator('[data-lp-check]'));
   expect((await writes()).slice(1)).toEqual([{ decision: 'approve', steps: [['cancel'], null] }]);
-  // Cancel is marked correct and Call, left out, is marked as the correct answer.
   await expect(page.locator('[data-lp-mark]')).toHaveCount(2);
   expect(await announcements(page)).toEqual(['You approved the request, then stopped it before it went through.']);
 });
@@ -363,11 +347,9 @@ test('enhance twice returns one instance; destroy restores the no-JavaScript vie
   await expect(page.locator('input:checked, input:disabled, [data-lp-mark], [aria-invalid]')).toHaveCount(0);
   await expect(page.locator('[role="status"]')).toHaveText('');
   expect(await page.locator('[data-lp-pattern] *').count()).toBe(nodes);
-  // Listeners are gone: a destroyed instance writes nothing.
   const before = await saved(page);
   for (const button of await page.locator('[data-lp-approve], [data-lp-hold]').all()) await button.evaluate(el => el.click());
   expect(await saved(page)).toEqual(before);
-  // The page's adapter still holds the progress, so a new instance restores it.
   expect(await page.evaluate(() => { const instance = window.lpEnhance(); return instance === window.lpEnhance() && instance !== window.lpInstances[0]; })).toBe(true);
   await expect(line(page, 0)).toHaveText(plain(`Status: ${request.held}`));
   await expect(line(page, 1)).toHaveText(plain(`Status: ${dana.stopped}`));
@@ -421,8 +403,6 @@ test('shared look: one card with no panel inside it, equal decision buttons and 
   await expect(root.locator('h2.lp-heading')).toHaveCSS('font-size', '21px');
   for (const button of [root.locator('[data-lp-approve]').first(), root.locator('[data-lp-hold]').first()]) await expect(button).toHaveClass(/lp-button-secondary/);
   await hold(item(root, 0)); await recover(item(root, 1), ['cancel']);
-  // Records, status lines and the result are set apart by headings, rules, type and space, never by a
-  // border or fill of their own.
   for (const part of [...await root.locator('dl, [data-lp-status], [data-lp-recover], [data-lp-summary]').all()]) {
     if (!await part.isVisible()) continue;
     await expect(part).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
@@ -440,7 +420,6 @@ test('shared look: one card with no panel inside it, equal decision buttons and 
   await expect(root.locator('[data-lp-restart]')).toHaveClass(/lp-button-quiet/);
   await expect(root.locator('[data-lp-restart] svg[aria-hidden="true"]')).toHaveCount(1);
   await expectChoiceMarks(page);
-  // Keyboard focus on a status line draws the shared ring.
   await page.keyboard.press('Tab');
   await line(root, 1).focus();
   await expect(line(root, 1)).toHaveCSS('outline-width', '3px');

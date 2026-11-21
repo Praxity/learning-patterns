@@ -2,9 +2,7 @@
 .lp-estimate-magnitude-question + .lp-estimate-magnitude-question { margin-block-start: var(--lp-gap-group); border-block-start: 1px solid var(--lp-rule); }
 .lp-estimate-magnitude-question legend { float: left; inline-size: 100%; margin-block-end: var(--lp-gap-label); padding: 0; }
 .lp-estimate-magnitude-question legend + * { clear: both; }
-/* Reserve two range lines above and one axis line below, including text spacing. */
 .lp-estimate-magnitude-scale { padding-block: calc(3 * var(--lp-type-small)) 24px; }
-/* The scale is a number line, so values always increase from left to right. */
 .lp-estimate-magnitude-line { direction: ltr; position: relative; block-size: 44px; touch-action: pan-y; user-select: none; }
 .lp-estimate-magnitude-line::before { content: ""; position: absolute; inset-inline: 0; inset-block-start: 50%; border-block-start: 2px solid var(--lp-line); }
 .lp-estimate-magnitude-tick { position: absolute; inset-block-start: calc(50% - 4px); block-size: 10px; border-inline-start: 1px solid var(--lp-line); }

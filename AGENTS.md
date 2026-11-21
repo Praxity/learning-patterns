@@ -4,6 +4,8 @@ Small learning interactions people copy into their projects. Read a pattern's RE
 
 ## Pattern contract
 
+No code comments. Record non-obvious decisions in `docs/adr/` and known shortcuts as backlog items. `node scripts/check-comments.mjs` enforces this with a ratchet (`--update` after deleting comments).
+
 Each `patterns/<name>/` contains pure `logic.js`, server `render.js`, DOM `enhance.js`, `pattern.css`, bilingual `strings.js`, `content.schema.json`, examples and tests.
 
 - `validateContent(content)` throws an Error naming the bad field.

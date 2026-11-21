@@ -1,27 +1,21 @@
 /** @param {unknown} content @returns {asserts content is Content} */
 export function validateContent(content: unknown): asserts content is Content;
-/** Snap pointer input to the authored scale, including its boundaries.
- * @param {Content} content @param {number} value */
+/** @param {Content} content @param {number} value */
 export function snap(content: Content, value: number): number;
-/** Horizontal point centre as a fraction of the plot width.
- * @param {number} i @param {number} count */
+/** @param {number} i @param {number} count */
 export function x(i: number, count: number): number;
-/** Vertical point position as a fraction of the plot height, measured from the top.
- * @param {number} value @param {number} top */
+/** @param {number} value @param {number} top */
 export function y(value: number, top: number): number;
-/** Compare a complete guess with the last known point. No numeric grade is assigned.
- * @param {Content} content @param {number[]} guesses
+/** @param {Content} content @param {number[]} guesses
  * @returns {{ trend: Trend, summary: string, differences: number[] }} */
 export function compare(content: Content, guesses: number[]): {
     trend: Trend;
     summary: string;
     differences: number[];
 };
-/** Ignore invalid saved values and copy valid ones.
- * @param {Content} content @param {unknown} value @returns {LearnerState | null} */
+/** @param {Content} content @param {unknown} value @returns {LearnerState | null} */
 export function validateState(content: Content, value: unknown): LearnerState | null;
-/** Replace placeholders without interpreting inserted author text.
- * @param {string} template @param {Record<string, string | number>} values */
+/** @param {string} template @param {Record<string, string | number>} values */
 export function format(template: string, values: Record<string, string | number>): string;
 /** @typedef {{ label: string, name: string, value: number }} Point */
 /** @typedef {'changedDirection' | 'fell' | 'rose' | 'flat' | 'fellThenFlat' | 'roseThenFlat'} Trend */

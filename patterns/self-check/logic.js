@@ -16,10 +16,8 @@ function fields(value, fields, path) {
   }
 }
 
-/** Validate authored plain text. Whitespace is allowed; empty strings are not.
- * @param {unknown} content
- * @returns {asserts content is Content}
- */
+/** @param {unknown} content
+ * @returns {asserts content is Content} */
 export function validateContent(content) {
   validateTextLengths(content, {
     scenario: 1000,
@@ -62,11 +60,8 @@ export function validateContent(content) {
   });
 }
 
-/** Segment validated model text in reading order. Whole-answer parts stay in the legend.
- * When evidence overlaps, the first span in model order owns that text.
- * @param {string} model @param {Part[]} parts @param {string[]} includedIds
- * @returns {Segment[]}
- */
+/** @param {string} model @param {Part[]} parts @param {string[]} includedIds
+ * @returns {Segment[]} */
 export function annotate(model, parts, includedIds) {
   const included = new Set(includedIds);
   const spans = parts.flatMap((part, partIndex) => part.evidence === null ? [] : [{
@@ -103,9 +98,7 @@ export function feedback(content, ticked) {
   };
 }
 
-/** Ignore invalid host state; return an independent copy of a valid value.
- * @param {Content} content @param {unknown} value @returns {LearnerState | null}
- */
+/** @param {Content} content @param {unknown} value @returns {LearnerState | null} */
 export function validateState(content, value) {
   if (!object(value) || typeof value.answer !== 'string' || typeof value.shown !== 'boolean' || !Array.isArray(value.ticked)) return null;
   const known = new Set(content.parts.map(part => part.id));

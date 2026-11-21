@@ -1,11 +1,9 @@
 import { CRITERIA, rubricBand, labelAnswers } from "./rubric.js";
 export { CRITERIA, rubricBand, labelAnswers } from "./rubric.js";
 
-// Browser-safe task copy. The server owns all question wording.
 export const TASK_EN = "Your client report is due Friday. The sales data arrived three days late, so you need until Tuesday. Write the message to your manager.";
 export const TASK_FR = "Votre rapport client est attendu vendredi. Les données de vente sont arrivées avec trois jours de retard. Il vous faut jusqu’à mardi. Écrivez le message à votre gestionnaire.";
 
-// Expected labels authored before live calls. Met for blame means a mistake.
 export const FIXTURES = [
 	{
 		id: "perfect",
@@ -116,11 +114,6 @@ function validateFixture(fixture) {
 	}
 }
 
-/**
- * rows: [{fixture,result}], where result is the ask response with answers.
- * total counts predicate cells. matches + mismatches + uncertain = total.
- * perCriterion uses the same counts; disagreements includes mismatches and unsure.
- */
 export function summarizeFixtures(rows) {
 	if (!Array.isArray(rows)) throw new Error("Fixture rows must be an array");
 	const summary = {
@@ -146,15 +139,6 @@ export function summarizeFixtures(rows) {
 	return summary;
 }
 
-/**
- * rows: [{fixture,english,french}], each language an ask response.
- * Each language contains the fixture summary and raw meanNoul/meanByCriterion.
- * total counts paired predicates. agreements require equal definite labels.
- * disagreementsCount counts unequal labels. uncertainPairs counts either unsure,
- * so it can overlap disagreementsCount. Detail rows include unequal or unsure pairs.
- * perCriterion contains pair counts, language matches and raw language means.
- * Empty means are null. Means describe yes probability, never answer quality.
- */
 export function summarizeParity(rows) {
 	if (!Array.isArray(rows)) throw new Error("Parity rows must be an array");
 	const languageSummary = (language) => {

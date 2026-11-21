@@ -1,4 +1,3 @@
-// Questions more than one demo reuses. Keep wording here so every demo asks them the same way.
 
 export const sincere = () => ({
 	type: "noul",
@@ -12,8 +11,6 @@ export const sincere = () => ({
 	},
 });
 
-// Clef candidate: separate attempting the task from meeting its rubric.
-// Keep this shared so a short or incorrect attempt has the same gate everywhere.
 export const clefSincere = () => ({
 	type: "noul",
 	instructions: {
@@ -26,7 +23,6 @@ export const clefSincere = () => ({
 	},
 });
 
-// A yes/no check that `answer` does something. Every rubric criterion in the demos is one of these.
 export const criterion = (does, yes, no) => ({
 	type: "noul",
 	instructions: {

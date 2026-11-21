@@ -9,7 +9,6 @@ const content = JSON.parse(await readFile(new URL('./examples/en.json', import.m
 const french = JSON.parse(await readFile(new URL('./examples/fr.json', import.meta.url)));
 const schema = JSON.parse(await readFile(new URL('./content.schema.json', import.meta.url)));
 
-/** Answer the learner's steps in order. `picks` lists one option per learner step across cases. */
 function play(picks, state = emptyState(content)) {
   const queue = [...picks];
   while (queue.length) {
@@ -51,7 +50,6 @@ test('validateContent names the bad field', () => {
   bad(c => { c.cases[1].steps[0].reason = ' '; }, 'cases[1].steps[0].reason');
   bad(c => { c.cases[1].steps[0].worked = 'yes'; }, 'cases[1].steps[0].worked');
   bad(c => { c.cases[1].steps[0].extra = 1; }, 'cases[1].steps[0].extra');
-  // The second step has two options, so its answer is 0 or 1.
   for (const value of [2, -1, 0.5, '0', null]) bad(c => { c.cases[1].steps[1].answer = value; }, 'cases[1].steps[1].answer');
 });
 
@@ -59,7 +57,6 @@ test('limits keep the activity short: two to four steps and options, three or fo
   const sized = (steps, cases, options = 2, facts = 1) => ({
     title: 'T', context: 'C',
     steps: Array.from({ length: steps }, (_, s) => ({ question: `Q${s}`, options: Array.from({ length: options }, (_, n) => `O${n}`) })),
-    // Each case hands over one more step from the end, and the last hands over the rest.
     cases: Array.from({ length: cases }, (_, c) => ({
       facts: Array.from({ length: facts }, (_, n) => ({ label: `L${n}`, text: 'F' })),
       steps: Array.from({ length: steps }, (_, s) => ({ answer: 0, reason: 'R', worked: c < cases - 1 && s < steps - c }))
@@ -92,7 +89,6 @@ test('fading is checked: first case worked, last case the learner’s, each case
     flags.forEach((row, c) => [...row].forEach((value, s) => { copy.cases[c].steps[s].worked = value === 'w'; }));
     return copy;
   };
-  // Forward fading and a middle step first are the author's choice.
   assert.doesNotThrow(() => validateContent(worked(['www', 'yww', 'yyy'])));
   assert.doesNotThrow(() => validateContent(worked(['www', 'wyw', 'yyy'])));
   assert.throws(() => validateContent(worked(['wwy', 'wyy', 'yyy'])), /cases\[0\]\.steps: the first case is fully worked/);
@@ -189,16 +185,13 @@ test('render gives a complete page without JavaScript: every case, radio groups 
   assert.match(cases[0], /Case 1 of 3<span class="lp-visually-hidden">\. <\/span><span class="lp-small lp-finish-worked-example-share">All 3 steps are done for you\. Read the reason for each one\.<\/span>/);
   assert.match(cases[1], /You do 1 of the 3 steps\./);
   assert.match(cases[2], /You do all 3 steps\./);
-  // The legend names the step, whose it is and the question, so a screen reader hears all three with the first radio.
   assert.match(cases[1], /<legend><span class="lp-finish-worked-example-head"><span class="lp-label">Step 3<\/span><span class="lp-visually-hidden">, <\/span><span class="lp-finish-worked-example-tag" data-lp-yours><svg[^>]*aria-hidden="true"[^]*?<span>Your step<\/span><\/span><\/span><span class="lp-visually-hidden">, <\/span><span class="lp-run-in">What do you do\?<\/span><\/legend>/);
   assert.match(cases[1], /<p class="lp-finish-worked-example-answer">Some items are missing<\/p>\s*<p>Only 8 of the 10 cartridges arrived\.<\/p>/);
-  // The answers the learner has not been shown are only in the disclosure.
   const [visible, answers] = cases[1].split('data-lp-fallback');
   assert.ok(!visible.includes('You pay $320'));
   assert.match(answers, /<summary>Answers for case 2<\/summary>/);
   assert.match(answers, /Step 3: Pay only for what arrived<\/strong><p>The invoice matches the order, so you do not hold it\. You pay \$320 for the 8 cartridges that arrived\.<\/p>/);
   assert.ok(!answers.includes('Step 1:'));
-  // Controls that need JavaScript start hidden.
   assert.equal((markup.match(/data-lp-step-actions hidden/g) ?? []).length, 4);
   assert.equal((markup.match(/data-lp-nav hidden/g) ?? []).length, 3);
   assert.equal((markup.match(/data-lp-feedback hidden/g) ?? []).length, 4);
@@ -228,7 +221,6 @@ test('render escapes authored text and sets French typography', () => {
   assert.match(markup, /&lt;img src=x onerror=alert\(1\)&gt;/);
   const fr = render(french, strings.fr, { id: 'payer', lang: 'fr' });
   assert.match(fr, /lang="fr"/);
-  // A no-break space before ":" and "$", a narrow one before "?" and inside numbers.
   const wide = String.fromCharCode(0xa0), narrow = String.fromCharCode(0x202f);
   assert.ok(fr.includes(`Que devez-vous faire${narrow}?`));
   assert.ok(fr.includes(`total 1${narrow}700${wide}$`));

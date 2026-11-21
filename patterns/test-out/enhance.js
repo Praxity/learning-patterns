@@ -90,9 +90,7 @@ export function enhance(root, { content, strings, state }) {
     error.hidden = true; error.replaceChildren();
     for (const question of questions) clearQuestionError(question);
   }
-  /** Switch real panels; hidden panels have no focusable controls. Restore is silent.
-   * @param {number} nextStep @param {boolean} notify
-   */
+  /** @param {number} nextStep @param {boolean} notify */
   function move(nextStep, notify) {
     const previous = step;
     step = nextStep;
@@ -109,11 +107,9 @@ export function enhance(root, { content, strings, state }) {
     const panel = outlinePanel.hidden ? questions[step - 1].panel : outlinePanel;
     const heading = outlinePanel.hidden ? questions[step - 1].heading : outlineHeading;
     panel.style.setProperty('--lp-test-out-enter-x', step < previous ? '-16px' : '16px');
-    // Reflow lets a revisited panel run the same entrance again.
     void panel.offsetWidth;
     panel.classList.add('lp-test-out-enter');
     heading.focus();
-    // Question progress is read by heading focus. Results add a distinct summary.
     if (shown) status.textContent = frenchTypography(result.textContent ?? '', root.lang);
     else if (status.textContent) status.replaceChildren();
   }
@@ -151,7 +147,6 @@ export function enhance(root, { content, strings, state }) {
         radio.disabled = true;
         if (!radio.checked && radio.value !== q.correct) return;
         const correct = radio.value === q.correct;
-        // An unchosen correct answer is "missed": neutral, so it doesn't read as the learner's pick.
         const missed = correct && !right;
         markChoice(rows[i], missed ? 'missed' : correct ? 'correct' : 'wrong', strings, root.lang);
       });
@@ -196,7 +191,6 @@ export function enhance(root, { content, strings, state }) {
       }
       const { fieldset, radios, message } = question;
       if (!radios.some(radio => radio.checked)) {
-        // Each radio carries the message; describing the fieldset too made VoiceOver read it twice.
         message.hidden = false;
         for (const radio of radios) { radio.setAttribute('aria-describedby', message.id); radio.setAttribute('aria-invalid', 'true'); }
         announce(strings.choose); save(); return;

@@ -82,7 +82,6 @@ test('the result sentence for none, one, two and all three', () => {
   assert.equal(sentence('en', ['no_alternative', 'no_reason']), 'Your feedback raised 2 of 3 issues.');
   assert.equal(sentence('en', ['no_reason', 'no_alternative', 'vague_next_step']), 'Your feedback raised all 3 issues.');
   assert.equal(sentence('fr', ['no_reason']), 'Votre rétroaction relève 1 des 3 points à corriger.');
-  // Inserted text stays literal, even when it looks like a placeholder.
   assert.equal(format('{colleague} and {other}', { colleague: '{other}' }), '{other} and {other}');
 });
 
@@ -92,10 +91,8 @@ test('saved state is copied when valid and rejected when damaged', () => {
   assert.deepEqual(restored, saved);
   assert.notEqual(restored, saved);
   assert.notEqual(restored?.ticked, saved.ticked);
-  // A draft longer than the limit is kept, so restoring never loses text; checking reports it.
   assert.deepEqual(validateState(en, { feedback: 'x'.repeat(2001), ticked: [], stage: 'write' })?.feedback.length, 2001);
   assert.deepEqual(validateState(en, { feedback: 'x'.repeat(2001), ticked: ['no_reason'], stage: 'compare' })?.feedback.length, 2001);
-  // A finished state needs feedback a live check would have accepted.
   assert.deepEqual(validateState(en, { feedback: 'x'.repeat(2000), ticked: [], stage: 'done' })?.stage, 'done');
   assert.equal(validateState(en, { feedback: '   ', ticked: ['no_reason'], stage: 'done' }), null);
   assert.equal(validateState(en, { feedback: 'x'.repeat(2001), ticked: [], stage: 'done' }), null);
@@ -106,7 +103,6 @@ test('saved state is copied when valid and rejected when damaged', () => {
     { feedback: '', ticked: ['tone'], stage: 'compare' },
     { feedback: '', ticked: ['no_reason', 'no_reason'], stage: 'done' },
     { feedback: '', ticked: [], stage: 'finished' },
-    // Ticks exist only once the checklist has been shown.
     { feedback: 'Say why.', ticked: ['no_reason'], stage: 'write' },
     { feedback: '', ticked: [], stage: 'write', extra: true }
   ]) assert.equal(validateState(en, damaged), null, JSON.stringify(damaged));
@@ -116,7 +112,6 @@ test('server markup works without JavaScript and keeps the reading order', () =>
   const html = render(en, strings.en, { id: 'mc', lang: 'en' });
   assert.match(html, /^<section class="lp lp-mark-colleague" data-lp-pattern="mark-colleague" lang="en">/);
   assert.ok(html.includes('<h2 class="lp-heading">Give Priya feedback on her reply</h2>'));
-  // Each email's heading sits one level below the card title and carries the mail icon.
   assert.equal((html.match(/<h3 class="lp-mark-colleague-from">/g) ?? []).length, 2);
   assert.match(html, /<h3 class="lp-mark-colleague-from"><svg[^>]*aria-hidden="true"/);
   assert.ok(html.includes('Priya&#39;s draft reply'));
@@ -127,12 +122,10 @@ test('server markup works without JavaScript and keeps the reading order', () =>
   const order = ['lp-context', 'Email from Alex', 'draft reply', 'mc-feedback', 'data-lp-fallback', 'data-lp-ticks', 'data-lp-result', 'role="status"'].map(text => html.indexOf(text));
   assert.deepEqual([...order].sort((a, b) => a - b), order);
   assert.ok(order.every(index => index > 0));
-  // The fallback lists every issue with its explanation in a closed disclosure.
   const fallback = html.slice(html.indexOf('data-lp-fallback'), html.indexOf('data-lp-flow'));
   assert.match(fallback, /<summary>Show the issues<\/summary>/);
   assert.doesNotMatch(fallback, /<details[^>]*open/);
   for (const issue of en.issues) assert.ok(fallback.includes(issue.explanation.replaceAll('"', '&quot;').replaceAll("'", '&#39;')));
-  // Script-only controls start hidden.
   assert.match(html, /<button class="lp-button" type="button" data-lp-check hidden>Check my feedback<\/button>/);
   assert.match(html, /<div data-lp-flow hidden>/);
   assert.match(html, /<p class="lp-visually-hidden" role="status" aria-atomic="true"><\/p>/);

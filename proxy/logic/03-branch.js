@@ -1,7 +1,4 @@
 
-// A two-round branching dialogue with Michel. The learner types a reply, Jev picks one of the
-// author's branches, and Michel answers with the authored line for that branch. Every node also
-// offers the same branches as clickable replies, so the scenario works without typing or network.
 
 import { BRANCH_SURE, CLEF_BRANCH_SURE, CLEF_27B_BRANCH_SURE, BRANCHES, OFF_SCRIPT, ROUNDS, confidenceGate } from './03-contract.js';
 export { BRANCH_SURE, CLEF_BRANCH_SURE, CLEF_27B_BRANCH_SURE, BRANCHES, OFF_SCRIPT, ROUNDS };
@@ -11,9 +8,6 @@ export const UNSURE = "It's not clear how Michel would take that. Say it another
 export const OFF_SCRIPT_REPLY = "None of these fits. I'll write my own.";
 export const OFF_SCRIPT_HINT = "Type your reply in the box, then press Say it.";
 
-// Michel's line at each node. Copied from MICHEL_REPLIES in src/demos/03-branch.js, which the
-// server sends to Jev as context; a test keeps the two in step. The server's off_script node is
-// never reached here: an off-script reply doesn't take a round.
 export const OPENING = "That's not what we agreed. You always change the plan at the last minute.";
 export const FIRST = {
 	acknowledge: "I need to know what changed and how we will avoid another last-minute change.",
@@ -23,7 +17,6 @@ export const FIRST = {
 	pause: "All right. Let's take a break and come back to agree on the plan.",
 };
 
-// SECOND[node][branch]: Michel's answer to the second reply, given where the first one led.
 export const SECOND = {
 	acknowledge: {
 		acknowledge: "OK. If that's how changes will work, I can live with them. Let's write that down.",
@@ -62,7 +55,6 @@ export const SECOND = {
 	},
 };
 
-// What happens after Michel speaks, where the line alone doesn't show it.
 const AFTER = {
 	"attack:attack": "Michel leaves the meeting.",
 	"defend:attack": "Michel leaves the meeting.",
@@ -70,7 +62,6 @@ const AFTER = {
 	"defend:withdraw": "Michel says nothing for the rest of the meeting.",
 };
 
-// Example replies for each branch, written for the node the learner is at.
 export const EXAMPLES = {
 	opening: {
 		acknowledge: "You're right, I changed it late and didn't check with you first. I can see why that's frustrating.",
@@ -116,7 +107,6 @@ export const EXAMPLES = {
 	},
 };
 
-// The text box label for each node.
 const PROMPTS = {
 	opening: "Round 1 of 2. Reply to Michel.",
 	acknowledge: "Round 2 of 2. Reply to Michel.",
@@ -126,7 +116,6 @@ const PROMPTS = {
 	pause: "Round 2 of 2. After the break, you're back with Michel. Reply to him.",
 };
 
-// One line on what the reply did, in the course's terms.
 export const DEBRIEF = {
 	acknowledge: "You took up Michel's concern. If you haven't yet, name your part in the change and what you'll do next time.",
 	defend: "That was defensiveness. Your excuse puts the problem on someone else. Accept your part first.",
@@ -139,7 +128,6 @@ const RULE = `A typed reply takes a round only when its model picks one of the f
 
 const DID = { acknowledge: "took up his concern", defend: "defended yourself", attack: "hit back", withdraw: "stonewalled", pause: "asked for a time-out" };
 
-// The branch the model selects, or null when it is off-script or below its gate.
 export function readBranch(answer, sure = BRANCH_SURE, model) {
 	const threshold = model === "@cf/cloudflare/clef" || model === "@cf/cloudflare/clef-flash" ? confidenceGate(model) : sure;
 	if (!answer || !BRANCHES.includes(answer.choice) || !(answer.confidence >= threshold)) return null;
@@ -152,14 +140,12 @@ export function start() {
 
 export const isDone = (state) => state.path.length >= ROUNDS;
 
-// Moves to the chosen branch. The node sent to the server is the learner's previous branch.
 export function advance(state, branch) {
 	if (isDone(state)) throw new Error("The scenario is already over");
 	if (!BRANCHES.includes(branch)) throw new Error(`Unknown branch: ${branch}`);
 	return { node: branch, path: [...state.path, branch] };
 }
 
-// Michel's reply to the latest step.
 export function michelReply(state) {
 	const [first, second] = state.path;
 	return second ? SECOND[first][second] : FIRST[first];
@@ -167,10 +153,8 @@ export function michelReply(state) {
 
 export const examplesFor = (state) => BRANCHES.map((branch) => ({ branch, text: EXAMPLES[state.node][branch] }));
 
-// The clickable replies at a node: the five branches in random order, then the off-script reply.
 export const choicesFor = (state) => [...shuffle(examplesFor(state)), { branch: OFF_SCRIPT, text: OFF_SCRIPT_REPLY }];
 
-// What a clicked reply does. A branch moves on; off-script keeps the state and returns the nudge.
 export function choose(state, branch) {
 	if (branch === OFF_SCRIPT) return { state, nudge: [UNSURE, OFF_SCRIPT_HINT] };
 	return { state: advance(state, branch), nudge: null };

@@ -15,26 +15,19 @@ export function render(content, strings, { id, lang }) {
   const versions = /** @type {const} */ (['a', 'b']);
   const end = summary(content);
   const first = content.qualities[0];
-  /** One version as an email: a plain header line, then the body in a quote block. Body sentences
-   * come from `sentence`, given the text and its 1-based number; the greeting and sign-off are text.
-   * @param {'a' | 'b'} version @param {string} head @param {(text: string, n: number) => string} sentence @param {string} [attributes] */
+  /** @param {'a' | 'b'} version @param {string} head @param {(text: string, n: number) => string} sentence @param {string} [attributes] */
   const email = (version, head, sentence, attributes = '') => {
     const { subject, greeting, body, signoff } = content.versions[version];
     let n = 0;
     return `<div class="lp-which-is-better-email"${attributes}>${head}<p class="lp-which-is-better-subject"><span class="lp-which-is-better-field">${h(strings.subject)}</span> ${h(subject)}</p><div class="lp-quote lp-which-is-better-body"><p>${h(greeting)}</p>${body.map(paragraph => `<p>${paragraph.map(text => sentence(text, n += 1)).join(' ')}</p>`).join('')}<p>${h(signoff)}</p></div></div>`;
   };
   const plain = (/** @type {string} */ text) => h(text);
-  // Each body sentence is an inline toggle, as in Highlight the key passage, so the email reads as
-  // running text. After the check its result mark is inserted after it. Each email is a group named by its
-  // version, so a screen reader says which version focus has moved into.
   const chunk = (/** @type {'a' | 'b'} */ version) => (/** @type {string} */ text, /** @type {number} */ n) => `<span class="lp-which-is-better-chunk" role="button" tabindex="0" aria-pressed="false" data-lp-pick="${version}${n}">${h(text)}</span>`;
   const noted = end.paragraphs.flat();
   const annotated = (/** @type {string} */ text, /** @type {number} */ n) => {
     const { note } = noted[n - 1];
     return note ? `<mark>${h(text)}</mark><span class="lp-which-is-better-note"><span class="lp-visually-hidden">${h(strings.shows)} </span>${h(note)}</span>` : h(text);
   };
-  // The hidden comma gives screen readers a pause between the progress and the question. It belongs
-  // to the progress label, which is a block.
   return `<section class="lp lp-which-is-better" data-lp-pattern="which-is-better" lang="${html(lang)}">
   <h2 class="lp-heading">${h(content.title)}</h2>
   <p class="lp-context">${h(content.context)}</p>

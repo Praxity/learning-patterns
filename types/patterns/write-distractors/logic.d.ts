@@ -1,7 +1,5 @@
-/** Error keys let the host pick an authored translation. Count UTF-16 units after trim.
- * @param {unknown} text
- * @returns {{ ok: true, text: string } | { ok: false, error: 'emptyAnswer' | 'longAnswer' }}
- */
+/** @param {unknown} text
+ * @returns {{ ok: true, text: string } | { ok: false, error: 'emptyAnswer' | 'longAnswer' }} */
 export function validateAnswer(text: unknown): {
     ok: true;
     text: string;
@@ -9,19 +7,12 @@ export function validateAnswer(text: unknown): {
     ok: false;
     error: "emptyAnswer" | "longAnswer";
 };
-/** Key A belongs to the right answer; wrong options start at index 1.
- * @param {number} index @returns {string}
- */
+/** @param {number} index @returns {string} */
 export function optionKey(index: number): string;
-/** Validate plain authored content and its misconception references.
- * @param {unknown} content @returns {asserts content is Content}
- */
+/** @param {unknown} content @returns {asserts content is Content} */
 export function validateContent(content: unknown): asserts content is Content;
-/** Field errors use codes so every learner-facing message lives in strings.js.
- * Length is checked before normalization so whitespace consumes the option limit.
- * @param {Content} content @param {LearnerOption[]} options
- * @returns {{ ok: false, errors: FieldError[] } | { ok: true, options: LearnerOption[] }}
- */
+/** @param {Content} content @param {LearnerOption[]} options
+ * @returns {{ ok: false, errors: FieldError[] } | { ok: true, options: LearnerOption[] }} */
 export function validateOptions(content: Content, options: LearnerOption[]): {
     ok: false;
     errors: FieldError[];
@@ -31,30 +22,22 @@ export function validateOptions(content: Content, options: LearnerOption[]): {
 };
 /** @param {Content} content @param {AuthorOption | LearnerOption} option @returns {string} */
 export function targetOf(content: Content, option: AuthorOption | LearnerOption): string;
-/** Compare tags, never infer a misconception from the learner's answer text.
- * @param {Content} content @param {LearnerOption[]} options
- */
+/** @param {Content} content @param {LearnerOption[]} options */
 export function coverage(content: Content, options: LearnerOption[]): {
     targeted: string[];
     missed: string[];
     extra: string[];
     matches: boolean[];
 };
-/** Return comparison counts and labels; the host formats learner-facing text.
- * @param {Content} content @param {LearnerOption[]} options
- * @returns {{ authorTargeted: number, authorTotal: number, ownExtra: number, untargeted: string[] }}
- */
+/** @param {Content} content @param {LearnerOption[]} options
+ * @returns {{ authorTargeted: number, authorTotal: number, ownExtra: number, untargeted: string[] }} */
 export function coverageMessage(content: Content, options: LearnerOption[]): {
     authorTargeted: number;
     authorTotal: number;
     ownExtra: number;
     untargeted: string[];
 };
-/** Accept incomplete drafts; shown results must pass submission validation.
- * Drafts have no storage ceiling; the host owns its total storage budget.
- * Oversized options lose comparison results. Oversized answers keep their full text and options but return to the answer step.
- * @param {Content} content @param {unknown} value @returns {LearnerState | null}
- */
+/** @param {Content} content @param {unknown} value @returns {LearnerState | null} */
 export function validateState(content: Content, value: unknown): LearnerState | null;
 /** @typedef {{ id: string, label: string }} Misconception */
 /** @typedef {{ text: string, misconception: string }} AuthorOption */

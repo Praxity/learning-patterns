@@ -1,9 +1,6 @@
-// Contract data is independent of Playwright and shared by every binding.
 const apg = 'https://www.w3.org/WAI/ARIA/apg/patterns/radio/';
 const wcag = 'https://www.w3.org/TR/WCAG22/';
 
-// WebKit walks NodeTraversal::next/previous and returns at the document boundary.
-// It has no wrap path in RadioInputType::handleKeydownEvent (lines 126-170).
 export const webkitRadioArrows = {
   source: 'https://github.com/WebKit/WebKit/blob/67d931686f9e8cd74deeadd0da510cafd8686ba5/Source/WebCore/html/RadioInputType.cpp#L126-L170'
 };
@@ -27,12 +24,8 @@ export const radioGroupContract = [
     sources: [wcag + '#focus-visible'] }
 ];
 
-/** Full authored legend name, allowing layout whitespace beside its comma.
- * AccName 4.3.2 (Name From Content) discusses CSS-dependent joining:
- * https://www.w3.org/TR/accname-1.2/#computation-steps
- * @param {string} caption
- * @param {string} question
- */
+/** @param {string} caption
+ * @param {string} question */
 export function numberedLegendName(caption, question) {
   const words = text => text.trim().split(/\s+/).map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('\\s+');
   return new RegExp(`^${words(caption)}\\s*,\\s*${words(question)}$`);

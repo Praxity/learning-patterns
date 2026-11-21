@@ -46,7 +46,6 @@ test('the schema and the validator agree that blank prose is invalid', () => {
   ];
   for (const [path, node, set] of prose) {
     for (const blank of [' ', '\t ']) {
-      // minLength alone lets whitespace through, so the schema needs a non-space character as the validator does.
       assert.ok(blank.length >= node.minLength && !new RegExp(node.pattern).test(blank), `schema rejects blank ${path}`);
       assert.throws(() => validateContent(edited(c => set(c, blank))), new RegExp(path.replace(/[[\]]/g, '\\$&')));
     }
@@ -81,7 +80,6 @@ test('content takes three or four cases, each with a known answer and a differen
 });
 
 test('every principle is the answer to at least one case', () => {
-  // Case 1 is the only Agree case.
   assert.throws(() => validateContent(edited(c => { c.cases[0].correct = 'name'; })), /principle agree is the correct answer to no case/);
 });
 
@@ -101,7 +99,6 @@ test('feedback always gives the deciding fact, and the surface detail only after
   const [first] = en.cases;
   assert.deepEqual(feedback(en, 0, 'agree'), { right: true, correct: 'agree', looksLike: null, decides: first.decides });
   assert.deepEqual(feedback(en, 0, 'ask'), { right: false, correct: 'agree', looksLike: first.looksLike, decides: first.decides });
-  // Name the behaviour is wrong here but is not the lure, so the line about a question would not fit.
   assert.deepEqual(feedback(en, 0, 'name'), { right: false, correct: 'agree', looksLike: null, decides: first.decides });
   assert.throws(() => feedback(en, 4, 'name'), RangeError);
   assert.throws(() => feedback(en, 0, 'nobody'), /picks/);
@@ -117,7 +114,6 @@ test('score counts checked cases and knows when the activity is done', () => {
 
 test('mixed-up pairs ignore direction, count each pair and list the most frequent first', () => {
   assert.deepEqual(mixedPairs(en, ['agree', 'name', 'ask', 'name']), []);
-  // Ask for Agree, Agree for Name, Agree for Ask, Ask for Name.
   assert.deepEqual(mixedPairs(en, ['ask', 'agree', 'agree', 'ask']), [
     { first: 'ask', second: 'agree', count: 2 },
     { first: 'name', second: 'ask', count: 1 },
@@ -164,7 +160,6 @@ test('server HTML: every case, its rows with rules, hidden checks and answers wi
   assert.ok(markup.includes('&quot;From now on&quot; sounds like <em>Agree on the next action</em>.'));
   assert.match(markup, /<div class="lp-actions" data-lp-actions hidden>/);
   assert.match(markup, /<div class="lp-section" data-lp-result hidden>/);
-  // Only the last case has no Next button.
   assert.equal((markup.match(/data-lp-next/g) || []).length, 3);
   for (const idAttr of markup.matchAll(/ id="([^"]+)"/g)) assert.ok(idAttr[1].startsWith('sort-'), idAttr[1]);
 });
@@ -180,7 +175,6 @@ test('authored text is escaped, and the context is optional', () => {
 test('French renders with French typography', () => {
   const markup = render(fr, strings.fr, { id: 'fr', lang: 'fr' });
   assert.ok(markup.includes('Quel principe devez-vous appliquer maintenant\u202f?'));
-  // A question quoted in « » keeps its closing guillemet on the same line.
   assert.ok(markup.includes('qu’allez-vous changer\u202f?\u00a0»'));
   assert.ok(!/[?!;] »/.test(markup));
   assert.ok(markup.includes('Bonne réponse : Nommer le comportement.'));

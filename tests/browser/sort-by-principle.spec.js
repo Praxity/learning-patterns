@@ -28,13 +28,11 @@ const panel = (page, c) => page.locator('[data-lp-case]').nth(c);
 const axe = async page => (await new AxeBuilder({ page }).withTags(TAGS).analyze()).violations;
 const feedback = (page, c) => panel(page, c).locator('[data-lp-feedback]');
 
-/** Choose a principle and check the case, then wait for focus on its feedback. */
 async function answer(page, c, id) {
   await panel(page, c).locator(`input[value="${id}"]`).check();
   await panel(page, c).locator('[data-lp-check]').click();
   await expect(feedback(page, c)).toBeFocused();
 }
-/** Answer every case, moving on after each. */
 async function answerAll(page, picks) {
   for (const [c, id] of picks.entries()) {
     await answer(page, c, id);
@@ -58,10 +56,8 @@ test('keyboard journey: error, a miss, the lure, a hit, the result with mixed-up
   await expect(page.locator('[data-lp-case]:visible')).toHaveCount(1);
   await expect(panel(page, 0).locator('[data-lp-case-heading]')).toHaveText('Case 1 of 4');
   await expect(page.locator('[data-lp-fallback]:visible, [data-lp-result]:visible')).toHaveCount(0);
-  // Each row gives the principle's name, then its rule.
   await expect(panel(page, 0).getByRole('radio').nth(1)).toHaveAccessibleName(/^Ask an open question\s*\.\s+The facts are agreed, but the cause is not known\. Ask what got in the way\.$/);
 
-  // Checking with nothing chosen names the problem in the group and focuses its first option.
   await page.keyboard.press('Tab'); await expect(panel(page, 0).getByRole('radio').first()).toBeFocused();
   await page.keyboard.press('Tab'); await expect(panel(page, 0).locator('[data-lp-check]')).toBeFocused();
   await page.keyboard.press('Enter');
@@ -70,7 +66,6 @@ test('keyboard journey: error, a miss, the lure, a hit, the result with mixed-up
   await expect(panel(page, 0).locator('fieldset')).toHaveAttribute('aria-describedby', await error.getAttribute('id'));
   await expect(panel(page, 0).getByRole('radio').first()).toBeFocused();
 
-  // Case 1: Name the behaviour is wrong but not the lure, so only the deciding fact shows.
   await page.keyboard.press('Space');
   await expect(error).toBeHidden();
   await page.keyboard.press('Tab'); await page.keyboard.press('Enter');
@@ -84,14 +79,12 @@ test('keyboard journey: error, a miss, the lure, a hit, the result with mixed-up
   await expect(panel(page, 0).locator('[data-lp-check]')).toBeHidden();
   expect(await page.evaluate(() => window.lpSaved)).toEqual({ picks: ['name'] });
 
-  // Next case replaces this one and focus reads its heading.
   await page.keyboard.press('Tab'); await expect(panel(page, 0).locator('[data-lp-next]')).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(panel(page, 1).locator('[data-lp-case-heading]')).toBeFocused();
   await expect(panel(page, 1).locator('[data-lp-case-heading]')).toHaveText('Case 2 of 4');
   await expect(page.locator('[data-lp-case]:visible')).toHaveCount(1);
 
-  // Case 2: Agree is the lure, so the surface detail comes first, with the principle in italics.
   await page.keyboard.press('Tab'); await page.keyboard.press('Space');
   await page.keyboard.press('ArrowDown'); await page.keyboard.press('ArrowDown');
   await expect(panel(page, 1).locator('input[value="agree"]')).toBeChecked();
@@ -100,14 +93,12 @@ test('keyboard journey: error, a miss, the lure, a hit, the result with mixed-up
   await expect(feedback(page, 1)).toHaveText(`Incorrect. Correct answer: Name the behaviour. ${english.cases[1].looksLike} ${english.cases[1].decides}`);
   await expect(feedback(page, 1).locator('em')).toHaveText(['Agree on the next action']);
 
-  // Case 3: a hit still gives the deciding fact.
   await page.keyboard.press('Tab'); await page.keyboard.press('Enter');
   await answer(page, 2, 'ask');
   await expect(feedback(page, 2)).toHaveText(`Correct. ${english.cases[2].decides}`);
   await expect(panel(page, 2).locator('[data-lp-mark]')).toHaveCount(1);
   expect(await announcements(page)).toEqual([]);
 
-  // Case 4, the last: focus reads the feedback and the status region adds the result once.
   await panel(page, 2).locator('[data-lp-next]').click();
   await answer(page, 3, 'ask');
   const result = page.locator('[data-lp-result]');
@@ -120,7 +111,6 @@ test('keyboard journey: error, a miss, the lure, a hit, the result with mixed-up
   await expect(page.locator('[data-lp-next]:visible, [data-lp-check]:visible')).toHaveCount(0);
   await expectChoiceMarks(page);
 
-  // Start over is the next stop, and returns to the first case.
   await page.keyboard.press('Tab'); await expect(page.locator('[data-lp-restart]')).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(panel(page, 0).locator('[data-lp-case-heading]')).toBeFocused();
@@ -223,12 +213,10 @@ for (const path of ['/sort-by-principle/en.html', '/sort-by-principle/fr.html', 
 
 for (const lang of ['en', 'fr']) for (const textSpacing of [false, true]) {
   test(`400% reflow keeps every state inside the card (${lang}, text spacing ${textSpacing})`, async ({ page }) => {
-    // 320 CSS px represents reflow at 400% zoom from a 1280px viewport.
     await page.setViewportSize({ width: 320, height: 900 });
     await open(page, lang);
     if (textSpacing) await page.addStyleTag({ content: TEXT_SPACING });
     expect(await overflowing(page)).toEqual({ page: 0, clipped: [] });
-    // Misses show two marks and both feedback lines, the longest state of a case.
     await answerAll(page, ['ask', 'agree', 'agree', 'ask']);
     await expect(page.locator('[data-lp-result]')).toBeVisible();
     expect(await overflowing(page)).toEqual({ page: 0, clipped: [] });
@@ -239,7 +227,6 @@ test('the card is the only box: the case, feedback and result have no panel', as
   await open(page);
   await answerAll(page, ['ask', 'agree', 'agree', 'ask']);
   const boxed = await page.locator('[data-lp-pattern]').evaluate(root => [...root.querySelectorAll('*')]
-    // Choice rows and buttons are shared roles from lib/base.css; nothing else inside the card is filled or bordered.
     .filter(el => !el.closest('.lp-choice, .lp-button') && el.getClientRects().length
       && (getComputedStyle(el).backgroundColor !== 'rgba(0, 0, 0, 0)' || ['Top', 'Right', 'Bottom', 'Left'].filter(side => parseFloat(getComputedStyle(el)[`border${side}Width`]) > 0).length > 1))
     .map(el => el.className || el.localName));
@@ -263,7 +250,6 @@ test('a case change fades in, without sideways travel, and is instant under redu
 
 test('a checked case cannot be changed or checked twice', async ({ page }) => {
   await open(page);
-  // Mount with a state adapter that records every write.
   await page.evaluate(async content => {
     const { render } = await import('/patterns/sort-by-principle/render.js');
     const { enhance } = await import('/patterns/sort-by-principle/enhance.js');
@@ -274,7 +260,6 @@ test('a checked case cannot be changed or checked twice', async ({ page }) => {
     enhance(document.querySelector('[data-lp-pattern]'), { content, strings: strings.en, state: { read: () => undefined, write: value => window.lpWrites.push(value) } });
   }, english);
   await answer(page, 0, 'agree');
-  // Turn the locked controls back on and send the events a second submission would.
   await panel(page, 0).evaluate(panel => {
     const other = panel.querySelector('input[value="ask"]'), check = panel.querySelector('[data-lp-check]');
     other.disabled = false; other.checked = true; other.dispatchEvent(new Event('change', { bubbles: true }));
@@ -307,10 +292,8 @@ test('checking an answer at 1280px changes no row height and no line break', asy
   const rows = page.locator('[data-lp-case]').first().locator('.lp-choice');
   const measure = () => rows.evaluateAll(all => all.map(row => [Math.round(row.getBoundingClientRect().height * 10) / 10, row.querySelector('.lp-sort-by-principle-rule').getClientRects().length, Math.round(row.querySelector('.lp-sort-by-principle-rule').getBoundingClientRect().height)]));
   const before = await measure();
-  // A wrong pick marks two rows: Incorrect and Correct answer.
   await answer(page, 0, 'ask');
   expect(await measure()).toEqual(before);
-  // The mark shares the name's line, and the rule runs under it.
   const [name, mark, rule] = await rows.nth(1).evaluate(row => ['.lp-sort-by-principle-name', '.lp-choice-mark', '.lp-sort-by-principle-rule'].map(selector => row.querySelector(selector).getBoundingClientRect()).map(box => ({ top: box.top, bottom: box.bottom, right: box.right })));
   expect(mark.top).toBeLessThan(name.bottom);
   expect(rule.top).toBeGreaterThanOrEqual(mark.bottom - 1);
@@ -320,15 +303,12 @@ test('at 390px Next case shows the whole new case, heading to Check, without scr
   await page.setViewportSize({ width: 390, height: 844 });
   for (const lang of ['en', 'fr']) {
     await open(page, lang);
-    // A host page has content after the activity, so the browser does not clamp the scroll.
     await page.evaluate(() => { const after = document.createElement('div'); after.style.blockSize = '1500px'; document.querySelector('main').after(after); });
     for (const [c, id] of ['ask', 'agree', 'agree'].entries()) {
       await answer(page, c, id);
       await panel(page, c).locator('[data-lp-next]').click();
       const heading = panel(page, c + 1).locator('[data-lp-case-heading]');
       await expect(heading).toBeFocused();
-      // A case that fits where it lands stays put; one that doesn't is scrolled to the top. Either way
-      // the learner sees the heading, the case, every choice and Check.
       await expect.poll(() => heading.evaluate(el => el.getBoundingClientRect().top)).toBeGreaterThanOrEqual(0);
       await expect(panel(page, c + 1).locator('[data-lp-check]')).toBeInViewport({ ratio: 1 });
     }
@@ -340,14 +320,11 @@ test('at 390px a new case that does not fit where it lands is scrolled to the to
   await open(page, 'fr');
   await page.evaluate(() => { const after = document.createElement('div'); after.style.blockSize = '1500px'; document.querySelector('main').after(after); });
   await answer(page, 0, 'ask');
-  // With Next case at the top of the view, the new case would start above it.
   const next = panel(page, 0).locator('[data-lp-next]');
   await next.evaluate(button => window.scrollBy(0, button.getBoundingClientRect().top));
   await next.click();
   const heading = panel(page, 1).locator('[data-lp-case-heading]');
   await expect(heading).toBeFocused();
-  // The heading starts about 590px above the view and the scroll may be smooth, so wait for its top to
-  // settle inside the top 10% of the view; a value above the view must not pass.
   const top = () => heading.evaluate(el => el.getBoundingClientRect().top);
   await expect.poll(async () => { const value = await top(); return value >= 0 && value < 844 * 0.1; }, { message: 'heading top within 0 to 10% of the view' }).toBe(true);
   await expect(panel(page, 1).locator('[data-lp-check]')).toBeInViewport({ ratio: 1 });
@@ -438,11 +415,9 @@ test('enhance is idempotent and destroy restores the no-JavaScript view', async 
   await expect(page.locator('[role="status"]')).toHaveText('');
   for (const summary of await page.locator('summary').all()) await summary.click();
   expect(await axe(page)).toEqual([]);
-  // Enhancing again reads the saved answer and builds on the same markup.
   await page.evaluate(() => { window.lpInstances = [window.lpEnhance()]; });
   await expect(page.locator('[data-lp-case]:visible')).toHaveCount(1);
   await expect(panel(page, 1)).toBeVisible();
-  // The fallback disclosures stay open from before, but are hidden again.
   await expect(page.locator('details:visible')).toHaveCount(0);
   expect(await page.locator('[data-lp-pattern]').evaluate(root => root.querySelectorAll('*').length)).toBe(before);
 });

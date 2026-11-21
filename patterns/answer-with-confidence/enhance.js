@@ -50,10 +50,8 @@ export function enhance(root, { content, strings, state }) {
   });
   const lifetime = new AbortController();
   let destroyed = false;
-  // Prototype-free, so a question id such as "constructor" or "__proto__" is an ordinary key.
   /** @type {Record<string, string>} */
   let answers = Object.create(null);
-  // Whether the learner was sure lives here only. It is never written through the state adapter.
   /** @type {Record<string, import('./logic.js').Certainty>} */
   let certainties = Object.create(null);
   const text = (/** @type {string} */ value) => frenchTypography(value, root.lang);
@@ -65,15 +63,12 @@ export function enhance(root, { content, strings, state }) {
     fieldset.removeAttribute('aria-describedby');
     for (const radio of radios) radio.removeAttribute('aria-invalid');
   }
-  /** Mark the rows, swap the submit control for the chosen answer's feedback and lock the question.
-   * @param {typeof questions[number]} item @param {boolean} focus
-   */
+  /** @param {typeof questions[number]} item @param {boolean} focus */
   function show(item, focus) {
     const { q, section, stage, radios, rows, boxes } = item;
     const answer = answers[q.id];
     const outcome = feedback(content, q.id, answer, certainties[q.id]);
     radios.forEach((radio, n) => {
-      // "Don't know" is a way to submit, not an option, so it leaves no option chosen.
       radio.checked = radio.value === answer;
       if (radio.checked) markChoice(rows[n], outcome.result === 'right' ? 'correct' : 'wrong', strings, root.lang);
       else if (radio.value === q.correct) markChoice(rows[n], 'missed', strings, root.lang);
@@ -86,20 +81,16 @@ export function enhance(root, { content, strings, state }) {
     box.toggleAttribute('data-lp-shown', true);
     stage.toggleAttribute('data-lp-answered', true);
     clearError(item);
-    // The pressed button is about to go, so focus moves to the feedback that replaced it, which reads it once.
     if (focus) box.focus();
     item.unlock = lock(section, { focus: false });
   }
-  /** After the last answer: one sentence, then the questions where certainty and result disagreed.
-   * @param {boolean} announce
-   */
+  /** @param {boolean} announce */
   function finish(announce) {
     const outcome = summarize(content, answers, certainties);
     if (outcome.unanswered.length) return;
     const single = new Intl.PluralRules(/^fr(?:-|$)/i.test(root.lang) ? 'fr' : 'en').select(outcome.right.length) === 'one';
     const spoken = [text(format(single ? strings.summaryOne : strings.summaryMany, { right: outcome.right.length, total: outcome.total }))];
     summary.textContent = spoken[0];
-    // One question needs no summary: its feedback already says it all, so only Start over shows.
     const several = content.questions.length > 1;
     summary.hidden = !several;
     for (const { key, panel, heading, one, many } of reviews) {
@@ -140,7 +131,6 @@ export function enhance(root, { content, strings, state }) {
         item.message.hidden = false;
         item.fieldset.setAttribute('aria-describedby', item.message.id);
         for (const radio of item.radios) radio.setAttribute('aria-invalid', 'true');
-        // Focus on the first option reads the linked message once, so the status region stays silent.
         focusQuestion(item.fieldset);
         return;
       }
@@ -164,7 +154,6 @@ export function enhance(root, { content, strings, state }) {
   intro.hidden = false;
   for (const { stage } of questions) stage.hidden = false;
   if (saved) {
-    // Restored answers come back without certainty, so they show the plain result and no summary lists.
     Object.assign(answers, saved.answers);
     for (const item of questions) if (Object.hasOwn(answers, item.q.id)) show(item, false);
     finish(false);

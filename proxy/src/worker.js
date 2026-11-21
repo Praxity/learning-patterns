@@ -76,7 +76,6 @@ export default {
 
 function ipKey(ip, bits = 64) {
 	if (!ip.includes(":")) return bits === 48 ? `${ip.split('.').slice(0, 3).join('.')}.0/24` : ip;
-	// URL canonicalises compressed, uppercase and embedded-IPv4 IPv6 spellings.
 	const canonical = new URL(`http://[${ip}]/`).hostname.slice(1, -1);
 	const [left, right = []] = canonical.split("::").map(part => part ? part.split(":") : []);
 	const groups = canonical.includes("::") ? [...left, ...Array(8 - left.length - right.length).fill("0"), ...right] : left;
@@ -87,8 +86,6 @@ function ipKey(ip, bits = 64) {
 	return `${groups.slice(0, bits / 16).map(part => part.padStart(4, "0")).join(":")}::/${bits}`;
 }
 
-// Exported for tests. The client names a block and sends plain text fields; the questions
-// always come from the server, so the key can't be used for arbitrary prompts.
 export function buildRequest(body, provider = 'perplexity') {
 	if (typeof body !== "object" || body === null || Array.isArray(body)) return { error: "Body must be an object" };
 	if (typeof body.block !== "string" || !Object.hasOwn(blocks, body.block)) return { error: "Unknown block" };
@@ -110,7 +107,6 @@ export function buildRequest(body, provider = 'perplexity') {
 	}
 }
 
-// Local UI work without a key. Answers are fake and the page says so.
 function mockAnswers(questions) {
 	const answers = {};
 	for (const [id, q] of Object.entries(questions)) {

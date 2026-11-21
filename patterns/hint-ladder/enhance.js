@@ -69,8 +69,7 @@ export function enhance(root, { content, strings, state }) {
     fieldset.removeAttribute('aria-describedby');
     for (const radio of radios) radio.removeAttribute('aria-invalid');
   }
-  /** Nothing chosen: name the problem in the group and put focus on the first option still open.
-   * @param {ReturnType<typeof group>} part */
+  /** @param {ReturnType<typeof group>} part */
   function showError({ fieldset, radios, error }) {
     error.hidden = false;
     fieldset.setAttribute('aria-describedby', error.id);
@@ -79,30 +78,23 @@ export function enhance(root, { content, strings, state }) {
     radios.find(radio => !radio.disabled)?.focus();
   }
 
-  /** Draw the whole card from the state. Handlers change the state, call this, then move focus or announce. */
   function paint() {
     const now = progress(content, current), open = now.first === 'open';
     first.radios.forEach((radio, n) => {
       const tried = current.tries.includes(radio.value), correct = radio.value === content.correct;
-      // Mark only what the learner chose; a correct answer they did not choose is neutral.
       mark(first.rows[n], tried ? correct ? 'correct' : 'wrong' : !open && correct ? 'missed' : null);
       const reason = reasons[n];
       if (reason) reason.hidden = !tried;
-      // A checked wrong option closes, so every try is a new answer. The other options stay open:
-      // this is where the pattern leaves the library's one-attempt lock.
       if (open) { radio.disabled = tried; if (tried) radio.checked = false; }
       else radio.checked = tried && correct;
     });
     items.forEach((item, n) => { item.hidden = item === worked ? open : n >= current.opened; });
     steps.hidden = items.every(item => item.hidden);
     const lastTry = current.tries.at(-1) ?? '';
-    // Screen readers get the result of the last check before the worked answer; the marks show it.
-    // A learner who opened the worked answer checked nothing just before it, so it has no verdict.
     workedVerdict.textContent = now.first === 'solved' ? text(`${strings.markCorrect}. `)
       : now.first === 'shown' && current.opened <= content.hints.length
         ? text(`${strings.markWrong}. ${content.options.find(o => o.id === lastTry)?.feedback ?? ''} `) : '';
     if (open) hintLabel.textContent = text(now.next === 'worked' ? strings.showWorked : format(strings.showHint, { number: current.opened + 1, total: content.hints.length }));
-    // aria-disabled keeps the waiting button focusable, with the reason as its description.
     if (now.gated) { hint.setAttribute('aria-disabled', 'true'); hint.setAttribute('aria-describedby', gate.id); }
     else { hint.removeAttribute('aria-disabled'); hint.removeAttribute('aria-describedby'); }
     gate.hidden = !now.gated;
@@ -121,7 +113,6 @@ export function enhance(root, { content, strings, state }) {
     total.textContent = now.done ? text(summarize(content, current, strings)) : '';
     return now;
   }
-  /** The first question has just ended: focus reads the worked answer once and the next question opens. */
   function closeFirst() {
     worked.focus({ preventScroll: true });
     reveal(followUp.section);
@@ -143,13 +134,10 @@ export function enhance(root, { content, strings, state }) {
     if (progress(content, current).first !== 'open') return;
     const chosen = first.radios.find(radio => radio.checked && !radio.disabled);
     if (!chosen) { showError(first); return; }
-    // Safari does not focus a button on a pointer click, so focus may still be on the option this
-    // check is about to close. Put it on the button first.
     first.check.focus({ preventScroll: true });
     current = tryFirst(content, current, chosen.value);
     const now = paint();
     if (now.first === 'open') {
-      // Focus is on the button, so the status region carries this result.
       status.textContent = text(`${strings.markWrong}. ${content.options.find(o => o.id === chosen.value)?.feedback ?? ''}`);
       const reason = reasons[first.radios.indexOf(chosen)];
       if (reason) reveal(reason);
@@ -161,7 +149,6 @@ export function enhance(root, { content, strings, state }) {
     if (!before.next || before.gated) return;
     current = openHelp(content, current);
     if (paint().first === 'open') {
-      // Focus moves to the new hint, which reads it once and takes the pointer off the button.
       const opened = items[current.opened - 1];
       opened.focus({ preventScroll: true });
       reveal(opened);
@@ -176,7 +163,6 @@ export function enhance(root, { content, strings, state }) {
     if (!chosen) { showError(followUp); return; }
     current = tryFollowUp(content, current, chosen.value);
     paint();
-    // Focus reads this answer's feedback once. The status region adds only the closing sentence.
     feedback.focus({ preventScroll: true });
     reveal(result);
     status.textContent = total.textContent;
@@ -184,7 +170,6 @@ export function enhance(root, { content, strings, state }) {
   }, { signal: lifetime.signal });
   restart.addEventListener('click', () => {
     reset();
-    // Back to the top of the card: the title and context frame the first question.
     reveal(root);
     first.radios[0].focus({ preventScroll: true });
     status.textContent = text(strings.cleared);
@@ -202,7 +187,6 @@ export function enhance(root, { content, strings, state }) {
       lifetime.abort();
       reset();
       for (const button of [first.check, hint, followUp.check]) button.hidden = true;
-      // Without JavaScript both questions and their disclosures are on the page.
       followUp.section.hidden = false;
       for (const fallback of fallbacks) fallback.hidden = false;
       status.textContent = '';

@@ -325,7 +325,6 @@ for (const lang of ['en', 'fr']) {
           const track = element.parentElement.getBoundingClientRect();
           const diamond = element.getBoundingClientRect();
           const centre = diamond.left + diamond.width / 2;
-          // 1e12 is 80% of the logarithmic track from 1 to 1e15.
           return Math.abs(centre - (track.left + track.width * .8));
         });
         expect(distance).toBeLessThanOrEqual(1);
@@ -370,7 +369,6 @@ for (const lang of ['en', 'fr']) {
     await expect(band).toBeFocused();
     await page.mouse.move(x - track.width / 5, y, { steps: 6 });
     await page.mouse.up();
-    // Moving left by 20% of a fifteen-decade track moves the band down three decades.
     await expect(band).toHaveAttribute('aria-valuenow', '18');
     await band.press('Home');
     await expect(label).toHaveCSS('text-align', 'start');
@@ -406,14 +404,12 @@ test('checked host state restores silently, destroy restores fallback', async ({
   await page.goto('/estimate-magnitude/en.html');
   await expect(page.locator('[data-lp-result]')).toHaveText('Answers in your ranges: 3 of 3.');
   await expect(page.getByRole('status')).toHaveText('');
-  // Wait past lock's two-frame focus work before checking the restored page.
   await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(resolve)))));
   await expect(page.locator('body')).toBeFocused();
   await page.evaluate(async () => {
     const { enhance } = await import('/patterns/estimate-magnitude/enhance.js');
     const { strings } = await import('/patterns/estimate-magnitude/strings.js');
     const root = document.querySelector('[data-lp-pattern]');
-    // Repeated calls preserve the existing instance without reading another host's state.
     const existing = enhance(root, { content: {}, strings: strings.en });
     if (existing !== window.lpInstances[0]) throw new Error('Enhancement was not idempotent');
     existing.destroy(); existing.destroy();

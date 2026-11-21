@@ -41,7 +41,6 @@ export function validateContent(content) {
     fields(principle, ['id', 'name', 'rule'], path);
     text(principle.id, `${path}.id`); text(principle.name, `${path}.name`); text(principle.rule, `${path}.rule`);
     if (!/^[a-zA-Z0-9_-]+$/.test(principle.id) || ids.has(principle.id)) throw new Error(`Invalid ${path}.id`);
-    // The pair lines name principles, so two with one name could not be told apart.
     if (names.has(principle.name)) throw new Error(`Invalid ${path}.name: names must differ`);
     ids.add(principle.id); names.add(principle.name);
   });
@@ -56,7 +55,6 @@ export function validateContent(content) {
     if (!ids.has(item.lure) || item.lure === item.correct) throw new Error(`Invalid ${path}.lure: name a principle other than correct`);
     used.add(item.correct);
   });
-  // A principle that is never right teaches the learner never to pick it.
   for (const id of ids) if (!used.has(id)) throw new Error(`Invalid cases: principle ${id} is the correct answer to no case`);
 }
 
@@ -65,9 +63,7 @@ function principle(content, id) {
   return /** @type {Principle} */ (content.principles.find(item => item.id === id));
 }
 
-/** Validate checked cases at the host boundary: principle ids in case order.
- * @param {Content} content @param {unknown} picks @returns {asserts picks is string[]}
- */
+/** @param {Content} content @param {unknown} picks @returns {asserts picks is string[]} */
 function validatePicks(content, picks) {
   if (!Array.isArray(picks) || picks.length > content.cases.length) throw new Error('Invalid picks');
   picks.forEach((pick, index) => {
@@ -75,10 +71,7 @@ function validatePicks(content, picks) {
   });
 }
 
-/** What a learner reads after checking a case. The deciding fact always shows; the surface
- * detail shows only to a learner who picked the principle it points to, since it names that one.
- * @param {Content} content @param {number} index @param {string} pick @returns {Feedback}
- */
+/** @param {Content} content @param {number} index @param {string} pick @returns {Feedback} */
 export function feedback(content, index, pick) {
   validateContent(content);
   const item = content.cases[index];
@@ -95,10 +88,7 @@ export function score(content, picks) {
   return { results, right: results.filter(Boolean).length, total: content.cases.length, done: picks.length === content.cases.length };
 }
 
-/** The pairs of principles the learner mixed up: each miss pairs the pick with the correct
- * principle, in either direction. Most frequent first, then in principle order.
- * @param {Content} content @param {string[]} picks @returns {Pair[]}
- */
+/** @param {Content} content @param {string[]} picks @returns {Pair[]} */
 export function mixedPairs(content, picks) {
   validateContent(content);
   validatePicks(content, picks);
@@ -118,11 +108,8 @@ export function mixedPairs(content, picks) {
   return [...pairs.values()].sort((a, b) => b.count - a.count || rank(a) - rank(b));
 }
 
-/** Split feedback text so each principle name it quotes can be set in italics.
- * @param {Content} content @param {string} value @returns {Part[]}
- */
+/** @param {Content} content @param {string} value @returns {Part[]} */
 export function quoteParts(content, value) {
-  // Longest first, so a name that contains another is matched whole.
   const names = content.principles.map(item => item.name).sort((a, b) => b.length - a.length);
   /** @type {Part[]} */
   const parts = [];
@@ -142,23 +129,19 @@ export function quoteParts(content, value) {
   return parts;
 }
 
-/** The principle's display name. @param {Content} content @param {string} id */
+/** @param {Content} content @param {string} id */
 export function principleName(content, id) {
   return principle(content, id).name;
 }
 
-/** Ignore invalid saved values and copy valid state.
- * @param {Content} content @param {unknown} value @returns {LearnerState | null}
- */
+/** @param {Content} content @param {unknown} value @returns {LearnerState | null} */
 export function validateState(content, value) {
   if (!object(value) || Object.keys(value).some(key => key !== 'picks')) return null;
   try { validatePicks(content, value.picks); } catch { return null; }
   return { picks: [...value.picks] };
 }
 
-/** Replace authored placeholders in a single pass so inserted content stays literal.
- * @param {string} template @param {Record<string, string | number>} values
- */
+/** @param {string} template @param {Record<string, string | number>} values */
 export function format(template, values) {
   return template.replace(/\{(\w+)\}/g, (token, key) => Object.hasOwn(values, key) ? String(values[key]) : token);
 }

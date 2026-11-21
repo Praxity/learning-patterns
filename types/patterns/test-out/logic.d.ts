@@ -1,16 +1,12 @@
 /** @param {unknown} content @returns {asserts content is Content} */
 export function validateContent(content: unknown): asserts content is Content;
-/** A passed section credits prerequisites unless they were directly failed. The lowest numeric passed id wins ties.
- * @param {Section[]} sections @param {number[]} passed @param {boolean} [allowTestOut] @param {number[]} [failed]
- * @returns {{ rows: PlanRow[], skip: number }}
- */
+/** @param {Section[]} sections @param {number[]} passed @param {boolean} [allowTestOut] @param {number[]} [failed]
+ * @returns {{ rows: PlanRow[], skip: number }} */
 export function plan(sections: Section[], passed: number[], allowTestOut?: boolean, failed?: number[]): {
     rows: PlanRow[];
     skip: number;
 };
-/** All questions in a section must be right for a direct pass. Missing picks stay unanswered.
- * @param {Content} content @param {Record<string, string>} picks
- */
+/** @param {Content} content @param {Record<string, string>} picks */
 export function score(content: Content, picks: Record<string, string>): {
     rows: PlanRow[];
     skip: number;
@@ -22,9 +18,7 @@ export function score(content: Content, picks: Record<string, string>): {
 };
 /** @param {Content} content @param {unknown} value @returns {LearnerState | null} */
 export function validateState(content: Content, value: unknown): LearnerState | null;
-/** Replace placeholders once so inserted values stay literal.
- * @param {string} template @param {Record<string, string | number>} values
- */
+/** @param {string} template @param {Record<string, string | number>} values */
 export function format(template: string, values: Record<string, string | number>): string;
 export type Section = {
     id: number;

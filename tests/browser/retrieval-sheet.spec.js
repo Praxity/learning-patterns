@@ -7,7 +7,6 @@ const english = JSON.parse(await readFile(new URL('../../patterns/retrieval-shee
 const french = JSON.parse(await readFile(new URL('../../patterns/retrieval-sheet/examples/fr.json', import.meta.url)));
 const root = page => page.locator('[data-lp-pattern="retrieval-sheet"]').first();
 const side = (page, value) => root(page).locator(`[data-lp-side="${value}"]`);
-// Name computation may put a space before the hidden comma, because the date span is a block.
 const named = (label, date) => new RegExp(String.raw`^${label}\s?, ${date.replaceAll('.', String.raw`\.`)}$`);
 const scan = async page => expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()).violations).toEqual([]);
 
@@ -121,7 +120,6 @@ test('tab selection and panel switch finish before focus with no later selection
     window.lpTabObserver = new MutationObserver(records => window.lpTabMutations.push(...records.map(record => record.attributeName)));
     window.lpTabObserver.observe(document.querySelector('[data-lp-tabs]'), { attributes: true, subtree: true, attributeFilter: ['aria-selected', 'tabindex'] });
     document.querySelector('[data-lp-tabs]').addEventListener('focus', event => {
-      // Discard selection changes that finished before this focus event.
       window.lpTabObserver.takeRecords();
       const tab = event.target;
       const panel = document.getElementById(tab.getAttribute('aria-controls'));
@@ -203,7 +201,6 @@ for (const [lang, message] of [['en', 'Choose a valid date.'], ['fr', 'Choisisse
       await date.focus();
     }
     await expect(root(page).locator('[data-lp-date-error]')).toHaveText(message);
-    // Recover to the last valid date, then enter the invalid state again.
     await date.evaluate(el => { el.value = '2026-10-13'; el.dispatchEvent(new Event('change', { bubbles: true })); });
     await expect(date).not.toHaveAttribute('aria-describedby');
     await date.evaluate(el => { el.value = ''; el.dispatchEvent(new Event('change', { bubbles: true })); });
@@ -239,7 +236,6 @@ test('typing a year digit by digit changes nothing until it has four digits, the
   const date = root(page).locator('[data-lp-date]');
   await date.focus();
   await page.evaluate(() => { window.lpAnnouncements = []; });
-  // Chrome reports each partial year as a valid date value while the year is typed.
   for (const value of ['0002-11-09', '0020-11-09', '0202-11-09']) {
     await date.evaluate((el, value) => { el.value = value; el.dispatchEvent(new Event('change', { bubbles: true })); }, value);
     await expect(root(page).locator('time').first()).toHaveAttribute('datetime', '2026-10-13');
@@ -249,7 +245,6 @@ test('typing a year digit by digit changes nothing until it has four digits, the
   await date.evaluate(el => { el.value = '2027-11-09'; el.dispatchEvent(new Event('change', { bubbles: true })); });
   await expect(root(page).locator('time')).toHaveText(['November 9, 2027', 'November 9, 2027']);
   expect(await page.evaluate(() => window.lpAnnouncements.filter(Boolean))).toEqual(['Test yourself on November 9, 2027.']);
-  // Leaving the field with a partial year shows the error once.
   await date.evaluate(el => { el.value = '0202-11-09'; el.dispatchEvent(new Event('change', { bubbles: true })); });
   await root(page).getByRole('tab').first().focus();
   await expect(date).toHaveAttribute('aria-invalid', 'true');
@@ -429,12 +424,10 @@ for (const lang of ['en', 'fr']) {
     for (const value of ['front', 'back']) {
       await root(page).locator(`[data-lp-tab="${value}"]`).click();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-      // Visually hidden text is clipped on purpose; Firefox counts it as overflow of its parent, so measure without it.
       expect(await root(page).evaluate(el => {
         const hidden = [...el.querySelectorAll('.lp-visually-hidden')];
         for (const node of hidden) node.style.setProperty('display', 'none', 'important');
         const clipped = [...el.querySelectorAll('p, button, h2, h3, time, legend, label, .lp-choice span')]
-          // clientWidth is 0 for inline boxes, so only non-inline boxes can report clipping.
           .filter(el => el.getClientRects().length && !el.matches('[role="status"]') && getComputedStyle(el).display !== 'inline')
           .filter(el => el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1).map(el => el.textContent);
         for (const node of hidden) node.style.removeProperty('display');

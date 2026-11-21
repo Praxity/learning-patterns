@@ -53,10 +53,8 @@ export function render(content, strings, { id, lang }) {
 </section>`;
 }
 
-/** Decorative progress ring. The adjacent authored text carries the count.
- * @param {number} count @param {number} total @param {number} [size]
- * @returns {string}
- */
+/** @param {number} count @param {number} total @param {number} [size]
+ * @returns {string} */
 export function ring(count, total, size = 44) {
   const radius = (size - 6) / 2;
   const circumference = 2 * Math.PI * radius;

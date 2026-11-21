@@ -10,9 +10,7 @@ import { validateContent } from './logic.js';
 export function render(content, strings, { id, lang }) {
   validateContent(content);
   const h = (/** @type {string} */ text) => html(text, lang);
-  /** One payment: its record, its status line, Approve and Hold, its recovery steps and, for the
-   * request, what approving does and how to recover behind closed disclosures for readers without JavaScript.
-   * @param {import('./logic.js').Request | import('./logic.js').Colleague} item @param {number} n */
+  /** @param {import('./logic.js').Request | import('./logic.js').Colleague} item @param {number} n */
   const payment = (item, n) => {
     const request = n === 0, key = `${id}-${request ? 'request' : 'colleague'}`;
     return `<section class="lp-section lp-stack" aria-labelledby="${html(`${key}-title`)}" data-lp-item="${n}"${request ? '' : ' data-lp-colleague hidden'}>

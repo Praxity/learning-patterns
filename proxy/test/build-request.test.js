@@ -21,7 +21,7 @@ test("builds server-side questions for a valid request", () => {
 test("every built demo has a matching id and valid question types", () => {
 	for (const [id, demo] of Object.entries(demos)) {
 		assert.equal(demo.id, id);
-		if (!Object.keys(demo.fields).length) continue; // stub
+		if (!Object.keys(demo.fields).length) continue;
 		const input = Object.fromEntries(Object.keys(demo.fields).map((k) => [k, demo.sample?.[k] ?? "sample text"]));
 		const { questions } = demo.build(input);
 		for (const [qid, q] of Object.entries(questions)) {

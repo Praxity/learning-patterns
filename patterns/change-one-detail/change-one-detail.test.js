@@ -56,12 +56,10 @@ test('a case takes one to three changes', () => {
 
 test('each change names wording that appears exactly once in the case and replaces it', () => {
   assert.throws(() => validateContent(edited(c => { c.changes[0].from = 'That is my address.'; })), /changes\[0\]\.from/);
-  // "a" appears many times, so the place would be a guess.
   assert.throws(() => validateContent(edited(c => { c.changes[0].from = 'a'; })), /changes\[0\]\.from/);
   assert.throws(() => validateContent(edited(c => { c.changes[0].to = c.changes[0].from; })), /changes\[0\]\.to/);
 });
 
-// The shared limit test cannot lengthen from alone, since it must still appear in the case.
 test('the wording to replace is capped at 120 characters when the case holds it', () => {
   const long = length => edited(c => {
     const from = 'x'.repeat(length);
@@ -89,7 +87,6 @@ test('rounds start with the case, then apply each change to the first case alone
     { kind: 'same', text: ' There is a $40 charge I don\'t recognize.' }
   ]);
   assert.equal(all[1].moves, true);
-  // The second change leaves the first one out: the name is the customer's own again.
   assert.equal(all[2].parts.map(part => part.kind === 'before' ? '' : part.text).join(''), 'My invoice page shows a bill for Dana Okafor, card ending 4411. That is my name. There is a $400 charge I don\'t recognize.');
   assert.equal(all[2].moves, false);
   assert.equal(all[2].correct, 'billing');
@@ -128,7 +125,6 @@ test('format replaces placeholders once and leaves inserted text literal', () =>
 });
 
 for (const [lang, content] of [['en', en], ['fr', fr]]) {
-  // What the renderer does to plain text: French no-break spaces and escaped apostrophes.
   const text = value => (lang === 'fr' ? value.replace(/ (?=[:$])/g, '\u00a0') : value).replaceAll("'", '&#39;');
   test(`server HTML shows the first case and keeps later rounds hidden until enhanced (${lang})`, () => {
     const output = render(content, strings[lang], { id: 'route', lang });
@@ -137,18 +133,15 @@ for (const [lang, content] of [['en', en], ['fr', fr]]) {
     assert.match(output, /<p class="lp-visually-hidden" role="status" aria-atomic="true"><\/p>/);
     assert.equal((output.match(/<div class="lp-stack" data-lp-round>/g) ?? []).length, 1);
     assert.equal((output.match(/<div class="lp-section" data-lp-round hidden>/g) ?? []).length, 2);
-    // Title first, then the context, then the case, then the question as the legend.
     const order = ['<h2 class="lp-heading">', '<p class="lp-context">', '<p class="lp-quote lp-change-one-detail-case">', '<legend class="lp-stem">'].map(marker => output.indexOf(marker));
     assert.deepEqual(order, [...order].sort((a, b) => a - b));
     assert.ok(order.every(at => at >= 0));
-    // Three rounds of three options; ids carry the instance prefix and never repeat.
     const ids = [...output.matchAll(/ id="([^"]+)"/g)].map(match => match[1]);
     assert.equal(ids.length, 3 * (1 + 3 + 1));
     assert.equal(new Set(ids).size, ids.length);
     assert.ok(ids.every(id => id.startsWith('route-')));
     assert.equal((output.match(/<input type="radio"/g) ?? []).length, 9);
     assert.equal((output.match(/data-lp-check hidden/g) ?? []).length, 3);
-    // Start over sits inside the hidden summary, so it comes into view with it.
     assert.match(output, /data-lp-result hidden>(?:(?!data-lp-result)[^])*data-lp-restart>/);
     assert.doesNotMatch(output, /data-lp-restart[^>]*hidden/);
     assert.equal((output.match(/data-lp-feedback hidden/g) ?? []).length, 3);
@@ -160,10 +153,8 @@ for (const [lang, content] of [['en', en], ['fr', fr]]) {
     const before = lang === 'fr' ? 'Avant\u00a0:' : 'Before:', now = lang === 'fr' ? 'Maintenant\u00a0:' : 'Now:';
     for (const change of [first, second]) {
       const marked = `<del><span class="lp-visually-hidden">${before} </span>${text(change.from)}</del> <ins><span class="lp-visually-hidden">${now} </span>${text(change.to)}</ins>`;
-      // Once in its hidden round and once in the no-JavaScript list.
       assert.equal(output.split(marked).length, 3, marked);
     }
-    // The first case itself carries no change marks.
     const firstCase = output.slice(output.indexOf('<p class="lp-quote'), output.indexOf('</p>', output.indexOf('<p class="lp-quote')));
     assert.doesNotMatch(firstCase, /<del|<ins/);
     assert.equal((output.match(new RegExp(strings[lang].changeFirst, 'g')) ?? []).length, 2);
@@ -203,7 +194,6 @@ test('the reminder that the rest matches the start shows from the second change 
     const content = lang === 'en' ? en : fr;
     const output = render(content, strings[lang], { id: 'route', lang });
     const same = `<p class="lp-small">${strings[lang].same}</p>`;
-    // The second change appears once in its round and once in the no-JavaScript list; the first change never carries it.
     assert.equal(output.split(same).length - 1, 2);
     const firstChange = output.slice(output.indexOf(strings[lang].changeFirst), output.indexOf(strings[lang].changeNext));
     assert.ok(!firstChange.includes(same));
@@ -233,6 +223,5 @@ test('the pattern stylesheet shows the change without colour alone', async () =>
   assert.match(css, /\.lp-change-one-detail-case del \{[^}]*text-decoration: line-through/);
   assert.match(css, /\.lp-change-one-detail-case ins \{[^}]*font-weight: 600/);
   assert.match(css, /forced-colors: active[^]*\.lp-change-one-detail-case ins \{[^}]*text-decoration: underline/);
-  // Class names stay inside the pattern's prefix.
   for (const [, name] of css.matchAll(/\.(lp-[a-z-]+)/g)) assert.ok(name.startsWith('lp-change-one-detail') || ['lp-button-quiet'].includes(name), name);
 });

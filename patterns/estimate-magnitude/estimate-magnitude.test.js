@@ -145,7 +145,6 @@ test('render anchors range labels at the band midpoint', () => {
   const output = render(value, strings.en, { id: 'centre', lang: 'en' });
   const labels = [...output.matchAll(/data-lp-value style="([^"]+)"/g)];
   assert.equal(labels.length, 3);
-  // The starting band is 1e6 to 1e9, at 40% to 60% on the 1 to 1e15 track.
   for (const [, style] of labels) assert.equal(style, '--lp-estimate-magnitude-at:50;text-align:start');
 });
 

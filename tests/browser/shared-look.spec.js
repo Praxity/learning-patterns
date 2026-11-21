@@ -1,10 +1,7 @@
 import { test, expect } from '@playwright/test';
 
-// Shared look (lib/base.css) under a host page like praxity.io: headings in a display face, no
-// font synthesis and no italic face loaded.
 const HOST = 'h1, h2, h3 { font-family: Georgia, serif; } html { font-synthesis: none; }';
 
-// Conversation's role is scenario content: it changes what a good reply is.
 const HEADER_EXCEPTIONS = { conversation: '.lp-scene-sub' };
 
 test('shared small text, errors and hidden text use the accessibility defaults', async ({ page }) => {
@@ -36,7 +33,6 @@ async function checkHeader(page, name) {
     const extra = [];
     while (walker.nextNode()) {
       const node = walker.currentNode;
-      // Decorative icons and conversation's avatar are hidden from the reading order.
       if (node.textContent.trim() && !node.parentElement.closest('[aria-hidden="true"]') && !allowed.some(element => element.contains(node))) extra.push(node.textContent.trim());
     }
     return extra;
@@ -113,7 +109,6 @@ test('the select arrow is drawn 14px inside the border', async ({ page }) => {
 
 test('an invalid select keeps room for the drawn arrow', async ({ page }) => {
   await open(page, '/write-distractors/en.html');
-  // The 2px error border takes 1px of the 40px end padding, as the choice rows do.
   expect(await page.locator('select.lp-input').first().evaluate(el => { el.setAttribute('aria-invalid', 'true'); return getComputedStyle(el).paddingRight; })).toBe('39px');
 });
 
@@ -125,7 +120,6 @@ test('forced colours bring back the native select arrow', async ({ page, browser
 });
 
 test('a locked choice row shows no hover or pointer', async ({ page }) => {
-  // Reduced motion removes the colour transition, so styles read straight after the hover are final.
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await open(page, '/dont-know/en.html');
   for (const [index, value] of ['car-repair', 'no-interest', 'dont-know'].entries()) await page.locator('fieldset').nth(index).locator(`input[value="${value}"]`).check();
@@ -133,7 +127,6 @@ test('a locked choice row shows no hover or pointer', async ({ page }) => {
   const row = page.locator('fieldset').first().locator('label:has(input[value="booked-vacation"])');
   await row.hover();
   expect(await row.evaluate(el => [getComputedStyle(el).backgroundColor, getComputedStyle(el).borderTopColor, getComputedStyle(el).cursor, getComputedStyle(el.querySelector('input')).cursor])).toEqual(['rgb(255, 255, 255)', 'rgb(213, 217, 223)', 'default', 'default']);
-  // A locked row the learner chose, with no mark ("I don't know"), keeps its selection under the pointer.
   const chosen = page.locator('fieldset').nth(2).locator('label:has(input[value="dont-know"])');
   await chosen.hover();
   expect(await chosen.evaluate(el => [getComputedStyle(el).backgroundColor, getComputedStyle(el).borderTopColor])).toEqual(['rgb(238, 242, 253)', 'rgb(44, 85, 201)']);
@@ -188,7 +181,6 @@ for (const name of ['draw-your-guess', 'estimate-magnitude', 'prolific-questions
           };
         }, name);
         if (forced === 'active') expect(layout.headingColor).toBe(layout.canvasText);
-        // A title over several questions is the largest text; its questions step down to 19px.
         expect(layout.leadSize).toBe(21);
         expect(layout.questionSize).toBe(multi.includes(name) ? 19 : 21);
         expect(layout.questionSize).toBeGreaterThan(layout.contextSize);

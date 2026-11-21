@@ -205,7 +205,6 @@ for (const disabledFirst of [false, true]) {
       if (disabledFirst) {
         action.focus();
         action.disabled = true;
-        // Explicit blur also covers engines that retain focus on a disabled button.
         action.blur();
       }
       const wasBody = document.activeElement === document.body;
@@ -446,7 +445,6 @@ for (const [motion, behavior] of [['reduce', 'instant'], ['no-preference', 'smoo
       const { reveal } = await import('/lib/reveal.js');
       const feedback = document.querySelector('#feedback'), calls = [];
       feedback.scrollIntoView = options => calls.push(options);
-      // Top is behind scroll padding; bottom and horizontal edges are partly off screen.
       for (const position of [{ top: '60px', left: '100px' }, { top: '580px', left: '100px' }, { top: '100px', left: '-20px' }, { top: '100px', left: '780px' }]) {
         Object.assign(feedback.style, position);
         feedback.hidden = true;

@@ -23,7 +23,6 @@ export function validateContent(content) {
   fields(content, ['kind', 'prompt', 'course', 'entries', 'seeds'], 'content');
   if (content.kind !== 'faq' && content.kind !== 'sections') throw new Error('Invalid kind');
   if (!text(content.prompt, 400)) throw new Error('Invalid prompt');
-  // {course} in the prompt renders the course name in italics, so a prompt that uses it needs the name.
   if (content.course !== undefined && !text(content.course, 120)) throw new Error('Invalid course');
   if (content.prompt.includes('{course}') && content.course === undefined) throw new Error('Invalid prompt');
   const ids = content.kind === 'faq' ? FAQ_IDS : SECTION_IDS;
@@ -57,9 +56,7 @@ export function lookup(content, answers) {
   return result.ids.map(id => /** @type {Entry} */ (content.entries.find(entry => entry.id === id)));
 }
 
-/** Only learner questions are stored; authored examples stay in content.
- * @param {unknown} value @returns {LearnerState | null}
- */
+/** @param {unknown} value @returns {LearnerState | null} */
 export function validateState(value) {
   if (!object(value) || Object.keys(value).some(key => key !== 'questions') || !Array.isArray(value.questions) || value.questions.length > BANK_LIMIT || value.questions.some(q => !text(q) || q.length > QUESTION_LIMIT || q !== q.trim()) || new Set(value.questions).size !== value.questions.length) return null;
   return { questions: [...value.questions] };

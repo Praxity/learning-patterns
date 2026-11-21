@@ -59,7 +59,6 @@ export function enhance(root, { content, strings, state }) {
     field.removeAttribute('aria-invalid');
     field.removeAttribute('aria-describedby');
   }
-  /** The field's linked error is read when focus returns to it, so nothing is announced. */
   function feedbackOk() {
     const checked = validateFeedback(field.value);
     if (checked.ok) return true;
@@ -88,7 +87,6 @@ export function enhance(root, { content, strings, state }) {
     stage = 'compare';
     paint(); save();
     reveal(ticks);
-    // Focus reads the legend and the first issue, so the status region stays quiet.
     boxes[0].focus();
   });
   listen(show, 'click', () => {
@@ -97,7 +95,6 @@ export function enhance(root, { content, strings, state }) {
     clearError();
     paint(); save();
     reveal(resultBox);
-    // The result sentence is read through focus, before lock() could pick the field or Start over.
     summary.focus({ preventScroll: true });
     unlock = lock(root);
   });

@@ -38,9 +38,7 @@ export function validateContent(content) {
   });
 }
 
-/** Each band starts at a stop and reaches the furthest stop within the ratio.
- * @param {number[]} stops @param {number} [ratio] @returns {[number, number][]}
- */
+/** @param {number[]} stops @param {number} [ratio] @returns {[number, number][]} */
 export function bandsFor(stops, ratio = DEFAULT_RATIO) {
   if (!RATIOS.includes(ratio)) throw new Error('Invalid ratio: expected 10, 100 or 1000');
   /** @type {[number, number][]} */
@@ -54,9 +52,7 @@ export function bandsFor(stops, ratio = DEFAULT_RATIO) {
   return bands;
 }
 
-/** Integer stops at 1 and 5 in each power of ten. Every generated band spans the ratio.
- * @param {Content} content
- */
+/** @param {Content} content */
 export function scaleFor(content) {
   validateContent(content);
   const ratio = content.ratio ?? DEFAULT_RATIO;
@@ -69,13 +65,10 @@ export function scaleFor(content) {
     }
   }
   const bands = bandsFor(stops, ratio);
-  // Start in the middle; require a deliberate setting so the start is not taken as a hint.
   return { stops, bands, start: Math.floor((bands.length - 1) / 2), ratio };
 }
 
-/** Log positions keep every band the same width, including between 1 and 5.
- * @param {number} value @param {number[]} stops @returns {number} Percentage along the scale.
- */
+/** @param {number} value @param {number[]} stops @returns {number} Percentage along the scale. */
 export function positionOf(value, stops) {
   return Math.log(value / stops[0]) / Math.log(stops[stops.length - 1] / stops[0]) * 100;
 }
@@ -92,9 +85,7 @@ export function score(content, ranges) {
   return { count: items.filter(item => item.relation === 'inside').length, total: items.length, items };
 }
 
-/** Ignore invalid host state and return independent arrays for valid state.
- * @param {Content} content @param {unknown} value @returns {LearnerState | null}
- */
+/** @param {Content} content @param {unknown} value @returns {LearnerState | null} */
 export function validateState(content, value) {
   const { bands, start } = scaleFor(content);
   if (!object(value) || typeof value.shown !== 'boolean' || !Array.isArray(value.ranges) || !Array.isArray(value.touched)) return null;

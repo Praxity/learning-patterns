@@ -170,7 +170,7 @@ test("calls starting at the daily budget are refused, including after uncertain 
 	assert.equal(blocked.status, 429);
 	assert.equal((await blocked.json()).reason, "budget");
 	assert.equal(s.calls.model, 1);
-	assert.equal((await s.ask()).status, 200); // Saved results survive exhausted budgets.
+	assert.equal((await s.ask()).status, 200);
 	s.advance(86_400_000);
 	s.calls.fail = true;
 	assert.equal((await s.ask({ answer: "timeout" })).status, 502);
@@ -901,7 +901,6 @@ test('streamed JSON decodes UTF-8 characters split across chunks at the exact bo
   } });
   assert.equal((await s.ask({ body })).status, 200);
   assert.equal(s.calls.model, 1);
-  // A character split across chunks must reach the model intact, not as two U+FFFD.
   assert.ok(s.calls.modelBody.includes('é漢'), 'learner text corrupted before the model call');
 });
 

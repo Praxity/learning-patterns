@@ -11,8 +11,6 @@ export const strings = {
     markCorrect: 'Correct',
     markWrong: 'Incorrect',
     markAnswer: 'Correct answer',
-    // Deprecated: kept for hosts that read the old keys (Praxity Studio). Use markCorrect for
-    // correctKey and correctEvidence, markWrong for wrongKey and wrongEvidence, markAnswer for missed.
     correctKey: 'Correct',
     correctEvidence: 'Correct',
     wrongKey: 'Incorrect',
@@ -33,8 +31,6 @@ export const strings = {
     markCorrect: 'Correct',
     markWrong: 'Incorrect',
     markAnswer: 'Bonne réponse',
-    // Deprecated: kept for hosts that read the old keys (Praxity Studio). Use markCorrect for
-    // correctKey and correctEvidence, markWrong for wrongKey and wrongEvidence, markAnswer for missed.
     correctKey: 'Correct',
     correctEvidence: 'Correct',
     wrongKey: 'Incorrect',

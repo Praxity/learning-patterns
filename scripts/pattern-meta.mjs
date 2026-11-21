@@ -1,5 +1,3 @@
-// Each pattern README starts with flat front matter. It owns the facts the index and the
-// praxity.io cards show: titles, one-line summary, section, and the three facets.
 export const SECTIONS = ['question', 'reading', 'conversation', 'course', 'authors'];
 const YES_NO = ['yes', 'no'];
 const REQUIRED = {
@@ -12,14 +10,9 @@ const REQUIRED = {
   learners: ['not tried', 'tried']
 };
 
-/**
- * Reads one front matter value the way YAML does. GitHub and site builds parse this front
- * matter as YAML, so a value YAML would misread or reject fails here.
- * ponytail: covers one-line quoted and plain scalars only; use a YAML parser if front matter grows.
- * @param {string} name
+/** @param {string} name
  * @param {string} key
- * @param {string} value
- */
+ * @param {string} value */
 function scalar(name, key, value) {
   if (/^'(?:[^']|'')*'$/.test(value)) return value.slice(1, -1).replaceAll("''", "'");
   if (/^"(?:[^"\\]|\\.)*"$/.test(value)) return JSON.parse(value);

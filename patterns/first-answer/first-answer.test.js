@@ -12,7 +12,6 @@ const FIRST = '2026-10-06T09:05:00.000Z';
 const END = '2026-10-07T09:40:00.000Z';
 const initial = { first: null, now: null, checks: { specific: false, behaviour: false, view: false } };
 
-// Mirror only the schema keywords used here, including the identity annotation.
 function matches(value, rule) {
   if (rule.type === 'object') {
     if (!value || typeof value !== 'object' || Array.isArray(value)) return false;

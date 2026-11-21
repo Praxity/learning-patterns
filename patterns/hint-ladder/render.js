@@ -12,8 +12,7 @@ export function render(content, strings, { id, lang }) {
   const { hints, followUp } = content;
   const hintLabel = (/** @type {number} */ n) => h(format(strings.hintLabel, { number: n + 1, total: hints.length }));
   const answer = (/** @type {{ id: string, text: string }[]} */ options, /** @type {string} */ correct) => h(format(strings.correct, { option: options.find(o => o.id === correct)?.text ?? '' }));
-  /** One question group. A wrong option on the first question carries its reason, closed until that option is checked.
-   * @param {string} group @param {string} question @param {import('./logic.js').Option[]} options @param {string} [more] */
+  /** @param {string} group @param {string} question @param {import('./logic.js').Option[]} options @param {string} [more] */
   const question = (group, question, options, more = '') => `<fieldset class="lp-choices" id="${html(`${id}-${group}`)}">
       <legend class="lp-stem">${h(question)}</legend>
       ${options.map((o, n) => `<label class="lp-choice" for="${html(`${id}-${group}-option-${n}`)}"><input type="radio" id="${html(`${id}-${group}-option-${n}`)}" name="${html(`${id}-${group}`)}" value="${html(o.id)}"><span>${h(o.text)}</span>${o.feedback ? `<span class="lp-hint-ladder-reason" data-lp-reason hidden>${h(o.feedback)}</span>` : ''}</label>`).join('\n      ')}

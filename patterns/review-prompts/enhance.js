@@ -21,7 +21,6 @@ export function enhance(root, { content, strings, state }) {
   const progress = /** @type {HTMLElement} */ (required(root, '[data-lp-progress]'));
   const sections = [...root.querySelectorAll('[data-lp-part]')];
   if (sections.length !== content.parts.length) throw new Error('Invalid review-prompts markup: parts');
-  // Validate every part before changing markup or attaching any listeners.
   const blocks = sections.map((section, index) => {
     const part = content.parts[index];
     if (!part || section.getAttribute('data-lp-part') !== part.id) throw new Error('Invalid review-prompts markup: part identity');
@@ -36,7 +35,6 @@ export function enhance(root, { content, strings, state }) {
     if (buttons.length !== 2 || buttons[0]?.dataset.lpResult !== 'remembered' || buttons[1]?.dataset.lpResult !== 'forgot') throw new Error('Invalid review-prompts markup: result buttons');
     return { part, details, commit, answer, rating, review, reviewText, buttons };
   });
-  // Formatting the stored civil date in UTC avoids changing its day in another time zone.
   const format = new Intl.DateTimeFormat(root.lang.toLowerCase().startsWith('fr') ? 'fr-CA' : 'en-CA', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC'
   });
@@ -58,7 +56,6 @@ export function enhance(root, { content, strings, state }) {
     const date = format.format(new Date(`${record.reviewOn}T00:00:00Z`));
     const time = root.ownerDocument.createElement('time');
     time.dateTime = record.reviewOn; time.textContent = frenchTypography(date, root.lang);
-    // Keep the time element even if the host puts {date} first or repeats it.
     const chunks = strings.nextReview.split('{date}');
     block.reviewText.replaceChildren();
     chunks.forEach((text, index) => {
@@ -94,7 +91,6 @@ export function enhance(root, { content, strings, state }) {
         current = { results: { ...current.results, [block.part.id]: record } };
         showProgress();
         status.textContent = frenchTypography(show(block, record), root.lang);
-        // A host receives its own copy so it cannot mutate the current interaction.
         state?.write({ results: Object.fromEntries(Object.entries(current.results).map(([id, row]) => [id, { ...row }])) });
       });
     }

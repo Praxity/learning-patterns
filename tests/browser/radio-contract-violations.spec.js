@@ -2,7 +2,6 @@ import { test, expect } from '@playwright/test';
 import { radioGroupContract } from './contracts/radio-group.js';
 import { assertRadioExpectation } from './contracts/radio-group-runner.js';
 
-// Like the patterns: the input is invisible and its label draws the focus ring.
 const fixture = `<style>input { opacity: 0 } label:has(input:focus-visible) { outline: 3px solid blue; outline-offset: 2px }</style>
 <fieldset><legend>Delivery</legend>
 <label><input type="radio" name="delivery" value="standard">Standard</label>
@@ -46,7 +45,6 @@ for (const expectation of radioGroupContract) {
     const subject = { group: page.getByRole('group'), legend: 'Delivery', names: ['Standard', 'Express'], selected: null };
     await assertRadioExpectation(expectation.id, page, subject);
     await page.setContent(fixture);
-    // A missing checked state must fail even when selection is promised by a binding.
     if (expectation.id === 'checked') subject.selected = 0;
     const violation = violations[expectation.id];
     await page.evaluate(violation.plant);

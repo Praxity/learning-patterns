@@ -11,10 +11,6 @@ export const CRITERIA = [
 	{"id": "blame", "label": "Blames someone"},
 ];
 
-// Shared rubric calibration, including demos 01 and 15. The shorter deadline
-// wording separates real due dates from draft offers in all three data groups.
-// 0.625 accepts the two remaining clear 0.639+ deadlines; 0.60 agreement resolves
-// both positive and negative hedges without adding credit to any gaming row.
 /** @param {string} id @param {number} noul @param {string} [model] @returns {'met' | 'missed' | 'unsure'} */
 export function rubricBand(id, noul, model) {
 	if (model !== "@cf/cloudflare/clef") return band(noul);
@@ -22,7 +18,6 @@ export function rubricBand(id, noul, model) {
 	return noul >= sure ? "met" : noul <= 1 - sure ? "missed" : "unsure";
 }
 
-/** Return six raw predicate bands. Other answers, including sincere, are ignored. */
 /** @param {unknown} answers @param {string} [model] @returns {Record<string, 'met' | 'missed' | 'unsure'>} */
 export function labelAnswers(answers, model) {
 	return Object.fromEntries(CRITERIA.map(({ id }) => {

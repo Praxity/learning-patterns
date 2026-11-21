@@ -35,7 +35,6 @@ export function enhance(root, { content, strings, state }) {
   if (!instructions.id || chunks.length !== authored.length || feedback.length !== authored.length || chunks.some((chunk, i) => chunk.getAttribute('data-lp-chunk') !== authored[i]?.id || chunk.textContent !== frenchTypography(authored[i].text, root.lang) || chunk.nextElementSibling !== feedback[i] || !feedback[i]?.id)) {
     throw new Error('Invalid highlight passage markup');
   }
-  // Read host state before changing the DOM; adapter errors propagate to the host.
   const saved = validateState(content, state?.read());
   const marked = new Set(saved?.marked ?? []);
   let shown = false;
@@ -68,7 +67,6 @@ export function enhance(root, { content, strings, state }) {
     if (marked.has(id)) {
       marked.delete(id); clearLimit();
     } else if (max === 1) {
-      // With one mark allowed, choosing another chunk moves the mark, like a radio button.
       marked.clear(); marked.add(id);
     } else if (marked.size >= max) {
       if (limit.hidden) {
@@ -95,17 +93,13 @@ export function enhance(root, { content, strings, state }) {
       mark.setAttribute('data-lp-outcome', item.outcome);
       if (item.outcome === 'correct') mark.innerHTML = `${icons.check}${html(strings.markCorrect, root.lang)}`;
       else if (item.outcome === 'missed') mark.innerHTML = `${icons['circle-dashed']}${html(strings.markAnswer, root.lang)}`;
-      // The mark word stays short; the author's note carries the explanation after it. A hidden
-      // full stop gives screen readers a pause between the word and the note.
       else mark.innerHTML = `${icons.x}<span><span class="lp-highlight-word">${html(strings.markWrong, root.lang)}</span>${item.note ? `<span class="lp-visually-hidden">.</span> ${html(item.note, root.lang)}` : ''}</span>`;
       mark.hidden = false;
       chunk.setAttribute('aria-describedby', `${instructions.id} ${mark.id}`);
     });
     shown = true;
-    // The summary gives the result, so the running count would be a second counter.
     count.hidden = true;
     summary.textContent = frenchTypography(message, root.lang); summary.hidden = false;
-    // Check has done its job; Start over takes focus so it isn't lost with the hidden button.
     const hadFocus = root.contains(document.activeElement) && document.activeElement === submit;
     submit.hidden = true;
     restart.hidden = false;
@@ -129,7 +123,6 @@ export function enhance(root, { content, strings, state }) {
   }
 
   chunks.forEach((chunk, i) => {
-    // Inline spans preserve prose flow; every chunk needs a Tab stop in browse mode.
     chunk.setAttribute('role', 'button');
     chunk.tabIndex = 0;
     chunk.setAttribute('aria-describedby', instructions.id);
@@ -138,7 +131,6 @@ export function enhance(root, { content, strings, state }) {
       const key = /** @type {KeyboardEvent} */ (event).key;
       if (!['ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowDown', 'Home', 'End', ' ', 'Enter'].includes(key)) return;
       event.preventDefault();
-      // A held key repeats keydown; toggle once per press, as a native button does.
       if (key === ' ' || key === 'Enter') { if (!event.repeat) toggle(i); }
       else move(key === 'Home' ? 0 : key === 'End' ? chunks.length - 1 : i + (key === 'ArrowLeft' || key === 'ArrowUp' ? -1 : 1));
     }, { signal: controller.signal });

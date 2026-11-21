@@ -98,7 +98,6 @@ export function enhance(root, { content, strings, state }) {
         const row = rows[index];
         const correct = radio.value === q.correct;
         const unknown = radio.value === DONT_KNOW;
-        // An unchosen correct answer is "missed": neutral, so it doesn't read as the learner's pick.
         const missed = correct && !right;
         if (unknown) {
           row.classList.add('lp-dont-know-unknown');
@@ -115,9 +114,7 @@ export function enhance(root, { content, strings, state }) {
       { ids: outcome.unknown, one: strings.countUnknownOne, many: strings.countUnknownMany }
     ].filter(({ ids }) => ids.length).map(({ ids, one, many }) => format(ids.length === 1 ? one : many, { count: ids.length })).join(', ');
     const review = questions.filter(({ q }) => !outcome.right.includes(q.id));
-    // Negative scores have an empty ring. Text preserves every authored score and total.
     const progress = outcome.total > 0 ? Math.max(0, Math.min(1, outcome.points / outcome.total)) : 0;
-    // Explicit tabindex includes review links in WebKit's keyboard navigation on Windows.
     result.innerHTML = `<div class="lp-dont-know-result-head">
       <svg class="lp-dont-know-score-ring" width="64" height="64" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
         <circle class="lp-dont-know-ring-track" cx="32" cy="32" r="29"/>
@@ -128,11 +125,9 @@ export function enhance(root, { content, strings, state }) {
       </div>
       ${review.length ? `<div class="lp-dont-know-review" data-lp-review><h3 class="lp-run-in">${html(strings.review, root.lang)}</h3>
         <ul>${review.map(({ q, fieldset }) => `<li><a class="lp-dont-know-review-link" href="#${html(fieldset.id)}" tabindex="0">${icons['arrow-right']}<span>${html(q.text, root.lang)}</span></a></li>`).join('')}</ul></div>` : ''}`;
-    // A result replaces any earlier status, such as "Cleared." after Start over.
     status.replaceChildren();
     result.hidden = false; restart.hidden = false; check.hidden = true; shown = true;
     if (announce) {
-      // Focus already reads the score; repeating it in status would speak it twice.
       /** @type {HTMLElement} */ (required(result, '[data-lp-score]')).focus();
     }
   }

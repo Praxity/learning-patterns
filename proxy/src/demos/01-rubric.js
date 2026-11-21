@@ -3,7 +3,6 @@ import { criterion, sincere, clefSincere } from "../shared.js";
 
 export const TASK = "Your client report is due Friday. The sales data arrived three days late, so you need until Tuesday. Write the message to your manager.";
 
-// One candidate wording for both Clef models, also inherited by demos 16 and 17.
 export const clefQuestions = {
 	sincere: clefSincere(),
 	work_deadline: criterion("name the client report and Friday as its original due date", "The message connects the client report to a Friday due date, even if it now asks to change that date. Equivalent French wording counts.", "The report or its original Friday due date is missing. A Friday draft offer alone is insufficient. Facts stated only in the task do not count."),

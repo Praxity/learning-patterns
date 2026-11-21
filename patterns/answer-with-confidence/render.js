@@ -10,17 +10,11 @@ import { DONT_KNOW, SURE, UNSURE, format, validateContent } from './logic.js';
 export function render(content, strings, { id, lang }) {
   validateContent(content);
   const h = (/** @type {string} */ text) => html(text, lang);
-  // One question: the context comes first and the question is the card's heading. Several: a titled header.
   const many = content.questions.length > 1;
-  // Every option row keeps room for the widest mark, so a mark never rewraps the option text. All rows
-  // reserve the same width, which gives nothing away about the answer.
   const markSpace = `<span class="lp-answer-with-confidence-mark-space" aria-hidden="true">${renderChoiceMark('correct', strings.markCorrect, lang)}${renderChoiceMark('wrong', strings.markWrong, lang)}${renderChoiceMark('missed', strings.markAnswer, lang)}</span>`;
-  /** One feedback block per possible answer. They share one grid cell with the submit control, so the
-   * cell is already as tall as the tallest of them and showing one moves nothing.
-   * @param {string} answer @param {'right' | 'wrong' | 'unknown'} result
+  /** @param {string} answer @param {'right' | 'wrong' | 'unknown'} result
    * @param {[string, string][]} verdicts @param {import('./logic.js').Option} shown
-   * @param {import('./logic.js').Option} correct
-   */
+   * @param {import('./logic.js').Option} correct */
   const box = (answer, result, verdicts, shown, correct) => `<div class="lp-outcome lp-answer-with-confidence-feedback" data-lp-feedback="${html(answer)}" data-lp-outcome="${result}" tabindex="-1">
         ${icons[result === 'right' ? 'check' : result === 'wrong' ? 'x' : 'question-mark']}
         <p class="lp-outcome-word lp-answer-with-confidence-verdict ${result === 'right' ? 'lp-met' : result === 'wrong' ? 'lp-missed' : 'lp-neutral'}">${verdicts.map(([certainty, text]) => `<span data-lp-verdict="${certainty}">${h(text)}</span>`).join('')}</p>

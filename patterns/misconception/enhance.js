@@ -51,7 +51,6 @@ export function enhance(root, { content, strings, state, ask }) {
   if (ask) {
     configReady = Promise.resolve().then(() => ask.config()).then(config => {
       if (destroyed) return;
-      // Choice gates are model-specific; older host clients may provide only the provider.
       modelId = config.model ?? (config.provider === 'clef' ? '@cf/cloudflare/clef' : config.provider);
       notice.innerHTML = renderDataNotice(config, root.lang, `${notice.id}-text`);
       notice.hidden = false; answer.setAttribute('aria-describedby', `${error.hidden ? '' : `${error.id} `}${notice.id}-text`);
@@ -87,7 +86,6 @@ export function enhance(root, { content, strings, state, ask }) {
       const outcome = feedback(content, answers, modelId);
       const found = outcome.kind === 'correct', known = outcome.kind === 'misconception';
       const word = found ? strings.found : known ? strings.misconception : outcome.kind === 'none' ? strings.noMatch : strings.unsure;
-      // The heading names the label as a misconception, so sighted learners never see the false claim stated bare.
       const heading = strings.misconceptionHeading.replaceAll('{label}', outcome.heading);
       result.innerHTML = known
         ? `<h3 class="lp-run-in lp-misconception-heading">${icons['alert-circle']}${html(heading, root.lang)}</h3><p>${html(outcome.text, root.lang)}</p>`

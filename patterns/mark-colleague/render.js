@@ -2,10 +2,8 @@ import { escapeHtml as html } from '../../lib/html.js';
 import { icons } from '../../lib/icons.js';
 import { format, validateContent } from './logic.js';
 
-/** One issue: what to look at, an optional mark from the learner's tick, and the explanation.
- * @param {import('./logic.js').Issue} issue @param {import('./strings.js').Strings} strings @param {string} lang
- * @param {boolean | null} raised `null` leaves the mark out, as in the version without JavaScript.
- */
+/** @param {import('./logic.js').Issue} issue @param {import('./strings.js').Strings} strings @param {string} lang
+ * @param {boolean | null} raised `null` leaves the mark out, as in the version without JavaScript. */
 export function issueItem(issue, strings, lang, raised) {
   const mark = raised === null ? '' : `<p class="lp-mark-colleague-mark" data-lp-raised="${raised}">${raised ? icons.check : icons['circle-dashed']}<span>${html(raised ? strings.raised : strings.notRaised, lang)}</span></p>`;
   return `<li><p class="lp-run-in">${html(issue.label, lang)}</p>${mark}<p>${html(issue.explanation, lang)}</p></li>`;

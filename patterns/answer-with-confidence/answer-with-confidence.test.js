@@ -39,7 +39,6 @@ test('validateContent names the bad field', () => {
     [c => { delete c.questions[0].options[0].feedback; }, /options\[0\]\.feedback/],
     [c => { c.questions[0].options[0].rightWhen = ' '; }, /options\[0\]\.rightWhen/],
     [c => { c.questions[0].correct = 'missing'; }, /questions\[0\]\.correct/],
-    // "Why it can seem right" belongs to wrong options only.
     [c => { c.questions[0].options[1].rightWhen = 'It is right.'; }, /options\[1\]\.rightWhen/]
   ];
   for (const [change, message] of bad) assert.throws(() => validateContent(edit(change)), message);
@@ -62,10 +61,8 @@ test('feedback is the chosen option\'s only, and rightWhen needs a wrong answer 
   const sender = content.questions[0].options[0], correct = content.questions[0].options[1];
   assert.deepEqual(feedback(content, 'reply-all', 'sender', SURE), { result: 'wrong', correct, feedback: sender.feedback, rightWhen: sender.rightWhen });
   assert.equal(feedback(content, 'reply-all', 'sender', UNSURE).rightWhen, null);
-  // A restored answer has no certainty.
   assert.equal(feedback(content, 'reply-all', 'sender').rightWhen, null);
   assert.deepEqual(feedback(content, 'reply-all', 'to-cc', SURE), { result: 'right', correct, feedback: correct.feedback, rightWhen: null });
-  // A sure wrong answer whose option has no authored line.
   assert.equal(feedback(content, 'percent', 'higher', SURE).rightWhen, null);
   assert.throws(() => feedback(content, 'nope', 'sender', SURE), /Unknown question/);
   assert.throws(() => feedback(content, 'reply-all', 'lower', SURE), /Invalid answer/);
@@ -92,9 +89,7 @@ test('the summary lists sure-but-wrong and right-but-unsure questions in content
   const answers = { 'reply-all': 'sender', percent: 'lower', redact: 'covered' };
   const all = (first, second, third) => summarize(content, answers, { 'reply-all': first, percent: second, redact: third });
   assert.deepEqual(all(SURE, UNSURE, SURE), { total: 3, right: ['percent'], wrong: ['reply-all', 'redact'], unknown: [], unanswered: [], sureWrong: ['reply-all', 'redact'], unsureRight: ['percent'] });
-  // Unsure and wrong, or sure and right, are not mismatches.
   assert.deepEqual([all(UNSURE, SURE, UNSURE).sureWrong, all(UNSURE, SURE, UNSURE).unsureRight], [[], []]);
-  // Without certainty (restored answers) nothing is listed.
   assert.deepEqual([summarize(content, answers).sureWrong, summarize(content, answers).unsureRight], [[], []]);
   assert.deepEqual(summarize(content, { percent: 'same' }, { percent: SURE }).unanswered, ['reply-all', 'redact']);
   assert.deepEqual(summarize(withDontKnow, { 'reply-all': DONT_KNOW, percent: 'lower' }, { percent: SURE }).unknown, ['reply-all']);
@@ -128,7 +123,6 @@ for (const [lang, example] of [['en', content], ['fr', french]]) {
     const markup = render(example, strings[lang], { id: 'quiz', lang });
     assert.match(markup, new RegExp(`<section class="lp lp-answer-with-confidence" data-lp-pattern="answer-with-confidence" lang="${lang}">`));
     assert.equal(count(markup, /<input type="radio"/g), 9);
-    // Each option reserves the same hidden room for a mark, whichever option is correct.
     const spaces = markup.match(/<span class="lp-answer-with-confidence-mark-space" aria-hidden="true">.*?<\/span><\/span><\/label>/g);
     assert.equal(spaces.length, 9);
     assert.equal(new Set(spaces).size, 1);
@@ -137,11 +131,9 @@ for (const [lang, example] of [['en', content], ['fr', french]]) {
     assert.equal(count(markup, /<button class="lp-button lp-answer-with-confidence-segment"/g), 6);
     assert.equal(count(markup, /role="group" aria-label="/g), 3);
     assert.match(markup, lang === 'en' ? /aria-label="Submit your answer to question 2"/ : /aria-label="Soumettre votre réponse à la question 2"/);
-    // French punctuation takes its no-break space.
     assert.match(markup, lang === 'en' ? />Submit:</ : />Soumettre :</);
     assert.equal(count(markup, /id="quiz-/g), count(markup, / id="/g));
     assert.equal(count(markup, /role="status" aria-atomic="true"><\/p>/g), 1);
-    // Without JavaScript the submit controls, feedback and summary stay hidden and the answers disclosure shows.
     assert.equal(count(markup, /data-lp-stage hidden>/g), 3);
     assert.match(markup, /data-lp-intro hidden>/);
     assert.match(markup, /data-lp-result hidden>/);
@@ -156,7 +148,6 @@ test('each option has one feedback box; only wrong options with an authored line
   assert.equal(count(markup, /data-lp-feedback="/g), 9);
   assert.equal(count(markup, /data-lp-right-when/g), 5);
   assert.equal(count(markup, /data-lp-outcome="right"/g), 3);
-  // Wrong answers name the correct option for screen readers; the row mark shows it to everyone else.
   assert.equal(count(markup, /<p class="lp-visually-hidden">Correct answer: /g), 6);
   for (const key of ['verdictSureRight', 'verdictUnsureRight', 'verdictSureWrong', 'verdictUnsureWrong']) assert.ok(markup.includes(`>${strings.en[key]}<`), key);
 });
@@ -180,7 +171,6 @@ test('one question: context first, the question as the heading, no header and no
   assert.ok(markup.indexOf('lp-context') < markup.indexOf('<fieldset'));
   assert.ok(markup.includes(`<legend class="lp-stem"><h2 class="lp-heading">${single.questions[0].text}</h2></legend>`));
   assert.equal(count(markup, /<h2/g), 1);
-  // Several questions: the titled header comes first, then the context, and legends hold no heading.
   const several = render(content, strings.en, { id: 'quiz', lang: 'en' });
   assert.ok(several.indexOf('lp-scene-title') < several.indexOf('lp-context'));
   assert.ok(several.indexOf('lp-context') < several.indexOf('<fieldset'));
@@ -189,7 +179,6 @@ test('one question: context first, the question as the heading, no header and no
 });
 
 test('question ids that are Object.prototype names behave like any other id', () => {
-  // JSON.parse makes "__proto__" an own key, as saved state and authored content arrive.
   const hostile = JSON.parse(JSON.stringify(content).replace('"id":"reply-all"', '"id":"__proto__"').replace('"id":"percent"', '"id":"constructor"').replace('"id":"redact"', '"id":"toString"'));
   validateContent(hostile);
   const answers = JSON.parse('{"__proto__":"sender","constructor":"lower","toString":"covered"}');

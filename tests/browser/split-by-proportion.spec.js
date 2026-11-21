@@ -99,7 +99,6 @@ async function expectResultBar(page, mine, real, lang = 'en', content = examples
       const percentage = label.locator('[data-lp-segment-value]');
       await expect(letter).toHaveText('ABCDEF'[i]);
       await expect(percentage).toHaveText(frenchTypography(quantity(share, content, lang), lang));
-      // toHaveText folds no-break spaces; French needs the exact "30 %" with U+00A0, which must not wrap.
       if (content.unit === '%') expect(await percentage.textContent()).toBe(frenchTypography(quantity(share, content, lang), lang));
       await expect(label.locator('.lp-split-by-proportion-label > span').first()).toHaveClass(row === 0
         ? 'lp-split-by-proportion-letter' : 'lp-split-by-proportion-pct');
@@ -217,7 +216,6 @@ for (const lang of ['en', 'fr']) {
     await page.mouse.move(box.x + box.width + 5, box.y + box.height / 2, { steps: 5 });
     await page.mouse.up();
     expect(await values(page)).toEqual([100, 100, 100]);
-    // At coincident dividers, a tap to their left moves the first one.
     await page.mouse.click(box.x + box.width * .9, box.y + box.height / 2);
     expect(await values(page)).toEqual([90, 100, 100]);
     await page.locator('[data-lp-check]').click();
@@ -303,7 +301,6 @@ test('text alignment assertion detects missing label centring', async ({ page })
   await open(page, 'fr');
   await exactByKeyboard(page);
   await expectResultBar(page, [35, 20, 15, 30], [35, 20, 15, 30], 'fr');
-  // The initial text-align value reproduces removing the label's centring declaration.
   const mutation = await page.addStyleTag({ content: '.lp-split-by-proportion-label { text-align: initial !important; }' });
   const segmentBox = await page.locator('[data-lp-result] .lp-split-by-proportion-seg').first().boundingBox();
   const letterBox = await textBox(page.locator('.lp-split-by-proportion-letters .lp-split-by-proportion-letter').first());
@@ -329,7 +326,6 @@ async function restore(page, saved, custom = examples.en, lang = 'en') {
 test('host state restores silently, writes changes, ignores bad state and destroys without rebuilding', async ({ page }) => {
   await open(page);
   await restore(page, { dividers: [35, 55, 70], touched: true, shown: true });
-  // Wait through the lock helper's deferred focus frames before checking silent restoration.
   await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
   await expect(page.locator('body')).toBeFocused();
   expect(await page.evaluate(() => window.sameInstance)).toBe(true);
@@ -351,7 +347,6 @@ test('host state restores silently, writes changes, ignores bad state and destro
   for (const node of await page.locator('[data-lp-share]').all()) await expect(node).toBeHidden();
   await expect(page.locator('.lp-split-by-proportion-key')).toBeVisible();
   expect(await page.evaluate(() => window.firstInput === document.querySelector('input'))).toBe(true);
-  // Retire the destroyed demo instance; restore() calls destroy idempotently.
   await restore(page, { dividers: [60, 20, 75], touched: true, shown: true });
   expect(await values(page)).toEqual([25, 50, 75]);
   await expect(page.locator('[data-lp-result]')).toBeHidden();

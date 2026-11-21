@@ -97,10 +97,8 @@ export function validateContent(content) {
   }
 }
 
-/** A passed section credits prerequisites unless they were directly failed. The lowest numeric passed id wins ties.
- * @param {Section[]} sections @param {number[]} passed @param {boolean} [allowTestOut] @param {number[]} [failed]
- * @returns {{ rows: PlanRow[], skip: number }}
- */
+/** @param {Section[]} sections @param {number[]} passed @param {boolean} [allowTestOut] @param {number[]} [failed]
+ * @returns {{ rows: PlanRow[], skip: number }} */
 export function plan(sections, passed, allowTestOut = true, failed = []) {
   validateSections(sections);
   const byId = new Map(sections.map(s => [s.id, s]));
@@ -141,9 +139,7 @@ function validatePicks(content, picks) {
   }
 }
 
-/** All questions in a section must be right for a direct pass. Missing picks stay unanswered.
- * @param {Content} content @param {Record<string, string>} picks
- */
+/** @param {Content} content @param {Record<string, string>} picks */
 export function score(content, picks) {
   validateContent(content); validatePicks(content, picks);
   /** @type {{ right: string[], wrong: string[], unanswered: string[] }} */
@@ -166,9 +162,7 @@ export function validateState(content, value) {
   return { picks: { ...picks }, shown: value.shown, step };
 }
 
-/** Replace placeholders once so inserted values stay literal.
- * @param {string} template @param {Record<string, string | number>} values
- */
+/** @param {string} template @param {Record<string, string | number>} values */
 export function format(template, values) {
   return template.replace(/\{(\w+)\}/g, (token, key) => Object.hasOwn(values, key) ? String(values[key]) : token);
 }

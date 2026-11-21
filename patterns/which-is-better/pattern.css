@@ -1,20 +1,13 @@
-/* Which-is-better specifics. Link lib/base.css first for shared styles and tokens. */
-/* The paper highlighter Highlight the key passage and Change one detail use. */
 .lp-which-is-better { --lp-which-is-better-mark: #ffe49a; }
 
-/* The two emails side by side, stacked in a narrow card. Each email spans three shared rows (version,
-   subject, body), so the subjects and bodies start level and the two bodies end level. */
 .lp-which-is-better-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto auto 1fr; gap: 0 24px; }
-/* minmax(0, 1fr): a long unbroken word wraps in its email instead of widening the column past the card. */
 .lp-which-is-better-pair > .lp-which-is-better-email { display: grid; grid-row: span 3; grid-template-rows: subgrid; grid-template-columns: minmax(0, 1fr); }
 
-/* An email: a plain header line, then the body in the shared quote block. No card of its own. */
 .lp-which-is-better-subject { margin-block-start: var(--lp-gap-hint); }
 .lp-which-is-better-field { color: var(--lp-ink-2); }
 .lp-which-is-better-body { margin-block-start: var(--lp-gap-label); line-height: 1.75; }
 .lp-which-is-better-body > p + p { margin-block-start: var(--lp-gap-stem); }
 
-/* The instruction is ink at body size but regular weight, so the question stays the one bold line. */
 .lp-which-is-better-hint { margin-block-start: var(--lp-gap-label); font-weight: 400; }
 .lp-which-is-better-hint + .lp-which-is-better-choices { margin-block-start: var(--lp-gap-group); }
 .lp-which-is-better-questions { margin: 0; padding-inline-start: 1.5em; }
@@ -25,57 +18,37 @@
 .lp .lp-which-is-better-group > * + * { margin-block-start: var(--lp-gap-label); }
 [data-lp-fallback] > .lp-which-is-better-questions { margin-block-start: var(--lp-gap-group); }
 
-/* Body sentences are inline toggles, as in Highlight the key passage: the email stays running text. */
 .lp-which-is-better-chunk { padding-block: 2px; border-radius: 3px; cursor: pointer; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 .lp-which-is-better-chunk:not([aria-disabled="true"]):hover { text-decoration: underline; text-underline-offset: 4px; }
 .lp-which-is-better-chunk[aria-disabled="true"] { cursor: default; }
-/* A tapped sentence already shows its highlight, and a ring there reads as a second choice, so
-   sentences ring for keyboard focus only, as the rows do. */
 .lp-which-is-better-chunk:focus { outline: none; }
 .lp-which-is-better-chunk:focus-visible { outline: 3px solid var(--lp-focus); outline-offset: 2px; }
-/* Results follow Highlight the key passage. The learner's sentence keeps its highlighter, right or
-   wrong; before the check an accent underline also shows it on the grey body. A correct choice adds a
-   green underline. The right sentence the learner missed gets a dashed underline and no fill. */
 .lp-which-is-better-chunk[aria-pressed="true"],
 .lp-which-is-better-body mark { color: var(--lp-ink); background: var(--lp-which-is-better-mark); }
-/* As in Highlight, the highlight pads only above and below: side padding spilled past the end of a full line. */
 .lp-which-is-better-body mark { padding-block: 2px; border-radius: 3px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 .lp-which-is-better-chunk[aria-pressed="true"]:not([data-lp-mark]) { text-decoration: underline solid var(--lp-accent) 2px; text-underline-offset: 4px; }
 .lp-which-is-better-chunk[data-lp-mark="correct"] { text-decoration: underline solid var(--lp-success-ink) 2px; text-underline-offset: 4px; }
 .lp-which-is-better-chunk[data-lp-mark="missed"] { text-decoration: underline dashed var(--lp-ink-2) 2px; text-underline-offset: 4px; }
 
-/* A sentence's mark and a summary note sit on their own line under the sentence, on a rule that
-   hangs from it, with a paragraph's gap before the text that follows. The shared mark drops its pill:
-   the email body is already a block, and a pill inside it would be a box inside a box. */
 .lp-which-is-better-body .lp-choice-mark,
 .lp-which-is-better-note { display: block; margin: 2px 0 var(--lp-gap-stem) 12px; padding: 4px 0 0 10px; border-inline-start: 2px solid var(--lp-ink-2); border-radius: 0; background: none; font-size: var(--lp-type-small); font-weight: 600; line-height: 1.3; white-space: normal; }
-/* Only the mark is a flex row (icon and word); a note stays a block so a long word in it can wrap. */
 .lp-which-is-better-body .lp-choice-mark { display: flex; gap: 4px; align-items: flex-start; }
 
-/* The verdict opens the feedback in the status colours, icon and word, so it shows wherever the page has scrolled. */
 .lp-which-is-better-verdict { display: flex; gap: 6px; align-items: flex-start; margin-block-end: var(--lp-gap-hint); font-weight: 600; }
 .lp-which-is-better-verdict:empty { display: none; }
 
-/* Neither is a row button, so the row styles keyed on inputs are restated for it. */
 .lp-which-is-better .lp-choice { inline-size: 100%; margin: 0; color: var(--lp-ink); font: inherit; line-height: 1.4; text-align: start; }
 .lp-which-is-better .lp-choice:focus-visible { outline: 3px solid var(--lp-focus); outline-offset: 2px; }
-/* base.css rings every button on any focus. A tapped row already shows its border, so it rings for
-   keyboard focus only, as radio rows do. */
 .lp-which-is-better .lp-choice:focus:not(:focus-visible) { outline: none; }
 .lp-which-is-better .lp-choice[aria-pressed="true"]:not([data-lp-mark]) { border: 2px solid var(--lp-accent); padding: 9px 13px; background: var(--lp-accent-soft); }
-/* Neither keeps the key box, so it reads as a choice, not a text field. The box shows a check when
-   the row is chosen or correct and an x when it is wrong; the base mark colours fill it. */
 .lp-which-is-better-neither > .lp-choice-key > .lp-icon { display: none; inline-size: 18px; block-size: 18px; }
 .lp-which-is-better-neither:is([aria-pressed="true"]:not([data-lp-mark]), [data-lp-mark="correct"]) > .lp-choice-key > .lp-icon:first-child,
 .lp-which-is-better-neither[data-lp-mark="wrong"] > .lp-choice-key > .lp-icon:last-child { display: block; }
 .lp-which-is-better .lp-choice[aria-pressed="true"]:not([data-lp-mark]) > .lp-choice-key { color: var(--lp-on-accent); background: var(--lp-accent); border-color: var(--lp-accent); }
-/* French wraps the label at 375px; balanced lines leave no word alone. */
 .lp-which-is-better-neither > span:not(.lp-choice-key, .lp-choice-mark) { text-wrap: balance; }
-/* A locked row shows no hover or pointer. */
 .lp-which-is-better .lp-choice:disabled { cursor: default; }
 .lp-which-is-better .lp-choice:disabled:not([data-lp-mark], [aria-pressed="true"]):hover { border-color: var(--lp-line-mid); background: var(--lp-paper); }
 
-/* What both versions miss is a quality, like the notes, not another line of the message. */
 .lp-which-is-better-missing { margin: 0; padding: 0; list-style: none; font-size: var(--lp-type-small); font-weight: 600; line-height: 1.3; }
 [data-lp-summary] > .lp-which-is-better-email + .lp-which-is-better-group { margin-block-start: var(--lp-gap-group); }
 
