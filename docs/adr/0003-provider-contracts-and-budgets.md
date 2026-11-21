@@ -12,8 +12,16 @@ The proxy accepts learner fields and asks server-owned questions. These rules re
 
 - `proxy/logic/03-contract.js`, `BRANCH_SURE`: A Choice below this confidence, or an off_script choice, doesn't count. Set from the training replies only: clear ones scored 0.98 or more, the ambiguous "Okay, whatever you say" picked withdraw at 0.89, and a prompt injection 0.55. Holdout replies weren't used to set it.
 - `proxy/logic/03-contract.js`, `CLEF_BRANCH_SURE`: With the tuned wording, both Clef models put every clear train reply above 0.70 and the injected attack below 0.56. Keep Jev's original gate. Check labels were not used.
-- `proxy/logic/03-contract.js`, `CLEF_27B_BRANCH_SURE`: Three-group 27B calibration. 0.60 accepts clear hedges and keeps the known injected attack at 0.5538 below the gate. Lower fits added gaming credit.
-- `proxy/logic/06-misconceptions.js`, `CLEF_CONFIDENT`: The revised wording classifies all 27B train beliefs correctly, with confidence at least 0.527. Retain the earlier 0.50 gate for flash; 27B now uses the shared three-group Choice calibration. Jev keeps its original gate.
+- `proxy/logic/03-contract.js`, `CLEF_27B_BRANCH_SURE`: Keep the 27B dialogue-branch gate at 0.60. `proxy/test/calibrated-gates.test.js`, "27B branch gate accepts a clear hedge while keeping the known injected reply out", pins acceptance at 0.60 and rejection at 0.5999 and at the recorded injected-reply confidence of 0.5538.
+
+  Historical rationale reported that lower fitted gates admitted unwanted credit for attempts to game the model. The source does not identify the three evaluation groups, their datasets, their training/check/holdout partitions or the lower thresholds tried. The test pins the selected boundary, not the evaluation result.
+
+  Evidence: the code comment this replaced (commit 66fc86dc5f9a90f2dc243d6bdc90b75e2583cffa); not independently verified.
+- `proxy/logic/06-misconceptions.js`, `CLEF_CONFIDENT`: Keep the flash model's gate at 0.50; the 27B model uses `proxy/logic/shared.js` `CLEF_CHOICE_CONFIDENT`, and Jev retains its own gate. `proxy/test/calibrated-gates.test.js`, "27B study belief boundary hedges below the calibrated gate", pins the model-specific distinction at 0.25.
+
+  Historical rationale reported correct classification of every 27B training belief with confidence at least 0.527. The source does not identify that training dataset or the evaluation groups used to choose the shared gate. The boundary test does not establish the reported classification performance.
+
+  Evidence: the code comment this replaced (commit 66fc86dc5f9a90f2dc243d6bdc90b75e2583cffa); not independently verified.
 - `proxy/logic/13-journal.js`, `DISTRESS`: Keep the distress threshold below the met threshold: missing a support line costs more than showing one needlessly.
 - `proxy/logic/16-fixture-data.js`, `FIXTURES`: Expected labels authored before live calls. Met for blame means a mistake.
 - `proxy/logic/16-fixture-data.js`, `summarizeParity`: `summarizeParity` compares paired English and French predicate results. Agreements require equal definite labels. Unequal labels count as disagreements; either unsure result also counts as an uncertain pair, so these counts can overlap. Per-criterion results include pair counts, language matches and raw language means. Empty means are null. Means describe yes probability, never answer quality.
@@ -26,9 +34,17 @@ The proxy accepts learner fields and asks server-owned questions. These rules re
 - `proxy/logic/question-set.js`, `inputTokenBound`: JSON can escape each UTF-16 code unit to six bytes. Count shared state per question.
 - `proxy/logic/question-set.js`, `checkBodyLimit`: Bound compact JSON with six bytes per UTF-16 unit, and URL-encoded forms with nine.
 - `proxy/logic/question-set.js`, `readAnswers`: Only typed answers leave the provider seam. Discard echoed state and other extra values.
-- `proxy/logic/rubric.js`, `rubricBand`: Shared rubric calibration, including demos 01 and 15. The shorter deadline wording separates real due dates from draft offers in all three data groups. 0.625 accepts the two remaining clear 0.639+ deadlines; 0.60 agreement resolves both positive and negative hedges without adding credit to any gaming row.
+- `proxy/logic/rubric.js`, `rubricBand`: For 27B, keep the positive gates at 0.625 for `work_deadline`, 0.60 for `agreement` and 0.65 for other criteria; negative gates are one minus the corresponding positive gate. `proxy/test/calibrated-gates.test.js`, "27B fixture calibration preserves inclusive positive and negative boundaries", pins the deadline and agreement boundaries and their model-specific application.
+
+  Historical rationale reported that shorter deadline wording distinguished actual due dates from offers to send a draft, that two clear deadline responses scored at least 0.639, and that the chosen agreement gate resolved positive and negative hedges without crediting attempts to game the model. The source does not identify the three data groups, their datasets or their training/check/holdout partitions. The boundary test does not reproduce those measurements.
+
+  Evidence: the code comment this replaced (commit 66fc86dc5f9a90f2dc243d6bdc90b75e2583cffa); not independently verified.
 - `proxy/logic/shared.js`, `MET`: Noul bands. Between the two thresholds the demo should say it isn't sure rather than guess.
-- `proxy/logic/shared.js`, `CLEF_CHOICE_CONFIDENT`: Three-group calibration for 27B's horseman, study-belief and topic Choices. Fold optima were 0.15, 0.15 and 0.25; use their conservative upper boundary. Dialogue branches retain a higher gate to reject a known injected attack.
+- `proxy/logic/shared.js`, `CLEF_CHOICE_CONFIDENT`: Keep the shared 27B Choice confidence gate at 0.25. `proxy/logic/06-misconceptions.js` `confidenceGate` uses it for study-belief classification. `proxy/test/calibrated-gates.test.js`, "27B study belief boundary hedges below the calibrated gate", pins acceptance at 0.25 and uncertainty at 0.2499. Dialogue branches retain their separate 0.60 gate to reject the recorded injected reply.
+
+  Historical rationale names three classification tasks: horseman identification, study-belief classification and topic selection. These are task names, not dataset names or training/check/holdout split definitions. It reports fold optima of 0.15, 0.15 and 0.25 and selects their upper boundary, but does not identify the folds or map each optimum to a task or split. The repository test pins the chosen gate, not those fold results.
+
+  Evidence: the code comment this replaced (commit 66fc86dc5f9a90f2dc243d6bdc90b75e2583cffa); not independently verified.
 - `proxy/src/answers.js`, `readAnswers`: Keep only typed answers to server-owned questions. Providers may echo state in extra fields; persisting their raw response would break the no-text promise.
 - `proxy/src/clef.js`, `clef`: Clef uses the System One question and answer schemas. Workers AI also needs a short model selector inside the body; its binding takes the full model id.
 - `proxy/src/cost-guard.js`, `CostGuard`: Only initial alarm setup holds the startup gate, never provider I/O.
