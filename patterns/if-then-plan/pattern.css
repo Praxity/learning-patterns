@@ -1,5 +1,5 @@
 .lp-if-then-plan .lp-choices > legend { margin-block-end: var(--lp-gap-hint); }
-.lp-if-then-plan .lp-choices > legend + .lp-small { margin-block-end: calc(var(--lp-gap-stem) - var(--lp-gap-choice)); }
+.lp-if-then-plan fieldset.lp-choices > .lp-choices > .lp-small:first-child { margin-block-end: calc(var(--lp-gap-stem) - var(--lp-gap-choice)); }
 .lp-if-then-plan [data-lp-steps] > [hidden] + .lp-choices { margin-block-start: 0; }
 .lp-if-then-plan .lp-choice[data-lp-vague]:has(input:disabled),
 .lp-if-then-plan .lp-choice[data-lp-vague]:has(input:disabled):hover { border: 2px solid var(--lp-warning-ink); padding: 9px 13px; background: var(--lp-warning-soft); }

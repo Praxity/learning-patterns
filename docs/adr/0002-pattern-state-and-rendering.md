@@ -65,6 +65,7 @@ Patterns must preserve authored meaning, host state and reading order across enh
 - `patterns/misconception/logic.js`, `validateState`: Drafts have no send limit; the host owns its total storage budget, as documented by `patterns/write-distractors/README.md`.
 - `lib/base.css`, `fieldset.lp-choices`: Keep choice fieldsets as blocks with an inner `div.lp-choices` grid. WebKit can retain a grid fieldset legend’s wide layout after the viewport narrows. The inner grid inherits the fieldset’s column definition, preserving multi-column choices and retrieval-sheet controls. Shared grid tracks and legend width also constrain long words. The choice atom uses the same rule.
 - `patterns/mistake-recover/logic.js`, `validateState`: Every saved value must have been replayed; anything left over could not have been reached.
+- `patterns/mistake-recover/pattern.css`, `.lp-mistake-recover-record dt`: A long unbroken name breaks inside its column; otherwise its min-content width widens the track past the card.
 - `patterns/mistake-recover/strings.js`, `strings`: A no-break hyphen keeps « prenez‑vous » on one line on a phone.
 - `patterns/prolific-questions/enhance.js`, `onNext`: Replace fieldsets because Safari kept the old legend as the group name in VoiceOver run 2.
 - `patterns/retrieval-sheet/enhance.js`, `enhance`: Validate all required markup and read host state before changing the server sheet.

@@ -53,9 +53,10 @@ export function enhance(root, { content, strings, state }) {
     const next = /** @type {HTMLButtonElement} */ (required(panel, '[data-lp-next], [data-lp-check]'));
     const name = radios[0]?.name;
     if (radios.length !== q.options.length || !name || names.has(name) || !message.id || radios.some((radio, n) => radio.type !== 'radio' || radio.value !== q.options[n].id || radio.name !== name)) throw new Error('Invalid test-out options markup');
+    const choices = required(fieldset, ':scope > div.lp-choices');
     const rows = radios.map(radio => {
       const row = radio.closest('label');
-      if (!row || row.parentElement !== fieldset) throw new Error('Invalid test-out choice markup');
+      if (!row || row.parentElement !== choices) throw new Error('Invalid test-out choice markup');
       return row;
     });
     names.add(name);
