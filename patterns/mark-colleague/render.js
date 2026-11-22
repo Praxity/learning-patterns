@@ -41,8 +41,10 @@ export function render(content, strings, { id, lang }) {
     <div class="lp-section" data-lp-ticks hidden>
       <fieldset class="lp-choices" aria-describedby="${key('hint')}">
         <legend class="lp-stem">${h(format(strings.legend, { colleague: content.colleague }))}</legend>
-        <p class="lp-small" id="${key('hint')}">${h(strings.hint)}</p>
-        ${content.issues.map((issue, index) => `<label class="lp-choice" for="${key(`issue-${index}`)}"><input type="checkbox" id="${key(`issue-${index}`)}" value="${html(issue.id)}"><span>${h(issue.label)}</span></label>`).join('\n        ')}
+        <div class="lp-choices">
+          <p class="lp-small" id="${key('hint')}">${h(strings.hint)}</p>
+          ${content.issues.map((issue, index) => `<label class="lp-choice" for="${key(`issue-${index}`)}"><input type="checkbox" id="${key(`issue-${index}`)}" value="${html(issue.id)}"><span>${h(issue.label)}</span></label>`).join('\n        ')}
+        </div>
       </fieldset>
       <div class="lp-actions"><button class="lp-button" type="button" data-lp-show>${h(strings.show)}</button></div>
     </div>

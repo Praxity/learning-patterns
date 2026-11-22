@@ -142,7 +142,7 @@ test('render explains authored scoring in words, including sign, zero, singular 
 test('server markup uses shared course styles and focusable question targets without inner boxes', () => {
   const output = render(content, strings.en, { id: 'practice', lang: 'en' });
   assert.match(output, /class="lp lp-dont-know"/);
-  assert.equal((output.match(/class="lp-choices"/g) || []).length, 3);
+  assert.equal((output.match(/<fieldset class="lp-choices"/g) || []).length, 3);
   assert.equal((output.match(/<legend class="lp-stem"/g) || []).length, 3);
   assert.equal((output.match(/class="lp-choice"/g) || []).length, 12);
   assert.equal((output.match(/id="practice-question-\d" tabindex="-1"/g) || []).length, 3);

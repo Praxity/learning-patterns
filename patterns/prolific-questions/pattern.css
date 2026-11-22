@@ -8,7 +8,7 @@
 .lp-prolific-questions-fact { margin-block-start: var(--lp-gap-flow); }
 .lp-prolific-questions-fact > legend { margin-block-end: var(--lp-gap-label); font-weight: 600; }
 .lp-prolific-questions-fact { grid-template-columns: repeat(var(--lp-prolific-questions-parts), minmax(0, 1fr)); }
-.lp-prolific-questions-fact > legend, .lp-prolific-questions-fact > [data-lp-question-error] { grid-column: 1 / -1; }
+.lp-prolific-questions-fact > .lp-choices > [data-lp-question-error] { grid-column: 1 / -1; }
 .lp-prolific-questions-fact .lp-choice { display: flex; flex-direction: column; gap: var(--lp-gap-hint); align-items: flex-start; justify-content: center; padding: 10px 12px; }
 .lp-prolific-questions-fact .lp-choice > * { align-self: auto; }
 .lp-prolific-questions-fact .lp-choice:has(input:checked), .lp-prolific-questions-fact .lp-choice[data-lp-mark] { padding: 9px 11px; }

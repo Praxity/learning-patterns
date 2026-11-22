@@ -38,8 +38,10 @@ export function render(content, strings, { id, lang }) {
       <li class="lp-finish-worked-example-step" data-lp-step>
         <fieldset class="lp-choices" id="${group}" data-lp-question>
           <legend>${head('span', label, true)}<span class="lp-visually-hidden">, </span><span class="lp-run-in">${question}</span></legend>
-          ${content.steps[s].options.map((option, n) => `<label class="lp-choice" for="${group}-option-${n}"><input type="radio" id="${group}-option-${n}" name="${group}" value="${n}"><span>${html(option, lang)}</span></label>`).join('\n          ')}
-          <p class="lp-error-text" id="${group}-error" data-lp-question-error hidden>${icons['alert-circle']}<span>${t(strings.choose)}</span></p>
+          <div class="lp-choices">
+            ${content.steps[s].options.map((option, n) => `<label class="lp-choice" for="${group}-option-${n}"><input type="radio" id="${group}-option-${n}" name="${group}" value="${n}"><span>${html(option, lang)}</span></label>`).join('\n          ')}
+            <p class="lp-error-text" id="${group}-error" data-lp-question-error hidden>${icons['alert-circle']}<span>${t(strings.choose)}</span></p>
+          </div>
         </fieldset>
         <p tabindex="-1" data-lp-feedback hidden></p>
         <div class="lp-actions" data-lp-step-actions hidden><button class="lp-button" type="button" data-lp-check>${t(strings.check, { number: s + 1 })}</button></div>

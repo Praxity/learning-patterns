@@ -52,7 +52,6 @@ Patterns must preserve authored meaning, host state and reading order across enh
 - `patterns/highlight/strings.js`, `strings`: Deprecated: kept for hosts that read the old keys (Praxity Studio). Use markCorrect for correctKey and correctEvidence, markWrong for wrongKey and wrongEvidence, markAnswer for missed.
 - `patterns/hint-ladder/enhance.js`, `enhance`: Safari does not focus a button on a pointer click, so focus may still be on the option this check is about to close. Put it on the button first.
 - `patterns/hint-ladder/logic.js`, `validateState`: The order of tries and hints is not saved. Hints open at any time and the worked answer needs a try, so this order replays every state the page can reach.
-- `patterns/hint-ladder/pattern.css`, `.lp-hint-ladder .lp-choices`: A long unbroken word wraps inside the question. Without these the group's one auto track and its legend both grow to their longest word and widen the page.
 - `patterns/if-then-plan/enhance.js`, `enhance`: A past time is reported when the learner leaves the field, not on each keystroke.
 - `patterns/if-then-plan/enhance.js`, `enhance`: A restored past time explains the disabled button at once; leaving the unchanged field fires no change event.
 - `patterns/if-then-plan/logic.js`, `escapeText`: RFC 5545 TEXT (section 3.3.11): escape backslash, semicolon and comma, write every line break as an escaped n, and turn the other control characters, which TEXT does not allow, into spaces.
@@ -64,10 +63,8 @@ Patterns must preserve authored meaning, host state and reading order across enh
 - `patterns/live-feedback/logic.js`, `validateState`: Drafts have no send limit; the host owns its total storage budget, as documented by `patterns/write-distractors/README.md`.
 - `patterns/misconception/enhance.js`, `enhance`: Choice gates are model-specific; older host clients may provide only the provider.
 - `patterns/misconception/logic.js`, `validateState`: Drafts have no send limit; the host owns its total storage budget, as documented by `patterns/write-distractors/README.md`.
-- `patterns/misconception/pattern.css`, `.lp-misconception fieldset.lp-choices`: A grid fieldset makes WebKit size the two-part legend to its unwrapped text. Keep the fieldset native; the inner choice list uses the shared grid.
+- `lib/base.css`, `fieldset.lp-choices`: Keep choice fieldsets as blocks with an inner `div.lp-choices` grid. WebKit can retain a grid fieldset legend’s wide layout after the viewport narrows. The inner grid inherits the fieldset’s column definition, preserving multi-column choices and retrieval-sheet controls. Shared grid tracks and legend width also constrain long words. The choice atom uses the same rule.
 - `patterns/mistake-recover/logic.js`, `validateState`: Every saved value must have been replayed; anything left over could not have been reached.
-- `patterns/mistake-recover/pattern.css`, `.lp-mistake-recover .lp-choices`: A long unbroken word wraps inside a step. Without these the group's one auto track and its legend both grow to their longest word and widen the page.
-- `patterns/mistake-recover/pattern.css`, `.lp-mistake-recover-record dt`: A long unbroken name breaks inside its column; otherwise its min-content width widens the track past the card.
 - `patterns/mistake-recover/strings.js`, `strings`: A no-break hyphen keeps « prenez‑vous » on one line on a phone.
 - `patterns/prolific-questions/enhance.js`, `onNext`: Replace fieldsets because Safari kept the old legend as the group name in VoiceOver run 2.
 - `patterns/retrieval-sheet/enhance.js`, `enhance`: Validate all required markup and read host state before changing the server sheet.

@@ -21,8 +21,10 @@ export function render(content, strings, { id, lang }) {
     <p class="lp-sort-by-principle-text">${html(item.text, lang)}</p>
     <fieldset class="lp-choices" id="${group}">
       <legend class="lp-stem">${html(content.question, lang)}</legend>
-      ${content.principles.map((p, n) => `<label class="lp-choice" for="${group}-option-${n}"><input type="radio" id="${group}-option-${n}" name="${group}" value="${html(p.id)}"><span><span class="lp-sort-by-principle-name">${html(p.name, lang)}</span><span class="lp-visually-hidden">. </span><span class="lp-sort-by-principle-rule">${html(p.rule, lang)}</span></span></label>`).join('\n      ')}
-      <p class="lp-error-text" id="${group}-error" data-lp-error hidden>${icons['alert-circle']}<span>${t(strings.choose)}</span></p>
+      <div class="lp-choices">
+        ${content.principles.map((p, n) => `<label class="lp-choice" for="${group}-option-${n}"><input type="radio" id="${group}-option-${n}" name="${group}" value="${html(p.id)}"><span><span class="lp-sort-by-principle-name">${html(p.name, lang)}</span><span class="lp-visually-hidden">. </span><span class="lp-sort-by-principle-rule">${html(p.rule, lang)}</span></span></label>`).join('\n      ')}
+        <p class="lp-error-text" id="${group}-error" data-lp-error hidden>${icons['alert-circle']}<span>${t(strings.choose)}</span></p>
+      </div>
     </fieldset>
     <p class="lp-sort-by-principle-feedback" tabindex="-1" data-lp-feedback hidden></p>
     <div class="lp-actions" data-lp-actions hidden>

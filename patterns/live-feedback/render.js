@@ -19,7 +19,9 @@ export function render(content, strings, { id, lang }) {
   </div>
   <div class="lp-section" data-lp-fallback>
     <fieldset class="lp-choices"><legend class="lp-run-in" data-lp-fallback-text>${html(strings.selfCheck, lang)}</legend>
+      <div class="lp-choices">
     ${content.criteria.map(item => `<label class="lp-live-feedback-tick" for="${html(`${id}-tick-${item.id}`)}"><input type="checkbox" id="${html(`${id}-tick-${item.id}`)}" value="${html(item.id)}"><span>${html(item.done, lang)}</span></label>`).join('\n')}
+      </div>
     </fieldset>
   </div>
   <p class="lp-small" data-lp-checking hidden>${html(strings.checking, lang)}</p>

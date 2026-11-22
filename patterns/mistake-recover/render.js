@@ -24,9 +24,11 @@ export function render(content, strings, { id, lang }) {
     <div class="lp-stack" data-lp-recover hidden>
       <fieldset class="lp-choices" aria-describedby="${html(`${key}-hint`)}">
         <legend class="lp-run-in">${h(strings.stepsLegend)}</legend>
-        <p class="lp-small" id="${html(`${key}-hint`)}">${h(strings.stepsHint)}</p>
-        ${item.steps.map((step, s) => `<label class="lp-choice" for="${html(`${key}-step-${s}`)}"><input type="checkbox" id="${html(`${key}-step-${s}`)}" name="${html(`${key}-steps`)}" value="${html(step.id)}"><span>${h(step.text)}</span><span class="lp-mistake-recover-reason" data-lp-reason hidden>${h(step.feedback)}</span></label>`).join('\n        ')}
-        <p class="lp-error-text" id="${html(`${key}-error`)}" data-lp-error hidden>${icons['alert-circle']}<span>${h(strings.choose)}</span></p>
+        <div class="lp-choices">
+          <p class="lp-small" id="${html(`${key}-hint`)}">${h(strings.stepsHint)}</p>
+          ${item.steps.map((step, s) => `<label class="lp-choice" for="${html(`${key}-step-${s}`)}"><input type="checkbox" id="${html(`${key}-step-${s}`)}" name="${html(`${key}-steps`)}" value="${html(step.id)}"><span>${h(step.text)}</span><span class="lp-mistake-recover-reason" data-lp-reason hidden>${h(step.feedback)}</span></label>`).join('\n        ')}
+          <p class="lp-error-text" id="${html(`${key}-error`)}" data-lp-error hidden>${icons['alert-circle']}<span>${h(strings.choose)}</span></p>
+        </div>
       </fieldset>
       <div class="lp-actions"><button class="lp-button" type="button" data-lp-check>${h(strings.check)}</button></div>
     </div>${request ? `

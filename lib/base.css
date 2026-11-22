@@ -124,8 +124,10 @@ select.lp-input { appearance: none; padding-inline-end: 40px; background: var(--
 select.lp-input[aria-invalid="true"] { padding-inline-end: 39px; }
 .lp-error-text { display: flex; gap: 8px; align-items: flex-start; color: var(--lp-error-ink); font-size: var(--lp-type-body); font-weight: 600; }
 
-.lp-choices { display: grid; gap: var(--lp-gap-choice); padding: 0; border: 0; min-inline-size: 0; counter-reset: lp-key; }
-.lp-choices > legend { padding: 0; margin-block-end: var(--lp-gap-stem); }
+.lp-choices { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--lp-gap-choice); padding: 0; border: 0; min-inline-size: 0; counter-reset: lp-key; }
+fieldset.lp-choices { display: block; }
+fieldset.lp-choices > .lp-choices { grid-template-columns: inherit; }
+.lp-choices > legend { max-inline-size: 100%; padding: 0; margin-block-end: var(--lp-gap-stem); }
 .lp-choice {
   position: relative;
   display: flex;

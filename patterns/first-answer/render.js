@@ -43,7 +43,9 @@ export function render(content, strings, { id, lang, stage = 'both' }) {
         <blockquote class="lp-first-answer-quote" data-lp-panel-first></blockquote>
       </div>
       <fieldset class="lp-choices"><legend>${html(strings.tick, lang)}</legend>
-        ${content.checks.map((check, index) => `<label class="lp-choice" for="${key(`check-${index}`)}"><input id="${key(`check-${index}`)}" type="checkbox" value="${html(check.id)}"><span class="lp-first-answer-check-text">${html(check.label, lang)}</span></label>`).join('\n        ')}
+        <div class="lp-choices">
+          ${content.checks.map((check, index) => `<label class="lp-choice" for="${key(`check-${index}`)}"><input id="${key(`check-${index}`)}" type="checkbox" value="${html(check.id)}"><span class="lp-first-answer-check-text">${html(check.label, lang)}</span></label>`).join('\n        ')}
+        </div>
       </fieldset>
       <p class="lp-small" data-lp-summary></p>
     </div>

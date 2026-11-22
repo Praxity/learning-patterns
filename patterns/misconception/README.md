@@ -84,7 +84,7 @@ Stored drafts restore intact even above the send limit. The host owns its total 
 
 ## Use it
 
-Copy this folder, `lib/` and the two proxy logic modules, preserving relative paths. Include `lib/base.css`, then `pattern.css`. Give each instance a unique id prefix. Serve the proxy on the page's origin.
+Copy this folder, `lib/` and `proxy/logic/06-misconceptions.js` and `proxy/logic/shared.js`, preserving relative paths. Include `lib/base.css`, then `pattern.css`. Give each instance a unique id prefix. Serve the proxy on the page's origin.
 
 ```js
 import { render } from './patterns/misconception/render.js';

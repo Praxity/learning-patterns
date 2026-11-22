@@ -1,5 +1,4 @@
 .lp-misconception textarea.lp-input { min-block-size: 0; }
-.lp-misconception fieldset.lp-choices { display: block; }
 .lp-misconception-heading { display: flex; gap: 8px; align-items: flex-start; color: var(--lp-warning-ink); }
 .lp-misconception-feedback { display: flex; gap: 8px; align-items: flex-start; }
 .lp-misconception .lp-details > summary::before { transition: transform .18s var(--lp-ease); }

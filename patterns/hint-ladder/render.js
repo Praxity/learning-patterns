@@ -15,8 +15,10 @@ export function render(content, strings, { id, lang }) {
   /** @param {string} group @param {string} question @param {import('./logic.js').Option[]} options @param {string} [more] */
   const question = (group, question, options, more = '') => `<fieldset class="lp-choices" id="${html(`${id}-${group}`)}">
       <legend class="lp-stem">${h(question)}</legend>
-      ${options.map((o, n) => `<label class="lp-choice" for="${html(`${id}-${group}-option-${n}`)}"><input type="radio" id="${html(`${id}-${group}-option-${n}`)}" name="${html(`${id}-${group}`)}" value="${html(o.id)}"><span>${h(o.text)}</span>${o.feedback ? `<span class="lp-hint-ladder-reason" data-lp-reason hidden>${h(o.feedback)}</span>` : ''}</label>`).join('\n      ')}
-      <p class="lp-error-text" id="${html(`${id}-${group}-error`)}" data-lp-error hidden>${icons['alert-circle']}<span>${h(strings.choose)}</span></p>${more}
+      <div class="lp-choices">
+        ${options.map((o, n) => `<label class="lp-choice" for="${html(`${id}-${group}-option-${n}`)}"><input type="radio" id="${html(`${id}-${group}-option-${n}`)}" name="${html(`${id}-${group}`)}" value="${html(o.id)}"><span>${h(o.text)}</span>${o.feedback ? `<span class="lp-hint-ladder-reason" data-lp-reason hidden>${h(o.feedback)}</span>` : ''}</label>`).join('\n      ')}
+        <p class="lp-error-text" id="${html(`${id}-${group}-error`)}" data-lp-error hidden>${icons['alert-circle']}<span>${h(strings.choose)}</span></p>${more}
+      </div>
     </fieldset>`;
   const check = `<button class="lp-button" type="button" data-lp-check hidden>${h(strings.check)}</button>`;
   return `<section class="lp lp-hint-ladder" data-lp-pattern="hint-ladder" lang="${html(lang)}">

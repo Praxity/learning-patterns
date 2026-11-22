@@ -121,3 +121,13 @@ test('avatar initials accept two characters and reject a third', () => {
   value.person.initial = 'AW'; assert.doesNotThrow(() => validateContent(value));
   for (const initial of ['Dr.', 'Dr. W']) assert.throws(() => validateContent({ ...value, person: { ...value.person, initial } }), /person.initial/);
 });
+
+
+test('the README content example passes the validator', async () => {
+  const readme = await readFile(new URL('./README.md', import.meta.url), 'utf8');
+  const snippet = readme.split('### Content example')[1].match(/```js\r?\n([\s\S]*?)```/)[1];
+  const documented = new Function('example', `${snippet}; return content;`)(content);
+  assert.doesNotThrow(() => validateContent(documented));
+  assert.deepEqual(documented.stageNotes, {});
+  assert.doesNotMatch(readme.split('## Content fields')[1].split('## Logic')[0], /`subject`|Optional italic ending notes/);
+});

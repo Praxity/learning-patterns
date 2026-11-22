@@ -24,9 +24,11 @@ export function render(content, strings, { id, lang }) {
     ${i ? changed(round, i) : quote(round)}
     <fieldset class="lp-choices" id="${html(`${id}-round-${i}`)}">
       <legend class="lp-stem">${h(content.question)}</legend>
-      ${content.options.map((o, n) => `<label class="lp-choice" for="${html(`${id}-round-${i}-option-${n}`)}"><input type="radio" id="${html(`${id}-round-${i}-option-${n}`)}" name="${html(`${id}-round-${i}`)}" value="${html(o.id)}"><span>${h(o.text)}</span></label>`).join('\n      ')}
-      <p class="lp-error-text" id="${html(`${id}-round-${i}-error`)}" data-lp-error hidden>${icons['alert-circle']}<span>${h(strings.choose)}</span></p>
-      <p class="lp-change-one-detail-feedback" tabindex="-1" data-lp-feedback hidden><span class="lp-visually-hidden" data-lp-verdict></span>${verdict(round)}${h(round.explanation)}</p>
+      <div class="lp-choices">
+        ${content.options.map((o, n) => `<label class="lp-choice" for="${html(`${id}-round-${i}-option-${n}`)}"><input type="radio" id="${html(`${id}-round-${i}-option-${n}`)}" name="${html(`${id}-round-${i}`)}" value="${html(o.id)}"><span>${h(o.text)}</span></label>`).join('\n      ')}
+        <p class="lp-error-text" id="${html(`${id}-round-${i}-error`)}" data-lp-error hidden>${icons['alert-circle']}<span>${h(strings.choose)}</span></p>
+        <p class="lp-change-one-detail-feedback" tabindex="-1" data-lp-feedback hidden><span class="lp-visually-hidden" data-lp-verdict></span>${verdict(round)}${h(round.explanation)}</p>
+      </div>
     </fieldset>
     <div class="lp-actions"><button class="lp-button" type="button" data-lp-check hidden>${h(strings.check)}</button></div>
   </div>`).join('\n  ')}
