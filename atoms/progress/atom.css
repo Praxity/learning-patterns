@@ -1,0 +1,7 @@
+.lp-progress { display: grid; gap: var(--lp-space-2); color: var(--lp-ink-2); font-size: var(--lp-type-small); line-height: 1.45; }
+.lp-progress-bar { display: block; block-size: 6px; border-radius: 3px; background: var(--lp-rule); overflow: hidden; }
+.lp-progress-bar > span { display: block; block-size: 100%; background: var(--lp-accent); }
+@media (forced-colors: active) {
+  .lp-progress-bar { border: 1px solid CanvasText; background: Canvas; }
+  .lp-progress-bar > span { background: CanvasText; }
+}

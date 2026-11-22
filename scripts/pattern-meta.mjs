@@ -22,12 +22,11 @@ function scalar(name, key, value) {
   return value;
 }
 
-/**
- * @param {string} name pattern folder name, used in error messages
- * @param {string} readme the README text
- * @returns {{ title: { en: string, fr: string }, summary: string, section: string, ai: boolean, offline: boolean, learners: string }}
- */
-export function readMeta(name, readme) {
+/** @param {string} name
+ * @param {string} readme
+ * @param {Record<string, string[] | null>} required
+ * @returns {Record<string, string>} */
+function frontMatter(name, readme, required) {
   const match = /^---\r?\n([\s\S]*?)\r?\n---\r?\n/.exec(readme);
   if (!match) throw new Error(`${name}/README.md: missing front matter`);
   /** @type {Record<string, string>} */
@@ -37,14 +36,24 @@ export function readMeta(name, readme) {
     if (!pair) throw new Error(`${name}/README.md: unreadable front matter line "${line}"`);
     fields[pair[1]] = scalar(name, pair[1], pair[2].trim());
   }
-  for (const [key, allowed] of Object.entries(REQUIRED)) {
+  for (const [key, allowed] of Object.entries(required)) {
     const value = fields[key];
     if (!value) throw new Error(`${name}/README.md: front matter needs ${key}`);
     if (allowed && !allowed.includes(value)) throw new Error(`${name}/README.md: ${key} must be one of ${allowed.join(', ')}`);
   }
   for (const key of Object.keys(fields)) {
-    if (!(key in REQUIRED)) throw new Error(`${name}/README.md: unknown front matter key ${key}`);
+    if (!(key in required)) throw new Error(`${name}/README.md: unknown front matter key ${key}`);
   }
+  return fields;
+}
+
+/**
+ * @param {string} name pattern folder name, used in error messages
+ * @param {string} readme the README text
+ * @returns {{ title: { en: string, fr: string }, summary: string, section: string, ai: boolean, offline: boolean, learners: string }}
+ */
+export function readMeta(name, readme) {
+  const fields = frontMatter(name, readme, REQUIRED);
   return {
     title: { en: fields.title, fr: fields.title_fr },
     summary: fields.summary,
@@ -53,4 +62,14 @@ export function readMeta(name, readme) {
     offline: fields.offline === 'yes',
     learners: fields.learners
   };
+}
+
+/**
+ * @param {string} name atom folder name, used in error messages
+ * @param {string} readme the README text
+ * @returns {{ title: { en: string, fr: string }, summary: string }}
+ */
+export function readAtomMeta(name, readme) {
+  const fields = frontMatter(name, readme, { title: null, title_fr: null, summary: null });
+  return { title: { en: fields.title, fr: fields.title_fr }, summary: fields.summary };
 }

@@ -72,6 +72,13 @@ for (const entry of await readdir(join(root, 'patterns'), { withFileTypes: true 
   patterns.push({ name, meta, preview });
 }
 
+for (const entry of await readdir(join(root, 'atoms'), { withFileTypes: true })) {
+  if (!entry.isDirectory()) continue;
+  for (const file of await readdir(join(root, 'atoms', entry.name))) {
+    if (/\.(?:html|css)$/.test(file)) await copyInto(`atoms/${entry.name}/${file}`);
+  }
+}
+
 await writeFile(join(output, 'robots.txt'), 'User-agent: *\nDisallow: /\n');
 await writeFile(join(output, '_headers'), '/*\n  X-Robots-Tag: noindex, nofollow\n/*.md\n  Content-Type: text/markdown; charset=utf-8\n');
 await writeFile(join(output, 'index.html'), index(patterns));

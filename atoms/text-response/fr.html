@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Réponse écrite avec étiquette</title>
+<link rel="stylesheet" href="../../lib/base.css">
+<style>body { max-inline-size: 52rem; margin: 2rem auto; padding: 0 1rem; font-family: system-ui, sans-serif; }</style>
+</head>
+<body>
+<main>
+<h1>Réponse écrite avec étiquette</h1>
+<h2>Avant la vérification</h2>
+<section class="lp" lang="fr" data-lp-atom="text-response">
+  <div>
+    <label class="lp-label" for="empty-answer">Comment commenceriez-vous un fonds d’urgence ?</label>
+    <p class="lp-small" id="empty-hint">Deux ou trois phrases suffisent.</p>
+    <textarea class="lp-input" id="empty-answer" aria-describedby="empty-hint" rows="5"></textarea>
+    <p class="lp-error-text" id="empty-error" hidden><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lp-icon" aria-hidden="true" focusable="false" > <path stroke="none" d="M0 0h24v24H0z" fill="none" /> <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /> <path d="M12 8v4" /> <path d="M12 16h.01" /> </svg><span>Écrivez d’abord une réponse.</span></p>
+  </div>
+</section>
+<h2>Avec une erreur</h2>
+<section class="lp" lang="fr" data-lp-atom="text-response">
+  <div>
+    <label class="lp-label" for="invalid-answer">Comment commenceriez-vous un fonds d’urgence ?</label>
+    <p class="lp-small" id="invalid-hint">Deux ou trois phrases suffisent.</p>
+    <textarea class="lp-input" id="invalid-answer" aria-describedby="invalid-hint invalid-error" aria-invalid="true" rows="5"></textarea>
+    <p class="lp-error-text" id="invalid-error"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lp-icon" aria-hidden="true" focusable="false" > <path stroke="none" d="M0 0h24v24H0z" fill="none" /> <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /> <path d="M12 8v4" /> <path d="M12 16h.01" /> </svg><span>Écrivez d’abord une réponse.</span></p>
+  </div>
+</section>
+</main>
+</body>
+</html>
