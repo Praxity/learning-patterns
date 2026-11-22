@@ -25,7 +25,7 @@ A line of text that tells learners where they are in an activity, such as Questi
 
 - Keep the markup inside an element with the `lp` class, as the snippet does. `lib/base.css` defines the `--lp-*` colour, spacing and type tokens on `.lp`, so outside it the text and bar lose their colours. A pattern's root section already has the class.
 - Put the line just before the question it counts.
-- Set the inner bar's width to the share of the activity shown so far, as a percentage. When the step changes, a script updates the text and the width together.
+- Set the inner bar's width to the share of the activity shown so far, as a percentage. When the step changes, a script updates the text and the width together. The width is an inline `style`, which a page with a strict Content-Security-Policy (`style-src-attr 'none'`) blocks, so the fill shows at full width ([MDN: style-src-attr](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/style-src-attr)); on such a page, set the width from a stylesheet class or from script through `element.style`.
 - The line is not a live region. When a script moves to the next question, it moves focus to the question. If learners need the count at that point, also start the question's label with it, as [Which is better, and why](../../patterns/which-is-better/README.md) does.
 
 [en.html](en.html) and [fr.html](fr.html) show the line above a question.
