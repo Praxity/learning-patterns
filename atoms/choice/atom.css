@@ -1,1 +1,1 @@
-.lp-choice-legend { inline-size: 100%; }
+fieldset.lp-choices:has(> .lp-choices) { display: block; }

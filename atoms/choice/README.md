@@ -21,15 +21,17 @@ A group of full-width answer rows. Learners pick one answer with radio buttons o
 ```html
 <section class="lp" lang="en">
   <fieldset class="lp-choices" id="q1">
-    <legend class="lp-stem lp-choice-legend">What is an emergency fund for?</legend>
-    <label class="lp-choice" for="q1-option-0"><input type="radio" id="q1-option-0" name="q1" value="costs"><span>Costs you can't plan for, such as a car repair</span></label>
-    <label class="lp-choice" for="q1-option-1"><input type="radio" id="q1-option-1" name="q1" value="holiday"><span>A holiday you are planning for next year</span></label>
+    <legend class="lp-stem">What is an emergency fund for?</legend>
+    <div class="lp-choices">
+      <label class="lp-choice" for="q1-option-0"><input type="radio" id="q1-option-0" name="q1" value="costs"><span>Costs you can't plan for, such as a car repair</span></label>
+      <label class="lp-choice" for="q1-option-1"><input type="radio" id="q1-option-1" name="q1" value="holiday"><span>A holiday you are planning for next year</span></label>
+    </div>
   </fieldset>
 </section>
 ```
 
 - Keep the markup inside an element with the `lp` class, as the snippet does. `lib/base.css` defines the `--lp-*` colour, spacing and type tokens on `.lp`, so outside it the rows lose their borders, colours and focus ring. A pattern's root section already has the class.
-- Give the legend the `lp-choice-legend` class from `atom.css`. It makes the legend as wide as the group. Without it, WebKit sizes a legend in this grid group to its text on one line, so on a narrow screen the question runs off the page.
+- Put the rows in a `div.lp-choices` inside the fieldset, as [Spot the misconception](../../patterns/misconception/README.md) does. `atom.css` then shows the outer fieldset as a plain block, and the inner list spaces the rows. When the fieldset itself is the grid, WebKit keeps the legend at the width it had before the window narrowed, so after zooming in or rotating a phone the question runs off the page.
 - Write one `label.lp-choice` per option: the input first, then the option text in a `span`.
 - For "choose all that apply", use `type="checkbox"`. The row then draws a box instead of a letter.
 - Radio rows show the letters A, B, C, drawn by `lib/base.css`.
@@ -39,7 +41,7 @@ After the learner checks, a script:
 
 1. Disables the inputs. Patterns call `lock(scope)` from `lib/lock.js`.
 2. Marks rows with `markChoice(row, kind, strings, lang)` from `lib/choice-mark.js`: `correct` for a right answer the learner chose, `wrong` for a wrong answer the learner chose, `missed` for a right answer the learner didn't choose. Leave other rows unmarked. Server HTML uses `renderChoiceMark(kind, word, lang)` for the same markup, and `clearChoice(row)` removes a mark.
-3. Puts the explanation in a paragraph after the rows. The mark holds only its word.
+3. Puts the explanation in a paragraph after the group. The mark holds only its word.
 
 The words are "Correct", "Incorrect" and "Correct answer" in English and "Correct", "Incorrect" and "Bonne réponse" in French. [en.html](en.html) and [fr.html](fr.html) show a group before and after checking.
 
@@ -56,7 +58,7 @@ The words are "Correct", "Incorrect" and "Correct answer" in English and "Correc
 ## Copy these files
 
 - `lib/base.css`: every style for the rows and marks.
-- `atoms/choice/atom.css`: the legend width that keeps a long question inside the group.
+- `atoms/choice/atom.css`: shows a fieldset that holds a `div.lp-choices` as a plain block, so its legend wraps when the window narrows.
 - `lib/choice-mark.js`, `lib/icons.js` and `lib/html.js`, if a script or your server adds marks. `choice-mark.js` imports the other two.
 - `lib/lock.js`, if a script freezes the rows after checking.
 
