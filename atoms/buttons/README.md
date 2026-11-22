@@ -18,19 +18,22 @@ The buttons learners press to move through an activity, in a row that wraps. An 
 ## Markup
 
 ```html
-<div class="lp-actions">
-  <button class="lp-button" type="button">Check my answer</button>
-  <button class="lp-button lp-button-secondary" type="button">Show a hint</button>
-</div>
-<div class="lp-actions">
-  <button class="lp-button lp-button-quiet" type="button"><svg class="lp-icon" aria-hidden="true" focusable="false">…</svg>Try again</button>
-</div>
+<section class="lp" lang="en">
+  <div class="lp-actions">
+    <button class="lp-button" type="button">Check my answer</button>
+    <button class="lp-button lp-button-secondary" type="button">Show a hint</button>
+  </div>
+  <div class="lp-actions">
+    <button class="lp-button lp-button-quiet" type="button"><svg class="lp-icon" aria-hidden="true" focusable="false">…</svg>Try again</button>
+  </div>
+</section>
 ```
 
+- Keep the markup inside an element with the `lp` class, as the snippet does. `lib/base.css` defines the `--lp-*` colour, spacing and type tokens on `.lp`, so outside it the buttons lose their colours and focus ring. A pattern's root section already has the class.
 - Use `lp-button` for one main step per activity, `lp-button-secondary` for the others and `lp-button-quiet` with the `refresh` icon from `lib/icons.js` for Try again and Start over. [en.html](en.html) has the full SVG.
 - A secondary button that switches something on and off takes `aria-pressed`, and shows as pressed when it is `"true"`.
 - A button that only works with JavaScript starts `hidden` in server HTML, and the script unhides it. A row whose buttons are all hidden takes no space.
-- To stop a button for a while, use `disabled`. Use `aria-disabled="true"` instead when learners still need to reach it to read a message linked to it.
+- To stop a button for a while, use `disabled`. Use `aria-disabled="true"` instead when learners still need to reach it to read a message linked to it. The attribute only changes what screen readers announce: the button still takes focus and fires clicks, so its click handler must return early while the attribute is `"true"`, as the suggestion button's handler in [`patterns/journal/enhance.js`](../../patterns/journal/enhance.js) does.
 
 [en.html](en.html) and [fr.html](fr.html) show a row before checking and after.
 

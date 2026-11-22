@@ -19,13 +19,16 @@ A group of full-width answer rows. Learners pick one answer with radio buttons o
 ## Markup
 
 ```html
-<fieldset class="lp-choices" id="q1">
-  <legend class="lp-stem">What is an emergency fund for?</legend>
-  <label class="lp-choice" for="q1-option-0"><input type="radio" id="q1-option-0" name="q1" value="costs"><span>Costs you can't plan for, such as a car repair</span></label>
-  <label class="lp-choice" for="q1-option-1"><input type="radio" id="q1-option-1" name="q1" value="holiday"><span>A holiday you are planning for next year</span></label>
-</fieldset>
+<section class="lp" lang="en">
+  <fieldset class="lp-choices" id="q1">
+    <legend class="lp-stem">What is an emergency fund for?</legend>
+    <label class="lp-choice" for="q1-option-0"><input type="radio" id="q1-option-0" name="q1" value="costs"><span>Costs you can't plan for, such as a car repair</span></label>
+    <label class="lp-choice" for="q1-option-1"><input type="radio" id="q1-option-1" name="q1" value="holiday"><span>A holiday you are planning for next year</span></label>
+  </fieldset>
+</section>
 ```
 
+- Keep the markup inside an element with the `lp` class, as the snippet does. `lib/base.css` defines the `--lp-*` colour, spacing and type tokens on `.lp`, so outside it the rows lose their borders, colours and focus ring. A pattern's root section already has the class.
 - Write one `label.lp-choice` per option: the input first, then the option text in a `span`.
 - For "choose all that apply", use `type="checkbox"`. The row then draws a box instead of a letter.
 - Radio rows show the letters A, B, C, drawn by `lib/base.css`.

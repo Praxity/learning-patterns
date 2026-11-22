@@ -18,28 +18,26 @@ The parts that tell learners what happened: a result line next to the answer it 
 
 ## Markup
 
-A result line next to an answer, and a summary list at the end:
+A result line next to an answer, a summary list at the end, an error, a notice and the status region:
 
 ```html
-<div class="lp-outcome lp-missed"><svg class="lp-icon" aria-hidden="true" focusable="false">…</svg><p class="lp-outcome-word">Incorrect</p><p class="lp-outcome-detail">A holiday you plan for is a savings goal.</p></div>
-
-<ul class="lp-outcomes">
-  <li class="lp-outcome lp-met"><svg class="lp-icon" aria-hidden="true" focusable="false">…</svg><span class="lp-outcome-word">Correct</span><span class="lp-outcome-detail">What is an emergency fund for?</span></li>
-</ul>
+<section class="lp" lang="en">
+  <div class="lp-outcome lp-missed"><svg class="lp-icon" aria-hidden="true" focusable="false">…</svg><p class="lp-outcome-word">Incorrect</p><p class="lp-outcome-detail">A holiday you plan for is a savings goal.</p></div>
+  <ul class="lp-outcomes">
+    <li class="lp-outcome lp-met"><svg class="lp-icon" aria-hidden="true" focusable="false">…</svg><span class="lp-outcome-word">Correct</span><span class="lp-outcome-detail">What is an emergency fund for?</span></li>
+  </ul>
+  <p class="lp-error-text"><svg class="lp-icon" aria-hidden="true" focusable="false">…</svg><span>Choose an answer for every question, then check again.</span></p>
+  <p class="lp-small">Your answer is sent to a decision model to give instant feedback.</p>
+  <p class="lp-visually-hidden" role="status" aria-atomic="true"></p>
+</section>
 ```
 
-An error, a notice and the status region:
-
-```html
-<p class="lp-error-text"><svg class="lp-icon" aria-hidden="true" focusable="false">…</svg><span>Choose an answer for every question, then check again.</span></p>
-<p class="lp-small">Your answer is sent to a decision model to give instant feedback.</p>
-<p class="lp-visually-hidden" role="status" aria-atomic="true"></p>
-```
-
+- Keep the markup inside an element with the `lp` class, as the snippet does. `lib/base.css` defines the `--lp-*` colour, spacing and type tokens on `.lp`, so outside it the results and errors lose their colours. A pattern's root section already has the class.
 - Results take one of three tones, each with its icon from `lib/icons.js`: `lp-met` with `check`, `lp-missed` with `x` and `lp-neutral` with `circle-dashed`. Errors use `alert-circle`. [en.html](en.html) has the full SVGs.
 - The word says the result and the detail says why. Authors write both.
 - When a notice describes a button, such as a notice that an answer is sent to a model, link it to the button with `aria-describedby`.
-- Keep exactly one status region per activity, empty in server HTML. To announce a message, a script sets the region's text once. Nothing is announced at page load.
+- Keep exactly one status region per activity, empty in server HTML. To announce a message while focus stays where it is, a script sets the region's text once. Nothing is announced at page load.
+- When a script moves focus to the control a message is about, such as a text box with an error linked by `aria-describedby`, screen readers read the message there. Leave the status region alone then, or learners hear the message twice. WCAG 2.2 success criterion 4.1.3, Status Messages, covers messages that appear without a focus change.
 - To show hidden feedback, patterns call `reveal(element)` from `lib/reveal.js`, which unhides it and scrolls it into view.
 
 [en.html](en.html) and [fr.html](fr.html) show a result line, a summary list, a notice and an error.

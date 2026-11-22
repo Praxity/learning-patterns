@@ -146,6 +146,12 @@ function checkReadme(readme, name) {
   assert.ok(section('Avoid it when').split(/\r?\n/).every(item => /^- (?:If|When)\s+\S[^\r\n]*[.!?]$/.test(item)), 'Each Avoid it when bullet is a condition starting with If or When');
   assert.match(section('Copy these files'), /`lib\/base\.css`/, 'Copy these files names lib/base.css');
   assert.doesNotMatch(prose, /—/, 'em dash');
+  const snippets = [...readme.matchAll(/^```html\r?\n([\s\S]*?)^```/gm)].map(match => match[1].trim().split(/\r?\n/));
+  assert.ok(snippets.length, 'Markup has an HTML snippet');
+  for (const lines of snippets) {
+    const wrapped = lines[0] === '<section class="lp" lang="en">' && lines.at(-1) === '</section>' && lines.slice(1, -1).every(line => /^\s+\S/.test(line));
+    assert.ok(wrapped, 'each HTML snippet sits inside one .lp section');
+  }
 }
 
 test('README guard catches missing sections, wrong order and em dashes', async () => {
@@ -156,6 +162,10 @@ test('README guard catches missing sections, wrong order and em dashes', async (
   assert.throws(() => checkReadme(readme.replace('# Progress line', '# Progress'), 'progress'), /front matter, then the title/);
   assert.throws(() => checkReadme(readme.replace('- When all the questions', '- All the questions'), 'progress'), /Avoid it when/);
   assert.throws(() => checkReadme(readme.replaceAll('`lib/base.css`', 'the base styles'), 'progress'), /lib\/base.css/);
+  const unwrapped = readme.replace('<section class="lp" lang="en">\n  <p class="lp-progress">', '<p class="lp-progress">').replace('</p>\n</section>\n```', '</p>\n```');
+  assert.throws(() => checkReadme(unwrapped, 'progress'), /inside one .lp section/);
+  assert.throws(() => checkReadme(readme.replace('</section>\n```', '</section>\n<p class="lp-small">Outside.</p>\n```'), 'progress'), /inside one .lp section/);
+  assert.throws(() => checkReadme(readme.replace('```html', '```text'), 'progress'), /HTML snippet/);
   assert.throws(() => checkReadme(readme.replace('A line of text', 'A line — of text'), 'progress'), /em dash/);
 });
 

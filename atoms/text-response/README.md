@@ -19,14 +19,17 @@ A multi-line text box for a written answer. A visible label names it, an optiona
 ## Markup
 
 ```html
-<div>
-  <label class="lp-label" for="q2-answer">How would you start an emergency fund?</label>
-  <p class="lp-small" id="q2-hint">Two or three sentences are enough.</p>
-  <textarea class="lp-input" id="q2-answer" aria-describedby="q2-hint" rows="5"></textarea>
-  <p class="lp-error-text" id="q2-error" hidden><svg class="lp-icon" aria-hidden="true" focusable="false">…</svg><span>Write an answer first.</span></p>
-</div>
+<section class="lp" lang="en">
+  <div>
+    <label class="lp-label" for="q2-answer">How would you start an emergency fund?</label>
+    <p class="lp-small" id="q2-hint">Two or three sentences are enough.</p>
+    <textarea class="lp-input" id="q2-answer" aria-describedby="q2-hint" rows="5"></textarea>
+    <p class="lp-error-text" id="q2-error" hidden><svg class="lp-icon" aria-hidden="true" focusable="false">…</svg><span>Write an answer first.</span></p>
+  </div>
+</section>
 ```
 
+- Keep the markup inside an element with the `lp` class, as the snippet does. `lib/base.css` defines the `--lp-*` colour, spacing and type tokens on `.lp`, so outside it the box loses its border colours, spacing and focus ring. A pattern's root section already has the class.
 - Wrap the label, hint, box and error in one element. `lib/base.css` spaces them.
 - When a heading above the box already asks the question, leave out the label and point the box's `aria-labelledby` at the heading's id.
 - Put example wording in the hint, not in a `placeholder`, and don't set `maxlength`. Report a length limit as an error instead.
@@ -36,10 +39,10 @@ When a check fails, a script:
 
 1. Unhides the error.
 2. Sets `aria-invalid="true"` on the box and adds the error's id to its `aria-describedby`, after the hint's id.
-3. Moves focus to the box and announces the message once through the status region from the [Feedback, status and notice](../feedback/README.md) atom.
+3. Moves focus to the box. Screen readers then read the error as part of the box's description, so the script doesn't also put it in the status region, which would make it heard twice.
 4. When the learner types again, hides the error, removes `aria-invalid` and sets `aria-describedby` back to the hint alone.
 
-Add the error's id only while the error shows: screen readers read a description even when its element is hidden. [en.html](en.html) and [fr.html](fr.html) show the box before checking and with an error.
+Use the status region from the [Feedback, status and notice](../feedback/README.md) atom only when focus stays somewhere else, for example on the button the learner pressed. WCAG 2.2 success criterion 4.1.3, Status Messages, covers messages that appear without a focus change. Add the error's id only while the error shows: screen readers read a description even when its element is hidden. [en.html](en.html) and [fr.html](fr.html) show the box before checking and with an error.
 
 ## Accessibility
 
