@@ -41,7 +41,7 @@ A line of text that tells learners where they are in an activity, such as Questi
 ## Copy these files
 
 - `lib/base.css`: the shared tokens and text styles.
-- `atoms/progress/atom.css`: the line and bar. `lib/base.css` has no progress styles.
+- `components/progress/component.css`: the line and bar. `lib/base.css` has no progress styles.
 
 ## Used by
 

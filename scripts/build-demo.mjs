@@ -72,10 +72,10 @@ for (const entry of await readdir(join(root, 'patterns'), { withFileTypes: true 
   patterns.push({ name, meta, preview });
 }
 
-for (const entry of await readdir(join(root, 'atoms'), { withFileTypes: true })) {
+for (const entry of await readdir(join(root, 'components'), { withFileTypes: true })) {
   if (!entry.isDirectory()) continue;
-  for (const file of await readdir(join(root, 'atoms', entry.name))) {
-    if (/\.(?:html|css)$/.test(file)) await copyInto(`atoms/${entry.name}/${file}`);
+  for (const file of await readdir(join(root, 'components', entry.name))) {
+    if (/\.(?:html|css)$/.test(file)) await copyInto(`components/${entry.name}/${file}`);
   }
 }
 

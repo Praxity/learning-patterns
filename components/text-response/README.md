@@ -42,7 +42,7 @@ When a check fails, a script:
 3. Moves focus to the box. Screen readers then read the error as part of the box's description, so the script doesn't also put it in the status region, which would make it heard twice.
 4. When the learner types again, hides the error, removes `aria-invalid` and sets `aria-describedby` back to the hint alone.
 
-Use the status region from the [Feedback, status and notice](../feedback/README.md) atom only when focus stays somewhere else, for example on the button the learner pressed. WCAG 2.2 success criterion 4.1.3, Status Messages, covers messages that appear without a focus change. Add the error's id only while the error shows: screen readers read a description even when its element is hidden. [en.html](en.html) and [fr.html](fr.html) show the box before checking and with an error.
+Use the status region from the [Feedback, status and notice](../feedback/README.md) component only when focus stays somewhere else, for example on the button the learner pressed. WCAG 2.2 success criterion 4.1.3, Status Messages, covers messages that appear without a focus change. Add the error's id only while the error shows: screen readers read a description even when its element is hidden. [en.html](en.html) and [fr.html](fr.html) show the box before checking and with an error.
 
 ## Accessibility
 

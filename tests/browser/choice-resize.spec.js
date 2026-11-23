@@ -7,13 +7,13 @@ for (const name of await readdir(new URL('../../patterns/', import.meta.url))) {
   if (/<fieldset class="lp-choices/.test(render)) patterns.push(name);
 }
 
-const cases = [...patterns.map(name => ({ name, path: name })), { name: 'choice atom', path: 'atoms/choice' }];
+const cases = [...patterns.map(name => ({ name, path: name })), { name: 'choice component', path: 'components/choice' }];
 
 for (const { name, path } of cases) for (const lang of ['en', 'fr']) {
   test(`${name} choice fieldsets reflow after resizing from 1280 to 320 pixels (${lang})`, async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto(`/${path}/${lang}.html`);
-    if (name !== 'choice atom') await page.waitForFunction(() => window.lpReady);
+    if (name !== 'choice component') await page.waitForFunction(() => window.lpReady);
     await page.evaluate(() => {
       for (const group of document.querySelectorAll('fieldset.lp-choices')) {
         for (let node = group; node; node = node.parentElement) {

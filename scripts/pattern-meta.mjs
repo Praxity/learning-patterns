@@ -65,11 +65,11 @@ export function readMeta(name, readme) {
 }
 
 /**
- * @param {string} name atom folder name, used in error messages
+ * @param {string} name component folder name, used in error messages
  * @param {string} readme the README text
  * @returns {{ title: { en: string, fr: string }, summary: string }}
  */
-export function readAtomMeta(name, readme) {
+export function readComponentMeta(name, readme) {
   const fields = frontMatter(name, readme, { title: null, title_fr: null, summary: null });
   return { title: { en: fields.title, fr: fields.title_fr }, summary: fields.summary };
 }
