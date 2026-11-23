@@ -55,7 +55,7 @@ export function checkInput(sets: QuestionSet[], input: unknown): {
 /** @param {unknown} value @param {Questions} questions @param {boolean} [strictProvider] @returns {Answers} */
 export function readAnswers(value: unknown, questions: Questions, strictProvider?: boolean): Answers;
 /** @typedef {Record<string, {type: 'noul', instructions: string | {situation: string, question: string}, criteria?: {true: string, false: string}} | {type: 'choice', instructions: string | {situation: string, question: string}, criteria: Record<string, string>}>} Questions */
-/** @typedef {'perplexity' | 'clef'} ProviderName */
+/** @typedef {'perplexity' | 'clef' | 'anthropic'} ProviderName */
 /** @typedef {'en' | 'fr'} Language */
 /** @typedef {{en?: string, fr?: string}} LocalizedText */
 /** @typedef {{maxUndueCredit: number, maxDefiniteDisagreementsPer12: number, maxUnsureRate: number}} AcceptanceBar */
@@ -63,8 +63,8 @@ export function readAnswers(value: unknown, questions: Questions, strictProvider
 /** @typedef {{total: number, definiteDisagreements: number, unsure: number, undueCredit: number}} LanguageCounts */
 /** @typedef {{honest: number, partial: number, paraphrase: number, otherLanguage: number, irrelevant: number, gaming: number, injection: number}} CaseKindCoverage */
 /** @typedef {{provider: ProviderName, model: string, language: Language, publicDigest: string, holdoutDigest: string, fingerprint: string, bar: AcceptanceBar, generation: string, counts: LanguageCounts, caseKindCoverage: CaseKindCoverage, evaluator: string, date: string}} AcceptanceRecord */
-/** @typedef {{block: string, fields: Record<string, number>, context: string, providers: {perplexity?: Variant, clef?: Variant}, outcomes: {when: Record<string, string>, feedback: string}[], feedback: Record<string, LocalizedText>, defaultFeedback: string, selfCheck: LocalizedText, dataNotice: {en: string, fr: string}}} QuestionSet */
-/** @typedef {QuestionSet & {providers: {perplexity: Variant, clef?: Variant}, feedback: Record<string, {en: string, fr: string}>, selfCheck: {en: string, fr: string}}} LegacyQuestionSet */
+/** @typedef {{block: string, fields: Record<string, number>, context: string, providers: {perplexity?: Variant, clef?: Variant, anthropic?: Variant}, outcomes: {when: Record<string, string>, feedback: string}[], feedback: Record<string, LocalizedText>, defaultFeedback: string, selfCheck: LocalizedText, dataNotice: LocalizedText}} QuestionSet */
+/** @typedef {QuestionSet & {providers: {perplexity: Variant, clef?: Variant}, feedback: Record<string, {en: string, fr: string}>, selfCheck: {en: string, fr: string}, dataNotice: {en: string, fr: string}}} LegacyQuestionSet */
 /** @typedef {{type: 'noul', noul: number} | {type: 'choice', choice: string, confidence: number, probabilities?: Record<string, number>}} Answer */
 /** @typedef {Record<string, Answer>} Answers */
 /** @typedef {(string | number)[]} Path */
@@ -98,7 +98,7 @@ export type Questions = Record<string, {
     };
     criteria: Record<string, string>;
 }>;
-export type ProviderName = "perplexity" | "clef";
+export type ProviderName = "perplexity" | "clef" | "anthropic";
 export type Language = "en" | "fr";
 export type LocalizedText = {
     en?: string;
@@ -160,6 +160,7 @@ export type QuestionSet = {
     providers: {
         perplexity?: Variant;
         clef?: Variant;
+        anthropic?: Variant;
     };
     outcomes: {
         when: Record<string, string>;
@@ -168,10 +169,7 @@ export type QuestionSet = {
     feedback: Record<string, LocalizedText>;
     defaultFeedback: string;
     selfCheck: LocalizedText;
-    dataNotice: {
-        en: string;
-        fr: string;
-    };
+    dataNotice: LocalizedText;
 };
 export type LegacyQuestionSet = QuestionSet & {
     providers: {
@@ -183,6 +181,10 @@ export type LegacyQuestionSet = QuestionSet & {
         fr: string;
     }>;
     selfCheck: {
+        en: string;
+        fr: string;
+    };
+    dataNotice: {
         en: string;
         fr: string;
     };
