@@ -46,17 +46,17 @@ With Node 22, run `npm ci` and `npm run demo`, then `node scripts/serve-demo.mjs
 | [Which is better, and why](patterns/which-is-better/README.md) | Read two versions of the same work, select the sentence that shows each quality or say neither does, then see the better version annotated. |
 | [Sort cases by principle](patterns/sort-by-principle/README.md) | Choose which principle each short case needs, read what decides it, then see which principles you mixed up. |
 
-## Atoms
+## Components
 
-Atoms are the small parts patterns are built from. Use one to build your own activity or course page in the same look. Each folder under `atoms/` has an English and a French example page that works without JavaScript, and a README that says what to copy. Atoms hold no grading, scoring or saving.
+Components are the small parts patterns are built from. Use one to build your own activity or course page in the same look. Each folder under `components/` has an English and a French example page that works without JavaScript, and a README that says what to copy. Components hold no grading, scoring or saving.
 
-| Atom | What it is |
+| Component | What it is |
 | --- | --- |
-| [Choice option and answer mark](atoms/choice/README.md) | Full-width answer rows for one answer or several, and the mark a row gets after the learner checks. |
-| [Labelled text response](atoms/text-response/README.md) | A text box with a visible label, an optional hint and an error message linked to the box. |
-| [Buttons and action row](atoms/buttons/README.md) | One primary button, secondary and quiet buttons, and the row that holds them and wraps on narrow screens. |
-| [Feedback, status and notice](atoms/feedback/README.md) | Result lines with an icon and a word, error and notice text, and the hidden status region that announces each message once. |
-| [Progress line](atoms/progress/README.md) | Text that tells learners where they are, such as Question 2 of 5, with a decorative bar under it. |
+| [Choice option and answer mark](components/choice/README.md) | Full-width answer rows for one answer or several, and the mark a row gets after the learner checks. |
+| [Labelled text response](components/text-response/README.md) | A text box with a visible label, an optional hint and an error message linked to the box. |
+| [Buttons and action row](components/buttons/README.md) | One primary button, secondary and quiet buttons, and the row that holds them and wraps on narrow screens. |
+| [Feedback, status and notice](components/feedback/README.md) | Result lines with an icon and a word, error and notice text, and the hidden status region that announces each message once. |
+| [Progress line](components/progress/README.md) | Text that tells learners where they are, such as Question 2 of 5, with a decorative bar under it. |
 
 ## Look and theme tokens
 
