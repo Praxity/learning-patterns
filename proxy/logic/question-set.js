@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 /** @typedef {Record<string, {type: 'noul', instructions: string | {situation: string, question: string}, criteria?: {true: string, false: string}} | {type: 'choice', instructions: string | {situation: string, question: string}, criteria: Record<string, string>}>} Questions */
-/** @typedef {'perplexity' | 'clef'} ProviderName */
+/** @typedef {'perplexity' | 'clef' | 'anthropic'} ProviderName */
 /** @typedef {'en' | 'fr'} Language */
 /** @typedef {{en?: string, fr?: string}} LocalizedText */
 /** @typedef {{maxUndueCredit: number, maxDefiniteDisagreementsPer12: number, maxUnsureRate: number}} AcceptanceBar */
@@ -9,8 +9,8 @@
 /** @typedef {{total: number, definiteDisagreements: number, unsure: number, undueCredit: number}} LanguageCounts */
 /** @typedef {{honest: number, partial: number, paraphrase: number, otherLanguage: number, irrelevant: number, gaming: number, injection: number}} CaseKindCoverage */
 /** @typedef {{provider: ProviderName, model: string, language: Language, publicDigest: string, holdoutDigest: string, fingerprint: string, bar: AcceptanceBar, generation: string, counts: LanguageCounts, caseKindCoverage: CaseKindCoverage, evaluator: string, date: string}} AcceptanceRecord */
-/** @typedef {{block: string, fields: Record<string, number>, context: string, providers: {perplexity?: Variant, clef?: Variant}, outcomes: {when: Record<string, string>, feedback: string}[], feedback: Record<string, LocalizedText>, defaultFeedback: string, selfCheck: LocalizedText, dataNotice: {en: string, fr: string}}} QuestionSet */
-/** @typedef {QuestionSet & {providers: {perplexity: Variant, clef?: Variant}, feedback: Record<string, {en: string, fr: string}>, selfCheck: {en: string, fr: string}}} LegacyQuestionSet */
+/** @typedef {{block: string, fields: Record<string, number>, context: string, providers: {perplexity?: Variant, clef?: Variant, anthropic?: Variant}, outcomes: {when: Record<string, string>, feedback: string}[], feedback: Record<string, LocalizedText>, defaultFeedback: string, selfCheck: LocalizedText, dataNotice: LocalizedText}} QuestionSet */
+/** @typedef {QuestionSet & {providers: {perplexity: Variant, clef?: Variant}, feedback: Record<string, {en: string, fr: string}>, selfCheck: {en: string, fr: string}, dataNotice: {en: string, fr: string}}} LegacyQuestionSet */
 /** @typedef {{type: 'noul', noul: number} | {type: 'choice', choice: string, confidence: number, probabilities?: Record<string, number>}} Answer */
 /** @typedef {Record<string, Answer>} Answers */
 /** @typedef {(string | number)[]} Path */
@@ -165,7 +165,7 @@ const counts = object({ total: number(1, Number.MAX_SAFE_INTEGER, true), definit
 const coverage = object({ honest: count, partial: count, paraphrase: count, otherLanguage: count, irrelevant: count, gaming: count, injection: count });
 const barSchema = object({ maxUndueCredit: literal(DEFAULT_ACCEPTANCE_BAR.maxUndueCredit), maxDefiniteDisagreementsPer12: number(0, DEFAULT_ACCEPTANCE_BAR.maxDefiniteDisagreementsPer12, true), maxUnsureRate: number(0, DEFAULT_ACCEPTANCE_BAR.maxUnsureRate) });
 const acceptanceSchema = object({
-  provider: union(literal('perplexity'), literal('clef')), model: text, language: union(literal('en'), literal('fr')),
+  provider: union(literal('perplexity'), literal('clef'), literal('anthropic')), model: text, language: union(literal('en'), literal('fr')),
   publicDigest: digest, holdoutDigest: digest, fingerprint: digest,
   bar: barSchema,
   generation: id,
@@ -179,7 +179,7 @@ const acceptanceSchema = object({
 });
 const variantV2 = object({ ...variantShape, model: text, questionOrder: array(id, 1, 128), acceptance: object({ en: optional(acceptanceSchema), fr: optional(acceptanceSchema) }) });
 const pilotText = object({ en: optional(text), fr: optional(text) });
-const setSchemaV2 = object({ ...setShape, providers: object({ perplexity: optional(variantV2), clef: optional(variantV2) }), feedback: record(id, pilotText), selfCheck: pilotText });
+const setSchemaV2 = object({ ...setShape, providers: object({ perplexity: optional(variantV2), clef: optional(variantV2), anthropic: optional(variantV2) }), feedback: record(id, pilotText), selfCheck: pilotText, dataNotice: pilotText });
 
 /** @overload @param {{sets: {providers: {perplexity: unknown}, feedback: Record<string, {en: string, fr: string}>, selfCheck: {en: string, fr: string}}[]}} value @returns {LegacyQuestionSet[]} */
 /** @overload @param {unknown} value @returns {QuestionSet[]} */
@@ -232,10 +232,10 @@ function validateSets(sets, state, version) {
     blocks.add(set.block);
     if (!Object.keys(set.fields).length || ['block', 'acknowledge', 'notice'].some(key => Object.hasOwn(set.fields, key)) || Object.keys(set.fields).length > 10) issue(['fields']);
     if (!Object.hasOwn(set.feedback, set.defaultFeedback)) issue(['defaultFeedback']);
-    const first = own(set.providers, 'perplexity') ?? own(set.providers, 'clef');
+    const first = own(set.providers, 'perplexity') ?? own(set.providers, 'clef') ?? own(set.providers, 'anthropic');
     if (!first) { issue(['providers']); return; }
     const base = first.questions;
-    for (const name of /** @type {const} */ (['perplexity', 'clef'])) {
+    for (const name of /** @type {const} */ (['perplexity', 'clef', 'anthropic'])) {
       const variant = own(set.providers, name);
       if (!variant) continue;
       if (version === 2) {
@@ -251,6 +251,7 @@ function validateSets(sets, state, version) {
           if (record.language !== language) issue([...path, 'language']);
           if (!acceptancePasses(record)) issue(path);
           if (typeof own(set.selfCheck, language) !== 'string') issue(['selfCheck', language]);
+          if (typeof own(set.dataNotice, language) !== 'string') issue(['dataNotice', language]);
           for (const [key, text] of Object.entries(set.feedback)) if (typeof own(text, language) !== 'string') issue(['feedback', key, language]);
         }
       }

@@ -4,10 +4,11 @@ This specification is licensed under [CC BY 4.0](https://creativecommons.org/lic
 
 The deploy bundle is `{ "version": 1, "sets": [...] }`. Each block has a unique ID. Unknown properties fail validation, including caller-supplied questions. The runtime accepts only the server's questions and gates.
 
-Version 2 permits either provider alone, or both. Each variant declares its model,
-question order and one acceptance record per evaluated language. Feedback and
-self-check text need only those languages; data notices still require EN and FR.
-Version 1 remains supported for migration, with its original provider shape.
+Version 2 permits any nonempty subset of the Perplexity, Clef and Anthropic
+providers. Each variant declares its model, question order and one acceptance
+record per evaluated language. Feedback, self-check and data notice text need
+only those languages. Version 1 remains supported for migration, with its
+original provider shape.
 Canary samples are outside this format.
 
 ```json
@@ -66,8 +67,8 @@ Check outcomes are formative feedback only. Learners can steer a model's classif
 
 ## Version 2 variants and acceptance
 
-A v2 set has a nonempty subset of `providers.clef` and
-`providers.perplexity`. Every variant has `questions` and
+A v2 set has a nonempty subset of `providers.perplexity`, `providers.clef`
+and `providers.anthropic`. Every variant has `questions` and
 `confidenceGates` as above, plus:
 
 - `model`, the exact nonempty model ID the adapter must use.
@@ -108,8 +109,9 @@ to its gaming and injection rows, as owned by `MIN_ACCEPTANCE_COVERAGE.ordinary`
 Ordinary rows are the honest, partial, paraphrase, other-language and irrelevant
 kinds; increasing adversarial coverage does not reduce that minimum.
 
-All feedback entries and the self-check must contain every language with a
-record. EN/FR data notices remain mandatory. `supportsLanguage(set, language)`
+All feedback entries, the self-check and `dataNotice` must contain every
+language with a record. A notice for a language without a record is optional,
+so an English-only set may omit `dataNotice.fr`. `supportsLanguage(set, language)`
 and `hasAcceptedVariant(set, provider, model, language)` own admission checks.
 V2 calls to band, feedback and token-bound functions must name the provider;
 only v1 retains an implicit Perplexity default. `requestQuestions(set, provider)`

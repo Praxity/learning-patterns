@@ -61,3 +61,61 @@ test('the public digest binds Choice option order with a literal vector', async 
   const record = v2().sets[0].providers.clef.acceptance.en;
   assert.equal(await shared.acceptanceFingerprint({ ...record, publicDigest: digest }), 'ccea8b389548ea31c3efad57640a343460d92d2aaf919b3e62af6016efcdfc46');
 });
+
+const anthropicBundle = () => {
+  const bundle = v2(), set = bundle.sets[0], variant = set.providers.clef;
+  variant.model = 'claude-model-1';
+  variant.acceptance.en = { ...variant.acceptance.en, provider: 'anthropic', model: 'claude-model-1' };
+  set.providers = { anthropic: variant };
+  return bundle;
+};
+
+test('a v2 set accepts an Anthropic variant with its own acceptance record', () => {
+  const [set] = shared.readQuestionSets(anthropicBundle());
+  assert.equal(shared.hasAcceptedVariant(set, 'anthropic', 'claude-model-1', 'en'), true);
+  assert.equal(shared.hasAcceptedVariant(set, 'anthropic', 'claude-model-1', 'fr'), false);
+  assert.equal(shared.supportsLanguage(set, 'en'), true);
+});
+
+test('v2 still refuses unknown providers and v1 refuses Anthropic', () => {
+  const unknown = anthropicBundle();
+  unknown.sets[0].providers = { openai: unknown.sets[0].providers.anthropic };
+  assert.throws(() => shared.readQuestionSets(unknown), error => {
+    assert.deepEqual(shared.bundleIssuePaths(error), ['sets[0].providers', 'sets[0].providers']); return true;
+  });
+  const legacy = JSON.parse(readFileSync(new URL('./fixtures/question-set-v1.json', import.meta.url), 'utf8'));
+  legacy.sets[0].providers.anthropic = legacy.sets[0].providers.perplexity;
+  assert.throws(() => shared.readQuestionSets(legacy), error => {
+    assert.deepEqual(shared.bundleIssuePaths(error), ['sets[0].providers']); return true;
+  });
+});
+
+test('a v2 data notice is required only in the languages the set serves', () => {
+  const englishOnly = v2();
+  delete englishOnly.sets[0].dataNotice.fr;
+  const [set] = shared.readQuestionSets(englishOnly);
+  assert.deepEqual(set.dataNotice, { en: englishOnly.sets[0].dataNotice.en });
+  assert.equal(set.dataNotice.fr, undefined);
+
+  const french = v2(), frenchSet = french.sets[0], record = frenchSet.providers.clef.acceptance.en;
+  frenchSet.providers.clef.acceptance.fr = { ...record, language: 'fr' };
+  frenchSet.selfCheck.fr = 'Avez-vous donné une date?';
+  for (const entry of Object.values(frenchSet.feedback)) entry.fr = 'Rétroaction.';
+  assert.equal(shared.readQuestionSets(structuredClone(french)).length, 1);
+  delete frenchSet.dataNotice.fr;
+  assert.throws(() => shared.readQuestionSets(french), error => {
+    assert.deepEqual(shared.bundleIssuePaths(error), ['sets[0].dataNotice.fr']); return true;
+  });
+
+  const empty = v2();
+  empty.sets[0].dataNotice.en = '';
+  assert.throws(() => shared.readQuestionSets(empty), error => {
+    assert.deepEqual(shared.bundleIssuePaths(error), ['sets[0].dataNotice.en']); return true;
+  });
+
+  const legacy = JSON.parse(readFileSync(new URL('./fixtures/question-set-v1.json', import.meta.url), 'utf8'));
+  delete legacy.sets[0].dataNotice.fr;
+  assert.throws(() => shared.readQuestionSets(legacy), error => {
+    assert.deepEqual(shared.bundleIssuePaths(error), ['sets[0].dataNotice.fr']); return true;
+  });
+});
