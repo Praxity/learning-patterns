@@ -32,9 +32,11 @@ export function render(content, strings, { id, lang }) {
   ${content.questions.map((q, n) => `<div class="lp-section">
   <fieldset class="lp-choices" id="${html(`${id}-question-${n}`)}" tabindex="-1" data-lp-question="${html(q.id)}">
     <legend class="lp-stem"><span class="lp-small lp-dont-know-question-number">${html(format(strings.questionNumber, { number: n + 1, total: content.questions.length }), lang)}</span><span class="lp-visually-hidden">, </span>${html(q.text, lang)}</legend>
-    ${[...q.options, { id: DONT_KNOW, text: strings.unknown }].map((o, index) => `${o.id === DONT_KNOW ? `<div class="lp-dont-know-choice-divider">${html(strings.or, lang)}</div>` : ''}<label class="lp-choice" for="${html(`${id}-question-${n}-option-${index}`)}"><input type="radio" id="${html(`${id}-question-${n}-option-${index}`)}" name="${html(`${id}-question-${n}`)}" value="${html(o.id)}"><span>${html(o.text, lang)}</span></label>`).join('\n    ')}
-    <p class="lp-error-text" id="${html(`${id}-question-${n}-error`)}" data-lp-question-error hidden>${icons['alert-circle']}<span>${html(strings.choose, lang)}</span></p>
-    <p data-lp-explanation hidden>${html(q.explanation, lang)}</p>
+    <div class="lp-choices">
+      ${[...q.options, { id: DONT_KNOW, text: strings.unknown }].map((o, index) => `${o.id === DONT_KNOW ? `<div class="lp-dont-know-choice-divider">${html(strings.or, lang)}</div>` : ''}<label class="lp-choice" for="${html(`${id}-question-${n}-option-${index}`)}"><input type="radio" id="${html(`${id}-question-${n}-option-${index}`)}" name="${html(`${id}-question-${n}`)}" value="${html(o.id)}"><span>${html(o.text, lang)}</span></label>`).join('\n    ')}
+      <p class="lp-error-text" id="${html(`${id}-question-${n}-error`)}" data-lp-question-error hidden>${icons['alert-circle']}<span>${html(strings.choose, lang)}</span></p>
+      <p data-lp-explanation hidden>${html(q.explanation, lang)}</p>
+    </div>
   </fieldset>
   </div>`).join('\n  ')}
   <div data-lp-flow hidden>

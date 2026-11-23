@@ -139,7 +139,7 @@ test('server HTML has scene, outline, grouped keyed questions, native answers an
   assert.match(a, /class="lp lp-test-out"/); assert.match(a, /data-lp-pattern="test-out" lang="en"/);
   assert.doesNotMatch(a, /Placement check/); assert.match(a, /A refresher on meetings/);
   assert.equal((a.match(/data-lp-section-status/g) || []).length, 3);
-  assert.equal((a.match(/class="lp-choices"/g) || []).length, 3);
+  assert.equal((a.match(/<fieldset class="lp-choices"/g) || []).length, 3);
   assert.equal((a.match(/class="lp-choice"/g) || []).length, 9);
   assert.equal((a.match(/role="status"/g) || []).length, 1);
   assert.match(a, /role="status"[^>]*><\/p>/); assert.match(a, /<details[^>]*data-lp-fallback/);

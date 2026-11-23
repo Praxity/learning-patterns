@@ -22,7 +22,9 @@ export function render(content, strings, { id, lang }) {
     <div class="lp-section" data-lp-fallback>
       <fieldset class="lp-choices">
         <legend class="lp-run-in">${html(strings.fallback, lang)}</legend>
-        ${content.ideas.map(idea => `<label class="lp-choice" for="${html(`${id}-tick-${idea.id}`)}"><input type="checkbox" id="${html(`${id}-tick-${idea.id}`)}" value="${html(idea.id)}"><span>${html(idea.label, lang)}</span></label>`).join('\n')}
+        <div class="lp-choices">
+          ${content.ideas.map(idea => `<label class="lp-choice" for="${html(`${id}-tick-${idea.id}`)}"><input type="checkbox" id="${html(`${id}-tick-${idea.id}`)}" value="${html(idea.id)}"><span>${html(idea.label, lang)}</span></label>`).join('\n')}
+        </div>
       </fieldset>
     </div>
     <details class="lp-details lp-section" data-lp-model open>

@@ -34,9 +34,11 @@ export function render(content, strings, { id, lang }) {
         <h3 class="lp-label" tabindex="-1" data-lp-panel-heading>${html(format(strings.question, { number: index + 1, total: questions.length, section: content.sections.find(s => s.id === q.section)?.title ?? '' }), lang)}</h3>
         <fieldset class="lp-choices" id="${html(`${id}-question-${q.id}`)}" tabindex="-1" data-lp-question="${html(q.id)}">
           <legend class="lp-stem">${html(q.text, lang)}</legend>
-          ${q.options.map((o, n) => `<label class="lp-choice" for="${html(`${id}-question-${q.id}-option-${n}`)}"><input type="radio" id="${html(`${id}-question-${q.id}-option-${n}`)}" name="${html(`${id}-question-${q.id}`)}" value="${html(o.id)}"><span>${html(o.text, lang)}</span></label>`).join('\n          ')}
-          <p class="lp-error-text" id="${html(`${id}-question-${q.id}-error`)}" data-lp-question-error hidden>${icons['alert-circle']}<span>${html(strings.choose, lang)}</span></p>
-          <p data-lp-explanation hidden>${html(q.explanation, lang)}</p>
+          <div class="lp-choices">
+            ${q.options.map((o, n) => `<label class="lp-choice" for="${html(`${id}-question-${q.id}-option-${n}`)}"><input type="radio" id="${html(`${id}-question-${q.id}-option-${n}`)}" name="${html(`${id}-question-${q.id}`)}" value="${html(o.id)}"><span>${html(o.text, lang)}</span></label>`).join('\n          ')}
+            <p class="lp-error-text" id="${html(`${id}-question-${q.id}-error`)}" data-lp-question-error hidden>${icons['alert-circle']}<span>${html(strings.choose, lang)}</span></p>
+            <p data-lp-explanation hidden>${html(q.explanation, lang)}</p>
+          </div>
         </fieldset>
         <div class="lp-actions lp-test-out-navigation" data-lp-navigation hidden>
           <button class="lp-button lp-button-quiet" type="button" data-lp-back>${icons['arrow-back-up']}${html(strings.back, lang)}</button>

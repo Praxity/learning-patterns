@@ -37,8 +37,10 @@ export function render(content, strings, { id, lang }) {
     <div class="lp-section" data-lp-ticks hidden>
       <fieldset class="lp-choices">
         <legend class="lp-run-in" id="${html(`${id}-ticks`)}">${html(strings.question, lang)}</legend>
-        <div class="lp-self-check-meter" data-lp-meter>${ring(0, content.parts.length)}<span>${html(strings.meter.replaceAll('{count}', '0').replaceAll('{total}', String(content.parts.length)), lang)}</span></div>
-        ${content.parts.map((part, index) => `<label class="lp-choice" for="${html(`${id}-part-${index}`)}"><input type="checkbox" id="${html(`${id}-part-${index}`)}" value="${html(part.id)}"><span>${html(part.label, lang)}</span></label>`).join('\n        ')}
+        <div class="lp-choices">
+          <div class="lp-self-check-meter" data-lp-meter>${ring(0, content.parts.length)}<span>${html(strings.meter.replaceAll('{count}', '0').replaceAll('{total}', String(content.parts.length)), lang)}</span></div>
+          ${content.parts.map((part, index) => `<label class="lp-choice" for="${html(`${id}-part-${index}`)}"><input type="checkbox" id="${html(`${id}-part-${index}`)}" value="${html(part.id)}"><span>${html(part.label, lang)}</span></label>`).join('\n        ')}
+        </div>
       </fieldset>
       <div class="lp-actions lp-self-check-step-actions">
         <button class="lp-button" type="button" data-lp-show>${html(strings.show, lang)}</button>

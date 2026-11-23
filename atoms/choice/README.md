@@ -31,7 +31,7 @@ A group of full-width answer rows. Learners pick one answer with radio buttons o
 ```
 
 - Keep the markup inside an element with the `lp` class, as the snippet does. `lib/base.css` defines the `--lp-*` colour, spacing and type tokens on `.lp`, so outside it the rows lose their borders, colours and focus ring. A pattern's root section already has the class.
-- Put the rows in a `div.lp-choices` inside the fieldset, as [Spot the misconception](../../patterns/misconception/README.md) does. `atom.css` then shows the outer fieldset as a plain block, and the inner list spaces the rows. When the fieldset itself is the grid, WebKit keeps the legend at the width it had before the window narrowed, so after zooming in or rotating a phone the question runs off the page.
+- Put the rows in a `div.lp-choices` inside the fieldset, as [Spot the misconception](../../patterns/misconception/README.md) does. `lib/base.css` shows the outer fieldset as a plain block, and the inner list spaces the rows. When the fieldset itself is the grid, WebKit keeps the legend at the width it had before the window narrowed, so after zooming in or rotating a phone the question runs off the page.
 - Write one `label.lp-choice` per option: the input first, then the option text in a `span`.
 - For "choose all that apply", use `type="checkbox"`. The row then draws a box instead of a letter.
 - Radio rows show the letters A, B, C, drawn by `lib/base.css`.
@@ -58,7 +58,6 @@ The words are "Correct", "Incorrect" and "Correct answer" in English and "Correc
 ## Copy these files
 
 - `lib/base.css`: every style for the rows and marks.
-- `atoms/choice/atom.css`: shows a fieldset that holds a `div.lp-choices` as a plain block, so its legend wraps when the window narrows.
 - `lib/choice-mark.js`, `lib/icons.js` and `lib/html.js`, if a script or your server adds marks. `choice-mark.js` imports the other two.
 - `lib/lock.js`, if a script freezes the rows after checking.
 

@@ -56,14 +56,14 @@ for (const width of [1280, 390]) {
   test(`answer and choice groups are 24px apart at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await compareAnswers(page);
-    expect(await gap(page.locator('[data-lp-panel-first-card]'), page.locator('.lp-choices'))).toBeCloseTo(24, 1);
+    expect(await gap(page.locator('[data-lp-panel-first-card]'), page.locator('fieldset.lp-choices'))).toBeCloseTo(24, 1);
     expect(await page.locator('.lp-run-in:visible').first().evaluate(el => parseFloat(getComputedStyle(el).lineHeight) / parseFloat(getComputedStyle(el).fontSize))).toBeCloseTo(1.4, 2);
   });
 
   test(`legends keep their own 12px gap at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await open(page, 'dont-know');
-    const groups = page.locator('.lp-choices');
+    const groups = page.locator('fieldset.lp-choices');
     expect(await gap(groups.first().locator('legend'), groups.first().locator('.lp-choice').first())).toBeCloseTo(12, 1);
     expect(await groups.first().locator('.lp-choice').first().evaluate(el => parseFloat(getComputedStyle(el).lineHeight) / parseFloat(getComputedStyle(el).fontSize))).toBeCloseTo(1.4, 2);
   });
@@ -260,7 +260,7 @@ test('pattern relationships scale with a 20px default font', async ({ page }) =>
   await enlarge();
   const card = page.locator('[data-lp-panel-first-card]');
   expect(await gap(card.locator('h4'), card.locator('.lp-first-answer-date'))).toBeCloseTo(15, 1);
-  expect(await gap(card, page.locator('.lp-choices'))).toBeCloseTo(30, 1);
+  expect(await gap(card, page.locator('fieldset.lp-choices'))).toBeCloseTo(30, 1);
 
   await open(page, 'test-out');
   await enlarge();
@@ -315,6 +315,6 @@ for (const lang of ['en', 'fr']) for (const textSpacing of [false, true]) {
     }
     await compareAnswers(page, lang);
     if (textSpacing) await page.addStyleTag({ content: TEXT_SPACING });
-    expect(await gap(page.locator('[data-lp-panel-first-card]'), page.locator('.lp-choices'))).toBeGreaterThanOrEqual(24);
+    expect(await gap(page.locator('[data-lp-panel-first-card]'), page.locator('fieldset.lp-choices'))).toBeGreaterThanOrEqual(24);
   });
 }

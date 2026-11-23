@@ -14,9 +14,11 @@ export function render(content, strings, { id, lang }) {
   /** @param {import('./logic.js').StepName} name */
   const step = name => `<fieldset class="lp-choices" id="${key(name)}" data-lp-step="${name}" aria-describedby="${key(`${name}-hint`)}">
       <legend class="lp-stem" data-lp-stem>${h(strings[`${name}Stem`])}</legend>
-      <p class="lp-small" id="${key(`${name}-hint`)}">${h(strings[`${name}Hint`])}</p>
-      ${content[name].options.map((option, index) => `<label class="lp-choice" for="${key(`${name}-${index}`)}"><input type="radio" id="${key(`${name}-${index}`)}" name="${key(name)}" value="${html(option.id)}"><span>${h(option.text)}</span></label>`).join('\n      ')}
-      <p class="lp-error-text" id="${key(`${name}-error`)}" data-lp-error hidden>${icons['alert-circle']}<span>${h(strings[name === 'when' ? 'chooseWhen' : 'chooseWill'])}</span></p>
+      <div class="lp-choices">
+        <p class="lp-small" id="${key(`${name}-hint`)}">${h(strings[`${name}Hint`])}</p>
+        ${content[name].options.map((option, index) => `<label class="lp-choice" for="${key(`${name}-${index}`)}"><input type="radio" id="${key(`${name}-${index}`)}" name="${key(name)}" value="${html(option.id)}"><span>${h(option.text)}</span></label>`).join('\n      ')}
+        <p class="lp-error-text" id="${key(`${name}-error`)}" data-lp-error hidden>${icons['alert-circle']}<span>${h(strings[name === 'when' ? 'chooseWhen' : 'chooseWill'])}</span></p>
+      </div>
     </fieldset>`;
   const vague = [...content.when.options, ...content.will.options].filter(option => option.vague !== undefined);
   return `<section class="lp lp-if-then-plan" data-lp-pattern="if-then-plan" lang="${html(lang)}">

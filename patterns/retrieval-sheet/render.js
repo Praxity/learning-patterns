@@ -19,7 +19,9 @@ export function render(content, strings, { id, lang, today = new Date() }) {
   <div class="lp-retrieval-sheet-controls" data-lp-controls hidden>
     <fieldset class="lp-choices lp-retrieval-sheet-spacing" data-lp-spacing>
       <legend class="lp-stem">${html(strings.spacingLegend, lang)}</legend>
-      ${[...presetDays, 'custom'].map((days, index) => `<label class="lp-choice" for="${html(`${id}-spacing-${days}`)}"><input type="radio" id="${html(`${id}-spacing-${days}`)}" name="${html(`${id}-spacing`)}" value="${days}"${days === 7 ? ' checked' : ''}><span>${html(days === 'custom' ? strings.anotherDate : labels[index], lang)}<span class="lp-small lp-retrieval-sheet-choice-date" data-lp-choice-date${days === 'custom' ? ' hidden' : ''}><span class="lp-visually-hidden">, </span><span data-lp-choice-date-text>${days === 'custom' ? '' : html(formatShortDate(dateAfterDays(today, Number(days)), lang), lang)}</span></span></span></label>`).join('\n      ')}
+      <div class="lp-choices">
+        ${[...presetDays, 'custom'].map((days, index) => `<label class="lp-choice" for="${html(`${id}-spacing-${days}`)}"><input type="radio" id="${html(`${id}-spacing-${days}`)}" name="${html(`${id}-spacing`)}" value="${days}"${days === 7 ? ' checked' : ''}><span>${html(days === 'custom' ? strings.anotherDate : labels[index], lang)}<span class="lp-small lp-retrieval-sheet-choice-date" data-lp-choice-date${days === 'custom' ? ' hidden' : ''}><span class="lp-visually-hidden">, </span><span data-lp-choice-date-text>${days === 'custom' ? '' : html(formatShortDate(dateAfterDays(today, Number(days)), lang), lang)}</span></span></span></label>`).join('\n      ')}
+      </div>
     </fieldset>
     <div class="lp-retrieval-sheet-date-field" data-lp-custom-date hidden>
       <label class="lp-label" for="${html(`${id}-date`)}">${html(strings.customDateLabel, lang)}</label>

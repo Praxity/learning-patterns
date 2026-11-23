@@ -8,7 +8,7 @@ Pattern pages will live at [praxity.io/en/patterns/](https://praxity.io/en/patte
 
 ## Use a pattern
 
-Copy its folder under `patterns/` and the shared `lib/` folder. Keep their relative paths. Include the pattern's CSS, call `render` on the server, then call `enhance` in the browser. See the pattern's README for the content shape and example.
+Follow the copy list in each pattern's README. It includes the pattern folder, shared `lib/` folder and any browser-safe `proxy/logic/` dependencies. Keep their relative paths. Include the pattern's CSS, call `render` on the server, then call `enhance` in the browser. See the pattern's README for the content shape and example.
 
 ## Run the demos
 

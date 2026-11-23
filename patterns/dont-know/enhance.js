@@ -38,9 +38,10 @@ export function enhance(root, { content, strings, state }) {
     const explanation = /** @type {HTMLElement} */ (required(fieldset, '[data-lp-explanation]'));
     const name = radios[0]?.name;
     if (fieldset.dataset.lpQuestion !== q.id || !fieldset.id || fieldset.getAttribute('tabindex') !== '-1' || radios.length !== expected.length || !name || names.has(name) || !message.id || radios.some((radio, n) => radio.type !== 'radio' || radio.value !== expected[n] || radio.name !== name)) throw new Error('Invalid dont-know options markup');
+    const choices = required(fieldset, ':scope > div.lp-choices');
     const rows = radios.map(radio => {
       const row = radio.closest('label');
-      if (!row || row.parentElement !== fieldset) throw new Error('Invalid dont-know choice markup');
+      if (!row || row.parentElement !== choices) throw new Error('Invalid dont-know choice markup');
       return row;
     });
     names.add(name);

@@ -127,13 +127,13 @@ test('two-part content uses two columns without inline styles and stacks in narr
   }, content);
   await expect(page.locator('[data-lp-fact]')).toHaveCount(2);
   await expect(page.getByRole('radio')).toHaveCount(4);
-  for (const selector of ['.lp-prolific-questions-worked', '.lp-prolific-questions-fact']) {
+  for (const selector of ['.lp-prolific-questions-worked', '.lp-prolific-questions-fact > .lp-choices']) {
     expect(await page.locator(selector).first().evaluate(el => new Set([...el.children].filter(child => child.getClientRects().length).map(child => Math.round(child.getBoundingClientRect().left))).size)).toBe(2);
   }
   expect(await page.locator('[data-lp-worked]').evaluate(el => getComputedStyle(el).borderBlockStartWidth)).toBe('0px');
   await expect(page.locator('[data-lp-worked]').getByRole('region')).toHaveCount(0);
   await page.setViewportSize({ width: 320, height: 900 });
-  for (const selector of ['.lp-prolific-questions-worked', '.lp-prolific-questions-fact']) {
+  for (const selector of ['.lp-prolific-questions-worked', '.lp-prolific-questions-fact > .lp-choices']) {
     expect(await page.locator(selector).first().evaluate(el => new Set([...el.children].filter(child => child.getClientRects().length).map(child => Math.round(child.getBoundingClientRect().left))).size)).toBe(1);
   }
   for (const choice of await page.locator('.lp-prolific-questions-fact .lp-choice').all()) {

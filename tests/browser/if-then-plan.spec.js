@@ -378,3 +378,18 @@ test('forced colours keep the vague mark, its border and keyboard focus', async 
   await expect(add(page)).toHaveCSS('outline-style', 'solid');
   await expect(add(page)).toHaveCSS('outline-width', '3px');
 });
+
+
+for (const lang of ['en', 'fr']) for (const width of [320, 1280]) {
+  test(`each step keeps 12px between its hint and first option (${lang}, ${width}px)`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await open(page, lang);
+    for (const name of ['when', 'will']) {
+      const group = step(page, name);
+      await expect(group).toBeVisible();
+      const gap = await group.evaluate(el => el.querySelector('.lp-choice').getBoundingClientRect().top - el.querySelector('.lp-small').getBoundingClientRect().bottom);
+      expect(gap).toBeCloseTo(12, 1);
+      if (name === 'when') await chooseAndAdd(page, 'problem');
+    }
+  });
+}

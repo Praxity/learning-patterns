@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 
 for (const name of ['misconception', 'self-check', 'dont-know', 'test-out']) {
   const { render } = await import(`../patterns/${name}/render.js`);
@@ -46,4 +46,21 @@ for (const lang of ['en', 'fr']) {
     assert.equal(errors.length, 3);
     for (const [, message] of errors) assert.match(message, /<svg[^>]*aria-hidden="true"/);
   });
+}
+
+
+for (const name of await readdir(new URL('../patterns/', import.meta.url))) {
+  const { render } = await import(`../patterns/${name}/render.js`);
+  const { strings } = await import(`../patterns/${name}/strings.js`);
+  for (const lang of ['en', 'fr']) {
+    test(`${name} keeps choice grids inside native fieldsets (${lang})`, async () => {
+      const content = JSON.parse(await readFile(new URL(`../patterns/${name}/examples/${lang}.json`, import.meta.url)));
+      const markup = render(content, strings[lang], { id: 'layout', lang });
+      for (const [, group] of markup.matchAll(/<fieldset class="lp-choices[^>]*>([\s\S]*?)<\/fieldset>/g)) {
+        assert.match(group, /<legend/);
+        assert.match(group, /<div class="lp-choices">/);
+        assert.doesNotMatch(group.split('<div class="lp-choices">')[0], /<label class="lp-choice"/);
+      }
+    });
+  }
 }

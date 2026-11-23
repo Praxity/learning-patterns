@@ -50,16 +50,24 @@ All content is authored plain text, escaped before rendering.
 | --- | --- |
 | `setup` | Two sentences setting the meeting scene. |
 | `person` | Michel’s `name`, `role` and avatar `initial`. |
-| `subject`, `opening` | Composer subject and Michel’s opening line. |
+| `opening` | Michel’s opening line. |
 | `branches` | The five fixed branch identities. |
 | `branches[branch].line`, `.endings` | Michel’s first reply, then his final reply for each second move. |
 | `branches[branch].move`, `.debrief` | Name of the learner’s response and one sentence about its effect. |
 | `examples[node][branch]` | Five example replies for `opening` and each branch node, at most 1,200 characters each. |
-| `stageNotes` | Optional italic ending notes keyed `first:second`. |
+| `stageNotes` | Required object of italic ending notes keyed `first:second`; entries are optional, so `{}` is valid. |
 | `pauseNote` | Return to the conversation after a pause. |
 | `unsure`, `offScript` | Helpful guidance that does not advance the conversation. |
 
 The schema and validator reject unknown fields, missing branch IDs and blank text. Keep the English opening and first replies identical to the proxy’s `MICHEL_REPLIES`; tests check every line. French must convey the same context. To change the work-plan scenario, change and evaluate the proxy questions too.
+
+### Content example
+
+Import the complete [English content](examples/en.json) as `example`. To omit ending notes:
+
+```js
+const content = { ...example, stageNotes: {} };
+```
 
 ## Logic
 

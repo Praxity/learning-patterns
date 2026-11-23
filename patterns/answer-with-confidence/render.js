@@ -35,7 +35,9 @@ export function render(content, strings, { id, lang }) {
     return `<div class="lp-section" data-lp-question="${html(q.id)}">
     <fieldset class="lp-choices" id="${html(base)}" tabindex="-1">
       <legend class="lp-stem">${many ? `<span class="lp-small lp-answer-with-confidence-question-number">${h(format(strings.questionNumber, { number: n + 1, total: content.questions.length }))}</span><span class="lp-visually-hidden">, </span>${h(q.text)}` : `<h2 class="lp-heading">${h(q.text)}</h2>`}</legend>
-      ${q.options.map((o, index) => `<label class="lp-choice" for="${html(`${base}-option-${index}`)}"><input type="radio" id="${html(`${base}-option-${index}`)}" name="${html(base)}" value="${html(o.id)}"><span>${h(o.text)}</span>${markSpace}</label>`).join('\n      ')}
+      <div class="lp-choices">
+        ${q.options.map((o, index) => `<label class="lp-choice" for="${html(`${base}-option-${index}`)}"><input type="radio" id="${html(`${base}-option-${index}`)}" name="${html(base)}" value="${html(o.id)}"><span>${h(o.text)}</span>${markSpace}</label>`).join('\n      ')}
+      </div>
     </fieldset>
     <div class="lp-answer-with-confidence-stage" data-lp-stage hidden>
       <div class="lp-answer-with-confidence-submit" role="group" aria-label="${h(many ? format(strings.submitGroupTo, { number: n + 1 }) : strings.submitGroup)}" data-lp-submit>
