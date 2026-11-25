@@ -1,6 +1,6 @@
 ---
 title: Instant course lookup
-title_fr: Trouvez une réponse dans le cours
+title_fr: Trouver une réponse dans le cours
 summary: Ask a question to find an authored answer or course section. Save unanswered questions in your tab.
 section: course
 ai: yes
@@ -40,7 +40,7 @@ Help-seeking research distinguishes seeking help to understand from seeking an a
 
 [Dhakal et al., CHI 2018](https://doi.org/10.1145/3173574.3174220) measured a mean inter-key interval of 239 ms, and over 480 ms for slow typists, in a transcription task. [Nielsen, 1993](https://www.nngroup.com/articles/response-times-3-important-limits/) identifies about one second as the limit for uninterrupted flow. These inform the adaptive wait. They do not establish the multiplier, sample window or cap. Network time adds to the wait.
 
-This pattern has not been tested with learners. We have not measured whether immediate answers improve learning, help-seeking or course completion. Calibration uses authored questions, not learner questions. It does not establish accuracy in a real course.
+This pattern has not been tested with learners. I have not measured whether immediate answers improve learning, help-seeking or course completion. Calibration uses authored questions, not learner questions. It does not establish accuracy in a real course.
 
 In 44 authored live checks, all 32 single-answer or unanswered cases matched the expected result; only 1 of 12 paired questions returned both entries at these gates.
 
@@ -140,7 +140,7 @@ Daily proxy caps show and announce the reason and midnight UTC reset once, keep 
 
 ## Help improve this pattern
 
-Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Instant%20course%20lookup). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/course-lookup/README.md).
+Tried it with learners? [Tell me what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Instant%20course%20lookup). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/course-lookup/README.md).
 
 ## Licence
 

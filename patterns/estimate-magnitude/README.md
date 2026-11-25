@@ -1,6 +1,6 @@
 ---
 title: Estimate magnitude
-title_fr: Estimez l’ordre de grandeur
+title_fr: Estimer l’ordre de grandeur
 summary: Slide a range until it holds your estimate, then see which answers your ranges caught.
 section: question
 ai: no
@@ -125,7 +125,7 @@ const instance = enhance(document.querySelector('[data-lp-pattern="estimate-magn
 
 ## Help improve this pattern
 
-Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Estimate%20magnitude). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/estimate-magnitude/README.md).
+Tried it with learners? [Tell me what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Estimate%20magnitude). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/estimate-magnitude/README.md).
 
 ## Licence
 

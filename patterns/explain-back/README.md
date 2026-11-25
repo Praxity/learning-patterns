@@ -1,6 +1,6 @@
 ---
 title: Explain what you learned
-title_fr: Expliquer ce que vous avez appris
+title_fr: Expliquer ce qu’on a appris
 summary: Explain a short lesson, check three key ideas and reread any you missed.
 section: reading
 ai: yes
@@ -121,7 +121,7 @@ Daily proxy caps show and announce the reason and midnight UTC reset once, keep 
 
 ## Help improve this pattern
 
-Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Explain%20what%20you%20learned). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/explain-back/README.md).
+Tried it with learners? [Tell me what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Explain%20what%20you%20learned). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/explain-back/README.md).
 
 ## Licence
 

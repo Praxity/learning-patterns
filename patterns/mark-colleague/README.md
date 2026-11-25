@@ -121,7 +121,7 @@ Each email has a level 3 heading, one level below the card title. The feedback f
 
 ## Help improve this pattern
 
-Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Give%20feedback%20on%20a%20colleague%27s%20work). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/mark-colleague/README.md).
+Tried it with learners? [Tell me what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Give%20feedback%20on%20a%20colleague%27s%20work). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/mark-colleague/README.md).
 
 ## Licence
 

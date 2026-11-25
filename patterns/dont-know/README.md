@@ -187,7 +187,7 @@ Question numbers are captions inside each legend. "I don't know" is last, after 
 
 ## Help improve this pattern
 
-Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=%22I%20don%27t%20know%22%20as%20an%20answer). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/dont-know/README.md).
+Tried it with learners? [Tell me what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=%22I%20don%27t%20know%22%20as%20an%20answer). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/dont-know/README.md).
 
 ## Licence
 

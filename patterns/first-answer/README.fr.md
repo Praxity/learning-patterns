@@ -5,4 +5,4 @@
 ## Quand l’éviter
 
 - Lorsque vous devez noter les réponses ou mesurer les progrès, utilisez une évaluation. Ici, les personnes apprenantes jugent elles-mêmes leurs changements.
-- Lorsque les personnes apprenantes ont besoin d’une rétroaction immédiate sur une réponse, utilisez [Vérifiez votre réponse](../self-check/README.md).
+- Lorsque les personnes apprenantes ont besoin d’une rétroaction immédiate sur une réponse, utilisez [Vérifier sa réponse](../self-check/README.md).

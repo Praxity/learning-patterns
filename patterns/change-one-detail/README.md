@@ -136,7 +136,7 @@ The highlight colour is `--lp-change-one-detail-mark`. Keep at least 4.5:1 contr
 
 ## Help improve this pattern
 
-Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Change%20one%20detail). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/change-one-detail/README.md).
+Tried it with learners? [Tell me what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Change%20one%20detail). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/change-one-detail/README.md).
 
 ## Licence
 

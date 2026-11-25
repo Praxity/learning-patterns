@@ -1,6 +1,6 @@
 ---
 title: Spot the misconception
-title_fr: Repérez l’idée fausse
+title_fr: Repérer l’idée fausse
 summary: Answer a study question and compare feedback with a model answer.
 section: question
 ai: yes
@@ -125,7 +125,7 @@ The question labels the three-line answer box. Submitting announces feedback onc
 
 ## Help improve this pattern
 
-Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Spot%20the%20misconception). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/misconception/README.md).
+Tried it with learners? [Tell me what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Spot%20the%20misconception). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/misconception/README.md).
 
 ## Licence
 

@@ -138,7 +138,7 @@ const instance = enhance(document.querySelector('[data-lp-pattern]'), { content,
 
 ## Help improve this pattern
 
-Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Which%20is%20better%2C%20and%20why). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/which-is-better/README.md).
+Tried it with learners? [Tell me what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Which%20is%20better%2C%20and%20why). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/which-is-better/README.md).
 
 ## Licence
 

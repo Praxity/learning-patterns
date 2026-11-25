@@ -4,5 +4,5 @@
 
 ## Quand l’éviter
 
-- Lorsque les réponses ne peuvent pas être vérifiées à l’aide de quelques critères clairs, faites donner la rétroaction par une personne. Pour une liste de vérification que la personne apprenante coche elle-même, utilisez [Vérifiez votre réponse](../self-check/README.md).
+- Lorsque les réponses ne peuvent pas être vérifiées à l’aide de quelques critères clairs, faites donner la rétroaction par une personne. Pour une liste de vérification que la personne apprenante coche elle-même, utilisez [Vérifier sa réponse](../self-check/README.md).
 - Lorsque vous avez besoin d’une note, utilisez une évaluation. Cette interaction aide les personnes apprenantes à améliorer leur réponse.

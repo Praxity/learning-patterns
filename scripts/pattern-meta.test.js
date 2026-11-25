@@ -6,7 +6,7 @@ import { checkFrenchSections } from '../tests/readme-checks.js';
 
 const valid = `---
 title: Check your own answer
-title_fr: Vérifiez votre réponse
+title_fr: Vérifier sa réponse
 summary: Write an answer, tick the parts it includes, then compare.
 section: question
 ai: no
@@ -18,7 +18,7 @@ learners: not tried
 
 test('reads titles, summary, section and facets', () => {
   assert.deepEqual(readMeta('x', valid), {
-    title: { en: 'Check your own answer', fr: 'Vérifiez votre réponse' },
+    title: { en: 'Check your own answer', fr: 'Vérifier sa réponse' },
     summary: 'Write an answer, tick the parts it includes, then compare.',
     section: 'question',
     ai: false,

@@ -85,7 +85,7 @@ Fonts are not bundled. Load Source Sans 3 yourself, or set the font tokens to yo
 
 ## Accessibility baseline
 
-Our accessibility target is WCAG 2.2 AA and EN 301 549.
+My accessibility target is WCAG 2.2 AA and EN 301 549.
 
 Every pattern follows this shared baseline. The [browser tests](tests/browser/) run in Chromium, WebKit and Firefox, as set in the [Playwright configuration](playwright.config.js).
 
@@ -98,7 +98,7 @@ Every pattern follows this shared baseline. The [browser tests](tests/browser/) 
 - Every pattern has a working version without JavaScript. Its README describes which steps remain available.
 - English and French content, labels and feedback have checks in both languages.
 
-Automated checks cover only part of accessibility. We tested the patterns with NVDA in Chrome and Firefox and VoiceOver in Safari on macOS, using prepared model answers for AI patterns. Test your adapted content with the screen readers and browsers your learners use.
+Automated checks cover only part of accessibility. I tested the patterns with NVDA in Chrome and Firefox and VoiceOver in Safari on macOS, using prepared model answers for AI patterns. Test your adapted content with the screen readers and browsers your learners use.
 
 ## Licence
 

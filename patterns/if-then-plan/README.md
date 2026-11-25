@@ -139,7 +139,7 @@ The plan is set apart by space, a rule and larger type, with no box inside the c
 
 ## Help improve this pattern
 
-Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Build%20an%20if-then%20plan). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/if-then-plan/README.md).
+Tried it with learners? [Tell me what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Build%20an%20if-then%20plan). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/if-then-plan/README.md).
 
 ## Licence
 

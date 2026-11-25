@@ -125,7 +125,7 @@ Daily proxy caps show and announce the reason and midnight UTC reset once, keep 
 
 ## Help improve this pattern
 
-Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Journal%20entry%20with%20a%20nudge). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/journal/README.md).
+Tried it with learners? [Tell me what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Journal%20entry%20with%20a%20nudge). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/journal/README.md).
 
 ## Licence
 

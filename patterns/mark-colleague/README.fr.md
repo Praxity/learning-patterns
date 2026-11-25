@@ -6,6 +6,6 @@
 
 ## Quand l’éviter
 
-- Lorsque les personnes apprenantes doivent juger leur propre réponse par rapport à un modèle, utilisez [Vérifiez votre réponse](../self-check/README.md).
+- Lorsque les personnes apprenantes doivent juger leur propre réponse par rapport à un modèle, utilisez [Vérifier sa réponse](../self-check/README.md).
 - Lorsque les personnes apprenantes ne savent pas encore à quoi ressemble un bon travail, commencez par [Terminer un exemple résolu](../finish-worked-example/README.md).
 - Si vous avez besoin d’une note, utilisez une évaluation. Les cases cochées ne reflètent que le jugement de la personne apprenante sur sa propre rétroaction.

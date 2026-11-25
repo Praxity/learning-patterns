@@ -122,7 +122,7 @@ Without JavaScript, the question, context and option labels remain visible so le
 
 ## Help improve this pattern
 
-Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Split%20by%20proportion). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/split-by-proportion/README.md).
+Tried it with learners? [Tell me what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Split%20by%20proportion). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/split-by-proportion/README.md).
 
 ## Licence
 
