@@ -5,4 +5,4 @@
 
 ## Quand l’éviter
 
-- Lorsque les personnes apprenantes ont besoin d’une décision de réussite, utilisez une évaluation. Pour une courte vérification qui détermine les sections de révision à sauter, utilisez [Sautez certaines sections après un test](../test-out/README.md).
+- Lorsque les personnes apprenantes ont besoin d’une décision de réussite, utilisez une évaluation. Pour une courte vérification qui détermine les sections de révision à sauter, utilisez [Sauter des sections après un test](../test-out/README.md).

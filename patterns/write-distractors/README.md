@@ -1,6 +1,6 @@
 ---
 title: Write the wrong options
-title_fr: Rédigez les mauvaises réponses
+title_fr: Rédiger les mauvaises réponses
 summary: Answer from memory, write wrong options and explain the mistaken idea behind each, then compare with the author.
 section: question
 ai: no
@@ -188,7 +188,7 @@ Give your agent this README, the examples and your correct answer. Ask for misco
 
 ## Help improve this pattern
 
-Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Write%20the%20wrong%20options). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/write-distractors/README.md).
+Tried it with learners? [Tell me what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Write%20the%20wrong%20options). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/write-distractors/README.md).
 
 ## Licence
 

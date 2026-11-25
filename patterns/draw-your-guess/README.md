@@ -1,6 +1,6 @@
 ---
 title: Draw your guess
-title_fr: Tracez votre estimation
+title_fr: Tracer son estimation
 summary: Set the next few points of a line chart, then see the actual line over your guess.
 section: question
 ai: no
@@ -125,7 +125,7 @@ const instance = enhance(document.querySelector('[data-lp-pattern]'), { content,
 
 ## Help improve this pattern
 
-Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Draw%20your%20guess). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/draw-your-guess/README.md).
+Tried it with learners? [Tell me what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Draw%20your%20guess). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/draw-your-guess/README.md).
 
 ## Licence
 

@@ -6,4 +6,4 @@
 ## Quand l’éviter
 
 - Lorsque les quantités sont inférieures à un ou que les réponses doivent être exactes, utilisez une question numérique avec une réponse vérifiée.
-- Lorsque les personnes apprenantes doivent prédire une tendance, utilisez [Tracez votre estimation](../draw-your-guess/README.md). Pour les parts d’un même total, utilisez [Répartir un total](../split-by-proportion/README.md).
+- Lorsque les personnes apprenantes doivent prédire une tendance, utilisez [Tracer son estimation](../draw-your-guess/README.md). Pour les parts d’un même total, utilisez [Répartir un total](../split-by-proportion/README.md).

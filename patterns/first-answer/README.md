@@ -1,6 +1,6 @@
 ---
 title: Your first answer replayed
-title_fr: Revenez sur votre première réponse
+title_fr: Revenir sur sa première réponse
 summary: Save your first answer, answer again at the end of the course, then compare what changed.
 section: course
 ai: no
@@ -136,7 +136,7 @@ Text fields keep the full draft, including text over the limit. Checking or savi
 
 ## Help improve this pattern
 
-Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Your%20first%20answer%20replayed). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/first-answer/README.md).
+Tried it with learners? [Tell me what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Your%20first%20answer%20replayed). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/first-answer/README.md).
 
 ## Licence
 

@@ -118,7 +118,7 @@ Without JavaScript, the worked example and source context remain readable. A nat
 
 ## Help improve this pattern
 
-Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Prolific%20questions). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/prolific-questions/README.md).
+Tried it with learners? [Tell me what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Prolific%20questions). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/prolific-questions/README.md).
 
 ## Licence
 

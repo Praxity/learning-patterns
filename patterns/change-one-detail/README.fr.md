@@ -7,5 +7,5 @@
 ## Quand l’éviter
 
 - Lorsque les personnes apprenantes doivent se rappeler des faits distincts, utilisez un questionnaire comme [« Je ne sais pas » comme réponse](../dont-know/README.md).
-- Lorsque l’erreur vient d’une croyance fausse et non d’un détail manqué, utilisez [Repérez l’idée fausse](../misconception/README.md).
+- Lorsque l’erreur vient d’une croyance fausse et non d’un détail manqué, utilisez [Repérer l’idée fausse](../misconception/README.md).
 - Lorsque la réponse dépend de plusieurs détails à la fois, rédigez des cas distincts. Un seul détail modifié ne peut pas le montrer.

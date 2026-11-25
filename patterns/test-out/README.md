@@ -1,6 +1,6 @@
 ---
 title: Pre-test to skip sections
-title_fr: Sautez certaines sections après un test
+title_fr: Sauter des sections après un test
 summary: Answer a short check to see which refresher sections you can skip and which to take.
 section: course
 ai: no
@@ -131,7 +131,7 @@ Check lists every unanswered question beside the action. Each focus button opens
 
 ## Help improve this pattern
 
-Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Pre-test%20to%20skip%20sections). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/test-out/README.md).
+Tried it with learners? [Tell me what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Pre-test%20to%20skip%20sections). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/test-out/README.md).
 
 ## Licence
 

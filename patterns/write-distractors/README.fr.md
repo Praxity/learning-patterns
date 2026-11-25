@@ -4,5 +4,5 @@
 
 ## Quand l’éviter
 
-- Lorsque les personnes apprenantes ne peuvent pas encore répondre de mémoire ni expliquer les erreurs courantes, utilisez [Repérez l’idée fausse](../misconception/README.md), qui donne une rétroaction sur leur raisonnement.
-- Lorsque personne ne peut vérifier si les mauvaises réponses tenteraient une personne apprenante, utilisez [Vérifiez votre réponse](../self-check/README.md).
+- Lorsque les personnes apprenantes ne peuvent pas encore répondre de mémoire ni expliquer les erreurs courantes, utilisez [Repérer l’idée fausse](../misconception/README.md), qui donne une rétroaction sur leur raisonnement.
+- Lorsque personne ne peut vérifier si les mauvaises réponses tenteraient une personne apprenante, utilisez [Vérifier sa réponse](../self-check/README.md).

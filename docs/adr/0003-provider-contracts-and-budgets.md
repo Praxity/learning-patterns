@@ -49,7 +49,7 @@ The proxy accepts learner fields and asks server-owned questions. These rules re
 - `proxy/src/clef.js`, `clef`: Clef uses the System One question and answer schemas. Workers AI also needs a short model selector inside the body; its binding takes the full model id.
 - `proxy/src/cost-guard.js`, `CostGuard`: Only initial alarm setup holds the startup gate, never provider I/O.
 - `proxy/src/cost-guard.js`, `fetch`: Identical in-flight requests share a charge; unrelated keys run independently.
-- `proxy/src/cost-guard.js`, `ask`: Check and reserve both daily counters and spend in one transaction. Persist the bound before external I/O. A timeout or object restart keeps it charged, since the provider may have billed a request we never heard back from.
+- `proxy/src/cost-guard.js`, `ask`: Check and reserve both daily counters and spend in one transaction. Persist the bound before external I/O. A timeout or object restart keeps it charged, since the provider may have billed a request whose response the proxy never received.
 - `proxy/src/cost-guard.js`, `ask`: A provider 429 refuses the request before inference, so nothing was billed.
 - `proxy/src/demos/01-rubric.js`, `clefQuestions`: One candidate wording for both Clef models, also inherited by demos 16 and 17.
 - `proxy/src/demos/07-explain-back.js`, `questions`: The original pause question outperformed shorter variants on 27B train rows.

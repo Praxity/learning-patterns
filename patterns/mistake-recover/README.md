@@ -142,7 +142,7 @@ const instance = enhance(document.querySelector('[data-lp-pattern="mistake-recov
 
 ## Help improve this pattern
 
-Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Make%20a%20mistake%20and%20recover). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/mistake-recover/README.md).
+Tried it with learners? [Tell me what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Make%20a%20mistake%20and%20recover). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/mistake-recover/README.md).
 
 ## Licence
 

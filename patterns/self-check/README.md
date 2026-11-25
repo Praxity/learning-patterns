@@ -1,6 +1,6 @@
 ---
 title: Check your own answer
-title_fr: Vérifiez votre réponse
+title_fr: Vérifier sa réponse
 summary: Write an answer, tick the parts it includes, then compare with a model and hints.
 section: question
 ai: no
@@ -194,7 +194,7 @@ Copy this prompt and fill in your topic and audience.
 
 ## Help improve this pattern
 
-Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Check%20your%20own%20answer). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/self-check/README.md).
+Tried it with learners? [Tell me what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Check%20your%20own%20answer). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/self-check/README.md).
 
 ## Licence
 

@@ -5,4 +5,4 @@
 
 ## Quand l’éviter
 
-- Lorsque les valeurs exactes comptent plus que la forme d’une tendance, utilisez une question numérique avec une réponse vérifiée. Pour estimer la taille d’une quantité, utilisez [Estimez l’ordre de grandeur](../estimate-magnitude/README.md).
+- Lorsque les valeurs exactes comptent plus que la forme d’une tendance, utilisez une question numérique avec une réponse vérifiée. Pour estimer la taille d’une quantité, utilisez [Estimer l’ordre de grandeur](../estimate-magnitude/README.md).

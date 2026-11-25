@@ -132,7 +132,7 @@ Daily proxy caps show and announce the reason and midnight UTC reset once, keep 
 
 ## Help improve this pattern
 
-Tried it with learners? [Tell us what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Scenario%20talk-through). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/conversation/README.md).
+Tried it with learners? [Tell me what happened](https://github.com/Praxity/learning-patterns/issues/new?template=pattern-feedback.yml&pattern=Scenario%20talk-through). You can also [suggest a change to this page](https://github.com/Praxity/learning-patterns/edit/main/patterns/conversation/README.md).
 
 ## Licence
 

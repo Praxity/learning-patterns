@@ -6,4 +6,4 @@
 
 ## Quand l’éviter
 
-- Lorsque les valeurs ne forment pas un même total, utilisez des questions distinctes. Pour estimer des quantités indépendantes, utilisez [Estimez l’ordre de grandeur](../estimate-magnitude/README.md).
+- Lorsque les valeurs ne forment pas un même total, utilisez des questions distinctes. Pour estimer des quantités indépendantes, utilisez [Estimer l’ordre de grandeur](../estimate-magnitude/README.md).
