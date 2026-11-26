@@ -2,7 +2,7 @@
 title: Split by proportion
 title_fr: Répartir un total
 summary: Split a fixed total across a few options by dragging the dividers on one bar, then compare your split with the real one.
-section: question
+section: estimate
 ai: no
 offline: yes
 learners: not tried

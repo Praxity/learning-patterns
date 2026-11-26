@@ -1,4 +1,4 @@
-export const SECTIONS = ['question', 'reading', 'conversation', 'course', 'authors'];
+export const SECTIONS = ['choose', 'write', 'estimate', 'step-by-step', 'critique', 'simulation', 'reading', 'course'];
 const YES_NO = ['yes', 'no'];
 const REQUIRED = {
   title: null,

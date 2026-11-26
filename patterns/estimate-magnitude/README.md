@@ -2,7 +2,7 @@
 title: Estimate magnitude
 title_fr: Estimer l’ordre de grandeur
 summary: Slide a range until it holds your estimate, then see which answers your ranges caught.
-section: question
+section: estimate
 ai: no
 offline: yes
 learners: not tried

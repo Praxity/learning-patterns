@@ -2,7 +2,7 @@
 title: Hint ladder
 title_fr: Échelle d’indices
 summary: Answer a question with hints that open one at a time and a worked answer that waits for a try, then answer a second question without hints.
-section: question
+section: step-by-step
 ai: no
 offline: yes
 learners: not tried

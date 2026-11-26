@@ -2,7 +2,7 @@
 title: Check your own answer
 title_fr: Vérifier sa réponse
 summary: Write an answer, tick the parts it includes, then compare with a model and hints.
-section: question
+section: write
 ai: no
 offline: yes
 learners: not tried

@@ -2,7 +2,7 @@
 title: Finish a worked example
 title_fr: Terminer un exemple résolu
 summary: Study one fully worked case, then finish cases that leave more steps to you, until you do the last one alone.
-section: question
+section: step-by-step
 ai: no
 offline: yes
 learners: not tried

@@ -2,7 +2,7 @@
 title: Give feedback on a colleague's work
 title_fr: Donner une rétroaction sur le travail d’un collègue
 summary: Read a colleague's draft, write them feedback, tick the issues it raised, then read why each one matters.
-section: question
+section: critique
 ai: no
 offline: yes
 learners: not tried
