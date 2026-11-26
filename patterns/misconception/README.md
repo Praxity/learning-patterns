@@ -2,7 +2,7 @@
 title: Spot the misconception
 title_fr: Repérer l’idée fausse
 summary: Answer a study question and compare feedback with a model answer.
-section: question
+section: write
 ai: yes
 offline: yes
 learners: not tried

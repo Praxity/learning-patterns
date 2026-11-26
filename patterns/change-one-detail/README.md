@@ -2,7 +2,7 @@
 title: Change one detail
 title_fr: Changer un détail
 summary: Decide a case, decide again after one stated detail changes, then see which detail the rule turns on.
-section: question
+section: choose
 ai: no
 offline: yes
 learners: not tried

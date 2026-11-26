@@ -2,7 +2,7 @@
 title: Sort cases by principle
 title_fr: Classer des cas par principe
 summary: Choose which principle each short case needs, one case at a time, read what decides it, then see which principles you mixed up.
-section: question
+section: choose
 ai: no
 offline: yes
 learners: not tried

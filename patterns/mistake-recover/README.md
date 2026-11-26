@@ -2,7 +2,7 @@
 title: Make a mistake and recover
 title_fr: Faire une erreur et la rattraper
 summary: Approve or hold a request in a practice system, see what an approval costs, and take the steps that undo it.
-section: question
+section: simulation
 ai: no
 offline: yes
 learners: not tried

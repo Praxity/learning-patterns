@@ -2,7 +2,7 @@
 title: Write the wrong options
 title_fr: Rédiger les mauvaises réponses
 summary: Answer from memory, write wrong options and explain the mistaken idea behind each, then compare with the author.
-section: question
+section: write
 ai: no
 offline: yes
 learners: not tried

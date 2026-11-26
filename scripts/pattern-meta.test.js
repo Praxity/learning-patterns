@@ -1,14 +1,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readdir, readFile } from 'node:fs/promises';
-import { readMeta } from './pattern-meta.mjs';
+import { readMeta, SECTIONS } from './pattern-meta.mjs';
 import { checkFrenchSections } from '../tests/readme-checks.js';
 
 const valid = `---
 title: Check your own answer
 title_fr: Vérifier sa réponse
 summary: Write an answer, tick the parts it includes, then compare.
-section: question
+section: write
 ai: no
 offline: yes
 learners: not tried
@@ -20,7 +20,7 @@ test('reads titles, summary, section and facets', () => {
   assert.deepEqual(readMeta('x', valid), {
     title: { en: 'Check your own answer', fr: 'Vérifier sa réponse' },
     summary: 'Write an answer, tick the parts it includes, then compare.',
-    section: 'question',
+    section: 'write',
     ai: false,
     offline: true,
     learners: 'not tried'
@@ -30,7 +30,8 @@ test('reads titles, summary, section and facets', () => {
 test('refuses missing front matter, missing keys, bad values and unknown keys', () => {
   assert.throws(() => readMeta('x', '# Title\n'), /x\/README.md: missing front matter/);
   assert.throws(() => readMeta('x', valid.replace('summary: Write an answer, tick the parts it includes, then compare.\n', '')), /needs summary/);
-  assert.throws(() => readMeta('x', valid.replace('section: question', 'section: widgets')), /section must be one of/);
+  assert.throws(() => readMeta('x', valid.replace('section: write', 'section: widgets')), /section must be one of choose, write, estimate, step-by-step, critique, simulation, reading, course/);
+  assert.throws(() => readMeta('x', valid.replace('section: write', 'section: question')), /section must be one of/);
   assert.throws(() => readMeta('x', valid.replace('ai: no', 'ai: maybe')), /ai must be one of/);
   assert.throws(() => readMeta('x', valid.replace('learners: not tried', 'learners: not tried\nicon: bulb')), /unknown front matter key icon/);
 });
@@ -52,6 +53,15 @@ test('every pattern README has valid front matter', async () => {
     const readme = await readFile(new URL(`${entry.name}/README.md`, root), 'utf8');
     assert.doesNotThrow(() => readMeta(entry.name, readme), entry.name);
   }
+});
+
+test('every section groups at least one pattern, so no section is left empty', async () => {
+  const root = new URL('../patterns/', import.meta.url);
+  const used = new Set();
+  for (const entry of await readdir(root, { withFileTypes: true })) {
+    if (entry.isDirectory()) used.add(readMeta(entry.name, await readFile(new URL(`${entry.name}/README.md`, root), 'utf8')).section);
+  }
+  assert.deepEqual(SECTIONS.filter(section => !used.has(section)), []);
 });
 
 const README_SECTIONS = [

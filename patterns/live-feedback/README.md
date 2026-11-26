@@ -2,7 +2,7 @@
 title: Feedback while you type
 title_fr: De la rétroaction pendant que vous écrivez
 summary: Write a classifiable response and see a checklist update when you pause.
-section: question
+section: write
 ai: yes
 offline: yes
 learners: not tried

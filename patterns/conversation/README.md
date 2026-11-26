@@ -2,7 +2,7 @@
 title: Scenario talk-through
 title_fr: Mise en pratique dans un scénario
 summary: Practise two replies to an upset colleague and review what happened.
-section: conversation
+section: simulation
 ai: yes
 offline: yes
 learners: not tried

@@ -2,7 +2,7 @@
 title: Answer with confidence
 title_fr: Répondre avec ou sans certitude
 summary: Answer each question as sure or not sure, read feedback for the answer you chose, then see where your certainty and your results disagreed.
-section: question
+section: choose
 ai: no
 offline: yes
 learners: not tried

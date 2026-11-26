@@ -2,7 +2,7 @@
 title: Which is better, and why
 title_fr: Quelle version est la meilleure, et pourquoi
 summary: Read two versions of the same email, highlight the sentence that shows each quality or say neither does, then see the better version annotated.
-section: question
+section: critique
 ai: no
 offline: yes
 learners: not tried

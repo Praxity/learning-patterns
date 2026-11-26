@@ -2,7 +2,7 @@
 title: '"I don''t know" as an answer'
 title_fr: « Je ne sais pas » comme réponse
 summary: Answer a quiz with an "I don't know" option, then see your score, explanations and questions to review.
-section: question
+section: choose
 ai: no
 offline: yes
 learners: not tried

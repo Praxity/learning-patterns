@@ -2,7 +2,7 @@
 title: Draw your guess
 title_fr: Tracer son estimation
 summary: Set the next few points of a line chart, then see the actual line over your guess.
-section: question
+section: estimate
 ai: no
 offline: yes
 learners: not tried
